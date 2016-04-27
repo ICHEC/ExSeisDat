@@ -1,8 +1,8 @@
 #ifndef PARALLEL_GUARD 
 #define PARALLEL_GUARD
 
-#include <cstddef>
-#include <utility>
+//#include <cstddef>
+//#include <utility>
 namespace parallel
 {
 template <typename T> std::pair<T, T> distrib(T Rank, T NProcs, T WorkUnits)
