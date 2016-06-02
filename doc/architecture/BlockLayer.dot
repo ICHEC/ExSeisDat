@@ -1,0 +1,48 @@
+digraph G
+{
+    fontname = "Roboto"
+    fontsize = 12
+    node
+    [
+        fontname = "Roboto"
+        fontsize = 12
+        shape = "record"
+    ]
+    edge
+    [
+        fontname = "Roboto"
+        fontsize = 12
+    ]
+    label = "Block level"
+    subgraph clusterMPI
+    {
+        label = "MPI-IO"
+        mopen [ label = "{open}" ]
+        mclose [ label = "{close}" ]
+        mfs [ label = "{xFileSize}" ]
+        mview [ label = "{view}" ]
+        mtype [ label = "{type}" ]
+        mIO [ label = "{xIO}" ] //Async and regular
+    }
+    subgraph clusterPOSIX
+    {
+        label = "POSIX"
+        posopen [ label = "{open}" ]
+        posclose [ label = "{close}" ]
+        posfs [ label = "{xFileSize}" ]
+        posview [ label = "{view}" ]
+        postype [ label = "{type}" ]
+        posIO [ label = "{xIO}" ] //Async and regular
+    }
+    subgraph clusterNONPOS
+    {
+        label = "Non-POSIX"
+        npopen [ label = "{open}" ]
+        npclose [ label = "{close}" ]
+        npfs [ label = "{xFileSize}" ]
+        npview [ label = "{view}" ]
+        nptype [ label = "{type}" ]
+        npIO [ label = "{xIO}" ] //Async and regular
+    }
+}
+

@@ -1,0 +1,98 @@
+digraph G
+{
+     fontname = "Roboto"
+     fontsize = 12
+     node
+     [
+         fontname = "Roboto"
+         fontsize = 12
+         shape = "record"
+     ]
+     edge
+     [
+         fontname = "Roboto"
+         fontsize = 12
+     ]
+
+    subgraph clusterTrace
+    {
+        subgraph clusterFileClass
+        {
+            label = "File class"
+            con [ label = "segy()" ]
+            des [ label = "~segy()" ]
+
+            subgraph ho
+            {
+                Nt [ label = "{xetNt}" ]
+                Ns [ label = "{xetNs}" ]
+                Ds [ label = "{xetds}" ]
+            }
+            subgraph do
+            {
+                Coord [ label = "{xetCoord}" ]
+                ftrace [ label = "{xTrace}" ]
+            }
+            subgraph ops
+            { 
+                opsubset [ label = "{subset}" ]
+                opsort [ label = "sort" ]
+                opstack [ label = "stack" ]
+                ophm [ label = "headermath" ]
+                opmin [ label = "min" ]
+                opmax [ label = "max" ]
+            }
+        }
+    }
+    subgraph clusterSet
+    {
+        label = "Set API"
+        set [ label = "TraceSet()" ]
+        dset [ label = "~TraceSet()" ]
+
+        overloadplus [ label = "{+}" ]     //add set (overload)
+//        overloadminus [ label = "{-}" ]    //Remove set (overload). Would you ever want this?
+
+        subgraph sop
+        {
+            add [ label = "{add}" ]
+            rm [ label = "{rm}" ]
+            sort [ label = "sort" ]
+            stack [ label = "stack" ]
+            subset [ label = "{subset}" ]
+            trace [ label = "xetTraces" ]
+            hm [ label = "headermath" ]
+        }
+    }
+//Constructors
+    set -> con
+//Destructors
+    dset -> des 
+//Add
+    add -> con
+//rm
+    rm -> des
+//sort
+    sort -> opsort
+    sort -> Nt
+//stack
+    stack -> opstack
+//subset
+    subset -> opsubset
+    subset -> sort
+//trace
+    trace -> Nt
+    trace -> ftrace
+//hm
+    hm -> ophm
+
+    subgraph clusterExSeisPIOL
+    {
+        label = ""
+    }
+
+
+//Set overload
+//    overloadplus -> add
+}
+
