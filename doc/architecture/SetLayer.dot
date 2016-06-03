@@ -14,11 +14,12 @@ digraph G
          fontsize = 12
      ]
 
-    subgraph clusterTrace
+    subgraph clusterFileClass
     {
-        subgraph clusterFileClass
+        label = "File class"
+        subgraph clusterSEGYClass
         {
-            label = "File class"
+            label = "SEGY class"
             con [ label = "segy()" ]
             des [ label = "~segy()" ]
 
@@ -33,15 +34,16 @@ digraph G
                 Coord [ label = "{xetCoord}" ]
                 ftrace [ label = "{xTrace}" ]
             }
-            subgraph ops
-            { 
-                opsubset [ label = "{subset}" ]
-                opsort [ label = "sort" ]
-                opstack [ label = "stack" ]
-                ophm [ label = "headermath" ]
-                opmin [ label = "min" ]
-                opmax [ label = "max" ]
-            }
+        }
+        subgraph clusterOps
+        { 
+            label = "Ops class"
+            opsubset [ label = "{subset}" ]
+            opsort [ label = "sort" ]
+            opstack [ label = "stack" ]
+            ophm [ label = "headermath" ]
+            opmin [ label = "min" ]
+            opmax [ label = "max" ]
         }
     }
     subgraph clusterSet

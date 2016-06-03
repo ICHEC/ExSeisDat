@@ -16,7 +16,7 @@ digraph G
     label = "Block level"
     subgraph clusterMPI
     {
-        label = "MPI-IO"
+        label = "MPI-IO Block"
         mopen [ label = "{open}" ]
         mclose [ label = "{close}" ]
         mfs [ label = "{xFileSize}" ]
@@ -26,7 +26,7 @@ digraph G
     }
     subgraph clusterPOSIX
     {
-        label = "POSIX"
+        label = "POSIX Block"
         posopen [ label = "{open}" ]
         posclose [ label = "{close}" ]
         posfs [ label = "{xFileSize}" ]
@@ -36,7 +36,7 @@ digraph G
     }
     subgraph clusterNONPOS
     {
-        label = "Non-POSIX"
+        label = "Key-Value Block"
         npopen [ label = "{open}" ]
         npclose [ label = "{close}" ]
         npfs [ label = "{xFileSize}" ]
@@ -44,5 +44,33 @@ digraph G
         nptype [ label = "{type}" ]
         npIO [ label = "{xIO}" ] //Async and regular
     }
+    subgraph clusterParent
+    {
+        label = "Block (parent)"
+        open [ label = "{open}" ]
+        close [ label = "{close}" ]
+        fs [ label = "{xFileSize}" ]
+        view [ label = "{view}" ]
+        type [ label = "{type}" ]
+        IO [ label = "{xIO}" ] //Async and regular
+    }
+    open -> mopen
+    open -> posopen
+    open -> npopen
+    close -> mclose
+    close -> posclose
+    close -> npclose
+    fs -> mfs
+    fs -> posfs
+    fs -> npfs
+    view -> mview
+    view -> posview
+    view -> npview
+    type -> mtype
+    type -> postype
+    type -> nptype
+    IO -> mIO
+    IO -> posIO
+    IO -> npIO
 }
 

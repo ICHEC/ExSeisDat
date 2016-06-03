@@ -1,0 +1,82 @@
+digraph G
+{
+    fontname = "Roboto"
+    fontsize = 12
+    node
+    [
+        fontname = "Roboto"
+        fontsize = 12
+        shape = "record"
+    ]
+    edge
+    [
+        fontname = "Roboto"
+        fontsize = 12
+    ]
+
+    subgraph clusterObjL
+    {
+        label = "Object Layer"
+        subgraph clusterObjClass
+        {
+            label = "Object class"
+
+            open [ label = "{open}" ]
+            close [ label = "{close}" ]
+
+            HO [ label = "{xHeader}" ]
+            DOMD [ label = "{xMeta}" ]
+            DOType [ label = "{xDataObjType}" ]
+            DODF [ label = "{xData}" ]
+            DO [ label = "{xDataObj}" ]
+        }
+    }
+
+    subgraph clusterFile
+    {
+        label = "File Layer"
+        subgraph clusterInterClass
+        {
+            label = "Intermediate Class"
+            ccon [ label = "cache()" ]
+            cdes [ label = "~cache()" ]
+            cNt [ label = "{xetNt}" ] //xet
+            cNs [ label = "{xetNs}" ]
+            cDs [ label = "{xetds}" ]
+            cCoord [ label = "{xetCoord}" ]
+            cTrace [ label = "{xTrace}" ]
+        }
+        ccon -> open
+        ccon -> HO
+        cdes -> close
+        cNt -> HO
+        cNs -> HO
+        cDs -> HO
+        cCoord -> DOMD
+        cTrace -> DODF
+
+        subgraph clusterSEGYClass
+        {
+            label = "SEGY Class"
+            seg [ label = "segy()" ]
+            dseg [ label = "~segy()" ]
+            segNt [ label = "{xetNt}" ] //xet
+            segNs [ label = "{xetNs}" ]
+            segDs [ label = "{xetds}" ]
+            segCoord [ label = "{xetCoord}" ]
+            segTrace [ label = "{xTrace}" ]
+        }
+        segCoord -> DOMD
+        segCoord -> DO
+        segTrace -> DODF
+        segTrace -> DO
+        segNt -> HO
+        segNs -> HO
+        segDs -> HO
+
+        seg -> open
+        seg -> HO
+        dseg -> close
+    }
+}
+
