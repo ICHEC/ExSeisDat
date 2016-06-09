@@ -1,5 +1,7 @@
 /* ExSeisDat block test
-Initial write - cathal.obroin@ichec.ie 2016 */
+1. Initial write - cathal.obroin@ichec.ie 2016
+2. modify to use block layer - cathal - June 2016
+*/
 
 /*
     Assumptions:
@@ -15,7 +17,8 @@ Initial write - cathal.obroin@ichec.ie 2016 */
 #include <functional>
 #include <omp.h>
 #include <unistd.h>
-#include "mpiio.hh"
+#define TEST_PRIVATE
+#include "block.hh"
 #include "parallel.hh"
 using namespace PIOL;
 
@@ -37,56 +40,67 @@ void Print(int Rank, std::string Msg)
 }
 
 template <class T>
-void WriteTest(int Rank, int NumRank, std::string Name, size_t Global)
+void WriteTest(int Rank, int NumRank, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
-    auto Div = parallel::distrib<MPI_Offset>(Rank, NumRank, MPI_Offset(Global));
-    auto Sz = size_t(Div.second - Div.first);
-    std::vector<T> Data(Sz);
-    T f = T(Div.first);
+    auto Div = parallel::distrib<size_t>(Rank, NumRank, Global);
+    auto Sz = Div.second - Div.first;
+    std::cout << "Size = " << Sz << std::endl;
+
+    T * Data = new T[Sz];
+    if (!Data)
+        throw(-1);
+//    std::vector<T> Data(Sz);
 
     Print(Rank, "Data calc start\n");
-
     #pragma omp simd
     for (size_t i = 0U; i < Sz; i++)
-        Data[i] = T(i) + f; //overflow of type T is fine
+        Data[i] = fn(i + Div.first); //overflow of type T is fine
+
     MPI_Barrier(MPI_COMM_WORLD);
     if (Rank == 0)
         std::cout << "Data calc done\n";
 
-    MPI_File File = Block::MPI::open(MPI_COMM_WORLD, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_WRONLY);
-    Block::MPI::setView<T>(File);
+//I/O
 
-    Block::MPI::setFileSz(File, Global*sizeof(T));
+    std::cout << "Open File " << Name << std::endl;
+    Block::MPI::Blck<MPI_Status> out(Name);
+    out.growFile(Global*sizeof(T));
+    out.writeData<T>(Div.first, Data, Sz);
 
-    auto MPIWrite = [] (MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st) { return MPI_File_write_at(f, o, d, s, da, st); };
-    Block::MPI::MPIIO<T, MPI_Status>(MPIWrite, File, Div.first, Data);
-    MPI_File_close(&File);
+    delete[] Data;
 }
 
 template <class T>
-void ReadTest(int Rank, int NumRank, std::string Name, size_t Global)
+void ReadTest(int Rank, int NumRank, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
     auto Div = parallel::distrib<MPI_Offset>(Rank, NumRank, MPI_Offset(Global));
     auto Sz = size_t(Div.second - Div.first);
-    std::vector<T> Data(Sz);
-    MPI_File File = Block::MPI::open(MPI_COMM_WORLD, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY); // | MPI_MODE_DELETE_ON_CLOSE);
-    Block::MPI::setView<T>(File);
-    Block::MPI::MPIIO<T, MPI_Status>(MPI_File_read_at, File, Div.first, Data);
-    MPI_File_close(&File);
+    T * Data = new T[Sz];
+    if (!Data)
+        throw(-1);
 
-    int TotalFail = 0, Fail = 0;
-    auto f = T(Div.first);
+    {
+        Block::MPI::Blck<MPI_Status> in(MPI_COMM_WORLD, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
+        //Block::MPI::Blck<MPI_Status> in(Name);
+        in.readData<T>(Div.first, Data, Sz);
+    }
+    unsigned long int Fail = 0;
+    unsigned long int TotalFail = 0;
+
+//    #pragma omp simd reduction(+:Fail)
     for (size_t i = 0U; i < Sz; i++)
-        if (Data[i] != T(i) + f)
-        {
-            Fail = i;
-            break;
-        }
-        //Fail += int(Data[i] != T(i) + f);
-    if (Fail)
-        std::cout << "Fail Rank " << Rank << " " << Fail << std::endl;
-        //std::cout << "Rank " << Rank << (Fail ? " FAIL: " : " PASS: ") << Fail << std::endl;
-    // MPI_Reduce(&Fail, &TotalFail, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD)
+        if (Data[i] != fn(i + Div.first))
+            Fail++;
+
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Reduce(&Fail, &TotalFail, 1, MPI_UNSIGNED_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if (!Rank)
+        std::cout << "Test Success: " << TotalFail << std::endl;
+    
+    delete[] Data;
 }
 }
 #include <limits>
@@ -94,7 +108,11 @@ void ReadTest(int Rank, int NumRank, std::string Name, size_t Global)
 template <class T>
 T lightFunc(size_t i)
 {
-    return T(i);
+    return T(i % 1024*1024);
+}
+char charFunc(size_t i)
+{
+    return char(48U + i % 42U);
 }
 
 int heavyFunc(size_t i)
@@ -121,7 +139,7 @@ int main(int argc, char ** argv)
         return EXIT_FAILURE;
     }
 
-    int NumRank, Rank, Total;
+    int NumRank, Rank;
     Err = MPI_Init(&argc, &argv);
     Block::MPI::printErr(Err, NULL, "MPI_Init failure\n"); 
 
@@ -167,6 +185,7 @@ int main(int argc, char ** argv)
         std::cout << "Max File: " <<  pow(2, 8*sizeof(size_t) - 30) << " " << std::numeric_limits<size_t>::max() / (pow(2, 60)) << " EiB\n";
         std::cout << "Max Int File: " <<  pow(2, 8*sizeof(int) - 30) << " " << std::numeric_limits<int>::max() / (pow(2, 60)) << " EiB\n";
         std::cout << "Max Offset File: " <<  std::numeric_limits<MPI_Offset>::max() / (pow(2, 60))  << " EiB\n";
+        std::cout << "Max uint: " <<  std::numeric_limits<unsigned int>::max() << std::endl;
         std::cout << "Sz " << Sz << " elements\n";
         std::cout << "Pre-main loop\n";
         std::cout << "NumRank: "  << Rank << std::endl;
@@ -188,13 +207,15 @@ int main(int argc, char ** argv)
     {
         if (Rank == 0)
             std::cout << "Writing " << Sz << ".\n"; 
-        iotest::WriteTest<unsigned int>(Rank, NumRank, Name, Sz);
+        iotest::WriteTest<float>(Rank, NumRank, Name, Sz, lightFunc<float>);
+        //iotest::WriteTest<char>(Rank, NumRank, Name, Sz, charFunc);
     }
     if (Mode.IORead)
     {
         if (Rank == 0)
             std::cout << "Reading " << Sz << " .\n";
-        iotest::ReadTest<unsigned int>(Rank, NumRank, Name, Sz);
+       // iotest::ReadTest<char>(Rank, NumRank, Name, Sz, charFunc);
+        iotest::ReadTest<float>(Rank, NumRank, Name, Sz, lightFunc<float>);
     }
 
     if (Rank == 0 && ExtraInfo)

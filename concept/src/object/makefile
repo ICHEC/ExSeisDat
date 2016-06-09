@@ -2,7 +2,7 @@ BIN=blocktest
 
 CXX = mpicxx
 #CXX = clang
-CXXFLAGS = -fopenmp -Wall -Wextra -mtune=native -O3 -g -std=c++14 -funroll-loops  # -I../include 
+CXXFLAGS = -fopenmp -Wall -Wextra -mtune=native -O3 -g -std=c++14 -funroll-loops  -I../ 
 LDFLAGS = 
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(SOURCES:.cc=.o)
