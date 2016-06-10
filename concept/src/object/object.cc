@@ -1,4 +1,0 @@
-namespace PIOL { namespace Object {
-
-}}
-
