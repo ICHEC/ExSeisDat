@@ -18,7 +18,7 @@
 #include <omp.h>
 #include <unistd.h>
 #define TEST_PRIVATE
-#include "block.hh"
+#include "block/block.hh"
 #include "parallel.hh"
 using namespace PIOL;
 

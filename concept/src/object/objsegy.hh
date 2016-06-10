@@ -1,15 +1,15 @@
-#include <memory>
+#ifndef OBJSEGY_INCLUDE_GUARD
+#define OBJSEGY_INCLUDE_GUARD
 #include "SEGY.hh"
 #include "block/block.hh"
 
 namespace PIOL { namespace Obj { namespace SEGY {
-class ObjSEGY : public ObjectLayer
+class ObjSEGY : public PIOL::Obj::ObjectLayer
 {
-    typedef PIOL::Block::BlockLayer Bl;
-    typedef PIOL::Block::Type Bt;
-    typedef PIOL::Block::MPI::Blck<MPI_Status> mBl;
-    
-    std::unique_ptr<Bl> pBlock;
+//     typedef PIOL::Block::BlockLayer Bl;
+//     typedef PIOL::Block::Type Bt;
+//     typedef PIOL::Block::MPI::Blck<MPI_Status> mBl;
+
     public : 
     ObjSEGY(MPI_Comm comm, std::string name, Bt bType)
     {
@@ -18,56 +18,62 @@ class ObjSEGY : public ObjectLayer
             case Bt::MPI :
             default :
             {
-                pBlock = std::make_unique<mBl>(comm, name);
+                this->pBlock = std::make_unique<mBl>(comm, name);
             }
             break;
         }
 
     }
 
-    void readHO(Bl & block, char * data)
+    //Assumes float
+    static size_t getSize(size_t nt, size_t ns)
     {
-        block.readData(0, data, getMDSz());
+        return getHOSz() + nt*getDOSz<float>(ns);
+    }
+    
+    void readHO(char * data)
+    {
+        this->pBlock->readData(0, data, getHOSz());
     }
 
-    void readDO(Bl & block, size_t start, size_t sz, char * dos, size_t ns)
+    void readDO(size_t start, size_t sz, char * dos, size_t ns)
     {
-        block.readData(start, dos, sz*getDOSz<char>(ns));
+        this->pBlock->readData(start, dos, sz*getDOSz<float>(ns));
     }
 
-    void readDODF(Bl & block, size_t start, size_t sz, char ** data, size_t ns)
+    void readDODF(size_t start, size_t sz, char ** data, size_t ns)
     {
         for (size_t i = 0; i < sz; i++)
-            block.readData(getDODFLoc<char>(start+i, ns), data[i], ns);
+            this->pBlock->readData(getDODFLoc<float>(start+i, ns), data[i], ns);
     }
 
-    void readDOMD(Bl & block, size_t start, size_t sz, char ** data, size_t ns)
+    void readDOMD(size_t start, size_t sz, char ** data, size_t ns)
     {
         for (size_t i = 0; i < sz; i++)
-            block.readData(getDOLoc<char>(start+i, ns), data[i], getMDSz());
+            this->pBlock->readData(getDOLoc<float>(start+i, ns), data[i], getMDSz());
     }
 
-    void writeHO(Bl & block, char * data)
+    void writeHO(char * data)
     {
-        block.writeData(0, data, getMDSz());
+        this->pBlock->writeData(0, data, getMDSz());
     }
 
-    void writeDO(Bl & block, size_t start, size_t sz, char * dos, size_t ns)
+    void writeDO(size_t start, size_t sz, char * dos, size_t ns)
     {
-        block.writeData(start, dos, sz*getDOSz<float>(ns));
+        this->pBlock->writeData(start, dos, sz*getDOSz<float>(ns));
     }
 
-    void writeDODF(Bl & block, size_t start, size_t sz, char ** data, size_t ns)
-    {
-        for (size_t i = 0; i < sz; i++)
-            block.writeData(getDODFLoc<char>(start+i, ns), data[i], ns);
-    }
-
-    void writeDOMD(Bl & block, size_t start, size_t sz, char ** data, size_t ns)
+    void writeDODF(size_t start, size_t sz, char ** data, size_t ns)
     {
         for (size_t i = 0; i < sz; i++)
-            block.writeData(getDOLoc<char>(start+i, ns), data[i], getMDSz());
+            this->pBlock->writeData(getDODFLoc<float>(start+i, ns), data[i], ns);
+    }
+
+    void writeDOMD(size_t start, size_t sz, char ** data, size_t ns)
+    {
+        for (size_t i = 0; i < sz; i++)
+            this->pBlock->writeData(getDOLoc<float>(start+i, ns), data[i], getMDSz());
     }
 };
 }}}
-
+#endif

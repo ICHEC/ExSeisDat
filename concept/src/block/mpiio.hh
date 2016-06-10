@@ -57,7 +57,7 @@ template <typename T, typename U = MPI_Status>
 U MPIIO(Fp<U> fn, MPI_File & file, MPI_Offset offset, T * d, size_t sz)
 {
     U arg;
-    int err;
+    int err = MPI_SUCCESS;
     auto max = getLim<T>();
     MPI_Offset q = sz / max;
     MPI_Offset r = sz % max;
