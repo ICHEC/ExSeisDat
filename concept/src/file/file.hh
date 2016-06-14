@@ -39,7 +39,9 @@ enum class Coord : size_t
     Lin
 };
 
+#ifndef __ICC
 constexpr 
+#endif
 std::pair<BlockMd, BlockMd> getCoordPair(Coord pair)
 {
     switch (pair)

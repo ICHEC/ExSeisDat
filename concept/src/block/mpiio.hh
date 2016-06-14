@@ -29,7 +29,10 @@ constexpr MPI_Offset getLim()
 }
 
 template <typename T>
-constexpr MPI_Datatype Type()
+#ifndef __ICC
+constexpr
+#endif
+MPI_Datatype Type()
 {
     return (typeid(T) == typeid(double)             ? MPI_DOUBLE
          : (typeid(T) == typeid(long double)        ? MPI_LONG_DOUBLE

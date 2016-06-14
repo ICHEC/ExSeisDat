@@ -1,9 +1,7 @@
 BIN1=blocktest
 BIN2=filetest
 
-CXX= mpicxx
-#CXX = clang
-CXXFLAGS= -fopenmp -Wall -Wextra -mtune=native -O3 -g -std=c++14 -funroll-loops  -I../
+include ../compiler.cfg
 LDFLAGS= 
 OBJ1=blocktest.o ../obj/mpiio.o
 OBJ2=filetest.o ../obj/mpiio.o
