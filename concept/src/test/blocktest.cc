@@ -63,7 +63,7 @@ void WriteTest(int Rank, int NumRank, std::string Name, size_t Global, std::func
 //I/O
 
     std::cout << "Open File " << Name << std::endl;
-    Block::MPI::Blck<MPI_Status> out(Name);
+    Block::MPI::Interface<MPI_Status> out(Name);
     out.growFile(Global*sizeof(T));
     out.writeData<T>(Div.first, Data, Sz);
 
@@ -80,8 +80,8 @@ void ReadTest(int Rank, int NumRank, std::string Name, size_t Global, std::funct
         throw(-1);
 
     {
-        Block::MPI::Blck<MPI_Status> in(MPI_COMM_WORLD, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
-        //Block::MPI::Blck<MPI_Status> in(Name);
+        Block::MPI::Interface<MPI_Status> in(MPI_COMM_WORLD, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
+        //Block::MPI::Interface<MPI_Status> in(Name);
         in.readData<T>(Div.first, Data, Sz);
     }
     unsigned long int Fail = 0;

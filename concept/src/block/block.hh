@@ -4,12 +4,12 @@
 #include <mpi.h>
 namespace PIOL { namespace Block {
 
-class BlockLayer
+class Interface
 {
     protected :
     MPI_Comm comm;
     public :
-    BlockLayer(MPI_Comm Comm) : comm(Comm)
+    Interface(MPI_Comm Comm) : comm(Comm)
     {
 
     }
@@ -18,9 +18,9 @@ class BlockLayer
     virtual void setView(size_t) = 0;
 
     virtual void readData(size_t, float *, size_t) = 0;
-    virtual void readData(size_t, char *, size_t) = 0;
+    virtual void readData(size_t, unsigned char *, size_t) = 0;
     virtual void writeData(size_t, float *, size_t) = 0;
-    virtual void writeData(size_t, char *, size_t) = 0;
+    virtual void writeData(size_t, unsigned char *, size_t) = 0;
 };
 enum class Type
 {

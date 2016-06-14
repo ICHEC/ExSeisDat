@@ -10,14 +10,12 @@ auto file_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
     return MPI_File_write_at(f, o, d, s, da, st);
 }
 
-
 template <typename U>
-class Blck : public BlockLayer
+class Interface : public PIOL::Block::Interface
 {
 #ifdef TEST_PRIVATE
     public :
 #endif
-
 
     MPI_File file;
     Fp<U> ifn;
@@ -42,9 +40,9 @@ class Blck : public BlockLayer
     public :
 #endif
 
-    Blck(MPI_Comm Comm, std::string name, 
+    Interface(MPI_Comm Comm, std::string name, 
          Fp<U> Ifn = MPI_File_read_at,
-         Fp<U> Ofn = file_write_at) : BlockLayer(Comm), ifn(Ifn), ofn(Ofn)
+         Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
         //Try write mode
         file = open(Comm, name, MPI_MODE_EXCL | MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_WRONLY);
@@ -65,11 +63,11 @@ class Blck : public BlockLayer
         }
     }
     //Blck(std::string name, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = MPI_File_write_at)
-    Blck(std::string name)
-         : Blck(MPI_COMM_WORLD, name)
+    Interface(std::string name)
+         : Interface(MPI_COMM_WORLD, name)
     {
     }
-    Blck(MPI_Comm Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : BlockLayer(Comm), ifn(Ifn), ofn(Ofn)
+    Interface(MPI_Comm Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
         file = open(comm, name, mode);
         if (file != MPI_FILE_NULL)
@@ -77,7 +75,7 @@ class Blck : public BlockLayer
         else
             std::cerr << "Fatal Abort\n";
     }
-    ~Blck(void)
+    ~Interface(void)
     {
         std::cout << "Close file\n";
         MPI_File_close(&file);
@@ -94,24 +92,24 @@ class Blck : public BlockLayer
     void setView(size_t offset = 0)
     {
         std::cout << " Set view\n";
-        MPI::setView<char>(file, MPI_Offset(offset));
+        MPI::setView<unsigned char>(file, MPI_Offset(offset));
     }
 
     void readData(size_t o, float * f, size_t s)
     {
         return readData<float>(o, f, s);
     }
-    void readData(size_t o, char * c, size_t s)
+    void readData(size_t o, unsigned char * c, size_t s)
     {
-        return readData<char>(o, c, s);
+        return readData<unsigned char>(o, c, s);
     }
     void writeData(size_t o, float * f, size_t s)
     {
         return writeData<float>(o, f, s);
     }
-    void writeData(size_t o, char * c, size_t s)
+    void writeData(size_t o, unsigned char * c, size_t s)
     {
-        return writeData<char>(o, c, s);
+        return writeData<unsigned char>(o, c, s);
     }
 };
 }}}

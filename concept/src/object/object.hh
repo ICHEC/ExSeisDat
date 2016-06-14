@@ -3,12 +3,12 @@
 #include <memory>
 #include "block/block.hh"
 namespace PIOL { namespace Obj {
-class ObjectLayer
+class Interface
 {
     protected :
-    typedef PIOL::Block::BlockLayer Bl;
+    typedef PIOL::Block::Interface Bl;
     typedef PIOL::Block::Type Bt;
-    typedef PIOL::Block::MPI::Blck<MPI_Status> mBl;
+    typedef PIOL::Block::MPI::Interface<MPI_Status> mBl;
     std::unique_ptr<Bl> pBlock;
     public :
     static size_t getSize(size_t nt, size_t ns) __attribute__((pure));
@@ -17,18 +17,17 @@ class ObjectLayer
     {
         return pBlock->getFileSz();
     }
-    virtual void readHO(char * data) = 0;
-    virtual void readDO(size_t start, size_t sz, char * dos, size_t ns) = 0;
-    virtual void readDODF(size_t start, size_t sz, char ** data, size_t ns) = 0;
-    virtual void readDOMD(size_t start, size_t sz, char ** data, size_t ns) = 0;
+    virtual void readHO(unsigned char * data) = 0;
+    virtual void readDO(size_t start, size_t sz, unsigned char * dos, size_t ns) = 0;
+    virtual void readDODF(size_t start, size_t sz, unsigned char * data, size_t ns) = 0;
+    virtual void readDOMD(size_t start, size_t sz, unsigned char * data, size_t ns) = 0;
 
-    virtual void writeHO(char * data) = 0;
-    virtual void writeDO(size_t start, size_t sz, char * dos, size_t ns) = 0;
-    virtual void writeDODF(size_t start, size_t sz, char ** data, size_t ns) = 0;
-    virtual void writeDOMD(size_t start, size_t sz, char ** data, size_t ns) = 0;
+    virtual void writeHO(unsigned char * data) = 0;
+    virtual void writeDO(size_t start, size_t sz, unsigned char * dos, size_t ns) = 0;
+    virtual void writeDODF(size_t start, size_t sz, unsigned char * data, size_t ns) = 0;
+    virtual void writeDOMD(size_t start, size_t sz, unsigned char * data, size_t ns) = 0;
 };
 }}
-
 #include "objsegy.hh"
 #endif
 
