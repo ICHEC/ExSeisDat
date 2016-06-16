@@ -65,12 +65,16 @@ U MPIIO(Fp<U> fn, MPI_File & file, MPI_Offset offset, T * d, size_t sz)
     MPI_Offset q = sz / max;
     MPI_Offset r = sz % max;
 
+#ifdef DEBUG
     std::cout << "off = " << offset << " q = " << q << " r = " << r << "r+q*max = " << r+q*max << std::endl 
              << "max = " << max << " sz " << sz << "tsize " << sizeof(T) << std::endl;
+#endif
 
     for (MPI_Offset i = 0; i < q; i++)
     {
+#ifdef DEBUG
         std::cout << " fn(file, " << offset + i*max << ", &d[i*max], " << max << ", Type<T>(), &arg);\n";
+#endif
         err = fn(file, offset + i*max, &d[i*max], max, Type<T>(), &arg);
         if (err != MPI_SUCCESS)
             break;
@@ -78,7 +82,9 @@ U MPIIO(Fp<U> fn, MPI_File & file, MPI_Offset offset, T * d, size_t sz)
 
     if (err == MPI_SUCCESS)
     {
+#ifdef DEBUG
         std::cout << " fn(file, " << offset + q*max << ", &d[q*max], " << r << ", Type<T>(), &arg);\n";
+#endif
         err = fn(file, offset + q*max, &d[q*max], r, Type<T>(), &arg);
     }
     else

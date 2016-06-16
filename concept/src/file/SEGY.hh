@@ -26,6 +26,14 @@ T makeInt(unsigned char * src)
            (static_cast<T>(src[2]) << 8) |
             static_cast<T>(src[3]); 
 }
+template <typename T = int>
+T makeHostEndian(T src)
+{
+    return (0x000F & src) << 24 |
+           (0x00F0 & src) << 8 |
+           (0x0F00 & src) >> 8 |
+           (0xF000 & src) >> 24; 
+}
 
 enum Format : short
 {
@@ -38,6 +46,8 @@ enum Format : short
     NA2,
     TC1    //Two's complement, 1 byte
 };
+
+
 
 enum class Hdr : size_t
 {
@@ -61,8 +71,10 @@ enum class TrHdr : size_t
     ERROR = 0
 };
 
-
-constexpr TrHdr getItem(BlockMd val)
+#ifndef __ICC
+constexpr
+#endif
+TrHdr getItem(BlockMd val)
 {
     switch (val)
     {
@@ -168,7 +180,7 @@ class Interface : public PIOL::File::Interface
         getTraceHeader();
     }
 
-    void getCoord(size_t start, std::pair<BlockMd, BlockMd> items, std::vector<std::pair<real, real>> & data)
+    void getCoord(size_t start, CoordPair items, std::vector<CoordData> & data)
     {
         TrHdr md1 = getItem(items.first);
         TrHdr md2 = getItem(items.second);
@@ -177,28 +189,60 @@ class Interface : public PIOL::File::Interface
         size_t mds = Obj::getMDSz();
         std::vector<unsigned char> dos(num * mds);
         obj.readDOMD(start, num, dos.data(), ns);
-        std::cout << "\n\n\n\n";
+
         for (size_t i = 0; i < num; i++)
         {
             int val1 = getMd(md1, &dos[i*mds]);
             int val2 = getMd(md2, &dos[i*mds]);
             real scale = getTraceScale(&dos[i*mds]);
 
-            data[i] = std::make_pair<real, real>(real(scale*val1), real(scale*val2));
+            data[i] = std::make_pair(real(scale*val1), real(scale*val2));
         }
     }
     
-    void getCoord(size_t start, Coord coord, std::vector<std::pair<real, real>> & data)
+    void getAllCoords(size_t start, std::vector<CoordArray> & data)
     {
-        getCoord(start, getCoordPair(coord), data);
+        size_t num = data.size();
+        size_t mds = Obj::getMDSz();
+        std::vector<unsigned char> dos(num * mds);
+        obj.readDOMD(start, num, dos.data(), ns);
+
+        for (size_t i = 0; i < num; i++)
+        {
+            real scale = getTraceScale(&dos[i*mds]);
+            for (size_t j = 0; j < static_cast<size_t>(Coord::Len); j++)
+            {
+                auto p = getCoordPair(static_cast<Coord>(j));
+                int val1 = getMd(getItem(p.first), &dos[i*mds]);
+                int val2 = getMd(getItem(p.second), &dos[i*mds]);
+                data[i][j] = std::make_pair(real(scale*val1), real(scale*val2));
+            }
+        }
     }
+
+    void getCoord(size_t offset, Coord coord, std::vector<CoordData> & data)
+    {
+        getCoord(offset, getCoordPair(coord), data);
+    }
+
     void setCoord()
     {
     }
-    //void getTraces(size_t start, Coord coord, T ** data)
-    void getTraces()
+
+    void getTraces(size_t offset, std::vector<real> & data)
     {
+        size_t num = data.size() / ns;
+        obj.readDODF(offset, num, data.data(), ns);
     }
+
+    void getTraces(std::vector<size_t> & offset, std::vector<real> & data)
+    {
+        for (size_t i = 0; i < data.size(); i++)
+        {
+            obj.readDODF(offset[i], 1, &data[i*ns], ns);
+        }
+    }
+
     void setTraces()
     {
     }

@@ -1,5 +1,6 @@
 #ifndef OBJSEGY_INCLUDE_GUARD
 #define OBJSEGY_INCLUDE_GUARD
+
 #include "SEGY.hh"
 #include "block/block.hh"
 
@@ -37,7 +38,7 @@ class Interface : public PIOL::Obj::Interface
         this->pBlock->readData(start, dos, sz*getDOSz<float>(ns));
     }
 
-    void readDODF(size_t start, size_t sz, unsigned char * data, size_t ns)
+    void readDODF(size_t start, size_t sz, float * data, size_t ns)
     {
         for (size_t i = 0; i < sz; i++)
             this->pBlock->readData(getDODFLoc<float>(start+i, ns), &data[i*ns], ns);
@@ -59,7 +60,7 @@ class Interface : public PIOL::Obj::Interface
         this->pBlock->writeData(start, dos, sz*getDOSz<float>(ns));
     }
 
-    void writeDODF(size_t start, size_t sz, unsigned char * data, size_t ns)
+    void writeDODF(size_t start, size_t sz, float * data, size_t ns)
     {
         for (size_t i = 0; i < sz; i++)
             this->pBlock->writeData(getDODFLoc<float>(start+i, ns), &data[i*ns], ns);

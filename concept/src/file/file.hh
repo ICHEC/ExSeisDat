@@ -1,6 +1,7 @@
 #ifndef PIOLFILEFILE_INCLUDE_GUARD
 #define PIOLFILEFILE_INCLUDE_GUARD
 #include <vector>
+#include <array>
 #include <cassert>
 #include <utility>
 #include <string>
@@ -28,6 +29,8 @@ enum class BlockMd : size_t
     yCDP,
     iLin,
     xLin,
+
+    Len,
     ERROR
 };
 
@@ -36,28 +39,10 @@ enum class Coord : size_t
     Src,
     Rcv,
     Cmp,
-    Lin
+    Lin,
+    Len
 };
 
-#ifndef __ICC
-constexpr 
-#endif
-std::pair<BlockMd, BlockMd> getCoordPair(Coord pair)
-{
-    switch (pair)
-    {
-        case Coord::Src :
-            return std::make_pair<BlockMd, BlockMd>(BlockMd::xSrc, BlockMd::ySrc);
-        case Coord::Rcv :
-            return std::make_pair<BlockMd, BlockMd>(BlockMd::xRcv, BlockMd::yRcv);
-        case Coord::Cmp :
-            return std::make_pair<BlockMd, BlockMd>(BlockMd::xCDP, BlockMd::yCDP);
-        case Coord::Lin :
-            return std::make_pair<BlockMd, BlockMd>(BlockMd::iLin, BlockMd::xLin);
-        default : 
-            return std::make_pair<BlockMd, BlockMd>(BlockMd::ERROR, BlockMd::ERROR);
-    }
-}
 class Interface
 {
     protected:
@@ -67,8 +52,9 @@ class Interface
     size_t nt;
     public :
 
-    typedef std::vector<std::pair<real, real> > CoordData;
+    typedef std::pair<real, real> CoordData;
     typedef std::pair<BlockMd, BlockMd> CoordPair;
+    typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
 
     size_t getNs()
     {
@@ -82,12 +68,41 @@ class Interface
     {
         return inc;
     }
-    virtual void getCoord(size_t, CoordPair Items, CoordData & data) = 0;
-    virtual void getCoord(size_t start, Coord coord, CoordData & data) = 0;
+
+    virtual void getCoord(size_t, CoordPair, std::vector<CoordData> &) = 0;
+    virtual void getCoord(size_t, Coord, std::vector<CoordData> &) = 0;
+    virtual void getAllCoords(size_t start, std::vector<CoordArray> & data) = 0;
+
     virtual void setCoord() = 0;
-    virtual void getTraces() = 0;
+
+//Contiguous Block
+    virtual void getTraces(size_t, std::vector<real> &) = 0;
+//Random access pattern. Good candidate for collective.
+    virtual void getTraces(std::vector<size_t> &, std::vector<real> &) = 0;
+
     virtual void setTraces() = 0;
 };
+
+#ifndef __ICC
+constexpr 
+#endif
+Interface::CoordPair getCoordPair(Coord pair)
+{
+    switch (pair)
+    {
+        case Coord::Src :
+            return std::make_pair(BlockMd::xSrc, BlockMd::ySrc);
+        case Coord::Rcv :
+            return std::make_pair(BlockMd::xRcv, BlockMd::yRcv);
+        case Coord::Cmp :
+            return std::make_pair(BlockMd::xCDP, BlockMd::yCDP);
+        case Coord::Lin :
+            return std::make_pair(BlockMd::iLin, BlockMd::xLin);
+        default : 
+            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
+    }
+}
+
 #include "SEGY.hh"
 }}
 #endif

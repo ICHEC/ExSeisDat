@@ -26,13 +26,11 @@ class Interface : public PIOL::Block::Interface
     template <typename T>
     void readData(size_t offset, T * d, size_t sz)
     {
-        std::cout << "getter\n";
         MPIIO<T>(ifn, file, MPI_Offset(offset), d, MPI_Offset(sz));
     }
     template <typename T>
     void writeData(size_t offset, T * d, size_t sz)
     {
-        std::cout << "setter\n";
         MPIIO<T>(ofn, file, MPI_Offset(offset), d, MPI_Offset(sz));
     }
 

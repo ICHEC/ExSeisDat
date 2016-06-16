@@ -1,3 +1,5 @@
+#ifndef PIOLOBJSEGY_GUARD
+#define PIOLOBJSEGY_GUARD
 //Concept test. Naive implementations
 #include <vector>
 #include <cassert>
@@ -50,5 +52,6 @@ inline size_t getDODFLoc(size_t i, size_t ns)
 {
     return getDOLoc<T>(i, ns) + getMDSz();
 }
-}}}
 
+}}}
+#endif
