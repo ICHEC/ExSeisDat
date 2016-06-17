@@ -24,11 +24,11 @@ std::pair<size_t, size_t> getMPIDecomp(size_t num)
 
 void getTestCoords(File::Interface & file)
 {
-    auto decomp = getMPIDecomp(file.getNt());
+    auto decomp = getMPIDecomp(file.readNt());
 
     std::vector<Interface::CoordData> coord(decomp.second);
 
-    file.getCoord(decomp.first, PIOL::File::Coord::Lin, coord);
+    file.readCoord(decomp.first, PIOL::File::Coord::Lin, coord);
 
 //TODO: Perform test here
 
@@ -45,10 +45,10 @@ void getTestCoords(File::Interface & file)
 
 std::vector<Interface::CoordArray> getAllCoords(File::Interface & file)
 {
-    auto decomp = getMPIDecomp(file.getNt());
+    auto decomp = getMPIDecomp(file.readNt());
 
     std::vector<Interface::CoordArray> allCoords(decomp.second);
-    file.getAllCoords(decomp.first, allCoords);
+    file.readAllCoords(decomp.first, allCoords);
     return allCoords;
 
 //TODO: Perform test here
@@ -122,15 +122,15 @@ extern void ibm2ieee( void *to, const void *from, long long);
 //TODO: Check about data copy cost
 std::vector<real> getAllData(File::Interface & file)
 {
-    auto decomp = getMPIDecomp(file.getNt());
-    std::vector<real> data(decomp.second * file.getNs());
-    file.getTraces(0, data);
+    auto decomp = getMPIDecomp(file.readNt());
+    std::vector<real> data(decomp.second * file.readNs());
+    file.readTraces(0, data);
 //TODO: omp target
-    for (size_t i = 0; i < file.getNs(); i++)
+    for (size_t i = 0; i < file.readNs(); i++)
     {
-        for (size_t j = 0; j < data.size() / file.getNs(); j++)
+        for (size_t j = 0; j < data.size() / file.readNs(); j++)
         {
-            ibm2ieee(&data[j*file.getNs() + i], &data[j*file.getNs() + i], 1);
+            ibm2ieee(&data[j*file.readNs() + i], &data[j*file.readNs() + i], 1);
         }
     }
     return data;
@@ -170,9 +170,9 @@ std::vector<real> getAllData(File::Interface & file)
 
 void testPolymorphismGets(File::Interface & file)
 {
-    std::cout << "nt " << file.getNt() << std::endl;
-    std::cout << "ns " << file.getNs() << std::endl;
-    std::cout << "increment " << file.getInc() << std::endl;
+    std::cout << "nt " << file.readNt() << std::endl;
+    std::cout << "ns " << file.readNs() << std::endl;
+    std::cout << "increment " << file.readInc() << std::endl;
     getTestCoords(file);
     getAllCoords(file);
 //    TestData(file);
@@ -182,9 +182,9 @@ void copyTestPolymorphism(File::Interface & out, File::Interface & in)
 {
     auto coords = getAllCoords(in);
     auto data = getAllData(in);
-    auto header = in.getHeader();
+    auto header = in.readHeader();
 
-    out.setFile(header, coords, data);
+    out.writeFile(header, coords, data);
 
 //    TestData(file);
 

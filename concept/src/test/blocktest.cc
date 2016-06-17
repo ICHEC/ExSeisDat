@@ -182,7 +182,7 @@ int main(int argc, char ** argv)
     }
 
     if (ExtraInfo)
-        for (int i = 0; i < comm->getNumRank(); i++)
+        for (size_t i = 0; i < comm->getNumRank(); i++)
         {
             if (i == comm->getRank())
             {

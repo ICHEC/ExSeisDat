@@ -180,7 +180,7 @@ class Interface : public PIOL::File::Interface
         parseHO(buf);
     }
 
-    void getCoord(size_t start, CoordPair items, std::vector<CoordData> & data)
+    void readCoord(size_t start, CoordPair items, std::vector<CoordData> & data)
     {
         TrHdr md1 = getItem(items.first);
         TrHdr md2 = getItem(items.second);
@@ -200,7 +200,7 @@ class Interface : public PIOL::File::Interface
         }
     }
     
-    void getAllCoords(size_t start, std::vector<CoordArray> & data)
+    void readAllCoords(size_t start, std::vector<CoordArray> & data)
     {
         size_t num = data.size();
         size_t mds = Obj::SEGY::getMDSz();
@@ -220,22 +220,22 @@ class Interface : public PIOL::File::Interface
         }
     }
 
-    void getCoord(size_t offset, Coord coord, std::vector<CoordData> & data)
+    void readCoord(size_t offset, Coord coord, std::vector<CoordData> & data)
     {
-        getCoord(offset, getCoordPair(coord), data);
+        readCoord(offset, getCoordPair(coord), data);
     }
 
-    void setCoord()
+    void writeCoord()
     {
     }
 
-    void getTraces(size_t offset, std::vector<real> & data)
+    void readTraces(size_t offset, std::vector<real> & data)
     {
         size_t num = data.size() / ns;
         obj->readDODF(offset, num, data.data(), ns);
     }
 
-    void getTraces(std::vector<size_t> & offset, std::vector<real> & data)
+    void readTraces(std::vector<size_t> & offset, std::vector<real> & data)
     {
         for (size_t i = 0; i < data.size(); i++)
         {
@@ -243,7 +243,7 @@ class Interface : public PIOL::File::Interface
         }
     }
 
-    void setTraces()
+    void writeTraces()
     {
     }
 };

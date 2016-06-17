@@ -6,5 +6,5 @@ all:
 	(cd test; make)
 
 clean:
-	rm obj/*.o test/*.o
+	rm obj/*.o test/*.o test/blocktest test/filetest
 

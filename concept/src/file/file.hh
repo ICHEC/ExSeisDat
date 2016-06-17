@@ -66,6 +66,8 @@ class Interface
 
     std::shared_ptr<Comms::Interface> comm;
     std::unique_ptr<Obj::Interface> obj;
+
+    bool defHOUpdate;
     public :
 
     typedef std::pair<real, real> CoordData;
@@ -76,89 +78,98 @@ class Interface
     {
 
     }
-    Header getHeader()
+    ~Interface(void)
+    {
+        //TODO:
+        if (defHOUpdate)
+        {
+        }
+    }
+    Header readHeader()
     {
         Header header;
-        header.note = getNote();
-        header.ns = getNs();
-        header.nt = getNt();
-        header.inc = getInc();
+        header.note = readNote();
+        header.ns = readNs();
+        header.nt = readNt();
+        header.inc = readInc();
         return header;
     }
-    virtual std::string getNote()
+    virtual std::string readNote()
     {
         return note;
     }
-    virtual size_t getNs()
+    virtual size_t readNs()
     {
         return ns;
     }
-    virtual size_t getNt()
+    virtual size_t readNt()
     {
         return nt;
     }
-    virtual real getInc()
+    virtual real readInc()
     {
         return inc;
     }
 
-    void setHeader(Header & header)
+    void writeHeader(Header & header)
     {
-        setNote(header.note);
-        setNs(header.ns, false);
-        setNt(header.nt, false);
-        setInc(header.inc);
+        writeNote(header.note);
+        writeNs(header.ns);
+        writeNt(header.nt);
+        writeInc(header.inc);
         checkFileSize();
+
+        //Whether this was true or false, considering
+        //we just wrote the HO, it's not deferred
+        defHOUpdate = false;
     }
 
-    virtual void setNote(std::string Note)
+    virtual void writeNote(std::string Note)
     {
         note = Note;
+        defHOUpdate = true;
     }
-    virtual void setNs(size_t Ns, bool updateFile = true)
+    virtual void writeNs(size_t Ns)
     {
         ns = Ns;
-        if (updateFile)
-            checkFileSize();
+        defHOUpdate = true;
     }
-    virtual void setNt(size_t Nt, bool updateFile = true)
+    virtual void writeNt(size_t Nt)
     {
         nt = Nt;
-        if (updateFile)
-            checkFileSize();
+        defHOUpdate = true;
     }
-    virtual void setInc(real Inc)
+    virtual void writeInc(real Inc)
     {
         inc = Inc;
     }
-    virtual void getCoord(size_t, CoordPair, std::vector<CoordData> &) = 0;
-    virtual void getCoord(size_t, Coord, std::vector<CoordData> &) = 0;
-    virtual void getAllCoords(size_t, std::vector<CoordArray> &) = 0;
+    virtual void readCoord(size_t, CoordPair, std::vector<CoordData> &) = 0;
+    virtual void readCoord(size_t, Coord, std::vector<CoordData> &) = 0;
+    virtual void readAllCoords(size_t, std::vector<CoordArray> &) = 0;
 
-    virtual void setCoord() = 0;
+    virtual void writeCoord() = 0;
 
 //Contiguous Block
-    virtual void getTraces(size_t, std::vector<real> &) = 0;
+    virtual void readTraces(size_t, std::vector<real> &) = 0;
 //Random access pattern. Good candidate for collective.
-    virtual void getTraces(std::vector<size_t> &, std::vector<real> &) = 0;
-    virtual void setTraces() = 0;
+    virtual void readTraces(std::vector<size_t> &, std::vector<real> &) = 0;
+    virtual void writeTraces() = 0;
 
     void checkFileSize()
     {
-        if (obj->getFileSz() != obj->getSize(getNt(), getNs()))
+        if (obj->getFileSz() != obj->getSize(readNt(), readNs()))
         {
-            obj->setFileSz(getNt(), getNs());
+            obj->setFileSz(readNt(), readNs());
         }
     }
-    void setFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
+    void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
     {
         assert((coord.size() == data.size() / header.ns) && (header.nt*header.ns == data.size()));
-
+        writeHeader(header);
     }
-    void getFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
+    void readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
     {
-
-
+        header = readHeader();
     }
 };
 
