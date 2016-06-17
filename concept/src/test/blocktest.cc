@@ -41,9 +41,9 @@ void Print(size_t Rank, std::string Msg)
 }
 
 template <class T>
-void WriteTest(Comms::MPI & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
+void WriteTest(std::shared_ptr<Comms::MPI> comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
-    auto Div = parallel::distrib<size_t>(comm.getRank(), comm.getNumRank(), Global);
+    auto Div = parallel::distrib<size_t>(comm->getRank(), comm->getNumRank(), Global);
     auto Sz = Div.second - Div.first;
     std::cout << "Size = " << Sz << std::endl;
 
@@ -52,13 +52,13 @@ void WriteTest(Comms::MPI & comm, std::string Name, size_t Global, std::function
         throw(-1);
 //    std::vector<T> Data(Sz);
 
-    Print(comm.getRank(), "Data calc start\n");
+    Print(comm->getRank(), "Data calc start\n");
     #pragma omp simd
     for (size_t i = 0U; i < Sz; i++)
         Data[i] = fn(i + Div.first); //overflow of type T is fine
 
     MPI_Barrier(MPI_COMM_WORLD);
-    if (comm.getRank() == 0)
+    if (comm->getRank() == 0)
         std::cout << "Data calc done\n";
 
 //I/O
@@ -71,9 +71,9 @@ void WriteTest(Comms::MPI & comm, std::string Name, size_t Global, std::function
 }
 
 template <class T>
-void ReadTest(Comms::MPI & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
+void ReadTest(std::shared_ptr<Comms::MPI> comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
-    auto Div = parallel::distrib<size_t>(comm.getRank(), comm.getNumRank(), Global);
+    auto Div = parallel::distrib<size_t>(comm->getRank(), comm->getNumRank(), Global);
     auto Sz = size_t(Div.second - Div.first);
     T * Data = new T[Sz];
     if (!Data)
@@ -95,7 +95,7 @@ void ReadTest(Comms::MPI & comm, std::string Name, size_t Global, std::function<
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Reduce(&Fail, &TotalFail, 1, MPI_UNSIGNED_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    if (!comm.getRank())
+    if (!comm->getRank())
         std::cout << "Test Success: " << TotalFail << std::endl;
     
     delete[] Data;
@@ -131,7 +131,7 @@ int main(int argc, char ** argv)
     int ExtraInfo = 0, Err;
     IOMode Mode = {0, 0}; //Default on
 
-    Comms::MPI comm(MPI_COMM_WORLD);
+    auto comm = std::make_shared<Comms::MPI>(MPI_COMM_WORLD);
 
     if (argc < 3)
     {
@@ -170,7 +170,7 @@ int main(int argc, char ** argv)
             Mode.IOWrite = 1;
         }
 
-    if (comm.getRank() == 0 && ExtraInfo)
+    if (comm->getRank() == 0 && ExtraInfo)
     {
         std::cout << "Max File: " <<  pow(2, 8*sizeof(size_t) - 30) << " " << std::numeric_limits<size_t>::max() / (pow(2, 60)) << " EiB\n";
         std::cout << "Max Int File: " <<  pow(2, 8*sizeof(int) - 30) << " " << std::numeric_limits<int>::max() / (pow(2, 60)) << " EiB\n";
@@ -178,37 +178,37 @@ int main(int argc, char ** argv)
         std::cout << "Max uint: " <<  std::numeric_limits<unsigned int>::max() << std::endl;
         std::cout << "Sz " << Sz << " elements\n";
         std::cout << "Pre-main loop\n";
-        std::cout << "Rank: "  << comm.getNumRank() << std::endl;
+        std::cout << "Rank: "  << comm->getNumRank() << std::endl;
     }
 
     if (ExtraInfo)
-        for (int i = 0; i < comm.getNumRank(); i++)
+        for (int i = 0; i < comm->getNumRank(); i++)
         {
-            if (i == comm.getRank())
+            if (i == comm->getRank())
             {
                 char gName[1024];
                 gethostname(gName, 1024);
-                std::cout << comm.getRank() << " " << gName << std::endl;
+                std::cout << comm->getRank() << " " << gName << std::endl;
             }
             MPI_Barrier(MPI_COMM_WORLD);
         }
 
     if (Mode.IOWrite)
     {
-        if (comm.getRank() == 0)
+        if (comm->getRank() == 0)
             std::cout << "Writing " << Sz << ".\n"; 
         iotest::WriteTest<float>(comm, Name, Sz, lightFunc<float>);
         //iotest::WriteTest<char>(Rank, NumRank, Name, Sz, charFunc);
     }
     if (Mode.IORead)
     {
-        if (comm.getRank() == 0)
+        if (comm->getRank() == 0)
             std::cout << "Reading " << Sz << " .\n";
        // iotest::ReadTest<char>(Rank, NumRank, Name, Sz, charFunc);
         iotest::ReadTest<float>(comm, Name, Sz, lightFunc<float>);
     }
 
-    if (comm.getRank() == 0 && ExtraInfo)
+    if (comm->getRank() == 0 && ExtraInfo)
         std::cout << "Terminating\n";
 
     return EXIT_SUCCESS;

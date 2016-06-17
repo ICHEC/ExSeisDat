@@ -198,16 +198,19 @@ int main(int argc, char ** argv)
     std::string outFile(argv[2]);
 
     //MPI Init
-    Comms::MPI comm(MPI_COMM_WORLD);
+    auto comm = std::make_shared<Comms::MPI>(MPI_COMM_WORLD);
 
-    std::cout << "Open file " << inFile << std::endl;
+    std::cout << "In file " << inFile << std::endl;
 
     File::SEGY::Interface seg(comm, inFile, PIOL::Block::Type::MPI);
 
     testPolymorphismGets(seg); 
     
+    std::cout << "Out file " << outFile << std::endl;
+
     File::SEGY::Interface out(comm, outFile, PIOL::Block::Type::MPI);
     copyTestPolymorphism(out, seg);
+    std::cout << "Terminate" << std::endl;
     return 0;
 }
 

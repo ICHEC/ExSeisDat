@@ -39,11 +39,11 @@ class Interface : public PIOL::Block::Interface
     public :
 #endif
 
-    Interface(Comms::MPI & Comm, std::string name, 
+    Interface(std::shared_ptr<Comms::MPI> Comm, std::string name, 
          Fp<U> Ifn = MPI_File_read_at,
          Fp<U> Ofn = file_write_at) : Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
-        mcomm = comm.getComm();
+        mcomm = comm->getComm();
         //Try write mode
         file = open(mcomm, name, MPI_MODE_EXCL | MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_WRONLY);
 
@@ -66,9 +66,9 @@ class Interface : public PIOL::Block::Interface
          : Interface(MPI_COMM_WORLD, name)
     {
     }*/
-    Interface(Comms::Interface & Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
+    Interface(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
-        mcomm = comm.getComm();
+        mcomm = comm->getComm();
         file = open(mcomm, name, mode);
         if (file != MPI_FILE_NULL)
             setView();

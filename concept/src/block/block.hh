@@ -1,6 +1,6 @@
 #ifndef PIOLBLOCKLAYER_INCLUDE_GUARD
 #define PIOLBLOCKLAYER_INCLUDE_GUARD
-
+#include <memory>
 #include <mpi.h>
 #include "comm/comm.hh"
 namespace PIOL { namespace Block {
@@ -8,9 +8,9 @@ namespace PIOL { namespace Block {
 class Interface
 {
     protected :
-    Comms::Interface & comm;
+    std::shared_ptr<Comms::Interface> comm;
     public :
-    Interface(Comms::Interface & Comm) : comm(Comm)
+    Interface(std::shared_ptr<Comms::Interface> Comm) : comm(Comm)
     {
 
     }

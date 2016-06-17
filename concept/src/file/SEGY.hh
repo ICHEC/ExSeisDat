@@ -171,7 +171,7 @@ class Interface : public PIOL::File::Interface
     
     public :
 
-    Interface(Comms::Interface & Comm, std::string name, Bt bType) : File::Interface::Interface(Comm)
+    Interface(std::shared_ptr<Comms::Interface> Comm, std::string name, Bt bType) : File::Interface::Interface(Comm)
     {
         obj = std::unique_ptr<Obj::Interface>(new Obj::SEGY::Interface(comm, name, bType));
 

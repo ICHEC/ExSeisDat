@@ -64,7 +64,7 @@ class Interface
     size_t rank;
     size_t numRank;
 
-    Comms::Interface & comm;
+    std::shared_ptr<Comms::Interface> comm;
     std::unique_ptr<Obj::Interface> obj;
     public :
 
@@ -72,7 +72,7 @@ class Interface
     typedef std::pair<BlockMd, BlockMd> CoordPair;
     typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
 
-    Interface(Comms::Interface & Comm) : comm(Comm)
+    Interface(std::shared_ptr<Comms::Interface> Comm) : comm(Comm)
     {
 
     }

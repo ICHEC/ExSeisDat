@@ -1,6 +1,6 @@
 #ifndef OBJSEGY_INCLUDE_GUARD
 #define OBJSEGY_INCLUDE_GUARD
-
+#include <memory>
 #include "comm/mpi.hh"
 #include "object/object.hh"
 #include "object/SEGY.hh"
@@ -11,7 +11,7 @@ class Interface : public PIOL::Obj::Interface
 {
     typedef PIOL::Block::MPI::Interface<MPI_Status> mBl;
     public : 
-    Interface(Comms::Interface & comm, std::string name, Bt bType)
+    Interface(std::shared_ptr<Comms::Interface> comm, std::string name, Bt bType)
     {
         switch (bType)
         {
@@ -19,7 +19,7 @@ class Interface : public PIOL::Obj::Interface
             default :
             {
                 //Make sure we are using MPI as our communicator for MPI-IO to make sense
-                auto mpicomm = dynamic_cast<Comms::MPI &>(comm);
+                auto mpicomm = std::dynamic_pointer_cast<Comms::MPI>(comm);
                 block = std::make_unique<mBl>(mpicomm, name);
             }
             break;
