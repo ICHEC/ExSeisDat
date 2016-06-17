@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 #include <mpi.h>
-#include "object/object.hh"
+#include "object/objsegy.hh"
 #include "file/file.hh"
 namespace PIOL { namespace File { namespace SEGY {
 
@@ -146,38 +146,38 @@ T getMd(Hdr val, unsigned char * buf)
     }
 }
 
-namespace Obj = PIOL::Obj::SEGY;
+///namespace Obj = PIOL::Obj::SEGY;
 
 class Interface : public PIOL::File::Interface
 {
     typedef PIOL::Block::Type Bt;
 
     Format format;
-    Obj::Interface obj;
     size_t scale;
     
-    void getTraceHeader()
+    void parseHO(std::vector<unsigned char> & buf)
     {
-        std::vector<unsigned char> buf(Obj::getHOSz());
-        obj.readHO(buf.data());
         format = static_cast<Format>(getMd(Hdr::Type, buf.data()));
         ns = getMd(Hdr::NumSample, buf.data());
         inc = real(getMd(Hdr::Increment, buf.data())) * MICRO;
 
-        size_t fsz = obj.getFileSz();
-
-        nt = (fsz - Obj::getHOSz()) / Obj::getDOSz<float>(ns);
+        size_t fsz = obj->getFileSz();
+        nt = (fsz - Obj::SEGY::getHOSz()) / Obj::SEGY::getDOSz<float>(ns);
 
         assert(ns != 0);
-        assert(fsz - nt*Obj::getDOSz<float>(ns) - Obj::getHOSz() == 0); 
-        assert(fsz - obj.getSize(nt, ns) == 0);
+        assert(fsz - nt*Obj::SEGY::getDOSz<float>(ns) - Obj::SEGY::getHOSz() == 0); 
+        assert(fsz - obj->getSize(nt, ns) == 0);
     }
     
     public :
 
-    Interface(MPI_Comm comm, std::string name, Bt bType) : obj(comm, name, bType)
+    Interface(Comms::Interface & Comm, std::string name, Bt bType) : File::Interface::Interface(Comm)
     {
-        getTraceHeader();
+        obj = std::unique_ptr<Obj::Interface>(new Obj::SEGY::Interface(comm, name, bType));
+
+        std::vector<unsigned char> buf(Obj::SEGY::getHOSz());
+        obj->readHO(buf.data());
+        parseHO(buf);
     }
 
     void getCoord(size_t start, CoordPair items, std::vector<CoordData> & data)
@@ -186,9 +186,9 @@ class Interface : public PIOL::File::Interface
         TrHdr md2 = getItem(items.second);
 
         size_t num = data.size();
-        size_t mds = Obj::getMDSz();
+        size_t mds = Obj::SEGY::getMDSz();
         std::vector<unsigned char> dos(num * mds);
-        obj.readDOMD(start, num, dos.data(), ns);
+        obj->readDOMD(start, num, dos.data(), ns);
 
         for (size_t i = 0; i < num; i++)
         {
@@ -203,9 +203,9 @@ class Interface : public PIOL::File::Interface
     void getAllCoords(size_t start, std::vector<CoordArray> & data)
     {
         size_t num = data.size();
-        size_t mds = Obj::getMDSz();
+        size_t mds = Obj::SEGY::getMDSz();
         std::vector<unsigned char> dos(num * mds);
-        obj.readDOMD(start, num, dos.data(), ns);
+        obj->readDOMD(start, num, dos.data(), ns);
 
         for (size_t i = 0; i < num; i++)
         {
@@ -232,14 +232,14 @@ class Interface : public PIOL::File::Interface
     void getTraces(size_t offset, std::vector<real> & data)
     {
         size_t num = data.size() / ns;
-        obj.readDODF(offset, num, data.data(), ns);
+        obj->readDODF(offset, num, data.data(), ns);
     }
 
     void getTraces(std::vector<size_t> & offset, std::vector<real> & data)
     {
         for (size_t i = 0; i < data.size(); i++)
         {
-            obj.readDODF(offset[i], 1, &data[i*ns], ns);
+            obj->readDODF(offset[i], 1U, &data[i*ns], ns);
         }
     }
 

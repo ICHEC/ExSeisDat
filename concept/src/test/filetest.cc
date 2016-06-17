@@ -5,7 +5,7 @@
 #include <utility>
 #include "file/SEGY.hh"
 #include "parallel.hh"
-
+#include "comm/mpi.hh"
 using namespace PIOL;
 using PIOL::File::Interface;
 
@@ -48,9 +48,8 @@ std::vector<Interface::CoordArray> getAllCoords(File::Interface & file)
     auto decomp = getMPIDecomp(file.getNt());
 
     std::vector<Interface::CoordArray> allCoords(decomp.second);
-
     file.getAllCoords(decomp.first, allCoords);
-    return allCords;
+    return allCoords;
 
 //TODO: Perform test here
 /*    for (size_t i = 0; i < allCoords.size(); i++)
@@ -120,8 +119,10 @@ T makeHostEndian(T d)
            (0xF000 & src.i) >> 24; 
 }*/
 extern void ibm2ieee( void *to, const void *from, long long);
-void getAllData(File::Interface & file)
+//TODO: Check about data copy cost
+std::vector<real> getAllData(File::Interface & file)
 {
+    auto decomp = getMPIDecomp(file.getNt());
     std::vector<real> data(decomp.second * file.getNs());
     file.getTraces(0, data);
 //TODO: omp target
@@ -129,9 +130,10 @@ void getAllData(File::Interface & file)
     {
         for (size_t j = 0; j < data.size() / file.getNs(); j++)
         {
-            ibm2ieee(&test, &data[j*file.getNs() + i], 1);
+            ibm2ieee(&data[j*file.getNs() + i], &data[j*file.getNs() + i], 1);
         }
     }
+    return data;
     //for (size_t i = 0; i < file.getNs(); i++)
 /*    size_t i = 128;
     {
@@ -166,13 +168,13 @@ void getAllData(File::Interface & file)
     }*/
 }
 
-void getTestPolymorphism(File::Interface & file)
+void testPolymorphismGets(File::Interface & file)
 {
     std::cout << "nt " << file.getNt() << std::endl;
     std::cout << "ns " << file.getNs() << std::endl;
     std::cout << "increment " << file.getInc() << std::endl;
     getTestCoords(file);
-    getTestAllCoords(file);
+    getAllCoords(file);
 //    TestData(file);
 }
 
@@ -180,8 +182,10 @@ void copyTestPolymorphism(File::Interface & out, File::Interface & in)
 {
     auto coords = getAllCoords(in);
     auto data = getAllData(in);
+    auto header = in.getHeader();
 
-    setAllDO(out, coords, data);
+    out.setFile(header, coords, data);
+
 //    TestData(file);
 
 //    out = in;
@@ -189,24 +193,21 @@ void copyTestPolymorphism(File::Interface & out, File::Interface & in)
 
 int main(int argc, char ** argv)
 {
+    assert(argc > 2);
+    std::string inFile(argv[1]);
+    std::string outFile(argv[2]);
+
     //MPI Init
-    int err = MPI_Init(&argc, &argv);
-    Block::MPI::printErr(err, NULL, "MPI_Init failure\n"); 
+    Comms::MPI comm(MPI_COMM_WORLD);
 
-    assert(argc > 1);
-    std::cout << "Open file " << argv[1] << std::endl;
-    
-    File::SEGY::Interface seg(MPI_COMM_WORLD, argv[1], PIOL::Block::Type::MPI);
+    std::cout << "Open file " << inFile << std::endl;
 
-    TestPolymorphism(seg); 
-    
-    File::SEGY::Interface out(MPI_COMM_WORLD, argv[2], PIOL::Block::Type::MPI);
-    copyTest(out, seg);
-    
-    //MPI Finalize
-    err = MPI_Finalize();
-    Block::MPI::printErr(err, NULL, "MPI_Finalize failure\n");
+    File::SEGY::Interface seg(comm, inFile, PIOL::Block::Type::MPI);
 
+    testPolymorphismGets(seg); 
+    
+    File::SEGY::Interface out(comm, outFile, PIOL::Block::Type::MPI);
+    copyTestPolymorphism(out, seg);
     return 0;
 }
 

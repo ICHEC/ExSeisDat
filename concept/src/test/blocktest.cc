@@ -20,6 +20,7 @@
 #define TEST_PRIVATE
 #include "block/block.hh"
 #include "parallel.hh"
+#include "comm/mpi.hh"
 using namespace PIOL;
 
 namespace iotest
@@ -33,16 +34,16 @@ enum : size_t
     GMax
 };
 
-void Print(int Rank, std::string Msg)
+void Print(size_t Rank, std::string Msg)
 {
     if (!Rank)
         std::cout << Msg << std::endl;
 }
 
 template <class T>
-void WriteTest(int Rank, int NumRank, std::string Name, size_t Global, std::function<T(size_t)> fn)
+void WriteTest(Comms::Interface & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
-    auto Div = parallel::distrib<size_t>(Rank, NumRank, Global);
+    auto Div = parallel::distrib<size_t>(comm.getRank(), comm.getNumRank(), Global);
     auto Sz = Div.second - Div.first;
     std::cout << "Size = " << Sz << std::endl;
 
@@ -51,36 +52,35 @@ void WriteTest(int Rank, int NumRank, std::string Name, size_t Global, std::func
         throw(-1);
 //    std::vector<T> Data(Sz);
 
-    Print(Rank, "Data calc start\n");
+    Print(comm.getRank(), "Data calc start\n");
     #pragma omp simd
     for (size_t i = 0U; i < Sz; i++)
         Data[i] = fn(i + Div.first); //overflow of type T is fine
 
     MPI_Barrier(MPI_COMM_WORLD);
-    if (Rank == 0)
+    if (comm.getRank() == 0)
         std::cout << "Data calc done\n";
 
 //I/O
-
     std::cout << "Open File " << Name << std::endl;
-    Block::MPI::Interface<MPI_Status> out(Name);
-    out.growFile(Global*sizeof(T));
+    Block::MPI::Interface<MPI_Status> out(comm, Name);
+    out.setFileSz(Global*sizeof(T));
     out.writeData<T>(Div.first, Data, Sz);
 
     delete[] Data;
 }
 
 template <class T>
-void ReadTest(int Rank, int NumRank, std::string Name, size_t Global, std::function<T(size_t)> fn)
+void ReadTest(Comms::Interface & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
-    auto Div = parallel::distrib<MPI_Offset>(Rank, NumRank, MPI_Offset(Global));
+    auto Div = parallel::distrib<size_t>(comm.getRank(), comm.getNumRank(), Global);
     auto Sz = size_t(Div.second - Div.first);
     T * Data = new T[Sz];
     if (!Data)
         throw(-1);
 
     {
-        Block::MPI::Interface<MPI_Status> in(MPI_COMM_WORLD, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
+        Block::MPI::Interface<MPI_Status> in(comm, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
         //Block::MPI::Interface<MPI_Status> in(Name);
         in.readData<T>(Div.first, Data, Sz);
     }
@@ -92,12 +92,10 @@ void ReadTest(int Rank, int NumRank, std::string Name, size_t Global, std::funct
         if (Data[i] != fn(i + Div.first))
             Fail++;
 
-
     MPI_Barrier(MPI_COMM_WORLD);
-
     MPI_Reduce(&Fail, &TotalFail, 1, MPI_UNSIGNED_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    if (!Rank)
+    if (!comm.getRank())
         std::cout << "Test Success: " << TotalFail << std::endl;
     
     delete[] Data;
@@ -139,15 +137,7 @@ int main(int argc, char ** argv)
         return EXIT_FAILURE;
     }
 
-    int NumRank, Rank;
-    Err = MPI_Init(&argc, &argv);
-    Block::MPI::printErr(Err, NULL, "MPI_Init failure\n"); 
-
-    Err = MPI_Comm_rank(MPI_COMM_WORLD, &Rank);
-    Block::MPI::printErr(Err, NULL, "MPI_Comm_rank failure\n"); 
-
-    MPI_Comm_size(MPI_COMM_WORLD, &NumRank);
-    Block::MPI::printErr(Err, NULL, "MPI_Comm_size failure\n"); 
+    Comms::MPI comm(MPI_COMM_WORLD);
 
     std::string Name(argv[1]);
     size_t Sz;
@@ -180,7 +170,7 @@ int main(int argc, char ** argv)
             Mode.IOWrite = 1;
         }
 
-    if (Rank == 0 && ExtraInfo)
+    if (comm.getRank() == 0 && ExtraInfo)
     {
         std::cout << "Max File: " <<  pow(2, 8*sizeof(size_t) - 30) << " " << std::numeric_limits<size_t>::max() / (pow(2, 60)) << " EiB\n";
         std::cout << "Max Int File: " <<  pow(2, 8*sizeof(int) - 30) << " " << std::numeric_limits<int>::max() / (pow(2, 60)) << " EiB\n";
@@ -188,42 +178,38 @@ int main(int argc, char ** argv)
         std::cout << "Max uint: " <<  std::numeric_limits<unsigned int>::max() << std::endl;
         std::cout << "Sz " << Sz << " elements\n";
         std::cout << "Pre-main loop\n";
-        std::cout << "NumRank: "  << Rank << std::endl;
+        std::cout << "Rank: "  << comm.getNumRank() << std::endl;
     }
 
     if (ExtraInfo)
-        for (int i = 0; i < NumRank; i++)
+        for (int i = 0; i < comm.getNumRank(); i++)
         {
-            if (i == Rank)
+            if (i == comm.getRank())
             {
                 char gName[1024];
                 gethostname(gName, 1024);
-                std::cout << Rank << " " << gName << std::endl;
+                std::cout << comm.getRank() << " " << gName << std::endl;
             }
             MPI_Barrier(MPI_COMM_WORLD);
         }
 
     if (Mode.IOWrite)
     {
-        if (Rank == 0)
+        if (comm.getRank() == 0)
             std::cout << "Writing " << Sz << ".\n"; 
-        iotest::WriteTest<float>(Rank, NumRank, Name, Sz, lightFunc<float>);
+        iotest::WriteTest<float>(comm, Name, Sz, lightFunc<float>);
         //iotest::WriteTest<char>(Rank, NumRank, Name, Sz, charFunc);
     }
     if (Mode.IORead)
     {
-        if (Rank == 0)
+        if (comm.getRank() == 0)
             std::cout << "Reading " << Sz << " .\n";
        // iotest::ReadTest<char>(Rank, NumRank, Name, Sz, charFunc);
-        iotest::ReadTest<float>(Rank, NumRank, Name, Sz, lightFunc<float>);
+        iotest::ReadTest<float>(comm, Name, Sz, lightFunc<float>);
     }
 
-    if (Rank == 0 && ExtraInfo)
+    if (comm.getRank() == 0 && ExtraInfo)
         std::cout << "Terminating\n";
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    Err = MPI_Finalize();
-    Block::MPI::printErr(Err, NULL, "MPI_Finalize failure\n"); 
 
     return EXIT_SUCCESS;
 }

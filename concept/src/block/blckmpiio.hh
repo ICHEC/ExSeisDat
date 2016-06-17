@@ -18,9 +18,10 @@ class Interface : public PIOL::Block::Interface
 #endif
 
     MPI_File file;
+    MPI_Comm comm;
     Fp<U> ifn;
     Fp<U> ofn;
-
+    MPI_Comm mcomm;
     public : //HACK
 
     template <typename T>
@@ -38,17 +39,17 @@ class Interface : public PIOL::Block::Interface
     public :
 #endif
 
-    Interface(MPI_Comm Comm, std::string name, 
+    Interface(Comms::Interface & Comm, std::string name, 
          Fp<U> Ifn = MPI_File_read_at,
-         Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
+         Fp<U> Ofn = file_write_at) : Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
         //Try write mode
-        file = open(Comm, name, MPI_MODE_EXCL | MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_WRONLY);
+        file = open(mcomm, name, MPI_MODE_EXCL | MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_WRONLY);
 
         //Write mode failed, try read mode
         if (file == MPI_FILE_NULL)
         {
-            file = open(this->comm, name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
+            file = open(mcomm, name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
         }
         if (file != MPI_FILE_NULL)
         {
@@ -60,14 +61,13 @@ class Interface : public PIOL::Block::Interface
             exit(-1);
         }
     }
-    //Blck(std::string name, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = MPI_File_write_at)
-    Interface(std::string name)
+/*    Interface(std::string name)
          : Interface(MPI_COMM_WORLD, name)
     {
-    }
-    Interface(MPI_Comm Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
+    }*/
+    Interface(Comms::Interface & Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
-        file = open(comm, name, mode);
+        file = open(mcomm, name, mode);
         if (file != MPI_FILE_NULL)
             setView();
         else
@@ -82,7 +82,7 @@ class Interface : public PIOL::Block::Interface
     {
         return MPI::getFileSz(file);
     }
-    void growFile(size_t sz)
+    void setFileSz(size_t sz)
     {
         std::cout << " Set file size\n";
         MPI::growFile(file, MPI_Offset(sz));

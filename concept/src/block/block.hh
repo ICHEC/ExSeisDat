@@ -2,18 +2,19 @@
 #define PIOLBLOCKLAYER_INCLUDE_GUARD
 
 #include <mpi.h>
+#include "comm/comm.hh"
 namespace PIOL { namespace Block {
 
 class Interface
 {
     protected :
-    MPI_Comm comm;
+    Comms::Interface & comm;
     public :
-    Interface(MPI_Comm Comm) : comm(Comm)
+    Interface(Comms::Interface & Comm) : comm(Comm)
     {
 
     }
-    virtual void growFile(size_t) = 0;
+    virtual void setFileSz(size_t) = 0;
     virtual size_t getFileSz() = 0;
     virtual void setView(size_t) = 0;
 
