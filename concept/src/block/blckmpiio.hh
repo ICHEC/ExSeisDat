@@ -2,6 +2,7 @@
 #define PIOLBLOCKMPI_INCLUDE_GUARD
 #include <mpi.h>
 #include "mpiio.hh"
+#include "comm/mpi.hh"
 
 namespace PIOL { namespace Block { namespace MPI {
 
@@ -18,7 +19,6 @@ class Interface : public PIOL::Block::Interface
 #endif
 
     MPI_File file;
-    MPI_Comm comm;
     Fp<U> ifn;
     Fp<U> ofn;
     MPI_Comm mcomm;
@@ -39,10 +39,11 @@ class Interface : public PIOL::Block::Interface
     public :
 #endif
 
-    Interface(Comms::Interface & Comm, std::string name, 
+    Interface(Comms::MPI & Comm, std::string name, 
          Fp<U> Ifn = MPI_File_read_at,
          Fp<U> Ofn = file_write_at) : Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
+        mcomm = comm.getComm();
         //Try write mode
         file = open(mcomm, name, MPI_MODE_EXCL | MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_WRONLY);
 
@@ -67,6 +68,7 @@ class Interface : public PIOL::Block::Interface
     }*/
     Interface(Comms::Interface & Comm, std::string name, int mode, Fp<U> Ifn = MPI_File_read_at, Fp<U> Ofn = file_write_at) : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
     {
+        mcomm = comm.getComm();
         file = open(mcomm, name, mode);
         if (file != MPI_FILE_NULL)
             setView();

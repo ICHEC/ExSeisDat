@@ -41,7 +41,7 @@ void Print(size_t Rank, std::string Msg)
 }
 
 template <class T>
-void WriteTest(Comms::Interface & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
+void WriteTest(Comms::MPI & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
     auto Div = parallel::distrib<size_t>(comm.getRank(), comm.getNumRank(), Global);
     auto Sz = Div.second - Div.first;
@@ -71,7 +71,7 @@ void WriteTest(Comms::Interface & comm, std::string Name, size_t Global, std::fu
 }
 
 template <class T>
-void ReadTest(Comms::Interface & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
+void ReadTest(Comms::MPI & comm, std::string Name, size_t Global, std::function<T(size_t)> fn)
 {
     auto Div = parallel::distrib<size_t>(comm.getRank(), comm.getNumRank(), Global);
     auto Sz = size_t(Div.second - Div.first);
@@ -131,13 +131,13 @@ int main(int argc, char ** argv)
     int ExtraInfo = 0, Err;
     IOMode Mode = {0, 0}; //Default on
 
+    Comms::MPI comm(MPI_COMM_WORLD);
+
     if (argc < 3)
     {
         std::cerr << "Insufficient number of arguments\n";
         return EXIT_FAILURE;
     }
-
-    Comms::MPI comm(MPI_COMM_WORLD);
 
     std::string Name(argv[1]);
     size_t Sz;

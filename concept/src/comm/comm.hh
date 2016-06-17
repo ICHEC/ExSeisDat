@@ -17,6 +17,7 @@ class Interface
     {
         return numRank;
     }
+    virtual int getComm() = 0;
 };
 
 }

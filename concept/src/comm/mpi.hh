@@ -16,7 +16,7 @@ class MPI : public Comms::Interface
         {
             //Quote from MPI 3.1 specification: "The version for ISO C accepts the argc and argv that are provided by the arguments to main or NULL"
             int err = MPI_Init(NULL, NULL);
-            Block::MPI::printErr(err, NULL, "MPI_Init failure\n"); 
+            //PIOL::Block::MPI::printErr(err, NULL, "MPI_Init failure\n"); 
         }
         int irank;
         int inumRank;
@@ -30,8 +30,12 @@ class MPI : public Comms::Interface
         if (init)
         {
             int err = MPI_Finalize();
-            Block::MPI::printErr(err, NULL, "MPI_Finalize failure\n");
+            //PIOL::Block::MPI::printErr(err, NULL, "MPI_Finalize failure\n");
         }
+    }
+    MPI_Comm getComm()
+    {
+        return comm;
     }
 };
 

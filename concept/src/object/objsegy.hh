@@ -1,6 +1,7 @@
 #ifndef OBJSEGY_INCLUDE_GUARD
 #define OBJSEGY_INCLUDE_GUARD
 
+#include "comm/mpi.hh"
 #include "object/object.hh"
 #include "object/SEGY.hh"
 #include "block/blckmpiio.hh"
@@ -17,7 +18,9 @@ class Interface : public PIOL::Obj::Interface
             case Bt::MPI :
             default :
             {
-                block = std::make_unique<mBl>(comm, name);
+                //Make sure we are using MPI as our communicator for MPI-IO to make sense
+                auto mpicomm = dynamic_cast<Comms::MPI &>(comm);
+                block = std::make_unique<mBl>(mpicomm, name);
             }
             break;
         }
