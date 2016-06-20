@@ -56,7 +56,7 @@ class Interface : public PIOL::Obj::Interface
 
     void writeHO(unsigned char * data)
     {
-        block->writeData(0, data, getMDSz());
+        block->writeData(0, data, getHOSz());
     }
 
     void writeDO(size_t start, size_t sz, unsigned char * dos, size_t ns)

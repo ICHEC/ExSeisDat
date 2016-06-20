@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <utility>
+#include "global.hh"
 #include "file/SEGY.hh"
 #include "parallel.hh"
 #include "comm/mpi.hh"
@@ -19,7 +20,7 @@ std::pair<size_t, size_t> getMPIDecomp(size_t num)
     auto decomp = parallel::distrib<size_t>(size_t(rank), size_t(numRank), num);
     //TODO: Check decomp.second > decomp.first
 
-    return std::make_pair(decomp.second-decomp.first, decomp.first);
+    return std::make_pair(decomp.first, decomp.second-decomp.first);
 }
 
 void getTestCoords(File::Interface & file)
@@ -43,12 +44,12 @@ void getTestCoords(File::Interface & file)
 */
 }
 
-std::vector<Interface::CoordArray> getAllCoords(File::Interface & file)
+std::vector<Interface::CoordArray> getCoords(File::Interface & file)
 {
     auto decomp = getMPIDecomp(file.readNt());
 
     std::vector<Interface::CoordArray> allCoords(decomp.second);
-    file.readAllCoords(decomp.first, allCoords);
+    file.readCoord(decomp.first, allCoords);
     return allCoords;
 
 //TODO: Perform test here
@@ -120,7 +121,7 @@ T makeHostEndian(T d)
 }*/
 extern void ibm2ieee( void *to, const void *from, long long);
 //TODO: Check about data copy cost
-std::vector<real> getAllData(File::Interface & file)
+std::vector<real> getAllTraces(File::Interface & file)
 {
     auto decomp = getMPIDecomp(file.readNt());
     std::vector<real> data(decomp.second * file.readNs());
@@ -133,6 +134,7 @@ std::vector<real> getAllData(File::Interface & file)
             ibm2ieee(&data[j*file.readNs() + i], &data[j*file.readNs() + i], 1);
         }
     }
+    std::cout << "getAllTraces First " << data[0] << std::endl;
     return data;
     //for (size_t i = 0; i < file.getNs(); i++)
 /*    size_t i = 128;
@@ -174,17 +176,23 @@ void testPolymorphismGets(File::Interface & file)
     std::cout << "ns " << file.readNs() << std::endl;
     std::cout << "increment " << file.readInc() << std::endl;
     getTestCoords(file);
-    getAllCoords(file);
+    getCoords(file);
 //    TestData(file);
 }
 
 void copyTestPolymorphism(File::Interface & out, File::Interface & in)
 {
-    auto coords = getAllCoords(in);
-    auto data = getAllData(in);
+    std::cout << "Copy Data\n";
     auto header = in.readHeader();
+    auto coords = getCoords(in);
+    auto traces = getAllTraces(in);
 
-    out.writeFile(header, coords, data);
+    out.writeHeader(header);
+    std::cout << "Write header done\n";
+
+    out.writeCoord(coords);
+    out.writeTraces(traces);
+    //out.writeFile(header, coords, data);
 
 //    TestData(file);
 

@@ -20,8 +20,8 @@ class MPI : public Comms::Interface
         }
         int irank;
         int inumRank;
-        MPI_Comm_rank(Comm, &irank);
-        MPI_Comm_size(Comm, &inumRank);
+        MPI_Comm_rank(comm, &irank);
+        MPI_Comm_size(comm, &inumRank);
         rank = irank;
         numRank = inumRank;
     }

@@ -10,7 +10,7 @@ namespace PIOL { namespace Block { namespace MPI {
 
 extern MPI_File open(MPI_Comm, std::string, int);
 extern size_t getFileSz(MPI_File);
-extern void growFile(MPI_File, size_t);
+extern void setFileSz(MPI_File, size_t);
 extern void printErr(int, MPI_Status *, std::string);
 
 template <typename U>
@@ -45,10 +45,10 @@ MPI_Datatype Type()
          : (typeid(T) == typeid(long long int)      ? MPI_LONG_LONG_INT
          : (typeid(T) == typeid(float)              ? MPI_FLOAT
          : (typeid(T) == typeid(signed short)       ? MPI_SHORT
-         : (typeid(T) == typeid(unsigned short)     ?  MPI_UNSIGNED_SHORT
+         : (typeid(T) == typeid(unsigned short)     ? MPI_UNSIGNED_SHORT
          : MPI_BYTE))))))))))));
 }
-template <class T, class U=T>
+template <typename T, typename U=T>
 void setView(MPI_File file, MPI_Offset offset = 0)
 {
     MPI_Info info = MPI_INFO_NULL;

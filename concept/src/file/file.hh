@@ -11,7 +11,6 @@
 #include "object/object.hh"
 #include "comm/comm.hh"
 namespace PIOL { 
-typedef float real;
 namespace File {
 enum class Md : size_t
 {
@@ -68,6 +67,14 @@ class Interface
     std::unique_ptr<Obj::Interface> obj;
 
     bool defHOUpdate;
+    void checkFileSize()
+    {
+        if (obj->getFileSz() != obj->getSize(readNt(), readNs()))
+        {
+            obj->setFileSz(readNt(), readNs());
+        }
+    }
+
     public :
 
     typedef std::pair<real, real> CoordData;
@@ -111,18 +118,7 @@ class Interface
         return inc;
     }
 
-    void writeHeader(Header & header)
-    {
-        writeNote(header.note);
-        writeNs(header.ns);
-        writeNt(header.nt);
-        writeInc(header.inc);
-        checkFileSize();
-
-        //Whether this was true or false, considering
-        //we just wrote the HO, it's not deferred
-        defHOUpdate = false;
-    }
+    virtual void writeHeader(Header header) = 0;
 
     virtual void writeNote(std::string Note)
     {
@@ -143,25 +139,46 @@ class Interface
     {
         inc = Inc;
     }
-    virtual void readCoord(size_t, CoordPair, std::vector<CoordData> &) = 0;
-    virtual void readCoord(size_t, Coord, std::vector<CoordData> &) = 0;
-    virtual void readAllCoords(size_t, std::vector<CoordArray> &) = 0;
 
-    virtual void writeCoord() = 0;
-
-//Contiguous Block
-    virtual void readTraces(size_t, std::vector<real> &) = 0;
+    virtual void readCoord(size_t offset, CoordPair items, std::vector<CoordData> & data) = 0;
+    virtual void readCoord(size_t offset, std::vector<CoordArray> & data) = 0;
+    virtual void readCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
+    virtual void writeCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
+    virtual void writeCoord(size_t offset, std::vector<CoordArray> & data) = 0;
+    virtual void readTraces(size_t offset, std::vector<real> & data) = 0;
 //Random access pattern. Good candidate for collective.
-    virtual void readTraces(std::vector<size_t> &, std::vector<real> &) = 0;
-    virtual void writeTraces() = 0;
+    virtual void readTraces(std::vector<size_t> & offset, std::vector<real> & data) = 0;
+    virtual void writeTraces(size_t offset, std::vector<real> & data) = 0;
 
-    void checkFileSize()
+    inline void readCoord(CoordPair items, std::vector<CoordData> & data)
     {
-        if (obj->getFileSz() != obj->getSize(readNt(), readNs()))
-        {
-            obj->setFileSz(readNt(), readNs());
-        }
+        readCoord(0U, items, data);
     }
+    inline void readCoord(std::vector<CoordArray> & data)
+    {
+        readCoord(0U, data);
+    }
+    inline void readCoord(Coord coord, std::vector<CoordData> & data)
+    {
+        readCoord(0U, coord, data);
+    }
+    inline void writeCoord(Coord coord, std::vector<CoordData> & data)
+    {
+        writeCoord(0U, coord, data);
+    }
+    inline void writeCoord(std::vector<CoordArray> & data)
+    {
+        writeCoord(0U, data);
+    }
+    inline void readTraces(std::vector<real> & data)
+    {
+        readTraces(0U, data);
+    }
+    inline void writeTraces(std::vector<real> & data)
+    {
+        writeTraces(0U, data);
+    }
+
     void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
     {
         assert((coord.size() == data.size() / header.ns) && (header.nt*header.ns == data.size()));
@@ -192,7 +209,5 @@ Interface::CoordPair getCoordPair(Coord pair)
             return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
     }
 }
-
-#include "SEGY.hh"
 }}
 #endif

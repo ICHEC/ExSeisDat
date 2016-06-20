@@ -87,7 +87,7 @@ class Interface : public PIOL::Block::Interface
     void setFileSz(size_t sz)
     {
         std::cout << " Set file size\n";
-        MPI::growFile(file, MPI_Offset(sz));
+        MPI::setFileSz(file, MPI_Offset(sz));
     }
     void setView(size_t offset = 0)
     {

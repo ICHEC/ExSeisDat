@@ -10,9 +10,7 @@
 namespace PIOL { namespace Obj { namespace SEGY {
 enum class SZ : size_t
 {
-    BinHdr = 400,
-    TextHdr = 3200,
-    HO = BinHdr+TextHdr,
+    HO = 3600,
     Md = 240
 };
 
@@ -21,12 +19,7 @@ enum class SZ : size_t
     buf.resize(HdrSz);
     block.getData(0, buf.data(), buf.size());
 }*/
-/*
-    *data = new T * [sz];
-    *data[0] = new T [sz*cnt];
-    for (size_t i = 0; i < sz; i++)
-        *data[i] = &(*data)[0][i*cnt];
-*/
+
 constexpr size_t getMDSz()
 {
     return static_cast<size_t>(SZ::Md);

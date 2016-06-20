@@ -40,7 +40,7 @@ size_t getFileSz(MPI_File file)
     return size_t(fsz);
 }
 
-void growFile(MPI_File file, size_t sz)
+void setFileSz(MPI_File file, size_t sz)
 {
     int err = MPI_File_set_size(file, sz);
     Block::MPI::printErr(err, NULL, "Error resizing file\n");
