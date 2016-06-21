@@ -1,5 +1,5 @@
-#ifndef COMM_INCLUDE_GUARD
-#define COMM_INCLUDE_GUARD
+#ifndef PIOLCOMM_INCLUDE_GUARD
+#define PIOLCOMM_INCLUDE_GUARD
 namespace PIOL {
 namespace Comms
 {

@@ -213,7 +213,7 @@ void print(std::vector<char> str)
 ////////////////////////////////////////////////////////////////////////////////
 void SEGY::parseHO(std::vector<uchar> & buf)
 {
-    iconvert ic;
+    IConvert ic;
     std::vector<char> tnote(getNoteSz());
     for (size_t i = 0; i < getNoteSz(); i++)
         tnote[i] = buf[i];

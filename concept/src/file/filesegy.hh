@@ -2,13 +2,7 @@
 #define PIOLFILESEGY_INCLUDE_GUARD
 #include <vector>
 #include <array>
-#include <cassert>
-#include <cmath>
-#include <string>
-#include <iostream>
 #include <mpi.h>
-#include <iconv.h> //For EBCDIC conversion
-#include <arpa/inet.h>
 #include "global.hh"
 #include "object/objsegy.hh"
 #include "file/file.hh"

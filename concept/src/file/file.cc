@@ -10,7 +10,6 @@
 #include "object/object.hh"
 #include "file/file.hh"
 namespace PIOL { namespace File {
-
 void Interface::checkFileSize()
 {
     if (obj->getFileSz() != obj->getSize(readNt(), readNs()))

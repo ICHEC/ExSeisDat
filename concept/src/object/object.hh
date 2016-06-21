@@ -1,5 +1,5 @@
-#ifndef OBJECT_INCLUDE_GUARD
-#define OBJECT_INCLUDE_GUARD
+#ifndef PIOLOBJ_INCLUDE_GUARD
+#define PIOLOBJ_INCLUDE_GUARD
 #include <memory>
 #include "block/block.hh"
 namespace PIOL { namespace Obj {

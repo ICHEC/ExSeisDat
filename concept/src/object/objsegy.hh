@@ -1,5 +1,5 @@
-#ifndef OBJSEGY_INCLUDE_GUARD
-#define OBJSEGY_INCLUDE_GUARD
+#ifndef PIOLOBJSEGY_INCLUDE_GUARD
+#define PIOLOBJSEGY_INCLUDE_GUARD
 #include <memory>
 #include "comm/mpi.hh"
 #include "object/object.hh"

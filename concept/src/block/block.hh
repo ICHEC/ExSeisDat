@@ -1,5 +1,5 @@
-#ifndef PIOLBLOCKLAYER_INCLUDE_GUARD
-#define PIOLBLOCKLAYER_INCLUDE_GUARD
+#ifndef PIOLBLOCK_INCLUDE_GUARD
+#define PIOLBLOCK_INCLUDE_GUARD
 #include <memory>
 #include <mpi.h>
 #include "comm/comm.hh"

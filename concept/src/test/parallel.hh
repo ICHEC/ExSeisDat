@@ -1,8 +1,5 @@
-#ifndef PARALLEL_GUARD 
-#define PARALLEL_GUARD
-
-//#include <cstddef>
-//#include <utility>
+#ifndef PIOLPARALLEL_INCLUDE_GUARD 
+#define PIOLPARALLEL_INCLUDE_GUARD
 namespace parallel
 {
 template <typename T> std::pair<T, T> distrib(T Rank, T NProcs, T WorkUnits)

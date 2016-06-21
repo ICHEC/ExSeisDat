@@ -1,26 +1,12 @@
-#ifndef PIOLFILEFILE_INCLUDE_GUARD
-#define PIOLFILEFILE_INCLUDE_GUARD
+#ifndef PIOLFILE_INCLUDE_GUARD
+#define PIOLFILE_INCLUDE_GUARD
 #include <vector>
-#include <array>
-#include <cassert>
-#include <utility>
-#include <string>
-#include <iostream>
-#include <memory>
 #include <mpi.h>
 #include "global.hh"
 #include "object/object.hh"
 #include "comm/comm.hh"
 namespace PIOL { 
 namespace File {
-enum class Md : size_t
-{
-    Increment,
-    NumSample,
-    NumTraces,
-    Type
-};
-
 enum class BlockMd : size_t
 {
     xSrc,
