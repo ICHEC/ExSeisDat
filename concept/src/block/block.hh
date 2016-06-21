@@ -27,10 +27,8 @@ class Interface
 enum class Type
 {
     MPI
-} block;
-}}
-
+};
 typedef PIOL::Block::Type Bt;
-#include "blckmpiio.hh"
+}}
 
 #endif

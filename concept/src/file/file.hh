@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <mpi.h>
+#include "global.hh"
 #include "object/object.hh"
 #include "comm/comm.hh"
 namespace PIOL { 
@@ -67,13 +68,7 @@ class Interface
     std::unique_ptr<Obj::Interface> obj;
 
     bool defHOUpdate;
-    void checkFileSize()
-    {
-        if (obj->getFileSz() != obj->getSize(readNt(), readNs()))
-        {
-            obj->setFileSz(readNt(), readNs());
-        }
-    }
+    void checkFileSize(void);
 
     public :
 
@@ -81,65 +76,21 @@ class Interface
     typedef std::pair<BlockMd, BlockMd> CoordPair;
     typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
 
-    Interface(std::shared_ptr<Comms::Interface> Comm) : comm(Comm)
-    {
+    Interface(std::shared_ptr<Comms::Interface> Comm);
+    ~Interface(void);
+    Header readHeader(void);
 
-    }
-    ~Interface(void)
-    {
-        //TODO:
-        if (defHOUpdate)
-        {
-        }
-    }
-    Header readHeader()
-    {
-        Header header;
-        header.note = readNote();
-        header.ns = readNs();
-        header.nt = readNt();
-        header.inc = readInc();
-        return header;
-    }
-    virtual std::string readNote()
-    {
-        return note;
-    }
-    virtual size_t readNs()
-    {
-        return ns;
-    }
-    virtual size_t readNt()
-    {
-        return nt;
-    }
-    virtual real readInc()
-    {
-        return inc;
-    }
+    virtual std::string readNote(void);
+    virtual size_t readNs(void);
+    virtual size_t readNt(void);
+    virtual real readInc(void);
+
+    virtual void writeNote(std::string Note);
+    virtual void writeNs(size_t Ns);
+    virtual void writeNt(size_t Nt);
+    virtual void writeInc(real Inc);
 
     virtual void writeHeader(Header header) = 0;
-
-    virtual void writeNote(std::string Note)
-    {
-        note = Note;
-        defHOUpdate = true;
-    }
-    virtual void writeNs(size_t Ns)
-    {
-        ns = Ns;
-        defHOUpdate = true;
-    }
-    virtual void writeNt(size_t Nt)
-    {
-        nt = Nt;
-        defHOUpdate = true;
-    }
-    virtual void writeInc(real Inc)
-    {
-        inc = Inc;
-    }
-
     virtual void readCoord(size_t offset, CoordPair items, std::vector<CoordData> & data) = 0;
     virtual void readCoord(size_t offset, std::vector<CoordArray> & data) = 0;
     virtual void readCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
@@ -179,35 +130,13 @@ class Interface
         writeTraces(0U, data);
     }
 
-    void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
-    {
-        assert((coord.size() == data.size() / header.ns) && (header.nt*header.ns == data.size()));
-        writeHeader(header);
-    }
-    void readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
-    {
-        header = readHeader();
-    }
+    void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
+    void readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
 };
 
 #ifndef __ICC
 constexpr 
 #endif
-Interface::CoordPair getCoordPair(Coord pair)
-{
-    switch (pair)
-    {
-        case Coord::Src :
-            return std::make_pair(BlockMd::xSrc, BlockMd::ySrc);
-        case Coord::Rcv :
-            return std::make_pair(BlockMd::xRcv, BlockMd::yRcv);
-        case Coord::Cmp :
-            return std::make_pair(BlockMd::xCDP, BlockMd::yCDP);
-        case Coord::Lin :
-            return std::make_pair(BlockMd::iLin, BlockMd::xLin);
-        default : 
-            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
-    }
-}
+Interface::CoordPair getCoordPair(Coord pair);
 }}
 #endif

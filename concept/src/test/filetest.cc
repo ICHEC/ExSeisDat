@@ -4,7 +4,7 @@
 #include <iostream>
 #include <utility>
 #include "global.hh"
-#include "file/SEGY.hh"
+#include "file/filesegy.hh"
 #include "parallel.hh"
 #include "comm/mpi.hh"
 using namespace PIOL;
@@ -210,13 +210,13 @@ int main(int argc, char ** argv)
 
     std::cout << "In file " << inFile << std::endl;
 
-    File::SEGY::Interface seg(comm, inFile, PIOL::Block::Type::MPI);
+    File::SEGY seg(comm, inFile, PIOL::Block::Type::MPI);
 
     testPolymorphismGets(seg); 
     
     std::cout << "Out file " << outFile << std::endl;
 
-    File::SEGY::Interface out(comm, outFile, PIOL::Block::Type::MPI);
+    File::SEGY out(comm, outFile, PIOL::Block::Type::MPI);
     copyTestPolymorphism(out, seg);
     std::cout << "Terminate" << std::endl;
     return 0;

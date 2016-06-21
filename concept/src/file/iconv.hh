@@ -1,7 +1,7 @@
 #ifndef PIOLFILESEGYICONV_INCLUDE_GUARD
 #define PIOLFILESEGYICONV_INCLUDE_GUARD
 #include <vector>
-namespace PIOL { namespace File { namespace SEGY {
+namespace PIOL {
 class iconvert
 {
     iconv_t toAsc;
@@ -56,5 +56,5 @@ class iconvert
         return dst;
     }
 };
-}}}
+}
 #endif

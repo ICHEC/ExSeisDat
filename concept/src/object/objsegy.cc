@@ -1,17 +1,14 @@
 #include <memory>
 #include "comm/mpi.hh"
-#include "object/object.hh"
 #include "object/objsegy.hh"
-
-#include "block/block.hh"
-#include "block/blckmpiio.hh"
+#include "block/blockmpiio.hh"
 
 using namespace PIOL::Obj::SEGSz;
 namespace PIOL { namespace Obj {
 
 SEGY::SEGY(std::shared_ptr<Comms::Interface> comm, std::string name, Bt bType)
 {
-    typedef PIOL::Block::MPI::Interface<MPI_Status> mBl;
+    typedef PIOL::Block::MPIIO mBl;
     switch (bType)
     {
         case Bt::MPI :

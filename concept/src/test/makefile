@@ -3,8 +3,8 @@ BIN2=filetest
 
 include ../compiler.cfg
 LDFLAGS= 
-OBJ1=blocktest.o ../obj/mpiio.o
-OBJ2=filetest.o ../obj/mpiio.o segy.o
+OBJ1=blocktest.o ../obj/blockmpiio.o
+OBJ2=filetest.o segy.o ../obj/file.o ../obj/filesegy.o ../obj/blockmpiio.o ../obj/objsegy.o
 
 all: blocktest filetest
 
