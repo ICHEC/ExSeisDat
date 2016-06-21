@@ -1,5 +1,6 @@
 #ifndef PIOLCOMMMPI_INCLUDE_GUARD
 #define PIOLCOMMMPI_INCLUDE_GUARD
+#include <mpi.h>
 #include "comm/comm.hh"
 namespace PIOL { namespace Comms {
 

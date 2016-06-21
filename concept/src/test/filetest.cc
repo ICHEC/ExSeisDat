@@ -69,7 +69,7 @@ float makeIEEE(uint32_t sign, uint32_t frac, uint32_t exp)
 
     if (frac < 0x800000)
     {
-        frac >> 22;
+        frac >>= 22;
 
         exp++;
         frac <<= 1;

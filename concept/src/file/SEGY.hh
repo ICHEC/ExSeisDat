@@ -246,23 +246,23 @@ class Interface : public PIOL::File::Interface
         inc = real(getMd(Hdr::Increment, buf.data())) * MICRO;
 
         size_t fsz = obj->getFileSz();
-        nt = (fsz - Obj::SEGY::getHOSz()) / Obj::SEGY::getDOSz<float>(ns);
+        nt = (fsz - Obj::SEGSz::getHOSz()) / Obj::SEGSz::getDOSz<float>(ns);
 
         assert(ns != 0);
-        assert(fsz - nt*Obj::SEGY::getDOSz<float>(ns) - Obj::SEGY::getHOSz() == 0); 
+        assert(fsz - nt*Obj::SEGSz::getDOSz<float>(ns) - Obj::SEGSz::getHOSz() == 0); 
         assert(fsz - obj->getSize(nt, ns) == 0);
     }
 
     std::vector<uchar> makeHeader()
     {
-        std::vector<uchar> header(Obj::SEGY::getHOSz());
+        std::vector<uchar> header(Obj::SEGSz::getHOSz());
         std::string notes = readNote();
-        std::cout << "Note size " << notes.size() << " HO " << Obj::SEGY::getHOSz() << std::endl;
+        std::cout << "Note size " << notes.size() << " HO " << Obj::SEGSz::getHOSz() << std::endl;
 
         for (size_t i = 0; i < notes.size(); i++)
             header[i] = notes[i];
 
-        std::cout << "Obj::SEGY::getHOSz() = "<< Obj::SEGY::getHOSz() << std::endl; 
+        std::cout << "Obj::SEGSz::getHOSz() = "<< Obj::SEGSz::getHOSz() << std::endl; 
         std::cout << "Ns = " << readNs() << std::endl;
         assert(readNs() <  (1 << (sizeof(short)*8+1)));
 
@@ -280,11 +280,11 @@ class Interface : public PIOL::File::Interface
 
     Interface(std::shared_ptr<Comms::Interface> Comm, std::string name, Bt bType) : File::Interface::Interface(Comm)
     {
-        obj = std::unique_ptr<Obj::Interface>(new Obj::SEGY::Interface(comm, name, bType));
+        obj = std::unique_ptr<Obj::Interface>(new Obj::SEGY(comm, name, bType));
 
         if (obj->getFileSz() != 0U)
         {
-            std::vector<uchar> buf(Obj::SEGY::getHOSz());
+            std::vector<uchar> buf(Obj::SEGSz::getHOSz());
             obj->readHO(buf.data());
             parseHO(buf);
         }
@@ -308,7 +308,7 @@ class Interface : public PIOL::File::Interface
         obj->setFileSz(readNt(), readNs());
 
         std::cout << "CALL writeHO\n";
-        for (int i = 3200; i < buf.size(); i++)
+        for (size_t i = 3200U; i < buf.size(); i++)
             if (buf[i])
             std::cout << "header" << i+1 << " " << int(buf[i]) << std::endl;
 
@@ -324,7 +324,7 @@ class Interface : public PIOL::File::Interface
         TrHdr md2 = getItem(items.second);
 
         size_t num = data.size();
-        size_t mds = Obj::SEGY::getMDSz();
+        size_t mds = Obj::SEGSz::getMDSz();
         std::vector<uchar> dos(num * mds);
         obj->readDOMD(offset, num, dos.data(), ns);
 
@@ -341,7 +341,7 @@ class Interface : public PIOL::File::Interface
     void readCoord(size_t offset, std::vector<CoordArray> & data)
     {
         size_t num = data.size();
-        size_t mds = Obj::SEGY::getMDSz();
+        size_t mds = Obj::SEGSz::getMDSz();
         std::vector<uchar> dos(num * mds);
         obj->readDOMD(offset, num, dos.data(), ns);
 
@@ -392,7 +392,7 @@ int getScale(real val)
         int scal = 10000;
         real rm = std::modf(real(scal * fracpart), &scalp);
         int piece = std::lround(scalp);
-        for (size_t i = 10; i != 10*scal; scal *= 10)
+        for (int i = 10; i != 10*scal; scal *= 10)
         {
             if (piece % i)
             {
@@ -408,7 +408,7 @@ int getScale(real val)
     void writeCoord(size_t offset, std::vector<CoordArray> & data)
     {
         size_t num = data.size();
-        size_t mds = Obj::SEGY::getMDSz();
+        size_t mds = Obj::SEGSz::getMDSz();
 
         std::vector<uchar> dos(num * mds);
 

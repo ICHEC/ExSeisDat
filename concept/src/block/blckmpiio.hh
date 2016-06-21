@@ -1,6 +1,7 @@
 #ifndef PIOLBLOCKMPI_INCLUDE_GUARD
 #define PIOLBLOCKMPI_INCLUDE_GUARD
 #include <mpi.h>
+#include <iostream>
 #include "mpiio.hh"
 #include "comm/mpi.hh"
 

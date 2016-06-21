@@ -23,12 +23,14 @@ class Interface
     virtual void writeData(size_t, float *, size_t) = 0;
     virtual void writeData(size_t, unsigned char *, size_t) = 0;
 };
+
 enum class Type
 {
     MPI
 } block;
 }}
 
+typedef PIOL::Block::Type Bt;
 #include "blckmpiio.hh"
 
 #endif
