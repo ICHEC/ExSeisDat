@@ -3,7 +3,9 @@
 #include <vector>
 #include <functional>
 #include <mpi.h>
+#include <cassert>
 #include "comm/comm.hh"
+
 namespace PIOL { namespace Comms {
 
 //TODO: Consolidate with Block
@@ -19,13 +21,14 @@ MPI_Datatype Type()
          : (typeid(T) == typeid(uchar)              ? MPI_UNSIGNED_CHAR
          : (typeid(T) == typeid(int)                ? MPI_INT
          : (typeid(T) == typeid(long int)           ? MPI_LONG
+         : (typeid(T) == typeid(size_t)             ? MPI_UNSIGNED_LONG ///TODO: Watch out for this one!
          : (typeid(T) == typeid(unsigned long int)  ? MPI_UNSIGNED_LONG
          : (typeid(T) == typeid(unsigned int)       ? MPI_UNSIGNED
          : (typeid(T) == typeid(long long int)      ? MPI_LONG_LONG_INT
          : (typeid(T) == typeid(float)              ? MPI_FLOAT
          : (typeid(T) == typeid(signed short)       ? MPI_SHORT
          : (typeid(T) == typeid(unsigned short)     ? MPI_UNSIGNED_SHORT
-         : MPI_BYTE))))))))))));
+         : MPI_BYTE)))))))))))));
 }
 class MPI : public Comms::Interface
 {
@@ -48,6 +51,7 @@ class MPI : public Comms::Interface
         MPI_Comm_size(comm, &inumRank);
         rank = irank;
         numRank = inumRank;
+        assert(getRank() < getNumRank());
     }
     ~MPI(void)
     {
@@ -61,20 +65,56 @@ class MPI : public Comms::Interface
     {
         return comm;
     }
-
     template <typename T>
-    T reduce(T val, std::function<const T & (const T &, const T &)> reducOp)
+    std::vector<T> gatherScalar(T val)
     {
         std::vector<T> vals(getNumRank());
         vals[getRank()] = val;
 
-        MPI_Allgather(MPI_IN_PLACE, 0, Type<T>(), &vals, getNumRank(), Type<T>(), getComm());
+        MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, vals.data(), 1, Type<T>(), getComm());
+        return vals;
+    }
+
+    template <typename T>
+    T reduce(T val, std::function<const T & (const T &, const T &)> reducOp)
+    {
+        std::vector<T> vals = gatherScalar(val);
 
         val = vals[0];
         for (size_t i = 0; i < getNumRank(); i++)
             val = reducOp(val, vals[i]);
         return val;
     }
+
+    template <typename T>
+    size_t reduce(T val, size_t offset, size_t num, std::function<const T & (const T &, const T &)> reducOp)
+    {
+        std::vector<T> vals = gatherScalar(val);
+        std::vector<size_t> nums = gatherScalar(num);
+        std::vector<size_t> offsets = gatherScalar(offset);
+
+        int test;
+        MPI_Type_size(MPI_UNSIGNED_LONG, &test);
+        assert(test == sizeof(size_t));
+        assert(vals.size() > 0);
+        assert(nums.size() > 0);
+        assert(offsets.size() > 0);
+        size_t rank = 0;
+        val = vals[0];
+
+        for (size_t i = 1; i < vals.size(); i++)
+        {
+            T newVal = reducOp(val, vals[i]);
+            if (newVal != val)
+            {
+                val = newVal;
+                rank = i;
+            }
+        }
+
+        return nums[rank] + offsets[rank];
+    }
+
 };
 
 

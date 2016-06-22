@@ -2,15 +2,14 @@
 #include <cassert>
 #include "file/iconv.hh"
 namespace PIOL {
-static void getConv(iconv_t cd, std::vector<char> & dst, std::vector<char> & src)
+static bool getConv(iconv_t cd, std::vector<char> & dst, std::vector<char> & src)
 {
     size_t oub = dst.size();
     size_t inb = src.size();
     char * pSrc = src.data();
     char * pDst = dst.data();
     ::iconv(cd, &pSrc, &inb, &pDst, &oub);
-    assert(!oub);
-    assert(!inb);
+    return (inb ? false : true);
 }
 
 static size_t isGoodChar(char s)
@@ -46,10 +45,8 @@ std::vector<char> IConvert::getAscii(std::vector<char> src)
 {
     std::vector<char> dst;
     dst.resize(src.size());
-    getConv(toAsc, dst, src);
-    if (getCount(src) > getCount(dst))
-        return src;
-    return dst;
+    bool success = getConv(toAsc, dst, src);
+    return  ((success) && (getCount(dst) > getCount(src)) ? dst : src);
 }
 }
 

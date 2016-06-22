@@ -184,7 +184,6 @@ MPIIO::MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode,
 }
 MPIIO::~MPIIO(void)
 {
-    std::cout << "Close file\n";
     MPI_File_close(&file);
 }
 size_t MPIIO::getFileSz()
@@ -196,13 +195,11 @@ size_t MPIIO::getFileSz()
 }
 void MPIIO::setFileSz(size_t sz)
 {
-    std::cout << " Set file size\n";
     int err = MPI_File_set_size(file, MPI_Offset(sz));
     printErr(err, NULL, "Error resizing file\n");
 }
 void MPIIO::setView(size_t offset)
 {
-    std::cout << " Set view\n";
     gSetView<uchar>(file, MPI_Offset(offset));
 }
 

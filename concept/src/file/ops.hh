@@ -11,6 +11,7 @@ namespace PIOL { namespace Op {
 //    typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
 real calcMin(Comms::MPI &, const File::CoordData &, const std::vector<File::CoordData> &);
 real calcMax(Comms::MPI &, const File::CoordData &, const std::vector<File::CoordData> &);
-
+size_t findMax(Comms::MPI &, size_t, const File::CoordData &, const std::vector<File::CoordData> &);
+size_t findMin(Comms::MPI &, size_t, const File::CoordData &, const std::vector<File::CoordData> &);
 }}
 #endif

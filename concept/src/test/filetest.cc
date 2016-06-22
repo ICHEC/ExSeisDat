@@ -37,11 +37,14 @@ void copyTestPolymorphism(File::Interface & out, Set::Manager & in)
     auto coords = in.readCoord();
     auto traces = in.readTraces();
 
+    std::cout << "Write header\n";
     out.writeHeader(header);
-    std::cout << "Write header done\n";
 
-    out.writeCoord(coords);
-    out.writeTraces(traces);
+    std::cout << "Write Coords\n";
+    out.writeCoord(coords.first, coords.second);
+
+    std::cout << "Write Data\n";
+    out.writeTraces(coords.first, traces.second);
 
     //out.writeFile(header, coords, data);
 
