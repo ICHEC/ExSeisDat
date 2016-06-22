@@ -28,33 +28,31 @@ Interface::~Interface(void)
     {
     }
 }
-Header Interface::readHeader()
+void Interface::readHeader(Header & header)
 {
-    Header header;
     header.note = readNote();
     header.ns = readNs();
     header.nt = readNt();
     header.inc = readInc();
-    return header;
 }
- std::string Interface::readNote()
+std::string Interface::readNote()
 {
     return note;
 }
- size_t Interface::readNs()
+size_t Interface::readNs()
 {
     return ns;
 }
- size_t Interface::readNt()
+size_t Interface::readNt()
 {
     return nt;
 }
- real Interface::readInc()
+real Interface::readInc()
 {
     return inc;
 }
 
- void Interface::writeNote(std::string Note)
+void Interface::writeNote(std::string Note)
 {
     note = Note;
     defHOUpdate = true;
@@ -81,13 +79,13 @@ void Interface::writeFile(Header & header, std::vector<CoordArray> & coord, std:
 }
 void Interface::readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
 {
-    header = readHeader();
+    readHeader(header);
 }
 
 #ifndef __ICC
 constexpr 
 #endif
-Interface::CoordPair getCoordPair(Coord pair)
+CoordPair getCoordPair(Coord pair)
 {
     switch (pair)
     {

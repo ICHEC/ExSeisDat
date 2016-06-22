@@ -7,9 +7,12 @@
 #include "block/block.hh"
 
 namespace PIOL { namespace Block {
+
 template <typename U>
 using Fp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
+
 extern int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st);
+
 class MPIIO : public PIOL::Block::Interface
 {
 #ifdef TEST_PRIVATE

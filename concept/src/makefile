@@ -1,10 +1,15 @@
 
 all:
-	(cd block; make ; mv *.o ../obj/)
-	(cd file; make ; mv *.o ../obj/)
-	(cd object; make ; mv *.o ../obj/)
+	(cd block; make)
+	(cd file; make)
+	(cd object; make)
+	(cd set; make)
 	(cd test; make)
 
 clean:
-	rm obj/*.o test/*.o test/blocktest test/filetest
+	(cd block; make clean)
+	(cd file; make clean)
+	(cd object; make clean)
+	(cd set; make clean)
+	(cd test; make clean)
 

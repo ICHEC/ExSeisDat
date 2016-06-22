@@ -1,7 +1,7 @@
 #ifndef PIOLCOMM_INCLUDE_GUARD
 #define PIOLCOMM_INCLUDE_GUARD
-namespace PIOL {
-namespace Comms
+#include <cstddef>
+namespace PIOL {namespace Comms
 {
 class Interface
 {
@@ -18,8 +18,8 @@ class Interface
         return numRank;
     }
 };
+}}
 
-}
-}
+
 #endif
 

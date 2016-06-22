@@ -285,12 +285,6 @@ void SEGY::writeHeader(Header header)
     std::vector<uchar> buf = makeHeader();
 
     obj->setFileSz(readNt(), readNs());
-
-    std::cout << "CALL writeHO\n";
-    for (size_t i = 3200U; i < buf.size(); i++)
-        if (buf[i])
-        std::cout << "header" << i+1 << " " << int(buf[i]) << std::endl;
-
     obj->writeHO(buf.data());
 
     //Whether this was true or false, considering

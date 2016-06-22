@@ -1,16 +1,15 @@
-BIN=blocktest
-
 include ../compiler.cfg
 LDFLAGS = 
 SOURCES=$(wildcard *.cc)
-OBJECTS=$(SOURCES:.cc=.o)
+#OBJECTS=$(SOURCES:.cc=.o)
+#OBJECTS=$(SOURCES:.cc=.o)
+OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
 
-$(BIN): $(OBJECTS)
-#	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+#$(BIN): $(OBJECTS)
+all: $(OBJECTS)
 
-.cc.o:
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
+$(OBJDIR)/%.o: %.cc
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-clean:
-	rm *.o
-
+clean :
+	rm $(OBJECTS)
