@@ -30,14 +30,14 @@ Interface::~Interface(void)
 }
 void Interface::readHeader(Header & header)
 {
-    header.note = readNote();
+    header.text = readText();
     header.ns = readNs();
     header.nt = readNt();
     header.inc = readInc();
 }
-std::string Interface::readNote()
+std::string Interface::readText()
 {
-    return note;
+    return text;
 }
 size_t Interface::readNs()
 {
@@ -52,9 +52,9 @@ real Interface::readInc()
     return inc;
 }
 
-void Interface::writeNote(std::string Note)
+void Interface::writeText(std::string Text)
 {
-    note = Note;
+    text = Text;
     defHOUpdate = true;
 }
  void Interface::writeNs(size_t Ns)
@@ -83,9 +83,9 @@ void Interface::readFile(Header & header, std::vector<CoordArray> & coord, std::
 }
 
 #ifndef __ICC
-constexpr 
+constexpr
 #endif
-CoordPair getCoordPair(Coord pair)
+MetaPair getPair(Coord pair)
 {
     switch (pair)
     {
@@ -95,9 +95,22 @@ CoordPair getCoordPair(Coord pair)
             return std::make_pair(BlockMd::xRcv, BlockMd::yRcv);
         case Coord::Cmp :
             return std::make_pair(BlockMd::xCDP, BlockMd::yCDP);
-        case Coord::Lin :
+//        case Coord::Water :
+//            return std::make_pair(BlockMd::wdSrc, BlockMd::wdGrp);
+        default :
+            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
+    }
+}
+#ifndef __ICC
+constexpr
+#endif
+MetaPair getPair(Grid pair)
+{
+    switch (pair)
+    {
+        case Grid::Lin :
             return std::make_pair(BlockMd::iLin, BlockMd::xLin);
-        default : 
+        default :
             return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
     }
 }

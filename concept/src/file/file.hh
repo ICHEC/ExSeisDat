@@ -26,24 +26,44 @@ enum class Coord : size_t
     Src,
     Rcv,
     Cmp,
+//    Water,
+    Len
+};
+
+enum class Grid : size_t
+{
     Lin,
     Len
 };
 
 struct Header
 {
-    std::string note;
+    std::string text;
     real inc;
     size_t ns;
     size_t nt;
 };
-typedef std::pair<real, real> CoordData;
-typedef std::pair<BlockMd, BlockMd> CoordPair;
-typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
+
+template <typename T>
+using Pair = std::pair<T, T>;
+
+typedef Pair<coreal> CoordData;
+typedef Pair<llint> GridData;
+typedef Pair<BlockMd> MetaPair;
+
+template <typename T, typename P>
+using MetaArray = std::array<std::pair<T, T>, static_cast<size_t>(P::Len)>;
+
+typedef MetaArray<coreal, Coord> CoordArray;
+typedef MetaArray<llint, Grid> GridArray;
+
+//typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
+//typedef std::array<GridData, static_cast<size_t>(Grid::Len)> GridArray;
+
 class Interface
 {
     protected:
-    std::string note;
+    std::string text;
     real inc;
     size_t ns;
     size_t nt;
@@ -63,28 +83,37 @@ class Interface
     ~Interface(void);
     void readHeader(Header &);
 
-    virtual std::string readNote(void);
+    virtual std::string readText(void);
     virtual size_t readNs(void);
     virtual size_t readNt(void);
     virtual real readInc(void);
 
-    virtual void writeNote(std::string Note);
+    virtual void writeText(std::string Text);
     virtual void writeNs(size_t Ns);
     virtual void writeNt(size_t Nt);
     virtual void writeInc(real Inc);
 
     virtual void writeHeader(Header header) = 0;
-    virtual void readCoord(size_t offset, CoordPair items, std::vector<CoordData> & data) = 0;
-    virtual void readCoord(size_t offset, std::vector<CoordArray> & data) = 0;
-    virtual void readCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
-    virtual void writeCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
-    virtual void writeCoord(size_t offset, std::vector<CoordArray> & data) = 0;
+
     virtual void readTraces(size_t offset, std::vector<real> & data) = 0;
 //Random access pattern. Good candidate for collective.
     virtual void readTraces(std::vector<size_t> & offset, std::vector<real> & data) = 0;
     virtual void writeTraces(size_t offset, std::vector<real> & data) = 0;
+    inline void readTraces(std::vector<real> & data)
+    {
+        readTraces(0U, data);
+    }
+    inline void writeTraces(std::vector<real> & data)
+    {
+        writeTraces(0U, data);
+    }
 
-    inline void readCoord(CoordPair items, std::vector<CoordData> & data)
+    virtual void readCoord(size_t offset, MetaPair items, std::vector<CoordData> & data) = 0;
+    virtual void readCoord(size_t offset, std::vector<CoordArray> & data) = 0;
+    virtual void readCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
+    virtual void writeCoord(size_t offset, Coord coord, std::vector<CoordData> & data) = 0;
+    virtual void writeCoord(size_t offset, std::vector<CoordArray> & data) = 0;
+    inline void readCoord(MetaPair items, std::vector<CoordData> & data)
     {
         readCoord(0U, items, data);
     }
@@ -104,22 +133,23 @@ class Interface
     {
         writeCoord(0U, data);
     }
-    inline void readTraces(std::vector<real> & data)
-    {
-        readTraces(0U, data);
-    }
-    inline void writeTraces(std::vector<real> & data)
-    {
-        writeTraces(0U, data);
-    }
+
+    virtual void readGrid(size_t offset, MetaPair items, std::vector<GridData> & data) = 0;
+    virtual void readGrid(size_t offset, std::vector<GridArray> & data) = 0;
+    virtual void readGrid(size_t offset, Grid grid, std::vector<GridData> & data) = 0;
+    virtual void writeGrid(size_t offset, Grid grid, std::vector<GridData> & data) = 0;
+    virtual void writeGrid(size_t offset, std::vector<GridArray> & data) = 0;
 
     void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
     void readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
 };
-
 #ifndef __ICC
-constexpr 
+constexpr
 #endif
-CoordPair getCoordPair(Coord pair);
+MetaPair getPair(Grid pair);
+#ifndef __ICC
+constexpr
+#endif
+MetaPair getPair(Coord pair);
 }}
 #endif

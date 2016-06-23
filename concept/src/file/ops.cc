@@ -1,8 +1,7 @@
 #include <cmath>
+#include "comm/mpi.hh"
 #include "file/ops.hh"
-namespace PIOL { namespace Op {
-
-
+namespace PIOL {
 template <typename T, typename U>
 T reduction(Comms::MPI & comm, const U & obj1, const std::vector<U> & vec, std::function<const T & (const T &, const T &)> reducOp, std::function<T(const U &, const U &)> eval)
 {
@@ -36,31 +35,71 @@ T find(Comms::MPI & comm, size_t offset, const U & obj1, const std::vector<U> & 
 
     return comm.reduce(val, offset, num, reducOp);
 }
-
-real calcDistance(const File::CoordData & point1, const File::CoordData & point2)
+template <typename T>
+T calcDistance(const File::Pair<T> & pair1, const File::Pair<T> & pair2)
 {
-    return std::hypot(point1.first - point2.first,
-                      point1.second - point2.second);
+    return std::hypot(pair1.first - pair2.first,
+                      pair1.second - pair2.second);
 }
 
-real calcMax(Comms::MPI & comm, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+template <typename T> inline
+T calcMax(Comms::MPI & comm, const File::Pair<T> & pair1, const std::vector<File::Pair<T> > & pairs)
 {
-    return reduction<real, File::CoordData>(comm, point1, coords, std::max<real>, calcDistance);
+    return reduction<T, File::Pair<T> >(comm, pair1, pairs, std::max<T>, calcDistance<T>);
 }
 
-real calcMin(Comms::MPI & comm, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+template <typename T> inline
+T calcMin(Comms::MPI & comm, const File::Pair<T> & pair1, const std::vector<File::Pair<T> > & pairs)
 {
-    return reduction<real, File::CoordData>(comm, point1, coords, std::min<real>, calcDistance);
+    return reduction<T, File::Pair<T> >(comm, pair1, pairs, std::min<T>, calcDistance<T>);
 }
 
-size_t findMax(Comms::MPI & comm, size_t offset, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+template <typename T> inline
+size_t findMax(Comms::MPI & comm, size_t offset, const File::Pair<T> & pair1, const std::vector<File::Pair<T> > & pairs)
 {
-    return find<real, File::CoordData>(comm, offset, point1, coords, std::max<real>, calcDistance);
+    return find<T,File::Pair<T> >(comm, offset, pair1, pairs, std::max<T>, calcDistance<T>);
 }
 
-size_t findMin(Comms::MPI & comm, size_t offset, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+template <typename T> inline
+size_t findMin(Comms::MPI & comm, size_t offset, const File::Pair<T> & pair1, const std::vector<File::Pair<T> > & pairs)
 {
-    return find<real, File::CoordData>(comm, offset, point1, coords, std::min<real>, calcDistance);
+    return find<T,File::Pair<T> >(comm, offset, pair1, pairs, std::max<T>, calcDistance<T>);
+}
+
+/////////////////////////////////
+namespace Ops {
+coreal Ops::calcMin(Comms::MPI & comm, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+{
+    return PIOL::calcMin<coreal>(comm, point1, coords);
+}
+llint Ops::calcMin(Comms::MPI & comm, const File::GridData & point1, const std::vector<File::GridData> & grids)
+{
+    return PIOL::calcMin<llint>(comm, point1, grids);
+}
+
+coreal Ops::calcMax(Comms::MPI & comm, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+{
+    return PIOL::calcMax<coreal>(comm, point1, coords);
+}
+llint Ops::calcMax(Comms::MPI & comm, const File::GridData & point1, const std::vector<File::GridData> & grids)
+{
+    return PIOL::calcMax<llint>(comm, point1, grids);
+}
+size_t Ops::findMin(Comms::MPI & comm, size_t offset, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+{
+    return PIOL::findMin<coreal>(comm, offset, point1, coords);
+}
+size_t Ops::findMin(Comms::MPI & comm, size_t offset, const File::GridData & point1, const std::vector<File::GridData> & grids)
+{
+    return PIOL::findMin<llint>(comm, offset, point1, grids);
+}
+size_t Ops::findMax(Comms::MPI & comm, size_t offset, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
+{
+    return PIOL::findMax<coreal>(comm, offset, point1, coords);
+}
+size_t Ops::findMax(Comms::MPI & comm, size_t offset, const File::GridData & point1, const std::vector<File::GridData> & grids)
+{
+    return PIOL::findMax<llint>(comm, offset, point1, grids);
 }
 }}
 

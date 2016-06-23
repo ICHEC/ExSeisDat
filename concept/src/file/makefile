@@ -1,29 +1,29 @@
 include ../compiler.cfg
-DEP=#DEPEND
-LDFLAGS = 
-SOURCES=$(wildcard *.cc)
-OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
-DEPENDS=$(patsubst %.cc, %.dep, $(SOURCES))
+DEP=depend
+SOURCES:=$(wildcard *.cc)
+OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
+DEPENDS:=$(patsubst %.cc, %.dep, $(SOURCES))
+CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
+CURR_DEP:=$(wildcard $(DEP))
 
-CURR_OBJECTS=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
-#CURR_DEP=$(wildcard $(DEP))
-
-#$(BIN): $(OBJECTS)
-
-#-include $(DEP)
-
-all: $(DEP) $(OBJECTS)
-
-#$(DEP):
-#	gcc -std=c++14 -MM $< -MT  $(INC_FOLDER) -o $(DEP)
+%.dep: %.cc
+	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-%.dep: %.cc
+.PHONY: all
+all: $(OBJECTS) $(DEP) 
 
+test:
+	echo $(DEP) $(OBJECTS) 
+
+$(DEP): $(DEPENDS)
+	cat *.dep > $(DEP)
+
+.PHONY: clean
 clean:
-	rm $(OBJECTS)
-	#rm $(CURR_OBJECTS) $(CURR_DEP)
+	rm -f $(CURR_OBJECTS) $(DEPENDS) $(CURR_DEP)
 
+-include $(DEP)
 

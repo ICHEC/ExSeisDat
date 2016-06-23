@@ -136,7 +136,7 @@ T getMd(TrHdr val, uchar * src)
         break;
     }
 }
-constexpr size_t getNoteSz()
+constexpr size_t getTextSz()
 {
     return 3200U;
 }
@@ -174,6 +174,20 @@ real getTraceScale(uchar * dos)
     return (scale > 0 ? rs : 1.0) / (scale < 0 ? rs : 1.0);
 }
 
+template <typename T>
+inline T getTraceScale(uchar * dos)
+{
+    if (typeid(T) == typeid(coreal))
+    {
+        return getTraceScale(dos);
+    }
+    else
+    {
+        return T(1);
+    }
+}
+
+
 template <class T=int>
 T getMd(Hdr val, uchar * buf)
 {
@@ -202,6 +216,39 @@ void setMd(Hdr val, uchar * dst, T src)
     }
 }
 
+template <typename T>
+void extractPair(std::vector<uchar> & dos, MetaPair pair, std::vector<std::pair<T, T> > & data)
+{
+    size_t mds = Obj::SEGSz::getMDSz();
+    TrHdr md1 = getItem(pair.first);
+    TrHdr md2 = getItem(pair.second);
+
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        T scale = getTraceScale<T>(&dos[i*mds]);
+        T val1 = static_cast<T>(getMd(md1, &dos[i*mds]));
+        T val2 = static_cast<T>(getMd(md2, &dos[i*mds]));
+        data[i] = std::make_pair(scale*val1, scale*val2);
+    }
+}
+
+template <typename P, typename T>
+void extractPair(std::vector<uchar> & dos, std::vector<MetaArray<T, P> > & data)
+{
+    size_t mds = Obj::SEGSz::getMDSz();
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        T scale = getTraceScale<T>(&dos[i*mds]);
+        for (size_t j = 0; j < static_cast<size_t>(P::Len); j++)
+        {
+            auto p = getPair(static_cast<P>(j));
+            T val1 = static_cast<T>(getMd(getItem(p.first), &dos[i*mds]));
+            T val2 = static_cast<T>(getMd(getItem(p.second), &dos[i*mds]));
+            data[i][j] = std::make_pair(scale*val1, scale*val2);
+        }
+    }
+}
+
 void print(std::vector<char> str)
 {
     for (char p : str)
@@ -211,17 +258,31 @@ void print(std::vector<char> str)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////SEGY File Interface/////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+
+void writeTraceHeaders(size_t offset, std::vector<uchar> &)
+{
+    std::cerr << "writeTraceHeaders not implemented\n";
+    assert(0);
+}
+std::vector<uchar> SEGY::readTraceHeaders(size_t offset, size_t num)
+{
+    size_t mds = Obj::SEGSz::getMDSz();
+    std::vector<uchar> dos(num * mds);
+    obj->readDOMD(offset, num, dos.data(), ns);
+    return dos;
+}
+
 void SEGY::parseHO(std::vector<uchar> & buf)
 {
     IConvert ic;
-    std::vector<char> tnote(getNoteSz());
-    for (size_t i = 0; i < getNoteSz(); i++)
-        tnote[i] = buf[i];
-    tnote = ic.getAscii(tnote);
+    std::vector<char> ttext(getTextSz());
+    for (size_t i = 0; i < getTextSz(); i++)
+        ttext[i] = buf[i];
+    ttext = ic.getAscii(ttext);
 
-    note.resize(getNoteSz());
-    for (size_t i = 0; i < getNoteSz(); i++)
-        note[i] = tnote[i];
+    text.resize(getTextSz());
+    for (size_t i = 0; i < getTextSz(); i++)
+        text[i] = ttext[i];
     format = static_cast<Format>(getMd(Hdr::Type, buf.data()));
     ns = getMd(Hdr::NumSample, buf.data());
     inc = real(getMd(Hdr::Increment, buf.data())) * MICRO;
@@ -237,16 +298,12 @@ void SEGY::parseHO(std::vector<uchar> & buf)
 std::vector<uchar> SEGY::makeHeader()
 {
     std::vector<uchar> header(Obj::SEGSz::getHOSz());
-    std::string notes = readNote();
-    std::cout << "Note size " << notes.size() << " HO " << Obj::SEGSz::getHOSz() << std::endl;
+    std::string texts = readText();
 
-    for (size_t i = 0; i < notes.size(); i++)
-        header[i] = notes[i];
+    for (size_t i = 0; i < texts.size(); i++)
+        header[i] = texts[i];
 
-    std::cout << "Obj::SEGSz::getHOSz() = "<< Obj::SEGSz::getHOSz() << std::endl; 
-    std::cout << "Ns = " << readNs() << std::endl;
-    assert(readNs() <  (1 << (sizeof(short)*8+1)));
-
+    assert(readNs() < (1 << (sizeof(short)*8+1))); //TODO: Make sure each data amount is compatible
     setMd(Hdr::NumSample, header.data(), short(readNs()));
     //setMd(Hdr::Type, header.data(), static_cast<int>(format));
     setMd(Hdr::Type, header.data(), static_cast<short>(Format::IEEE));
@@ -272,12 +329,12 @@ SEGY::SEGY(std::shared_ptr<Comms::Interface> Comm, std::string name, Bt bType) :
         ns = 0U;
         nt = 0U;
         inc = 0.0;
-        note = "";
+        text = "";
     }
 }
 void SEGY::writeHeader(Header header)
 {
-    writeNote(header.note);
+    writeText(header.text);
     writeNs(header.ns);
     writeNt(header.nt);
     writeInc(header.inc);
@@ -291,55 +348,28 @@ void SEGY::writeHeader(Header header)
     //we just wrote the HO, it's not deferred
     defHOUpdate = false;
 }
-void SEGY::readCoord(size_t offset, CoordPair items, std::vector<CoordData> & data)
+
+void SEGY::readCoord(size_t offset, MetaPair items, std::vector<CoordData> & data)
 {
-    TrHdr md1 = getItem(items.first);
-    TrHdr md2 = getItem(items.second);
-
-    size_t num = data.size();
-    size_t mds = Obj::SEGSz::getMDSz();
-    std::vector<uchar> dos(num * mds);
-    obj->readDOMD(offset, num, dos.data(), ns);
-
-    for (size_t i = 0; i < num; i++)
-    {
-        int val1 = getMd(md1, &dos[i*mds]);
-        int val2 = getMd(md2, &dos[i*mds]);
-        real scale = getTraceScale(&dos[i*mds]);
-
-        data[i] = std::make_pair(real(scale*val1), real(scale*val2));
-    }
-}
-
-void SEGY::readCoord(size_t offset, std::vector<CoordArray> & data)
-{
-    size_t num = data.size();
-    size_t mds = Obj::SEGSz::getMDSz();
-    std::vector<uchar> dos(num * mds);
-    obj->readDOMD(offset, num, dos.data(), ns);
-
-    for (size_t i = 0; i < num; i++)
-    {
-        real scale = getTraceScale(&dos[i*mds]);
-        for (size_t j = 0; j < static_cast<size_t>(Coord::Len); j++)
-        {
-            auto p = getCoordPair(static_cast<Coord>(j));
-            int val1 = getMd(getItem(p.first), &dos[i*mds]);
-            int val2 = getMd(getItem(p.second), &dos[i*mds]);
-            data[i][j] = std::make_pair(real(scale*val1), real(scale*val2));
-        }
-    }
+    std::vector<uchar> dos = readTraceHeaders(offset, data.size());
+    extractPair<coreal>(dos, items, data);
 }
 
 //TODO: what if Vector accesses outside end of file?
 void SEGY::readCoord(size_t offset, Coord coord, std::vector<CoordData> & data)
 {
-    readCoord(offset, getCoordPair(coord), data);
+    readCoord(offset, getPair(coord), data);
 }
 
 void SEGY::writeCoord(size_t offset, Coord coord, std::vector<CoordData> & data)
 {
-
+    std::cerr << "writeCoord not implemented yet" << std::endl;
+    assert(0);
+}
+void SEGY::readCoord(size_t offset, std::vector<CoordArray> & data)
+{
+    std::vector<uchar> dos = readTraceHeaders(offset, data.size());
+    extractPair<Coord, coreal>(dos, data);
 }
 
 int getScale(real val)
@@ -399,12 +429,56 @@ void SEGY::writeCoord(size_t offset, std::vector<CoordArray> & data)
 
         for (size_t j = 0; j < static_cast<size_t>(Coord::Len); j++)
         {
-            auto p = getCoordPair(static_cast<Coord>(j));
+            auto p = getPair(static_cast<Coord>(j));
             setMd(getItem(p.first), &dos[i*mds], std::lround(data[i][j].first / rs));
             setMd(getItem(p.second), &dos[i*mds], std::lround(data[i][j].second / rs));
         }
     }
     obj->writeDOMD(offset, num, dos.data(), ns);
+}
+
+void SEGY::writeGrid(size_t offset, std::vector<GridArray> & data)
+{
+    size_t num = data.size();
+    size_t mds = Obj::SEGSz::getMDSz();
+
+    std::vector<uchar> dos(num * mds);
+
+    for (size_t i = 0; i < num; i++)
+    {
+        for (size_t j = 0; j < static_cast<size_t>(Grid::Len); j++)
+        {
+            auto p = getPair(static_cast<Grid>(j));
+            //The implicit down-conversion has the potential of losing information.
+            //Not really sure what I can do about that. SEG-Y limitation on datasize.
+            setMd(getItem(p.first), &dos[i*mds], int(data[i][j].first));
+            setMd(getItem(p.second), &dos[i*mds], int(data[i][j].second));
+        }
+    }
+    obj->writeDOMD(offset, num, dos.data(), ns);
+}
+
+void SEGY::readGrid(size_t offset, MetaPair items, std::vector<GridData> & data)
+{
+    std::vector<uchar> dos = readTraceHeaders(offset, data.size());
+    extractPair<llint>(dos, items, data);
+}
+
+void SEGY::readGrid(size_t offset, std::vector<GridArray> & data)
+{
+    std::vector<uchar> dos = readTraceHeaders(offset, data.size());
+    extractPair<Grid, llint>(dos, data);
+}
+
+void SEGY::readGrid(size_t offset, Grid grid, std::vector<GridData> & data)
+{
+    std::vector<uchar> dos = readTraceHeaders(offset, data.size());
+    extractPair<llint>(dos, getPair(grid), data);
+}
+void SEGY::writeGrid(size_t offset, Grid grid, std::vector<GridData> & data)
+{
+    std::cerr << "writeGrid not implemented" << std::endl;
+    assert(0);
 }
 
 //TODO: what if Vector accesses outside end of file?

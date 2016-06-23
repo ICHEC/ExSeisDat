@@ -1,10 +1,11 @@
 #ifndef PIOLCOMMMPI_INCLUDE_GUARD
 #define PIOLCOMMMPI_INCLUDE_GUARD
+#include "comm/comm.hh"
 #include <vector>
 #include <functional>
 #include <mpi.h>
 #include <cassert>
-#include "comm/comm.hh"
+#include "global.hh"
 
 namespace PIOL { namespace Comms {
 

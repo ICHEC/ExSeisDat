@@ -33,12 +33,27 @@ class SEGY : public PIOL::File::Interface
     public :
 
     SEGY(std::shared_ptr<Comms::Interface> Comm, std::string name, Bt bType);
+
+///////////////////////Operations on Headers/////////////////////////////////
     void writeHeader(Header header);
-    void readCoord(size_t, CoordPair, std::vector<CoordData> &);
+
+///////////////////////Operations on Trace Headers/////////////////////////////////
+    void readCoord(size_t, MetaPair, std::vector<CoordData> &);
     void readCoord(size_t, std::vector<CoordArray> &);
     void readCoord(size_t, Coord, std::vector<CoordData> &);
     void writeCoord(size_t, Coord, std::vector<CoordData> &);
     void writeCoord(size_t, std::vector<CoordArray> &);
+
+    void readGrid(size_t, MetaPair, std::vector<GridData> &);
+    void readGrid(size_t, Grid, std::vector<GridData> &);
+    void readGrid(size_t, std::vector<GridArray> &);
+    void writeGrid(size_t, Grid, std::vector<GridData> &);
+    void writeGrid(size_t, std::vector<GridArray> &);
+
+    std::vector<uchar> readTraceHeaders(size_t offset, size_t num);
+    void writeTraceHeaders(size_t offset, std::vector<uchar> &);
+
+///////////////////////Operations on Traces/////////////////////////////////
     void readTraces(size_t, std::vector<real> &);
     void readTraces(std::vector<size_t> &, std::vector<real> &);
     void writeTraces(size_t, std::vector<real> &);
