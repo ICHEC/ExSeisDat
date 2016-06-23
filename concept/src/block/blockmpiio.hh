@@ -27,12 +27,12 @@ class MPIIO : public PIOL::Block::Interface
 #ifndef TEST_PRIVATE
     public :
 #endif
-    MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, 
+    MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name,
           Fp<MPI_Status> Ifn = MPI_File_read_at,
           Fp<MPI_Status> Ofn = mpiio_write_at);
-    MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode, 
+    MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode,
           Fp<MPI_Status> Ifn = MPI_File_read_at,
-          Fp<MPI_Status> Ofn = mpiio_write_at); 
+          Fp<MPI_Status> Ofn = mpiio_write_at);
 
     ~MPIIO(void);
 

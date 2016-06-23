@@ -2,7 +2,7 @@
 #include <cassert>
 #include "comm/mpi.hh"
 #include "file/filesegy.hh"
-#include "file/ops.hh"
+#include "ops/ops.hh"
 #include "set/man.hh"
 using namespace PIOL;
 void getMinMaxCoords(Comms::MPI & comm, Set::Manager & man)

@@ -1,6 +1,6 @@
 #include <cmath>
 #include "comm/mpi.hh"
-#include "file/ops.hh"
+#include "ops/ops.hh"
 namespace PIOL {
 template <typename T, typename U>
 T reduction(Comms::MPI & comm, const U & obj1, const std::vector<U> & vec, std::function<const T & (const T &, const T &)> reducOp, std::function<T(const U &, const U &)> eval)
@@ -65,7 +65,6 @@ size_t findMin(Comms::MPI & comm, size_t offset, const File::Pair<T> & pair1, co
 {
     return find<T,File::Pair<T> >(comm, offset, pair1, pairs, std::max<T>, calcDistance<T>);
 }
-
 /////////////////////////////////
 namespace Ops {
 coreal Ops::calcMin(Comms::MPI & comm, const File::CoordData & point1, const std::vector<File::CoordData> & coords)
