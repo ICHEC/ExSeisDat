@@ -1,15 +1,19 @@
+#include "file/filesegy.hh"
+
+#include <mpi.h>
+#include <iconv.h> //For EBCDIC conversion
+#include <arpa/inet.h>
+
 #include <vector>
 #include <array>
 #include <cassert>
 #include <cmath>
 #include <string>
 #include <iostream>
-#include <mpi.h>
-#include <iconv.h> //For EBCDIC conversion
-#include <arpa/inet.h>
+#include <type_traits>
+
 #include "global.hh"
 #include "object/object.hh"
-#include "file/filesegy.hh"
 #include "file/iconv.hh"
 
 namespace PIOL { namespace File {
@@ -61,6 +65,20 @@ float makeBigEndian(float d)
     return src.d;
 }
 
+template <class T> inline
+int roundToInt(T scale, T data)
+{
+    if ((typeid(coreal) == typeid(T)) || (typeid(real) == typeid(T)))
+        return std::lround(data / scale);
+    else
+    {
+        //The implicit down-conversion has the potential of losing information.
+        //Not really sure what I can do about that. SEG-Y limitation on datasize.
+
+        return static_cast<int>(data);
+    }
+}
+
 enum class Hdr : size_t
 {
     Increment = 3217, //Short
@@ -106,7 +124,8 @@ TrHdr getItem(BlockMd val)
             return TrHdr::iLin;
         case BlockMd::xLin :
             return TrHdr::xLin;
-        default : 
+        default :
+            assert(0);
             return TrHdr::ERROR;
     }
 }
@@ -126,7 +145,6 @@ T getMd(TrHdr val, uchar * src)
         case TrHdr::yCDP :
         case TrHdr::iLin :
         case TrHdr::xLin :
-
             return getHostInt(&src[static_cast<size_t>(val)-1U]);
         case TrHdr::ScaleCoord :
             return getHostShort(&src[static_cast<size_t>(val)-1U]);
@@ -167,26 +185,82 @@ void setMd(TrHdr val, uchar * dst, T src)
     }
 }
 
-real getTraceScale(uchar * dos)
+coreal convertScale(int scale)
 {
-    int scale = getMd<real>(TrHdr::ScaleCoord, dos);
-    auto rs = real(std::abs(scale));
-    return (scale > 0 ? rs : 1.0) / (scale < 0 ? rs : 1.0);
+    auto rs = coreal(std::abs(scale));
+    return (scale > 0 ? rs : coreal(1)) / (scale < 0 ? rs : coreal(1));
 }
 
 template <typename T>
-inline T getTraceScale(uchar * dos)
+int getTraceScale(uchar * dos)
 {
-    if (typeid(T) == typeid(coreal))
+    return T(1);
+}
+
+//template <typename T> typename std::enable_if<std::is_floating_point<T>::value, bool>::type
+template <>
+int getTraceScale<coreal>(uchar * dos)
+{
+    int scale = getMd<coreal>(TrHdr::ScaleCoord, dos);
+    return convertScale(scale);
+}
+
+
+int calcAppropScale(coreal val)
+{
+    coreal intpart;
+    coreal fracpart = std::modf(val, &intpart);
+    //TODO: Account for overflow
+    int intp = std::lround(intpart);
+    if (fracpart < 1e-5)
     {
-        return getTraceScale(dos);
+        for (int scal = 10; scal > 100000; scal *= 10)
+        {
+            int t = intp / scal;
+            if ((scal * t) != intp)
+            {
+                return scal/10;
+            }
+        }
     }
     else
     {
-        return T(1);
+        coreal scalp;
+        int scal = 10000;
+        coreal rm = std::modf(coreal(scal * fracpart), &scalp);
+        int piece = std::lround(scalp);
+        for (int i = 10; i != 10*scal; scal *= 10)
+        {
+            if (piece % i)
+            {
+                return - i;
+            }
+        }
     }
+    return 1;
 }
 
+int calcTraceScale(const CoordArray & data)
+{
+    int scale = 10000;
+    for (size_t j = 0; j < static_cast<size_t>(Coord::Len); j++)
+        scale = std::min(calcAppropScale(data[j].second), std::min(calcAppropScale(data[j].first), scale));
+    return scale;
+}
+
+template <typename P, typename T>
+T setTraceScale(uchar * dos, const MetaArray<T, P> & data)
+{
+    return T(1);
+}
+
+template <>
+coreal setTraceScale<Coord, coreal>(uchar * dos, const MetaArray<coreal, Coord> & data)
+{
+    int scale = calcTraceScale(data);
+    setMd(TrHdr::ScaleCoord, dos, scale);
+    return convertScale(scale);
+}
 
 template <class T=int>
 T getMd(Hdr val, uchar * buf)
@@ -202,8 +276,8 @@ T getMd(Hdr val, uchar * buf)
         break;
     }
 }
-template <typename T=int>
-void setMd(Hdr val, uchar * dst, T src)
+//template <typename T=int>
+void setMd(Hdr val, uchar * dst, int src)
 {
     switch (val)
     {
@@ -215,9 +289,9 @@ void setMd(Hdr val, uchar * dst, T src)
         break;
     }
 }
-
+//extractPair(std::vector<unsigned char>&, PIOL::File::MetaPair&, std::vector<std::pair<long long int, long long int> >&)
 template <typename T>
-void extractPair(std::vector<uchar> & dos, MetaPair pair, std::vector<std::pair<T, T> > & data)
+void extractPair(std::vector<uchar> & dos, const MetaPair & pair, std::vector<std::pair<T, T> > & data)
 {
     size_t mds = Obj::SEGSz::getMDSz();
     TrHdr md1 = getItem(pair.first);
@@ -249,6 +323,22 @@ void extractPair(std::vector<uchar> & dos, std::vector<MetaArray<T, P> > & data)
     }
 }
 
+template <typename P, typename T>
+void insertPair(std::vector<uchar> & dos, const std::vector<MetaArray<T, P> > & data)
+{
+    size_t mds = Obj::SEGSz::getMDSz();
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        T scale = setTraceScale<P, T>(&dos[i*mds], data[i]);
+        for (size_t j = 0; j < static_cast<size_t>(P::Len); j++)
+        {
+            auto p = getPair(static_cast<P>(j));
+            setMd(getItem(p.first), &dos[i*mds], roundToInt(scale, data[i][j].first));
+            setMd(getItem(p.second), &dos[i*mds], roundToInt(scale, data[i][j].second));
+        }
+    }
+}
+
 void print(std::vector<char> str)
 {
     for (char p : str)
@@ -258,12 +348,29 @@ void print(std::vector<char> str)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////SEGY File Interface/////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+void SEGY::readTraceHeader(size_t offset, std::vector<GridArray> & grid, std::vector<CoordArray> & coord)
+{
+    std::vector<uchar> dos = readTraceHeaders(offset, std::max(grid.size(), coord.size()));
+    extractPair<Coord>(dos, coord);
+    extractPair<Grid>(dos, grid);
+}
 
-void writeTraceHeaders(size_t offset, std::vector<uchar> &)
+void SEGY::writeTraceHeader(size_t offset, std::vector<GridArray> & grid, std::vector<CoordArray> & coord)
+{
+    size_t num = std::max(grid.size(), coord.size());
+    size_t mds = Obj::SEGSz::getMDSz();
+    std::vector<uchar> dos(num * mds);
+    insertPair<Coord>(dos, coord);
+    insertPair<Grid>(dos, grid);
+    obj->writeDOMD(offset, num, dos.data(), ns);
+}
+
+void SEGY::writeTraceHeaders(size_t offset, std::vector<uchar> & data)
 {
     std::cerr << "writeTraceHeaders not implemented\n";
     assert(0);
 }
+
 std::vector<uchar> SEGY::readTraceHeaders(size_t offset, size_t num)
 {
     size_t mds = Obj::SEGSz::getMDSz();
@@ -285,7 +392,7 @@ void SEGY::parseHO(std::vector<uchar> & buf)
         text[i] = ttext[i];
     format = static_cast<Format>(getMd(Hdr::Type, buf.data()));
     ns = getMd(Hdr::NumSample, buf.data());
-    inc = real(getMd(Hdr::Increment, buf.data())) * MICRO;
+    inc = coreal(getMd(Hdr::Increment, buf.data())) * MICRO;
 
     size_t fsz = obj->getFileSz();
     nt = (fsz - Obj::SEGSz::getHOSz()) / Obj::SEGSz::getDOSz<float>(ns);
@@ -352,7 +459,7 @@ void SEGY::writeHeader(Header header)
 void SEGY::readCoord(size_t offset, MetaPair items, std::vector<CoordData> & data)
 {
     std::vector<uchar> dos = readTraceHeaders(offset, data.size());
-    extractPair<coreal>(dos, items, data);
+    extractPair(dos, items, data);
 }
 
 //TODO: what if Vector accesses outside end of file?
@@ -369,53 +476,21 @@ void SEGY::writeCoord(size_t offset, Coord coord, std::vector<CoordData> & data)
 void SEGY::readCoord(size_t offset, std::vector<CoordArray> & data)
 {
     std::vector<uchar> dos = readTraceHeaders(offset, data.size());
-    extractPair<Coord, coreal>(dos, data);
-}
-
-int getScale(real val)
-{
-    real intpart;
-    real fracpart = std::modf(val, &intpart);
-    //TODO: Account for overflow
-    int intp = std::lround(intpart);
-    if (fracpart < 1e-5)
-    {
-        for (int scal = 10; scal > 100000; scal *= 10)
-        {
-            int t = intp / scal;
-            if ((scal * t) != intp)
-            {
-                return scal/10;
-            }
-        }
-    }
-    else
-    {
-        real scalp;
-        int scal = 10000;
-        real rm = std::modf(real(scal * fracpart), &scalp);
-        int piece = std::lround(scalp);
-        for (int i = 10; i != 10*scal; scal *= 10)
-        {
-            if (piece % i)
-            {
-                return - i;
-            }
-        }
-    }
-    return 1;
+    extractPair<Coord>(dos, data);
 }
 
 //TODO: bounds check
 //TODO: Nt Check
+//TODO: This overwrites any previous writes such as grid data
 void SEGY::writeCoord(size_t offset, std::vector<CoordArray> & data)
 {
     size_t num = data.size();
     size_t mds = Obj::SEGSz::getMDSz();
-
     std::vector<uchar> dos(num * mds);
+    insertPair<Coord>(dos, data);
+    obj->writeDOMD(offset, num, dos.data(), ns);
 
-    for (size_t i = 0; i < num; i++)
+/*    for (size_t i = 0; i < num; i++)
     {
         int scale = 10000;
         for (size_t j = 0; j < static_cast<size_t>(Coord::Len); j++)
@@ -433,13 +508,19 @@ void SEGY::writeCoord(size_t offset, std::vector<CoordArray> & data)
             setMd(getItem(p.first), &dos[i*mds], std::lround(data[i][j].first / rs));
             setMd(getItem(p.second), &dos[i*mds], std::lround(data[i][j].second / rs));
         }
-    }
-    obj->writeDOMD(offset, num, dos.data(), ns);
+    }*/
 }
 
+//TODO: This overwrites any previous writes such as coord data
 void SEGY::writeGrid(size_t offset, std::vector<GridArray> & data)
 {
     size_t num = data.size();
+    size_t mds = Obj::SEGSz::getMDSz();
+    std::vector<uchar> dos(num * mds);
+    insertPair<Grid>(dos, data);
+    obj->writeDOMD(offset, num, dos.data(), ns);
+
+/*    size_t num = data.size();
     size_t mds = Obj::SEGSz::getMDSz();
 
     std::vector<uchar> dos(num * mds);
@@ -449,31 +530,29 @@ void SEGY::writeGrid(size_t offset, std::vector<GridArray> & data)
         for (size_t j = 0; j < static_cast<size_t>(Grid::Len); j++)
         {
             auto p = getPair(static_cast<Grid>(j));
-            //The implicit down-conversion has the potential of losing information.
-            //Not really sure what I can do about that. SEG-Y limitation on datasize.
             setMd(getItem(p.first), &dos[i*mds], int(data[i][j].first));
             setMd(getItem(p.second), &dos[i*mds], int(data[i][j].second));
         }
     }
-    obj->writeDOMD(offset, num, dos.data(), ns);
+    obj->writeDOMD(offset, num, dos.data(), ns);*/
 }
 
 void SEGY::readGrid(size_t offset, MetaPair items, std::vector<GridData> & data)
 {
     std::vector<uchar> dos = readTraceHeaders(offset, data.size());
-    extractPair<llint>(dos, items, data);
+    extractPair(dos, items, data);
 }
 
 void SEGY::readGrid(size_t offset, std::vector<GridArray> & data)
 {
     std::vector<uchar> dos = readTraceHeaders(offset, data.size());
-    extractPair<Grid, llint>(dos, data);
+    extractPair<Grid>(dos, data);
 }
 
 void SEGY::readGrid(size_t offset, Grid grid, std::vector<GridData> & data)
 {
     std::vector<uchar> dos = readTraceHeaders(offset, data.size());
-    extractPair<llint>(dos, getPair(grid), data);
+    extractPair(dos, getPair(grid), data);
 }
 void SEGY::writeGrid(size_t offset, Grid grid, std::vector<GridData> & data)
 {

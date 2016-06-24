@@ -77,41 +77,9 @@ void Interface::writeFile(Header & header, std::vector<CoordArray> & coord, std:
     assert((coord.size() == data.size() / header.ns) && (header.nt*header.ns == data.size()));
     writeHeader(header);
 }
+
 void Interface::readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
 {
     readHeader(header);
-}
-
-#ifndef __ICC
-constexpr
-#endif
-MetaPair getPair(Coord pair)
-{
-    switch (pair)
-    {
-        case Coord::Src :
-            return std::make_pair(BlockMd::xSrc, BlockMd::ySrc);
-        case Coord::Rcv :
-            return std::make_pair(BlockMd::xRcv, BlockMd::yRcv);
-        case Coord::Cmp :
-            return std::make_pair(BlockMd::xCDP, BlockMd::yCDP);
-//        case Coord::Water :
-//            return std::make_pair(BlockMd::wdSrc, BlockMd::wdGrp);
-        default :
-            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
-    }
-}
-#ifndef __ICC
-constexpr
-#endif
-MetaPair getPair(Grid pair)
-{
-    switch (pair)
-    {
-        case Grid::Lin :
-            return std::make_pair(BlockMd::iLin, BlockMd::xLin);
-        default :
-            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
-    }
 }
 }}

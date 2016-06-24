@@ -15,17 +15,23 @@ void copyTestPolymorphism(Comms::MPI & comm, File::Interface & out, Set::Manager
 {
     if (!comm.getRank()) std::cout << "Copy Data\n";
     auto header = in.readHeader();
-    auto coords = in.readCoord();
+
     auto traces = in.readTraces();
+
+    std::vector<File::GridArray> grids;
+    std::vector<File::CoordArray> coords;
+    size_t offset = in.readTraceHeader(grids, coords);
 
     if (!comm.getRank()) std::cout << "Write header\n";
     out.writeHeader(header);
 
-    if (!comm.getRank()) std::cout << "Write Coords\n";
-    out.writeCoord(coords.first, coords.second);
+//    if (!comm.getRank()) std::cout << "Write Coords\n";
+//    out.writeCoord(coords.first, coords.second);
+    if (!comm.getRank()) std::cout << "Write Trace Headers\n";
+    out.writeTraceHeader(offset, grids, coords);
 
     if (!comm.getRank()) std::cout << "Write Data\n";
-    out.writeTraces(coords.first, traces.second);
+    out.writeTraces(offset, traces.second);
 }
 
 int main(int argc, char ** argv)

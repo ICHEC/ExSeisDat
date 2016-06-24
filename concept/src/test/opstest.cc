@@ -5,27 +5,41 @@
 #include "ops/ops.hh"
 #include "set/man.hh"
 using namespace PIOL;
-void getMinMaxCoords(Comms::MPI & comm, Set::Manager & man)
+
+template <typename T>
+void printMinMax(Comms::MPI & comm, std::pair<size_t, std::vector<File::Pair<T>> > & mdata)
 {
-    if (!comm.getRank()) std::cout << "Read Coords\n";
-
-    auto mcoord = man.readCoord(PIOL::File::Coord::Cmp);
-
-    auto offset = mcoord.first;
-    auto coord = mcoord.second;
+    auto offset = mdata.first;
+    auto data = mdata.second;
+    auto zerop = std::pair<T, T>(T(0), T(0));
 
     if (!comm.getRank()) std::cout << "Calc Min/Max\n";
-    File::CoordData zerop = std::pair<real, real>(0.0, 0.0);
 
-    real min = Ops::calcMin(comm, zerop, coord);
-    real max = Ops::calcMax(comm, zerop, coord);
+    T min = Ops::calcMin(comm, zerop, data);
+    T max = Ops::calcMax(comm, zerop, data);
 
     if (!comm.getRank()) std::cout << "Find Min/Max\n";
-    size_t findMin = Ops::findMin(comm, offset, zerop, coord);
-    size_t findMax = Ops::findMax(comm, offset, zerop, coord);
+
+    size_t findMin = Ops::findMin(comm, offset, zerop, data);
+    size_t findMax = Ops::findMax(comm, offset, zerop, data);
 
     if (!comm.getRank()) std::cout << "Min " << min << " max = " << max << std::endl;
     if (!comm.getRank()) std::cout << "Trace Number, min " << findMin + 1 << " max " << findMax + 1 << std::endl;
+}
+
+void getMinMaxCoords(Comms::MPI & comm, Set::Manager & man)
+{
+    if (!comm.getRank()) std::cout << "Read Cmp\n";
+    auto mcoord = man.readCoord(PIOL::File::Coord::Cmp);
+    if (!comm.getRank()) std::cout << "Read Lin\n";
+    auto mgrid = man.readGrid(PIOL::File::Grid::Lin);
+
+    if (!comm.getRank()) std::cout << "Max Lin\n";
+    printMinMax(comm, mgrid);
+
+    if (!comm.getRank()) std::cout << "Max Cmp\n";
+    printMinMax(comm, mcoord);
+
 }
 
 int main(int argc, char ** argv)

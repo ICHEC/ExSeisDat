@@ -26,9 +26,11 @@ class SEGY : public PIOL::File::Interface
 
     Format format;
     size_t scale;
-    
     void parseHO(std::vector<uchar> &);
     std::vector<uchar> makeHeader();
+
+    std::vector<uchar> readTraceHeaders(size_t offset, size_t num);
+    void writeTraceHeaders(size_t offset, std::vector<uchar> &);
 
     public :
 
@@ -50,8 +52,8 @@ class SEGY : public PIOL::File::Interface
     void writeGrid(size_t, Grid, std::vector<GridData> &);
     void writeGrid(size_t, std::vector<GridArray> &);
 
-    std::vector<uchar> readTraceHeaders(size_t offset, size_t num);
-    void writeTraceHeaders(size_t offset, std::vector<uchar> &);
+    void readTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &);
+    void writeTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &);
 
 ///////////////////////Operations on Traces/////////////////////////////////
     void readTraces(size_t, std::vector<real> &);

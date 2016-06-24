@@ -2,6 +2,8 @@
 #define PIOLFILE_INCLUDE_GUARD
 #include <vector>
 #include <mpi.h>
+#include <cassert>
+#include <execinfo.h>
 #include "global.hh"
 #include "object/object.hh"
 #include "comm/comm.hh"
@@ -140,16 +142,48 @@ class Interface
     virtual void writeGrid(size_t offset, Grid grid, std::vector<GridData> & data) = 0;
     virtual void writeGrid(size_t offset, std::vector<GridArray> & data) = 0;
 
+    virtual void readTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &) = 0;
+    virtual void writeTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &) = 0;
+
     void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
     void readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
 };
 #ifndef __ICC
 constexpr
+#else
+inline
 #endif
-MetaPair getPair(Grid pair);
+MetaPair getPair(Coord pair)
+{
+    switch (pair)
+    {
+        case Coord::Src :
+            return std::make_pair(BlockMd::xSrc, BlockMd::ySrc);
+        case Coord::Rcv :
+            return std::make_pair(BlockMd::xRcv, BlockMd::yRcv);
+        case Coord::Cmp :
+            return std::make_pair(BlockMd::xCDP, BlockMd::yCDP);
+//        case Coord::Water :
+//            return std::make_pair(BlockMd::wdSrc, BlockMd::wdGrp);
+        default :
+            assert(0);
+            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
+    }
+}
 #ifndef __ICC
 constexpr
+#else
+inline
 #endif
-MetaPair getPair(Coord pair);
+MetaPair getPair(Grid pair)
+{
+    switch (pair)
+    {
+        case Grid::Lin :
+            return std::make_pair(BlockMd::iLin, BlockMd::xLin);
+        default :
+            return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
+    }
+}
 }}
 #endif

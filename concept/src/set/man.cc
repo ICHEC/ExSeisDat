@@ -25,20 +25,46 @@ std::pair<size_t, size_t> Manager::decompose(size_t num)
     return std::make_pair(decomp.first, decomp.second-decomp.first);
 }
 
-CoordData Manager::readCoord(File::Coord Type)
+GridItem Manager::readGrid(File::Grid Type)
+{
+    auto decomp = decompose(file->readNt());
+    std::vector<File::GridData> grid(decomp.second);
+    file->readGrid(decomp.first, Type, grid);
+    return std::make_pair(decomp.first, grid);
+}
+
+GridStrut Manager::readGrid(void)
+{
+    auto decomp = decompose(file->readNt());
+    std::vector<File::GridArray> grids(decomp.second);
+    file->readGrid(decomp.first, grids);
+    return std::make_pair(decomp.first, grids);
+}
+
+CoordItem Manager::readCoord(File::Coord Type)
 {
     auto decomp = decompose(file->readNt());
     std::vector<File::CoordData> coord(decomp.second);
     file->readCoord(decomp.first, Type, coord);
     return std::make_pair(decomp.first, coord);
 }
-CoordArray Manager::readCoord(void)
+
+CoordStrut Manager::readCoord(void)
 {
     auto decomp = decompose(file->readNt());
+    std::vector<File::CoordArray> coords(decomp.second);
+    file->readCoord(decomp.first, coords);
+    return std::make_pair(decomp.first, coords);
+}
 
-    std::vector<File::CoordArray> allCoords(decomp.second);
-    file->readCoord(decomp.first, allCoords);
-    return std::make_pair(decomp.first, allCoords);
+size_t Manager::readTraceHeader(std::vector<File::GridArray> & grids, std::vector<File::CoordArray> & coords)
+{
+    auto decomp = decompose(file->readNt());
+    coords.resize(decomp.second);
+    grids.resize(decomp.second);
+
+    file->readTraceHeader(decomp.first, grids, coords);
+    return decomp.first;
 }
 
 //TODO: Double-check about data copy cost
