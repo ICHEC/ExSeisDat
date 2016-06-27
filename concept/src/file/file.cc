@@ -72,14 +72,15 @@ void Interface::writeText(std::string Text)
     inc = Inc;
 }
 
-void Interface::writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
+/*void Interface::writeFile(Header & header, std::vector<GridArray> & grid, std::vector<CoordArray> & coord, std::vector<real> & data)
 {
     assert((coord.size() == data.size() / header.ns) && (header.nt*header.ns == data.size()));
+    assert((grid.size() == data.size() / header.ns));
     writeHeader(header);
 }
 
-void Interface::readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data)
+void Interface::readFile(Header & header, std::vector<GridArray> & grid, std::vector<CoordArray> & coord, std::vector<real> & data)
 {
     readHeader(header);
-}
+}*/
 }}

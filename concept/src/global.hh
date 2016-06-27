@@ -2,10 +2,7 @@
 #define GLOBAL_INCLUDE_GUARD
 typedef unsigned char uchar;
 typedef long long int llint;
-namespace PIOL
-{
 typedef float real;
 typedef double coreal;
-}
 #endif
 

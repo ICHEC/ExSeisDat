@@ -2,8 +2,8 @@
 #include <cassert>
 #include "comm/mpi.hh"
 #include "file/filesegy.hh"
-#include "ops/ops.hh"
 #include "set/man.hh"
+#include "ops/ops.hh"
 using namespace PIOL;
 
 template <typename T>
@@ -52,10 +52,15 @@ int main(int argc, char ** argv)
     Set::Manager seg(comm, std::unique_ptr<File::Interface>(new File::SEGY(comm, inFile, PIOL::Block::Type::MPI)));
 
     if (!comm->getRank()) std::cout << "Header has been read. Now calc min max of  " << inFile << std::endl;
+//    getMinMaxCoords(*comm, seg);
+    std::vector<File::TraceHeader> thead;
+    if (!comm->getRank()) std::cout << "readTraceHeader\n";
+    seg.readTraceHeader(thead);
 
-    getMinMaxCoords(*comm, seg);
+    if (!comm->getRank()) std::cout << "Sorting\n";
+    Ops::Sort(*comm, seg.File().readNt(), thead);
 
-    if (!comm->getRank()) std::cout << "Successful exit";
+    if (!comm->getRank()) std::cout << "Successful exit" << std::endl;
     return 0;
 }
 

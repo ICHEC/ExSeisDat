@@ -28,6 +28,11 @@ class Manager
     {
     }
 
+    File::Interface & File()
+    {
+        return *file;
+    }
+
     GridStrut readGrid(void);
     GridItem readGrid(File::Grid);
 
@@ -35,6 +40,7 @@ class Manager
     CoordItem readCoord(File::Coord);
 
     size_t readTraceHeader(std::vector<File::GridArray> &, std::vector<File::CoordArray> &);
+    size_t readTraceHeader(std::vector<File::TraceHeader> &);
     TraceData readTraces(void);
     File::Header readHeader(void);
     Decomp decompose(size_t);

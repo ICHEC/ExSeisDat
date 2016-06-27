@@ -54,11 +54,17 @@ typedef Pair<llint> GridData;
 typedef Pair<BlockMd> MetaPair;
 
 template <typename T, typename P>
-using MetaArray = std::array<std::pair<T, T>, static_cast<size_t>(P::Len)>;
+using MetaArray = std::array<Pair<T>, static_cast<size_t>(P::Len)>;
 
 typedef MetaArray<coreal, Coord> CoordArray;
 typedef MetaArray<llint, Grid> GridArray;
 
+struct TraceHeader
+{
+    size_t num;
+    GridArray grids;
+    CoordArray coords;
+};
 //typedef std::array<CoordData, static_cast<size_t>(Coord::Len)> CoordArray;
 //typedef std::array<GridData, static_cast<size_t>(Grid::Len)> GridArray;
 
@@ -142,11 +148,14 @@ class Interface
     virtual void writeGrid(size_t offset, Grid grid, std::vector<GridData> & data) = 0;
     virtual void writeGrid(size_t offset, std::vector<GridArray> & data) = 0;
 
+    virtual void readTraceHeader(size_t offset, std::vector<TraceHeader> & thead) = 0;
+    virtual void writeTraceHeader(size_t offset, std::vector<TraceHeader> & thead) = 0;
+
     virtual void readTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &) = 0;
     virtual void writeTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &) = 0;
 
-    void writeFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
-    void readFile(Header & header, std::vector<CoordArray> & coord, std::vector<real> & data);
+//    void writeFile(Header & header, std::vector<GridArray> &, std::vector<CoordArray> & coord, std::vector<real> & data);
+//    void readFile(Header & header, std::vector<GridArray> &, std::vector<CoordArray> & coord, std::vector<real> & data);
 };
 #ifndef __ICC
 constexpr
@@ -166,7 +175,6 @@ MetaPair getPair(Coord pair)
 //        case Coord::Water :
 //            return std::make_pair(BlockMd::wdSrc, BlockMd::wdGrp);
         default :
-            assert(0);
             return std::make_pair(BlockMd::ERROR, BlockMd::ERROR);
     }
 }

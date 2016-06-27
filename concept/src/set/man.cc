@@ -3,6 +3,7 @@
 #include "comm/comm.hh"
 #include "file/file.hh"
 
+#include <iostream>
 extern void ibm2ieee( void *to, const void *from, long long);
 
 namespace PIOL { namespace Set {
@@ -64,6 +65,18 @@ size_t Manager::readTraceHeader(std::vector<File::GridArray> & grids, std::vecto
     grids.resize(decomp.second);
 
     file->readTraceHeader(decomp.first, grids, coords);
+    return decomp.first;
+}
+
+size_t Manager::readTraceHeader(std::vector<File::TraceHeader> & thead)
+{
+    if (!comm->getRank())
+        std::cout << "Decompose TraceHeader\n";
+    auto decomp = decompose(file->readNt());
+    thead.resize(decomp.second);
+    if (!comm->getRank())
+        std::cout << "ReadTraceHeader\n";
+    file->readTraceHeader(decomp.first, thead);
     return decomp.first;
 }
 

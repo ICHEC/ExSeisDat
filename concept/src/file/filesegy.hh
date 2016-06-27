@@ -52,7 +52,9 @@ class SEGY : public PIOL::File::Interface
     void writeGrid(size_t, Grid, std::vector<GridData> &);
     void writeGrid(size_t, std::vector<GridArray> &);
 
+    void readTraceHeader(size_t offset, std::vector<TraceHeader> & thead);
     void readTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &);
+    void writeTraceHeader(size_t offset, std::vector<TraceHeader> & thead);
     void writeTraceHeader(size_t offset, std::vector<GridArray> &, std::vector<CoordArray> &);
 
 ///////////////////////Operations on Traces/////////////////////////////////
