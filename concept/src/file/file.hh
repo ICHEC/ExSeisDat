@@ -103,6 +103,9 @@ class Interface
 
     virtual void writeHeader(Header header) = 0;
 
+    virtual void readDataTraces(std::vector<size_t> &, std::vector<uchar> & data) = 0;
+    virtual void writeDataTraces(size_t, std::vector<uchar> & data) = 0;
+
     virtual void readTraces(size_t offset, std::vector<real> & data) = 0;
 //Random access pattern. Good candidate for collective.
     virtual void readTraces(std::vector<size_t> & offset, std::vector<real> & data) = 0;

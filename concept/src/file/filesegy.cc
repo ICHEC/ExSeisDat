@@ -384,6 +384,29 @@ void print(std::vector<char> str)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////SEGY File Interface/////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+void SEGY::readDataTraces(std::vector<size_t> & offsets, std::vector<uchar> & data)
+{
+    size_t ns = readNs();
+    size_t dsz = Obj::SEGSz::getDOSz<float>(ns);
+    data.resize(offsets.size() * dsz);
+
+    for (size_t i = 0; i < offsets.size(); i++)
+        obj->readDO(offsets[i], offsets.size(), &data.data()[i*dsz], ns);
+}
+
+
+void SEGY::writeDataTraces(size_t offset, std::vector<uchar> & data)
+{
+    size_t ns = readNs();
+    size_t dsz = Obj::SEGSz::getDOSz<float>(ns);
+    assert(!(data.size() % dsz));
+    size_t num = data.size() / dsz;
+
+    obj->writeDO(offset, num, data.data(), ns);
+}
+
+
+
 void SEGY::writeTraceHeader(size_t offset, std::vector<TraceHeader> & thead)
 {
     size_t num = thead.size();

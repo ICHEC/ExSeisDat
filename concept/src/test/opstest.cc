@@ -55,10 +55,19 @@ int main(int argc, char ** argv)
 //    getMinMaxCoords(*comm, seg);
     std::vector<File::TraceHeader> thead;
     if (!comm->getRank()) std::cout << "readTraceHeader\n";
-    seg.readTraceHeader(thead);
+    size_t offset = seg.readTraceHeader(thead);
 
     if (!comm->getRank()) std::cout << "Sorting\n";
-    Ops::Sort(*comm, seg.File().readNt(), thead);
+    std::vector<size_t> traceNums = Ops::Sort(*comm, seg.File().readNt(), thead);
+
+    std::vector<uchar> dos;
+    seg.File().readDataTraces(traceNums, dos);
+    File::Header header;
+    seg.File().readHeader(header);
+
+    File::SEGY out(comm, "sortedfile.segy", PIOL::Block::Type::MPI);
+    out.writeHeader(header);
+    out.writeDataTraces(offset, dos);
 
     if (!comm->getRank()) std::cout << "Successful exit" << std::endl;
     return 0;

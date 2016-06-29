@@ -10,7 +10,6 @@ namespace PIOL { namespace Block {
 
 template <typename U>
 using Fp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
-
 extern int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st);
 
 class MPIIO : public PIOL::Block::Interface
@@ -22,6 +21,7 @@ class MPIIO : public PIOL::Block::Interface
     MPI_File file;
     Fp<MPI_Status> ifn;
     Fp<MPI_Status> ofn;
+//    MPIIOOpt opt;
     MPI_Comm mcomm;
 
 #ifndef TEST_PRIVATE
@@ -44,5 +44,15 @@ class MPIIO : public PIOL::Block::Interface
     void writeData(size_t o, float * f, size_t s);
     void writeData(size_t o, uchar * c, size_t s);
 };
+
+class MPIIOOpt : public PIOL::Block::Options
+{
+    Fp<MPI_Status> ifn;
+    Fp<MPI_Status> ofn;
+    MPIIOOpt(Fp<MPI_Status> ifn_ = MPI_File_read_at, Fp<MPI_Status> ofn_ = mpiio_write_at) : ifn(ifn_), ofn(ofn_)
+    {
+    }
+};
+
 }}
 #endif

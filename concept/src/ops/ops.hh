@@ -19,6 +19,6 @@ size_t findMax(Comms::MPI &, size_t, const File::GridData &, const std::vector<F
 
 size_t findMin(Comms::MPI &, size_t, const File::CoordData &, const std::vector<File::CoordData> &);
 size_t findMin(Comms::MPI &, size_t, const File::GridData &, const std::vector<File::GridData> &);
-void Sort(Comms::MPI & comm, size_t, std::vector<File::TraceHeader> & thead);
+std::vector<size_t> Sort(Comms::MPI & comm, size_t, std::vector<File::TraceHeader> & thead);
 }}
 #endif

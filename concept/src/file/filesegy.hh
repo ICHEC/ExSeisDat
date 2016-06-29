@@ -61,6 +61,11 @@ class SEGY : public PIOL::File::Interface
     void readTraces(size_t, std::vector<real> &);
     void readTraces(std::vector<size_t> &, std::vector<real> &);
     void writeTraces(size_t, std::vector<real> &);
+
+/////////////////////////Operations on Data Traces (Trace Header + Trace Data)//////////////////
+    virtual void readDataTraces(std::vector<size_t> &, std::vector<uchar> & data);
+    virtual void writeDataTraces(size_t, std::vector<uchar> & data);
+
 };
 }}
 #endif

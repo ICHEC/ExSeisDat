@@ -66,6 +66,13 @@ class MPI : public Comms::Interface
     {
         return comm;
     }
+
+//TODO: Implement
+//    MPI_Comm getLocalComm()
+//    {
+//        return comm;
+//    }
+
     template <typename T>
     std::vector<T> gatherScalar(T val)
     {

@@ -1,6 +1,7 @@
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
 #include <memory>
+#include "global.hh"
 #include "block/block.hh"
 namespace PIOL { namespace Obj {
 class Interface
@@ -11,7 +12,7 @@ class Interface
     std::unique_ptr<Bl> block;
 
     public :
-    virtual size_t getSize(size_t nt, size_t ns) = 0;
+    virtual size_t getSize(size_t, size_t) = 0;
 
     virtual size_t getFileSz(void)
     {
@@ -22,16 +23,15 @@ class Interface
         block->setFileSz(getSize(nt, ns));
     }
 
-    virtual void readHO(unsigned char * data) = 0;
-    virtual void readDO(size_t start, size_t sz, unsigned char * dos, size_t ns) = 0;
-    virtual void readDODF(size_t start, size_t sz, float * data, size_t ns) = 0;
-    virtual void readDOMD(size_t start, size_t sz, unsigned char * data, size_t ns) = 0;
+    virtual void readHO(uchar *) = 0;
+    virtual void readDO(size_t, size_t, uchar *, size_t) = 0;
+    virtual void readDODF(size_t, size_t, float *, size_t) = 0;
+    virtual void readDOMD(size_t, size_t, uchar *, size_t) = 0;
 
-    virtual void writeHO(unsigned char * data) = 0;
-    virtual void writeDO(size_t start, size_t sz, unsigned char * dos, size_t ns) = 0;
-    virtual void writeDODF(size_t start, size_t sz, float * data, size_t ns) = 0;
-    virtual void writeDOMD(size_t start, size_t sz, unsigned char * data, size_t ns) = 0;
-
+    virtual void writeHO(uchar *) = 0;
+    virtual void writeDO(size_t, size_t, uchar *, size_t) = 0;
+    virtual void writeDODF(size_t, size_t, float *, size_t) = 0;
+    virtual void writeDOMD(size_t, size_t, uchar *, size_t) = 0;
 };
 }}
 #endif
