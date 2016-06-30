@@ -2,13 +2,13 @@
 #define PIOLOBJ_INCLUDE_GUARD
 #include <memory>
 #include "global.hh"
-#include "block/block.hh"
+#include "data/data.hh"
 namespace PIOL { namespace Obj {
 class Interface
 {
     protected :
-    typedef PIOL::Block::Interface Bl;
-    typedef PIOL::Block::Type Bt;
+    typedef PIOL::Data::Interface Bl;
+    typedef PIOL::Data::Type Bt;
     std::unique_ptr<Bl> block;
 
     public :

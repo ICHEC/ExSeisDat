@@ -3,10 +3,10 @@
 #include <iostream>
 #include <vector>
 #include <typeinfo>
-#include "blockmpiio.hh"
+#include "datampiio.hh"
 #include "comm/mpi.hh"
 
-namespace PIOL { namespace Block {
+namespace PIOL { namespace Data {
 //extern MPI_File open(MPI_Comm, std::string, int);
 //extern size_t getFileSz(MPI_File);
 //extern void setFileSz(MPI_File, size_t);
@@ -142,9 +142,9 @@ MPI_File open(MPI_Comm comm, std::string name, int mode)
 
 ////////MPI-IO Class Interface//////////////////
 
-MPIIO::MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, 
+MPIIO::MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name,
      Fp<MPI_Status> Ifn,
-     Fp<MPI_Status> Ofn) : Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
+     Fp<MPI_Status> Ofn) : Data::Interface(Comm), ifn(Ifn), ofn(Ofn)
 {
     mcomm = Comm->getComm();
     //Try write mode
@@ -173,7 +173,7 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
 
 MPIIO::MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode, 
              Fp<MPI_Status> Ifn, Fp<MPI_Status> Ofn) 
-           : PIOL::Block::Interface(Comm), ifn(Ifn), ofn(Ofn)
+           : PIOL::Data::Interface(Comm), ifn(Ifn), ofn(Ofn)
 {
     mcomm = Comm->getComm();
     file = open(mcomm, name, mode);

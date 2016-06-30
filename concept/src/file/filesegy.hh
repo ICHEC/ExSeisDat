@@ -11,7 +11,7 @@
 namespace PIOL { namespace File {
 class SEGY : public PIOL::File::Interface
 {
-    typedef PIOL::Block::Type Bt;
+    typedef PIOL::Data::Type Bt;
     enum Format : short
     {
         IBM = 1,    //IBM format, big endian
@@ -37,7 +37,7 @@ class SEGY : public PIOL::File::Interface
     SEGY(std::shared_ptr<Comms::Interface> Comm, std::string name, Bt bType);
 
 ///////////////////////Operations on Headers/////////////////////////////////
-    void writeHeader(Header header);
+    void writeHeader(Header & header);
 
 ///////////////////////Operations on Trace Headers/////////////////////////////////
     void readCoord(size_t, MetaPair, std::vector<CoordData> &);

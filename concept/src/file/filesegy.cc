@@ -242,7 +242,13 @@ int calcTraceScale(const CoordArray & data)
 {
     int scale = 10000;
     for (size_t j = 0; j < static_cast<size_t>(Coord::Len); j++)
-        scale = std::min(calcAppropScale(data[j].second), std::min(calcAppropScale(data[j].first), scale));
+    {
+        if (data[j].first != coreal(0))
+            scale = std::min(calcAppropScale(data[j].first), scale);
+        if (data[j].second == coreal(0))
+            scale = std::min(calcAppropScale(data[j].second), scale);
+        //scale = std::min(calcAppropScale(data[j].second), std::min(calcAppropScale(data[j].first), scale));
+    }
     return scale;
 }
 
@@ -391,9 +397,8 @@ void SEGY::readDataTraces(std::vector<size_t> & offsets, std::vector<uchar> & da
     data.resize(offsets.size() * dsz);
 
     for (size_t i = 0; i < offsets.size(); i++)
-        obj->readDO(offsets[i], offsets.size(), &data.data()[i*dsz], ns);
+        obj->readDO(offsets[i], 1, &data.data()[i*dsz], ns);
 }
-
 
 void SEGY::writeDataTraces(size_t offset, std::vector<uchar> & data)
 {
@@ -404,8 +409,6 @@ void SEGY::writeDataTraces(size_t offset, std::vector<uchar> & data)
 
     obj->writeDO(offset, num, data.data(), ns);
 }
-
-
 
 void SEGY::writeTraceHeader(size_t offset, std::vector<TraceHeader> & thead)
 {
@@ -486,7 +489,7 @@ std::vector<uchar> SEGY::makeHeader()
         header[i] = texts[i];
 
     assert(readNs() < (1 << (sizeof(short)*8+1))); //TODO: Make sure each data amount is compatible
-    setMd(Hdr::NumSample, header.data(), short(readNs()));
+    setMd(Hdr::NumSample, header.data(), static_cast<short>(readNs()));
     setMd(Hdr::Type, header.data(), static_cast<short>(Format::IEEE));
 
     int incr = static_cast<int>(std::lround(readInc() / MICRO));
@@ -513,12 +516,22 @@ SEGY::SEGY(std::shared_ptr<Comms::Interface> Comm, std::string name, Bt bType) :
         text = "";
     }
 }
-void SEGY::writeHeader(Header header)
+void SEGY::writeHeader(Header & header)
 {
     writeText(header.text);
     writeNs(header.ns);
     writeNt(header.nt);
     writeInc(header.inc);
+
+
+    if (!comm->getRank())
+    {
+        std::cout << "Write Header\n";
+        std::cout << "text: " << readText() << std::endl;
+        std::cout << "nt: " << readNt() << std::endl;
+        std::cout << "ns: " << readNs() << std::endl;
+        std::cout << "inc: "<< readInc() << std::endl;
+    }
 
     std::vector<uchar> buf = makeHeader();
 

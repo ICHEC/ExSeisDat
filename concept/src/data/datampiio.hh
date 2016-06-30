@@ -4,15 +4,15 @@
 #include <memory>
 #include "global.hh"
 #include "comm/mpi.hh"
-#include "block/block.hh"
+#include "data/data.hh"
 
-namespace PIOL { namespace Block {
+namespace PIOL { namespace Data {
 
 template <typename U>
 using Fp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
 extern int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st);
 
-class MPIIO : public PIOL::Block::Interface
+class MPIIO : public PIOL::Data::Interface
 {
 #ifdef TEST_PRIVATE
     public :
@@ -45,7 +45,7 @@ class MPIIO : public PIOL::Block::Interface
     void writeData(size_t o, uchar * c, size_t s);
 };
 
-class MPIIOOpt : public PIOL::Block::Options
+class MPIIOOpt : public PIOL::Data::Options
 {
     Fp<MPI_Status> ifn;
     Fp<MPI_Status> ofn;

@@ -3,7 +3,7 @@
 #include <memory>
 #include <mpi.h>
 #include "comm/comm.hh"
-namespace PIOL { namespace Block {
+namespace PIOL { namespace Data {
 
 class Interface
 {
@@ -31,9 +31,9 @@ class Options
 
 enum class Type
 {
-    MPI
+    MPIIO
 };
-typedef PIOL::Block::Type Bt;
+typedef PIOL::Data::Type Bt;
 }}
 
 #endif

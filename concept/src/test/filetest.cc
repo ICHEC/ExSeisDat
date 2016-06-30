@@ -4,6 +4,7 @@
 #include <iostream>
 #include <utility>
 #include "global.hh"
+#include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "set/man.hh"
 #include "parallel.hh"
@@ -46,13 +47,13 @@ int main(int argc, char ** argv)
 
     if (!comm->getRank()) std::cout << "In file " << inFile << std::endl;
 
-    Set::Manager seg(comm, std::unique_ptr<File::Interface>(new File::SEGY(comm, inFile, PIOL::Block::Type::MPI)));
+    Set::Manager seg(comm, std::unique_ptr<File::Interface>(new File::SEGY(comm, inFile, PIOL::Data::Type::MPIIO)));
 
 //    testPolymorphismGets(seg);
 
     if (!comm->getRank()) std::cout << "Out file " << outFile << std::endl;
 
-    File::SEGY out(comm, outFile, PIOL::Block::Type::MPI);
+    File::SEGY out(comm, outFile, PIOL::Data::Type::MPIIO);
     copyTestPolymorphism(*comm, out, seg);
     if (!comm->getRank()) std::cout << "Terminate" << std::endl;
     return 0;

@@ -41,7 +41,7 @@ enum class Grid : size_t
 struct Header
 {
     std::string text;
-    real inc;
+    coreal inc;
     size_t ns;
     size_t nt;
 };
@@ -72,7 +72,7 @@ class Interface
 {
     protected:
     std::string text;
-    real inc;
+    coreal inc;
     size_t ns;
     size_t nt;
 
@@ -94,14 +94,14 @@ class Interface
     virtual std::string readText(void);
     virtual size_t readNs(void);
     virtual size_t readNt(void);
-    virtual real readInc(void);
+    virtual coreal readInc(void);
 
     virtual void writeText(std::string Text);
     virtual void writeNs(size_t Ns);
     virtual void writeNt(size_t Nt);
-    virtual void writeInc(real Inc);
+    virtual void writeInc(coreal Inc);
 
-    virtual void writeHeader(Header header) = 0;
+    virtual void writeHeader(Header & header) = 0;
 
     virtual void readDataTraces(std::vector<size_t> &, std::vector<uchar> & data) = 0;
     virtual void writeDataTraces(size_t, std::vector<uchar> & data) = 0;

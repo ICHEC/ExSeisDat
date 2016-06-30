@@ -1,6 +1,6 @@
 
 all:
-	(cd block; make)
+	(cd data; make)
 	(cd object; make)
 	(cd file; make)
 	(cd ops; make)
@@ -8,7 +8,7 @@ all:
 	(cd test; make)
 
 clean:
-	(cd block; make clean)
+	(cd data; make clean)
 	(cd object; make clean)
 	(cd file; make clean)
 	(cd ops; make clean)

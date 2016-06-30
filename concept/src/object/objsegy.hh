@@ -1,25 +1,26 @@
 #ifndef PIOLOBJSEGY_INCLUDE_GUARD
 #define PIOLOBJSEGY_INCLUDE_GUARD
 #include <memory>
+#include "global.hh"
 #include "comm/mpi.hh"
 #include "object/object.hh"
-#include "block/block.hh"
+#include "data/data.hh"
 
 namespace PIOL { namespace Obj {
 class SEGY : public PIOL::Obj::Interface
 {
-    public : 
+    public :
     SEGY(std::shared_ptr<Comms::Interface> comm, std::string name, Bt bType);
     //Assumes float
     size_t getSize(size_t nt, size_t ns);
-    void readHO(unsigned char * data);
-    void readDO(size_t start, size_t sz, unsigned char * dos, size_t ns);
+    void readHO(uchar * data);
+    void readDO(size_t start, size_t sz, uchar * dos, size_t ns);
     void readDODF(size_t start, size_t sz, float * data, size_t ns);
-    void readDOMD(size_t start, size_t sz, unsigned char * data, size_t ns);
-    void writeHO(unsigned char * data);
-    void writeDO(size_t start, size_t sz, unsigned char * dos, size_t ns);
+    void readDOMD(size_t start, size_t sz, uchar * data, size_t ns);
+    void writeHO(uchar * data);
+    void writeDO(size_t start, size_t sz, uchar * dos, size_t ns);
     void writeDODF(size_t start, size_t sz, float * data, size_t ns);
-    void writeDOMD(size_t start, size_t sz, unsigned char * data, size_t ns);
+    void writeDOMD(size_t start, size_t sz, uchar * data, size_t ns);
 };
 
 namespace SEGSz

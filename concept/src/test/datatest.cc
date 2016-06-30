@@ -18,7 +18,7 @@
 #include <omp.h>
 #include <unistd.h>
 #define TEST_PRIVATE
-#include "block/blockmpiio.hh"
+#include "data/datampiio.hh"
 #include "parallel.hh"
 #include "comm/mpi.hh"
 using namespace PIOL;
@@ -63,7 +63,7 @@ void WriteTest(std::shared_ptr<Comms::MPI> comm, std::string Name, size_t Global
 
 //I/O
     std::cout << "Open File " << Name << std::endl;
-    Block::MPIIO out(comm, Name);
+    Data::MPIIO out(comm, Name);
     out.setFileSz(Global*sizeof(T));
     out.writeData(Div.first, Data, Sz);
 
@@ -80,8 +80,7 @@ void ReadTest(std::shared_ptr<Comms::MPI> comm, std::string Name, size_t Global,
         throw(-1);
 
     {
-        Block::MPIIO in(comm, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
-        //Block::MPI::Interface<MPI_Status> in(Name);
+        Data::MPIIO in(comm, Name, MPI_MODE_UNIQUE_OPEN | MPI_MODE_RDONLY);
         in.readData(Div.first, Data, Sz);
     }
     unsigned long int Fail = 0;

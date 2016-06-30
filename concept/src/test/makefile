@@ -1,6 +1,6 @@
 include ../compiler.cfg
 
-BIN1=blocktest
+BIN1=datatest
 BIN2=filetest
 BIN3=opstest
 BIN=$(BIN1) $(BIN2) $(BIN3)
@@ -8,7 +8,7 @@ BIN=$(BIN1) $(BIN2) $(BIN3)
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(patsubst %.cc, %.o, $(SOURCES))
 
-OBJ1=blocktest.o ../obj/blockmpiio.o
+OBJ1=datatest.o ../obj/datampiio.o
 OBJ2=filetest.o segy.o ../obj/*.o
 OBJ3=opstest.o segy.o ../obj/*.o
 

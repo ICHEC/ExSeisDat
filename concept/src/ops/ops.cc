@@ -13,7 +13,7 @@
 //Temporary
 #include "set/man.hh"
 //TODO: Make this unnecessary
-namespace PIOL { namespace Block {
+namespace PIOL { namespace Data {
 void printErr(int err, MPI_Status * stat, std::string msg);
 }}
 
@@ -57,7 +57,11 @@ T calcDistance(const File::Pair<T> & pair1, const File::Pair<T> & pair2)
     return std::hypot(pair1.first - pair2.first,
                       pair1.second - pair2.second);
 }
-
+template <typename T>
+T calcXSize(const File::Pair<T> & pair1, const File::Pair<T> & pair2)
+{
+    return pair2.first - pair1.first;
+}
 template <typename T>
 const T & min(const T & a, const T & b)
 {
@@ -152,7 +156,7 @@ void Print(Comms::MPI & comm, MPI_File file, std::string msg)
         out << msg;
         MPI_Status stat;
         err = MPI_File_write(file, out.str().data(), out.str().size(), MPI_CHAR, &stat);
-        Block::printErr(err, &stat, "Failure to write log file");
+        Data::printErr(err, &stat, "Failure to write log file");
     }
     MPI_File_sync(file);
 }
@@ -171,10 +175,10 @@ bool compareTraceVals(const std::pair<size_t, coreal> & arg1, const std::pair<si
 template <typename T>
 void borderExchange(Comms::MPI & comm, size_t regionSz, std::vector<std::pair<size_t, T> > & tSort1, std::vector<std::pair<size_t, T> > & tSort2)
 {
-    if (tSort2.size() > regionSz*2U) //the region sizes do not necessarily cover the entire vector
-        std::copy(tSort2.begin() + regionSz, tSort2.end() - regionSz, tSort1.begin() + regionSz);
-    std::vector<MPI_Request> msg;
+    //This can be optimised later
+    std::copy(tSort2.begin(), tSort2.end(), tSort1.begin());
 
+    std::vector<MPI_Request> msg;
     if (comm.getRank())
     {
         msg.push_back(MPI_REQUEST_NULL);
@@ -190,7 +194,7 @@ void borderExchange(Comms::MPI & comm, size_t regionSz, std::vector<std::pair<si
         MPI_Isend(&tSort2.data()[tSort2.size()-regionSz], regionSz * sizeof(std::pair<size_t, T>),
                   MPI_CHAR, comm.getRank()+1, 1, MPI_COMM_WORLD, &msg.back());
         msg.push_back(MPI_REQUEST_NULL);
-        MPI_Irecv(&tSort1.data()[tSort1.size()-regionSz], regionSz * sizeof(std::pair<size_t, T>),
+        MPI_Irecv(&tSort1.data()[tSort2.size()-regionSz], regionSz * sizeof(std::pair<size_t, T>),
                   MPI_CHAR, comm.getRank()+1, 0, MPI_COMM_WORLD, &msg.back());
     }
 
@@ -209,7 +213,7 @@ void borderExchange(Comms::MPI & comm, size_t regionSz, std::vector<std::pair<si
     }
 }
 //bool compareCMPDistance(const File::TraceHeader & arg1, const File::TraceHeader & arg2)
-std::vector<size_t> Sort(Comms::MPI & comm, size_t nt, std::vector<File::TraceHeader> & thead)
+std::vector<size_t> Sort(Comms::MPI & comm, size_t offset, size_t nt, std::vector<File::TraceHeader> & thead)
 {
     typedef llint T;
     size_t regionSz = std::min(nt / (comm.getNumRank() * 2U), std::numeric_limits<int>::max() / sizeof(std::pair<size_t, T>));
@@ -220,9 +224,9 @@ std::vector<size_t> Sort(Comms::MPI & comm, size_t nt, std::vector<File::TraceHe
 
 
 //For checking purposes
-    //size_t coordNum = static_cast<size_t>(File::Coord::Cmp);
     size_t gridNum = static_cast<size_t>(File::Grid::Lin);
     File::Pair<llint> zerop = std::make_pair(0.0, 0.0);
+    //size_t coordNum = static_cast<size_t>(File::Coord::Cmp);
     //File::Pair<coreal> zerop = std::make_pair(0.0, 0.0);
 
     //Naive sort
@@ -233,24 +237,25 @@ std::vector<size_t> Sort(Comms::MPI & comm, size_t nt, std::vector<File::TraceHe
 
     for (size_t i = 0; i < tSort1.size(); i++)
     {
-        tSort2[i].first = thead[i].num;
-        tSort2[i].second = calcDistance(zerop, thead[i].grids[gridNum]);
+        tSort1[i].first = offset + i;
+        tSort1[i].second = calcXSize(zerop, thead[i].grids[gridNum]);
     }
 
     if (!comm.getRank())
     {
         for (size_t i = 0; i < 10; i++)
-            std::cout << " Test " << calcDistance(zerop, thead[i].grids[gridNum]) << " " << thead[i].grids[gridNum].first << std::endl;
+            std::cout << " Test " << tSort1[i].first << " " << tSort1[i].second << " " << thead[i].grids[gridNum].first << std::endl;
     }
 
-    std::sort(tSort2.begin(), tSort2.end(), compareTraceVals);
+    std::sort(tSort1.begin(), tSort1.end(), compareTraceVals);
 
     double time = 0.0;
     //This is the maximum amount of sorting we need to do for information to
     //travel from one end to another
-    for (size_t i = 0; i < comm.getNumRank()-1; i++)
+    for (size_t i = 0; i < comm.getNumRank(); i++)
     {
         double startTime = MPI_Wtime();
+        std::copy(tSort1.begin(), tSort1.end(), tSort2.begin());
 
         borderExchange(comm, regionSz, tSort1, tSort2);
 
@@ -258,13 +263,12 @@ std::vector<size_t> Sort(Comms::MPI & comm, size_t nt, std::vector<File::TraceHe
 
         borderExchange(comm, regionSz, tSort3, tSort1);
 
-        int reduced = (tSort3 != tSort2);
+        int reduced = (tSort2 != tSort3);
         int greduced;
         int err = MPI_Allreduce(&reduced, &greduced, 1, MPI_INT, MPI_SUM, comm.getComm());
         if (!greduced)
             break;
 
-        std::swap(tSort2, tSort3);
         {
             std::stringstream out;
             out << "\n\nProgress " << int(double(i)/double(comm.getNumRank()-1)*100.0) << "%\n";
@@ -282,35 +286,28 @@ std::vector<size_t> Sort(Comms::MPI & comm, size_t nt, std::vector<File::TraceHe
         Print(comm, file, out.str());
     }
 
+    for (size_t i = 0; i < comm.getNumRank(); i++)
+    {
+        T prev = T(0);
+        if (i == comm.getRank())
+        {
+            for (size_t j = 0; j < tSort1.size(); j++)
+            {
+                if (tSort2[j].second != prev)
+                {
+                    std::cout << "rank "<< i << " offset " << offset << " inline " << tSort2[j].second << std::endl;
+                    prev = tSort2[j].second;
+                }
+            }
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
 
     std::vector<size_t> traceNum(thead.size());
     for (size_t i = 0; i < tSort2.size(); i++)
         traceNum[i] = tSort2[i].first;
 
     return traceNum;
-
-
-/*    for (size_t r = 0; r < comm.getNumRank(); r++)
-    {
-        if (r == comm.getRank())
-        {
-            std::stringstream out;
-            for (size_t i = 0; i < thead.size(); i++)
-            {
-                if (tSort1[i].second != 0)
-                out << i << getOrd(i) << " trace: " << tSort1[i].second << std::endl;
-            }
-
-            int err = MPI_File_seek(file, 0, MPI_SEEK_END);
-//TODO: Separate this from block
-            Block::printErr(err, NULL, "Failure to update write pointer for log file");
-
-            MPI_Status stat;
-            err = MPI_File_write(file, out.str().data(), out.str().size(), MPI_CHAR, &stat);
-            Block::printErr(err, &stat, "Failure to write log file");
-        }
-        MPI_Barrier(comm.getComm());
-    }*/
 }
 
 void Subset(Comms::MPI & comm, std::vector<File::TraceHeader> & thead)

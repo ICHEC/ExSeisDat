@@ -1,17 +1,17 @@
 #include <memory>
 #include "comm/mpi.hh"
 #include "object/objsegy.hh"
-#include "block/blockmpiio.hh"
+#include "data/datampiio.hh"
 
 using namespace PIOL::Obj::SEGSz;
 namespace PIOL { namespace Obj {
 
 SEGY::SEGY(std::shared_ptr<Comms::Interface> comm, std::string name, Bt bType)
 {
-    typedef PIOL::Block::MPIIO mBl;
+    typedef PIOL::Data::MPIIO mBl;
     switch (bType)
     {
-        case Bt::MPI :
+        case Bt::MPIIO :
         default :
         {
             //Make sure we are using MPI as our communicator for MPI-IO to make sense
@@ -35,7 +35,7 @@ void SEGY::readHO(unsigned char * data)
 
 void SEGY::readDO(size_t start, size_t sz, unsigned char * dos, size_t ns)
 {
-    block->readData(start, dos, sz*getDOSz<float>(ns));
+    block->readData(getDOLoc<float>(start, ns), dos, sz*getDOSz<float>(ns));
 }
 
 void SEGY::readDODF(size_t start, size_t sz, float * data, size_t ns)
@@ -57,7 +57,7 @@ void SEGY::writeHO(unsigned char * data)
 
 void SEGY::writeDO(size_t start, size_t sz, unsigned char * dos, size_t ns)
 {
-    block->writeData(start, dos, sz*getDOSz<float>(ns));
+    block->writeData(getDOLoc<float>(start, ns), dos, sz*getDOSz<float>(ns));
 }
 
 void SEGY::writeDODF(size_t start, size_t sz, float * data, size_t ns)
