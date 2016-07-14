@@ -25,6 +25,11 @@ class Opt
 {
     Type type;
     public :
+    virtual void setType(const Type type_)
+    {
+        type = type_;
+    }
+
     virtual Type getType(void) const
     {
         return type;

@@ -15,7 +15,7 @@ enum class Layer : size_t
     Comm,
     Log,
     MPI,    //Misc MPI
-    Ancillary
+    PIOL
 };
 
 enum class Status : size_t

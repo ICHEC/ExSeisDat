@@ -13,7 +13,6 @@ ExSeisPIOL::~ExSeisPIOL(void)
 {
     log.reset();
     comm.reset();
-    std::cout << "ExSeisPIOL Terminating\n";
 }
 void ExSeisPIOL::record(const std::string file, const Log::Layer layer, const Log::Status stat, const std::string msg, const Log::Verb verbosity)
 {
@@ -21,8 +20,7 @@ void ExSeisPIOL::record(const std::string file, const Log::Layer layer, const Lo
 }
 void ExSeisPIOL::exit(int code)
 {
-    std::cerr << "Fatal error in PIOL. Code " << code << std::endl;
-    std::cerr << "Dumping log\n";
+    record("", Log::Layer::PIOL, Log::Status::Error, "Fatal Error in PIOL. Dumping Log", Log::Verb::None);
     delete this;
     exit(-1);
 }

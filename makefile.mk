@@ -1,5 +1,18 @@
-OBJDIR = ../obj
+# Basic settings
+# TODO: profiler guided optimisation (PGO)
+# Have the following defined before using this:
+# LOCAL_INC_FOLDER
+# Include compiler.cfg
+
+INC_FOLDER = -I../ $(LOCAL_INC_FOLDER)
+CXXFLAGS = $(STANDARDS) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER)
+
 include ../../compiler.cfg
+
+ifndef OBJDIR
+OBJDIR = ../obj
+endif
+
 DEP=depend
 SOURCES:=$(wildcard *.cc)
 OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
