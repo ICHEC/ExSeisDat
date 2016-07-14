@@ -44,7 +44,6 @@ int main(int argc, char ** argv)
     //MPI Init
     auto comm = std::make_shared<Comms::MPI>(MPI_COMM_WORLD);
 
-
     if (!comm->getRank()) std::cout << "In file " << inFile << std::endl;
 
     Set::Manager seg(comm, std::unique_ptr<File::Interface>(new File::SEGY(comm, inFile, PIOL::Data::Type::MPIIO)));

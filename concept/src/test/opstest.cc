@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
     auto comm = std::make_shared<Comms::MPI>(MPI_COMM_WORLD);
 
     if (!comm->getRank()) std::cout << "In file " << inFile << std::endl;
-    Set::Manager seg(comm, std::unique_ptr<File::Interface>(new File::SEGY(comm, inFile, PIOL::Block::Type::MPI)));
+    Set::Manager seg(comm, std::unique_ptr<File::Interface>(new File::SEGY(comm, inFile, PIOL::Data::Type::MPIIO)));
 
     if (!comm->getRank()) std::cout << "Header has been read. Now calc min max of  " << inFile << std::endl;
 //    getMinMaxCoords(*comm, seg);
@@ -69,7 +69,7 @@ int main(int argc, char ** argv)
 
     if (!comm->getRank()) std::cout << "output\n";
     {
-    File::SEGY out(comm, "/ichec/work/exseisdat/dat/sortedfile.segy", PIOL::Block::Type::MPI);
+    File::SEGY out(comm, "/ichec/work/exseisdat/dat/sortedfile.segy", PIOL::Data::Type::MPIIO);
     out.writeHeader(header);
     if (!comm->getRank()) std::cout << "writeData\n";
     out.writeDataTraces(offset, dos);

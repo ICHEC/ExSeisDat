@@ -4,7 +4,6 @@
 #include <mpi.h>
 #include "comm/comm.hh"
 namespace PIOL { namespace Data {
-
 class Interface
 {
     protected :

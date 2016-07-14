@@ -96,7 +96,7 @@ void ReadTest(std::shared_ptr<Comms::MPI> comm, std::string Name, size_t Global,
 
     if (!comm->getRank())
         std::cout << "Test Success: " << TotalFail << std::endl;
-    
+
     delete[] Data;
 }
 }
@@ -157,7 +157,7 @@ int main(int argc, char ** argv)
             return EXIT_FAILURE;
         }
     }
-    if (argc >= 3) 
+    if (argc >= 3)
         try
         {
             std::string SSz(argv[3]);
@@ -195,7 +195,7 @@ int main(int argc, char ** argv)
     if (Mode.IOWrite)
     {
         if (comm->getRank() == 0)
-            std::cout << "Writing " << Sz << ".\n"; 
+            std::cout << "Writing " << Sz << ".\n";
         iotest::WriteTest<float>(comm, Name, Sz, lightFunc<float>);
         //iotest::WriteTest<char>(Rank, NumRank, Name, Sz, charFunc);
     }

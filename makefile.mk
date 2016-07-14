@@ -1,4 +1,5 @@
-include ../compiler.cfg
+OBJDIR = ../obj
+include ../../compiler.cfg
 DEP=depend
 SOURCES:=$(wildcard *.cc)
 OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))

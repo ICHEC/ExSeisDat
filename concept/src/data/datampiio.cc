@@ -56,7 +56,7 @@ constexpr MPI_Offset getLim()
     return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
 }
 
-template <typename T, typename U = MPI_Status> 
+template <typename T, typename U = MPI_Status>
 U doMPIIO(Fp<U> fn, MPI_File & file, MPI_Offset offset, T * d, size_t sz)
 {
     U arg;
@@ -95,7 +95,7 @@ U doMPIIO(Fp<U> fn, MPI_File & file, MPI_Offset offset, T * d, size_t sz)
     return arg;
 }
 
-template <typename T, typename U = MPI_Status> 
+template <typename T, typename U = MPI_Status>
 U doMPIIO(Fp<U> fn, MPI_File & file, MPI_Offset offset, std::vector<T> & d)
 {
     return doMPIIO<T, U>(fn, file, offset, &d.front(), d.size());
