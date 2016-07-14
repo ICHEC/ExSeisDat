@@ -8,5 +8,8 @@ typedef unsigned char uchar;
 typedef long long int llint;
 typedef float real;
 typedef double coreal;
+
+#include "anc/piol.hh"
+#include "anc/log.hh"
 #endif
 

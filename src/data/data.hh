@@ -12,15 +12,23 @@ class Interface
     Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : piol(piol_), name(name_)
     {
     }
-    virtual void setFileSz(size_t) = 0;
-    virtual size_t getFileSz(void) = 0;
-    virtual void setView(size_t) = 0;
+    virtual size_t getFileSz() = 0;
+    virtual void read(size_t offset, uchar * d, size_t sz) = 0;
 };
 
-class Options
+enum class Type
 {
+    MPIIO
+};
 
-
+class Opt
+{
+    Type type;
+    public :
+    virtual Type getType(void) const
+    {
+        return type;
+    }
 };
 }}
 #endif

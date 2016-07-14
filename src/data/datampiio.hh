@@ -2,32 +2,33 @@
 #define PIOLDATAMPIIO_INCLUDE_GUARD
 #include <mpi.h>
 #include <memory>
+#include <typeinfo>
 #include "global.hh"
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "data/data.hh"
 
 namespace PIOL { namespace Data {
-/*
 template <typename U>
 using FpR = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
 
 template <typename U>
 using FpW = int (*)(MPI_File, MPI_Offset, const void *, int, MPI_Datatype, U *);
 
-enum class MPIIOModes
+/*enum class MPIIOModes
 {
     NonCol,
     Col,
     Size
 }*/
 
-struct MPIIOOpt : public PIOL::Data::Options
+class MPIIOOpt : public Opt
 {
+    public :
 /*    std::vector<FpR<MPI_Status>> blockReads;
     std::vector<FpW<MPI_Status>> blockWrites;
-    std::vector<FpR<MPI_Receive>> AsyncReads;
-    std::vector<FpW<MPI_Receive>> AsyncWrites;*/
+    std::vector<FpR<MPI_Request>> AsyncReads;
+    std::vector<FpW<MPI_Request>> AsyncWrites;*/
     int mode;
     MPI_Info info;
 
@@ -49,7 +50,7 @@ struct MPIIOOpt : public PIOL::Data::Options
     }
 };
 
-class MPIIO : public PIOL::Data::Interface
+class MPIIO : public Interface
 {
     MPI_File file;
     MPI_Comm mcomm;
@@ -60,8 +61,8 @@ class MPIIO : public PIOL::Data::Interface
     ~MPIIO(void);
 
     size_t getFileSz();
-    void setFileSz(size_t sz);
-    void setView(size_t offset = 0);
+
+    void read(size_t offset, uchar * d, size_t sz);
 };
 
 }}

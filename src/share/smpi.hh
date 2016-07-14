@@ -1,6 +1,8 @@
 #ifndef PIOLSHAREDMPI_INCLUDE_GUARD
 #define PIOLSHAREDMPI_INCLUDE_GUARD
+#include <limits>
 #include <mpi.h>
+#include <typeinfo>
 #include "anc/piol.hh"
 #include "anc/log.hh"
 namespace PIOL {
@@ -10,7 +12,7 @@ template <typename T>
 #ifndef __ICC
 constexpr
 #endif
-MPI_Datatype Type()
+MPI_Datatype MPIType()
 {
     return (typeid(T) == typeid(double)             ? MPI_DOUBLE
          : (typeid(T) == typeid(long double)        ? MPI_LONG_DOUBLE
@@ -18,7 +20,7 @@ MPI_Datatype Type()
          : (typeid(T) == typeid(uchar)              ? MPI_UNSIGNED_CHAR
          : (typeid(T) == typeid(int)                ? MPI_INT
          : (typeid(T) == typeid(long int)           ? MPI_LONG
-         : (typeid(T) == typeid(size_t)             ? MPI_UNSIGNED_LONG ///TODO: Watch out for this one!
+         : (typeid(T) == typeid(size_t)             ? MPI_UNSIGNED_LONG //Watch out for this one!
          : (typeid(T) == typeid(unsigned long int)  ? MPI_UNSIGNED_LONG
          : (typeid(T) == typeid(unsigned int)       ? MPI_UNSIGNED
          : (typeid(T) == typeid(long long int)      ? MPI_LONG_LONG_INT
@@ -29,12 +31,12 @@ MPI_Datatype Type()
 }
 
 template <typename T>
-constexpr MPI_Offset getLim()
+constexpr size_t getLim()
 {
     //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks.
     //Probably something to do with pages.
     //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
-    return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
+    return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
 }
 }
 #endif
