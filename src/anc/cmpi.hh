@@ -7,17 +7,21 @@
 #include <cassert>
 #include "global.hh"
 
-namespace PIOL { namespace Comms {
+namespace PIOL { namespace Comm {
+struct MPIOpt : Opt
+{
+    MPI_Comm comm = MPI_COMM_WORLD;
+    bool initMPI = true;
+};
 
-class MPI : public Comms::Interface
+class MPI : public Comm::Interface
 {
     private :
     MPI_Comm comm;
     bool init;
     public :
-    MPI(MPI_Comm Comm, bool Init = true) : init(Init)
+    MPI(const MPIOpt & opt) : comm(opt.comm), init(opt.initMPI)
     {
-        comm = Comm;
         if (init)
         {
             //Quote from MPI 3.1 specification: "The version for ISO C accepts the argc and argv that are provided by the arguments to main or NULL"

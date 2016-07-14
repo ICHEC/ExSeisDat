@@ -7,13 +7,10 @@ namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static MPI_File open(ExSeisPIOL & piol, const MPIIOOpt & opt, const std::string name)
+static MPI_File open(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, const std::string name)
 {
-    std::dynamic_pointer_cast<Comms::MPI>(piol.comm);
-    MPI_Comm mcomm = std::dynamic_pointer_cast<Comms::MPI>(piol.comm)->getComm();
-
     MPI_File file = MPI_FILE_NULL;
-    int err = MPI_File_open(mcomm, name.c_str(), opt.mode, opt.info, &file);
+    int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
 
     printErr(piol, name, Log::Layer::Data, err, NULL, "MPI_File_open failure");
 
@@ -37,7 +34,10 @@ int setView(MPI_File file, MPI_Offset offset = 0)
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt_) : PIOL::Data::Interface(piol_, name_), opt(opt_)
 {
-    file = open(*piol, opt, name);
+    std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
+    comm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm)->getComm();
+
+    file = open(*piol, comm, opt, name);
     if (file != MPI_FILE_NULL)
     {
         int err = setView<uchar>(file);

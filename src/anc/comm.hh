@@ -1,8 +1,7 @@
 #ifndef PIOLCOMM_INCLUDE_GUARD
 #define PIOLCOMM_INCLUDE_GUARD
 #include <cstddef>
-namespace PIOL {namespace Comms
-{
+namespace PIOL {namespace Comm {
 class Interface
 {
     protected :
@@ -16,6 +15,20 @@ class Interface
     size_t getNumRank()
     {
         return numRank;
+    }
+};
+
+enum class Type : size_t
+{
+    MPI
+};
+
+struct Opt
+{
+    Type type = Type::MPI;
+    virtual Type getType(void)
+    {
+        return type;
     }
 };
 }}

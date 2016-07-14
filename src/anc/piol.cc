@@ -1,12 +1,20 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include <iostream>
+#include <string>
 namespace PIOL {
-ExSeisPIOL::ExSeisPIOL(Options opt)
+ExSeisPIOL::ExSeisPIOL(const Comm::Opt & com)
 {
     log = std::make_unique<Log::Logger>();
-    if (opt.commun == Comm::MPI)
-        comm = std::make_shared<Comms::MPI>(MPI_COMM_WORLD);
+    switch (com.type)
+    {
+        case Comm::Type::MPI :
+            comm = std::make_shared<Comm::MPI>(dynamic_cast<const Comm::MPIOpt &>(com));
+        break;
+        default :
+//TODO Add error
+        break;
+    }
 }
 
 ExSeisPIOL::~ExSeisPIOL(void)
@@ -14,14 +22,17 @@ ExSeisPIOL::~ExSeisPIOL(void)
     log.reset();
     comm.reset();
 }
+
 void ExSeisPIOL::record(const std::string file, const Log::Layer layer, const Log::Status stat, const std::string msg, const Log::Verb verbosity)
 {
     log->record(comm->getRank(), file, layer, stat, msg, verbosity);
 }
+
 void ExSeisPIOL::exit(int code)
 {
-    record("", Log::Layer::PIOL, Log::Status::Error, "Fatal Error in PIOL. Dumping Log", Log::Verb::None);
-    delete this;
-    exit(-1);
+    record("", Log::Layer::PIOL, Log::Status::Error, "Fatal Error in PIOL. (code: " + std::to_string(code) + ") Dumping Log", Log::Verb::None);
+    log.reset();
+    comm.reset();
+    exit(code);
 }
 }

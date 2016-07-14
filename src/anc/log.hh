@@ -47,6 +47,7 @@ struct Item
 
 class Logger
 {
+    private :
     Verb maxLevel;
     std::queue<Item> que;
 

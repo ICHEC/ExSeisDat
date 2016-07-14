@@ -22,16 +22,14 @@ using FpW = int (*)(MPI_File, MPI_Offset, const void *, int, MPI_Datatype, U *);
     Size
 }*/
 
-class MPIIOOpt : public Opt
+struct MPIIOOpt : public Opt
 {
-    public :
 /*    std::vector<FpR<MPI_Status>> blockReads;
     std::vector<FpW<MPI_Status>> blockWrites;
     std::vector<FpR<MPI_Request>> AsyncReads;
     std::vector<FpW<MPI_Request>> AsyncWrites;*/
     int mode;
     MPI_Info info;
-
     MPIIOOpt(void)
     {
         info = MPI_INFO_NULL;
@@ -53,7 +51,7 @@ class MPIIOOpt : public Opt
 class MPIIO : public Interface
 {
     MPI_File file;
-    MPI_Comm mcomm;
+    MPI_Comm comm;
     MPIIOOpt opt;
     public :
     MPIIO(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const MPIIOOpt & opt);
