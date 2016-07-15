@@ -32,8 +32,18 @@ int setView(MPI_File file, MPI_Offset offset = 0)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt_) : PIOL::Data::Interface(piol_, name_), opt(opt_)
+MPIIOOpt::MPIIOOpt(void)
 {
+    mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
+    info = MPI_INFO_NULL;
+    maxSize = getLim<long long>();
+}
+
+MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
+{
+    maxSize = opt.maxSize;
+    info = opt.info;
+
     std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
     comm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm)->getComm();
 
@@ -63,10 +73,9 @@ size_t MPIIO::getFileSz()
 }
 
 template <typename T, typename U = MPI_Status> inline
-int MPIIORead(FpR<U> fn, MPI_File & file, size_t offset, T * d, size_t sz, U & arg)
+int MPIIORead(FpR<U> fn, MPI_File & file, size_t offset, T * d, size_t sz, U & arg, size_t max)
 {
     int err = MPI_SUCCESS;
-    auto max = getLim<T>();
     auto q = sz / max;
     auto r = sz % max;
 
@@ -86,7 +95,7 @@ int MPIIORead(FpR<U> fn, MPI_File & file, size_t offset, T * d, size_t sz, U & a
 void MPIIO::read(size_t offset, uchar * d, size_t sz)
 {
     MPI_Status arg;
-    int err = MPIIORead<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg);
+    int err = MPIIORead<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 }}

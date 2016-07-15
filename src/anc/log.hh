@@ -48,14 +48,13 @@ struct Item
 class Logger
 {
     private :
-    Verb maxLevel;
+    Verb maxLevel = Verb::None;
     std::queue<Item> que;
-    bool error;
+    bool error = false;
 
     public :
     Logger(void)
     {
-        maxLevel = Verb::None;
     }
     Logger(const Verb maxLevel_) : maxLevel(maxLevel_)
     {

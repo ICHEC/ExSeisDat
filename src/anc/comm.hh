@@ -16,6 +16,7 @@ class Interface
     {
         return numRank;
     }
+    virtual void wait(void) = 0;
 };
 
 enum class Type : size_t

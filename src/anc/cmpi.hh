@@ -48,6 +48,11 @@ class MPI : public Comm::Interface
     {
         return comm;
     }
+
+    void wait(void)
+    {
+        MPI_Barrier(comm);
+    }
 };
 }}
 #endif

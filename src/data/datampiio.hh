@@ -17,8 +17,10 @@ using FpW = int (*)(MPI_File, MPI_Offset, const void *, int, MPI_Datatype, U *);
 
 struct MPIIOOpt : public Opt
 {
-    int mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
-    MPI_Info info = MPI_INFO_NULL;
+    int mode;
+    MPI_Info info;
+    size_t maxSize;
+    MPIIOOpt(void);
 };
 
 class MPIIO : public Interface
@@ -26,7 +28,8 @@ class MPIIO : public Interface
     private :
     MPI_File file;
     MPI_Comm comm;
-    MPIIOOpt opt;
+    MPI_Info info;
+    size_t maxSize;
     public :
     MPIIO(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const MPIIOOpt & opt);
 
