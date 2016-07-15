@@ -31,7 +31,7 @@ struct FakeData : public Data::Interface
     }
     size_t getFileSz()
     {
-        return 0;
+        return 0U;
     }
     void read(size_t offset, uchar * d, size_t sz) {}
 };

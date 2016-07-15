@@ -12,6 +12,7 @@ class Interface
     Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : piol(piol_), name(name_)
     {
     }
+    virtual ~Interface() {}
     virtual size_t getFileSz() = 0;
     virtual void read(size_t offset, uchar * d, size_t sz) = 0;
 };

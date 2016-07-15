@@ -18,6 +18,7 @@ class SEGYOpt : public Opt
 class SEGY : public Interface
 {
     public :
+    SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt & segyOpt_, std::shared_ptr<Data::Interface> data_);
     SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt & segyOpt_, const Data::Opt & dataOpt);
     void readHO(uchar * ho);
 };

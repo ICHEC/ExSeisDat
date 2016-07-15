@@ -187,7 +187,9 @@ TEST_F(MPIIOTest, BlockingReadEnd)
 {
     Data::MPIIO mio(piol, plargeFile, ioopt);
     piol->isErr();
-    //Intentionally read much beyond the end of the file to make sure that MPI-IO handles it correctly.
+
+    //Intentionally read much beyond the end of the file to make sure that MPI-IO doesn't abort/fails.
+    //MPI 3.1 spec says (or at least strongly implies) it should work.
     std::vector<uchar> d(oneGig);
     for (size_t j = 0; j > magicNum1; j += 10U)
     {
