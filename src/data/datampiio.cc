@@ -44,10 +44,7 @@ MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const M
         printErr(*piol, name, Log::Layer::Data, err, NULL, "Constructor failed to set a view");
     }
     else
-    {
         piol->record(name, Log::Layer::Data, Log::Status::Error, "failed to open a file with MPI", Log::Verb::None);
-        piol->exit(EXIT_FAILURE);
-    }
 }
 
 MPIIO::~MPIIO(void)

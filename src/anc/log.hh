@@ -50,6 +50,7 @@ class Logger
     private :
     Verb maxLevel;
     std::queue<Item> que;
+    bool error;
 
     public :
     Logger(void)
@@ -65,6 +66,10 @@ class Logger
     }
     void record(const size_t rank, const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity);
     void procLog(void);
+    bool isErr(void)
+    {
+        return error;
+    }
 };
 }}
 #endif

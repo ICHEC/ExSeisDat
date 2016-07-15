@@ -5,6 +5,9 @@ void Logger::record(size_t rank, const std::string file, const Layer layer, cons
 {
     if (static_cast<size_t>(verbosity) <= static_cast<size_t>(maxLevel))
         que.push({rank, file, layer, stat, msg, verbosity});
+
+    if (stat == Status::Error)
+        error = true;
 }
 
 void Logger::procLog(void)

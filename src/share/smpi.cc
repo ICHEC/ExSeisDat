@@ -8,7 +8,6 @@ void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer,
             msg += " MPI_Status: " + stat->MPI_ERROR;
 
         piol.record(file, layer, Log::Status::Error, msg, Log::Verb::None);
-        piol.exit(EXIT_FAILURE);
     }
 }
 }

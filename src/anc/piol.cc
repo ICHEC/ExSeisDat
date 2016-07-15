@@ -28,11 +28,22 @@ void ExSeisPIOL::record(const std::string file, const Log::Layer layer, const Lo
     log->record(comm->getRank(), file, layer, stat, msg, verbosity);
 }
 
-void ExSeisPIOL::exit(int code)
+void ExSeisPIOL::isErr(std::string msg)
+{
+    if (log->isErr())
+    {
+        record("", Log::Layer::PIOL, Log::Status::Error, "Fatal Error in PIOL. " + msg + ". Dumping Log", Log::Verb::None);
+        log.reset();
+        comm.reset();
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+/*void ExSeisPIOL::exit(int code)
 {
     record("", Log::Layer::PIOL, Log::Status::Error, "Fatal Error in PIOL. (code: " + std::to_string(code) + ") Dumping Log", Log::Verb::None);
     log.reset();
     comm.reset();
-    exit(code);
-}
+    std::exit(code);
+}*/
 }

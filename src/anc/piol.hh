@@ -11,7 +11,11 @@ struct ExSeisPIOL
     ExSeisPIOL(const Comm::Opt & comm);
     ~ExSeisPIOL(void);
     void record(const std::string file, const Log::Layer layer, const Log::Status stat, const std::string msg, const Log::Verb verbosity);
-    void exit(int code);
+    void isErr(std::string msg);
+    void isErr(void)
+    {
+        isErr("");
+    }
 };
 }
 #endif
