@@ -4,11 +4,11 @@
 #include <unistd.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "tglobal.hh"
 
 #define UNIT_TEST
 #define private public
 #define protected public
+#include "tglobal.hh"
 #include "global.hh"
 #include "data/datampiio.hh"
 #undef private
@@ -73,30 +73,23 @@ TEST_F(MPIIOTest, Constructor)
     EXPECT_TRUE(mio.file != MPI_FILE_NULL) << "File was not opened";
 }
 
-TEST_F(MPIIOTest, FileSize)
+TEST_F(MPIIOTest, ZeroFileSize)
 {
-    {
-        Data::MPIIO mio(piol, zeroFile, ioopt);
-        piol->isErr();
-        EXPECT_EQ(0, mio.getFileSz());
-    }
-    {
-        Data::MPIIO mio(piol, smallFile, ioopt);
-        piol->isErr();
-        EXPECT_EQ(smallSize, mio.getFileSz());
-    }
-    {
-        Data::MPIIO mio(piol, largeFile, ioopt);
-        piol->isErr();
-        EXPECT_EQ(largeSize, mio.getFileSz());
-    }
+    Data::MPIIO mio(piol, zeroFile, ioopt);
+    piol->isErr();
+    EXPECT_EQ(0, mio.getFileSz());
 }
-
-uchar getPattern(size_t i)
+TEST_F(MPIIOTest, SmallFileSize)
 {
-    const size_t psz = 0x100;
-    i %= psz;
-    return i;
+    Data::MPIIO mio(piol, smallFile, ioopt);
+    piol->isErr();
+    EXPECT_EQ(smallSize, mio.getFileSz());
+}
+TEST_F(MPIIOTest, LargeFileSize)
+{
+    Data::MPIIO mio(piol, largeFile, ioopt);
+    piol->isErr();
+    EXPECT_EQ(largeSize, mio.getFileSz());
 }
 
 TEST_F(MPIIOTest, BlockingReadSmall)
@@ -119,16 +112,23 @@ TEST_F(MPIIOTest, BlockingReadLarge)
     ioopt.maxSize = magicNum1;
     Data::MPIIO mio(piol, plargeFile, ioopt);
     ioopt.maxSize = temp; //reset for the next tests
-    {
-        std::vector<uchar> d = {uchar(magicNum1)};
-        mio.read(0, d.data(), 0);
-        piol->isErr();
 
-        //If this test and the next pass, pick a different
-        //magic number to initialise d.
-        EXPECT_NE(d[0], getPattern(0));
-        EXPECT_EQ(magicNum1, d[0]);
-    }
+    std::vector<uchar> d = {uchar(magicNum1)};
+    mio.read(0, d.data(), 0);
+    piol->isErr();
+
+    //If this test and the next pass, pick a different
+    //magic number to initialise d.
+    EXPECT_NE(d[0], getPattern(0));
+    EXPECT_EQ(magicNum1, d[0]);
+}
+
+TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
+{
+    size_t temp = ioopt.maxSize;
+    ioopt.maxSize = magicNum1;
+    Data::MPIIO mio(piol, plargeFile, ioopt);
+    ioopt.maxSize = temp; //reset for the next tests
 
     //Test looping logic for big files, various offsets
     for (size_t j = 0; j < magicNum1; j += 10U)

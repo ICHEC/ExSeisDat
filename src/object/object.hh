@@ -32,6 +32,10 @@ class Opt
 {
     Type type;
     public :
+    Opt(void)
+    {
+        type = Type::SEGY;
+    }
     virtual Type getType(void) const
     {
         return type;

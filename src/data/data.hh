@@ -24,7 +24,7 @@ enum class Type
 
 class Opt
 {
-    Type type = Type::MPIIO;
+    Type type;
     public :
     virtual void setType(const Type type_)
     {
@@ -34,6 +34,10 @@ class Opt
     virtual Type getType(void) const
     {
         return type;
+    }
+    Opt(void)
+    {
+        type = Type::MPIIO;
     }
 };
 }}

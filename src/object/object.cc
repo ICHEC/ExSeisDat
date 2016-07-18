@@ -17,7 +17,7 @@ Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_,
         {
             piol->record(name_, Log::Layer::Object, Log::Status::Warning, "MPIIO selected", Log::Verb::Max);
 
-            Data::MPIIOOpt const * opt = dynamic_cast<Data::MPIIOOpt const *>(&dataOpt);
+            auto opt = dynamic_cast<Data::MPIIOOpt const *>(&dataOpt);
             if (opt == nullptr)
             {
                 piol->record(name_, Log::Layer::Object, Log::Status::Error, "MPI-IO options object is of the wrong type.", Log::Verb::None);
@@ -27,7 +27,7 @@ Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_,
             auto mpiio = new Data::MPIIO(piol_, name_, *opt);
             if (mpiio == nullptr)   //Issue warning on the object layer
             {
-                piol->record(name_, Log::Layer::Object, Log::Status::Warning, "Could not create data dayer object", Log::Verb::None);
+                piol->record(name_, Log::Layer::Object, Log::Status::Warning, "Could not create data layer object", Log::Verb::None);
                 return;
             }
             else

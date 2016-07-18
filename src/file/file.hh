@@ -11,12 +11,14 @@ class Interface
     std::shared_ptr<Obj::Interface> obj;
     std::string name;
     std::shared_ptr<ExSeisPIOL> piol;
-
-//Publicly exposed information
     size_t ns;
     size_t nt;
 
-    Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+    public :
+//Publicly exposed information
+
+    Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+    Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
     virtual size_t readNs(void) = 0;
     virtual size_t readNt(void) = 0;
