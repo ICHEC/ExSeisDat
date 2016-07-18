@@ -20,6 +20,8 @@ class MockData : public Data::Interface
 {
     public :
     MockData(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_) {}
+    {
+    }
     MOCK_METHOD0(getFileSz, size_t(void));
     MOCK_METHOD3(read, void(size_t, uchar *, size_t));
 };
@@ -101,7 +103,6 @@ void SEGYReadHOTest(Obj::Interface & obj, std::vector<uchar> magic)
     }
 }
 
-typedef ObjSEGYTest ObjIntegrationTest;
 typedef ObjSEGYTest ObjIntegrationTest;
 TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
 {

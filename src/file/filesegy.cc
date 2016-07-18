@@ -40,8 +40,20 @@ T getMd(Hdr val, const uchar * buf)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
+SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
+           : File::Interface(piol_, name_, obj_)
+{
+   Init();
+}
+
 SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt, const Obj::Opt & objOpt,
                                               const Data::Opt & dataOpt) : Interface(piol_, name_, objOpt, dataOpt)
+{
+    Init();
+}
+
+///////////////////////////////////       Member functions      ///////////////////////////////////
+void SEGY::Init()
 {
     size_t hoSz = SEGSz::getHOSz();
     if (obj->getFileSz() >= hoSz)
@@ -57,7 +69,6 @@ SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Fil
     }
 }
 
-///////////////////////////////////       Member functions      ///////////////////////////////////
 void SEGY::parseHO(const uchar * buf)
 {
     ns = getMd(Hdr::NumSample, buf);

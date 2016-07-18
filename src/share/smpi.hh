@@ -3,6 +3,7 @@
 #include <limits>
 #include <mpi.h>
 #include <typeinfo>
+#include "global.hh"
 #include "anc/piol.hh"
 #include "anc/log.hh"
 namespace PIOL {
