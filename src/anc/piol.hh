@@ -8,10 +8,11 @@ struct ExSeisPIOL
 {
     std::unique_ptr<Log::Logger> log;
     std::shared_ptr<Comm::Interface> comm;
+    ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comm);
     ExSeisPIOL(const Comm::Opt & comm);
     ~ExSeisPIOL(void);
     void record(const std::string file, const Log::Layer layer, const Log::Status stat, const std::string msg, const Log::Verb verbosity);
-    void isErr(std::string msg);
+    void isErr(const std::string msg);
     void isErr(void)
     {
         isErr("");

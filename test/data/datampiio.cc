@@ -175,7 +175,6 @@ TEST_F(MPIIOTest, BlockingReadLarge)
         size_t offset = (largeSize / magicNum1) * j;
         std::vector<uchar> d(sz);
 
-        piol->isErr();
         mio.read(offset, d.data(), d.size());
         piol->isErr();
 
@@ -183,6 +182,22 @@ TEST_F(MPIIOTest, BlockingReadLarge)
             EXPECT_EQ(d[i], getPattern(offset + i));
     }
 }
+
+TEST_F(MPIIOTest, BlockingLargeFileSmallRead)
+{
+    Data::MPIIO mio(piol, plargeFile, ioopt);
+    //Test single value reads mid file
+    for (size_t i = 0; i < magicNum1; i++)
+    {
+        size_t offset = largeSize / 2U + i;
+        uchar test[2];
+
+        mio.read(offset, test, 1);
+        piol->isErr();
+        EXPECT_EQ(test[0], getPattern(offset));
+    }
+}
+
 TEST_F(MPIIOTest, BlockingReadEnd)
 {
     Data::MPIIO mio(piol, plargeFile, ioopt);

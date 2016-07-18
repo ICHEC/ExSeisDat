@@ -2,7 +2,7 @@
 #include "gmock/gmock.h"
 #include "global.hh"
 #include "anc/cmpi.hh"
-#include "data/data.hh"
+#include "data/datampiio.hh"
 #define private public
 #define protected public
 #include "object/object.hh"
@@ -38,12 +38,22 @@ struct FakeObject : public Obj::Interface
     void readHO(uchar * ho) { }
 };
 
-TEST_F(ObjectTest, DataOptionsConstructor)
+TEST_F(ObjectTest, MPIIODataOptionsConstructor)
+{
+    std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
+    Data::MPIIOOpt dataOpt;
+    FakeObject fake(piol, name, dataOpt);
+    EXPECT_NE(nullptr, fake.data);
+    EXPECT_EQ(piol, fake.piol);
+    EXPECT_EQ(name, fake.name);
+}
+
+TEST_F(ObjectTest, MPIIOBadDataOptionsConstructor)
 {
     std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
     Data::Opt dataOpt;
-    FakeObject fake(piol, name, dataOpt);
-    EXPECT_NE(nullptr, fake.data);
+    FakeObject fake(piol, name, dataOpt);   //Expects Data::MPIIOOpt not base Data::Opt
+    EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
     EXPECT_EQ(name, fake.name);
 }

@@ -3,13 +3,13 @@
 #include <iostream>
 #include <string>
 namespace PIOL {
-ExSeisPIOL::ExSeisPIOL(const Comm::Opt & com)
+ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
 {
-    log = std::make_unique<Log::Logger>();
-    switch (com.type)
+    log = std::make_unique<Log::Logger>(maxLevel);
+    switch (comOpt.type)
     {
         case Comm::Type::MPI :
-            comm = std::make_shared<Comm::MPI>(dynamic_cast<const Comm::MPIOpt &>(com));
+            comm = std::make_shared<Comm::MPI>(dynamic_cast<const Comm::MPIOpt &>(comOpt));
         break;
         default :
 //TODO Add error
@@ -17,6 +17,9 @@ ExSeisPIOL::ExSeisPIOL(const Comm::Opt & com)
     }
 }
 
+ExSeisPIOL::ExSeisPIOL(const Comm::Opt & comm) : ExSeisPIOL(Log::Verb::None, comm)
+{
+}
 ExSeisPIOL::~ExSeisPIOL(void)
 {
     log.reset();
@@ -25,7 +28,7 @@ ExSeisPIOL::~ExSeisPIOL(void)
 
 void ExSeisPIOL::record(const std::string file, const Log::Layer layer, const Log::Status stat, const std::string msg, const Log::Verb verbosity)
 {
-    log->record(comm->getRank(), file, layer, stat, msg, verbosity);
+    log->record(file, layer, stat, msg, verbosity);
 }
 
 void ExSeisPIOL::isErr(std::string msg)

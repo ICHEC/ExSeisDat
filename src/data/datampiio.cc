@@ -2,7 +2,6 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
-
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -51,10 +50,8 @@ MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const M
     if (file != MPI_FILE_NULL)
     {
         int err = setView<uchar>(file);
-        printErr(*piol, name, Log::Layer::Data, err, NULL, "Constructor failed to set a view");
+        printErr(*piol, name, Log::Layer::Data, err, NULL, "MPIIO Constructor failed to set a view");
     }
-    else
-        piol->record(name, Log::Layer::Data, Log::Status::Error, "failed to open a file with MPI", Log::Verb::None);
 }
 
 MPIIO::~MPIIO(void)

@@ -37,7 +37,6 @@ enum class Verb : size_t
 
 struct Item
 {
-    size_t rank;
     std::string file;
     Layer layer;
     Status stat;
@@ -63,7 +62,7 @@ class Logger
     {
         procLog();
     }
-    void record(const size_t rank, const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity);
+    void record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity);
     void procLog(void);
     bool isErr(void)
     {

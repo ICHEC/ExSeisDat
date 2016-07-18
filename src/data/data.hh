@@ -24,7 +24,7 @@ enum class Type
 
 class Opt
 {
-    Type type;
+    Type type = Type::MPIIO;
     public :
     virtual void setType(const Type type_)
     {
