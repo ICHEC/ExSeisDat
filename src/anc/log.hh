@@ -1,5 +1,5 @@
 #include <string>
-#include <queue>
+#include <forward_list>
 
 #ifndef PIOL_ANC_LOG_INCLUDE_GUARD
 #define PIOL_ANC_LOG_INCLUDE_GUARD
@@ -48,7 +48,7 @@ class Logger
 {
     private :
     Verb maxLevel = Verb::None;
-    std::queue<Item> que;
+    std::forward_list<Item> loglist;
     bool error = false;
 
     public :
@@ -64,6 +64,7 @@ class Logger
     }
     void record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity);
     void procLog(void);
+    size_t numStat(const Status stat);
     bool isErr(void)
     {
         return error;

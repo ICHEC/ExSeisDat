@@ -4,21 +4,28 @@ namespace PIOL { namespace Log {
 void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity)
 {
     if (static_cast<size_t>(verbosity) <= static_cast<size_t>(maxLevel))
-        que.push({file, layer, stat, msg, verbosity});
+        loglist.push_front({file, layer, stat, msg, verbosity});
 
     if (stat == Status::Error)
         error = true;
 }
+size_t Logger::numStat(const Status stat)
+{
+    size_t sz = 0;
+    for (auto & item : loglist)
+        sz += (item.stat == stat);
+    return sz;
+}
 
 void Logger::procLog(void)
 {
-    while (!que.empty())
+    while (!loglist.empty())
     {
-        Item & item = que.front();
+        Item & item = loglist.front();
 
         std::cerr << item.file << " " << static_cast<size_t>(item.layer) << " " << static_cast<size_t>(item.stat) <<
                      " " << item.msg << " " << static_cast<size_t>(item.vrbsy) << std::endl;
-        que.pop();
+        loglist.pop_front();
     }
 }
 }}

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "tglobal.hh"
 
 #define UNIT_TEST
 #define private public
@@ -16,59 +17,20 @@
 using namespace testing;
 using namespace PIOL;
 
-void makeFile(std::string name, size_t sz)
-{
-    static const char zero = '\0';
-    FILE * fs = fopen(name.c_str(), "w");
-
-    if (sz != 0)
-    {
-        //Seek beyond the end of the file and write a single null byte. This ensures the file is all zeroes
-        //according to IEEE Std 1003.1-2013
-        fseek(fs, sz-1ll, SEEK_SET);
-        fwrite(&zero, sizeof(uchar), 1, fs);
-    }
-    fclose(fs);
-}
-
 class MPIIOTest : public Test
 {
     protected :
     std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPIOpt opt;
     Data::MPIIOOpt ioopt;
-    const size_t magicNum1 = 137; //Number less than 256 that isn't 0.
-
-    const size_t oneGig = 1024U*1024U*1024U;
-    const size_t smallSize = 4096U;
-    const size_t largeSize = 10U*oneGig;
-    std::string zeroFile = "tmp/zeroSizeFile.tmp";
-    std::string smallFile = "tmp/smallSizeFile.tmp";
-    std::string largeFile = "tmp/largeSizeFile.tmp";
-    std::string plargeFile = "tmp/largeFilePattern.tmp";
 
     MPIIOTest()
     {
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
-
-        if (!piol->comm->getRank())
-        {
-            makeFile(zeroFile, 0U);
-            makeFile(smallFile, smallSize);
-            makeFile(largeFile, largeSize);
-        }
-        piol->comm->wait();
     }
     ~MPIIOTest()
     {
-        piol->comm->wait();
-        if (!piol->comm->getRank())
-        {
-            std::remove(zeroFile.c_str());
-            std::remove(smallFile.c_str());
-            std::remove(largeFile.c_str());
-        }
     }
 };
 
@@ -92,7 +54,7 @@ TEST_F(MPIIODeathTest, FailedConstructor)
     EXPECT_EQ(piol, mio.piol);
     EXPECT_EQ(name, mio.name);
 
-    Log::Item * item = &piol->log->que.front();
+    Log::Item * item = &piol->log->loglist.front();
 
     EXPECT_EQ(name, item->file);
     EXPECT_EQ(Log::Layer::Data, item->layer);
@@ -107,7 +69,7 @@ TEST_F(MPIIOTest, Constructor)
     EXPECT_EQ(piol, mio.piol);
     EXPECT_EQ(zeroFile, mio.name);
     piol->log->procLog();
-    EXPECT_TRUE(piol->log->que.empty()) << "Unexpected log message";
+    EXPECT_TRUE(piol->log->loglist.empty()) << "Unexpected log message";
     EXPECT_TRUE(mio.file != MPI_FILE_NULL) << "File was not opened";
 }
 
@@ -205,7 +167,7 @@ TEST_F(MPIIOTest, BlockingReadEnd)
 
     //Intentionally read much beyond the end of the file to make sure that MPI-IO doesn't abort/fails.
     //MPI 3.1 spec says (or at least strongly implies) it should work.
-    std::vector<uchar> d(oneGig);
+    std::vector<uchar> d(prefix(3));
     for (size_t j = 0; j > magicNum1; j += 10U)
     {
         mio.read(largeSize-j, d.data(), d.size());

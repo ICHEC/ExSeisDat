@@ -38,7 +38,9 @@ struct FakeObject : public Obj::Interface
     void readHO(uchar * ho) { }
 };
 
-TEST_F(ObjectTest, MPIIODataOptionsConstructor)
+//In this test we pass the MPI-IO Data Options class.
+//We do not use a valid name as we are not interested in the result
+TEST_F(ObjectTest, InterfaceConstructor)
 {
     std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
     Data::MPIIOOpt dataOpt;
@@ -48,11 +50,14 @@ TEST_F(ObjectTest, MPIIODataOptionsConstructor)
     EXPECT_EQ(name, fake.name);
 }
 
-TEST_F(ObjectTest, MPIIOBadDataOptionsConstructor)
+//In this test we pass the wrong Data Options class.
+//We pass the base class instead of MPIIOOpt (the default class)
+TEST_F(ObjectTest, BadInterfaceConstructor)
 {
     std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
     Data::Opt dataOpt;
-    FakeObject fake(piol, name, dataOpt);   //Expects Data::MPIIOOpt not base Data::Opt
+
+    FakeObject fake(piol, name, dataOpt);
     EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
     EXPECT_EQ(name, fake.name);

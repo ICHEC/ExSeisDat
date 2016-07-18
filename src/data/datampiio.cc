@@ -11,7 +11,7 @@ static MPI_File open(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, con
     MPI_File file = MPI_FILE_NULL;
     int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
 
-    printErr(piol, name, Log::Layer::Data, err, NULL, "MPI_File_open failure");
+    printErr(piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     //I assume this check condition is unnecessary but the spec does not explicitly say what state
     //file is in when there is an error.
@@ -50,7 +50,7 @@ MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const M
     if (file != MPI_FILE_NULL)
     {
         int err = setView<uchar>(file);
-        printErr(*piol, name, Log::Layer::Data, err, NULL, "MPIIO Constructor failed to set a view");
+        printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
     }
 }
 
@@ -65,7 +65,7 @@ size_t MPIIO::getFileSz()
 {
     MPI_Offset fsz;
     int err = MPI_File_get_size(file, &fsz);
-    printErr(*piol, name, Log::Layer::Data, err, NULL, "error getting the file size");
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error getting the file size");
     return size_t(fsz);
 }
 

@@ -7,7 +7,7 @@ namespace PIOL { namespace Obj {
 class Interface
 {
     protected :
-    std::shared_ptr<Data::Interface> data = NULL;
+    std::shared_ptr<Data::Interface> data = nullptr;
     std::string name;
     std::shared_ptr<ExSeisPIOL> piol;
 

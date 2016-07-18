@@ -1,3 +1,4 @@
+#include <vector>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "share/segy.hh"
