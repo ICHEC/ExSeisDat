@@ -2,12 +2,12 @@
 #include "object/objsegy.hh"
 namespace PIOL { namespace File {
 
-Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
+Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_)
                         : piol(piol_), name(name_), obj(obj_)
 {
 }
 
-Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt) : piol(piol_), name(name_)
+Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt) : piol(piol_), name(name_)
 {
     switch (objOpt.getType())
     {

@@ -19,7 +19,7 @@ using namespace PIOL;
 class MockData : public Data::Interface
 {
     public :
-    MockData(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_) {}
+    MockData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
     {
     }
     MOCK_METHOD0(getFileSz, size_t(void));

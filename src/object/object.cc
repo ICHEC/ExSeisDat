@@ -4,11 +4,11 @@
 #include <typeinfo>
 #include <iostream>
 namespace PIOL { namespace Obj {
-Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
+Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
 {
 }
 
-Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Data::Opt & dataOpt) : piol(piol_), name(name_)
+Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Data::Opt & dataOpt) : piol(piol_), name(name_)
 {
     piol->record(name_, Log::Layer::Object, Log::Status::Warning, "Entered Object Interface", Log::Verb::Max);
     switch (dataOpt.getType())

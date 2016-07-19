@@ -41,14 +41,14 @@ T getMd(Hdr val, const uchar * buf)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
-           : File::Interface(piol_, name_, obj_)
+SEGY::SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt,
+           const std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
 {
    Init();
 }
 
-SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt, const Obj::Opt & objOpt,
-                                              const Data::Opt & dataOpt) : Interface(piol_, name_, objOpt, dataOpt)
+SEGY::SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt,
+           const Obj::Opt & objOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, objOpt, dataOpt)
 {
     Init();
 }
@@ -71,7 +71,7 @@ void SEGY::Init()
     }
 }
 
-void SEGY::parseHO(const uchar * buf, size_t fsz)
+void SEGY::parseHO(const uchar * buf, const size_t fsz)
 {
     ns = getMd(Hdr::NumSample, buf);
     nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);

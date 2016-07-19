@@ -65,7 +65,7 @@ class FileSEGYSpecTest : public FileIntegrationTest
 TEST_F(FileSEGYSpecTest, TestBypassConstructor)
 {
     ASSERT_TRUE(ns < 0x10000);
-    File::SEGY segy(piol, notFile, mockObj);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mockObj);
     piol->isErr();
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
@@ -78,7 +78,7 @@ TEST_F(FileSEGYSpecTest, TestBypassConstructor)
 
 TEST_F(FileSEGYSpecTest, NoTraceFileTest)
 {
-    File::SEGY segy(piol, notFile, mockObj);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mockObj);
     piol->isErr();
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);

@@ -51,11 +51,11 @@ int main(int argc, char ** argv)
         makeFile(smallFile, smallSize);
         makeFile(largeFile, largeSize);
     }
-    comm->wait();
+    comm->barrier();
 
     int code = RUN_ALL_TESTS();
 
-    comm->wait();
+    comm->barrier();
     if (!comm->getRank())
     {
         std::remove(zeroFile.c_str());

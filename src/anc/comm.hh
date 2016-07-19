@@ -15,56 +15,53 @@
 #include "global.hh"
 namespace PIOL { namespace Comm {
 /*! \brief The Communication layer interface. Specific communication implementations
- *  work off this base class
+ *  work off this base class.
  */
 class Interface
 {
     protected :
-    size_t rank;            //!< A number in the sequence from 0 to some maximum (numRank-1) which indicates the process number
+    size_t rank;            //!< A number in the sequence from 0 to some maximum (numRank-1) which indicates the process number.
     size_t numRank;         //!< The total number of processes which are executing together.
 
     public :
-    /*! \brief Returns the rank of the process executing the function
-     *  \return The rank
+    /*! \brief Returns the rank of the process executing the function/
+     *  \return The rank.
      */
     virtual size_t getRank()
     {
         return rank;
     }
-    /*! \brief Returns the number of processes which are executing together 
-     *  \return The number of processes (i.e number of ranks)
+    /*! \brief Returns the number of processes which are executing together.
+     *  \return The number of processes (i.e number of ranks).
      */
     virtual size_t getNumRank()
     {
         return numRank;
     }
 
-    virtual void barrier(void) = 0;    //!< Implementations of this pure virtual function will perform a collective wait
+    virtual void barrier(void) = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
 };
 
-/*! \brief An enum of the possible derived classes for communication
+/*! \brief An enum of the possible derived classes for communication.
  */
 enum class Type : size_t
 {
-    MPI //!< The MPI communicator. This is currently the only option.
+    MPI  //!< The MPI layer. Currently the only option.
 };
 
 /*! \brief The base-options structure. Specific communicators include a derived version of this.
  */
 struct Opt
 {
-    Type type = Type::MPI;      //!< The communicator type. Currently this is set to MPI (the only option).
+    Type type = Type::MPI;      //!< The communicator type.
 
-/*! \brief This function returns the communicator type. This function is mainly included to provide a virtual function
- * to allow polymorphic behaviour.
- */
-    virtual Type getType(void)
+    /*! \brief This function returns the communicator type. This function is mainly included to provide a virtual function
+     * to allow polymorphic behaviour.
+     */
+    virtual Type getType(void) const
     {
         return type;
     }
 };
 }}
-
-
 #endif
-

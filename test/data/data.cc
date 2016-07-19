@@ -47,6 +47,5 @@ TEST_F(DataTest, Constructor)
 TEST(DataOptTest, Opt)
 {
     Data::Opt opt;
-    opt.setType(Data::Type::MPIIO);
     EXPECT_EQ(Data::Type::MPIIO, opt.getType());
 }
