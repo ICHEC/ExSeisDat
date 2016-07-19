@@ -24,7 +24,7 @@ class MockObj : public Obj::Interface
     MOCK_METHOD1(readHO, void(uchar *));
 };
 
-class FileSEGYTest : public Test
+class FileIntegrationTest : public Test
 {
     protected :
     std::shared_ptr<ExSeisPIOL> piol;
@@ -32,42 +32,68 @@ class FileSEGYTest : public Test
     const Obj::SEGYOpt objSegyOpt;
     const Data::MPIIOOpt dataOpt;
     Comm::MPIOpt opt;
-    std::shared_ptr<MockObj> mockObj;
-    FileSEGYTest()
+    FileIntegrationTest()
     {
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
+    }
+};
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////// ISOLATED-CLASS SPECIFICATION TESTING ///////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+class FileSEGYSpecTest : public FileIntegrationTest
+{
+    protected :
+    std::shared_ptr<MockObj> mockObj;
+    const size_t nt = 40U;
+    const size_t ns = 200U;
+    std::vector<uchar> ho;
+    FileSEGYSpecTest()
+    {
+        opt.initMPI = false;
+        piol = std::make_shared<ExSeisPIOL>(opt);
+
         mockObj = std::make_shared<MockObj>(piol, notFile, nullptr);
+        ho.resize(SEGSz::getHOSz());
+        EXPECT_CALL(*mockObj, getFileSz()).Times(AtLeast(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
+        ho[3221U] = ns;
+        EXPECT_CALL(*mockObj, readHO(_)).Times(AtLeast(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
     }
 };
 
-TEST_F(FileSEGYTest, TestBypassConstructor)
+TEST_F(FileSEGYSpecTest, TestBypassConstructor)
 {
-    EXPECT_CALL(*mockObj, getFileSz()).WillOnce(Return(3600));
+    ASSERT_TRUE(ns < 0x10000);
     File::SEGY segy(piol, notFile, mockObj);
+    piol->isErr();
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
     EXPECT_EQ(mockObj, segy.obj);
+    EXPECT_EQ(nt, segy.readNt());
+    EXPECT_EQ(ns, segy.readNs());
 }
 
-typedef FileSEGYTest FileSpecTest;
-TEST_F(FileSpecTest, NoTraceFileTest)
+TEST_F(FileSEGYSpecTest, NoTraceFileTest)
 {
-    EXPECT_CALL(*mockObj, getFileSz()).WillOnce(Return(3600));
-    std::vector<uchar> ho(SEGSz::getHOSz());
-    ho[3217] = 200;
-
-    EXPECT_CALL(*mockObj, readHO(_)).WillOnce(SetArrayArgument<0>(ho.end(), ho.begin()));
-
     File::SEGY segy(piol, notFile, mockObj);
     piol->isErr();
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mockObj, segy.obj);
+    EXPECT_EQ(nt, segy.readNt());
+    EXPECT_EQ(ns, segy.readNs());
 }
 
-typedef FileSEGYTest FileIntegrationTest;
 TEST_F(FileIntegrationTest, SEGYReadHO)
 {
     SCOPED_TRACE("SEGYReadHO");
-    File::SEGY segy(piol, plargeFile, fileSegyOpt, objSegyOpt, dataOpt);
+    const size_t ns = 261U;
+    const size_t nt = 400U;
+    std::string smallSEGY = "tmp/smallsegy.tmp";
+    File::SEGY segy(piol, smallSEGY, fileSegyOpt, objSegyOpt, dataOpt);
     piol->isErr();
+    EXPECT_EQ(ns, segy.readNs());
+    EXPECT_EQ(nt, segy.readNt());
 }
 

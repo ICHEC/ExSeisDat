@@ -30,11 +30,6 @@ Interface::Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_,
             }
             else
                 obj = std::shared_ptr<Obj::Interface>(std::move(segy));
-/////////////
-
-
-//            auto segy = std::make_shared<Obj::SEGY>(piol_, name_, dynamic_cast<const Obj::SEGYOpt &>(objOpt), dataOpt);
-//            obj = segy;
         }
         break;
         default :

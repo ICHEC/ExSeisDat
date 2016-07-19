@@ -3,6 +3,7 @@
 #include "file/filesegy.hh"
 #include "share/segy.hh"
 
+#include <iostream>
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -56,11 +57,12 @@ SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Fil
 void SEGY::Init()
 {
     size_t hoSz = SEGSz::getHOSz();
-    if (obj->getFileSz() >= hoSz)
+    size_t fsz = obj->getFileSz();
+    if (fsz >= hoSz)
     {
         std::vector<uchar> buf(hoSz);
         obj->readHO(buf.data());
-        parseHO(buf.data());
+        parseHO(buf.data(), fsz);
     }
     else
     {
@@ -69,16 +71,10 @@ void SEGY::Init()
     }
 }
 
-void SEGY::parseHO(const uchar * buf)
+void SEGY::parseHO(const uchar * buf, size_t fsz)
 {
     ns = getMd(Hdr::NumSample, buf);
-    size_t fsz = obj->getFileSz();
     nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
-
-    //TODO: Move to unit test
-//    assert(ns != 0);
-//    assert(fsz - nt*Obj::SEGSz::getDOSz<float>(ns) - Obj::SEGSz::getHOSz() == 0);
-//    assert(fsz - obj->getSize(nt, ns) == 0);
 }
 size_t SEGY::readNs(void)
 {
