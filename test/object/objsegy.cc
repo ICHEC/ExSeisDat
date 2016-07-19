@@ -33,7 +33,6 @@ class ObjSEGYTest : public Test
     const Obj::SEGYOpt segyOpt;
     const Data::MPIIOOpt dataOpt;
     Comm::MPIOpt opt;
-    std::string name = "randomName";
     ObjSEGYTest()
     {
         opt.initMPI = false;
@@ -43,21 +42,24 @@ class ObjSEGYTest : public Test
 
 TEST_F(ObjSEGYTest, TestBypassConstructor)
 {
-    auto mock = std::make_shared<MockData>(piol, name);
+    auto mock = std::make_shared<MockData>(piol, notFile);
     std::shared_ptr<Data::Interface> data = mock;
 
-    Obj::SEGY segy(piol, name, segyOpt, data);
+    Obj::SEGY segy(piol, notFile, segyOpt, data);
     EXPECT_EQ(piol, segy.piol);
-    EXPECT_EQ(name, segy.name);
+    EXPECT_EQ(notFile, segy.name);
     EXPECT_EQ(data, segy.data);
 }
 
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////// ISOLATED-CLASS SPECIFICATION TESTING ///////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 void SEGYFileSizeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name, const Obj::SEGYOpt & segyOpt, size_t sz)
 {
     auto mock = std::make_shared<MockData>(piol, name);
-    EXPECT_CALL(*mock, getFileSz()).Times(1).WillOnce(Return(sz));
-    std::shared_ptr<Data::Interface> data = mock;
-    Obj::SEGY segy(piol, name, segyOpt, data);
+    EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(sz));
+
+    Obj::SEGY segy(piol, name, segyOpt, mock);
     piol->isErr();
     EXPECT_EQ(sz, segy.getFileSz());
 }
@@ -68,16 +70,40 @@ TEST_F(ObjSpecTest, SmallSEGYFileSize)
     size_t sz = 40*prefix(2U);
     EXPECT_EQ(sz, 40*1024U*1024U);
     SCOPED_TRACE("SmallSEGYFileSize");
-    SEGYFileSizeTest(piol, name, segyOpt, sz);
+    SEGYFileSizeTest(piol, notFile, segyOpt, sz);
 }
 
 TEST_F(ObjSpecTest, BigSEGYFileSize)
 {
     size_t sz = 8U*prefix(4U);
     SCOPED_TRACE("BigSEGYFileSize");
-    SEGYFileSizeTest(piol, name, segyOpt, sz);
+    SEGYFileSizeTest(piol, notFile, segyOpt, sz);
 }
 
+TEST_F(ObjSpecTest, SEGYHORead)
+{
+    auto mock = std::make_shared<MockData>(piol, notFile);
+    std::vector<uchar> cHo(SEGSz::getHOSz());
+    for (size_t i = 0; i < cHo.size(); i++)
+        cHo[i] = getPattern(i);
+    EXPECT_CALL(*mock, read(0U,_, 3600U)).Times(Exactly(1)).WillOnce(SetArrayArgument<1>(cHo.begin(), cHo.end()));
+
+    const size_t extra = 128U;
+    std::vector<uchar> Ho(SEGSz::getHOSz() + extra);
+    Obj::SEGY segy(piol, notFile, segyOpt, mock);
+    piol->isErr();
+    segy.readHO(Ho.data());
+    piol->isErr();
+
+    for (size_t i = 0; i < cHo.size(); i++)
+        ASSERT_EQ(getPattern(i), Ho[i]);
+    for (size_t i = 0; i < extra; i++)
+        ASSERT_EQ(0, Ho[Ho.size()-extra+i]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////// INTEGRATION-CLASS SPECIFICATION TESTING //////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 void SEGYReadHOTest(Obj::Interface & obj, std::vector<uchar> magic)
 {
     const size_t extra = 1025U;
