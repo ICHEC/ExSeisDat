@@ -42,8 +42,13 @@ enum class Type : size_t
  */
 struct Opt
 {
-    Type type = Type::MPIIO;      //!< The Data type.
-
+    Type type;      //!< The Data type.
+    /* \brief Default constructor to prevent intel warnings
+     */
+    Opt(void)
+    {
+        type = Type::MPIIO;      //!< The Data type.
+    }
     /*! \brief This function returns the Data type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */

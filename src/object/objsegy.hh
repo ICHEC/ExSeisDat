@@ -10,8 +10,13 @@ namespace PIOL { namespace Obj {
 
 /*! \brief The SEG-Y options structure. Currently empty.
  */
-class SEGYOpt : public Opt
+struct SEGYOpt : public Opt
 {
+    /* \brief Default constructor to prevent intel warnings
+     */
+    SEGYOpt(void)
+    {
+    }
 };
 
 /*! \brief The SEG-Y Obj class.

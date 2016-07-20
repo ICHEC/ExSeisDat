@@ -41,6 +41,8 @@ T getMd(Hdr val, const uchar * buf)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 SEGY::SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt,
            const std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
 {
@@ -52,6 +54,7 @@ SEGY::SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, con
 {
     Init();
 }
+#pragma GCC diagnostic pop
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
 void SEGY::Init()

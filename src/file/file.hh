@@ -11,9 +11,9 @@ namespace PIOL { namespace File {
 class Interface
 {
     protected :
-    std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
-    std::string name;                               //!< Store the file name for debugging purposes.
     std::shared_ptr<ExSeisPIOL> piol;               //!< The PIOL object.
+    std::string name;                               //!< Store the file name for debugging purposes.
+    std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                                      //!< The number of samples per trace.
     size_t nt;                                      //!< The number of traces.
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
@@ -53,7 +53,12 @@ enum class Type : size_t
 struct Opt
 {
     Type type = Type::SEGY;      //!< The File type.
-
+    /* \brief Default constructor to prevent intel warnings
+     */
+    Opt(void)
+    {
+        type = Type::SEGY;      //!< The Obj type.
+    }
     /*! \brief This function returns the File type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */

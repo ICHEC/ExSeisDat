@@ -52,7 +52,7 @@ struct ExSeisPIOL
 
     /*! \overload
      */
-    void isErr(void)    
+    void isErr(void)
     {
         isErr("");
     }
