@@ -1,8 +1,7 @@
 #ifndef PIOLSHARESEGY_INCLUDE_GUARD
 #define PIOLSHARESEGY_INCLUDE_GUARD
 namespace PIOL { namespace SEGSz {
-/*! \internal
- *  \brief An enumeration containing important SEG-Y sizes
+/*! \brief An enumeration containing important SEG-Y sizes
  */
 enum class Size : size_t
 {

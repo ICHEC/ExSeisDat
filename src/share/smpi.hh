@@ -8,8 +8,7 @@
 #include "anc/log.hh"
 namespace PIOL {
 
-/*! \internal
- *\brief Check the MPI error code and log an error event if there is an error.
+/*! \brief Check the MPI error code and log an error event if there is an error.
  *  \param[in,out] piol The PIOL object. The log object is stored within it.
  *  \param[in] file The related file. Use "" if the option is not applicable.
  *  \param[in] layer The layer one was working with (generally Comm or Data).
@@ -23,8 +22,7 @@ namespace PIOL {
 extern void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer, const int err,
                                         const MPI_Status * stat, std::string msg);
 
-/*! \internal
- *  \brief Return the fundamental MPI datatype associated with a fundamental datatype.
+/*! \brief Return the fundamental MPI datatype associated with a fundamental datatype.
  *  \return The datatype. If the datatype is not known MPI_BYTE is returned.
  *  \tparam T The C++ datatype
  */
@@ -50,8 +48,7 @@ MPI_Datatype MPIType(void)
          : MPI_BYTE)))))))))))));
 }
 
-/*! \internal
- *  \brief Return the known limit for Intel MPI on Fionn
+/*! \brief Return the known limit for Intel MPI on Fionn
  */
 template <typename T>
 constexpr size_t getLim()
