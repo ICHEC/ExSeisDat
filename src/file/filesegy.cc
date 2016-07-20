@@ -1,18 +1,24 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief
+ *   \details
+ *//*******************************************************************************************/
 #include <vector>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "share/segy.hh"
-
-#include <iostream>
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class Hdr : size_t
 {
-    Increment = 3217, //Short
-    NumSample = 3221, //Short
-    Type = 3225 //Short, Trace data type. AKA format in SEGY terminology
+    Increment = 3217,   //Short
+    NumSample = 3221,   //Short
+    Type = 3225         //Short, Trace data type. AKA format in SEGY terminology
 };
 
 template <typename T = short>
@@ -21,8 +27,8 @@ T getHostShort(const uchar * src)
     return (T(src[0]) << 8) | T(src[1]);
 }
 
-template <class T=int>
-T getMd(Hdr val, const uchar * buf)
+template <class T = int>
+T getMd(const Hdr val, const uchar * buf)
 {
     switch (val)
     {

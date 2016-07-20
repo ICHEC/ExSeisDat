@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>ExSeisPIOL C++ Style Guide</title>
+<link rel="stylesheet" type="text/css" href="include/styleguide.css">
+<script language="javascript" src="include/styleguide.js"></script>
+</head>
+<body onload="initStyleGuide();">
+<div id="content">
+<h1>ExSeisPIOL C++ Style Guide</h1>
+<div class="horizontal_toc" id="tocDiv"></div>
+<div class="main_body"> 
+
+<h2 class="ignoreLink" id="Background">Background</h2>
+<p>C++ is one of the main development languages used by
+many of Google's open-source projects and has been adopted by the ExSeisPIOL
+Project. As every C++ programmer knows, the language has many powerful features,
+but this power brings with it complexity, which in turn can make
+code more bug-prone and harder to read and maintain.</p>
+<p>The goal of this guide is to manage this complexity by
+describing in detail the dos and don'ts of writing C++ code.
+These rules exist to
+keep  the code base manageable while still allowing
+coders to use C++ language features productively.</p>
+<p><em>Style</em>, also known as readability, is what we call
+the conventions that govern our C++ code. The term Style is a
+bit of a misnomer, since these conventions cover far more than
+just source file formatting.</p>
+<p>
+Most open-source projects developed by
+Google conform to the requirements in this guide and we have adopted the 
+google style guide. This document is a summary of that style guide (and thus a derived
+work available under the same license).
+</p>
+
+<p>Much of the style guide is captured by the following example:
+<pre>
+namespace PIOL { namespace File {
+enum class Hdr : size_t
+{
+    Increment = 3217U,   //Short in the SEG-Y standard
+    NumSample = 3221U,   //Short in the SEG-Y standard
+    Type = 3225U         //Short, Trace data type. AKA format in SEGY terminology
+};
+
+template <typename T = short>
+T getHostShort(const uchar * src)
+{
+    return (T(src[0]) << 8) | T(src[1]);
+}
+
+template <class T = int>
+T getMd(Hdr val, const uchar * buf)
+{
+    switch (val)
+    {  
+        case Hdr::Increment :
+        case Hdr::Type :
+        case Hdr::NumSample :
+        return getHostShort(&buf[size_t(val)-1]);
+        default :
+        return 0;
+        break;
+    }
+}
+}}
+</pre></p>
+
+<h2 id="Header_Files">Header Files</h2>
+<p>In general, every <code>.cc</code> file should have an
+associated <code>.hh</code> file. There are some common
+exceptions, such as  unittests.</p>
+<p>Correct use of header files can make a huge difference to
+the readability, size and performance of your code.</p>
+<p>The following rules will guide you through the various
+pitfalls of using header files.</p>
+<a id="The_-inl.h_Files"></a>
+<h3 id="Self_contained_Headers">Self-contained Headers</h3>
+<div class="summary">
+<p>Header files should be self-contained (compile on their own) and
+end in <code>.h</code>. Non-header files that are meant for inclusion
+should end in <code>.inc</code>. </p>
+</div>
+<div class="stylebody">
+<p>All header files should be self-contained. Users and refactoring
+tools should not have to adhere to special conditions to include the
+header. Specifically, a header should
+have <a href="#The__define_Guard">header guards</a> and include all
+other headers it needs.</p>
+<p>If a template or inline function is declared in a <code>.h</code>
+file, that same header should provide its definition. The definitions
+of these constructs must be included into every <code>.cc</code> file
+that uses them, or the program may fail to link in some build
+configurations. Do not move these definitions to separately included
+header files (<code>-inl.h</code>).</p>
+<p>As an exception, a template that is explicitly instantiated for
+all relevant sets of template arguments, or that is a private
+implementation detail of a class, is allowed to be defined in the one
+and only <code>.cc</code> file that instantiates the template.</p>
+<p>There are rare cases where a file is not meant to be
+self-contained, but it is meant to be included at a specific point in
+the code.  Examples are files that need to be included multiple times
+or platform-specific implementation details that are essentially part
+of other self-contained headers. Such files should use the file
+extension <code>.inc</code>.</p>
+</div> 
+<h3 id="The__define_Guard">The #define Guard</h3>
+<div class="summary">
+<p>All header files should have <code>#define</code> guards to
+prevent multiple inclusion. The format of the symbol name
+should be
+<code><i>&lt;PIOL&gt;</i><i>&lt;PATH&gt;</i><i>&lt;FILE&gt;</i>_INCLUDE_GUARD</code>.</p>
+</div> 
+<h3 id="Forward_Declarations">Forward Declarations</h3>
+<div class="summary">
+  <p>Avoid using forward declarations where possible.
+  Just <code>#include</code> the headers you need.</p>
+</div>
+<div class="stylebody">
+<div class="definition">
+<p>A "forward declaration" is a declaration of a class,
+function, or template without an associated definition.</p>
+<ul>
+  <li>Try to avoid forward declarations of entities
+  defined in another project.</li>
+  <li>When using a function declared in a header file,
+  always <code>#include</code> that header.</li>
+  <li>When using a class template, prefer to
+  <code>#include</code> its header file.</li>
+</ul>
+<p>Please see <a href="#Names_and_Order_of_Includes">Names and Order
+of Includes</a> for rules about when to #include a header.</p>
+</div>
+</div> 
+<h3 id="Inline_Functions">Inline Functions</h3>
+<div class="summary">
+<p>Define functions inline only when they are small, say, 5
+lines or fewer.</p>
+</div>
+<h3 id="Names_and_Order_of_Includes">Names and Order of Includes</h3>
+<div class="summary">
+<p>Use standard order for readability and to avoid hidden
+dependencies: Related header, C library, C++ library,  other libraries'
+<code>.h/.hh</code>, your project's <code>.hh</code>.</p>
+</div>
+<div class="stylebody">
+<p>
+
+<h2 id="Scoping">Scoping</h2>
+<h3 id="Namespaces">Namespaces</h3>
+<div class="summary">
+<p>With few exceptions, place code in a namespace. Namespaces
+should have unique names and be defined in the architecture document.
+Unnamed namespaces in <code>.cc</code> files are encouraged if there is no applicable
+namespace. Do not use <i>using-directives</i> (e.g.
+<code>using namespace foo</code>).</p>
+</div>
+</div>
+
+<h3 id="Nonmember,_Static_Member,_and_Global_Functions">Nonmember, Static Member, and Global Functions</h3>
+<div class="summary">
+<p>Prefer placing nonmember functions in a namespace; use completely global
+functions rarely. Prefer grouping functions with a namespace instead of
+using a class as if it were a namespace. Static methods of a class should
+generally be closely related to instances of the class or the class's static
+data.</p>
+</div>
+
+<h3 id="Local_Variables">Local Variables</h3>
+<div class="summary">
+<p>Place a function's variables in the narrowest scope
+possible, and initialize variables in the declaration.</p>
+</div>
+
+<h3 id="Static_and_Global_Variables">Static and Global Variables</h3>
+<div class="summary">
+  <p>Variables of class type with <a href="http://en.cppreference.com/w/cpp/language/storage_duration#Storage_duration">
+    static storage duration</a> are forbidden: they cause hard-to-find bugs due
+  to indeterminate order of construction and destruction. However, such
+  variables are allowed if they are <code>constexpr</code>: they have no
+  dynamic initialization or destruction.</p>
+</div>
+
+<h2 id="Classes">Classes</h2>
+<p>Classes are the fundamental unit of code in C++. Naturally,
+we use them extensively. This section lists the main dos and
+don'ts you should follow when writing a class.</p>
+<h3 id="Doing_Work_in_Constructors">Doing Work in Constructors</h3>
+<div class="summary">
+<p>Avoid virtual method calls in constructors, and avoid
+initialization that can fail if you can't signal an error.</p>
+</div>
+
+<h3 id="Implicit_Conversions">Implicit Conversions</h3>
+<div class="summary">
+<p>Do not define implicit conversions. Use the <code>explicit</code>
+keyword for conversion operators and single-argument
+constructors.</p>
+</div>
+
+<h3 id="Copyable_Movable_Types">Copyable and Movable Types</h3>
+<a id="Copy_Constructors"></a>
+<div class="summary">
+<p>Support copying and/or moving if these operations are clear and meaningful
+for your type. Otherwise, disable the implicitly generated special functions
+that perform copies and moves.
+</p></div>
+
+<h3 id="Structs_vs._Classes">Structs vs. Classes</h3>
+<div class="summary">
+<p>Use a <code>struct</code> only for passive objects that
+      carry data; everything else is a <code>class</code>.</p>
+</div>
+
+<h3 id="Inheritance">Inheritance</h3>
+<div class="summary">
+<p>Composition is often more appropriate than inheritance.
+When using inheritance, make it <code>public</code>.</p>
+</div>
+
+<h3 id="Multiple_Inheritance">Multiple Inheritance</h3>
+<div class="summary">
+<p>Only very rarely is multiple implementation inheritance
+actually useful. We allow multiple inheritance only when at
+most one of the base classes has an implementation; all
+other base classes must be <a href="#Interfaces">pure
+interface</a> classes tagged with the
+<code>Interface</code> suffix.</p>
+</div>
+
+<h3 id="Interfaces">Interfaces</h3>
+<div class="summary">
+<p>Classes that satisfy certain conditions are allowed, but
+not required, to end with an <code>Interface</code> suffix.</p>
+</div>
+
+<h3 id="Operator_Overloading">Operator Overloading</h3>
+<div class="summary">
+<p>Overload operators judiciously. Do not create user-defined literals.</p>
+</div>
+
+<h3 id="Access_Control">Access Control</h3>
+<div class="summary">
+<p> Make data members <code>private</code>, unless they are
+<code>static const</code> (and follow the <a href="#Constant_Names">
+naming convention for constants</a>). For technical
+reasons, we allow data members of a test fixture class to
+be <code>protected</code> when using
+<a href="https://code.google.com/p/googletest/">Google
+Test</a>).</p>
+</div>
+
+<h3 id="Declaration_Order">Declaration Order</h3>
+<div class="summary">
+<p> Use the specified order of declarations within a class:
+<code>public:</code> before <code>private:</code>, methods
+before data members (variables), etc.</p>
+</div>
+
+<h2 id="Functions">Functions</h2>
+<h3 id="Function_Parameter_Ordering">Parameter Ordering</h3>
+<div class="summary">
+<p>When defining a function, parameter order is: inputs, then
+outputs.</p>
+
+<h3 id="Write_Short_Functions">Write Short Functions</h3>
+<div class="summary">
+<p>Prefer small and focused functions.</p>
+</div>
+
+<h3 id="Reference_Arguments">Reference Arguments</h3>
+<div class="summary">
+<p>All parameters passed by reference must be labeled
+<code>const</code>.</p>
+</div>
+
+<h3 id="Function_Overloading">Function Overloading</h3>
+<div class="summary">
+<p>Use overloaded functions (including constructors) only if a
+reader looking at a call site can get a good idea of what
+is happening without having to first figure out exactly
+which overload is being called.</p>
+</div>
+
+<h3 id="Default_Arguments">Default Arguments</h3>
+<div class="summary">
+<p>Default arguments are allowed on non-virtual functions
+when the default is guaranteed to always have the same
+value. Follow the same restrictions as for <a href="#Function_Overloading">function overloading</a>, and
+prefer overloaded functions if the readability gained with
+default arguments doesn't outweigh the downsides below.</p>
+</div>
+
+<h3 id="trailing_return">Trailing Return Type Syntax</h3>
+<div class="summary">
+<p>Use trailing return types only where using the ordinary syntax (leading
+  return types) is impractical or much less readable.</p>
+</div>
+
+<h3 id="Ownership_and_Smart_Pointers">Ownership and Smart Pointers</h3>
+<div class="summary">
+<p>Prefer to have single, fixed owners for dynamically
+allocated objects. Prefer to transfer ownership with smart
+pointers.</p>
+</div>
+
+<h3 id="cpplint">cpplint</h3>
+<div class="summary">
+<p>Use <code>cpplint.py</code>
+to detect style errors.</p>
+</div>
+
+<h2 id="Other_C++_Features">Other C++ Features</h2>
+<h3 id="Rvalue_references">Rvalue References</h3>
+<div class="summary">
+<p>Use rvalue references only to define move constructors and move assignment
+operators, or for perfect forwarding.
+</p>
+
+<h3 id="Friends">Friends</h3>
+<div class="summary">
+<p>We allow use of <code>friend</code> classes and functions,
+within reason.</p>
+</div>
+
+<h3 id="Exceptions">Exceptions</h3>
+<div class="summary">
+<p>We do not use C++ exceptions.</p>
+</div>
+
+<h3 id="Run-Time_Type_Information__RTTI_">Run-Time Type
+Information (RTTI)</h3>
+<div class="summary">
+<p>Avoid using Run Time Type Information (RTTI) except when delegating object construction within another constructor.</p>
+</div>
+
+<h3 id="Casting">Casting</h3>
+<div class="summary">
+<p>Use C++-style casts
+like <code>static_cast&lt;float&gt;(double_value)</code>, or brace
+initialization for conversion of arithmetic types like
+<code>int64 y = int64{1} &lt;&lt; 42</code>. Do not use
+cast formats like
+<code>int y = (int)x</code> or <code>int y = int(x)</code> (but the latter
+is okay when invoking a constructor of a class type).</p>
+</div>
+
+<h3 id="Streams">Streams</h3>
+<div class="summary">
+<p>Use streams where appropriate, and stick to "simple"
+usages. Use the C File API for complex non-parallel file output.</p>
+</div>
+
+<h3 id="Preincrement_and_Predecrement">Preincrement and Predecrement</h3>
+<div class="summary">
+<p>Use prefix form (<code>++i</code>) of the increment and
+decrement operators with iterators and other template
+objects.</p>
+</div>
+
+<h3 id="Use_of_const">Use of const</h3>
+<div class="summary">
+<p>Use <code>const</code> whenever it makes sense. With C++11,
+<code>constexpr</code> is a better choice for some uses of
+const. The code follows the principle of least privilege in the declaration function parameters</p>
+</div>
+
+<h3 id="Use_of_constexpr">Use of constexpr</h3>
+<div class="summary">
+<p>In C++11, use <code>constexpr</code> to define true
+constants or to ensure constant initialization.</p>
+</div>
+
+<h3 id="Integer_Types">Integer Types</h3>
+<div class="summary">
+<p>If your variable represents a value that could ever be greater
+than or equal to 2^31 (2GiB), use a 64-bit type such as <code>int64_t</code>.
+A typedef llint is provided in global.hh for this purpose.
+Keep in mind that even if your value won't ever be too large
+for an <code>int</code>, it may be used in intermediate
+calculations which may require a larger type. When in doubt,
+choose a larger type.</p>
+Use size_t to refer to sizes of objects.
+</div>
+
+<h3 id="64-bit_Portability">64-bit Code</h3>
+<div class="summary">
+<p>We only target 64-bit.</p>
+</div>
+
+<h3 id="Preprocessor_Macros">Preprocessor Macros</h3>
+<div class="summary">
+<p>Be very cautious with macros. Prefer inline and constexpr functions,
+enums, and <code>const</code> variables to macros. Don't
+use macros to define pieces of a C++ API.</p>
+</div>
+
+<h3 id="auto">auto</h3>
+<div class="summary">
+<p>Use <code>auto</code> to avoid type names that are noisy, obvious,
+or unimportant - cases where the type doesn't aid in clarity for the
+reader. Continue to use manifest type declarations when it helps
+readability.</p>
+</div>
+
+<h3 id="Braced_Initializer_List">Braced Initializer List</h3>
+<div class="summary">
+<p>You may use braced initializer lists.</p>
+</div>
+
+<h3 id="Lambda_expressions">Lambda expressions</h3>
+<div class="summary">
+<p>Use lambda expressions where appropriate. Prefer explicit captures
+when the lambda will escape the current scope.</p>
+</div>
+
+<h3 id="Template_metaprogramming">Template metaprogramming</h3>
+<div class="summary">
+<p>Avoid complicated template programming.</p>
+</div>
+
+<h3 id="Boost">Boost</h3>
+<div class="summary">
+<p>Do not use Boost. We want to minimise dependencies on other libraries</p>
+</div>
+
+<h3 id="C++11">C++14</h3>
+<div class="summary">
+<p>Use libraries and language extensions from C++14 when appropriate. Test
+features compile with both the Intel and GNU compilers. Both Tullow and ICHEC systems
+have the capacity to support C++14 features. </p>
+</div>
+
+<h3 id="Nonstandard_Extensions">Nonstandard Extensions</h3>
+<div class="summary">
+<p>Nonstandard extensions to C++ may not be used unless otherwise specified. If
+a non-standard feature is used the code must also be able to compile with strict flags
+and with the same functionality. </p>
+</div>
+
+<h3 id="Aliases">Aliases</h3>
+<div class="summary">
+<p>Public aliases are for the benefit of the API's user, and should be clearly documented.</p>
+<p>Don't put an alias in the end-user API just to save typing in the implementation;
+  do so only if you intend it to be used by our clients.</p>
+</div>
+
+<h2 id="Naming">Naming</h2>
+<p>The most important consistency rules are those that govern
+naming. The style of a name immediately informs us what sort of
+thing the named entity is: a type, a variable, a function, a
+constant, a macro, etc., without requiring us to search for the
+declaration of that entity. The pattern-matching engine in our
+brains relies a great deal on these naming rules.
+</p>
+<p>Naming rules are pretty arbitrary, but
+ we feel that
+consistency is more important than individual preferences in this
+area, so regardless of whether you find them sensible or not,
+the rules are the rules.</p>
+<h3 id="General_Naming_Rules">General Naming Rules</h3>
+<div class="summary">
+
+<h3 id="File_Names">File Names</h3>
+<div class="summary">
+<p>Filenames should be all lowercase. Do not use underscores (<code>_</code>)
+or dashes (<code>-</code>) in file names.</p>
+</div>
+
+<h3 id="Type_Names">Type Names</h3>
+<div class="summary">
+<p>Type names use upper CamelCase.</p>
+
+<h3 id="Variable_Names">Variable Names</h3>
+<div class="summary">
+<p>The names of variables and data members use lower camelCase. Data parameters
+for class/struct constructors have trailing underscores where there is a member
+variable of the same name.
+<p>C style abbreviations such as in the style of the POSIX API (e.g msg and src) are allowed.</p>
+
+<div class="stylebody">
+<h3 id="Function_Names">Function Names</h3>
+<div class="summary">
+<p>Function names should be descriptive; avoid acronyms unless the abbreviation is defined in deliverables or 
+the architecture/end user documentaton.</p>
+</div>
+<p>Functions names use lower camelCase. e.g readDataFile.</p>
+</div>
+
+<h3 id="Namespace_Names">Namespace Names</h3>
+<div class="summary">
+Namespace names begin with a capital and should be a single word or acronym. Acronyms are all capitalised. There is currently one Top-level namespace for the
+project: PIOL.
+</div>
+</div>
+
+<h3 id="Enumerator_Names">Enumerator Names</h3>
+<div class="summary">
+<p>Enumerators should be named in upper CamelCase.</p>
+</div>
+
+<h3 id="Macro_Names">Macro Names</h3>
+<div class="summary">
+<p>Macros are strictly forbidden. <a href="#Preprocessor_Macros">
+define a macro</a> When you write a macro, they are like this:
+<code>MY_MACRO_THAT_SCARES_SMALL_CHILDREN</code>. <h3 id="Macro_Names">Macro Names</h3>
+<div class="summary">
+<p>You're not really going to <a href="#Preprocessor_Macros">
+define a macro</a>, are you? If you do, they're like this:
+<code>MY_MACRO_THAT_SCARES_SMALL_CHILDREN</code>. Hash defines
+follow the same style.</p>
+</div></p>
+</div>
+
+<h2 id="Comments">Comments</h2>
+<p>Though a pain to write, comments are absolutely vital to
+keeping our code readable. The following rules describe what
+you should comment and where. But remember: while comments are
+very important, the best code is self-documenting. Giving
+sensible names to types and variables is much better than using
+obscure names that you must then explain through comments.</p>
+<p>When writing your comments, write for your audience: the
+reviewer. Be generous &#8212; you are also a reviewer!</p>
+
+<h3 id="Comment_Style">Comment Style</h3>
+<div class="summary">
+<p>Use either <code>//</code> for short comments and <code>/* */</code>
+for longer comments. Use <code>/* */</code> for doxygen struct, class, function
+comments. Use <code>//</code> for inline doxygen comments. </p>
+</div>
+
+<h3 id="File_Comments">File Comments</h3>
+<div class="summary">
+<p>Start each file with license boilerplate etc.</p>
+<p>File comments describe the contents of a file. If a file declares,
+implements, or tests exactly one abstraction that is documented by a comment
+at the point of declaration, file comments are not required. All other files
+should have file comments. If you are creating a file, add the file comment boilerplate
+and also the <code>\author</code> command noting the initial author. Copy the header style of 
+other files. This includes the other of files. </p>
+</div>
+
+<h3 id="Function_Comments">Function Comments</h3>
+<div class="summary">
+<p>Declaration comments describe use of the function (when it is
+non-obvious) and must use doxygen; comments at the definition of a
+function describe operation.</p>
+</div>
+
+<h3 id="Implementation_Comments">Implementation Comments</h3>
+<div class="summary">
+<p>In your implementation you should have comments in tricky,
+non-obvious, interesting, or important parts of your code.</p>
+</div>
+
+<h3 id="Punctuation,_Spelling_and_Grammar">Punctuation, Spelling and Grammar</h3>
+<div class="summary">
+<p>Pay attention to punctuation, spelling, and grammar; it is
+easier to read well-written comments than badly written
+ones.</p>
+</div>
+
+<h3 id="TODO_Comments">TODO Comments</h3>
+<div class="summary">
+<p>Use <code>TODO</code> comments for code that is temporary,
+a short-term solution, or good-enough but not perfect. Larger TODO's should be in doxygen
+syntax.</p>
+</div>
+
+<h3 id="Deprecation_Comments">Deprecation Comments</h3>
+<div class="summary">
+<p>Mark deprecated interface points with <code>[[deprecated]]</code>.</p>
+
+<h3 id="Line_Length">Line Length</h3>
+<div class="summary">
+<p>Each line of text in your code should be at most about 140
+characters long and preferably about ~100 characters. Text comments should have line breaks after about eac ~100 characters to aide reading. </p>
+</div>
+
+<h3 id="Non-ASCII_Characters">Non-ASCII Characters</h3>
+<div class="summary">
+<p>Non-ASCII characters should be rare, and must use UTF-8
+formatting.</p>
+    code>u8"\uFEFF"</code>, is the Unicode zero-width
+no-break space character, which would be invisible if
+included in the source as straight UTF-8.</p>
+<p>Use the <code>u8</code> prefix
+to guarantee that a string literal containing
+<code>\uXXXX</code> escape sequences is encoded as UTF-8.
+Do not use it for strings containing non-ASCII characters
+encoded as UTF-8, because that will produce incorrect
+output if the compiler does not interpret the source file
+as UTF-8. </p>
+<p>You shouldn't use the C++11 <code>char16_t</code> and
+<code>char32_t</code> character types, since they're for
+non-UTF-8 text. For similar reasons you also shouldn't
+use <code>wchar_t</code> (unless you're writing code that
+interacts with the Windows API, which uses
+<code>wchar_t</code> extensively).</p>
+</div>
+
+<h3 id="Spaces_vs._Tabs">Spaces vs. Tabs</h3>
+<div class="summary">
+<p>Use only spaces, and indent 4 spaces at a time.</p>
+</div>
+
+<h3 id="Function_Declarations_and_Definitions">Function Declarations and Definitions</h3>
+<div class="summary">
+<p>Templates are on the line before a function or class etc. Return type on the same line
+as function name, parameters on the same line if they fit. Align parameters on the next line.</p>
+</div>
+
+<h3 id="Formatting_Lambda_Expressions">Lambda Expressions</h3>
+<div class="summary">
+<p>Format parameters and bodies as for any other function, and capture
+lists like other comma-separated lists.</p>
+</div>
+
+<h3 id="Literals">Literals</h3>
+<div class="summary">
+<p>Make the type of literals explicit where possible. Be aware of size issues
+with integer literals.</p>
+
+<h3 id="Function_Calls">Function Calls</h3>
+<div class="summary">
+<p>Either write the call all on a single line, wrap the
+arguments at the parenthesis, or start the arguments on a new
+line and match up with a parameter on the previous line. In the absence of
+other considerations, use the minimum number of lines.</p>
+
+<div class="summary">
+<p>Format a <a href="#Braced_Initializer_List">braced initializer list</a>
+exactly like you would format a function call in its place.</p>
+</div>
+
+<h3 id="Conditionals">Parentheses</h3>
+<div class="summary">
+<p>Do not add extra spaces between parentheses.<p>
+<p>Do not use redundant parantheses unless it aids code readability.</p>
+
+<h3 id="Conditionals">Curly braces</h3>
+<p>For conditions, classes, switch, for, while, do structures, namespaces,
+enums and functions etc, curly braces should be on a separate line and
+indented up to the level of the current scope. Curly braces should be the
+only non-space character on the line</p>
+<p>There are three exceptions: initialiser lists and lambda functions should have a curly brace 
+on the same line as the object declaration and empty braces can be on the 
+same line as the previous statement.</p>
+<p>If a curly brace is optional it should not be used.</p>
+</div>
+
+<h3 id="Pointer_and_Reference_Expressions">Pointer and Reference Expressions</h3>
+<div class="summary">
+<p>No spaces around period or arrow. Pointer operators do not
+have trailing spaces.</p>
+<p>The following are examples of correctly-formatted
+pointer and reference expressions:</p>
+<pre>x = *p;
+p = &amp;x;
+x = r.y;
+x = r-&gt;y;
+</pre>
+<p> Pointer and reference declarations should have a space around the <code>*</code> or &amp;
+</div>
+
+<h3 id="Boolean_Expressions">Boolean Expressions</h3>
+<div class="summary">
+<p>When you have a boolean expression that is longer than the
+<a href="#Line_Length">standard line length</a>, be
+consistent in how you break up the lines. Try to logically group statements</p>
+</div>
+
+<h3 id="Return_Values">Return Values</h3>
+<div class="summary">
+<p>Do not needlessly surround the <code>return</code>
+expression with parentheses.</p>
+</div>
+
+<h3 id="Preprocessor_Directives">Preprocessor Directives</h3>
+<div class="summary">
+<p>The hash mark that starts a preprocessor directive should
+always be at the beginning of the line.</p>
+</div>
+
+<h3 id="Class_Format">Class Format</h3>
+<div class="summary">
+<p>Sections in <code>private</code>, <code>protected</code> and
+<code>public</code> order. No indentation.</p>
+</div>
+
+<h3 id="Namespace_Formatting">Namespace Formatting</h3>
+<div class="summary">
+<p>The contents of namespaces are not indented.</p>
+<p>Never put trailing whitespace at the end of a line.</p>
+<p>Space should be around binary operators unless a lack of space
+is used to signify grouping.</p>
+<p>No spaces inside the angle brackets of templates and casts</p>
+</div>
+
+<h3 id="Vertical_Whitespace">Blank lines</h3>
+<div class="summary">
+<p>Minimize the number of blank lines. Only add blank lines when there is
+some logical grouping of operations being shown. Add spaces between functions, enums, classes etc.</p>
+</div>
+</div>

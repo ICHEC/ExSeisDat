@@ -7,13 +7,32 @@
 #include "anc/piol.hh"
 #include "anc/log.hh"
 namespace PIOL {
-extern void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer, const int err, const MPI_Status * stat, std::string msg);
 
+/*! \internal
+ *\brief Check the MPI error code and log an error event if there is an error.
+ *  \param[in,out] piol The PIOL object. The log object is stored within it.
+ *  \param[in] file The related file. Use "" if the option is not applicable.
+ *  \param[in] layer The layer one was working with (generally Comm or Data).
+ *  \param[in] err The MPI error code.
+ *  \param[in] stat The MPI_Status object. Provide NULL or nullptr if it is not used.
+ *  \param[in] msg The message one wishes to record.
+ *
+ *  The side-effect of the function is to log an item with \c piol if there is an error
+ *  otherwise no side-effect occurs. The function always returns.
+ */
+extern void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer, const int err,
+                                        const MPI_Status * stat, std::string msg);
+
+/*! \internal
+ *  \brief Return the fundamental MPI datatype associated with a fundamental datatype.
+ *  \return The datatype. If the datatype is not known MPI_BYTE is returned.
+ *  \tparam T The C++ datatype
+ */
 template <typename T>
 #ifndef __ICC
 constexpr
 #endif
-MPI_Datatype MPIType()
+MPI_Datatype MPIType(void)
 {
     return (typeid(T) == typeid(double)             ? MPI_DOUBLE
          : (typeid(T) == typeid(long double)        ? MPI_LONG_DOUBLE
@@ -31,10 +50,13 @@ MPI_Datatype MPIType()
          : MPI_BYTE)))))))))))));
 }
 
+/*! \internal
+ *  \brief Return the known limit for Intel MPI on Fionn
+ */
 template <typename T>
 constexpr size_t getLim()
 {
-    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks.
+    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
     //Probably something to do with pages.
     //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
     return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);

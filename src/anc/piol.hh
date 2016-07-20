@@ -13,7 +13,7 @@
 #include "anc/comm.hh"
 #include "anc/log.hh"
 namespace PIOL {
-/*! \brief The ExSeisPIOL structure. A single instance of this structure should be created and 
+/*! \brief The ExSeisPIOL structure. A single instance of this structure should be created and
  *         passed to each subsequent PIOL object which is created.
  */
 struct ExSeisPIOL

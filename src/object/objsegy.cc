@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief
+ *   \details
+ *//*******************************************************************************************/
 #include "object/objsegy.hh"
 #include <memory>
 #include "data/data.hh"

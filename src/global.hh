@@ -4,8 +4,9 @@
 */
 #ifndef GLOBAL_INCLUDE_GUARD
 #define GLOBAL_INCLUDE_GUARD
+#include <stdint.h>
 typedef unsigned char uchar;    //!< The type to use for accessing individual bytes
-typedef long long int llint;    //!< A large signed integer type.
+typedef int64_t llint;    //!< A large signed integer type.
 typedef float real;             //!< Real type for traces
 typedef double coreal;          //!< Coordinate real numbers. Generally higher precision
 #include "anc/piol.hh"

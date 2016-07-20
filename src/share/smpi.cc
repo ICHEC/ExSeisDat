@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief
+ *   \details
+ *//*******************************************************************************************/
 #include "share/smpi.hh"
 namespace PIOL {
 void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer, const int err, const MPI_Status * stat, std::string msg)
