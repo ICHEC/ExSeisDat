@@ -401,7 +401,8 @@ use macros to define pieces of a C++ API.</p>
 <p>Use <code>auto</code> to avoid type names that are noisy, obvious,
 or unimportant - cases where the type doesn't aid in clarity for the
 reader. Continue to use manifest type declarations when it helps
-readability.</p>
+readability. Auto should not be used for function return types except
+where those functions are static and used "nearby".</p>
 </div>
 
 <h3 id="Braced_Initializer_List">Braced Initializer List</h3>

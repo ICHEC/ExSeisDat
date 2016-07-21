@@ -42,6 +42,10 @@ struct FakeFile : public File::Interface
     {
         return 0U;
     }
+    std::string readText(void)
+    {
+        return "";
+    }
 };
 
 //We test the short-cut constructor. No sanity checks

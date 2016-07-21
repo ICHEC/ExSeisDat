@@ -152,6 +152,7 @@ T getMd(TrHdr val, const uchar * src)
         break;
     }
 }
+
 constexpr size_t getTextSz()
 {
     return 3200U;
@@ -202,7 +203,6 @@ int getTraceScale<coreal>(const uchar * dos)
     int scale = getMd<coreal>(TrHdr::ScaleCoord, dos);
     return convertScale(scale);
 }
-
 
 int calcAppropScale(coreal val)
 {

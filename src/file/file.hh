@@ -15,6 +15,7 @@ class Interface
     std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                                      //!< The number of samples per trace.
     size_t nt;                                      //!< The number of traces.
+    std::string text;
 
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -31,15 +32,29 @@ class Interface
      */
     Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
-    /*! \brief Pure virtual function to read the number of samples per trace
+    /*! \brief Read the human readable text from the file
+     *  \return A string containing the text (in ASCII format)
+     */
+    virtual std::string readText(void)
+    {
+        return text;
+    }
+
+    /*! \brief Read the number of samples per trace
      *  \return The number of samples per trace
      */
-    virtual size_t readNs(void) = 0;
+    virtual size_t readNs(void)
+    {
+        return ns;
+    }
 
-    /*! \brief Pure virtual function to read the number of traces in the file
+    /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
-    virtual size_t readNt(void) = 0;
+    virtual size_t readNt(void)
+    {
+        return nt;
+    }
 };
 
 /*! \brief An enum of the possible derived classes for the file layer.

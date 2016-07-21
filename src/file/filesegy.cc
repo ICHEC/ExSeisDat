@@ -6,10 +6,12 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <cstring>
 #include <vector>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "share/segy.hh"
+#include "file/iconv.hh"
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -87,22 +89,17 @@ void SEGY::Init()
     {
         ns = 0U;
         nt = 0U;
+        text = "";
     }
 }
 
-void SEGY::parseHO(const uchar * buf, const size_t fsz)
+void SEGY::parseHO(uchar * buf, const size_t fsz)
 {
     ns = getMd(Hdr::NumSample, buf);
     nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
-}
 
-size_t SEGY::readNs(void)
-{
-    return ns;
-}
-
-size_t SEGY::readNt(void)
-{
-    return nt;
+    getAscii(piol, name, buf, SEGSz::getTextSz());
+    for (size_t i = 0; i < SEGSz::getTextSz(); i++)
+        text.push_back(buf[i]);
 }
 }}

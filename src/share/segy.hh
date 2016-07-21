@@ -5,9 +5,17 @@ namespace PIOL { namespace SEGSz {
  */
 enum class Size : size_t
 {
+    Text = 3200U,
     HO = 3600U,  //!< The size of the SEG-Y header (text extensions not used)
     DOMd = 240U  //!< The SEG-Y trace header size
 };
+
+/*! \brief Return the size of the text field
+ */
+constexpr size_t getTextSz()
+{
+    return static_cast<size_t>(Size::Text);
+}
 
 /*! \brief Return the size of the Data-Object Metadata field
  */

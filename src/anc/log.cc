@@ -9,6 +9,12 @@
 #include "log.hh"
 #include <iostream>
 namespace PIOL { namespace Log {
+void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity, bool condition)
+{
+    if (condition)
+        record(file, layer, stat, msg, verbosity);
+}
+
 void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity)
 {
     if (static_cast<size_t>(verbosity) <= static_cast<size_t>(maxLevel))

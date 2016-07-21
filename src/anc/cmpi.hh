@@ -8,8 +8,8 @@
  *   all MPI communication specific features. That is, everything within the MPI specification
  *   except those features which are related to MPI-IO or overlap with MPI-IO.
 *//*******************************************************************************************/
-#ifndef PIOLCOMMMPI_INCLUDE_GUARD
-#define PIOLCOMMMPI_INCLUDE_GUARD
+#ifndef PIOLANCCMPI_INCLUDE_GUARD
+#define PIOLANCCMPI_INCLUDE_GUARD
 #include "global.hh"
 #include "anc/comm.hh"
 #include <mpi.h>

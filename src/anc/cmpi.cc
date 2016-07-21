@@ -21,7 +21,7 @@ MPI::MPI(const MPIOpt & opt) : comm(opt.comm), init(opt.initMPI)
         if (err != MPI_SUCCESS)
         {
             std::cerr << "MPI_Init failure\n";
-            std::exit(-1);
+            std::exit(EXIT_FAILURE);
         }
     }
     int irank;

@@ -23,9 +23,9 @@ class SEGY : public Interface
     void Init();
 
     /*! \brief Parse the given header object buffer.
-     *  \param[in] buf The buffer to parse
+     *  \param[in, out] buf The buffer to parse. The buffer is destructively modified
      */
-    void parseHO(const uchar * buf, const size_t fsz);
+    void parseHO(uchar * buf, const size_t fsz);
 
     /*! \brief The constructor used for unit testing. It does not try to create a Data object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -45,15 +45,6 @@ class SEGY : public Interface
      */
     SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt,
                                                   const Obj::Opt & objOpt, const Data::Opt & dataOpt);
-    /*! \brief Read the number of samples per trace
-     *  \return The number of samples per trace
-     */
-    size_t readNs(void);
-
-    /*! \brief Read the number of traces in the file
-     *  \return The number of traces
-     */
-    size_t readNt(void);
 };
 }}
 #endif

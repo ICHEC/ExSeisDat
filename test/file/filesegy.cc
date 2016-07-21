@@ -53,12 +53,14 @@ class FileSEGYSpecTest : public FileIntegrationTest
         mockObj = std::make_shared<MockObj>(piol, notFile, nullptr);
         EXPECT_CALL(*mockObj, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
         ho.resize(SEGSz::getHOSz());
+        for (size_t i = 0; i < SEGSz::getTextSz(); i++)
+            ho[i] = getPattern(i);
         ho[3221U] = ns;
         EXPECT_CALL(*mockObj, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
     }
 };
 
-TEST_F(FileSEGYSpecTest, TestBypassConstructor)
+TEST_F(FileSEGYSpecTest, TestAPI)
 {
     ASSERT_TRUE(ns < 0x10000);
     File::SEGY segy(piol, notFile, fileSegyOpt, mockObj);
@@ -70,6 +72,12 @@ TEST_F(FileSEGYSpecTest, TestBypassConstructor)
     piol->isErr();
     EXPECT_EQ(ns, segy.readNs());
     piol->isErr();
+
+    std::string text = segy.readText();
+    EXPECT_EQ(3200U, text.size());
+    EXPECT_EQ(SEGSz::getTextSz(), text.size());
+    for (size_t i = 0; i < text.size(); i++)
+        ASSERT_EQ(getPattern(i), reinterpret_cast<uchar &>(text[i]));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +97,10 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
     piol->isErr();
     EXPECT_EQ(nt, segy.readNt());
     piol->isErr();
+    std::string text = segy.readText();
+    EXPECT_EQ(3200U, text.size());
+    for (size_t i = 0; i < text.size(); i++)
+        ASSERT_EQ(getPattern(i), reinterpret_cast<uchar &>(text[i]));
 }
 
 //TODO: Add test same as above for big files

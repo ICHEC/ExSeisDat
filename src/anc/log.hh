@@ -99,6 +99,18 @@ class Logger
     void record(const std::string file, const Layer layer, const Status stat, const std::string msg,
                 const Verb verbosity);
 
+    /*! \overload
+     * \brief Records a message to the log layer if the condition holds.
+     *  \param[in] file The associated filename. An empty string should be passed if there is no associated file.
+     *  \param[in] layer The associated layer of the PIOL.
+     *  \param[in] stat The associated status.
+     *  \param[in] msg The message for the end-user.
+     *  \param[in] verbosity The verbosity level of the message.
+     *  \param[in] condition If the condition is true log a message
+     */
+    void record(const std::string file, const Layer layer, const Status stat, const std::string msg,
+                const Verb verbosity, const bool condition);
+
     /*! \brief Process the list of log items.
      */
     void procLog(void);
