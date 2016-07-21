@@ -13,6 +13,9 @@
 #include <cstring>
 #include <memory>
 namespace PIOL {
+/*! \brief Return whether a character is a "good" ASCII character (i.e letters, numbers, spaces etc).
+ *  \param[in] s The character
+ */
 static bool isGoodChar(char s)
 {
     return (s >= 48 && s <= 57)  ||
@@ -21,7 +24,11 @@ static bool isGoodChar(char s)
            (s == 32) || (s == 9) || (s == 10);
 }
 
-static size_t getCount(char * src, size_t sz)
+/*! \brief The number of standard characters in the ASCII string (i.e letters, numbers, spaces etc).
+ *  \param[in] src The string.
+ *  \param[sz] sz The size of the string.
+ */
+static size_t getCount(const char * src, const size_t sz)
 {
     size_t count = 0;
     for (size_t i = 0; i < sz; i++)

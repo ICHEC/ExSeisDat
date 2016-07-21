@@ -15,7 +15,7 @@ class Interface
     std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                                      //!< The number of samples per trace.
     size_t nt;                                      //!< The number of traces.
-    std::string text;
+    std::string text;                               //!< Human readable text extracted from the file
 
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.

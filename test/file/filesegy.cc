@@ -1,3 +1,5 @@
+#include <iconv.h>
+#include <string.h>
 #include <memory>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -48,13 +50,23 @@ class FileSEGYSpecTest : public FileIntegrationTest
     const size_t nt = 40U;
     const size_t ns = 200U;
     std::vector<uchar> ho;
+    std::string testString = {"This is a string for testing EBCDIC conversion."};
     FileSEGYSpecTest() : FileIntegrationTest()
     {
         mockObj = std::make_shared<MockObj>(piol, notFile, nullptr);
         EXPECT_CALL(*mockObj, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
         ho.resize(SEGSz::getHOSz());
-        for (size_t i = 0; i < SEGSz::getTextSz(); i++)
-            ho[i] = getPattern(i);
+
+        size_t tsz = testString.size();
+        size_t tsz2 = tsz;
+        char * t = &testString[0];
+        char * newText = reinterpret_cast<char *>(ho.data());
+        iconv_t toAsc = iconv_open("EBCDICUS//", "ASCII//");
+        ::iconv(toAsc, &t, &tsz, &newText, &tsz2);
+        iconv_close(toAsc);
+        size_t szText = testString.size();
+        for (size_t i = szText; i < SEGSz::getTextSz(); i++)
+            ho[i] = ho[i % szText];
         ho[3221U] = ns;
         EXPECT_CALL(*mockObj, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
     }
@@ -72,12 +84,13 @@ TEST_F(FileSEGYSpecTest, TestAPI)
     piol->isErr();
     EXPECT_EQ(ns, segy.readNs());
     piol->isErr();
-
     std::string text = segy.readText();
     EXPECT_EQ(3200U, text.size());
     EXPECT_EQ(SEGSz::getTextSz(), text.size());
+//EBCDIC conversion check
+    size_t slen = testString.size();
     for (size_t i = 0; i < text.size(); i++)
-        ASSERT_EQ(getPattern(i), reinterpret_cast<uchar &>(text[i]));
+        ASSERT_EQ(testString[i % slen], text[i]) << "Loop number " << i << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

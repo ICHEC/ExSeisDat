@@ -26,8 +26,14 @@ static MPI_File open(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, con
     return (err != MPI_SUCCESS ? MPI_FILE_NULL : file);
 }
 
+/*! \brief Set an MPI File view on the file.
+ *  \tparam T The C++ equivalent for the elementary datatype (see MPI spec)
+ *  \tparam U The C++ equivalent for the file datatype (see MPI spec)
+ *  \param[in] file The MPI file handle
+ *  \param[in] offset The offset from the beginning of the file.
+ */
 template <typename T, typename U=T>
-int setView(MPI_File file, MPI_Offset offset = 0)
+int setView(const MPI_File file, const MPI_Offset offset = 0)
 {
     MPI_Info info = MPI_INFO_NULL;
     int err = MPI_File_set_view(file, offset, MPIType<T>(), MPIType<U>(), "native", info);
@@ -79,11 +85,22 @@ size_t MPIIO::getFileSz()
     return size_t(fsz);
 }
 
-/* This function does not currently take into account collective MPI calls
+/*! \brief The MPI-IO reading function
+ *  \tparam T The type of the array being read to.
+ *  \tparam U The type of the last argument of MPI_File_read...
+ *  \param[in] fn Function pointer to the MPI function for reading.
+ *  \param[in] file The MPI File
+ *  \param[in] offset The offset from the current shared ptr
+ *  \param[out] d The array to read into
+ *  \param[in] sz The number of elements to read
+ *  \param[in] arg The last argument of the MPI_File_read_... function
+ *  \param[in] max The maximum size to read at once
+ *
+ * This function does not currently take into account collective MPI calls
  * which would have issues with the number of operations being the same for each process
  */
 template <typename T, typename U = MPI_Status> inline
-int MPIIORead(FpR<U> fn, MPI_File & file, size_t offset, T * d, size_t sz, U & arg, size_t max)
+int MPIIORead(const FpR<U> fn, const MPI_File & file, const size_t offset, T * d, const size_t sz, U & arg, const size_t max)
 {
     int err = MPI_SUCCESS;
     auto q = sz / max;
