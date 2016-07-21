@@ -21,7 +21,7 @@ size_t Logger::numStat(const Status stat)
 {
     size_t sz = 0;
     for (auto & item : loglist)
-        sz += (item.stat == stat);
+        sz += (item.stat == stat); //The spec guarantees this is one if the equality holds
     return sz;
 }
 

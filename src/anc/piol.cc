@@ -6,18 +6,29 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include "share/casts.hh"
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include <iostream>
 #include <string>
 namespace PIOL {
+
 ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
 {
     log = std::make_unique<Log::Logger>(maxLevel);
     switch (comOpt.type)
     {
         case Comm::Type::MPI :
-            comm = std::make_shared<Comm::MPI>(dynamic_cast<const Comm::MPIOpt &>(comOpt));
+        {
+            auto mpiOpt = castOptToDeriv<Comm::MPIOpt, Comm::Opt>(*this, comOpt, "", Log::Layer::PIOL);
+            if (mpiOpt == nullptr)
+                return;
+            auto mpicomm = new Comm::MPI(*mpiOpt);
+            if (mpicomm == nullptr)
+                return;
+            comm = castToBase<Comm::Interface, Comm::MPI>(*this, mpicomm, "", Log::Layer::PIOL);
+//            comm = std::make_shared<Comm::MPI>(dynamic_cast<const Comm::MPIOpt &>(comOpt));
+        }
         break;
         default :
 //TODO Add error

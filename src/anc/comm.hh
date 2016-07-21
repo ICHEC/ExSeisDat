@@ -53,8 +53,13 @@ enum class Type : size_t
  */
 struct Opt
 {
-    Type type = Type::MPI;      //!< The communicator type.
-
+    Type type;      //!< The communicator type.
+    /*! Constructor
+     */
+    Opt(void)
+    {
+        type = Type::MPI;
+    }
     /*! \brief This function returns the communicator type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */

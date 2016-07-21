@@ -8,6 +8,7 @@
  *//*******************************************************************************************/
 #include "file/file.hh"
 #include "object/objsegy.hh"
+#include "share/casts.hh"
 namespace PIOL { namespace File {
 
 Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_)
@@ -21,9 +22,16 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
     {
         case (Obj::Type::SEGY) :
         {
-            piol->record(name_, Log::Layer::File, Log::Status::Warning, "SEGY selected", Log::Verb::Max);
+            piol->record(name_, Log::Layer::File, Log::Status::Note, "SEGY selected", Log::Verb::Max);
+            auto opt = castOptToDeriv<Obj::SEGYOpt, Obj::Opt>(*piol, objOpt, name, Log::Layer::File);
+            if (opt == nullptr)
+                return;
+            auto segy = new Obj::SEGY(piol_, name_, *opt, dataOpt);
+            if (segy == nullptr)
+                return;
+            obj = castToBase<Obj::Interface, Obj::SEGY>(*piol, segy, name, Log::Layer::File);
 
-            auto opt = dynamic_cast<Obj::SEGYOpt const *>(&objOpt);
+/*            auto opt = dynamic_cast<Obj::SEGYOpt const *>(&objOpt);
             if (opt == nullptr)
             {
                 piol->record(name_, Log::Layer::File, Log::Status::Error, "Obj::SEGY options object is of the wrong type.", Log::Verb::None);
@@ -37,7 +45,7 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
                 return;
             }
             else
-                obj = std::shared_ptr<Obj::Interface>(std::move(segy));
+                obj = std::shared_ptr<Obj::Interface>(std::move(segy));*/
         }
         break;
         default :

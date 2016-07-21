@@ -8,9 +8,10 @@
  *//*******************************************************************************************/
 #include "object/object.hh"
 #include <string>
-#include "data/datampiio.hh"
 #include <typeinfo>
 #include <iostream>
+#include "share/casts.hh"
+#include "data/datampiio.hh"
 namespace PIOL { namespace Obj {
 Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
 {
@@ -24,8 +25,15 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
         case (Data::Type::MPIIO) :
         {
             piol->record(name_, Log::Layer::Object, Log::Status::Warning, "MPIIO selected", Log::Verb::Max);
+            auto opt = castOptToDeriv<Data::MPIIOOpt, Data::Opt>(*piol, dataOpt, name, Log::Layer::Object);
+            if (opt == nullptr)
+                return;
+            auto mpiio = new Data::MPIIO(piol_, name_, *opt);
+            if (mpiio == nullptr)
+                return;
+            data = castToBase<Data::Interface, Data::MPIIO>(*piol, mpiio, name, Log::Layer::Object);
 
-            auto opt = dynamic_cast<Data::MPIIOOpt const *>(&dataOpt);
+/*            auto opt = dynamic_cast<Data::MPIIOOpt const *>(&dataOpt);
             if (opt == nullptr)
             {
                 piol->record(name_, Log::Layer::Object, Log::Status::Error, "MPI-IO options object is of the wrong type.", Log::Verb::None);
@@ -39,7 +47,7 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
                 return;
             }
             else
-                data = std::shared_ptr<Data::MPIIO>(std::move(mpiio));
+                data = std::shared_ptr<Data::MPIIO>(std::move(mpiio));*/
         }
         break;
         default :

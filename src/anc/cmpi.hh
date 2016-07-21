@@ -19,8 +19,17 @@ namespace PIOL { namespace Comm {
  */
 struct MPIOpt : Opt
 {
-    MPI_Comm comm = MPI_COMM_WORLD; //!< This variable defines the default MPI communicator.
-    bool initMPI = true;            //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
+    MPI_Comm comm; //!< This variable defines the default MPI communicator.
+    bool initMPI;            //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
+
+    /* \brief Default constructor to prevent intel warnings
+     */
+    MPIOpt(void)
+    {
+        comm = MPI_COMM_WORLD;
+        initMPI = true;
+    }
+
 };
 
 /*! \brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.

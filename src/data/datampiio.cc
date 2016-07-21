@@ -43,7 +43,7 @@ MPIIOOpt::MPIIOOpt(void)
 {
     mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
     info = MPI_INFO_NULL;
-    maxSize = getLim<long long>();
+    maxSize = getLim<llint>();
 }
 
 MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
@@ -51,8 +51,10 @@ MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const M
     maxSize = opt.maxSize;
     info = opt.info;
 
-    std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
-    comm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm)->getComm();
+    auto mcomm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
+    if (mcomm == nullptr)
+        piol->record(name, Log::Layer::Data, Log::Status::Error, "Cast of communicator to MPI communicator failed", Log::Verb::None);
+    comm = mcomm->getComm();
 
     file = open(*piol, comm, opt, name);
     if (file != MPI_FILE_NULL)
@@ -77,6 +79,9 @@ size_t MPIIO::getFileSz()
     return size_t(fsz);
 }
 
+/* This function does not currently take into account collective MPI calls
+ * which would have issues with the number of operations being the same for each process
+ */
 template <typename T, typename U = MPI_Status> inline
 int MPIIORead(FpR<U> fn, MPI_File & file, size_t offset, T * d, size_t sz, U & arg, size_t max)
 {
