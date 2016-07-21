@@ -11,7 +11,6 @@ void makeFile(const char const * name, const size_t sz, const uchar const * patt
 
     size_t q = sz / psz;
     size_t r = sz % psz;
-
     fseek(fs, 0U, SEEK_SET);
     for (size_t i = 0; i < q; i++)
         fwrite(pattern, sizeof(uchar), psz, fs);
@@ -43,6 +42,7 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, const uc
         fclose(fs);
     }
 }
+
 int main(void)
 {
     const size_t psz = 0x100;

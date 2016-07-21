@@ -105,5 +105,3 @@ TEST_F(FileTest, BadInterfaceConstructor3)
     const Data::Opt dataOpt;
     BadConstructor(piol, notFile, objOpt, dataOpt);
 }
-
-

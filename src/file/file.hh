@@ -3,7 +3,6 @@
 #include "global.hh"
 #include "object/object.hh"
 #include "data/data.hh"
-
 namespace PIOL { namespace File {
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
@@ -16,6 +15,7 @@ class Interface
     std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                                      //!< The number of samples per trace.
     size_t nt;                                      //!< The number of traces.
+
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
@@ -35,6 +35,7 @@ class Interface
      *  \return The number of samples per trace
      */
     virtual size_t readNs(void) = 0;
+
     /*! \brief Pure virtual function to read the number of traces in the file
      *  \return The number of traces
      */

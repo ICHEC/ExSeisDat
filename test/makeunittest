@@ -16,10 +16,7 @@ SOURCES=$(wildcard *.cc)
 OBJECTS=$(wildcard ../src/obj/*.o) $(wildcard obj/*.o)
 
 .PHONY: all
-all: libgmock.a $(BIN) $(DEP)
-
-$(BIN): $(OBJECTS)
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+all: libgmock.a $(BIN) $(DEP) genfiles
 
 libgmock.a:
 	g++ -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
@@ -29,6 +26,12 @@ libgmock.a:
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gtest-all.o gmock-all.o
+
+$(BIN): $(OBJECTS)
+	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+
+genfiles: genfiles.c
+	gcc -std=c11 genfiles.c -o genfiles
 
 .PHONY: clean
 clean:

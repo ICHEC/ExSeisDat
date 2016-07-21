@@ -42,10 +42,11 @@ MPI_Datatype MPIType(void)
          : (typeid(T) == typeid(unsigned long int)  ? MPI_UNSIGNED_LONG
          : (typeid(T) == typeid(unsigned int)       ? MPI_UNSIGNED
          : (typeid(T) == typeid(long long int)      ? MPI_LONG_LONG_INT
+         : (typeid(T) == typeid(int64_t)            ? MPI_LONG_LONG_INT
          : (typeid(T) == typeid(float)              ? MPI_FLOAT
          : (typeid(T) == typeid(signed short)       ? MPI_SHORT
          : (typeid(T) == typeid(unsigned short)     ? MPI_UNSIGNED_SHORT
-         : MPI_BYTE)))))))))))));
+         : MPI_BYTE))))))))))))));
 }
 
 /*! \brief Return the known limit for Intel MPI on Fionn

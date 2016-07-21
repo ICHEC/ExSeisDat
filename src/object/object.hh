@@ -52,7 +52,7 @@ enum class Type : size_t
  */
 struct Opt
 {
-    Type type = Type::SEGY;      //!< The Obj type.
+    Type type;      //!< The Obj type.
     /* \brief Default constructor to prevent intel warnings
      */
     Opt(void)

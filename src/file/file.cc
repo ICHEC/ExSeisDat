@@ -27,29 +27,13 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
             if (opt == nullptr)
                 return;
             auto segy = new Obj::SEGY(piol_, name_, *opt, dataOpt);
-            if (segy == nullptr)
-                return;
             obj = castToBase<Obj::Interface, Obj::SEGY>(*piol, segy, name, Log::Layer::File);
-
-/*            auto opt = dynamic_cast<Obj::SEGYOpt const *>(&objOpt);
-            if (opt == nullptr)
-            {
-                piol->record(name_, Log::Layer::File, Log::Status::Error, "Obj::SEGY options object is of the wrong type.", Log::Verb::None);
+            if (obj == nullptr)
                 return;
-            }
-
-            auto segy = new Obj::SEGY(piol_, name_, *opt, dataOpt);
-            if (segy == nullptr)   //Issue warning on the object layer
-            {
-                piol->record(name_, Log::Layer::File, Log::Status::Warning, "Could not create object-layer object", Log::Verb::None);
-                return;
-            }
-            else
-                obj = std::shared_ptr<Obj::Interface>(std::move(segy));*/
         }
         break;
         default :
-
+        //TODO: Add warning
         break;
     }
 }

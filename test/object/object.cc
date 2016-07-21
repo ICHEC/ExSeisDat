@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "global.hh"
+#include "tglobal.hh"
 #include "anc/cmpi.hh"
 #include "data/datampiio.hh"
 #define private public
@@ -42,24 +42,21 @@ struct FakeObject : public Obj::Interface
 //We do not use a valid name as we are not interested in the result
 TEST_F(ObjectTest, InterfaceConstructor)
 {
-    std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
     Data::MPIIOOpt dataOpt;
-    FakeObject fake(piol, name, dataOpt);
+    FakeObject fake(piol, notFile, dataOpt);
     EXPECT_NE(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(name, fake.name);
+    EXPECT_EQ(notFile, fake.name);
 }
 
 //In this test we pass the wrong Data Options class.
 //We pass the base class instead of MPIIOOpt (the default class)
 TEST_F(ObjectTest, BadInterfaceConstructor)
 {
-    std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
     Data::Opt dataOpt;
-
-    FakeObject fake(piol, name, dataOpt);
+    FakeObject fake(piol, notFile, dataOpt);
     EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(name, fake.name);
+    EXPECT_EQ(notFile, fake.name);
 }
 

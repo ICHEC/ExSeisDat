@@ -35,6 +35,7 @@ class SEGY : public Interface
      */
     SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt, const std::shared_ptr<Obj::Interface> obj_);
     public :
+
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
@@ -48,6 +49,7 @@ class SEGY : public Interface
      *  \return The number of samples per trace
      */
     size_t readNs(void);
+
     /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */

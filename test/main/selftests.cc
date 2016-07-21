@@ -15,3 +15,14 @@ TEST(Prefix, SizeCheck)
     }
 }
 
+TEST(Files, SelfTest)
+{
+    EXPECT_NE(0, magicNum1);
+    EXPECT_EQ(0, magicNum1 / 0xFF);
+    struct stat stats;
+    EXPECT_EQ(0, stat(zeroFile.c_str(), &stats));
+    EXPECT_EQ(0, stat(smallFile.c_str(), &stats));
+    EXPECT_EQ(0, stat(largeFile.c_str(), &stats));
+    EXPECT_EQ(0, stat(plargeFile.c_str(), &stats));
+}
+

@@ -14,19 +14,29 @@ namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/*! Header offsets as defined in the specification. Actual offset is the value minus one.
+ */
 enum class Hdr : size_t
 {
-    Increment = 3217,   //Short
-    NumSample = 3221,   //Short
-    Type = 3225         //Short, Trace data type. AKA format in SEGY terminology
+    Increment = 3217U,   //!< Short
+    NumSample = 3221U,   //!< Short
+    Type = 3225U         //!< Short, Trace data type. AKA format in SEGY terminology
 };
 
+/*! \brief Convert a 2 byte \c char array in big endian to a host short
+ *  \return Return a short
+ */
 template <typename T = short>
 T getHostShort(const uchar * src)
 {
     return (T(src[0]) << 8) | T(src[1]);
 }
 
+/*! \brief Get the header metadata value corresponding to the item specified
+ *  \param[in] val The header item of interest
+ *  \param[in] buf The buffer of the header object
+ *  \return Return the header item value
+ */
 template <class T = int>
 T getMd(const Hdr val, const uchar * buf)
 {
@@ -37,7 +47,7 @@ T getMd(const Hdr val, const uchar * buf)
         case Hdr::NumSample :
         return getHostShort(&buf[size_t(val)-1]);
         default :
-        return 0;
+        return T(0);
         break;
     }
 }
@@ -85,14 +95,14 @@ void SEGY::parseHO(const uchar * buf, const size_t fsz)
     ns = getMd(Hdr::NumSample, buf);
     nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
 }
+
 size_t SEGY::readNs(void)
 {
     return ns;
 }
+
 size_t SEGY::readNt(void)
 {
     return nt;
 }
-
 }}
-

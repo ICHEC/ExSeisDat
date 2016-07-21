@@ -1,7 +1,7 @@
 #include <memory>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "global.hh"
+#include "tglobal.hh"
 #include "anc/cmpi.hh"
 #define private public
 #define protected public
@@ -38,10 +38,9 @@ struct FakeData : public Data::Interface
 
 TEST_F(DataTest, Constructor)
 {
-    std::string name = "!£$%^&*()<>?:@~}{fakefile1234567890";
-    FakeData fake(piol, name);
+    FakeData fake(piol, notFile);
     EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(name, fake.name);
+    EXPECT_EQ(notFile, fake.name);
 }
 
 TEST(DataOptTest, Opt)

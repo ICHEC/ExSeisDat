@@ -15,7 +15,6 @@
 using namespace testing;
 using namespace PIOL;
 
-
 class MockData : public Data::Interface
 {
     public :
@@ -67,8 +66,7 @@ void SEGYFileSizeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name, const 
 typedef ObjSEGYTest ObjSpecTest;
 TEST_F(ObjSpecTest, SmallSEGYFileSize)
 {
-    size_t sz = 40*prefix(2U);
-    EXPECT_EQ(sz, 40*1024U*1024U);
+    size_t sz = 40U*prefix(2U);
     SCOPED_TRACE("SmallSEGYFileSize");
     SEGYFileSizeTest(piol, notFile, segyOpt, sz);
 }
@@ -84,7 +82,7 @@ TEST_F(ObjSpecTest, SEGYHORead)
 {
     auto mock = std::make_shared<MockData>(piol, notFile);
     std::vector<uchar> cHo(SEGSz::getHOSz());
-    for (size_t i = 0; i < cHo.size(); i++)
+    for (size_t i = 0U; i < cHo.size(); i++)
         cHo[i] = getPattern(i);
     EXPECT_CALL(*mock, read(0U,_, 3600U)).Times(Exactly(1)).WillOnce(SetArrayArgument<1>(cHo.begin(), cHo.end()));
 
@@ -95,10 +93,10 @@ TEST_F(ObjSpecTest, SEGYHORead)
     segy.readHO(Ho.data());
     piol->isErr();
 
-    for (size_t i = 0; i < cHo.size(); i++)
+    for (size_t i = 0U; i < cHo.size(); i++)
         ASSERT_EQ(getPattern(i), Ho[i]);
-    for (size_t i = 0; i < extra; i++)
-        ASSERT_EQ(0, Ho[Ho.size()-extra+i]);
+    for (size_t i = 0U; i < extra; i++)
+        ASSERT_EQ(0U, Ho[Ho.size()-extra+i]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -109,23 +107,21 @@ void SEGYReadHOTest(Obj::Interface & obj, std::vector<uchar> magic)
     const size_t extra = 1025U;
     std::vector<uchar> ho(extra + SEGSz::getHOSz() + extra);
 
-    for (size_t j = 0; j < magic.size(); j++)
+    for (size_t j = 0U; j < magic.size(); j++)
     {
-        for (size_t i = 0; i < extra; i++)
+        for (size_t i = 0U; i < extra; i++)
             ho[i] = ho[ho.size() - extra + i] = magic[j];
 
         obj.readHO(ho.data() + extra);
 
         //Overrun checks
-        for (size_t i = 0; i < extra; i++)
+        for (size_t i = 0U; i < extra; i++)
         {
             ASSERT_EQ(magic[j], ho[i]);
             ASSERT_EQ(magic[j], ho[ho.size() - extra + i]);
         }
-        for (size_t i = 0; i < SEGSz::getHOSz(); i++)
-        {
+        for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
             ASSERT_EQ(getPattern(i), ho[i+extra]);
-        }
     }
 }
 

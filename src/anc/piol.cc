@@ -24,10 +24,9 @@ ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
             if (mpiOpt == nullptr)
                 return;
             auto mpicomm = new Comm::MPI(*mpiOpt);
-            if (mpicomm == nullptr)
-                return;
             comm = castToBase<Comm::Interface, Comm::MPI>(*this, mpicomm, "", Log::Layer::PIOL);
-//            comm = std::make_shared<Comm::MPI>(dynamic_cast<const Comm::MPIOpt &>(comOpt));
+            if (comm == nullptr)
+                return;
         }
         break;
         default :

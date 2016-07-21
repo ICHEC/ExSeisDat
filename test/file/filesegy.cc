@@ -41,7 +41,6 @@ class FileIntegrationTest : public Test
 ////////////////////////////////////////////////////////////////////////////////////
 /////////////////////// ISOLATED-CLASS SPECIFICATION TESTING ///////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
-
 class FileSEGYSpecTest : public FileIntegrationTest
 {
     protected :
@@ -49,11 +48,8 @@ class FileSEGYSpecTest : public FileIntegrationTest
     const size_t nt = 40U;
     const size_t ns = 200U;
     std::vector<uchar> ho;
-    FileSEGYSpecTest()
+    FileSEGYSpecTest() : FileIntegrationTest()
     {
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-
         mockObj = std::make_shared<MockObj>(piol, notFile, nullptr);
         EXPECT_CALL(*mockObj, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
         ho.resize(SEGSz::getHOSz());
@@ -76,18 +72,6 @@ TEST_F(FileSEGYSpecTest, TestBypassConstructor)
     piol->isErr();
 }
 
-TEST_F(FileSEGYSpecTest, NoTraceFileTest)
-{
-    File::SEGY segy(piol, notFile, fileSegyOpt, mockObj);
-    piol->isErr();
-    EXPECT_EQ(piol, segy.piol);
-    EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mockObj, segy.obj);
-    EXPECT_EQ(nt, segy.readNt());
-    piol->isErr();
-    EXPECT_EQ(ns, segy.readNs());
-    piol->isErr();
-}
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// INTEGRATION-CLASS SPECIFICATION TESTING //////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -106,4 +90,6 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
     EXPECT_EQ(nt, segy.readNt());
     piol->isErr();
 }
+
+//TODO: Add test same as above for big files
 

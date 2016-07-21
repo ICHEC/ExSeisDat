@@ -12,7 +12,7 @@ extern const std::string notFile;
 extern const std::string zeroFile;
 extern const std::string smallFile;
 extern const std::string largeFile;
-extern const std::string plargeFile;
+extern const std::string plargeFile; //Large file with a pattern
 
 extern uchar getPattern(size_t);
 constexpr size_t prefix(const size_t pow)
