@@ -1,3 +1,12 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief The Object layer interface
+ *   \details The Object layer interface is a base class which specific Obj implementations
+ *   work off
+*//*******************************************************************************************/
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
 #include <memory>
@@ -20,6 +29,7 @@ class Interface
      *  \param[in] data_ Pointer to the associated Data layer object.
      */
     Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Data::Interface> data_);
+
     public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -41,6 +51,7 @@ class Interface
      */
     virtual void readHO(uchar * ho) = 0;
 };
+
 /*! \brief An enum of the possible derived classes for the object layer.
  */
 enum class Type : size_t
@@ -59,6 +70,7 @@ struct Opt
     {
         type = Type::SEGY;      //!< The Obj type.
     }
+
     /*! \brief This function returns the Obj type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */

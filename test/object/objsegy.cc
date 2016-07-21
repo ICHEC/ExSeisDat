@@ -22,7 +22,7 @@ class MockData : public Data::Interface
     {
     }
     MOCK_METHOD0(getFileSz, size_t(void));
-    MOCK_METHOD3(read, void(size_t, uchar *, size_t));
+    MOCK_METHOD3(read, void(size_t, size_t, uchar *));
 };
 
 class ObjSEGYTest : public Test
@@ -84,7 +84,7 @@ TEST_F(ObjSpecTest, SEGYHORead)
     std::vector<uchar> cHo(SEGSz::getHOSz());
     for (size_t i = 0U; i < cHo.size(); i++)
         cHo[i] = getPattern(i);
-    EXPECT_CALL(*mock, read(0U,_, 3600U)).Times(Exactly(1)).WillOnce(SetArrayArgument<1>(cHo.begin(), cHo.end()));
+    EXPECT_CALL(*mock, read(0U, 3600U, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(cHo.begin(), cHo.end()));
 
     const size_t extra = 128U;
     std::vector<uchar> Ho(SEGSz::getHOSz() + extra);

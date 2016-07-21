@@ -12,7 +12,6 @@
 #include <string>
 #include <forward_list>
 namespace PIOL { namespace Log {
-
 /*! \brief The enumeration for the different layers of the PIOL.
  */
 enum class Layer : size_t

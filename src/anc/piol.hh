@@ -26,6 +26,7 @@ struct ExSeisPIOL
      *  \param[in] comm The options object corresponding to the desired inter-processor communicator.
      */
     ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comm);
+
     /*! \overload
      *  \param[in] comm The options object corresponding to the desired inter-processor communicator.
      */

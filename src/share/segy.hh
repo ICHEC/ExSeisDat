@@ -16,7 +16,7 @@ constexpr size_t getMDSz()
     return static_cast<size_t>(Size::DOMd);
 }
 
-/*! \brief Return the size of the Header Object (assuming not text extensions are used)
+/*! \brief Return the size of the Header Object (assuming text extensions are not used)
  */
 constexpr size_t getHOSz()
 {
@@ -30,7 +30,7 @@ constexpr size_t getHOSz()
 template <typename T = float>
 inline size_t getDOSz(const size_t ns)
 {
-    return getMDSz()+ns*sizeof(T);
+    return getMDSz() + ns*sizeof(T);
 }
 
 /*! \brief Return the offset location of a specific data object.

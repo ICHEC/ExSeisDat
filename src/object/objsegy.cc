@@ -24,6 +24,6 @@ SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt &
 
 void SEGY::readHO(uchar * ho)
 {
-    data->read(0U, ho, SEGSz::getHOSz());
+    data->read(0U, SEGSz::getHOSz(), ho);
 }
 }}

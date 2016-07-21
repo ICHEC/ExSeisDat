@@ -38,6 +38,7 @@ ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
 ExSeisPIOL::ExSeisPIOL(const Comm::Opt & comm) : ExSeisPIOL(Log::Verb::None, comm)
 {
 }
+
 ExSeisPIOL::~ExSeisPIOL(void)
 {
     log.reset();

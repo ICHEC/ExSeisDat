@@ -10,8 +10,8 @@
  *   can be grouped up, but also MPI could be switched for another inter-process communication
  *   technology if one is of particular interest.
  *//*******************************************************************************************/
-#ifndef PIOLCOMM_INCLUDE_GUARD
-#define PIOLCOMM_INCLUDE_GUARD
+#ifndef PIOLANCCOMM_INCLUDE_GUARD
+#define PIOLANCCOMM_INCLUDE_GUARD
 #include "global.hh"
 namespace PIOL { namespace Comm {
 /*! \brief The Communication layer interface. Specific communication implementations
@@ -54,12 +54,14 @@ enum class Type : size_t
 struct Opt
 {
     Type type;      //!< The communicator type.
+
     /*! Constructor
      */
     Opt(void)
     {
         type = Type::MPI;
     }
+
     /*! \brief This function returns the communicator type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */

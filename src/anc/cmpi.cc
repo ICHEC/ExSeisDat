@@ -44,6 +44,7 @@ MPI::~MPI(void)
         }
     }
 }
+
 MPI_Comm MPI::getComm()
 {
     return comm;
