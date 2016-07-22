@@ -1,0 +1,8 @@
+*.dep
+depend
+*.o
+*.a
+doxygen/
+genfiles
+unittests
+googletest

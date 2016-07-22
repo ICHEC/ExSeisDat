@@ -1,2 +1,3 @@
 module load dev intel/2016-u3 gcc/5.3.0 doxygen
+module load doxygen
 export I_MPI_CXX=icpc

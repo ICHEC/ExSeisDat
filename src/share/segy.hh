@@ -11,6 +11,7 @@ enum class Size : size_t
 };
 
 /*! \brief Return the size of the text field
+ *  \return Returns the size
  */
 constexpr size_t getTextSz()
 {
@@ -18,6 +19,7 @@ constexpr size_t getTextSz()
 }
 
 /*! \brief Return the size of the Data-Object Metadata field
+ *  \return Returns the size
  */
 constexpr size_t getMDSz()
 {
@@ -25,6 +27,7 @@ constexpr size_t getMDSz()
 }
 
 /*! \brief Return the size of the Header Object (assuming not text extensions are used)
+ *  \return Returns the size
  */
 constexpr size_t getHOSz()
 {
@@ -34,6 +37,7 @@ constexpr size_t getHOSz()
 /*! \brief Return the size of the Data-Object.
  *  \param[in] ns The number of elements in the data-field.
  *  \tparam T The datatype of the data-field. The default value is float.
+ *  \return Returns the size
  */
 template <typename T = float>
 inline size_t getDOSz(const size_t ns)
@@ -45,6 +49,7 @@ inline size_t getDOSz(const size_t ns)
  *  \param[in] i The location of the ith data object will be returned.
  *  \param[in] ns The number of elements in the data-field.
  *  \tparam T The datatype of the data-field. The default value is float.
+ *  \return Returns the location
  */
 template <typename T = float>
 inline size_t getDOLoc(const size_t i, const size_t ns)
@@ -56,6 +61,7 @@ inline size_t getDOLoc(const size_t i, const size_t ns)
  *  \param[in] i The location of the ith data-field will be returned.
  *  \param[in] ns The number of elements in the data-field.
  *  \tparam T The datatype of the data-field. The default value is float.
+ *  \return Returns the location
  */
 template <typename T = float>
 inline size_t getDODFLoc(const size_t i, const size_t ns)
