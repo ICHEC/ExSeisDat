@@ -25,6 +25,7 @@ class Interface
     size_t ns;                                      //!< The number of samples per trace.
     size_t nt;                                      //!< The number of traces.
     std::string text;                               //!< Human readable text extracted from the file
+    geom_t inc;                                     //!< The increment between samples in a trace
 
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -64,6 +65,14 @@ class Interface
     virtual size_t readNt(void)
     {
         return nt;
+    }
+
+    /*! \brief Read the number of increment between trace samples
+     *  \return The increment between trace samples
+     */
+    virtual geom_t readInc(void)
+    {
+        return inc;
     }
 };
 

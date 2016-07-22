@@ -128,8 +128,6 @@ void SEGYReadHOTest(Obj::Interface & obj, std::vector<uchar> magic)
 typedef ObjSEGYTest ObjIntegrationTest;
 TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
 {
-    SCOPED_TRACE("SEGYReadHO");
-
     Obj::SEGY segy(piol, zeroFile, segyOpt, dataOpt);
     piol->isErr();
     std::vector<uchar> ho(SEGSz::getHOSz());

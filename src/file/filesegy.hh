@@ -16,8 +16,10 @@
 namespace PIOL { namespace File {
 /*! \brief The SEG-Y options structure. Currently empty.
  */
-class SEGYOpt : public Opt
+struct SEGYOpt : public Opt
 {
+    unit_t incFactor;   //!< The increment factor to multiply inc by.
+    SEGYOpt(void);
 };
 
 /*! \brief The SEG-Y File class.
@@ -25,15 +27,16 @@ class SEGYOpt : public Opt
 class SEGY : public Interface
 {
     private :
+    /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.
+     *  \param[in] incFactor The increment factor to multiply inc by.
+     *  \param[in] fsz The size of the file in bytes
+     *  \param[in, out] The buffer to parse. The buffer is destructively modified
+     */
+    void procHeader(const unit_t incFactor, const size_t fsz, uchar * buf);
+
     /*! \brief This function initialises the class.
      */
-    void Init();
-
-    /*! \brief Parse the given header object buffer.
-     *  \param[in, out] buf The buffer to parse. The buffer is destructively modified
-     *  \param[in] fsz size of the file
-     */
-    void parseHO(uchar * buf, const size_t fsz);
+    void Init(const File::SEGYOpt & segyOpt);
 
     /*! \brief The constructor used for unit testing. It does not try to create a Data object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
