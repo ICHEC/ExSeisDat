@@ -17,12 +17,6 @@
 #include "data/data.hh"
 
 namespace PIOL { namespace Data {
-template <typename U>
-using FpR = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *); //!< This allows us to refer to MPI read functions more compactly
-
-template <typename U>
-using FpW = int (*)(MPI_File, MPI_Offset, const void *, int, MPI_Datatype, U *); //!< This allows us to refer to MPI write functions more compactly
-
 /*! \brief The MPI-IO options structure.
  */
 struct MPIIOOpt : public Opt
@@ -57,6 +51,11 @@ class MPIIO : public Interface
      */
     size_t getFileSz();
 
+    /*! \brief Set the file size (preallocates).
+     *  \param[in] sz The size in bytes
+     */
+    void setFileSz(const size_t sz);
+
     /*! \brief Read from storage using MPI-IO. If \c offset + \c sz is greater than the file size then
      *  only up to the file size is read. The rest of \c d is in an undefined state.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
@@ -65,6 +64,13 @@ class MPIIO : public Interface
      *  \param[out] d     The array to store the output in.
      */
     void read(const size_t offset, const size_t sz, uchar * d);
+
+    /*! \brief Write to storage.
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] sz     The amount of data to write to disk
+     *  \param[in] d      The array to read data output from
+     */
+    void write(const size_t offset, const size_t sz, const uchar * d);
 };
 }}
 #endif

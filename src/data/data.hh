@@ -34,12 +34,24 @@ class Interface
      */
     virtual size_t getFileSz() = 0;
 
+    /*! \brief Pure virtual function to set the file size.
+     *  \param[in] sz The size in bytes
+     */
+    virtual void setFileSz(const size_t sz) = 0;
+
     /*! \brief Pure virtual function to read from storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to read from disk
      *  \param[out] d     The array to store the output in
      */
-    virtual void read(size_t offset, size_t sz, uchar * d) = 0;
+    virtual void read(const size_t offset, const size_t sz, uchar * d) = 0;
+
+    /*! \brief Pure virtual function to write to storage.
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] sz     The amount of data to write to disk
+     *  \param[out] d     The array to read data output from
+     */
+    virtual void write(const size_t offset, const size_t sz, const uchar * d) = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the data layer.

@@ -45,11 +45,23 @@ class Interface
     {
         return data->getFileSz();
     }
+    /*! \brief Set the file size.
+     *  \param[in] sz The size in bytes
+     */
+    virtual void setFileSz(const size_t sz)
+    {
+        return data->setFileSz(sz);
+    }
 
     /*! \brief Pure virtual function to read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough to hold the header object.
      */
     virtual void readHO(uchar * ho) = 0;
+
+    /*! \brief Pure virtual function to write the header object.
+     *  \param[out] ho An array which the caller guarantees is as long enough the header object.
+     */
+    virtual void writeHO(const uchar * ho) = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.

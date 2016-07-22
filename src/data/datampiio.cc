@@ -85,22 +85,31 @@ size_t MPIIO::getFileSz()
     return size_t(fsz);
 }
 
-/*! \brief The MPI-IO reading function
- *  \tparam T The type of the array being read to.
- *  \tparam U The type of the last argument of MPI_File_read...
- *  \param[in] fn Function pointer to the MPI function for reading.
+void MPIIO::setFileSz(size_t sz)
+{
+    int err = MPI_File_preallocate(file, MPI_Offset(sz));
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
+}
+
+template <typename U>
+using MFp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *); //!< This allows us to refer to MPI functions more compactly
+
+/*! \brief The MPI-IO inline template function for reading and writing
+ *  \tparam T The type of the array being read to or from.
+ *  \tparam U The type of the last argument of MPI_File_...
+ *  \param[in] fn Function pointer to the MPI function.
  *  \param[in] file The MPI File
  *  \param[in] offset The offset from the current shared ptr
- *  \param[out] d The array to read into
- *  \param[in] sz The number of elements to read
- *  \param[in] arg The last argument of the MPI_File_read_... function
- *  \param[in] max The maximum size to read at once
+ *  \param[out] d The array to read into or from
+ *  \param[in] sz The number of elements to read or write
+ *  \param[in] arg The last argument of the MPI_File_... function
+ *  \param[in] max The maximum size to read or write at once
  *
  * This function does not currently take into account collective MPI calls
  * which would have issues with the number of operations being the same for each process
  */
 template <typename T, typename U = MPI_Status> inline
-int MPIIORead(const FpR<U> fn, const MPI_File & file, const size_t offset, T * d, const size_t sz, U & arg, const size_t max)
+int io(const MFp<U> fn, const MPI_File & file, const size_t offset, T * d, const size_t sz, U & arg, const size_t max)
 {
     int err = MPI_SUCCESS;
     auto q = sz / max;
@@ -119,10 +128,25 @@ int MPIIORead(const FpR<U> fn, const MPI_File & file, const size_t offset, T * d
     return err;
 }
 
-void MPIIO::read(size_t offset, size_t sz, uchar * d)
+void MPIIO::read(const size_t offset, const size_t sz, uchar * d)
 {
     MPI_Status arg;
-    int err = MPIIORead<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
+    int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
+
+//Function to hide const
+int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st)
+{
+    return MPI_File_write_at(f, o, d, s, da, st);
+}
+
+void MPIIO::write(const size_t offset, size_t sz, const uchar * d)
+{
+    MPI_Status arg;
+    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, const_cast<uchar *>(d), sz, arg, maxSize);
+    printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
+}
+
+
 }}

@@ -27,13 +27,21 @@ struct SEGYOpt : public Opt
 class SEGY : public Interface
 {
     private :
+    struct Flags
+    {
+        uint64_t writeHO : 1;   //!< The header should be written before File::SEGY object is deleted
+        uint64_t resize : 1;    //!< The file should be resized before File::SEGY object is deleted.
+    };
+    Flags state;                 //!< State flags are stored in this structure
+
+    unit_t incFactor;       //!< The increment factor
     /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.
-     *  \param[in] incFactor The increment factor to multiply inc by.
      *  \param[in] fsz The size of the file in bytes
      *  \param[in, out] The buffer to parse. The buffer is destructively modified
      */
-    void procHeader(const unit_t incFactor, const size_t fsz, uchar * buf);
+    void procHeader(const size_t fsz, uchar * buf);
 
+    void packHeader(uchar * buf);
     /*! \brief This function initialises the class.
      */
     void Init(const File::SEGYOpt & segyOpt);
@@ -56,6 +64,30 @@ class SEGY : public Interface
      */
     SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt,
                                                   const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+
+    /*! \brief Destructor. Processes any remaining flags
+     */
+    ~SEGY(void);
+
+    /*! \brief Read the human readable text from the file
+     *  \return A string containing the text (in ASCII format)
+     */
+    void writeText(std::string text_);
+
+    /*! \brief Read the number of samples per trace
+     *  \return The number of samples per trace
+     */
+    void writeNs(size_t ns_);
+
+    /*! \brief Read the number of traces in the file
+     *  \return The number of traces
+     */
+    void writeNt(size_t nt_);
+
+    /*! \brief Read the number of increment between trace samples
+     *  \return The increment between trace samples
+     */
+    void writeInc(geom_t inc_);
 };
 }}
 #endif

@@ -26,4 +26,9 @@ void SEGY::readHO(uchar * ho)
 {
     data->read(0U, SEGSz::getHOSz(), ho);
 }
+void SEGY::writeHO(const uchar * ho)
+{
+    data->write(0U, SEGSz::getHOSz(), ho);
+}
+
 }}

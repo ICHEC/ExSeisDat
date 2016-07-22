@@ -171,8 +171,8 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
     return MPI_File_write_at(f, o, d, s, da, st);
 }
 
-MPIIO::MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode, 
-             Fp<MPI_Status> Ifn, Fp<MPI_Status> Ofn) 
+MPIIO::MPIIO(std::shared_ptr<Comms::MPI> Comm, std::string name, int mode,
+             Fp<MPI_Status> Ifn, Fp<MPI_Status> Ofn)
            : PIOL::Data::Interface(Comm), ifn(Ifn), ofn(Ofn)
 {
     mcomm = Comm->getComm();
