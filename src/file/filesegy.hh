@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief The SEGY specific File layer interface
+ *   \details SEGY implementations for File layer
+*//*******************************************************************************************/
 #ifndef PIOLFILESEGY_INCLUDE_GUARD
 #define PIOLFILESEGY_INCLUDE_GUARD
 #include <memory>
@@ -6,7 +14,6 @@
 #include "file/file.hh"
 
 namespace PIOL { namespace File {
-
 /*! \brief The SEG-Y options structure. Currently empty.
  */
 class SEGYOpt : public Opt
@@ -24,6 +31,7 @@ class SEGY : public Interface
 
     /*! \brief Parse the given header object buffer.
      *  \param[in, out] buf The buffer to parse. The buffer is destructively modified
+     *  \param[in] fsz size of the file
      */
     void parseHO(uchar * buf, const size_t fsz);
 

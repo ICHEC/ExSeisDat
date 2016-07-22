@@ -20,7 +20,7 @@ namespace PIOL { namespace Comm {
 struct MPIOpt : Opt
 {
     MPI_Comm comm; //!< This variable defines the default MPI communicator.
-    bool initMPI;            //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
+    bool initMPI;  //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
 
     /* \brief Default constructor to prevent intel warnings
      */
@@ -45,14 +45,17 @@ class MPI : public Comm::Interface
      *  \param[in] opt Any options for the communication layer.
      */
     MPI(const MPIOpt & opt);
+
     /*! \brief The destructor. If the object is responsible for initialisation it deinitialises MPI
      *  in this routine.
      */
     ~MPI(void);
+
     /*! \brief Retrieve the MPI communicator associated with the ExSeisPIOL.
      *  \return The MPI communicator.
      */
     MPI_Comm getComm();
+
     /*! \brief All processors will wait at the barrier until everyone arrives.
      *  The MPI implementation of the pure virtual base member simply calls MPI_Barrier
      */

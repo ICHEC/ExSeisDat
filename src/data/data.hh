@@ -1,3 +1,12 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief The Data layer interface
+ *   \details The Data layer interface is a base class which specific data I/O implementations
+ *   work off
+*//*******************************************************************************************/
 #ifndef PIOLDATA_INCLUDE_GUARD
 #define PIOLDATA_INCLUDE_GUARD
 #include <memory>
@@ -19,6 +28,7 @@ class Interface
     Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : piol(piol_), name(name_)
     {
     }
+
     /*! \brief Pure virtual function to find out the file size.
      *  \return The file size in bytes.
      */
@@ -26,11 +36,12 @@ class Interface
 
     /*! \brief Pure virtual function to read from storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
-     *  \param[out] d     The array to store the output in
      *  \param[in] sz     The amount of data to read from disk
+     *  \param[out] d     The array to store the output in
      */
-    virtual void read(size_t offset, uchar * d, size_t sz) = 0;
+    virtual void read(size_t offset, size_t sz, uchar * d) = 0;
 };
+
 /*! \brief An enum of the possible derived classes for the data layer.
  */
 enum class Type : size_t
@@ -43,12 +54,14 @@ enum class Type : size_t
 struct Opt
 {
     Type type;      //!< The Data type.
+
     /* \brief Default constructor to prevent intel warnings
      */
     Opt(void)
     {
         type = Type::MPIIO;      //!< The Data type.
     }
+
     /*! \brief This function returns the Data type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */

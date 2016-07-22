@@ -33,7 +33,7 @@ struct FakeData : public Data::Interface
     {
         return 0U;
     }
-    void read(size_t offset, uchar * d, size_t sz) {}
+    void read(size_t offset, size_t sz, uchar * d) {}
 };
 
 TEST_F(DataTest, Constructor)

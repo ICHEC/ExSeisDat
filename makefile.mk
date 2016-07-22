@@ -33,7 +33,9 @@ $(DEP): $(DEPENDS)
 
 .PHONY: clean
 clean:
-	rm -f $(CURR_OBJECTS) $(DEPENDS) $(CURR_DEP)
+	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP)
 
+ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)
+endif
 

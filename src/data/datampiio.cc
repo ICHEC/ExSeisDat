@@ -119,7 +119,7 @@ int MPIIORead(const FpR<U> fn, const MPI_File & file, const size_t offset, T * d
     return err;
 }
 
-void MPIIO::read(size_t offset, uchar * d, size_t sz)
+void MPIIO::read(size_t offset, size_t sz, uchar * d)
 {
     MPI_Status arg;
     int err = MPIIORead<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);

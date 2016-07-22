@@ -86,7 +86,7 @@ TEST_F(MPIIOTest, BlockingReadSmall)
     Data::MPIIO mio(piol, smallFile, ioopt);
     std::vector<uchar> d(smallSize);
     d.back() = getPattern(d.size()-2);
-    mio.read(0, d.data(), d.size()-1);
+    mio.read(0, d.size()-1, d.data());
     piol->isErr();
     EXPECT_EQ(getPattern(d.size()-2), d.back());
 
@@ -101,7 +101,7 @@ TEST_F(MPIIOTest, ZeroSizeReadOnLarge)
     Data::MPIIO mio(piol, plargeFile, ioopt);
 
     std::vector<uchar> d = {getPattern(1U)};
-    mio.read(0, d.data(), 0);
+    mio.read(0, 0, d.data());
     piol->isErr();
 
     EXPECT_EQ(getPattern(1U), d[0]);
@@ -120,7 +120,7 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
         size_t offset = (largeSize / magicNum1) * j;
         std::vector<uchar> d(sz);
 
-        mio.read(offset, d.data(), d.size());
+        mio.read(offset, d.size(), d.data());
         piol->isErr();
 
         for (size_t i = 0; i < d.size(); i++)
@@ -137,7 +137,7 @@ TEST_F(MPIIOTest, BlockingOneByteReadLarge)
         size_t offset = largeSize / 2U + i;
         uchar test[2] = {getPattern(offset-2), getPattern(offset-1)};
 
-        mio.read(offset, test, 1);
+        mio.read(offset, 1, test);
         piol->isErr();
         EXPECT_EQ(test[0], getPattern(offset));
         EXPECT_EQ(test[1], getPattern(offset-1));
@@ -154,7 +154,7 @@ TEST_F(MPIIOTest, BlockingReadEnd)
     std::vector<uchar> d(prefix(3));
     for (size_t j = 0; j > magicNum1; j += 10U)
     {
-        mio.read(largeSize-j, d.data(), d.size());
+        mio.read(largeSize-j, d.size(), d.data());
         piol->isErr();
         for (size_t i = 0; i < j; i++)
             EXPECT_EQ(d[i], getPattern(largeSize-j + i));

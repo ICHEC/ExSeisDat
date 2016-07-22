@@ -79,7 +79,7 @@ pitfalls of using header files.</p>
 <h3 id="Self_contained_Headers">Self-contained Headers</h3>
 <div class="summary">
 <p>Header files should be self-contained (compile on their own) and
-end in <code>.h</code>. Non-header files that are meant for inclusion
+end in <code>.hh</code>. Non-header files that are meant for inclusion
 should end in <code>.inc</code>. </p>
 </div>
 <div class="stylebody">
@@ -88,12 +88,12 @@ tools should not have to adhere to special conditions to include the
 header. Specifically, a header should
 have <a href="#The__define_Guard">header guards</a> and include all
 other headers it needs.</p>
-<p>If a template or inline function is declared in a <code>.h</code>
+<p>If a template or inline function is declared in a <code>.hh</code>
 file, that same header should provide its definition. The definitions
 of these constructs must be included into every <code>.cc</code> file
 that uses them, or the program may fail to link in some build
 configurations. Do not move these definitions to separately included
-header files (<code>-inl.h</code>).</p>
+header files (<code>-inl.hh</code>).</p>
 <p>As an exception, a template that is explicitly instantiated for
 all relevant sets of template arguments, or that is a private
 implementation detail of a class, is allowed to be defined in the one
@@ -243,7 +243,7 @@ not required, to end with an <code>Interface</code> suffix.</p>
 <h3 id="Access_Control">Access Control</h3>
 <div class="summary">
 <p> Make data members <code>private</code>, unless they are
-<code>static const</code> (and follow the <a href="#Constant_Names">
+<code>static const</code> (and follow the <a href="#Naming">
 naming convention for constants</a>). For technical
 reasons, we allow data members of a test fixture class to
 be <code>protected</code> when using
@@ -527,8 +527,8 @@ reviewer. Be generous &#8212; you are also a reviewer!</p>
 <h3 id="Comment_Style">Comment Style</h3>
 <div class="summary">
 <p>Use either <code>//</code> for short comments and <code>/* */</code>
-for longer comments. Use <code>/* */</code> for doxygen struct, class, function
-comments. Use <code>//</code> for inline doxygen comments. </p>
+for longer comments. Use <code>/*! */</code> for doxygen struct, class, function
+comments. Use <code>//!<</code> for inline doxygen comments. </p>
 </div>
 
 <h3 id="File_Comments">File Comments</h3>
@@ -576,14 +576,14 @@ syntax.</p>
 <h3 id="Line_Length">Line Length</h3>
 <div class="summary">
 <p>Each line of text in your code should be at most about 140
-characters long and preferably about ~100 characters. Text comments should have line breaks after about eac ~100 characters to aide reading. </p>
+characters long and preferably about ~100 characters. Text comments should have line breaks after about each ~100 characters to aide reading. </p>
 </div>
 
 <h3 id="Non-ASCII_Characters">Non-ASCII Characters</h3>
 <div class="summary">
 <p>Non-ASCII characters should be rare, and must use UTF-8
 formatting.</p>
-    code>u8"\uFEFF"</code>, is the Unicode zero-width
+<code>u8"\uFEFF"</code>, is the Unicode zero-width
 no-break space character, which would be invisible if
 included in the source as straight UTF-8.</p>
 <p>Use the <code>u8</code> prefix

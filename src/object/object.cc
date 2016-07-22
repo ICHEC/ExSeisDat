@@ -35,7 +35,7 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
         }
         break;
         default :
-
+        //TODO generate a warning
         break;
     }
     piol->record(name_, Log::Layer::Object, Log::Status::Warning, "Successful exit of Object Interface", Log::Verb::Max);

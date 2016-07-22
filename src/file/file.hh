@@ -1,3 +1,12 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief The File layer interface
+ *   \details The File layer interface is a base class which specific File implementations
+ *   work off
+*//*******************************************************************************************/
 #ifndef PIOLFILE_INCLUDE_GUARD
 #define PIOLFILE_INCLUDE_GUARD
 #include "global.hh"
@@ -23,6 +32,7 @@ class Interface
      *  \param[in] obj_ Pointer to the associated Object-layer object.
      */
     Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_);
+
     public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -69,12 +79,14 @@ enum class Type : size_t
 struct Opt
 {
     Type type = Type::SEGY;      //!< The File type.
+
     /* \brief Default constructor to prevent intel warnings
      */
     Opt(void)
     {
         type = Type::SEGY;      //!< The Obj type.
     }
+
     /*! \brief This function returns the File type. This function is mainly included to provide a virtual function
      * to allow polymorphic behaviour.
      */
