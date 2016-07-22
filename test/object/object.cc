@@ -29,12 +29,15 @@ struct FakeObject : public Obj::Interface
 {
     FakeObject(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_)
                : Obj::Interface(piol_, name_, data_) { }
+
     FakeObject(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Data::Opt & dataOpt)
                : Obj::Interface(piol_, name_, dataOpt) { }
+
     size_t getFileSz()
     {
         return 0U;
     }
+
     void readHO(uchar * ho) { }
 };
 

@@ -63,13 +63,13 @@ enum class Type : size_t
  */
 struct Opt
 {
-    Type type = Type::SEGY;      //!< The File type.
+    Type type;      //!< The File type.
 
     /* \brief Default constructor to prevent intel warnings
      */
     Opt(void)
     {
-        type = Type::SEGY;      //!< The Obj type.
+        type = Type::SEGY;      //!< The File type.
     }
 
     /*! \brief This function returns the File type. This function is mainly included to provide a virtual function

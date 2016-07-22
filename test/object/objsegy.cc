@@ -21,6 +21,7 @@ class MockData : public Data::Interface
     MockData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
     {
     }
+
     MOCK_METHOD0(getFileSz, size_t(void));
     MOCK_METHOD3(read, void(size_t, size_t, uchar *));
 };
@@ -32,6 +33,7 @@ class ObjSEGYTest : public Test
     const Obj::SEGYOpt segyOpt;
     const Data::MPIIOOpt dataOpt;
     Comm::MPIOpt opt;
+
     ObjSEGYTest()
     {
         opt.initMPI = false;
@@ -128,8 +130,6 @@ void SEGYReadHOTest(Obj::Interface & obj, std::vector<uchar> magic)
 typedef ObjSEGYTest ObjIntegrationTest;
 TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
 {
-    SCOPED_TRACE("SEGYReadHO");
-
     Obj::SEGY segy(piol, zeroFile, segyOpt, dataOpt);
     piol->isErr();
     std::vector<uchar> ho(SEGSz::getHOSz());

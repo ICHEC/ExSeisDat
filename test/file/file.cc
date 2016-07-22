@@ -31,6 +31,7 @@ struct FakeFile : public File::Interface
 {
     FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
     {}
+
     FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt) : File::Interface(piol_, name_, objOpt, dataOpt)
     {}
 
@@ -38,6 +39,7 @@ struct FakeFile : public File::Interface
     {
         return 0U;
     }
+
     size_t readNt(void)
     {
         return 0U;
