@@ -1,7 +1,6 @@
 # Basic settings
 # Have the following defined before using this:
 # LOCAL_INC_FOLDER
-# TODO: Fix the weird issue with make clean making the dependencies again.
 
 INC_FOLDER = -I../ $(LOCAL_INC_FOLDER)
 CXXFLAGS = $(STANDARDS) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER)
