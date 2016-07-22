@@ -38,7 +38,12 @@ struct FakeObject : public Obj::Interface
         return 0U;
     }
 
-    void readHO(uchar * ho) { }
+    void readHO(uchar * ho) {}
+
+    void getFileSz(size_t sz) {}
+
+    void writeHO(const uchar * ho) {}
+
 };
 
 //In this test we pass the MPI-IO Data Options class.

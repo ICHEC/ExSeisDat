@@ -27,12 +27,24 @@ struct SEGYOpt : public Opt
 class SEGY : public Interface
 {
     private :
+
+    enum Format : int16_t
+    {
+        IBM = 1,    //IBM format, big endian
+        TC4,        //Two's complement, 4 byte
+        TC2,        //Two's complement, 2 byte
+        FPG,        //Fixed-point gain (obsolete)
+        IEEE,       //The IEEE format, big endian
+        NA1,
+        NA2,
+        TC1         //Two's complement, 1 byte
+    } format;       //Type formats
+
     struct Flags
     {
         uint64_t writeHO : 1;   //!< The header should be written before File::SEGY object is deleted
         uint64_t resize : 1;    //!< The file should be resized before File::SEGY object is deleted.
-    };
-    Flags state;                 //!< State flags are stored in this structure
+    } state;                    //!< State flags are stored in this structure
 
     unit_t incFactor;       //!< The increment factor
     /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.

@@ -30,25 +30,31 @@ class FileTest : public Test
 struct FakeFile : public File::Interface
 {
     FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
-    {}
+    {
+        inc = geom_t(10);
+        text = "test";
+        nt = 1101U;
+        ns = 1010U;
+    }
 
     FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt) : File::Interface(piol_, name_, objOpt, dataOpt)
-    {}
-
-    size_t readNs(void)
     {
-        return 0U;
-    }
-
-    size_t readNt(void)
-    {
-        return 0U;
-    }
-    std::string readText(void)
-    {
-        return "";
+        inc = geom_t(10);
+        text = "test";
+        nt = 1101U;
+        ns = 1010U;
     }
 };
+
+void compareConstructor(ExSeisPIOL * piol, FakeFile & fake)
+{
+    EXPECT_EQ(piol, fake.piol.get());
+    EXPECT_EQ(notFile, fake.name);
+    EXPECT_EQ(1101U, fake.readNt());
+    EXPECT_EQ(1010U, fake.readNs());
+    EXPECT_EQ(geom_t(10), fake.readInc());
+    EXPECT_EQ("test", fake.readText());
+}
 
 //We test the short-cut constructor. No sanity checks
 TEST_F(FileTest, ShortInterfaceConstructor)
@@ -56,8 +62,8 @@ TEST_F(FileTest, ShortInterfaceConstructor)
     std::shared_ptr<Obj::Interface> obj = nullptr;
     FakeFile fake(piol, notFile, obj);
     EXPECT_EQ(nullptr, fake.obj);
-    EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(notFile, fake.name);
+    SCOPED_TRACE("ShortInterfaceConstructor");
+    compareConstructor(piol.get(), fake);
 }
 
 //In this test we pass the MPI-IO Data Options class.
@@ -69,8 +75,8 @@ TEST_F(FileTest, InterfaceConstructor)
 
     FakeFile fake(piol, notFile, objOpt, dataOpt);
     EXPECT_NE(nullptr, fake.obj);
-    EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(notFile, fake.name);
+    SCOPED_TRACE("InterfaceConstructor");
+    compareConstructor(piol.get(), fake);
 }
 
 void BadConstructor(std::shared_ptr<ExSeisPIOL> piol, std::string name, const Obj::Opt & objOpt, const Data::Opt & dataOpt)
@@ -98,7 +104,6 @@ TEST_F(FileTest, BadInterfaceConstructor2)
     SCOPED_TRACE("BadInterface 2");
     const Obj::Opt objOpt;
     const Data::MPIIOOpt dataOpt;
-
     BadConstructor(piol, notFile, objOpt, dataOpt);
 }
 

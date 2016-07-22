@@ -29,11 +29,15 @@ struct FakeData : public Data::Interface
     {
 
     }
+
     size_t getFileSz()
     {
         return 0U;
     }
+
     void read(size_t offset, size_t sz, uchar * d) {}
+    void setFileSz(size_t sz) {}
+    void write(size_t offset, size_t sz, const uchar * d) {}
 };
 
 TEST_F(DataTest, Constructor)

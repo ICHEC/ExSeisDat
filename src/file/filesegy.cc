@@ -29,19 +29,6 @@ enum class Hdr : size_t
     Type = 3225U         //!< Short, Trace data type. AKA format in SEGY terminology
 };
 
-enum Format : int16_t
-{
-    IBM = 1,    //IBM format, big endian
-    TC4,    //Two's complement, 4 byte
-    TC2,    //Two's complement, 2 byte
-    FPG,    //Fixed-point gain (obsolete)
-    IEEE,
-    NA1,
-    NA2,
-    TC1    //Two's complement, 1 byte
-};
-
-
 /*! \brief Convert a 2 byte \c char array in big endian to a host short
  *  \return Return a short
  */
@@ -218,7 +205,8 @@ void SEGY::procHeader(const size_t fsz, uchar * buf)
     obj->readHO(buf);
     ns = getMd(Hdr::NumSample, buf);
     nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
-    inc = getMd(Hdr::Increment, buf) * incFactor;
+    inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
+    format = static_cast<Format>(getMd(Hdr::Type, buf));
 
     getAscii(piol, name, buf, SEGSz::getTextSz());
     for (size_t i = 0U; i < SEGSz::getTextSz(); i++)
@@ -228,7 +216,7 @@ void SEGY::procHeader(const size_t fsz, uchar * buf)
 void SEGY::Init(const File::SEGYOpt & segyOpt)
 {
     incFactor = segyOpt.incFactor;
-    memset(&state, 1, sizeof(Flags));
+    memset(&state, 0, sizeof(Flags));
     state.writeHO = true;
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz = obj->getFileSz();
