@@ -66,6 +66,9 @@ class FileSEGYSpecTest : public FileIntegrationTest
         hor.resize(SEGSz::getHOSz());
         how.resize(SEGSz::getHOSz());
     }
+    ~FileSEGYSpecTest()
+    {
+    }
 };
 
 void initReadMock(MockObj & mock, std::vector<uchar> & ho, size_t ns, size_t nt, int inc, int format, std::string testString)
@@ -166,6 +169,89 @@ TEST_F(FileSEGYSpecTest, FileWriteAPI)
     segy.writeText(testString);
     piol->isErr();
 }
+
+TEST_F(FileSEGYSpecTest, FileWriteAPIBadns)
+{
+    EXPECT_CALL(*mockWrite.get(), getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+    size_t badns = 0x470000;
+    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    piol->isErr();
+
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mockWrite, segy.obj);
+
+    segy.writeNt(nt);
+    piol->isErr();
+
+    segy.writeInc(geom_t(inc*SI::Micro));
+    piol->isErr();
+
+    segy.writeText(testString);
+    piol->isErr();
+
+    mockWrite.reset();
+
+    segy.writeNs(badns);
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
+}
+
+#ifdef NT_LIMITS
+TEST_F(FileSEGYSpecTest, FileWriteAPIBadnt)
+{
+    EXPECT_CALL(*mockWrite.get(), getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+    size_t badnt = NT_LIMITS + 1;
+    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    piol->isErr();
+
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mockWrite, segy.obj);
+
+    segy.writeInc(geom_t(inc*SI::Micro));
+    piol->isErr();
+
+    segy.writeText(testString);
+    piol->isErr();
+
+    segy.writeNs(ns);
+    piol->isErr();
+
+    mockWrite.reset();
+
+    segy.writeNt(badnt);
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
+}
+#endif
+
+TEST_F(FileSEGYSpecTest, FileWriteAPIBadInc)
+{
+    EXPECT_CALL(*mockWrite.get(), getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+    geom_t badinc = geom_t(1)/geom_t(0);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    piol->isErr();
+
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mockWrite, segy.obj);
+
+    segy.writeNt(nt);
+    piol->isErr();
+
+    segy.writeNs(ns);
+    piol->isErr();
+
+    segy.writeText(testString);
+    piol->isErr();
+
+    segy.writeInc(badinc);
+
+    mockWrite.reset();
+
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
+}
+//TODO: Test Null text
+//TODO:: Test Text too long
 
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// INTEGRATION-CLASS SPECIFICATION TESTING //////////////////////

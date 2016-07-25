@@ -16,6 +16,7 @@
 #include "file/iconv.hh"
 #include "share/units.hh"
 #include "share/datatype.hh"
+#include <limits>
 #include <iostream>
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,32 +110,43 @@ SEGY::SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, con
 
 SEGY::~SEGY(void)
 {
-    if (state.resize)
-        obj->setFileSz(SEGSz::getFileSz(nt, ns));
-
-    if (state.writeHO)
+    if (!piol->log->isErr())
     {
-        std::vector<uchar> buf(SEGSz::getHOSz());
-        packHeader(buf.data());
-        obj->writeHO(buf.data());
+        if (state.resize)
+            obj->setFileSz(SEGSz::getFileSz(nt, ns));
+
+        if (state.writeHO)
+        {
+            std::vector<uchar> buf(SEGSz::getHOSz());
+            packHeader(buf.data());
+            obj->writeHO(buf.data());
+        }
     }
 }
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
-void SEGY::writeText(std::string text_)
+void SEGY::writeText(const std::string text_)
 {
     if (text != text_)
     {
         text = text_;
+        text.resize(SEGSz::getTextSz());
         state.writeHO = true;
     }
 }
 
-void SEGY::writeNs(size_t ns_)
+void SEGY::writeNs(const size_t ns_)
 {
+    if (ns_ > size_t(std::numeric_limits<int16_t>::max()))
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Error, "Ns value is too large for SEG-Y", Log::Verb::None);
+        return;
+    }
+
     if (ns != ns_)
     {
         ns = ns_;
+
         if (nt != 0U)           // If nt is zero this operaton is pointless.
         {
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
@@ -147,8 +159,16 @@ void SEGY::writeNs(size_t ns_)
     }
 }
 
-void SEGY::writeNt(size_t nt_)
+void SEGY::writeNt(const size_t nt_)
 {
+#ifdef NT_LIMITS
+    if (nt_ > NT_LIMITS)
+    {
+        const std::string msg = "nt_ beyond limited size: "  + std::to_string(NT_LIMITS) + " in writeNt()";
+        piol->record(name, Log::Layer::File, Log::Status::Error, msg, Log::Verb::None);
+    }
+#endif
+
     if (nt != nt_)
     {
         nt = nt_;
@@ -162,8 +182,15 @@ void SEGY::writeNt(size_t nt_)
     }
 }
 
-void SEGY::writeInc(geom_t inc_)
+void SEGY::writeInc(const geom_t inc_)
 {
+    if (!std::isnormal(inc_))
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Error,
+            "The SEG-Y Increment " + std::to_string(inc_) + "is not normal.", Log::Verb::None);
+        return;
+    }
+
     if (inc != inc_)
     {
         inc = inc_;
