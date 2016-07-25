@@ -85,7 +85,7 @@ size_t MPIIO::getFileSz()
     return size_t(fsz);
 }
 
-void MPIIO::setFileSz(size_t sz)
+void MPIIO::setFileSz(const size_t sz)
 {
     int err = MPI_File_preallocate(file, MPI_Offset(sz));
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");

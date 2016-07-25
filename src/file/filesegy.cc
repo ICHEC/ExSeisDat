@@ -9,13 +9,14 @@
 #include <cstring>
 #include <vector>
 #include <memory>
-#include <type_traits>
 #include <cmath>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "share/segy.hh"
 #include "file/iconv.hh"
 #include "share/units.hh"
+#include "share/datatype.hh"
+#include <iostream>
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -24,48 +25,15 @@ namespace PIOL { namespace File {
  */
 enum class Hdr : size_t
 {
-    Increment = 3217U,   //!< Short
-    NumSample = 3221U,   //!< Short
-    Type = 3225U         //!< Short, Trace data type. AKA format in SEGY terminology
+    Increment  = 3217U, //!< Short. The increment between traces in microseconds
+    NumSample  = 3221U, //!< Short. The Numbe of samples per trace
+    Type       = 3225U, //!< Short. Trace data type. AKA format in SEGY terminology
+    Sort       = 3229U, //!< Short. The sort order of the traces.
+    Units      = 3255U, //!< Short. The unit system, i.e SI or imperial.
+    SEGYFormat = 3501U, //!< Short. The SEG-Y Revision number
+    FixedTrace = 3503U, //!< Short. Whether we are using fixed traces or not.
+    Extensions = 3505U, //!< Short. If we use header extensions or not.
 };
-
-/*! \brief Convert a 2 byte \c char array in big endian to a host short
- *  \return Return a short
- */
-template <typename T = int16_t>
-T getHostShort(const uchar * src)
-{
-    return (T(src[0]) << 8) | T(src[1]);
-}
-
-/*! \brief Convert a 4 byte \c char array in big endian to a host 4 byte type
- *  \param[in] src The input 4 byte type with host endianness
- *  \param[out] dst A pointer to 4 bytes of data where the big endian
- *  short is stored.
- */
-//template <typename T,
-//typename std::enable_if<sizeof(T) == 4U, T>::type = 0 >
-template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-void getBigEndian(uchar * dst, T src)
-{
-    assert(sizeof(T) == 4);
-    dst[0] = src >> 24 & 0xFF;
-    dst[1] = src >> 16 & 0xFF;
-    dst[2] = src >> 8 & 0xFF;
-    dst[3] = src & 0xFF;
-}
-
-/*! \brief Convert a 2 byte \c char array in big endian to a host 2 byte type
- *  \param[in] src The input short with host endianness
- *  \param[out] dst A pointer to 2 bytes of data where the big endian
- *  short is stored.
- */
-template <typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
-void getBigEndian(const T src, uchar * dst)
-{
-    dst[0] = src >> 8 & 0xFF;
-    dst[1] = src & 0xFF;
-}
 
 /*! \brief Get the header metadata value corresponding to the item specified
  *  \param[in] val The header item of interest
@@ -80,7 +48,11 @@ T getMd(const Hdr val, const uchar * buf)
         case Hdr::Increment :
         case Hdr::Type :
         case Hdr::NumSample :
-        return getHostShort(&buf[size_t(val)-1]);
+        case Hdr::Units :
+        case Hdr::SEGYFormat :
+        case Hdr::FixedTrace :
+        case Hdr::Extensions :
+        return T(getHostShort(&buf[static_cast<size_t>(val)-1U]));
         default :
         return T(0);
         break;
@@ -100,6 +72,10 @@ void setMd(Hdr val, uchar * dst, T src)
         case Hdr::Increment :
         case Hdr::Type :
         case Hdr::NumSample :
+        case Hdr::Units :
+        case Hdr::SEGYFormat :
+        case Hdr::FixedTrace :
+        case Hdr::Extensions :
         getBigEndian<int16_t>(src, &dst[static_cast<size_t>(val)-1U]);
         default :
         break;
@@ -138,8 +114,9 @@ SEGY::~SEGY(void)
 
     if (state.writeHO)
     {
-        auto buf = std::make_unique<uchar[]>(SEGSz::getHOSz());
-        packHeader(buf.get());
+        std::vector<uchar> buf(SEGSz::getHOSz());
+        packHeader(buf.data());
+        obj->writeHO(buf.data());
     }
 }
 
@@ -159,7 +136,10 @@ void SEGY::writeNs(size_t ns_)
     {
         ns = ns_;
         if (nt != 0U)           // If nt is zero this operaton is pointless.
+        {
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
+            state.resize = false;
+        }
         else
             state.resize = true;
 
@@ -173,7 +153,10 @@ void SEGY::writeNt(size_t nt_)
     {
         nt = nt_;
         if (ns != 0U)       // If ns is zero this operaton is pointless
+        {
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
+            state.resize = false;
+        }
         else
             state.resize = true;
     }
@@ -188,16 +171,20 @@ void SEGY::writeInc(geom_t inc_)
     }
 }
 
-
 void SEGY::packHeader(uchar * buf)
 {
     for (size_t i = 0; i < text.size(); i++)
         buf[i] = text[i];
 
-    setMd(Hdr::NumSample, buf, static_cast<int16_t>(ns));
-    setMd(Hdr::Type, buf, static_cast<int16_t>(Format::IEEE));
-    setMd(Hdr::Increment, buf, static_cast<int16_t>(std::lround(inc / incFactor)));
-    obj->writeHO(buf);
+    setMd(Hdr::NumSample, buf, int16_t(ns));
+    setMd(Hdr::Type,      buf, int16_t(Format::IEEE));
+    setMd(Hdr::Increment, buf, int16_t(std::lround(inc / incFactor)));
+
+//Currently these are hard-coded entries:
+    setMd(Hdr::Units,      buf, 0x0001);    //The unit system.
+    setMd(Hdr::SEGYFormat, buf, 0x0100);    //The version of the SEGY format.
+    setMd(Hdr::FixedTrace, buf, 0x0001);    //We always deal with fixed traces at present.
+    setMd(Hdr::Extensions, buf, 0x0000);    //We do not support text extensions at present.
 }
 
 void SEGY::procHeader(const size_t fsz, uchar * buf)
@@ -217,7 +204,6 @@ void SEGY::Init(const File::SEGYOpt & segyOpt)
 {
     incFactor = segyOpt.incFactor;
     memset(&state, 0, sizeof(Flags));
-    state.writeHO = true;
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz = obj->getFileSz();
     if (fsz >= hoSz)
@@ -231,6 +217,7 @@ void SEGY::Init(const File::SEGYOpt & segyOpt)
         nt = 0U;
         inc = geom_t(0);
         text = "";
+        state.writeHO = true;
     }
 }
 }}

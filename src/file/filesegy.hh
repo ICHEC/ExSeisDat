@@ -28,16 +28,16 @@ class SEGY : public Interface
 {
     private :
 
-    enum Format : int16_t
+    enum class Format : int16_t
     {
-        IBM = 1,    //IBM format, big endian
-        TC4,        //Two's complement, 4 byte
-        TC2,        //Two's complement, 2 byte
-        FPG,        //Fixed-point gain (obsolete)
-        IEEE,       //The IEEE format, big endian
-        NA1,
-        NA2,
-        TC1         //Two's complement, 1 byte
+        IBM  = 1,   //IBM format, big endian
+        TC4  = 2,   //Two's complement, 4 byte
+        TC2  = 3,   //Two's complement, 2 byte
+        FPG  = 4,   //Fixed-point gain (obsolete)
+        IEEE = 5,   //The IEEE format, big endian
+        NA1  = 6,   //Unused
+        NA2  = 7,   //Unused
+        TC1  = 8,   //Two's complement, 1 byte
     } format;       //Type formats
 
     struct Flags

@@ -43,17 +43,16 @@ void getAscii(std::shared_ptr<ExSeisPIOL> piol, const std::string file, uchar * 
     piol->log->record(file, Log::Layer::File, Log::Status::Error, "Iconv has failed to open ASCII and EBCDICUS",
                       Log::Verb::None, toAsc == (iconv_t)-1);
 
-    auto dst = std::unique_ptr<char>(new char[sz]);
+    std::vector<char> dst(sz);
     size_t isz = sz;
     size_t osz = sz;
     char * in = reinterpret_cast<char *>(src);
-    char * out = dst.get();
+    char * out = dst.data();
     ::iconv(toAsc, &in, &isz, &out, &osz);
     piol->log->record(file, Log::Layer::File, Log::Status::Warning, "getConv failed", Log::Verb::None, !osz);
 
-    if (getCount(dst.get(), sz) > getCount(reinterpret_cast<char *>(src), sz))
-        std::memcpy(src, dst.get(), sizeof(char)*sz);
-    //std::memcpy(src, (getCount(dst.get(), sz) > getCount(pre.get(), sz) ? dst.get() : pre.get()), sizeof(char)*sz);
+    if (getCount(dst.data(), sz) > getCount(reinterpret_cast<char *>(src), sz))
+        std::memcpy(src, dst.data(), sizeof(char)*sz);
 
     int err = iconv_close(toAsc);
     piol->log->record(file, Log::Layer::File, Log::Status::Warning, "Iconv has closed badly", Log::Verb::None, err != 0);
