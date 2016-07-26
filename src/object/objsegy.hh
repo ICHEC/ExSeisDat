@@ -12,7 +12,7 @@
 #include "anc/piol.hh"
 #include "global.hh"
 #include "object/object.hh"
-#include "share/segy.hh"
+#include "data/data.hh"
 
 namespace PIOL { namespace Obj {
 
@@ -58,6 +58,25 @@ class SEGY : public Interface
      *  \param[out] ho An array which the caller guarantees is as long enough the header object.
      */
     void writeHO(const uchar * ho);
+
+    /*! Read the data-object metadata.
+     *  \param[in] offset The trace number we are interested in.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the specific trace header.
+     *  \todo Extend this function to read more than one trace
+     */
+    void readDOMD(const size_t offset, const size_t ns, uchar * ho);
+
+    /*! Write the data-object metadata.
+     *  \param[in] offset The trace number we are interested in.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the specific trace header.
+     *  \todo Extend this function to write more than one trace
+     */
+    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho);
+
 };
 }}
 #endif

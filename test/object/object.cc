@@ -44,6 +44,9 @@ struct FakeObject : public Obj::Interface
 
     void writeHO(const uchar * ho) {}
 
+    void readDOMD(const size_t offset, const size_t ns, uchar * ho) {}
+
+    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) {}
 };
 
 //In this test we pass the MPI-IO Data Options class.

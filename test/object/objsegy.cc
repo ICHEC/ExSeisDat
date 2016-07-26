@@ -3,6 +3,7 @@
 #include "gmock/gmock.h"
 #include "global.hh"
 #include "tglobal.hh"
+#include "share/segy.hh"
 #include "anc/cmpi.hh"
 #include "data/datampiio.hh"
 #define private public

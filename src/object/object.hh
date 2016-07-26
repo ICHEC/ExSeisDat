@@ -54,14 +54,33 @@ class Interface
     }
 
     /*! \brief Pure virtual function to read the header object.
-     *  \param[out] ho An array which the caller guarantees is long enough to hold the header object.
+     *  \param[out] ho An array which the caller guarantees is long enough
+     *  to hold the header object.
      */
     virtual void readHO(uchar * ho) = 0;
 
     /*! \brief Pure virtual function to write the header object.
-     *  \param[out] ho An array which the caller guarantees is as long enough the header object.
+     *  \param[in] ho An array which the caller guarantees is as long as the header object.
      */
     virtual void writeHO(const uchar * ho) = 0;
+
+    /*! \brief Pure virtual function to read the data-object metadata.
+     *  \param[in] offset The trace number we are interested in.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the specific trace header.
+     *  \todo Extend this function to read more than one trace
+     */
+    virtual void readDOMD(const size_t offset, const size_t ns, uchar * ho) = 0;
+
+    /*! \brief Pure virtual function to write the data-object metadata.
+     *  \param[in] offset The trace number we are interested in.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the specific trace header.
+     *  \todo Extend this function to write more than one trace
+     */
+    virtual void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.

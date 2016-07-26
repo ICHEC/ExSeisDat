@@ -7,10 +7,16 @@
  *   \details
  *//*******************************************************************************************/
 #include "object/objsegy.hh"
-#include <memory>
+#include "share/segy.hh"
 #include "data/data.hh"
 namespace PIOL { namespace Obj {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////    Class functions    ///////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////      Constructor & Destructor      ///////////////////////////////
+
+//pragma to ignore unusued-paramter warnings here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt & segyOpt_, std::shared_ptr<Data::Interface> data_) : Interface(piol_, name_, data_)
@@ -22,6 +28,7 @@ SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt &
 }
 #pragma GCC diagnostic pop
 
+///////////////////////////////////       Member functions      ///////////////////////////////////
 void SEGY::readHO(uchar * ho)
 {
     data->read(0U, SEGSz::getHOSz(), ho);
@@ -31,4 +38,13 @@ void SEGY::writeHO(const uchar * ho)
     data->write(0U, SEGSz::getHOSz(), ho);
 }
 
+void SEGY::readDOMD(const size_t offset, const size_t ns, uchar * ho)
+{
+    data->read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), ho);
+}
+
+void SEGY::writeDOMD(const size_t offset, const size_t ns, const uchar * ho)
+{
+    data->write(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), ho);
+}
 }}

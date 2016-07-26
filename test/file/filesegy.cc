@@ -8,6 +8,7 @@
 #include "data/datampiio.hh"
 #include "object/objsegy.hh"
 #include "share/units.hh"
+#include "share/segy.hh"
 #define private public
 #define protected public
 #include "file/filesegy.hh"
@@ -28,6 +29,8 @@ class MockObj : public Obj::Interface
     MOCK_METHOD1(readHO, void(uchar *));
     MOCK_METHOD1(setFileSz, void(const size_t));
     MOCK_METHOD1(writeHO, void(const uchar *));
+    MOCK_METHOD3(readDOMD, void(const size_t, const size_t, uchar *));
+    MOCK_METHOD3(writeDOMD, void(const size_t, const size_t, const uchar *));
 };
 
 class FileIntegrationTest : public Test
