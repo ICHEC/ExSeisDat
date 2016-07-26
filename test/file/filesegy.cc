@@ -168,6 +168,66 @@ TEST_F(FileSEGYSpecTest, FileWriteAPI)
     piol->isErr();
 }
 
+TEST_F(FileSEGYSpecTest, FileWriteAPILongString)
+{
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initWriteMock(*mock.get(), how, nt, ns, inc, 5, testString);
+
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+    piol->isErr();
+
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mock, segy.obj);
+
+    segy.writeNt(nt);
+    piol->isErr();
+
+    segy.writeNs(ns);
+    piol->isErr();
+
+    segy.writeInc(geom_t(inc*SI::Micro));
+    piol->isErr();
+
+    //Extend the string beyond the text boundary
+    //Extended text should be dropped in write call
+    const size_t sz = testString.size();
+    const size_t extendSz = 3400U - sz;
+    testString.resize(sz + extendSz);
+    for (size_t i = 3200U; i < sz+extendSz; i++)
+        testString[i] = 0xFF;
+
+    segy.writeText(testString);
+    piol->isErr();
+}
+
+TEST_F(FileSEGYSpecTest, FileWriteAPIEmptyString)
+{
+    testString.resize(0);
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initWriteMock(*mock.get(), how, nt, ns, inc, 5, testString);
+
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+    piol->isErr();
+
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mock, segy.obj);
+
+    segy.writeNt(nt);
+    piol->isErr();
+
+    segy.writeNs(ns);
+    piol->isErr();
+
+    segy.writeInc(geom_t(inc*SI::Micro));
+    piol->isErr();
+
+    segy.writeText(testString);
+    piol->isErr();
+}
+
+
 typedef FileSEGYSpecTest FileSEGYDeathTest;
 
 TEST_F(FileSEGYDeathTest, FileWriteAPIBadns)
@@ -277,7 +337,7 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
 
 //TODO: Add test same as above for big files
 
-//Wrute test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+//Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYWriteHO)
 {
     SCOPED_TRACE("SEGYReadHO");
