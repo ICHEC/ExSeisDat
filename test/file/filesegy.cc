@@ -51,8 +51,6 @@ class FileIntegrationTest : public Test
 class FileSEGYSpecTest : public FileIntegrationTest
 {
     protected :
-    std::shared_ptr<MockObj> mockRead;
-    std::shared_ptr<MockObj> mockWrite;
     const size_t nt = 40U;
     const size_t ns = 200U;
     const int inc = 10;
@@ -61,8 +59,6 @@ class FileSEGYSpecTest : public FileIntegrationTest
     std::vector<uchar> how;
     FileSEGYSpecTest() : FileIntegrationTest()
     {
-        mockRead = std::make_shared<MockObj>(piol, notFile, nullptr);
-        mockWrite = std::make_shared<MockObj>(piol, notFile, nullptr);
         hor.resize(SEGSz::getHOSz());
         how.resize(SEGSz::getHOSz());
     }
@@ -92,14 +88,15 @@ void initReadMock(MockObj & mock, std::vector<uchar> & ho, size_t ns, size_t nt,
 
 TEST_F(FileSEGYSpecTest, FileReadAPI)
 {
-    initReadMock(*mockRead.get(), hor, ns, nt, inc, format, testString);
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initReadMock(*mock.get(), hor, ns, nt, inc, format, testString);
     ASSERT_TRUE(ns < 0x10000);
-    File::SEGY segy(piol, notFile, fileSegyOpt, mockRead);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     piol->isErr();
 
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mockRead, segy.obj);
+    EXPECT_EQ(mock, segy.obj);
     EXPECT_EQ(nt, segy.readNt());
     piol->isErr();
 
@@ -148,14 +145,15 @@ void initWriteMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns
 
 TEST_F(FileSEGYSpecTest, FileWriteAPI)
 {
-    initWriteMock(*mockWrite.get(), how, nt, ns, inc, 5, testString);
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initWriteMock(*mock.get(), how, nt, ns, inc, 5, testString);
 
-    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     piol->isErr();
 
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mockWrite, segy.obj);
+    EXPECT_EQ(mock, segy.obj);
 
     segy.writeNt(nt);
     piol->isErr();
@@ -170,16 +168,18 @@ TEST_F(FileSEGYSpecTest, FileWriteAPI)
     piol->isErr();
 }
 
-TEST_F(FileSEGYSpecTest, FileWriteAPIBadns)
+typedef FileSEGYSpecTest FileSEGYDeathTest;
+
+TEST_F(FileSEGYDeathTest, FileWriteAPIBadns)
 {
-    EXPECT_CALL(*mockWrite.get(), getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+    auto mock = std::make_shared<NiceMock<MockObj>>(piol, notFile, nullptr);
     size_t badns = 0x470000;
-    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     piol->isErr();
 
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mockWrite, segy.obj);
+    EXPECT_EQ(mock, segy.obj);
 
     segy.writeNt(nt);
     piol->isErr();
@@ -190,23 +190,23 @@ TEST_F(FileSEGYSpecTest, FileWriteAPIBadns)
     segy.writeText(testString);
     piol->isErr();
 
-    mockWrite.reset();
-
     segy.writeNs(badns);
+
+    mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
 #ifdef NT_LIMITS
-TEST_F(FileSEGYSpecTest, FileWriteAPIBadnt)
+TEST_F(FileSEGYDeathTest, FileWriteAPIBadnt)
 {
-    EXPECT_CALL(*mockWrite.get(), getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+    auto mock = std::make_shared<NiceMock<MockObj>>(piol, notFile, nullptr);
     size_t badnt = NT_LIMITS + 1;
-    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     piol->isErr();
 
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mockWrite, segy.obj);
+    EXPECT_EQ(mock, segy.obj);
 
     segy.writeInc(geom_t(inc*SI::Micro));
     piol->isErr();
@@ -217,23 +217,23 @@ TEST_F(FileSEGYSpecTest, FileWriteAPIBadnt)
     segy.writeNs(ns);
     piol->isErr();
 
-    mockWrite.reset();
-
     segy.writeNt(badnt);
+
+    mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 #endif
 
-TEST_F(FileSEGYSpecTest, FileWriteAPIBadInc)
+TEST_F(FileSEGYDeathTest, FileWriteBadInc)
 {
-    EXPECT_CALL(*mockWrite.get(), getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+    auto mock = std::make_shared<NiceMock<MockObj>>(piol, notFile, nullptr);
     geom_t badinc = geom_t(1)/geom_t(0);
-    File::SEGY segy(piol, notFile, fileSegyOpt, mockWrite);
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     piol->isErr();
 
     EXPECT_EQ(piol, segy.piol);
     EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mockWrite, segy.obj);
+    EXPECT_EQ(mock, segy.obj);
 
     segy.writeNt(nt);
     piol->isErr();
@@ -246,8 +246,7 @@ TEST_F(FileSEGYSpecTest, FileWriteAPIBadInc)
 
     segy.writeInc(badinc);
 
-    mockWrite.reset();
-
+    mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 //TODO: Test Null text
