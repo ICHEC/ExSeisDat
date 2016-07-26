@@ -16,15 +16,15 @@ namespace PIOL {
  *  \tparam OBase The base class
  *  \tparam ODeriv The derived class
  *  \param[in] piol The PIOL object used for error logging
- *  \param[in] opt The options object (in base class type)
+ *  \param[in] bopt The options object (in base class type)
  *  \param[in] name The name of the file associated with the object
  *  \param[in] layer The layer of ExSeisPIOL for logging purposes
  *  \return Returns a pointer to the derived options object
  */
 template <class ODeriv, class OBase> inline
-const ODeriv * castOptToDeriv(ExSeisPIOL & piol, const OBase & opt, const std::string name, const Log::Layer layer)
+const ODeriv * castOptToDeriv(ExSeisPIOL & piol, const OBase & bopt, const std::string name, const Log::Layer layer)
 {
-    auto opt = dynamic_cast<ODeriv const *>(&opt);
+    auto opt = dynamic_cast<ODeriv const *>(&bopt);
     if (opt == nullptr)
         piol.record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
     return opt;

@@ -19,7 +19,7 @@ T getHostShort(const uchar * src)
  *  \param[in] src The input 4 byte type with host endianness
  *  \param[out] dst A pointer to 4 bytes of data where the big endian
  *  short is stored.
- *  \details
+ *  \details Big endian means dst[0] holds the most significant byte and d[3] the least.
  */
 //template <typename T,
 //typename std::enable_if<sizeof(T) == 4U, T>::type = 0 >
@@ -37,6 +37,7 @@ void getBigEndian(uchar * dst, T src)
  *  \param[in] src The input short with host endianness
  *  \param[out] dst A pointer to 2 bytes of data where the big endian
  *  short is stored.
+ *  \details Big endian means dst[0] holds the most significant byte and d[1] the least.
  */
 template <typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
 void getBigEndian(const T src, uchar * dst)
