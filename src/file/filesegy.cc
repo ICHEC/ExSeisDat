@@ -26,20 +26,96 @@ namespace PIOL { namespace File {
  */
 enum class Hdr : size_t
 {
-    Increment  = 3217U, //!< Short. The increment between traces in microseconds
-    NumSample  = 3221U, //!< Short. The Numbe of samples per trace
-    Type       = 3225U, //!< Short. Trace data type. AKA format in SEGY terminology
-    Sort       = 3229U, //!< Short. The sort order of the traces.
-    Units      = 3255U, //!< Short. The unit system, i.e SI or imperial.
-    SEGYFormat = 3501U, //!< Short. The SEG-Y Revision number
-    FixedTrace = 3503U, //!< Short. Whether we are using fixed traces or not.
-    Extensions = 3505U, //!< Short. If we use header extensions or not.
+    Increment  = 3217U, //!< int16_t. The increment between traces in microseconds
+    NumSample  = 3221U, //!< int16_t. The Numbe of samples per trace
+    Type       = 3225U, //!< int16_t. Trace data type. AKA format in SEGY terminology
+    Sort       = 3229U, //!< int16_t. The sort order of the traces.
+    Units      = 3255U, //!< int16_t. The unit system, i.e SI or imperial.
+    SEGYFormat = 3501U, //!< int16_t. The SEG-Y Revision number
+    FixedTrace = 3503U, //!< int16_t. Whether we are using fixed traces or not.
+    Extensions = 3505U, //!< int16_t. If we use header extensions or not.
 };
 
-/*! \brief Get the header metadata value corresponding to the item specified
- *  \param[in] item The header item of interest
- *  \param[in] src The buffer of the header object
- *  \return Return the header item value
+enum class TrHdr : size_t
+{
+    SeqNum      = 1U,   //!< int32_t. The trace sequence number within the Line
+    SeqFNum     = 5U,   //!< int32_t. The trace sequence number within SEG-Y File
+    ORF         = 9U,   //!< int32_t. The original field record number.
+    TORF        = 9U  //!< int32_t. The trace number within the ORF.
+};
+
+enum class TrElev : size_t
+{
+    RcvElv      = 41U,  //!< int32_t. The Receiver group elevation
+    SurfElvSrc  = 45U,  //!< int32_t. The surface elevation at the source.
+    SrcDpthSurf = 49U,  //!< int32_t. The source depth below surface (opposite of above?).
+    DtmElvRcv   = 53U,  //!< int32_t. The datum elevation for the receiver group.
+    DtmElvSrc   = 57U,  //!< int32_t. The datum elevation for the source.
+    WtrDepSrc   = 61U,  //!< int32_t. The water depth for the source.
+    WtrDepRcv   = 65U  //!< int32_t. The water depth for the receive group.
+};
+
+enum class TrScal : size_t
+{
+    ScaleElev   = 69U,  //!< int16_t. The scale coordinate for 41-68 (elevations + depths)
+    ScaleCoord  = 71U  //!< int16_t. The scale coordinate for 73-88 + 181-188
+};
+
+enum class TrCrd : size_t
+{
+    xSrc        = 73U,  //!< int32_t. The X coordinate for the source
+    ySrc        = 77U,  //!< int32_t. The Y coordinate for the source
+    xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
+    yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
+    xCDP        = 181U, //!< int32_t  The X coordinate for the CDP
+    yCDP        = 185U //!< int32_t. The Y coordinate for the CDP
+};
+
+enum class TrGrd : size_t
+{
+    iLin        = 189U, //!< int32_t. The Inline grid point.
+    xLin        = 193U //!< int32_t. The Crossline grid point.
+};
+
+#ifndef __ICC
+constexpr
+#else
+inline
+#endif
+std::pair<TrCrd, TrCrd> getPair(Coord pair)
+{
+    switch (pair)
+    {
+        case Coord::Src :
+            return std::make_pair(TrCrd::xSrc, TrCrd::ySrc);
+        case Coord::Rcv :
+            return std::make_pair(TrCrd::xRcv, TrCrd::yRcv);
+        case Coord::Cmp :
+            return std::make_pair(TrCrd::xCDP, TrCrd::yCDP);
+    }
+}
+
+#ifndef __ICC
+constexpr
+#else
+inline
+#endif
+std::pair<TrGrd, TrGrd> getPair(Grid pair)
+{
+    switch (pair)
+    {
+//Note: When a new set of grid points are required:
+//        case Grid::OFR :
+//            return std::make_pair(TrHdr::ORF, TrHdr::TORF);
+        case Grid::Line :
+            return std::make_pair(TrGrd::iLin, TrGrd::xLin);
+    }
+}
+
+/*! \brief Get the header metadata value from the binary header.
+ *  \param[in] item The header item of interest.
+ *  \param[in] src The buffer of the header object.
+ *  \return Return the header item value.
  */
 template <class T = int16_t>
 T getMd(const Hdr item, const uchar * src)
@@ -53,11 +129,50 @@ T getMd(const Hdr item, const uchar * src)
         case Hdr::SEGYFormat :
         case Hdr::FixedTrace :
         case Hdr::Extensions :
-        return T(getHostShort(&src[static_cast<size_t>(item)-1U]));
+        return T(getHost<int16_t>(&src[size_t(item)-1U]));
         default :
         return T(0);
         break;
     }
+}
+
+/*! \brief Get the specified scale multipler from the Trace header.
+ *  \param[in] scal The scalar of interest.
+ *  \param[in] src The buffer of the header object.
+ *  \return Return the scalar value.
+ *
+ *  \details If the integer value on disk is negative, the inverse
+ *  of the absolute value is returned. If the value is zero,
+ *  1 is returned, otherwise the value is returned. No check is done
+ *  to ensure other restrictions are in place (i.e 1, 10, 1000 etc).
+ */
+geom_t getMd(const TrScal scal, uchar * src)
+{
+    int32_t scale = getHost<int32_t>(&src[size_t(scal)-1U]);
+    scale = (!scale ? 1 : scale);
+    geom_t rs = (scale > 0 ? geom_t(scale) : geom_t(1)/geom_t(-scale));
+    return rs;
+}
+
+/*! \brief Get the specified coordinate from the Trace header.
+ *  \param[in] item The specific coordinate to get
+ *  \param[in] scale The scale factor
+ *  \param[in] src The buffer of the header object.
+ *  \return Return the coordinate
+ */
+geom_t getMd(const TrCrd item, const geom_t scale, const uchar * src)
+{
+    return scale * geom_t(getHost<int32_t>(&src[size_t(item)-1U]));
+}
+
+/*! \brief Get the specified grid component from the Trace header.
+ *  \param[in] item The specific grid component to get.
+ *  \param[in] src The buffer of the header object.
+ *  \return Return the grid component (two components make a grid point).
+ */
+int32_t getMd(const TrGrd item, const uchar * src)
+{
+    return getHost<int32_t>(&src[size_t(item)-1U]);
 }
 
 /*! \brief Set the header metadata value corresponding to the item specified
@@ -126,6 +241,56 @@ SEGY::~SEGY(void)
 }
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
+void SEGY::packHeader(uchar * buf)
+{
+    for (size_t i = 0; i < text.size(); i++)
+        buf[i] = text[i];
+
+    setMd(Hdr::NumSample, buf, int16_t(ns));
+    setMd(Hdr::Type,      buf, int16_t(Format::IEEE));
+    setMd(Hdr::Increment, buf, int16_t(std::lround(inc / incFactor)));
+
+//Currently these are hard-coded entries:
+    setMd(Hdr::Units,      buf, 0x0001);    //The unit system.
+    setMd(Hdr::SEGYFormat, buf, 0x0100);    //The version of the SEGY format.
+    setMd(Hdr::FixedTrace, buf, 0x0001);    //We always deal with fixed traces at present.
+    setMd(Hdr::Extensions, buf, 0x0000);    //We do not support text extensions at present.
+}
+
+void SEGY::procHeader(const size_t fsz, uchar * buf)
+{
+    obj->readHO(buf);
+    ns = getMd(Hdr::NumSample, buf);
+    nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
+    inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
+    format = static_cast<Format>(getMd(Hdr::Type, buf));
+
+    getAscii(piol, name, buf, SEGSz::getTextSz());
+    for (size_t i = 0U; i < SEGSz::getTextSz(); i++)
+        text.push_back(buf[i]);
+}
+
+void SEGY::Init(const File::SEGYOpt & segyOpt)
+{
+    incFactor = segyOpt.incFactor;
+    memset(&state, 0, sizeof(Flags));
+    size_t hoSz = SEGSz::getHOSz();
+    size_t fsz = obj->getFileSz();
+    if (fsz >= hoSz)
+    {
+        auto buf = std::make_unique<uchar[]>(hoSz);
+        procHeader(fsz, buf.get());
+    }
+    else
+    {
+        ns = 0U;
+        nt = 0U;
+        inc = geom_t(0);
+        text = "";
+        state.writeHO = true;
+    }
+}
+
 void SEGY::writeText(const std::string text_)
 {
     if (text != text_)
@@ -199,53 +364,36 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-void SEGY::packHeader(uchar * buf)
+coord_t SEGY::readCoordPoint(const Coord item, const size_t i)
 {
-    for (size_t i = 0; i < text.size(); i++)
-        buf[i] = text[i];
+    std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
+    uchar * md = buf.data();
+    obj->readDOMD(i, ns, md);
 
-    setMd(Hdr::NumSample, buf, int16_t(ns));
-    setMd(Hdr::Type,      buf, int16_t(Format::IEEE));
-    setMd(Hdr::Increment, buf, int16_t(std::lround(inc / incFactor)));
+    geom_t scale = getMd(TrScal::ScaleCoord, md);
 
-//Currently these are hard-coded entries:
-    setMd(Hdr::Units,      buf, 0x0001);    //The unit system.
-    setMd(Hdr::SEGYFormat, buf, 0x0100);    //The version of the SEGY format.
-    setMd(Hdr::FixedTrace, buf, 0x0001);    //We always deal with fixed traces at present.
-    setMd(Hdr::Extensions, buf, 0x0000);    //We do not support text extensions at present.
+    auto pair = getPair(item);
+    return coord_t(getMd(pair.first, scale, md),
+                   getMd(pair.second, scale, md));
 }
 
-void SEGY::procHeader(const size_t fsz, uchar * buf)
+grid_t SEGY::readGridPoint(const Grid item, const size_t i)
 {
-    obj->readHO(buf);
-    ns = getMd(Hdr::NumSample, buf);
-    nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
-    inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
-    format = static_cast<Format>(getMd(Hdr::Type, buf));
+    std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
+    uchar * md = buf.data();
+    obj->readDOMD(i, ns, md);
 
-    getAscii(piol, name, buf, SEGSz::getTextSz());
-    for (size_t i = 0U; i < SEGSz::getTextSz(); i++)
-        text.push_back(buf[i]);
+    auto pair = getPair(item);
+    return std::make_pair(getHost<int32_t>(&md[size_t(pair.first)]),
+                          getHost<int32_t>(&md[size_t(pair.second)]));
 }
 
-void SEGY::Init(const File::SEGYOpt & segyOpt)
+#warning Continue...
+void SEGY::writeCoordPoint(const Coord item, const size_t i, const coord_t coord)
 {
-    incFactor = segyOpt.incFactor;
-    memset(&state, 0, sizeof(Flags));
-    size_t hoSz = SEGSz::getHOSz();
-    size_t fsz = obj->getFileSz();
-    if (fsz >= hoSz)
-    {
-        auto buf = std::make_unique<uchar[]>(hoSz);
-        procHeader(fsz, buf.get());
-    }
-    else
-    {
-        ns = 0U;
-        nt = 0U;
-        inc = geom_t(0);
-        text = "";
-        state.writeHO = true;
-    }
+}
+
+void SEGY::writeGridPoint(const Grid item, const size_t i, const grid_t grid)
+{
 }
 }}

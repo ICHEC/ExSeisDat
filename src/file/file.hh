@@ -13,6 +13,22 @@
 #include "object/object.hh"
 #include "data/data.hh"
 namespace PIOL { namespace File {
+
+typedef std::pair<geom_t, geom_t> coord_t;
+typedef std::pair<llint, llint> grid_t;
+
+enum class Coord : size_t
+{
+    Src,
+    Rcv,
+    Cmp
+};
+
+enum class Grid : size_t
+{
+    Line
+};
+
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
  */
@@ -74,6 +90,54 @@ class Interface
     {
         return inc;
     }
+
+    /*! \brief Pure virtual function to read the ith-trace coordinate pair
+     *  \param[in] item The coordinate pair of interest
+     *  \param[in] i The trace number
+     *  \return The ith-trace coordinate pair
+     */
+    virtual coord_t readCoordPoint(const Coord item, const size_t i) = 0;
+
+    /*! \brief Pure virtual function to read the ith grid pair
+     *  \param[in] item The Grid pair of interest
+     *  \param[in] i The trace number
+     *  \return The ith-trace grid pair
+     */
+    virtual grid_t readGridPoint(const Grid item, const size_t i) = 0;
+
+    /*! \brief Pure virtual function to write the human readable text from the file.
+     *  \param[in] text_ The new string containing the text (in ASCII format).
+     */
+    virtual void writeText(const std::string text_) = 0;
+
+    /*! \brief Pure virtual function to write the number of samples per trace
+     *  \param[in] ns_ The new number of samples per trace.
+     */
+    virtual void writeNs(const size_t ns_) = 0;
+
+    /*! \brief Pure virtual function to write the number of traces in the file
+     *  \param[in] nt_ The new number of traces.
+     */
+    virtual void writeNt(const size_t nt_) = 0;
+
+    /*! \brief Pure virtual function to write the number of increment between trace samples.
+     *  \param[in] inc_ The new increment between trace samples.
+     */
+    virtual void writeInc(const geom_t inc_) = 0;
+
+    /*! \brief Pure virtual function to write the ith-trace coordinate pair.
+     *  \param[in] item The coordinate pair of interest
+     *  \param[in] i The trace number.
+     *  \param[in] coord The coordinate to write
+     */
+    virtual void writeCoordPoint(const Coord item, const size_t i, const coord_t coord) = 0;
+
+    /*! \brief Pure virtual function to write the ith-trace grid pair.
+     *  \param[in] item The Grid pair of interest
+     *  \param[in] i The trace number.
+     *  \param[in] grid the grid point to write.
+     */
+    virtual void writeGridPoint(const Grid item, const size_t i, const grid_t grid) = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the file layer.

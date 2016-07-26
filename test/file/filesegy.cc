@@ -89,12 +89,27 @@ void initReadMock(MockObj & mock, std::vector<uchar> & ho, size_t ns, size_t nt,
     EXPECT_CALL(mock, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 }
 
+void CompileCheck(File::Interface & file)
+{
+    size_t nt = file.readNt();
+    size_t ns = file.readNs();
+    std::string text = file.readText();
+    geom_t inc = file.readInc();
+
+    file.writeNt(nt);
+    file.writeNs(ns);
+    file.writeText(text);
+    file.writeInc(inc);
+}
+
 TEST_F(FileSEGYSpecTest, FileReadAPI)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
     initReadMock(*mock.get(), hor, ns, nt, inc, format, testString);
     ASSERT_TRUE(ns < 0x10000);
+
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+
     piol->isErr();
 
     EXPECT_EQ(piol, segy.piol);
@@ -198,7 +213,7 @@ TEST_F(FileSEGYSpecTest, FileWriteAPILongString)
     const size_t extendSz = 3400U - sz;
     testString.resize(sz + extendSz);
     for (size_t i = 3200U; i < sz+extendSz; i++)
-        testString[i] = 0xFF;
+        testString[i] = uchar(0xFF);
 
     segy.writeText(testString);
     piol->isErr();
@@ -363,17 +378,19 @@ TEST_F(FileIntegrationTest, SEGYWriteHO)
 
         obj = segy.obj;         //steal object layer for read
     }
-    File::SEGY segy(piol, outFile, fileSegyOpt, obj);
+    {
+        File::SEGY segy(piol, outFile, fileSegyOpt, obj);
 
-    EXPECT_EQ(ns, segy.readNs());
-    piol->isErr();
-    EXPECT_EQ(nt, segy.readNt());
-    piol->isErr();
+        EXPECT_EQ(ns, segy.readNs());
+        piol->isErr();
+        EXPECT_EQ(nt, segy.readNt());
+        piol->isErr();
 
-    std::string temp = segy.readText();
-    piol->isErr();
-    ASSERT_TRUE(testString.size() <= temp.size());
-    for (size_t i = 0; i < testString.size(); i++)
-        EXPECT_EQ(testString[i], temp[i]);
+        std::string temp = segy.readText();
+        piol->isErr();
+        ASSERT_TRUE(testString.size() <= temp.size());
+        for (size_t i = 0; i < testString.size(); i++)
+            EXPECT_EQ(testString[i], temp[i]);
+    }
 }
 

@@ -53,7 +53,11 @@ class SEGY : public Interface
      */
     void procHeader(const size_t fsz, uchar * buf);
 
+    /*! \brief This function packs the state of the class object into the header.
+     *  \param[in] buf The header object buffer
+     */
     void packHeader(uchar * buf);
+
     /*! \brief This function initialises the class.
      */
     void Init(const File::SEGYOpt & segyOpt);
@@ -81,6 +85,20 @@ class SEGY : public Interface
      */
     ~SEGY(void);
 
+    /*! \brief Read the ith-trace coordinate pair
+     *  \param[in] item The coordinate pair of interest
+     *  \param[in] i The trace number
+     *  \return The ith-trace coordinate pair
+     */
+    coord_t readCoordPoint(const Coord item, const size_t i);
+
+    /*! \brief Read the ith grid pair
+     *  \param[in] item The Grid pair of interest
+     *  \param[in] i The trace number
+     *  \return The ith-trace grid pair
+     */
+    grid_t readGridPoint(const Grid item, const size_t i);
+
     /*! \brief Write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
      */
@@ -100,6 +118,20 @@ class SEGY : public Interface
      *  \param[in] inc_ The new increment between trace samples.
      */
     void writeInc(const geom_t inc_);
+
+    /*! \brief Write the ith-trace coordinate pair.
+     *  \param[in] item The coordinate pair of interest
+     *  \param[in] i The trace number.
+     *  \param[in] coord The coordinate to write
+     */
+    void writeCoordPoint(const Coord item, const size_t i, const coord_t coord);
+
+    /*! \brief Write the ith-trace grid pair.
+     *  \param[in] item The Grid pair of interest
+     *  \param[in] i The trace number.
+     *  \param[in] grid the grid point to write.
+     */
+    void writeGridPoint(const Grid item, const size_t i, const grid_t grid);
 };
 }}
 #endif

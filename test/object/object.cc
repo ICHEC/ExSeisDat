@@ -24,6 +24,8 @@ class ObjectTest : public Test
     }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 //FakeObject to test the constructor of the abstract Interface class
 struct FakeObject : public Obj::Interface
 {
@@ -48,6 +50,7 @@ struct FakeObject : public Obj::Interface
 
     void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) {}
 };
+#pragma GCC diagnostic pop
 
 //In this test we pass the MPI-IO Data Options class.
 //We do not use a valid name as we are not interested in the result

@@ -7,11 +7,19 @@ namespace PIOL {
  *  the least significant. Shift src[0] to be in the position of the most significant byte
  *  and OR it with src[1] which is not shifted (as it is the least significant byte.
  */
-template <typename T = int16_t>
-T getHostShort(const uchar * src)
+template <typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
+T getHost(const uchar * src)
 {
     return (T(src[0]) << 8) |
             T(src[1]);
+}
+template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
+T getHost(const uchar * src)
+{
+    return (T(src[0]) << 24) |
+           (T(src[1]) << 16) |
+           (T(src[2]) << 8) |
+            T(src[3]);
 }
 
 /*! \brief Convert a 4 byte \c char array in big endian to a host 4 byte type

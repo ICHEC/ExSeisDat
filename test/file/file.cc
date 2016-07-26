@@ -26,6 +26,8 @@ class FileTest : public Test
     }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 //FakeFile to test the constructor of the abstract Interface class
 struct FakeFile : public File::Interface
 {
@@ -44,7 +46,17 @@ struct FakeFile : public File::Interface
         nt = 1101U;
         ns = 1010U;
     }
+
+    File::coord_t readCoordPoint(File::Coord item, const size_t i) { return std::make_pair<geom_t, geom_t>(0, 0); }
+    File::grid_t readGridPoint(File::Grid item, const size_t i) { return std::make_pair<llint, llint>(llint(0), llint(0)); }
+    void writeText(const std::string text_) {}
+    void writeNs(const size_t ns_) {}
+    void writeNt(const size_t nt_) {}
+    void writeInc(const geom_t inc_) {}
+    void writeCoordPoint(File::Coord item, const size_t i, const File::coord_t coord) {}
+    void writeGridPoint(File::Grid item, const size_t i, const File::grid_t grid) {}
 };
+#pragma GCC diagnostic pop
 
 void compareConstructor(ExSeisPIOL * piol, FakeFile & fake)
 {
