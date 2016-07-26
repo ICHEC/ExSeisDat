@@ -81,23 +81,23 @@ class SEGY : public Interface
      */
     ~SEGY(void);
 
-    /*! \brief Read the human readable text from the file
-     *  \return A string containing the text (in ASCII format)
+    /*! \brief Write the human readable text from the file.
+     *  \param[in] text_ The new string containing the text (in ASCII format).
      */
     void writeText(const std::string text_);
 
-    /*! \brief Read the number of samples per trace
-     *  \return The number of samples per trace
+    /*! \brief Write the number of samples per trace
+     *  \param[in] ns_ The new number of samples per trace.
      */
     void writeNs(const size_t ns_);
 
-    /*! \brief Read the number of traces in the file
-     *  \return The number of traces
+    /*! \brief Write the number of traces in the file
+     *  \param[in] nt_ The new number of traces.
      */
     void writeNt(const size_t nt_);
 
-    /*! \brief Read the number of increment between trace samples
-     *  \return The increment between trace samples
+    /*! \brief Write the number of increment between trace samples.
+     *  \param[in] inc_ The new increment between trace samples.
      */
     void writeInc(const geom_t inc_);
 };

@@ -31,6 +31,7 @@ static MPI_File open(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, con
  *  \tparam U The C++ equivalent for the file datatype (see MPI spec)
  *  \param[in] file The MPI file handle
  *  \param[in] offset The offset from the beginning of the file.
+ *  \return Returns the MPI error code from MPI_File_set_view
  */
 template <typename T, typename U=T>
 int setView(const MPI_File file, const MPI_Offset offset = 0)
@@ -91,8 +92,10 @@ void MPIIO::setFileSz(const size_t sz)
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
 }
 
+/*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
+ */
 template <typename U>
-using MFp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *); //!< This allows us to refer to MPI functions more compactly
+using MFp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
 
 /*! \brief The MPI-IO inline template function for reading and writing
  *  \tparam T The type of the array being read to or from.
@@ -104,6 +107,8 @@ using MFp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *); //!< 
  *  \param[in] sz The number of elements to read or write
  *  \param[in] arg The last argument of the MPI_File_... function
  *  \param[in] max The maximum size to read or write at once
+ *  \return Returns the MPI error code. MPI_SUCCESS for success,
+ *  MPI_ERR_IN_STATUS means the status structure should be checked.
  *
  * This function does not currently take into account collective MPI calls
  * which would have issues with the number of operations being the same for each process
@@ -135,7 +140,15 @@ void MPIIO::read(const size_t offset, const size_t sz, uchar * d)
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 
-//Function to hide const
+/*! \brief This function exists to hide the const from the MPI_File_write_at function signature
+ *  \param[in] f The MPI file handle
+ *  \param[in] o The offset in bytes from the current internal shared pointer
+ *  \param[in] d The array to read data output from
+ *  \param[in] s The amount of data to write to disk in terms of datatypes
+ *  \param[in] da The MPI datatype
+ *  \param[in] st The MPI status structure
+ *  \return Returns the associated MPI error code.
+ */
 int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st)
 {
     return MPI_File_write_at(f, o, d, s, da, st);

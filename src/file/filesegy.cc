@@ -37,14 +37,14 @@ enum class Hdr : size_t
 };
 
 /*! \brief Get the header metadata value corresponding to the item specified
- *  \param[in] val The header item of interest
- *  \param[in] buf The buffer of the header object
+ *  \param[in] item The header item of interest
+ *  \param[in] src The buffer of the header object
  *  \return Return the header item value
  */
-template <class T = int>
-T getMd(const Hdr val, const uchar * buf)
+template <class T = int16_t>
+T getMd(const Hdr item, const uchar * src)
 {
-    switch (val)
+    switch (item)
     {
         case Hdr::Increment :
         case Hdr::Type :
@@ -53,22 +53,23 @@ T getMd(const Hdr val, const uchar * buf)
         case Hdr::SEGYFormat :
         case Hdr::FixedTrace :
         case Hdr::Extensions :
-        return T(getHostShort(&buf[static_cast<size_t>(val)-1U]));
+        return T(getHostShort(&src[static_cast<size_t>(item)-1U]));
         default :
         return T(0);
         break;
     }
 }
 
-/*! \brief Get the header metadata value corresponding to the item specified
- *  \param[in] val The header item of interest
- *  \param[in] buf The buffer of the header object
+/*! \brief Set the header metadata value corresponding to the item specified
+ *  \param[in] item The header item of interest
+ *  \param[in] dst The header as an array of uchar.
+ *  \param[in] src The metadata value to insert into the buffer.
  *  \return Return the header item value
  */
 template <typename T = int16_t>
-void setMd(Hdr val, uchar * dst, T src)
+void setMd(Hdr item, uchar * dst, T src)
 {
-    switch (val)
+    switch (item)
     {
         case Hdr::Increment :
         case Hdr::Type :
@@ -77,7 +78,7 @@ void setMd(Hdr val, uchar * dst, T src)
         case Hdr::SEGYFormat :
         case Hdr::FixedTrace :
         case Hdr::Extensions :
-        getBigEndian<int16_t>(src, &dst[static_cast<size_t>(val)-1U]);
+        getBigEndian<int16_t>(src, &dst[static_cast<size_t>(item)-1U]);
         default :
         break;
     }

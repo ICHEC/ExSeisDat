@@ -4,23 +4,41 @@
  *   \copyright TBD. Do not distribute
  *   \date July 2016
  *   \brief
- *   \details
+ *   \details The intention is to make this obselete very soon
  *//*******************************************************************************************/
 #ifndef PIOLSHARECASTS_INCLUDE_GUARD
 #define PIOLSHARECASTS_INCLUDE_GUARD
 #include <string>
 #include "anc/piol.hh"
 namespace PIOL {
-template <class ODeriv, class OBase>
-ODeriv const * castOptToDeriv(ExSeisPIOL & piol, const OBase & Opt, const std::string name, const Log::Layer layer)
+
+/*! \brief Cast the options object to a derived class type and error check the cast.
+ *  \tparam OBase The base class
+ *  \tparam ODeriv The derived class
+ *  \param[in] piol The PIOL object used for error logging
+ *  \param[in] opt The options object (in base class type)
+ *  \param[in] name The name of the file associated with the object
+ *  \param[in] layer The layer of ExSeisPIOL for logging purposes
+ *  \return Returns a pointer to the derived options object
+ */
+template <class ODeriv, class OBase> inline
+const ODeriv * castOptToDeriv(ExSeisPIOL & piol, const OBase & opt, const std::string name, const Log::Layer layer)
 {
-    auto opt = dynamic_cast<ODeriv const *>(&Opt);
+    auto opt = dynamic_cast<ODeriv const *>(&opt);
     if (opt == nullptr)
         piol.record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
     return opt;
 }
-
-template <class TBase, class TDeriv>
+/*! \brief Cast the derived class to its base class within a shared_ptr
+ *  \tparam TBase   The base class
+ *  \tparam TDeriv  The derived class
+ *  \param[in] piol The PIOL object used for error logging
+ *  \param[in] layObj The object in derived class type
+ *  \param[in] name The name of the file associated with the object
+ *  \param[in] layer The layer of ExSeisPIOL for logging purposes
+ *  \return Returns a shared ptr to the object case to the base class
+ */
+template <class TBase, class TDeriv> inline
 std::shared_ptr<TBase> castToBase(ExSeisPIOL & piol, TDeriv * layObj, const std::string name, const Log::Layer layer)
 {
     if (layObj != nullptr)
