@@ -14,19 +14,23 @@
 #include "data/data.hh"
 namespace PIOL { namespace File {
 
-typedef std::pair<geom_t, geom_t> coord_t;
-typedef std::pair<llint, llint> grid_t;
+typedef std::pair<geom_t, geom_t> coord_t;  //!< The type for coordinate points
+typedef std::pair<llint, llint> grid_t;     //!< The type for grid points
 
+/*! \brief Possible coordinate sets
+ */
 enum class Coord : size_t
 {
-    Src,
-    Rcv,
-    Cmp
+    Src,    //!< Source Coordinates
+    Rcv,    //!< Receiver Coordinates
+    Cmp     //!< Common Midpoint Coordinates
 };
 
+/*! \brief Possible Grids
+ */
 enum class Grid : size_t
 {
-    Line
+    Line    //!< Inline/Crossline grid points
 };
 
 /*! \brief The File layer interface. Specific File implementations

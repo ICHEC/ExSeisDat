@@ -35,15 +35,18 @@ enum class Hdr : size_t
     FixedTrace = 3503U, //!< int16_t. Whether we are using fixed traces or not.
     Extensions = 3505U, //!< int16_t. If we use header extensions or not.
 };
-
+/*! Misc Trace Header offsets
+ */
 enum class TrHdr : size_t
 {
     SeqNum      = 1U,   //!< int32_t. The trace sequence number within the Line
     SeqFNum     = 5U,   //!< int32_t. The trace sequence number within SEG-Y File
     ORF         = 9U,   //!< int32_t. The original field record number.
-    TORF        = 9U  //!< int32_t. The trace number within the ORF.
+    TORF        = 9U    //!< int32_t. The trace number within the ORF.
 };
 
+/*! Trace Header offsets to elevations
+ */
 enum class TrElev : size_t
 {
     RcvElv      = 41U,  //!< int32_t. The Receiver group elevation
@@ -52,15 +55,19 @@ enum class TrElev : size_t
     DtmElvRcv   = 53U,  //!< int32_t. The datum elevation for the receiver group.
     DtmElvSrc   = 57U,  //!< int32_t. The datum elevation for the source.
     WtrDepSrc   = 61U,  //!< int32_t. The water depth for the source.
-    WtrDepRcv   = 65U  //!< int32_t. The water depth for the receive group.
+    WtrDepRcv   = 65U   //!< int32_t. The water depth for the receive group.
 };
 
+/*! Trace Header offsets to scalers
+ */
 enum class TrScal : size_t
 {
     ScaleElev   = 69U,  //!< int16_t. The scale coordinate for 41-68 (elevations + depths)
-    ScaleCoord  = 71U  //!< int16_t. The scale coordinate for 73-88 + 181-188
+    ScaleCoord  = 71U   //!< int16_t. The scale coordinate for 73-88 + 181-188
 };
 
+/*! Trace Header offsets to coordinates
+ */
 enum class TrCrd : size_t
 {
     xSrc        = 73U,  //!< int32_t. The X coordinate for the source
@@ -68,15 +75,21 @@ enum class TrCrd : size_t
     xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
     yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
     xCDP        = 181U, //!< int32_t  The X coordinate for the CDP
-    yCDP        = 185U //!< int32_t. The Y coordinate for the CDP
+    yCDP        = 185U  //!< int32_t. The Y coordinate for the CDP
 };
 
+/*! Trace Header offsets to grid components
+ */
 enum class TrGrd : size_t
 {
     iLin        = 189U, //!< int32_t. The Inline grid point.
-    xLin        = 193U //!< int32_t. The Crossline grid point.
+    xLin        = 193U  //!< int32_t. The Crossline grid point.
 };
 
+/*! \brief Return a pair of coordinate offsets
+ *  \param[in] pair The coordinate point type to return
+ *  \return The pair of offset enums
+ */
 #ifndef __ICC
 constexpr
 #else
@@ -95,6 +108,10 @@ std::pair<TrCrd, TrCrd> getPair(Coord pair)
     }
 }
 
+/*! \brief Return a pair of grid offsets
+ *  \param[in] pair The grid point type to return
+ *  \return The pair of offset enums
+ */
 #ifndef __ICC
 constexpr
 #else
