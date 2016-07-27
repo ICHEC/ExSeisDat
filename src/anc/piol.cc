@@ -20,11 +20,11 @@ ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
     {
         case Comm::Type::MPI :
         {
-            auto mpiOpt = castOptToDeriv<Comm::MPIOpt, Comm::Opt>(*this, comOpt, "", Log::Layer::PIOL);
+            auto mpiOpt = castOptToDeriv<Comm::MPIOpt, Comm::Opt>(this, comOpt, "", Log::Layer::PIOL);
             if (mpiOpt == nullptr)
                 return;
             auto mpicomm = new Comm::MPI(*mpiOpt);
-            comm = castToBase<Comm::Interface, Comm::MPI>(*this, mpicomm, "", Log::Layer::PIOL);
+            comm = castToBase<Comm::Interface, Comm::MPI>(this, mpicomm, "", Log::Layer::PIOL);
             if (comm == nullptr)
                 return;
         }

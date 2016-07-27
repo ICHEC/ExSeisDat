@@ -31,7 +31,7 @@ $(BIN): $(OBJECTS)
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
 
 genfiles: genfiles.c
-	gcc -std=c11 genfiles.c -o genfiles
+	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles
 
 .PHONY: clean
 clean:

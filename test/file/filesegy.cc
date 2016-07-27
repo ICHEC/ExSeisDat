@@ -9,6 +9,7 @@
 #include "object/objsegy.hh"
 #include "share/units.hh"
 #include "share/segy.hh"
+#include "share/datatype.hh"
 #define private public
 #define protected public
 #include "file/filesegy.hh"
@@ -18,13 +19,11 @@
 using namespace testing;
 using namespace PIOL;
 
-
 class MockObj : public Obj::Interface
 {
     public :
     MockObj(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_)
-               : Obj::Interface(piol_, name_, data_)
-    {}
+               : Obj::Interface(piol_, name_, data_) {}
     MOCK_METHOD0(getFileSz, size_t(void));
     MOCK_METHOD1(readHO, void(uchar *));
     MOCK_METHOD1(setFileSz, void(const size_t));
@@ -57,7 +56,7 @@ class FileSEGYSpecTest : public FileIntegrationTest
     const size_t nt = 40U;
     const size_t ns = 200U;
     const int inc = 10;
-    const int format = 1;
+    const size_t format = 1;
     std::vector<uchar> hor;
     std::vector<uchar> how;
     FileSEGYSpecTest() : FileIntegrationTest()
@@ -70,7 +69,7 @@ class FileSEGYSpecTest : public FileIntegrationTest
     }
 };
 
-void initReadMock(MockObj & mock, std::vector<uchar> & ho, size_t ns, size_t nt, int inc, int format, std::string testString)
+void initReadHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns, int inc, size_t format, std::string testString)
 {
     EXPECT_CALL(mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
     size_t tsz = testString.size();
@@ -83,7 +82,8 @@ void initReadMock(MockObj & mock, std::vector<uchar> & ho, size_t ns, size_t nt,
     size_t szText = testString.size();
     for (size_t i = szText; i < SEGSz::getTextSz(); i++)
         ho[i] = ho[i % szText];
-    ho[3221U] = ns;
+    ho[3220U] = (ns >> 8) & 0xFF;
+    ho[3221U] = ns & 0xFF;
     ho[3217U] = inc;
     ho[3225U] = format;
     EXPECT_CALL(mock, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
@@ -102,10 +102,21 @@ void CompileCheck(File::Interface & file)
     file.writeInc(inc);
 }
 
+TEST_F(FileSEGYSpecTest, FileConstructor)
+{
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
+
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+    EXPECT_EQ(piol, segy.piol);
+    EXPECT_EQ(notFile, segy.name);
+    EXPECT_EQ(mock, segy.obj);
+}
+
 TEST_F(FileSEGYSpecTest, FileReadAPI)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadMock(*mock.get(), hor, ns, nt, inc, format, testString);
+    initReadHOMock(*mock.get(), hor, nt, ns, inc, format, testString);
     ASSERT_TRUE(ns < 0x10000);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
@@ -142,7 +153,7 @@ ACTION_P(extraCheck, ho)
         ASSERT_EQ(ho[i], arg0[i]) << "Error with header byte: " << i << " |\n";
 }
 
-void initWriteMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns, int inc, int format, std::string testString)
+void initWriteHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns, int inc, int format, std::string testString)
 {
     size_t fsz = SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns);
     EXPECT_CALL(mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
@@ -161,51 +172,36 @@ void initWriteMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns
     EXPECT_CALL(mock, writeHO(_)).Times(Exactly(1)).WillOnce(extraCheck(ho.data()));
 }
 
+void FileWriteHO(const size_t nt, const size_t ns, const geom_t inc, std::string text, Piol piol, File::Interface * file)
+{
+    piol->isErr();
+
+    file->writeNt(nt);
+    piol->isErr();
+
+    file->writeNs(ns);
+    piol->isErr();
+
+    file->writeInc(inc);
+    piol->isErr();
+
+    file->writeText(text);
+    piol->isErr();
+}
+
 TEST_F(FileSEGYSpecTest, FileWriteAPI)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initWriteMock(*mock.get(), how, nt, ns, inc, 5, testString);
+    initWriteHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
-    piol->isErr();
-
-    EXPECT_EQ(piol, segy.piol);
-    EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mock, segy.obj);
-
-    segy.writeNt(nt);
-    piol->isErr();
-
-    segy.writeNs(ns);
-    piol->isErr();
-
-    segy.writeInc(geom_t(inc*SI::Micro));
-    piol->isErr();
-
-    segy.writeText(testString);
-    piol->isErr();
+    FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, &segy);
 }
 
 TEST_F(FileSEGYSpecTest, FileWriteAPILongString)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initWriteMock(*mock.get(), how, nt, ns, inc, 5, testString);
-
-    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
-    piol->isErr();
-
-    EXPECT_EQ(piol, segy.piol);
-    EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mock, segy.obj);
-
-    segy.writeNt(nt);
-    piol->isErr();
-
-    segy.writeNs(ns);
-    piol->isErr();
-
-    segy.writeInc(geom_t(inc*SI::Micro));
-    piol->isErr();
+    initWriteHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
 
     //Extend the string beyond the text boundary
     //Extended text should be dropped in write call
@@ -215,37 +211,64 @@ TEST_F(FileSEGYSpecTest, FileWriteAPILongString)
     for (size_t i = 3200U; i < sz+extendSz; i++)
         testString[i] = uchar(0xFF);
 
-    segy.writeText(testString);
-    piol->isErr();
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+    FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, &segy);
 }
 
 TEST_F(FileSEGYSpecTest, FileWriteAPIEmptyString)
 {
     testString.resize(0);
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initWriteMock(*mock.get(), how, nt, ns, inc, 5, testString);
+    initWriteHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
-    piol->isErr();
-
-    EXPECT_EQ(piol, segy.piol);
-    EXPECT_EQ(notFile, segy.name);
-    EXPECT_EQ(mock, segy.obj);
-
-    segy.writeNt(nt);
-    piol->isErr();
-
-    segy.writeNs(ns);
-    piol->isErr();
-
-    segy.writeInc(geom_t(inc*SI::Micro));
-    piol->isErr();
-
-    segy.writeText(testString);
-    piol->isErr();
+    FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, &segy);
 }
 
+///////////////TRACE COORDINATES + GRIDS///////////////////////////////
+ACTION_P(extraTrCheck, ho)  //Use this when writing
+{
+    for (size_t i = 0; i < SEGSz::getMDSz(); i++)
+        ASSERT_EQ(ho[i], arg2[i]) << "Error with header byte: " << i << " |\n";
+}
 
+void initReadTraceMock(MockObj & mock, std::vector<uchar> & tr, size_t offset, size_t ns, File::Interface * file)
+{
+    File::grid_t line = File::grid_t(ilNum(offset), xlNum(offset));
+    getBigEndian(tr.data()+189U, int32_t(line.first));
+    getBigEndian(tr.data()+193U, int32_t(line.second));
+
+    EXPECT_CALL(mock, readDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+
+    auto line2 = file->readGridPoint(File::Grid::Line, offset);
+    EXPECT_EQ(line, line2);
+}
+
+TEST_F(FileSEGYSpecTest, FileReadTraceHeader)
+{
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
+
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    for (size_t i = 0; i < nt; i++)
+        initReadTraceMock(*mock.get(), tr, i, ns, &segy);
+}
+
+TEST_F(FileSEGYSpecTest, FileReadTrHdrBigNs)
+{
+    const size_t bigns = 10000;
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initReadHOMock(*mock.get(), how, nt, bigns, inc, 5, testString);
+
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    initReadTraceMock(*mock.get(), tr, nt/2U, bigns, &segy);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// DEATH TESTS ////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 typedef FileSEGYSpecTest FileSEGYDeathTest;
 
 TEST_F(FileSEGYDeathTest, FileWriteAPIBadns)
@@ -333,11 +356,9 @@ TEST_F(FileSEGYDeathTest, FileWriteBadInc)
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// INTEGRATION-CLASS SPECIFICATION TESTING //////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
-
 //Read test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYReadHO)
 {
-    SCOPED_TRACE("SEGYReadHO");
     const size_t ns = 261U;
     const size_t nt = 400U;
     std::string smallSEGY = "tmp/smallsegy.tmp";
@@ -347,10 +368,8 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
     piol->isErr();
     EXPECT_EQ(nt, segy.readNt());
     piol->isErr();
-    std::string text = segy.readText();
-    EXPECT_EQ(3200U, text.size());
-    for (size_t i = 0; i < text.size(); i++)
-        ASSERT_EQ(getPattern(i), reinterpret_cast<uchar &>(text[i]));
+    EXPECT_EQ(File::SEGY::Format::IBM, segy.format);
+    EXPECT_DOUBLE_EQ(double(20e-6), segy.readInc());
 }
 
 //TODO: Add test same as above for big files

@@ -18,6 +18,17 @@ const std::string largeFile = "tmp/largeSizeFile.tmp";
 const std::string plargeFile = "tmp/largeFilePattern.tmp";
 const std::string largeSEGYFile = "tmp/largesegyfile.tmp";
 
+int32_t ilNum(size_t i)
+{
+    return 1600 + (i / 3000);
+}
+
+int32_t xlNum(size_t i)
+{
+    return 1600 + (i % 3000);
+}
+
+
 void makeFile(std::string name, size_t sz)
 {
     static const char zero = '\0';

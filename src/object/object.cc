@@ -25,11 +25,11 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
         case (Data::Type::MPIIO) :
         {
             piol->record(name_, Log::Layer::Object, Log::Status::Warning, "MPIIO selected", Log::Verb::Max);
-            auto opt = castOptToDeriv<Data::MPIIOOpt, Data::Opt>(*piol, dataOpt, name, Log::Layer::Object);
+            auto opt = castOptToDeriv<Data::MPIIOOpt, Data::Opt>(piol.get(), dataOpt, name, Log::Layer::Object);
             if (opt == nullptr)
                 return;
             auto mpiio = new Data::MPIIO(piol_, name_, *opt);
-            data = castToBase<Data::Interface, Data::MPIIO>(*piol, mpiio, name, Log::Layer::Object);
+            data = castToBase<Data::Interface, Data::MPIIO>(piol.get(), mpiio, name, Log::Layer::Object);
             if (data == nullptr)
                 return;
         }

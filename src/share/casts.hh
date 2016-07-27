@@ -22,11 +22,11 @@ namespace PIOL {
  *  \return Returns a pointer to the derived options object
  */
 template <class ODeriv, class OBase> inline
-const ODeriv * castOptToDeriv(ExSeisPIOL & piol, const OBase & bopt, const std::string name, const Log::Layer layer)
+const ODeriv * castOptToDeriv(ExSeisPIOL * piol, const OBase & bopt, const std::string name, const Log::Layer layer)
 {
     auto opt = dynamic_cast<ODeriv const *>(&bopt);
     if (opt == nullptr)
-        piol.record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
+        piol->record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
     return opt;
 }
 /*! \brief Cast the derived class to its base class within a shared_ptr
@@ -39,13 +39,13 @@ const ODeriv * castOptToDeriv(ExSeisPIOL & piol, const OBase & bopt, const std::
  *  \return Returns a shared ptr to the object case to the base class
  */
 template <class TBase, class TDeriv> inline
-std::shared_ptr<TBase> castToBase(ExSeisPIOL & piol, TDeriv * layObj, const std::string name, const Log::Layer layer)
+std::shared_ptr<TBase> castToBase(ExSeisPIOL * piol, TDeriv * layObj, const std::string name, const Log::Layer layer)
 {
     if (layObj != nullptr)
         return std::shared_ptr<TBase>(std::move(layObj));
 
     //Issue warning on the layer
-    piol.record(name, layer, Log::Status::Warning, "Could not create layer object", Log::Verb::None);
+    piol->record(name, layer, Log::Status::Warning, "Could not create layer object", Log::Verb::None);
     return nullptr;
 }
 }

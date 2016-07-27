@@ -16,7 +16,10 @@ extern const std::string largeFile;
 extern const std::string plargeFile; //Large file with a pattern
 extern const std::string largeSEGYFile;
 
+extern int32_t ilNum(size_t);
+extern int32_t xlNum(size_t);
 extern uchar getPattern(size_t);
+
 constexpr size_t prefix(const size_t pow)
 {
     return (pow ? 1024U*prefix(pow-1U) : 1U);
