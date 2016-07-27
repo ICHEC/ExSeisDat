@@ -62,6 +62,7 @@ int main(void)
     makeFile("tmp/largeFilePattern.tmp", 10ll*1024ll*1024ll*1024ll, pattern, psz);
 
     makeSEGY("tmp/smallsegy.tmp", 261U, 400U, pattern, psz);
+    makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, pattern, psz);
     return 0;
 }
 

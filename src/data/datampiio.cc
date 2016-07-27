@@ -50,7 +50,7 @@ MPIIOOpt::MPIIOOpt(void)
 {
     mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
     info = MPI_INFO_NULL;
-    maxSize = getLim<llint>();
+    maxSize = getLim<int32_t>();
 }
 
 MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
@@ -60,7 +60,10 @@ MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const M
 
     auto mcomm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
     if (mcomm == nullptr)
+    {
         piol->record(name, Log::Layer::Data, Log::Status::Error, "Cast of communicator to MPI communicator failed", Log::Verb::None);
+        return;
+    }
     comm = mcomm->getComm();
 
     file = open(*piol, comm, opt, name);

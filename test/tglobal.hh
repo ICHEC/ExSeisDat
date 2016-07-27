@@ -7,12 +7,14 @@
 extern const size_t magicNum1;
 extern const size_t smallSize;
 extern const size_t largeSize;
+extern const size_t largeSEGYSize;
 
 extern const std::string notFile;
 extern const std::string zeroFile;
 extern const std::string smallFile;
 extern const std::string largeFile;
 extern const std::string plargeFile; //Large file with a pattern
+extern const std::string largeSEGYFile;
 
 extern uchar getPattern(size_t);
 constexpr size_t prefix(const size_t pow)

@@ -9,12 +9,14 @@ using namespace PIOL;
 const size_t magicNum1 = 137; //Number less than 256 that isn't 0.
 const size_t smallSize = 4U*prefix(1);
 const size_t largeSize = 10U*prefix(3);
+const size_t largeSEGYSize = (4U*1000U +240U)*2000000U + 3600U;
 
 const std::string notFile = "!£$%^&*()<>?:@~}{fakefile1234567890";
 const std::string zeroFile = "tmp/zeroSizeFile.tmp";
 const std::string smallFile = "tmp/smallSizeFile.tmp";
 const std::string largeFile = "tmp/largeSizeFile.tmp";
 const std::string plargeFile = "tmp/largeFilePattern.tmp";
+const std::string largeSEGYFile = "tmp/largesegyfile.tmp";
 
 void makeFile(std::string name, size_t sz)
 {
