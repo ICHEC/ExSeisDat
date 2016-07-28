@@ -34,7 +34,7 @@ class ObjSpecTest : public Test
     protected :
     std::shared_ptr<ExSeisPIOL> piol;
     const Obj::SEGYOpt segyOpt;
-    const Data::MPIIOOpt dataOpt;
+    Data::MPIIOOpt dataOpt;
     Comm::MPIOpt opt;
 
     ObjSpecTest()
@@ -106,18 +106,15 @@ void ExpectTrHdrPattern(size_t offset, size_t ns, MockData * mock, std::vector<u
     EXPECT_CALL(*mock, read(foff, SEGSz::getMDSz(), _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr->begin(), tr->end()));
 }
 
-void SEGYReadTest(std::shared_ptr<ExSeisPIOL> piol, const Obj::SEGYOpt & segyOpt)
+TEST_F(ObjSpecTest, SEGYHORead)
 {
-    const size_t ns = 200U;
-    const size_t traceNum = 10U;
+    SCOPED_TRACE("SEGYRead");
     const size_t extra = 1111U;
 
     auto mock = std::make_shared<MockData>(piol, notFile);
     std::vector<uchar> cHo(SEGSz::getHOSz());
-    std::vector<uchar> cTrHdr(SEGSz::getMDSz());
 
     ExpectHOPattern(mock.get(), &cHo);
-    ExpectTrHdrPattern(traceNum, ns, mock.get(), &cTrHdr);
 
     Obj::SEGY segy(piol, notFile, segyOpt, mock);
     piol->isErr();
@@ -133,10 +130,27 @@ void SEGYReadTest(std::shared_ptr<ExSeisPIOL> piol, const Obj::SEGYOpt & segyOpt
         ASSERT_EQ(getPattern(i), ho[i]) << "Pattern " << i;
     for (auto i = 0U; i < extra; i++)
         ASSERT_EQ(magicNum1, ho[ho.size()-extra+i]) << "Pattern Extra " << i;
+}
+
+TEST_F(ObjSpecTest, SEGYTrRead)
+{
+    SCOPED_TRACE("SEGYRead");
+    const size_t ns = 200U;
+    const size_t traceNum = 10U;
+    const size_t extra = 1111U;
+
+    auto mock = std::make_shared<MockData>(piol, notFile);
+    std::vector<uchar> cTrHdr(SEGSz::getMDSz());
+    ExpectTrHdrPattern(traceNum, ns, mock.get(), &cTrHdr);
+
+    Obj::SEGY segy(piol, notFile, segyOpt, mock);
+
+    piol->isErr();
 
     std::vector<uchar> trHdr(SEGSz::getMDSz() + extra);
     for (auto i = 0U; i < extra; i++)
         trHdr[trHdr.size()-extra+i] = magicNum1;
+
     segy.readDOMD(traceNum, ns, trHdr.data());
 
     for (auto i = 0U; i < SEGSz::getMDSz(); i++)
@@ -148,12 +162,39 @@ void SEGYReadTest(std::shared_ptr<ExSeisPIOL> piol, const Obj::SEGYOpt & segyOpt
         ASSERT_EQ(magicNum1, trHdr[trHdr.size()-extra+i]) << "tr Pattern Extra " << i;
 }
 
-TEST_F(ObjSpecTest, SEGYRead)
+ACTION_P(extraTrCheck, ho)  //Use this when writing
 {
-    SCOPED_TRACE("SEGYRead");
-    SEGYReadTest(piol, segyOpt);
+    for (size_t i = 0; i < SEGSz::getMDSz(); i++)
+        ASSERT_EQ(ho[i], arg2[i]) << "Error with header byte: " << i << " |\n";
 }
 
+void ExpectWriteTrHdrPattern(size_t offset, size_t ns, MockData * mock, std::vector<uchar> * tr)
+{
+    size_t foff = SEGSz::getDOLoc(offset, ns);
+    EXPECT_CALL(*mock, write(foff, SEGSz::getMDSz(), _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr->data()));
+}
+
+TEST_F(ObjSpecTest, SEGYTrWrite)
+{
+    SCOPED_TRACE("SEGYRead");
+    const size_t ns = 200U;
+    const size_t traceNum = 10U;
+
+    auto mock = std::make_shared<MockData>(piol, notFile);
+    std::vector<uchar> cTrHdr(SEGSz::getMDSz());
+    for (auto i = 0U; i < cTrHdr.size(); i++)
+        cTrHdr[i] = getPattern(i);
+
+    Obj::SEGY segy(piol, notFile, segyOpt, mock);
+    piol->isErr();
+
+    std::vector<uchar> trHdr(SEGSz::getMDSz());
+    for (auto i = 0U; i < trHdr.size(); i++)
+        trHdr[i] = getPattern(i);
+
+    ExpectWriteTrHdrPattern(traceNum, ns, mock.get(), &cTrHdr);
+    segy.writeDOMD(traceNum, ns, trHdr.data());
+}
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// INTEGRATION-CLASS SPECIFICATION TESTING //////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -197,6 +238,7 @@ TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
         ASSERT_EQ(ho[i], getPattern(SEGSz::getHOSz() - i));
 }
 
+
 TEST_F(ObjIntegrationTest, SEGYReadHO)
 {
     SCOPED_TRACE("SEGYReadHO");
@@ -205,6 +247,26 @@ TEST_F(ObjIntegrationTest, SEGYReadHO)
     piol->isErr();
     SEGYReadHOTest(segy, {uchar(magicNum1), uchar(magicNum1+1)});
 }
+
+void SEGYWriteHOPattern(Obj::Interface & obj)
+{
+    std::vector<uchar> ho(SEGSz::getHOSz());
+    for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
+        ho[i] = getPattern(i);
+    obj.writeHO(ho.data());
+}
+
+TEST_F(ObjIntegrationTest, SEGYWriteHO)
+{
+    SCOPED_TRACE("SEGYReadHO");
+    std::string outFile = "tmp/testOutput.tmp";
+    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+    Obj::SEGY segy(piol, outFile, segyOpt, dataOpt);
+
+    SEGYWriteHOPattern(segy);
+    SEGYReadHOTest(segy, {uchar(magicNum1), uchar(magicNum1+1)});
+}
+
 //////////////////////////// Trace Header Reading //////////////////////////////////
 void SEGYReadTrTest(size_t offset, const std::vector<size_t> & nsVals, const uchar magicNum, Obj::Interface * obj)
 {
@@ -239,6 +301,32 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdr)
     SEGYReadTrTest(10U, {0U, 1U, 100U, 1000U, 1000U}, magicNum1, &segy);
     SCOPED_TRACE("Read2");
     SEGYReadTrTest(100U, {0U, 1U, 100U, 1000U, 1000U}, magicNum1+1U, &segy);
+}
+
+void SEGYWriteTrTest(size_t offset, size_t ns, Obj::Interface * obj)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    size_t foff = SEGSz::getDOLoc(offset, ns);
+    for (size_t i = 0U; i < tr.size(); i++)
+        tr[i] = getPattern(foff + i);
+
+    obj->writeDOMD(offset, ns, tr.data());
+}
+
+TEST_F(ObjIntegrationTest, SEGYWriteTrHdr)
+{
+    SCOPED_TRACE("SEGYReadHO");
+    std::string outFile = "tmp/testOutput.tmp";
+    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+    Obj::SEGY segy(piol, outFile, segyOpt, dataOpt);
+
+    SEGYWriteTrTest(10U, 100U, &segy);
+    SEGYReadTrTest(10U, {100U}, magicNum1, &segy);
+    SEGYWriteTrTest(40U, 1000U, &segy);
+    SEGYReadTrTest(40U, {1000U}, magicNum1, &segy);
+    SEGYWriteTrTest(40U, 0U, &segy);
+    SEGYReadTrTest(40U, {0U}, magicNum1, &segy);
+
 }
 
 ////////////////////////////// File Size Testing ///////////////////////////////////

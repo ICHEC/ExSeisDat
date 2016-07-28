@@ -100,8 +100,8 @@ TEST(FileScale, Decimals)
     EXPECT_EQ(-100,   deScale(0021474836.4700999));
     EXPECT_EQ(-1000,  deScale(0002147483.6470999));
     EXPECT_EQ(1,      deScale(2147483647.0000999));
-
 }
+
 ////////////////////////////////////////////////////////////////////////////////////
 /////////////////////// ISOLATED-CLASS SPECIFICATION TESTING ///////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -467,4 +467,65 @@ TEST_F(FileIntegrationTest, SEGYWriteHO)
             EXPECT_EQ(testString[i], temp[i]);
     }
 }
+
+//Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+TEST_F(FileIntegrationTest, SEGYWriteTraceGrid)
+{
+    SCOPED_TRACE("SEGYReadHO");
+    const size_t ns = 261U;
+    const size_t nt = 400U;
+    std::string outFile = "tmp/testOutput.tmp";
+    File::grid_t grid(ilNum(201), xlNum(201));
+
+    std::shared_ptr<Obj::Interface> obj;
+    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+
+    {
+        File::SEGY segy(piol, outFile, fileSegyOpt, objSegyOpt, dataOpt);
+        piol->isErr();
+        segy.ns = ns;
+        segy.writeNt(nt);
+        piol->isErr();
+
+        segy.writeGridPoint(File::Grid::Line, 201, grid);
+        obj = segy.obj;         //steal object layer for read
+    }
+    {
+        File::SEGY segy(piol, outFile, fileSegyOpt, obj);
+
+        File::grid_t grd = segy.readGridPoint(File::Grid::Line, 201);
+        EXPECT_EQ(grid, grd);
+    }
+}
+
+//Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+TEST_F(FileIntegrationTest, SEGYWriteTraceCoord)
+{
+    SCOPED_TRACE("SEGYReadHO");
+    const size_t ns = 261U;
+    const size_t nt = 400U;
+    std::string outFile = "tmp/testOutput.tmp";
+    File::coord_t coord(1600, 2000);
+
+    std::shared_ptr<Obj::Interface> obj;
+    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+
+    {
+        File::SEGY segy(piol, outFile, fileSegyOpt, objSegyOpt, dataOpt);
+        piol->isErr();
+        segy.ns = ns;
+        segy.writeNt(nt);
+        piol->isErr();
+
+        segy.writeCoordPoint(File::Coord::Cmp, 200, coord);
+        obj = segy.obj;         //steal object layer for read
+    }
+    {
+        File::SEGY segy(piol, outFile, fileSegyOpt, obj);
+        File::coord_t crd = segy.readCoordPoint(File::Coord::Cmp, 200);
+        EXPECT_EQ(coord, crd);
+
+    }
+}
+
 

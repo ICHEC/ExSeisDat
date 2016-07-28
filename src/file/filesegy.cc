@@ -459,7 +459,6 @@ int16_t deScale(const geom_t val)
         //if the digits are all zero we don't need any scaling
         if (digits != 0)
         {
-            std::cout << "digits " << digits << std::endl;
             //We try the most negative scale values we can first. (scale = - 10000 / i)
             for (int32_t i = 1; i < tenk ; i *= 10)
             {
