@@ -153,6 +153,12 @@ T getMd(const Hdr item, const uchar * src)
     }
 }
 
+geom_t scaleConv(int32_t scale)
+{
+    scale = (!scale ? 1 : scale);
+    return (scale > 0 ? geom_t(scale) : geom_t(1)/geom_t(-scale));
+}
+
 /*! \brief Get the specified scale multipler from the Trace header.
  *  \param[in] scal The scalar of interest.
  *  \param[in] src The buffer of the header object.
@@ -166,9 +172,7 @@ T getMd(const Hdr item, const uchar * src)
 geom_t getMd(const TrScal scal, uchar * src)
 {
     int32_t scale = getHost<int32_t>(&src[size_t(scal)-1U]);
-    scale = (!scale ? 1 : scale);
-    geom_t rs = (scale > 0 ? geom_t(scale) : geom_t(1)/geom_t(-scale));
-    return rs;
+    return scaleConv(scale);
 }
 
 /*! \brief Get the specified coordinate from the Trace header.
@@ -405,12 +409,106 @@ grid_t SEGY::readGridPoint(const Grid item, const size_t i)
                           getHost<int32_t>(&md[size_t(pair.second)]));
 }
 
-#warning Continue...
-void SEGY::writeCoordPoint(const Coord item, const size_t i, const coord_t coord)
+/* Convert the number from float to a 6 byte SEGY fixed-point representation.
+ * There are ten possible values for the scale factor. Shown are the possible values
+ * and the form the input float should have to use that scale factor.
+ * firstly, anything smaller than 4 decimal points is discarded since the approach
+ * can not represent it.
+ * Shown is the
+ * position of the least significant digit:
+ * -10000 - \d0000.0000
+ * -1000  - \d000.0000
+ * -100   - \d00.0000
+ * -10    - \d0.0000
+ * -1     - \d
+ * 1      - \d
+ * 10     - \d.\d
+ * 100    - \d.\d\d
+ * 1000   - \d.\d\d\d
+ * 10000  - \d.\d\d\d\d
+ * TODO: Handle the annoying case of numbers at or around 2147483648 with a decimal somewhere.
+ * TODO: Add rounding before positive scale values
+*/
+int16_t deScale(const geom_t val)
 {
+    constexpr llint tenk = 10000;
+    //First we need to determine what scale is required to store the
+    //biggest decimal value of the int.
+    llint llintpart = llint(val);      //TODO: Double check spec
+    int32_t intpart = llintpart;          //TODO: Double check spec
+    if (llintpart != intpart)
+    {
+        /* Starting with the smallest scale factor, see
+        *  what is the smallest scale we can apply and still
+        *  hold the integer portion.
+        *  We drop as much precision as it takes to store
+        *  the most significant digit. */
+        for (int32_t scal = 1; scal <= tenk ; scal *= 10)
+        {
+            llint v = llintpart / scal;
+            int32_t iv = v;
+            if (v == iv)
+                return scal;
+        }
+        return 0;
+    }
+    else
+    {
+        //Get the first four digits
+        llint digits = std::llround(val*geom_t(tenk)) - llintpart*tenk;
+        //if the digits are all zero we don't need any scaling
+        if (digits != 0)
+        {
+            std::cout << "digits " << digits << std::endl;
+            //We try the most negative scale values we can first. (scale = - 10000 / i)
+            for (int32_t i = 1; i < tenk ; i *= 10)
+            {
+                if (digits % (i*10))
+                {
+                    int16_t scaleFactor = -tenk / i;
+                    //Now we test that we can still store the most significant byte
+                    geom_t scal = scaleConv(scaleFactor);
+
+                    //int32_t t = llint(val / scal) - digits;
+                    int32_t t = std::llround(val / scal);
+                    t /= -scaleFactor;
+
+                    if (t == llintpart)
+                        return scaleFactor;
+                }
+            }
+        }
+        return 1;
+    }
+}
+
+void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord)
+{
+    std::vector<uchar> md(SEGSz::getMDSz()); //Small.
+
+    auto pair = getPair(item);
+
+    //I get the minimum value so that I definitely store the result.
+    //This is at the expense of precision.
+    int16_t scale = std::min(deScale(coord.first), deScale(coord.second));
+    geom_t gscale = scaleConv(scale);
+
+    getBigEndian(scale, &md[size_t(TrScal::ScaleCoord)]);
+    getBigEndian(int32_t(coord.first / gscale), &md[size_t(pair.first)]);
+    getBigEndian(int32_t(coord.second / gscale), &md[size_t(pair.second)]);
+
+    obj->writeDOMD(i, ns, md.data());
 }
 
 void SEGY::writeGridPoint(const Grid item, const size_t i, const grid_t grid)
 {
+    std::vector<uchar> md(SEGSz::getMDSz()); //Small.
+
+    auto pair = getPair(item);
+
+    getBigEndian<int32_t>(grid.first, &md[size_t(pair.first)]);
+    getBigEndian<int32_t>(grid.second, &md[size_t(pair.second)]);
+
+    obj->writeDOMD(i, ns, md.data());
 }
 }}

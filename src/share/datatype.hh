@@ -32,7 +32,7 @@ T getHost(const uchar * src)
 //template <typename T,
 //typename std::enable_if<sizeof(T) == 4U, T>::type = 0 >
 template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-void getBigEndian(uchar * dst, T src)
+void getBigEndian(const T src, uchar * dst)
 {
     dst[0] = src >> 24 & 0xFF;
     dst[1] = src >> 16 & 0xFF;

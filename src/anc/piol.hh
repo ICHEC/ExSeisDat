@@ -58,7 +58,7 @@ struct ExSeisPIOL
         isErr("");
     }
 };
-typedef std::shared_ptr<ExSeisPIOL> Piol;
+typedef std::shared_ptr<ExSeisPIOL> Piol; //!< Typedef of the PIOL shared ptr.
 }
 #endif
 

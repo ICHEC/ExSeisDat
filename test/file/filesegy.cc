@@ -16,6 +16,11 @@
 #undef private
 #undef protected
 
+namespace PIOL { namespace File {
+extern int16_t deScale(const geom_t val);
+}}
+using PIOL::File::deScale;
+
 using namespace testing;
 using namespace PIOL;
 
@@ -47,6 +52,56 @@ class FileIntegrationTest : public Test
         piol = std::make_shared<ExSeisPIOL>(opt);
     }
 };
+
+////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// Unit tests of non-class functions /////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+TEST(FileScale, BigIntegers)
+{
+    EXPECT_EQ(10000,  deScale(21474836470000.0));
+    EXPECT_EQ(1000,   deScale(02147483647000.0));
+    EXPECT_EQ(100,    deScale(00214748364700.0));
+    EXPECT_EQ(10,     deScale(00021474836470.0));
+
+    EXPECT_EQ(10000,  deScale(10000000000000.0));
+    EXPECT_EQ(1000,   deScale(01000000000000.0));
+    EXPECT_EQ(100,    deScale(00100000000000.0));
+    EXPECT_EQ(10,     deScale(00010000000000.0));
+
+    EXPECT_EQ(10000,  deScale(21474836470000.0000999));
+    EXPECT_EQ(1000,   deScale(02147483647000.0000999));
+    EXPECT_EQ(100,    deScale(00214748364700.0000999));
+    EXPECT_EQ(10,     deScale(00021474836470.0000999));
+}
+
+TEST(FileScale, Decimals)
+{
+    EXPECT_EQ(-10000, deScale(214748.3647));
+    EXPECT_EQ(-1000,  deScale(2147483.647));
+    EXPECT_EQ(-100,   deScale(21474836.47));
+    EXPECT_EQ(-10,    deScale(214748364.7));
+    EXPECT_EQ(1,      deScale(2147483647.));
+
+    EXPECT_EQ(-10000, deScale(1.0001));
+    EXPECT_EQ(-1000,  deScale(1.001));
+    EXPECT_EQ(-100,   deScale(1.01));
+    EXPECT_EQ(-10,    deScale(1.1));
+    EXPECT_EQ(1,      deScale(1.));
+
+    EXPECT_EQ(-10000, deScale(0.0001));
+    EXPECT_EQ(-1000,  deScale(0.001));
+    EXPECT_EQ(-100,   deScale(0.01));
+    EXPECT_EQ(-10,    deScale(0.1));
+    EXPECT_EQ(1,      deScale(0.));
+
+//Tests for case where round mode pushes sig figs over sizes we can handle
+    EXPECT_EQ(-10000, deScale(214748.3647199));
+    EXPECT_EQ(-10,    deScale(0214748364.7000999));
+    EXPECT_EQ(-100,   deScale(0021474836.4700999));
+    EXPECT_EQ(-1000,  deScale(0002147483.6470999));
+    EXPECT_EQ(1,      deScale(2147483647.0000999));
+
+}
 ////////////////////////////////////////////////////////////////////////////////////
 /////////////////////// ISOLATED-CLASS SPECIFICATION TESTING ///////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -235,8 +290,8 @@ ACTION_P(extraTrCheck, ho)  //Use this when writing
 void initReadTraceMock(MockObj & mock, std::vector<uchar> & tr, size_t offset, size_t ns, File::Interface * file)
 {
     File::grid_t line = File::grid_t(ilNum(offset), xlNum(offset));
-    getBigEndian(tr.data()+189U, int32_t(line.first));
-    getBigEndian(tr.data()+193U, int32_t(line.second));
+    getBigEndian(int32_t(line.first), tr.data()+189U);
+    getBigEndian(int32_t(line.second), tr.data()+193U);
 
     EXPECT_CALL(mock, readDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
 

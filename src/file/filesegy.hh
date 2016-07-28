@@ -123,6 +123,8 @@ class SEGY : public Interface
      *  \param[in] item The coordinate pair of interest
      *  \param[in] i The trace number.
      *  \param[in] coord The coordinate to write
+     *  \details It is assumed that this operation is not an update. Any previous
+     *  contents of the trace header will be overwritten.
      */
     void writeCoordPoint(const Coord item, const size_t i, const coord_t coord);
 
