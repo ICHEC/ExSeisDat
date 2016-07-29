@@ -220,6 +220,31 @@ void setMd(Hdr item, uchar * dst, T src)
     }
 }
 
+void setScale(TrScal item, int16_t scale, uchar * buf)
+{
+    getBigEndian(scale, &buf[size_t(item)-1U]);
+    std::cout << "scale = " << scale << std::endl;
+}
+
+void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar * buf)
+{
+    auto pair = getPair(item);
+    geom_t gscale = scaleConv(scale);
+    getBigEndian(int32_t(std::lround(coord.first / gscale)), &buf[size_t(pair.first) - 1U]);
+    getBigEndian(int32_t(std::lround(coord.second / gscale)), &buf[size_t(pair.second) - 1U]);
+    int32_t f = std::lround(coord.first / gscale);
+    int32_t s = std::lround(coord.second / gscale);
+    std::cout << "Final Values = " << f << std::endl;
+    std::cout << "Final Values = " << s << std::endl;
+}
+
+void setGrid(const Grid item, const grid_t grid, uchar * buf)
+{
+    auto pair = getPair(item);
+    getBigEndian(int32_t(grid.first), &buf[size_t(pair.first) - 1U]);
+    getBigEndian(int32_t(grid.second), &buf[size_t(pair.second) - 1U]);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -405,8 +430,7 @@ grid_t SEGY::readGridPoint(const Grid item, const size_t i)
     obj->readDOMD(i, ns, md);
 
     auto pair = getPair(item);
-    return std::make_pair(getHost<int32_t>(&md[size_t(pair.first)]),
-                          getHost<int32_t>(&md[size_t(pair.second)]));
+    return std::make_pair(getMd(pair.first, md), getMd(pair.second, md));
 }
 
 /* Convert the number from float to a 6 byte SEGY fixed-point representation.
@@ -469,7 +493,7 @@ int16_t deScale(const geom_t val)
                     geom_t scal = scaleConv(scaleFactor);
 
                     //int32_t t = llint(val / scal) - digits;
-                    int32_t t = std::llround(val / scal);
+                    int32_t t = std::lround(val / scal);
                     t /= -scaleFactor;
 
                     if (t == llintpart)
@@ -480,34 +504,34 @@ int16_t deScale(const geom_t val)
         return 1;
     }
 }
-
 void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord)
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
 
-    auto pair = getPair(item);
-
     //I get the minimum value so that I definitely store the result.
     //This is at the expense of precision.
-    int16_t scale = std::min(deScale(coord.first), deScale(coord.second));
-    geom_t gscale = scaleConv(scale);
+    int16_t scale;
+    int16_t scal1 = deScale(coord.first);
+    int16_t scal2 = deScale(coord.second);
 
-    getBigEndian(scale, &md[size_t(TrScal::ScaleCoord)]);
-    getBigEndian(int32_t(coord.first / gscale), &md[size_t(pair.first)]);
-    getBigEndian(int32_t(coord.second / gscale), &md[size_t(pair.second)]);
+    //if the scale is bigger than 1 that means we need to use the largest
+    //to ensure conservation of the most significant digit
+    //otherwise we choose the scale that preserves the most digits
+    //after the decimal place.
+    if (scal1 > 1 || scal2 > 1)
+        scale = std::max(scal1, scal2);
+    else
+        scale = std::min(scal1, scal2);
 
+    setScale(TrScal::ScaleCoord, scale, md.data());
+    setCoord(item, coord, scale, md.data());
     obj->writeDOMD(i, ns, md.data());
 }
 
 void SEGY::writeGridPoint(const Grid item, const size_t i, const grid_t grid)
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
-
-    auto pair = getPair(item);
-
-    getBigEndian<int32_t>(grid.first, &md[size_t(pair.first)]);
-    getBigEndian<int32_t>(grid.second, &md[size_t(pair.second)]);
-
+    setGrid(item, grid, md.data());
     obj->writeDOMD(i, ns, md.data());
 }
 }}

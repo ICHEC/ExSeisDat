@@ -286,7 +286,7 @@ TEST_F(FileSEGYSpecTest, FileWriteHOLongString)
     const size_t extendSz = 3400U - sz;
     testString.resize(sz + extendSz);
     for (size_t i = 3200U; i < sz+extendSz; i++)
-        testString[i] = uchar(0xFF);
+        testString[i] = uchar(0x7F);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, &segy);
@@ -306,19 +306,19 @@ TEST_F(FileSEGYSpecTest, FileWriteHOEmptyString)
 ACTION_P(extraTrCheck, ho)  //Use this when writing
 {
     for (size_t i = 0; i < SEGSz::getMDSz(); i++)
-        ASSERT_EQ(ho[i], arg2[i]) << "Error with header byte: " << i << " |\n";
+        ASSERT_EQ(ho[i], arg2[i]) << "Error with trace header byte: " << i << " |\n";
 }
 
 void initReadTraceMock(MockObj & mock, std::vector<uchar> & tr, size_t offset, size_t ns, File::Interface * file)
 {
     File::grid_t line = File::grid_t(ilNum(offset), xlNum(offset));
-    getBigEndian(int32_t(line.first), tr.data()+189U);
-    getBigEndian(int32_t(line.second), tr.data()+193U);
+    getBigEndian(int32_t(line.first), tr.data()+188U);
+    getBigEndian(int32_t(line.second), tr.data()+192U);
 
     EXPECT_CALL(mock, readDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
 
     auto line2 = file->readGridPoint(File::Grid::Line, offset);
-    EXPECT_EQ(line, line2);
+    ASSERT_EQ(line, line2);
 }
 
 TEST_F(FileSEGYSpecTest, FileReadTraceHeader)
@@ -342,6 +342,68 @@ TEST_F(FileSEGYSpecTest, FileReadTrHdrBigNs)
     std::vector<uchar> tr(SEGSz::getMDSz());
     initReadTraceMock(*mock.get(), tr, nt/2U, bigns, &segy);
 }
+
+class FileSEGYWriteSpecTest : public FileSEGYSpecTest
+{
+    public :
+    std::shared_ptr<MockObj> mock;
+    File::Interface * segy;
+
+    FileSEGYWriteSpecTest()
+    {
+        mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+        initWriteHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
+        Mock::AllowLeak(mock.get());
+        segy = new File::SEGY(piol, notFile, fileSegyOpt, mock);
+        FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, segy);    //I need to see ns and nt
+    }
+
+    void initWriteTrHdrGrid(MockObj & mock, size_t ns, size_t offset, File::Interface * file)
+    {
+        std::vector<uchar> tr(SEGSz::getMDSz());
+        getBigEndian(int32_t(ilNum(offset)), tr.data()+188U);
+        getBigEndian(int32_t(xlNum(offset)), tr.data()+192U);
+        EXPECT_CALL(mock, writeDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr.data()));
+        file->writeGridPoint(File::Grid::Line, offset, {ilNum(offset), xlNum(offset)});
+    }
+
+    void initWriteTrHdrCoord(MockObj & mock, std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val, int16_t scal,
+                                                                         size_t ns, size_t offset, std::vector<uchar> * tr)
+    {
+        getBigEndian(scal, tr->data()+70U);
+        getBigEndian(val.first, tr->data()+item.first);
+        getBigEndian(val.second, tr->data()+item.second);
+        EXPECT_CALL(mock, writeDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr->data()));
+    }
+};
+
+TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrGrid)
+{
+    for (size_t i = 0; i < nt; i++)
+        initWriteTrHdrGrid(*mock.get(), ns, i, segy);
+}
+
+TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord1)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    initWriteTrHdrCoord(*mock.get(), {180U, 184U}, {160010, 240022}, -100, ns, 10, &tr);
+    segy->writeCoordPoint(File::Coord::Cmp, 10,     {1600.1, 2400.22});
+}
+
+TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord2)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    initWriteTrHdrCoord(*mock.get(), {72U, 76U}, {1600100,    3400222}, -1000, ns, 10, &tr);
+    segy->writeCoordPoint(File::Coord::Src, 10,   {1600.1000, 3400.2220});
+}
+
+TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord3)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    initWriteTrHdrCoord(*mock.get(), {72U, 76U}, {1623001001,   34002220}, -10000, ns, 10, &tr);
+    segy->writeCoordPoint(File::Coord::Src, 10,   {162300.10009, 3400.22201});
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// DEATH TESTS ////////////////////////////////////////////////
