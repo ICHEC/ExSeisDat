@@ -124,19 +124,26 @@ class FileSEGYSpecTest : public FileIntegrationTest
     }
 };
 
-void initReadHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns, int inc, size_t format, std::string testString)
+void initReadHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t ns, int inc, size_t format, std::string testString, bool testEBCDIC)
 {
     EXPECT_CALL(mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
-    size_t tsz = testString.size();
-    size_t tsz2 = tsz;
-    char * t = &testString[0];
-    char * newText = reinterpret_cast<char *>(ho.data());
-    iconv_t toAsc = iconv_open("EBCDICUS//", "ASCII//");
-    ::iconv(toAsc, &t, &tsz, &newText, &tsz2);
-    iconv_close(toAsc);
-    size_t szText = testString.size();
-    for (size_t i = szText; i < SEGSz::getTextSz(); i++)
-        ho[i] = ho[i % szText];
+    if (testEBCDIC)
+    {
+        size_t tsz = testString.size();
+        size_t tsz2 = tsz;
+        char * t = &testString[0];
+        char * newText = reinterpret_cast<char *>(ho.data());
+        iconv_t toAsc = iconv_open("EBCDICUS//", "ASCII//");
+        ::iconv(toAsc, &t, &tsz, &newText, &tsz2);
+        iconv_close(toAsc);
+    }
+    else
+    {
+        for (size_t i = 0; i < testString.size(); i++)
+            ho[i] = testString[i];
+    }
+    for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++)
+        ho[i] = ho[i % testString.size()];
     ho[3220U] = (ns >> 8) & 0xFF;
     ho[3221U] = ns & 0xFF;
     ho[3217U] = inc;
@@ -160,7 +167,7 @@ void CompileCheck(File::Interface & file)
 TEST_F(FileSEGYSpecTest, FileConstructor)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
+    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString, false);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     EXPECT_EQ(piol, segy.piol);
@@ -168,12 +175,11 @@ TEST_F(FileSEGYSpecTest, FileConstructor)
     EXPECT_EQ(mock, segy.obj);
 }
 
-TEST_F(FileSEGYSpecTest, FileReadAPI)
+TEST_F(FileSEGYSpecTest, FileReadHO)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadHOMock(*mock.get(), hor, nt, ns, inc, format, testString);
+    initReadHOMock(*mock.get(), hor, nt, ns, inc, format, testString, true);
     ASSERT_TRUE(ns < 0x10000);
-
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
 
     piol->isErr();
@@ -197,6 +203,22 @@ TEST_F(FileSEGYSpecTest, FileReadAPI)
     EXPECT_EQ(3200U, text.size());
     EXPECT_EQ(SEGSz::getTextSz(), text.size());
 //EBCDIC conversion check
+    size_t slen = testString.size();
+    for (size_t i = 0; i < text.size(); i++)
+        ASSERT_EQ(testString[i % slen], text[i]) << "Loop number " << i << std::endl;
+}
+
+TEST_F(FileSEGYSpecTest, FileReadHOAPI)
+{
+    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+    initReadHOMock(*mock.get(), hor, nt, ns, inc, format, testString, false);
+    ASSERT_TRUE(ns < 0x10000);
+
+    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
+
+    std::string text = segy.readText();
+    EXPECT_EQ(3200U, text.size());
+    EXPECT_EQ(SEGSz::getTextSz(), text.size());
     size_t slen = testString.size();
     for (size_t i = 0; i < text.size(); i++)
         ASSERT_EQ(testString[i % slen], text[i]) << "Loop number " << i << std::endl;
@@ -244,7 +266,7 @@ void FileWriteHO(const size_t nt, const size_t ns, const geom_t inc, std::string
     piol->isErr();
 }
 
-TEST_F(FileSEGYSpecTest, FileWriteAPI)
+TEST_F(FileSEGYSpecTest, FileWriteHO)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
     initWriteHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
@@ -253,7 +275,7 @@ TEST_F(FileSEGYSpecTest, FileWriteAPI)
     FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, &segy);
 }
 
-TEST_F(FileSEGYSpecTest, FileWriteAPILongString)
+TEST_F(FileSEGYSpecTest, FileWriteHOLongString)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
     initWriteHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
@@ -270,7 +292,7 @@ TEST_F(FileSEGYSpecTest, FileWriteAPILongString)
     FileWriteHO(nt, ns, geom_t(inc*SI::Micro), testString, piol, &segy);
 }
 
-TEST_F(FileSEGYSpecTest, FileWriteAPIEmptyString)
+TEST_F(FileSEGYSpecTest, FileWriteHOEmptyString)
 {
     testString.resize(0);
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
@@ -302,7 +324,7 @@ void initReadTraceMock(MockObj & mock, std::vector<uchar> & tr, size_t offset, s
 TEST_F(FileSEGYSpecTest, FileReadTraceHeader)
 {
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString);
+    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString, false);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     std::vector<uchar> tr(SEGSz::getMDSz());
@@ -314,7 +336,7 @@ TEST_F(FileSEGYSpecTest, FileReadTrHdrBigNs)
 {
     const size_t bigns = 10000;
     auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadHOMock(*mock.get(), how, nt, bigns, inc, 5, testString);
+    initReadHOMock(*mock.get(), how, nt, bigns, inc, 5, testString, false);
 
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     std::vector<uchar> tr(SEGSz::getMDSz());

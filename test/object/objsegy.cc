@@ -273,6 +273,7 @@ void SEGYReadTrTest(size_t offset, const std::vector<size_t> & nsVals, const uch
     const size_t extra = 1111U;
     std::vector<uchar> tr(extra + SEGSz::getMDSz() + extra);
 
+    ASSERT_TRUE(nsVals.size() > 0);
     for (size_t j = 0U; j < nsVals.size(); j++)
     {
         size_t foff = SEGSz::getDOLoc(offset, nsVals[j]);
@@ -320,12 +321,14 @@ TEST_F(ObjIntegrationTest, SEGYWriteTrHdr)
     dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
     Obj::SEGY segy(piol, outFile, segyOpt, dataOpt);
 
-    SEGYWriteTrTest(10U, 100U, &segy);
-    SEGYReadTrTest(10U, {100U}, magicNum1, &segy);
-    SEGYWriteTrTest(40U, 1000U, &segy);
-    SEGYReadTrTest(40U, {1000U}, magicNum1, &segy);
     SEGYWriteTrTest(40U, 0U, &segy);
     SEGYReadTrTest(40U, {0U}, magicNum1, &segy);
+
+    SEGYWriteTrTest(80U, 100U, &segy);
+    SEGYReadTrTest(80U, {100U}, magicNum1, &segy);
+
+    SEGYWriteTrTest(400U, 1000U, &segy);
+    SEGYReadTrTest(400U, {1000U}, magicNum1, &segy);
 
 }
 
