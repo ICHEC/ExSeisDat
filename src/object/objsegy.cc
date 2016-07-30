@@ -29,21 +29,21 @@ SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt &
 #pragma GCC diagnostic pop
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
-void SEGY::readHO(uchar * ho)
+void SEGY::readHO(uchar * ho) const
 {
     data->read(0U, SEGSz::getHOSz(), ho);
 }
-void SEGY::writeHO(const uchar * ho)
+void SEGY::writeHO(const uchar * ho) const
 {
     data->write(0U, SEGSz::getHOSz(), ho);
 }
 
-void SEGY::readDOMD(const size_t offset, const size_t ns, uchar * ho)
+void SEGY::readDOMD(const size_t offset, const size_t ns, uchar * ho) const
 {
     data->read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), ho);
 }
 
-void SEGY::writeDOMD(const size_t offset, const size_t ns, const uchar * ho)
+void SEGY::writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const
 {
     data->write(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), ho);
 }

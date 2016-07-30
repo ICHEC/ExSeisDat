@@ -4,8 +4,6 @@
 #include <mpi.h>
 #include <typeinfo>
 #include "global.hh"
-#include "anc/piol.hh"
-#include "anc/log.hh"
 namespace PIOL {
 
 /*! \brief Check the MPI error code and log an error event if there is an error.

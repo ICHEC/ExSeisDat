@@ -14,7 +14,7 @@ namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static MPI_File open(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, const std::string name)
+static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, const std::string name)
 {
     MPI_File file = MPI_FILE_NULL;
     int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
@@ -39,60 +39,6 @@ int setView(const MPI_File file, const MPI_Offset offset = 0)
     MPI_Info info = MPI_INFO_NULL;
     int err = MPI_File_set_view(file, offset, MPIType<T>(), MPIType<U>(), "native", info);
     return err;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////    Class functions    ///////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-MPIIOOpt::MPIIOOpt(void)
-{
-    mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
-    info = MPI_INFO_NULL;
-    maxSize = getLim<int32_t>();
-}
-
-MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
-{
-    maxSize = opt.maxSize;
-    info = opt.info;
-
-    auto mcomm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
-    if (mcomm == nullptr)
-    {
-        piol->record(name, Log::Layer::Data, Log::Status::Error, "Cast of communicator to MPI communicator failed", Log::Verb::None);
-        return;
-    }
-    comm = mcomm->getComm();
-
-    file = open(*piol, comm, opt, name);
-    if (file != MPI_FILE_NULL)
-    {
-        int err = setView<uchar>(file);
-        printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
-    }
-}
-
-MPIIO::~MPIIO(void)
-{
-    if (file != MPI_FILE_NULL)
-        MPI_File_close(&file);
-}
-
-///////////////////////////////////       Member functions      ///////////////////////////////////
-size_t MPIIO::getFileSz()
-{
-    MPI_Offset fsz;
-    int err = MPI_File_get_size(file, &fsz);
-    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error getting the file size");
-    return size_t(fsz);
-}
-
-void MPIIO::setFileSz(const size_t sz)
-{
-    int err = MPI_File_preallocate(file, MPI_Offset(sz));
-    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
 }
 
 /*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
@@ -136,13 +82,6 @@ int io(const MFp<U> fn, const MPI_File & file, const size_t offset, T * d, const
     return err;
 }
 
-void MPIIO::read(const size_t offset, const size_t sz, uchar * d)
-{
-    MPI_Status arg;
-    int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
-    printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
-}
-
 /*! \brief This function exists to hide the const from the MPI_File_write_at function signature
  *  \param[in] f The MPI file handle
  *  \param[in] o The offset in bytes from the current internal shared pointer
@@ -157,7 +96,68 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
     return MPI_File_write_at(f, o, d, s, da, st);
 }
 
-void MPIIO::write(const size_t offset, size_t sz, const uchar * d)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////    Class functions    ///////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////      Constructor & Destructor      ///////////////////////////////
+MPIIOOpt::MPIIOOpt(void)
+{
+    mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
+    info = MPI_INFO_NULL;
+    maxSize = getLim<int32_t>();
+}
+
+MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
+{
+    maxSize = opt.maxSize;
+    info = opt.info;
+
+    auto mcomm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
+    if (mcomm == nullptr)
+    {
+        piol->record(name, Log::Layer::Data, Log::Status::Error, "Cast of communicator to MPI communicator failed", Log::Verb::None);
+        return;
+    }
+    comm = mcomm->getComm();
+
+    file = mopen(*piol, comm, opt, name);
+    if (file != MPI_FILE_NULL)
+    {
+        int err = setView<uchar>(file);
+        printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
+    }
+}
+
+MPIIO::~MPIIO(void)
+{
+    if (file != MPI_FILE_NULL)
+        MPI_File_close(&file);
+}
+
+///////////////////////////////////       Member functions      ///////////////////////////////////
+size_t MPIIO::getFileSz() const
+{
+    MPI_Offset fsz;
+    int err = MPI_File_get_size(file, &fsz);
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error getting the file size");
+    return size_t(fsz);
+}
+
+void MPIIO::setFileSz(const size_t sz) const
+{
+    int err = MPI_File_preallocate(file, MPI_Offset(sz));
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
+}
+
+void MPIIO::read(const size_t offset, const size_t sz, uchar * d) const
+{
+    MPI_Status arg;
+    int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
+    printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
+}
+
+void MPIIO::write(const size_t offset, size_t sz, const uchar * d) const
 {
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, const_cast<uchar *>(d), sz, arg, maxSize);

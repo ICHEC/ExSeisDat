@@ -54,12 +54,12 @@ class MPI : public Comm::Interface
     /*! \brief Retrieve the MPI communicator associated with the ExSeisPIOL.
      *  \return The MPI communicator.
      */
-    MPI_Comm getComm();
+    MPI_Comm getComm() const;
 
     /*! \brief All processors will wait at the barrier until everyone arrives.
      *  The MPI implementation of the pure virtual base member simply calls MPI_Barrier
      */
-    void barrier(void);
+    void barrier(void) const;
 };
 }}
 #endif

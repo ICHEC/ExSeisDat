@@ -45,12 +45,12 @@ MPI::~MPI(void)
     }
 }
 
-MPI_Comm MPI::getComm()
+MPI_Comm MPI::getComm() const
 {
     return comm;
 }
 
-void MPI::barrier(void)
+void MPI::barrier(void) const
 {
     MPI_Barrier(comm);
 }

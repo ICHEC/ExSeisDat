@@ -29,12 +29,12 @@ class MockObj : public Obj::Interface
     public :
     MockObj(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_)
                : Obj::Interface(piol_, name_, data_) {}
-    MOCK_METHOD0(getFileSz, size_t(void));
-    MOCK_METHOD1(readHO, void(uchar *));
-    MOCK_METHOD1(setFileSz, void(const size_t));
-    MOCK_METHOD1(writeHO, void(const uchar *));
-    MOCK_METHOD3(readDOMD, void(const size_t, const size_t, uchar *));
-    MOCK_METHOD3(writeDOMD, void(const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD0(getFileSz, size_t(void));
+    MOCK_CONST_METHOD1(readHO, void(uchar *));
+    MOCK_CONST_METHOD1(setFileSz, void(const size_t));
+    MOCK_CONST_METHOD1(writeHO, void(const uchar *));
+    MOCK_CONST_METHOD3(readDOMD, void(const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD3(writeDOMD, void(const size_t, const size_t, const uchar *));
 };
 
 class FileIntegrationTest : public Test
@@ -412,8 +412,9 @@ typedef FileSEGYSpecTest FileSEGYDeathTest;
 
 TEST_F(FileSEGYDeathTest, FileWriteAPIBadns)
 {
-    auto mock = std::make_shared<NiceMock<MockObj>>(piol, notFile, nullptr);
     size_t badns = 0x470000;
+    auto mock = std::make_shared<NiceMock<MockObj>>(piol, notFile, nullptr);
+    ASSERT_TRUE(mock);
     File::SEGY segy(piol, notFile, fileSegyOpt, mock);
     piol->isErr();
 

@@ -10,10 +10,8 @@
 #ifndef PIOLFILE_INCLUDE_GUARD
 #define PIOLFILE_INCLUDE_GUARD
 #include "global.hh"
-#include "object/object.hh"
-#include "data/data.hh"
-namespace PIOL { namespace File {
 
+namespace PIOL { namespace File {
 typedef std::pair<geom_t, geom_t> coord_t;  //!< The type for coordinate points
 typedef std::pair<llint, llint> grid_t;     //!< The type for grid points
 
@@ -66,48 +64,36 @@ class Interface
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */
-    virtual std::string readText(void)
-    {
-        return text;
-    }
+    std::string readText(void) const;
 
     /*! \brief Read the number of samples per trace
      *  \return The number of samples per trace
      */
-    virtual size_t readNs(void)
-    {
-        return ns;
-    }
+    size_t readNs(void) const;
 
     /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
-    virtual size_t readNt(void)
-    {
-        return nt;
-    }
+    size_t readNt(void) const;
 
     /*! \brief Read the number of increment between trace samples
      *  \return The increment between trace samples
      */
-    virtual geom_t readInc(void)
-    {
-        return inc;
-    }
+    geom_t readInc(void) const;
 
     /*! \brief Pure virtual function to read the ith-trace coordinate pair
      *  \param[in] item The coordinate pair of interest
      *  \param[in] i The trace number
      *  \return The ith-trace coordinate pair
      */
-    virtual coord_t readCoordPoint(const Coord item, const size_t i) = 0;
+    virtual coord_t readCoordPoint(const Coord item, const size_t i) const = 0;
 
     /*! \brief Pure virtual function to read the ith grid pair
      *  \param[in] item The Grid pair of interest
      *  \param[in] i The trace number
      *  \return The ith-trace grid pair
      */
-    virtual grid_t readGridPoint(const Grid item, const size_t i) = 0;
+    virtual grid_t readGridPoint(const Grid item, const size_t i) const = 0;
 
     /*! \brief Pure virtual function to write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
@@ -134,14 +120,14 @@ class Interface
      *  \param[in] i The trace number.
      *  \param[in] coord The coordinate to write
      */
-    virtual void writeCoordPoint(const Coord item, const size_t i, const coord_t coord) = 0;
+    virtual void writeCoordPoint(const Coord item, const size_t i, const coord_t coord) const = 0;
 
     /*! \brief Pure virtual function to write the ith-trace grid pair.
      *  \param[in] item The Grid pair of interest
      *  \param[in] i The trace number.
      *  \param[in] grid the grid point to write.
      */
-    virtual void writeGridPoint(const Grid item, const size_t i, const grid_t grid) = 0;
+    virtual void writeGridPoint(const Grid item, const size_t i, const grid_t grid) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the file layer.

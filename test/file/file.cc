@@ -47,14 +47,14 @@ struct FakeFile : public File::Interface
         ns = 1010U;
     }
 
-    File::coord_t readCoordPoint(File::Coord item, const size_t i) { return std::make_pair<geom_t, geom_t>(0, 0); }
-    File::grid_t readGridPoint(File::Grid item, const size_t i) { return std::make_pair<llint, llint>(llint(0), llint(0)); }
+    File::coord_t readCoordPoint(File::Coord item, const size_t i) const { return std::make_pair<geom_t, geom_t>(0, 0); }
+    File::grid_t readGridPoint(File::Grid item, const size_t i) const { return std::make_pair<llint, llint>(llint(0), llint(0)); }
     void writeText(const std::string text_) {}
     void writeNs(const size_t ns_) {}
     void writeNt(const size_t nt_) {}
     void writeInc(const geom_t inc_) {}
-    void writeCoordPoint(File::Coord item, const size_t i, const File::coord_t coord) {}
-    void writeGridPoint(File::Grid item, const size_t i, const File::grid_t grid) {}
+    void writeCoordPoint(File::Coord item, const size_t i, const File::coord_t coord) const {}
+    void writeGridPoint(File::Grid item, const size_t i, const File::grid_t grid) const {}
 };
 #pragma GCC diagnostic pop
 

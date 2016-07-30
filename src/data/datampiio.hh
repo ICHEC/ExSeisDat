@@ -12,7 +12,6 @@
 #include <memory>
 #include <typeinfo>
 #include "global.hh"
-#include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "data/data.hh"
 
@@ -49,12 +48,12 @@ class MPIIO : public Interface
     /*! \brief Find out the file size.
      *  \return The file size in bytes.
      */
-    size_t getFileSz();
+    size_t getFileSz() const;
 
     /*! \brief Set the file size (preallocates).
      *  \param[in] sz The size in bytes
      */
-    void setFileSz(const size_t sz);
+    void setFileSz(const size_t sz) const;
 
     /*! \brief Read from storage using MPI-IO. If \c offset + \c sz is greater than the file size then
      *  only up to the file size is read. The rest of \c d is in an undefined state.
@@ -63,14 +62,14 @@ class MPIIO : public Interface
      *  sz elements.
      *  \param[out] d     The array to store the output in.
      */
-    void read(const size_t offset, const size_t sz, uchar * d);
+    void read(const size_t offset, const size_t sz, uchar * d) const;
 
     /*! \brief Write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to write to disk
      *  \param[in] d      The array to read data output from
      */
-    void write(const size_t offset, const size_t sz, const uchar * d);
+    void write(const size_t offset, const size_t sz, const uchar * d) const;
 };
 }}
 #endif

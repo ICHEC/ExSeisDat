@@ -11,5 +11,19 @@ typedef double geom_t;          //!< Real type for geometry
 typedef double unit_t;          //!< Real type for geometry
 #include "anc/piol.hh"
 #include "anc/log.hh"
-#endif
 
+namespace PIOL { namespace Data {
+class Interface;
+struct Opt;
+}}
+
+namespace PIOL { namespace Obj {
+class Interface;
+struct Opt;
+}}
+
+namespace PIOL { namespace File {
+class Interface;
+struct Opt;
+}}
+#endif

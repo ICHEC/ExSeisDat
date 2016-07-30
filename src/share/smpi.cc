@@ -13,7 +13,7 @@ void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer,
     if (err != MPI_SUCCESS)
     {
         if ((err == MPI_ERR_IN_STATUS) && (stat != NULL))
-            msg += " MPI_Status: " + stat->MPI_ERROR;
+            msg += " MPI_Status: " + std::to_string(stat->MPI_ERROR);
 
         piol.record(file, layer, Log::Status::Error, msg, Log::Verb::None);
     }

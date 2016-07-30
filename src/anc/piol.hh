@@ -23,14 +23,14 @@ struct ExSeisPIOL
 
     /*! \brief The constructor with the most options
      *  \param[in] maxLevel The verbosity level of the logs.
-     *  \param[in] comm The options object corresponding to the desired inter-processor communicator.
+     *  \param[in] commOpt The options object corresponding to the desired inter-processor communicator.
      */
-    ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comm);
+    ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & commOpt);
 
     /*! \overload
-     *  \param[in] comm The options object corresponding to the desired inter-processor communicator.
+     *  \param[in] commOpt The options object corresponding to the desired inter-processor communicator.
      */
-    ExSeisPIOL(const Comm::Opt & comm);
+    ExSeisPIOL(const Comm::Opt & commOpt);
 
     /*! \brief The destructor outputs all of the log messages and deletes the communicator.
      *  This will free the communicator if the class contains the last shared pointer.

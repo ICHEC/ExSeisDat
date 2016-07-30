@@ -25,19 +25,19 @@ class DataTest : public Test
 
 struct FakeData : public Data::Interface
 {
-    FakeData(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
+    FakeData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
     {
 
     }
 
-    size_t getFileSz()
+    size_t getFileSz() const
     {
         return 0U;
     }
 
-    void read(size_t offset, size_t sz, uchar * d) {}
-    void setFileSz(size_t sz) {}
-    void write(size_t offset, size_t sz, const uchar * d) {}
+    void read(const size_t offset, const size_t sz, uchar * d) const {}
+    void setFileSz(const size_t sz) const {}
+    void write(const size_t offset, const size_t sz, const uchar * d) const {}
 };
 
 TEST_F(DataTest, Constructor)

@@ -9,7 +9,7 @@
 #ifndef PIOLSHARECASTS_INCLUDE_GUARD
 #define PIOLSHARECASTS_INCLUDE_GUARD
 #include <string>
-#include "anc/piol.hh"
+#include "global.hh"
 namespace PIOL {
 
 /*! \brief Cast the options object to a derived class type and error check the cast.

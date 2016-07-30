@@ -118,16 +118,13 @@ class Logger
      *  \param[in] stat The status to be queried
      *  \return The number of items with a status of \c stat
      */
-    size_t numStat(const Status stat);
+    size_t numStat(const Status stat) const;
 
     /*! \brief Check if the Log object has recorded an error.
      *  \retval true An error has been encountered.
      *  \retval false An error has not been encountered.
      */
-    bool isErr(void)
-    {
-        return error;
-    }
+    bool isErr(void) const;
 };
 }}
 #endif

@@ -35,20 +35,20 @@ struct FakeObject : public Obj::Interface
     FakeObject(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Data::Opt & dataOpt)
                : Obj::Interface(piol_, name_, dataOpt) { }
 
-    size_t getFileSz()
+    size_t getFileSz() const
     {
         return 0U;
     }
 
-    void readHO(uchar * ho) {}
+    void readHO(uchar * ho) const {}
 
-    void getFileSz(size_t sz) {}
+    void getFileSz(size_t sz) const {}
 
-    void writeHO(const uchar * ho) {}
+    void writeHO(const uchar * ho) const {}
 
-    void readDOMD(const size_t offset, const size_t ns, uchar * ho) {}
+    void readDOMD(const size_t offset, const size_t ns, uchar * ho) const {}
 
-    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) {}
+    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const {}
 };
 #pragma GCC diagnostic pop
 

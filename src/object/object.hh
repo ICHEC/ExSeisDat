@@ -11,7 +11,7 @@
 #define PIOLOBJ_INCLUDE_GUARD
 #include <memory>
 #include "global.hh"
-#include "data/data.hh"
+
 namespace PIOL { namespace Obj {
 /*! \brief The Obj layer interface. Specific Obj implementations
  *  work off this base class.
@@ -41,28 +41,23 @@ class Interface
     /*! \brief Find out the file size.
      *  \return The file size in bytes.
      */
-    virtual size_t getFileSz(void)
-    {
-        return data->getFileSz();
-    }
+    virtual size_t getFileSz(void) const;
+
     /*! \brief Set the file size.
      *  \param[in] sz The size in bytes
      */
-    virtual void setFileSz(const size_t sz)
-    {
-        return data->setFileSz(sz);
-    }
+    virtual void setFileSz(const size_t sz) const;
 
     /*! \brief Pure virtual function to read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough
      *  to hold the header object.
      */
-    virtual void readHO(uchar * ho) = 0;
+    virtual void readHO(uchar * ho) const = 0;
 
     /*! \brief Pure virtual function to write the header object.
      *  \param[in] ho An array which the caller guarantees is as long as the header object.
      */
-    virtual void writeHO(const uchar * ho) = 0;
+    virtual void writeHO(const uchar * ho) const = 0;
 
     /*! \brief Pure virtual function to read the data-object metadata.
      *  \param[in] offset The trace number we are interested in.
@@ -71,7 +66,7 @@ class Interface
      *  the specific trace header.
      *  \todo Extend this function to read more than one trace
      */
-    virtual void readDOMD(const size_t offset, const size_t ns, uchar * ho) = 0;
+    virtual void readDOMD(const size_t offset, const size_t ns, uchar * ho) const = 0;
 
     /*! \brief Pure virtual function to write the data-object metadata.
      *  \param[in] offset The trace number we are interested in.
@@ -80,7 +75,7 @@ class Interface
      *  the specific trace header.
      *  \todo Extend this function to write more than one trace
      */
-    virtual void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) = 0;
+    virtual void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.

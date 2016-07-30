@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date July 2016
+ *   \brief
+ *   \details The intention is to make this obselete very soon
+ *//*******************************************************************************************/
 #ifndef PIOLSHARESEGY_INCLUDE_GUARD
 #define PIOLSHARESEGY_INCLUDE_GUARD
 namespace PIOL { namespace SEGSz {

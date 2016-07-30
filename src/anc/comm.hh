@@ -27,19 +27,19 @@ class Interface
     /*! \brief Returns the rank of the process executing the function/
      *  \return The rank.
      */
-    virtual size_t getRank()
+    virtual size_t getRank() const
     {
         return rank;
     }
     /*! \brief Returns the number of processes which are executing together.
      *  \return The number of processes (i.e number of ranks).
      */
-    virtual size_t getNumRank()
+    virtual size_t getNumRank() const
     {
         return numRank;
     }
 
-    virtual void barrier(void) = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
+    virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
 };
 
 /*! \brief An enum of the possible derived classes for communication.

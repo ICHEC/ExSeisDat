@@ -6,6 +6,8 @@ TEST_FRAM= -I../../googletest/googletest/include/ -I../../googletest/googlemock/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
 
+#GCOMP=clang++
+GCOMP=g++
 include ../compiler.cfg
 
 INC_FOLDER = -I../ $(LOCAL_INC_FOLDER)
@@ -19,10 +21,10 @@ OBJECTS=$(wildcard ../src/obj/*.o) $(wildcard obj/*.o)
 all: libgmock.a $(BIN) $(DEP) genfiles
 
 libgmock.a:
-	g++ -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
+	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GTEST_DIR}/src/gtest-all.cc
-	g++ -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
+	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gtest-all.o gmock-all.o

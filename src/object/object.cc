@@ -40,4 +40,14 @@ Interface::Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string 
     }
     piol->record(name_, Log::Layer::Object, Log::Status::Warning, "Successful exit of Object Interface", Log::Verb::Max);
 }
+
+size_t Interface::getFileSz(void) const
+{
+    return data->getFileSz();
+}
+
+void Interface::setFileSz(const size_t sz) const
+{
+    return data->setFileSz(sz);
+}
 }}

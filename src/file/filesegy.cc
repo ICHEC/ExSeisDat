@@ -12,12 +12,12 @@
 #include <cmath>
 #include "global.hh"
 #include "file/filesegy.hh"
+#include "object/object.hh"
 #include "share/segy.hh"
 #include "file/iconv.hh"
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include <limits>
-#include <iostream>
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -153,7 +153,11 @@ T getMd(const Hdr item, const uchar * src)
     }
 }
 
-geom_t scaleConv(int32_t scale)
+/*! \brief Convert a SEG-Y scale integer to a floating point type
+ *  \param[in] scale The int16_t scale taken from the SEG-Y file
+ *  \return The scale convertered to floating point.
+ */
+geom_t scaleConv(int16_t scale)
 {
     scale = (!scale ? 1 : scale);
     return (scale > 0 ? geom_t(scale) : geom_t(1)/geom_t(-scale));
@@ -198,12 +202,11 @@ int32_t getMd(const TrGrd item, const uchar * src)
 
 /*! \brief Set the header metadata value corresponding to the item specified
  *  \param[in] item The header item of interest
- *  \param[in] dst The header as an array of uchar.
  *  \param[in] src The metadata value to insert into the buffer.
- *  \return Return the header item value
+ *  \param[out] dst The header as an array of uchar.
  */
 template <typename T = int16_t>
-void setMd(Hdr item, uchar * dst, T src)
+void setMd(const Hdr item, const T src, uchar * dst)
 {
     switch (item)
     {
@@ -220,24 +223,35 @@ void setMd(Hdr item, uchar * dst, T src)
     }
 }
 
-void setScale(TrScal item, int16_t scale, uchar * buf)
+/*! \brief Set a trace scale in the trace header
+ *  \param[in] item The scale item of interest
+ *  \param[in] scale The metadata value to insert into the buffer.
+ *  \param[out] buf The trace header as an array of uchar.
+ */
+void setScale(const TrScal item, const int16_t scale, uchar * buf)
 {
     getBigEndian(scale, &buf[size_t(item)-1U]);
-    std::cout << "scale = " << scale << std::endl;
 }
 
+/*! \brief Set a coordinate point in the trace header
+ *  \param[in] item The coordinate point type of interest
+ *  \param[in] coord The value of the coordinate point
+ *  \param[in] scale The scale as an integer from the SEG-Y header
+ *  \param[out] buf The trace header as an array of uchar.
+ */
 void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar * buf)
 {
     auto pair = getPair(item);
     geom_t gscale = scaleConv(scale);
     getBigEndian(int32_t(std::lround(coord.first / gscale)), &buf[size_t(pair.first) - 1U]);
     getBigEndian(int32_t(std::lround(coord.second / gscale)), &buf[size_t(pair.second) - 1U]);
-    int32_t f = std::lround(coord.first / gscale);
-    int32_t s = std::lround(coord.second / gscale);
-    std::cout << "Final Values = " << f << std::endl;
-    std::cout << "Final Values = " << s << std::endl;
 }
 
+/*! \brief Set a grid point in the trace header
+ *  \param[in] item The grid point type of interest
+ *  \param[in] grid The value of the grid point
+ *  \param[out] buf The trace header as an array of uchar.
+ */
 void setGrid(const Grid item, const grid_t grid, uchar * buf)
 {
     auto pair = getPair(item);
@@ -287,20 +301,20 @@ SEGY::~SEGY(void)
 }
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
-void SEGY::packHeader(uchar * buf)
+void SEGY::packHeader(uchar * buf) const
 {
     for (size_t i = 0; i < text.size(); i++)
         buf[i] = text[i];
 
-    setMd(Hdr::NumSample, buf, int16_t(ns));
-    setMd(Hdr::Type,      buf, int16_t(Format::IEEE));
-    setMd(Hdr::Increment, buf, int16_t(std::lround(inc / incFactor)));
+    setMd(Hdr::NumSample, int16_t(ns), buf);
+    setMd(Hdr::Type, int16_t(Format::IEEE), buf);
+    setMd(Hdr::Increment, int16_t(std::lround(inc / incFactor)), buf);
 
 //Currently these are hard-coded entries:
-    setMd(Hdr::Units,      buf, 0x0001);    //The unit system.
-    setMd(Hdr::SEGYFormat, buf, 0x0100);    //The version of the SEGY format.
-    setMd(Hdr::FixedTrace, buf, 0x0001);    //We always deal with fixed traces at present.
-    setMd(Hdr::Extensions, buf, 0x0000);    //We do not support text extensions at present.
+    setMd(Hdr::Units,      0x0001, buf);    //The unit system.
+    setMd(Hdr::SEGYFormat, 0x0100, buf);    //The version of the SEGY format.
+    setMd(Hdr::FixedTrace, 0x0001, buf);    //We always deal with fixed traces at present.
+    setMd(Hdr::Extensions, 0x0000, buf);    //We do not support text extensions at present.
 }
 
 void SEGY::procHeader(const size_t fsz, uchar * buf)
@@ -410,7 +424,7 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-coord_t SEGY::readCoordPoint(const Coord item, const size_t i)
+coord_t SEGY::readCoordPoint(const Coord item, const size_t i) const
 {
     std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
     uchar * md = buf.data();
@@ -423,7 +437,7 @@ coord_t SEGY::readCoordPoint(const Coord item, const size_t i)
                    getMd(pair.second, scale, md));
 }
 
-grid_t SEGY::readGridPoint(const Grid item, const size_t i)
+grid_t SEGY::readGridPoint(const Grid item, const size_t i) const
 {
     std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
     uchar * md = buf.data();
@@ -433,11 +447,17 @@ grid_t SEGY::readGridPoint(const Grid item, const size_t i)
     return std::make_pair(getMd(pair.first, md), getMd(pair.second, md));
 }
 
-/* Convert the number from float to a 6 byte SEGY fixed-point representation.
+/*! \fn int16_t PIOL::File::deScale(const geom_t val)
+ * \brief Take a coordinate and extract a suitable scale factor to represent that number
+ * in 6 byte fixed point format of the SEG-Y specification.
+ * \param[in] val The coordinate of interest.
+ * \return An appropriate scale factor the coordinate.
+ * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
  * There are ten possible values for the scale factor. Shown are the possible values
  * and the form the input float should have to use that scale factor.
  * firstly, anything smaller than 4 decimal points is discarded since the approach
  * can not represent it.
+*//*
  * Shown is the
  * position of the least significant digit:
  * -10000 - \d0000.0000
@@ -459,7 +479,7 @@ int16_t deScale(const geom_t val)
     //First we need to determine what scale is required to store the
     //biggest decimal value of the int.
     llint llintpart = llint(val);      //TODO: Double check spec
-    int32_t intpart = llintpart;          //TODO: Double check spec
+    int32_t intpart = llintpart;       //TODO: Double check spec
     if (llintpart != intpart)
     {
         /* Starting with the smallest scale factor, see
@@ -504,7 +524,7 @@ int16_t deScale(const geom_t val)
         return 1;
     }
 }
-void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord)
+void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord) const
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
 
@@ -528,7 +548,7 @@ void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord)
     obj->writeDOMD(i, ns, md.data());
 }
 
-void SEGY::writeGridPoint(const Grid item, const size_t i, const grid_t grid)
+void SEGY::writeGridPoint(const Grid item, const size_t i, const grid_t grid) const
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
     setGrid(item, grid, md.data());

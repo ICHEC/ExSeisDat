@@ -12,10 +12,8 @@
 #include "anc/piol.hh"
 #include "global.hh"
 #include "object/object.hh"
-#include "data/data.hh"
 
 namespace PIOL { namespace Obj {
-
 /*! \brief The SEG-Y options structure. Currently empty.
  */
 struct SEGYOpt : public Opt
@@ -52,12 +50,12 @@ class SEGY : public Interface
     /*! \brief Read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough to hold the SEG-Y header (3200 bytes).
      */
-    void readHO(uchar * ho);
+    void readHO(uchar * ho) const;
 
     /*! \brief Write the header object.
      *  \param[out] ho An array which the caller guarantees is as long enough the header object.
      */
-    void writeHO(const uchar * ho);
+    void writeHO(const uchar * ho) const;
 
     /*! Read the data-object metadata.
      *  \param[in] offset The trace number we are interested in.
@@ -66,7 +64,7 @@ class SEGY : public Interface
      *  the specific trace header.
      *  \todo Extend this function to read more than one trace
      */
-    void readDOMD(const size_t offset, const size_t ns, uchar * ho);
+    void readDOMD(const size_t offset, const size_t ns, uchar * ho) const;
 
     /*! Write the data-object metadata.
      *  \param[in] offset The trace number we are interested in.
@@ -75,7 +73,7 @@ class SEGY : public Interface
      *  the specific trace header.
      *  \todo Extend this function to write more than one trace
      */
-    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho);
+    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const;
 
 };
 }}

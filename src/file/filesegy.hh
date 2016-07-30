@@ -10,7 +10,6 @@
 #define PIOLFILESEGY_INCLUDE_GUARD
 #include <memory>
 #include "global.hh"
-#include "object/object.hh"
 #include "file/file.hh"
 
 namespace PIOL { namespace File {
@@ -56,7 +55,7 @@ class SEGY : public Interface
     /*! \brief This function packs the state of the class object into the header.
      *  \param[in] buf The header object buffer
      */
-    void packHeader(uchar * buf);
+    void packHeader(uchar * buf) const;
 
     /*! \brief This function initialises the class.
      */
@@ -90,14 +89,14 @@ class SEGY : public Interface
      *  \param[in] i The trace number
      *  \return The ith-trace coordinate pair
      */
-    coord_t readCoordPoint(const Coord item, const size_t i);
+    coord_t readCoordPoint(const Coord item, const size_t i) const;
 
     /*! \brief Read the ith grid pair
      *  \param[in] item The Grid pair of interest
      *  \param[in] i The trace number
      *  \return The ith-trace grid pair
      */
-    grid_t readGridPoint(const Grid item, const size_t i);
+    grid_t readGridPoint(const Grid item, const size_t i) const;
 
     /*! \brief Write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
@@ -126,14 +125,14 @@ class SEGY : public Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeCoordPoint(const Coord item, const size_t i, const coord_t coord);
+    void writeCoordPoint(const Coord item, const size_t i, const coord_t coord) const;
 
     /*! \brief Write the ith-trace grid pair.
      *  \param[in] item The Grid pair of interest
      *  \param[in] i The trace number.
      *  \param[in] grid the grid point to write.
      */
-    void writeGridPoint(const Grid item, const size_t i, const grid_t grid);
+    void writeGridPoint(const Grid item, const size_t i, const grid_t grid) const;
 };
 }}
 #endif

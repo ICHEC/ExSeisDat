@@ -1,5 +1,6 @@
 
 all:
+	($(MAKE) -f makeunittest libgmock.a)
 	(cd ../src; $(MAKE))
 #	(cd anc; $(MAKE))
 	(cd data; $(MAKE))
