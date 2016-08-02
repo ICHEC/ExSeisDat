@@ -60,7 +60,7 @@ class Interface
     virtual void readHO(uchar * ho) = 0;
 
     /*! \brief Pure virtual function to write the header object.
-     *  \param[in] ho An array which the caller guarantees is as long as the header object.
+     *  \param[in] ho An array which the caller guarantees is long enough to hold the header object.
      */
     virtual void writeHO(const uchar * ho) = 0;
 

@@ -29,6 +29,7 @@ const ODeriv * castOptToDeriv(ExSeisPIOL * piol, const OBase & bopt, const std::
         piol->record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
     return opt;
 }
+
 /*! \brief Cast the derived class to its base class within a shared_ptr
  *  \tparam TBase   The base class
  *  \tparam TDeriv  The derived class

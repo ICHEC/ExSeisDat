@@ -27,7 +27,7 @@ namespace PIOL { namespace File {
 enum class Hdr : size_t
 {
     Increment  = 3217U, //!< int16_t. The increment between traces in microseconds
-    NumSample  = 3221U, //!< int16_t. The Numbe of samples per trace
+    NumSample  = 3221U, //!< int16_t. The Number of samples per trace
     Type       = 3225U, //!< int16_t. Trace data type. AKA format in SEGY terminology
     Sort       = 3229U, //!< int16_t. The sort order of the traces.
     Units      = 3255U, //!< int16_t. The unit system, i.e SI or imperial.
@@ -42,7 +42,7 @@ enum class TrHdr : size_t
     SeqNum      = 1U,   //!< int32_t. The trace sequence number within the Line
     SeqFNum     = 5U,   //!< int32_t. The trace sequence number within SEG-Y File
     ORF         = 9U,   //!< int32_t. The original field record number.
-    TORF        = 9U    //!< int32_t. The trace number within the ORF.
+    TORF        = 13U    //!< int32_t. The trace number within the ORF.
 };
 
 /*! Trace Header offsets to elevations
@@ -196,10 +196,9 @@ int32_t getMd(const TrGrd item, const uchar * src)
  *  \param[in] item The header item of interest
  *  \param[in] dst The header as an array of uchar.
  *  \param[in] src The metadata value to insert into the buffer.
- *  \return Return the header item value
  */
 template <typename T = int16_t>
-void setMd(Hdr item, uchar * dst, T src)
+void setMd(const Hdr item, uchar * dst, const T src)
 {
     switch (item)
     {

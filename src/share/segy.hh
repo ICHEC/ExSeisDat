@@ -11,7 +11,7 @@ enum class Size : size_t
 };
 
 /*! \brief Return the size of the text field
- *  \return Returns the size
+ *  \return Returns the Text size
  */
 constexpr size_t getTextSz()
 {
@@ -19,7 +19,7 @@ constexpr size_t getTextSz()
 }
 
 /*! \brief Return the size of the Data-Object Metadata field
- *  \return Returns the size
+ *  \return Returns the MD size
  */
 constexpr size_t getMDSz()
 {
@@ -27,7 +27,7 @@ constexpr size_t getMDSz()
 }
 
 /*! \brief Return the size of the Header Object (assuming text extensions are not used)
- *  \return Returns the size.
+ *  \return Returns the HO size.
  */
 constexpr size_t getHOSz()
 {
@@ -45,7 +45,7 @@ inline size_t getDOSz(const size_t ns)
     return getMDSz() + ns*sizeof(T);
 }
 
-/*! \brief Return the expected size of the file if there are nt data-objects and 
+/*! \brief Return the expected size of the file if there are nt data-objects and
  *  ns elements in a data-field.
  *  \param[in] nt The number of data objects.
  *  \param[in] ns The number of elements in the data-field.

@@ -55,7 +55,7 @@ class SEGY : public Interface
     void readHO(uchar * ho);
 
     /*! \brief Write the header object.
-     *  \param[out] ho An array which the caller guarantees is as long enough the header object.
+     *  \param[out] ho An array which the caller guarantees is as long as the header object.
      */
     void writeHO(const uchar * ho);
 
