@@ -42,7 +42,7 @@ enum class TrHdr : size_t
     SeqNum      = 1U,   //!< int32_t. The trace sequence number within the Line
     SeqFNum     = 5U,   //!< int32_t. The trace sequence number within SEG-Y File
     ORF         = 9U,   //!< int32_t. The original field record number.
-    TORF        = 9U    //!< int32_t. The trace number within the ORF.
+    TORF        = 13U   //!< int32_t. The trace number within the ORF.
 };
 
 /*! Trace Header offsets to elevations
@@ -70,20 +70,20 @@ enum class TrScal : size_t
  */
 enum class TrCrd : size_t
 {
-    xSrc        = 73U,  //!< int32_t. The X coordinate for the source
-    ySrc        = 77U,  //!< int32_t. The Y coordinate for the source
-    xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
-    yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
-    xCDP        = 181U, //!< int32_t  The X coordinate for the CDP
-    yCDP        = 185U  //!< int32_t. The Y coordinate for the CDP
+    xSrc = 73U,  //!< int32_t. The X coordinate for the source
+    ySrc = 77U,  //!< int32_t. The Y coordinate for the source
+    xRcv = 81U,  //!< int32_t. The X coordinate for the receive group
+    yRcv = 85U,  //!< int32_t. The Y coordinate for the receive group
+    xCDP = 181U, //!< int32_t  The X coordinate for the CDP
+    yCDP = 185U  //!< int32_t. The Y coordinate for the CDP
 };
 
 /*! Trace Header offsets to grid components
  */
 enum class TrGrd : size_t
 {
-    iLin        = 189U, //!< int32_t. The Inline grid point.
-    xLin        = 193U  //!< int32_t. The Crossline grid point.
+    il        = 189U, //!< int32_t. The Inline grid point.
+    xl        = 193U  //!< int32_t. The Crossline grid point.
 };
 
 /*! \brief Return a pair of coordinate offsets
@@ -125,7 +125,7 @@ std::pair<TrGrd, TrGrd> getPair(Grid pair)
 //        case Grid::OFR :
 //            return std::make_pair(TrHdr::ORF, TrHdr::TORF);
         case Grid::Line :
-            return std::make_pair(TrGrd::iLin, TrGrd::xLin);
+            return std::make_pair(TrGrd::il, TrGrd::xl);
     }
 }
 
@@ -175,7 +175,7 @@ geom_t scaleConv(int16_t scale)
  */
 geom_t getMd(const TrScal scal, uchar * src)
 {
-    int32_t scale = getHost<int32_t>(&src[size_t(scal)-1U]);
+    auto scale = getHost<int16_t>(&src[size_t(scal)-1U]);
     return scaleConv(scale);
 }
 
