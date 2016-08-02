@@ -134,7 +134,7 @@ std::pair<int32_t, int32_t> testPack(const std::pair<T, T> pair, std::vector<uch
     tr[yMd+2] = 0x76;
     tr[yMd+3] = 0x54;
 
-    return std::make_pair(2844222787,3130553940);
+    return std::make_pair(-1450744509, -1164413356);
 }
 
 template <typename T>
@@ -174,20 +174,170 @@ TEST(FileSEGY, getMdCrd)
     testGetCoord(getPair(Coord::Cmp), geom_t(1));
 }
 
-//geom_t getMd(const TrCrd item, const geom_t scale, const uchar * src)
-//template <class T = int16_t> T getMd(const Hdr item, const uchar * src)
-//int32_t getMd(const TrGrd item, const uchar * src)
-
-TEST(FileSEGY, setMetadata)
+void testSetMd(Hdr item, size_t check)
 {
-//template <typename T = int16_t> void setMd(const Hdr item, const T src, uchar * dst)
-//void setScale(const TrScal item, const int16_t scale, uchar * buf)
-//void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar * buf)
-//void setGrid(const Grid item, const grid_t grid, uchar * buf)
+    std::vector<uchar> ho(SEGSz::getHOSz());
+    for (int16_t val = 0; val < 0x7FFF; val++)
+    {
+        setMd(item, val, ho.data());
+        ASSERT_EQ((val >> 8) & 0xFF, ho[size_t(check)-1U]);
+        ASSERT_EQ(val & 0xFF, ho[size_t(check)]);
+        ho[size_t(item)-1U] = 0;
+        ho[size_t(item)] = 0;
+    }
 }
 
+TEST(FileSEGY, setNs)
+{
+    testSetMd(Hdr::NumSample, 3221);
+}
+
+TEST(FileSEGY, setType)
+{
+    testSetMd(Hdr::Type, 3225);
+}
+
+TEST(FileSEGY, setIncrement)
+{
+    testSetMd(Hdr::Increment, 3217);
+}
+
+TEST(FileSEGY, setUnits)
+{
+    testSetMd(Hdr::Units, 3255);
+}
+
+TEST(FileSEGY, setSEGYFormat)
+{
+    testSetMd(Hdr::SEGYFormat, 3501);
+}
+
+TEST(FileSEGY, setFixedTrace)
+{
+    testSetMd(Hdr::FixedTrace, 3503);
+}
+
+TEST(FileSEGY, setExtensions)
+{
+    testSetMd(Hdr::Extensions, 3505);
+}
+
+void testSetScale(TrScal item, size_t check)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    for (int16_t val = 0; val < 0x7FFF; val++)
+    {
+        setScale(item, val, tr.data());
+        ASSERT_EQ((val >> 8) & 0xFF, tr[size_t(check)-1U]);
+        ASSERT_EQ(val & 0xFF, tr[size_t(check)]);
+        tr[size_t(item)-1U] = 0;
+        tr[size_t(item)] = 0;
+    }
+}
+
+TEST(FileSEGY, setScaleCoord)
+{
+    testSetScale(TrScal::ScaleCoord, 71);
+}
+
+TEST(FileSEGY, setScaleElev)
+{
+    testSetScale(TrScal::ScaleElev, 69);
+}
+
+void testSetGrid(Grid item, size_t check1, size_t check2)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    for (int32_t val = 2; val >= 0; val = val * 10 - val*3)
+    {
+        auto p = grid_t(val, val+1LL);
+        setGrid(item, p, tr.data());
+
+        ASSERT_EQ((val >> 24) & 0xFF, tr[size_t(check1)-1U]);
+        ASSERT_EQ((val >> 16) & 0xFF, tr[size_t(check1)+0U]);
+        ASSERT_EQ((val >> 8) & 0xFF,  tr[size_t(check1)+1U]);
+        ASSERT_EQ(val & 0xFF,         tr[size_t(check1)+2U]);
+
+        val++;
+        ASSERT_EQ((val >> 24) & 0xFF, tr[size_t(check2)-1U]);
+        ASSERT_EQ((val >> 16) & 0xFF, tr[size_t(check2)+0U]);
+        ASSERT_EQ((val >> 8) & 0xFF,  tr[size_t(check2)+1U]);
+        ASSERT_EQ(val & 0xFF,         tr[size_t(check2)+2U]);
+
+
+        tr[size_t(item)-1U] = 0;
+        tr[size_t(item)] = 0;
+    }
+}
+
+TEST(FileSEGY, setGrid)
+{
+    testSetGrid(Grid::Line, 189, 193);
+}
+
+void testSetCoord(Coord item, size_t check1, size_t check2)
+{
+    std::vector<uchar> tr(SEGSz::getMDSz());
+    for (int32_t val = 2; val >= 0; val = val * 10 - val*3)
+    {
+        auto p = coord_t(val, val+3L);
+        for (int32_t scal = 1; scal <= 10000; scal *= 10)
+        {
+            {
+                setCoord(item, p, scal, tr.data());
+                auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
+                auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
+                ASSERT_EQ(val1, std::lround(p.first / scal)) << "val1 " << val1 << " p.first " << p.first << " val "
+                                              << val << " scal " << scal << std::endl;
+                ASSERT_EQ(val2, std::lround(p.second / scal)) << "val1 " << val2 << " p.second " << p.second << " val "
+                                               << val << " scal " << scal << std::endl;
+                tr[size_t(check1)-1U] = 0;
+                tr[size_t(check2)-1U] = 0;
+            }
+            if (int32_t(p.second * scal) > 0)
+            {
+                int nscal = -scal;
+                setCoord(item, p, nscal, tr.data());
+
+                auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
+                auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
+                ASSERT_EQ(val1/geom_t(scal), p.first) << "1st " << std::lround(val1/geom_t(scal)) << " p.first " << p.first << " val "
+                                                   << val << " scal " << scal << std::endl;
+
+                ASSERT_EQ(val2/geom_t(scal), p.second) << "1st " << std::lround(val1/geom_t(scal)) << " p.second " << p.second << " val "
+                                                   << val << " scal " << scal << std::endl;
+                tr[size_t(check1)-1U] = 0;
+                tr[size_t(check2)-1U] = 0;
+            }
+        }
+    }
+}
+
+TEST(FileSEGY, setCoordSrc)
+{
+    testSetCoord(Coord::Src, 73, 77);
+}
+TEST(FileSEGY, setCoordRcv)
+{
+    testSetCoord(Coord::Rcv, 81, 85);
+}
+TEST(FileSEGY, setCoordCmp)
+{
+    testSetCoord(Coord::Cmp, 181, 185);
+}
+
+//Test every legitimate possibility
 TEST(FileSEGY, scaleConv)
 {
-//geom_t scaleConv(int16_t scale)
+    EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(10000)) , scaleConv(-10000));
+    EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(1000))  , scaleConv(-1000));
+    EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(100))   , scaleConv(-100));
+    EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(10))    , scaleConv(-10));
+    EXPECT_DOUBLE_EQ(geom_t(1)     , scaleConv(-1));
+    EXPECT_DOUBLE_EQ(geom_t(1)     , scaleConv(0));
+    EXPECT_DOUBLE_EQ(geom_t(1)     , scaleConv(1));
+    EXPECT_DOUBLE_EQ(geom_t(10)    , scaleConv(10));
+    EXPECT_DOUBLE_EQ(geom_t(100)   , scaleConv(100));
+    EXPECT_DOUBLE_EQ(geom_t(1000)  , scaleConv(1000));
+    EXPECT_DOUBLE_EQ(geom_t(10000) , scaleConv(10000));
 }
-
