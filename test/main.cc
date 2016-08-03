@@ -20,14 +20,23 @@ const std::string largeSEGYFile = "tmp/largesegyfile.tmp";
 
 int32_t ilNum(size_t i)
 {
-    return 1600 + (i / 3000);
+    return 1600L + (i / 3000L);
 }
 
 int32_t xlNum(size_t i)
 {
-    return 1600 + (i % 3000);
+    return 1600L + (i % 3000L);
 }
 
+geom_t xNum(size_t i)
+{
+    return 1000L + (i / 2000L);
+}
+
+geom_t yNum(size_t i)
+{
+    return 1000L + (i % 2000L);
+}
 
 void makeFile(std::string name, size_t sz)
 {

@@ -54,7 +54,7 @@ class SEGY : public Interface
     void readHO(uchar * ho) const;
 
     /*! \brief Write the header object.
-     *  \param[out] ho An array which the caller guarantees is
+     *  \param[in] ho An array which the caller guarantees is
      *              at least as long as the header object.
      */
     void writeHO(const uchar * ho) const;
@@ -68,6 +68,15 @@ class SEGY : public Interface
      */
     void readDOMD(const size_t offset, const size_t ns, uchar * ho) const;
 
+    /*! \brief Read a sequence of DOMDs.
+     *  \param[in] offset The trace number we are starting with.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[in] sz The number of DOMDs to be read in a row.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the specific trace headers.
+     */
+    void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const;
+
     /*! Write the data-object metadata.
      *  \param[in] offset The trace number we are interested in.
      *  \param[in] ns The number of samples per trace.
@@ -76,7 +85,6 @@ class SEGY : public Interface
      *  \todo Extend this function to write more than one trace
      */
     void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const;
-
 };
 }}
 #endif

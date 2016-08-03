@@ -18,6 +18,8 @@ extern const std::string largeSEGYFile;
 
 extern int32_t ilNum(size_t);
 extern int32_t xlNum(size_t);
+extern geom_t xNum(size_t i);
+extern geom_t yNum(size_t i);
 extern uchar getPattern(size_t);
 
 constexpr size_t prefix(const size_t pow)

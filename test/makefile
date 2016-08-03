@@ -2,10 +2,10 @@ GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
 GOOGLE_OBJ=gmock-all.o  gtest-all.o
 LDFLAGS=$(GOOGLE_OBJ)
-TEST_FRAM=-I../../googletest/googletest/include/ -I../../googletest/googlemock/include/
+TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
-SRC_OBJDIR=../src/obj/
+SRC_OBJDIR=../src/obj/*.o
 
 #GCOMP=clang++
 GCOMP=g++
@@ -18,7 +18,7 @@ CXXFLAGS = $(STANDARDS) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CU
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)
-OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES)) $(SRC_OBJDIR)/*.o
+OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES)) $(SRC_OBJDIR)
 DEPENDS:=$(patsubst %.cc, %.dep, $(SOURCES))
 
 CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
@@ -41,11 +41,13 @@ ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)
 endif
 
-
 BIN=unittests
 
 .PHONY: all
 all: libgmock.a $(BIN) $(DEP) genfiles
+
+$(SRC_OBJDIR):
+	(cd ../src/; $(MAKE))
 
 libgmock.a:
 	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \

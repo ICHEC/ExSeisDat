@@ -317,7 +317,7 @@ void SEGY::packHeader(uchar * buf) const
     setMd(Hdr::Extensions, 0x0000, buf);    //We do not support text extensions at present.
 }
 
-void SEGY::procHeader(const size_t fsz, uchar * buf)
+void SEGY::procHeader(csize_t fsz, uchar * buf)
 {
     obj->readHO(buf);
     ns = getMd(Hdr::NumSample, buf);
@@ -361,7 +361,7 @@ void SEGY::writeText(const std::string text_)
     }
 }
 
-void SEGY::writeNs(const size_t ns_)
+void SEGY::writeNs(csize_t ns_)
 {
     if (ns_ > size_t(std::numeric_limits<int16_t>::max()))
     {
@@ -385,7 +385,7 @@ void SEGY::writeNs(const size_t ns_)
     }
 }
 
-void SEGY::writeNt(const size_t nt_)
+void SEGY::writeNt(csize_t nt_)
 {
 #ifdef NT_LIMITS
     if (nt_ > NT_LIMITS)
@@ -424,7 +424,7 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-coord_t SEGY::readCoordPoint(const Coord item, const size_t i) const
+coord_t SEGY::readCoordPoint(const Coord item, csize_t i) const
 {
     std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
     uchar * md = buf.data();
@@ -437,7 +437,26 @@ coord_t SEGY::readCoordPoint(const Coord item, const size_t i) const
                    getMd(pair.second, scale, md));
 }
 
-grid_t SEGY::readGridPoint(const Grid item, const size_t i) const
+void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * coords) const
+{
+    std::vector<uchar> buf(sz * SEGSz::getMDSz());
+
+    //TODO: Calculate number which actually would have been read based on filesize
+    //Don't process beyond end of file
+
+    obj->readDOMD(offset, ns, sz, buf.data());
+
+    for (size_t i = 0; i < sz; i++)
+    {
+        uchar * md = &buf[i * SEGSz::getMDSz()];
+        geom_t scale = getMd(TrScal::ScaleCoord, md);
+        auto pair = getPair(item);
+        coords[i] = coord_t(getMd(pair.first, scale, md),
+                            getMd(pair.second, scale, md));
+    }
+}
+
+grid_t SEGY::readGridPoint(const Grid item, csize_t i) const
 {
     std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
     uchar * md = buf.data();
@@ -446,6 +465,24 @@ grid_t SEGY::readGridPoint(const Grid item, const size_t i) const
     auto pair = getPair(item);
     return std::make_pair(getMd(pair.first, md), getMd(pair.second, md));
 }
+
+void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * grids) const
+{
+    std::vector<uchar> buf(sz * SEGSz::getMDSz());
+
+    //TODO: Calculate number which actually would have been read based on filesize
+    //Don't process beyond end of file
+
+    obj->readDOMD(offset, ns, sz, buf.data());
+
+    for (size_t i = 0; i < sz; i++)
+    {
+        uchar * md = &buf[i * SEGSz::getMDSz()];
+        auto p = getPair(item);
+        grids[i] = grid_t(getMd(p.first, md), getMd(p.second, md));
+    }
+}
+
 
 /*! \fn int16_t PIOL::File::deScale(const geom_t val)
  * \brief Take a coordinate and extract a suitable scale factor to represent that number
@@ -524,7 +561,7 @@ int16_t deScale(const geom_t val)
         return 1;
     }
 }
-void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord) const
+void SEGY::writeCoordPoint(const Coord item, csize_t i, coord_t coord) const
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
 
@@ -545,10 +582,11 @@ void SEGY::writeCoordPoint(const Coord item, const size_t i, coord_t coord) cons
 
     setScale(TrScal::ScaleCoord, scale, md.data());
     setCoord(item, coord, scale, md.data());
+
     obj->writeDOMD(i, ns, md.data());
 }
 
-void SEGY::writeGridPoint(const Grid item, const size_t i, const grid_t grid) const
+void SEGY::writeGridPoint(const Grid item, csize_t i, const grid_t grid) const
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
     setGrid(item, grid, md.data());

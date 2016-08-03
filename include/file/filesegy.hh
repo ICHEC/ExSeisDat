@@ -93,6 +93,22 @@ class SEGY : public Interface
      */
     coord_t readCoordPoint(const Coord item, const size_t i) const;
 
+    /*! \brief Read coordinate pairs from the ith-trace to i+sz.
+     *  \param[in] item The coordinate pair of interest
+     *  \param[in] i The starting trace number
+     *  \param[in] sz The tumber of traces to process
+     *  \param[out] buf The buffer
+     */
+    void readCoordPoint(const Coord item, csize_t i, csize_t sz, coord_t * buf) const;
+
+    /*! \brief Read grid pairs from the ith-trace to i+sz.
+     *  \param[in] item The grid pair of interest
+     *  \param[in] i The starting trace number
+     *  \param[in] sz The tumber of traces to process
+     *  \param[out] buf The buffer
+     */
+    void readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const;
+
     /*! \brief Read the ith grid pair
      *  \param[in] item The Grid pair of interest
      *  \param[in] i The trace number

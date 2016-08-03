@@ -46,9 +46,11 @@ struct FakeObject : public Obj::Interface
 
     void writeHO(const uchar * ho) const {}
 
-    void readDOMD(const size_t offset, const size_t ns, uchar * ho) const {}
+    void readDOMD(csize_t offset, csize_t ns, uchar * ho) const {}
 
-    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const {}
+    void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const {}
+
+    void writeDOMD(csize_t offset, csize_t ns, const uchar * ho) const {}
 };
 #pragma GCC diagnostic pop
 

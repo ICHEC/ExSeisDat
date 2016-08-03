@@ -31,10 +31,11 @@ class MockObj : public Obj::Interface
                : Obj::Interface(piol_, name_, data_) {}
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
     MOCK_CONST_METHOD1(readHO, void(uchar *));
-    MOCK_CONST_METHOD1(setFileSz, void(const size_t));
+    MOCK_CONST_METHOD1(setFileSz, void(csize_t));
     MOCK_CONST_METHOD1(writeHO, void(const uchar *));
-    MOCK_CONST_METHOD3(readDOMD, void(const size_t, const size_t, uchar *));
-    MOCK_CONST_METHOD3(writeDOMD, void(const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD3(readDOMD, void(csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD3(writeDOMD, void(csize_t, csize_t, const uchar *));
 };
 
 class FileIntegrationTest : public Test
@@ -59,10 +60,10 @@ class FileIntegrationTest : public Test
 class FileSEGYSpecTest : public FileIntegrationTest
 {
     protected :
-    const size_t nt = 40U;
-    const size_t ns = 200U;
+    csize_t nt = 40U;
+    csize_t ns = 200U;
     const int inc = 10;
-    const size_t format = 1;
+    csize_t format = 1;
     std::vector<uchar> hor;
     std::vector<uchar> how;
     FileSEGYSpecTest() : FileIntegrationTest()
@@ -201,7 +202,7 @@ void initWriteHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t 
     EXPECT_CALL(mock, writeHO(_)).Times(Exactly(1)).WillOnce(extraCheck(ho.data()));
 }
 
-void FileWriteHO(const size_t nt, const size_t ns, const geom_t inc, std::string text, Piol piol, File::Interface * file)
+void FileWriteHO(csize_t nt, csize_t ns, const geom_t inc, std::string text, Piol piol, File::Interface * file)
 {
     piol->isErr();
 
@@ -234,8 +235,8 @@ TEST_F(FileSEGYSpecTest, FileWriteHOLongString)
 
     //Extend the string beyond the text boundary
     //Extended text should be dropped in write call
-    const size_t sz = testString.size();
-    const size_t extendSz = 3400U - sz;
+    csize_t sz = testString.size();
+    csize_t extendSz = 3400U - sz;
     testString.resize(sz + extendSz);
     for (size_t i = 3200U; i < sz+extendSz; i++)
         testString[i] = uchar(0x7F);
@@ -261,38 +262,102 @@ ACTION_P(extraTrCheck, ho)  //Use this when writing
         ASSERT_EQ(ho[i], arg2[i]) << "Error with trace header byte: " << i << " |\n";
 }
 
-void initReadTraceMock(MockObj & mock, std::vector<uchar> & tr, size_t offset, size_t ns, File::Interface * file)
+class FileSEGYReadSpecTest : public FileSEGYSpecTest
 {
-    File::grid_t line = File::grid_t(ilNum(offset), xlNum(offset));
-    getBigEndian(int32_t(line.first), tr.data()+188U);
-    getBigEndian(int32_t(line.second), tr.data()+192U);
+    public :
+    std::shared_ptr<MockObj> mock;
+    File::Interface * file;
+    std::vector<uchar> tr;
 
-    EXPECT_CALL(mock, readDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+    FileSEGYReadSpecTest()
+    {
+        mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+        Mock::AllowLeak(mock.get());
 
-    auto line2 = file->readGridPoint(File::Grid::Line, offset);
-    ASSERT_EQ(line, line2);
-}
+        initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString, false);
+        file = new File::SEGY(piol, notFile, fileSegyOpt, mock);
+        InitTrBlock(nt);
+    }
 
-TEST_F(FileSEGYSpecTest, FileReadTraceHeader)
+    void InitTrBlock(size_t nt)
+    {
+        tr.resize(nt * SEGSz::getMDSz());
+        for (size_t i = 0; i < nt; i++)
+        {
+            uchar * md = &tr[i * SEGSz::getMDSz()];
+            getBigEndian(ilNum(i), &md[188U]);
+            getBigEndian(xlNum(i), &md[192U]);
+
+            int16_t scale;
+            int16_t scal1 = deScale(xNum(i));
+            int16_t scal2 = deScale(yNum(i));
+
+            if (scal1 > 1 || scal2 > 1)
+                scale = std::max(scal1, scal2);
+            else
+                scale = std::min(scal1, scal2);
+
+            getBigEndian(scale, &md[70U]);
+            getBigEndian(int32_t(std::lround(xNum(i)/scale)), &md[72U]);
+            getBigEndian(int32_t(std::lround(yNum(i)/scale)), &md[76U]);
+        }
+    }
+
+    void initReadTrMock(size_t ns, size_t offset)
+    {
+        std::vector<uchar>::iterator iter = tr.begin() + offset*SEGSz::getMDSz();
+        EXPECT_CALL(*mock.get(), readDOMD(offset, ns, _))
+                    .Times(Exactly(2))
+                    .WillRepeatedly(SetArrayArgument<2>(iter, iter + SEGSz::getMDSz()));
+
+        auto line = file->readGridPoint(File::Grid::Line, offset);
+        ASSERT_EQ(ilNum(offset), line.first);
+        ASSERT_EQ(xlNum(offset), line.second);
+
+        auto src = file->readCoordPoint(File::Coord::Src, offset);
+        ASSERT_DOUBLE_EQ(xNum(offset), src.first);
+        ASSERT_DOUBLE_EQ(yNum(offset), src.second);
+    }
+
+    void initReadTrHdrsMock(size_t ns, size_t nt)
+    {
+        EXPECT_CALL(*mock.get(), readDOMD(0, ns, nt, _))
+                    .Times(Exactly(2))
+                    .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+
+        std::vector<File::grid_t> line(nt);
+        file->readGridPoint(File::Grid::Line, 0U, nt, line.data());
+
+        std::vector<File::coord_t> src(nt);
+        file->readCoordPoint(File::Coord::Src, 0U, nt, src.data());
+
+        for (size_t i = 0; i < nt; i++)
+        {
+            ASSERT_EQ(ilNum(i), line[i].first);
+            ASSERT_EQ(xlNum(i), line[i].second);
+
+            ASSERT_DOUBLE_EQ(xNum(i), src[i].first);
+            ASSERT_DOUBLE_EQ(yNum(i), src[i].second);
+        }
+    }
+};
+
+TEST_F(FileSEGYReadSpecTest, FileReadTraceHeader)
 {
-    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString, false);
-
-    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
-    std::vector<uchar> tr(SEGSz::getMDSz());
     for (size_t i = 0; i < nt; i++)
-        initReadTraceMock(*mock.get(), tr, i, ns, &segy);
+        initReadTrMock(ns, i);
 }
 
-TEST_F(FileSEGYSpecTest, FileReadTrHdrBigNs)
+TEST_F(FileSEGYReadSpecTest, FileReadTrHdrBigNs)
 {
     const size_t bigns = 10000;
-    auto mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-    initReadHOMock(*mock.get(), how, nt, bigns, inc, 5, testString, false);
+    file->ns = bigns;
+    initReadTrMock(bigns, nt/2U);
+}
 
-    File::SEGY segy(piol, notFile, fileSegyOpt, mock);
-    std::vector<uchar> tr(SEGSz::getMDSz());
-    initReadTraceMock(*mock.get(), tr, nt/2U, bigns, &segy);
+TEST_F(FileSEGYReadSpecTest, FileReadFileTrs)
+{
+    initReadTrHdrsMock(ns, nt);
 }
 
 class FileSEGYWriteSpecTest : public FileSEGYSpecTest
@@ -313,8 +378,8 @@ class FileSEGYWriteSpecTest : public FileSEGYSpecTest
     void initWriteTrHdrGrid(MockObj & mock, size_t ns, size_t offset, File::Interface * file)
     {
         std::vector<uchar> tr(SEGSz::getMDSz());
-        getBigEndian(int32_t(ilNum(offset)), tr.data()+188U);
-        getBigEndian(int32_t(xlNum(offset)), tr.data()+192U);
+        getBigEndian(ilNum(offset), tr.data()+188U);
+        getBigEndian(xlNum(offset), tr.data()+192U);
         EXPECT_CALL(mock, writeDOMD(offset, ns, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr.data()));
         file->writeGridPoint(File::Grid::Line, offset, {ilNum(offset), xlNum(offset)});
     }
@@ -451,8 +516,8 @@ TEST_F(FileSEGYDeathTest, FileWriteBadInc)
 //Read test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYReadHO)
 {
-    const size_t ns = 261U;
-    const size_t nt = 400U;
+    csize_t ns = 261U;
+    csize_t nt = 400U;
     std::string smallSEGY = "tmp/smallsegy.tmp";
     File::SEGY segy(piol, smallSEGY, fileSegyOpt, objSegyOpt, dataOpt);
     piol->isErr();
@@ -470,8 +535,8 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
 TEST_F(FileIntegrationTest, SEGYWriteHO)
 {
     SCOPED_TRACE("SEGYWriteHO");
-    const size_t ns = 261U;
-    const size_t nt = 400U;
+    csize_t ns = 261U;
+    csize_t nt = 400U;
     std::string outFile = "tmp/testOutput.tmp";
 
     std::shared_ptr<Obj::Interface> obj;
@@ -509,8 +574,8 @@ TEST_F(FileIntegrationTest, SEGYWriteHO)
 TEST_F(FileIntegrationTest, SEGYWriteTraceGrid)
 {
     SCOPED_TRACE("SEGYReadHO");
-    const size_t ns = 261U;
-    const size_t nt = 400U;
+    csize_t ns = 261U;
+    csize_t nt = 400U;
     std::string outFile = "tmp/testOutput.tmp";
     File::grid_t grid(ilNum(201), xlNum(201));
 
@@ -539,8 +604,8 @@ TEST_F(FileIntegrationTest, SEGYWriteTraceGrid)
 TEST_F(FileIntegrationTest, SEGYWriteTraceCoord)
 {
     SCOPED_TRACE("SEGYReadHO");
-    const size_t ns = 261U;
-    const size_t nt = 400U;
+    csize_t ns = 261U;
+    csize_t nt = 400U;
     std::string outFile = "tmp/testOutput.tmp";
     File::coord_t coord(1600, 2000);
 

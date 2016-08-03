@@ -46,7 +46,7 @@ class Interface
     /*! \brief Set the file size.
      *  \param[in] sz The size in bytes
      */
-    virtual void setFileSz(const size_t sz) const;
+    virtual void setFileSz(csize_t sz) const;
 
     /*! \brief Pure virtual function to read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough
@@ -66,16 +66,25 @@ class Interface
      *  the specific trace header.
      *  \todo Extend this function to read more than one trace
      */
-    virtual void readDOMD(const size_t offset, const size_t ns, uchar * ho) const = 0;
+    virtual void readDOMD(csize_t offset, csize_t ns, uchar * ho) const = 0;
 
     /*! \brief Pure virtual function to write the data-object metadata.
      *  \param[in] offset The trace number we are interested in.
      *  \param[in] ns The number of samples per trace.
-     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  \param[in] ho An array which the caller guarantees is long enough for
      *  the specific trace header.
      *  \todo Extend this function to write more than one trace
      */
-    virtual void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const = 0;
+    virtual void writeDOMD(csize_t offset, csize_t ns, const uchar * ho) const = 0;
+
+    /*! \brief Pure virtual function to write a sequence of DOMDs.
+     *  \param[in] offset The trace number we are starting with.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[in] sz The number of DOMDs to be read in a row.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the specific trace headers.
+     */
+    virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.
