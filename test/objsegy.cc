@@ -4,6 +4,7 @@
 #include "global.hh"
 #include "tglobal.hh"
 #include "share/segy.hh"
+#include "share/datatype.hh"
 #include "anc/cmpi.hh"
 #include "data/datampiio.hh"
 #define private public
@@ -305,6 +306,26 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdr)
     SEGYReadTrTest(100U, {0U, 1U, 100U, 1000U, 1000U}, magicNum1+1U, &segy);
 }
 
+TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
+{
+    const size_t sz = 20000;
+    const size_t ns = 1000;
+    SCOPED_TRACE("SEGYReadTrHdr");
+    std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, largeSEGYFile, segyOpt, dataOpt)));
+    piol->isErr();
+    size_t offset = 0;
+    std::vector<uchar> tr(sz*SEGSz::getMDSz());
+    obj->readDOMD(0, ns, sz, tr.data());
+    piol->isErr();
+
+    for (size_t i = 0; i < sz; i++)
+    {
+        uchar * md = tr.data() + i*SEGSz::getMDSz() + 188;
+        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[0])) << i;
+        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[4])) << i;
+    }
+}
+
 void SEGYWriteTrTest(size_t offset, size_t ns, Obj::Interface * obj)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
@@ -330,7 +351,6 @@ TEST_F(ObjIntegrationTest, SEGYWriteTrHdr)
 
     SEGYWriteTrTest(400U, 1000U, &segy);
     SEGYReadTrTest(400U, {1000U}, magicNum1, &segy);
-
 }
 
 ////////////////////////////// File Size Testing ///////////////////////////////////

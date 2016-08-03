@@ -30,11 +30,11 @@ void makeFile(const char const * name, const size_t sz, const uchar const * patt
 
 int32_t ilNum(size_t i)
 {
-    return 1600 + (i / 3000);
+    return 1600L + (i / 3000L);
 }
 int32_t xlNum(size_t i)
 {
-    return 1600 + (i % 3000);
+    return 1600L + (i % 3000L);
 }
 
 void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t maxBlock)
