@@ -6,7 +6,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include "datampiio.hh"
+#include "data/datampiio.hh"
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"

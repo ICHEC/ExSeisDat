@@ -1,15 +1,36 @@
+INC_FOLDER = -I../include
+CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
-all:
-	(cd anc; $(MAKE))
-	(cd data; $(MAKE))
-	(cd object; $(MAKE))
-	(cd file; $(MAKE))
-	(cd share; $(MAKE))
+include ../compiler.cfg
 
+CXXFLAGS = $(STANDARDS) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+OBJDIR = obj
+
+DEP=depend
+SOURCES:=$(wildcard *.cc)
+OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
+DEPENDS:=$(patsubst %.cc, %.dep, $(SOURCES))
+
+CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
+CURR_DEP:=$(wildcard $(DEP))
+
+%.dep: %.cc
+	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+
+$(OBJDIR)/%.o: %.cc
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: all
+all: $(DEP) $(OBJECTS)
+
+$(DEP): $(DEPENDS)
+	cat *.dep > $(DEP)
+
+ifeq "$(CURR_DEP)" "$(DEP)"
+-include $(DEP)
+endif
+
+.PHONY: clean
 clean:
-	(cd anc; $(MAKE) clean)
-	(cd data; $(MAKE) clean)
-	(cd object; $(MAKE) clean)
-	(cd file; $(MAKE) clean)
-	(cd share; $(MAKE) clean)
+	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP)
 
