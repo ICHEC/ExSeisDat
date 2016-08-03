@@ -27,7 +27,7 @@ namespace PIOL { namespace File {
 enum class Hdr : size_t
 {
     Increment  = 3217U, //!< int16_t. The increment between traces in microseconds
-    NumSample  = 3221U, //!< int16_t. The Numbe of samples per trace
+    NumSample  = 3221U, //!< int16_t. The number of samples per trace
     Type       = 3225U, //!< int16_t. Trace data type. AKA format in SEGY terminology
     Sort       = 3229U, //!< int16_t. The sort order of the traces.
     Units      = 3255U, //!< int16_t. The unit system, i.e SI or imperial.

@@ -80,6 +80,7 @@ void initReadHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t n
     EXPECT_CALL(mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
     if (testEBCDIC)
     {
+        // Create an EBCDID string to convert back to ASCII in the test
         size_t tsz = testString.size();
         size_t tsz2 = tsz;
         char * t = &testString[0];
@@ -468,7 +469,7 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
 //Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYWriteHO)
 {
-    SCOPED_TRACE("SEGYReadHO");
+    SCOPED_TRACE("SEGYWriteHO");
     const size_t ns = 261U;
     const size_t nt = 400U;
     std::string outFile = "tmp/testOutput.tmp";

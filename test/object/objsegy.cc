@@ -25,8 +25,9 @@ class MockData : public Data::Interface
 
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
     MOCK_CONST_METHOD3(read, void(size_t, size_t, uchar *));
-    MOCK_CONST_METHOD1(setFileSz, void(size_t));
     MOCK_CONST_METHOD3(write, void(size_t, size_t, const uchar *));
+    // TODO: This method is not tested
+    MOCK_CONST_METHOD1(setFileSz, void(size_t));
 };
 
 class ObjSpecTest : public Test
@@ -295,7 +296,7 @@ void SEGYReadTrTest(size_t offset, const std::vector<size_t> & nsVals, const uch
 
 TEST_F(ObjIntegrationTest, SEGYReadTrHdr)
 {
-    SCOPED_TRACE("SEGYReadHO");
+    SCOPED_TRACE("SEGYReadTrHdr");
     Obj::SEGY segy(piol, plargeFile, segyOpt, dataOpt);
     piol->isErr();
     SCOPED_TRACE("Read1");

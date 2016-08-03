@@ -46,6 +46,7 @@ class SEGY : public Interface
     } state;                    //!< State flags are stored in this structure
 
     unit_t incFactor;       //!< The increment factor
+
     /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.
      *  \param[in] fsz The size of the file in bytes
      *  \param[in, out] The buffer to parse. The buffer is destructively modified
@@ -58,6 +59,7 @@ class SEGY : public Interface
     void packHeader(uchar * buf) const;
 
     /*! \brief This function initialises the class.
+     *  \param[in] segyOpt The SEGY-File options
      */
     void Init(const File::SEGYOpt & segyOpt);
 

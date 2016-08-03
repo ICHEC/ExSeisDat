@@ -88,7 +88,7 @@ class Interface
      */
     virtual coord_t readCoordPoint(const Coord item, const size_t i) const = 0;
 
-    /*! \brief Pure virtual function to read the ith grid pair
+    /*! \brief Pure virtual function to read the ith-trace grid pair
      *  \param[in] item The Grid pair of interest
      *  \param[in] i The trace number
      *  \return The ith-trace grid pair

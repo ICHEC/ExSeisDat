@@ -13,8 +13,9 @@
 namespace PIOL {
 namespace SI                        //!< This namespace is being used like an enum
 {
-    const unit_t Micro = 1e-6L;    //!< Micro in SI units
+    const unit_t Micro = 1e-6L;     //!< Micro in SI units
 }
+
 namespace Physical                  //!< For physical constants
 {
 

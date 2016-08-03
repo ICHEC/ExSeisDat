@@ -19,15 +19,15 @@ enum class Size : size_t
 };
 
 /*! \brief Return the size of the text field
- *  \return Returns the size
+ *  \return  Returns the size of the text field in bytes
  */
 constexpr size_t getTextSz()
 {
     return static_cast<size_t>(Size::Text);
 }
 
-/*! \brief Return the size of the Data-Object Metadata field
- *  \return Returns the size
+/*! \brief Return the size of the Data-Object Metadata object
+ *  \return Returns the size of the DOMD in bytes
  */
 constexpr size_t getMDSz()
 {
@@ -35,7 +35,7 @@ constexpr size_t getMDSz()
 }
 
 /*! \brief Return the size of the Header Object (assuming text extensions are not used)
- *  \return Returns the size.
+ *  \return Returns the size of the HO in bytes.
  */
 constexpr size_t getHOSz()
 {
@@ -53,8 +53,8 @@ inline size_t getDOSz(const size_t ns)
     return getMDSz() + ns*sizeof(T);
 }
 
-/*! \brief Return the expected size of the file if there are nt data-objects and 
- *  ns elements in a data-field.
+/*! \brief Return the expected size of the file if there are nt data-objects and
+ *         ns elements in a data-field.
  *  \param[in] nt The number of data objects.
  *  \param[in] ns The number of elements in the data-field.
  *  \tparam T The datatype of the data-field. The default value is float.

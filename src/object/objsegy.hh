@@ -48,12 +48,14 @@ class SEGY : public Interface
     SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const SEGYOpt & segyOpt_, const Data::Opt & dataOpt);
 
     /*! \brief Read the header object.
-     *  \param[out] ho An array which the caller guarantees is long enough to hold the SEG-Y header (3200 bytes).
+     *  \param[out] ho An array which the caller guarantees is
+     *              long enough to hold the SEG-Y header.
      */
     void readHO(uchar * ho) const;
 
     /*! \brief Write the header object.
-     *  \param[out] ho An array which the caller guarantees is as long enough the header object.
+     *  \param[out] ho An array which the caller guarantees is
+     *              at least as long as the header object.
      */
     void writeHO(const uchar * ho) const;
 

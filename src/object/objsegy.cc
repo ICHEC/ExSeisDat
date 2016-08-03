@@ -33,6 +33,7 @@ void SEGY::readHO(uchar * ho) const
 {
     data->read(0U, SEGSz::getHOSz(), ho);
 }
+
 void SEGY::writeHO(const uchar * ho) const
 {
     data->write(0U, SEGSz::getHOSz(), ho);
