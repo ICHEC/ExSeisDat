@@ -32,6 +32,7 @@ int32_t ilNum(size_t i)
 {
     return 1600L + (i / 3000L);
 }
+
 int32_t xlNum(size_t i)
 {
     return 1600L + (i % 3000L);
@@ -68,6 +69,7 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
         size_t lnt = allocSz / dosz;
 
         uchar * buf = calloc(allocSz, sizeof(uchar));
+        printf("il %i xl %i\n", ilNum(0), xlNum(0));
         for (size_t i = 0; i < nt; i += lnt)
         {
             size_t chunk = (nt-i < lnt ? nt-i : lnt);
@@ -77,14 +79,14 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
                 int32_t il = ilNum(i+j);
                 buf[dosz*j + 188] = (il >> 24) & 0xFF;
                 buf[dosz*j + 189] = (il >> 16) & 0xFF;
-                buf[dosz*j + 190] = (il >> 8) & 0xFF;
-                buf[dosz*j + 191] = il & 0xFF;
+                buf[dosz*j + 190] = (il >> 8)  & 0xFF;
+                buf[dosz*j + 191] =  il        & 0xFF;
 
                 int32_t xl = xlNum(i+j);
                 buf[dosz*j + 192] = (xl >> 24) & 0xFF;
                 buf[dosz*j + 193] = (xl >> 16) & 0xFF;
-                buf[dosz*j + 194] = (xl >> 8) & 0xFF;
-                buf[dosz*j + 195] = xl & 0xFF;
+                buf[dosz*j + 194] = (xl >> 8)  & 0xFF;
+                buf[dosz*j + 195] =  xl        & 0xFF;
             }
             fwrite(buf, sizeof(uchar), chunk*dosz, fs);
         }

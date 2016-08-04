@@ -19,11 +19,11 @@ namespace PIOL { namespace Obj {
 //pragma to ignore unusued-paramter warnings here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt & segyOpt_, std::shared_ptr<Data::Interface> data_) : Interface(piol_, name_, data_)
+SEGY::SEGY(Piol piol_, std::string name_, const SEGYOpt & segyOpt_, std::shared_ptr<Data::Interface> data_) : Interface(piol_, name_, data_)
 {
 }
 
-SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGYOpt & segyOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, dataOpt)
+SEGY::SEGY(Piol piol_, std::string name_, const SEGYOpt & segyOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, dataOpt)
 {
 }
 #pragma GCC diagnostic pop
@@ -44,9 +44,9 @@ void SEGY::readDOMD(const size_t offset, const size_t ns, uchar * ho) const
     data->read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), ho);
 }
 
-void SEGY::readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const
+void SEGY::readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const
 {
-    data->read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDFSz(ns), sz, ho);
+    data->read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), sz, md);
 //    for (size_t i = 0; i < sz; i++)
 //        data->read(SEGSz::getDOLoc<float>(offset+i, ns), SEGSz::getMDSz(), &ho[i * SEGSz::getMDSz()]);
 }

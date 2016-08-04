@@ -1,8 +1,8 @@
 GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
 GOOGLE_OBJ=gmock-all.o  gtest-all.o
-LDFLAGS=$(GOOGLE_OBJ)
-TEST_FRAM=-I../../googletest/googletest/include/ -I../../googletest/googlemock/include/
+LDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS)
+TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
 SRC_OBJDIR=../src/obj/

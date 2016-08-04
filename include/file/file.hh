@@ -37,7 +37,7 @@ enum class Grid : size_t
 class Interface
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;               //!< The PIOL object.
+    Piol piol;               //!< The PIOL object.
     std::string name;                               //!< Store the file name for debugging purposes.
     std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                                      //!< The number of samples per trace.
@@ -50,7 +50,7 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_ Pointer to the associated Object-layer object.
      */
-    Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_);
+    Interface(const Piol piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_);
 
     public :
     /*! \brief The constructor.
@@ -59,7 +59,7 @@ class Interface
      *  \param[in] objOpt The options to use when creating the Object layer
      *  \param[in] dataOpt The options to use when creating the Data layer
      */
-    Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+    Interface(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)

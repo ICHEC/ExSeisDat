@@ -26,6 +26,14 @@ constexpr size_t getTextSz()
     return static_cast<size_t>(Size::Text);
 }
 
+/*! \brief Return the size of the Header Object (assuming text extensions are not used)
+ *  \return Returns the size of the HO in bytes.
+ */
+constexpr size_t getHOSz()
+{
+    return static_cast<size_t>(Size::HO);
+}
+
 /*! \brief Return the size of the Data-Object Metadata object
  *  \return Returns the size of the DOMD in bytes
  */
@@ -34,21 +42,13 @@ constexpr size_t getMDSz()
     return static_cast<size_t>(Size::DOMd);
 }
 
-/*! \brief Return the size of the Data-Object Metadata object
+/*! \brief Return the size of the Data-Object Field object
  *  \return Returns the size of the DOMD in bytes
  */
 template <typename T = float>
 constexpr size_t getDFSz(size_t ns)
 {
     return ns * sizeof(T);
-}
-
-/*! \brief Return the size of the Header Object (assuming text extensions are not used)
- *  \return Returns the size of the HO in bytes.
- */
-constexpr size_t getHOSz()
-{
-    return static_cast<size_t>(Size::HO);
 }
 
 /*! \brief Return the size of the Data-Object.
@@ -59,7 +59,7 @@ constexpr size_t getHOSz()
 template <typename T = float>
 inline size_t getDOSz(const size_t ns)
 {
-    return getMDSz() + ns*sizeof(T);
+    return getMDSz() + getDFSz<T>(ns);
 }
 
 /*! \brief Return the expected size of the file if there are nt data-objects and
@@ -72,7 +72,7 @@ inline size_t getDOSz(const size_t ns)
 template <typename T = float>
 inline size_t getFileSz(const size_t nt, const size_t ns)
 {
-    return getHOSz() + nt*getDOSz(ns);
+    return getHOSz() + nt*getDOSz<T>(ns);
 }
 
 /*! \brief Return the offset location of a specific data object.
@@ -84,7 +84,7 @@ inline size_t getFileSz(const size_t nt, const size_t ns)
 template <typename T = float>
 inline size_t getDOLoc(const size_t i, const size_t ns)
 {
-    return getHOSz() + i*getDOSz<T>(ns);
+    return getFileSz<T>(i, ns);
 }
 
 /*! \brief Return the offset location of a specific data-field
@@ -96,7 +96,7 @@ inline size_t getDOLoc(const size_t i, const size_t ns)
 template <typename T = float>
 inline size_t getDODFLoc(const size_t i, const size_t ns)
 {
-    return getDOLoc<T>(i, ns) + getMDSz();
+    return getFileSz<T>(i, ns) + getMDSz();
 }
 }}
 #endif

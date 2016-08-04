@@ -41,7 +41,7 @@ class MPIIO : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] opt   The MPI-IO options
      */
-    MPIIO(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIOOpt & opt);
+    MPIIO(const Piol piol_, const std::string name_, const MPIIOOpt & opt);
 
     ~MPIIO(void);
 
@@ -67,7 +67,7 @@ class MPIIO : public Interface
     /*! \brief Read data from storage in blocks.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] bsz    The size of a block in bytes
-     *  \param[in] osz    The number of bytes between blocks
+     *  \param[in] osz    The number of bytes between the \c start of blocks
      *  \param[in] sz     The number of blocks
      *  \param[out] d     The array to store the output in
      */

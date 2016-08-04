@@ -18,14 +18,14 @@ namespace PIOL { namespace Data {
 class Interface
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;   //!< Pointer to the PIOL object.
+    Piol piol;   //!< Pointer to the PIOL object.
     const std::string name;             //!< Store the file name for debugging purposes.
     public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      */
-    Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : piol(piol_), name(name_)
+    Interface(const Piol piol_, const std::string name_) : piol(piol_), name(name_)
     {
     }
 
@@ -49,7 +49,7 @@ class Interface
     /*! \brief Pure virtual function to read data from storage in blocks.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] bsz    The size of a block in bytes
-     *  \param[in] osz    The number of bytes between blocks
+     *  \param[in] osz    The number of bytes between the \c start of blocks
      *  \param[in] sz     The number of blocks
      *  \param[out] d     The array to store the output in
      */

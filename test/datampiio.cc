@@ -144,6 +144,7 @@ TEST_F(MPIIOTest, BlockingOneByteReadLarge)
     }
 }
 
+//TODO: Find out why this is much slower on panasas
 TEST_F(MPIIOTest, BlockingReadEnd)
 {
     Data::MPIIO mio(piol, plargeFile, ioopt);

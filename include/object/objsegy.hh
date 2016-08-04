@@ -36,7 +36,7 @@ class SEGY : public Interface
      *  \param[in] segyOpt_ The SEGY-Obj options
      *  \param[in] data_ Pointer to the associated Data layer object.
      */
-    SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const SEGYOpt & segyOpt_, const std::shared_ptr<Data::Interface> data_);
+    SEGY(const Piol piol_, const std::string name_, const SEGYOpt & segyOpt_, const std::shared_ptr<Data::Interface> data_);
 
     public :
     /*! \brief The SEGY-Obj class constructor.
@@ -45,7 +45,7 @@ class SEGY : public Interface
      *  \param[in] segyOpt_ The SEGY-Obj options
      *  \param[in] dataOpt The Data options
      */
-    SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const SEGYOpt & segyOpt_, const Data::Opt & dataOpt);
+    SEGY(const Piol piol_, const std::string name_, const SEGYOpt & segyOpt_, const Data::Opt & dataOpt);
 
     /*! \brief Read the header object.
      *  \param[out] ho An array which the caller guarantees is

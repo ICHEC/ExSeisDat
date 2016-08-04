@@ -19,7 +19,7 @@ namespace PIOL { namespace Obj {
 class Interface
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;                   //!< Pointer to the PIOL object.
+    Piol piol;                   //!< Pointer to the PIOL object.
     std::string name;                                   //!< Store the file name for debugging purposes.
     std::shared_ptr<Data::Interface> data = nullptr;    //!< Pointer to the Data layer object (polymorphic).
 
@@ -28,7 +28,7 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] data_ Pointer to the associated Data layer object.
      */
-    Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const std::shared_ptr<Data::Interface> data_);
+    Interface(const Piol piol_, const std::string name_, const std::shared_ptr<Data::Interface> data_);
 
     public :
     /*! \brief The constructor.
@@ -36,7 +36,7 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] dataOpt The options to use when creating the Data layer
      */
-    Interface(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Data::Opt & dataOpt);
+    Interface(const Piol piol_, const std::string name_, const Data::Opt & dataOpt);
 
     /*! \brief Find out the file size.
      *  \return The file size in bytes.

@@ -69,7 +69,7 @@ class SEGY : public Interface
      *  \param[in] segyOpt The SEGY-File options
      *  \param[in] obj_ Pointer to the associated Obj layer object.
      */
-    SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt, const std::shared_ptr<Obj::Interface> obj_);
+    SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, const std::shared_ptr<Obj::Interface> obj_);
     public :
 
     /*! \brief The SEGY-Object class constructor.
@@ -79,7 +79,7 @@ class SEGY : public Interface
      *  \param[in] objOpt  The Object options
      *  \param[in] dataOpt The Data options
      */
-    SEGY(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const File::SEGYOpt & segyOpt,
+    SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
                                                   const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
     /*! \brief Destructor. Processes any remaining flags

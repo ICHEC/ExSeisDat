@@ -477,8 +477,9 @@ or dashes (<code>-</code>) in file names.</p>
 <div class="summary">
 <p>The names of variables and data members use lower camelCase. Data parameters
 for class/struct constructors have trailing underscores where there is a member
-variable of the same name.
-<p>C style abbreviations such as in the style of the POSIX API (e.g msg and src) are allowed.</p>
+variable of the same name. Underscores are not used in variable names in any other situation.
+<p>C style abbreviations in all lower case such as in the style of the POSIX API (e.g msg and src) are allowed in short functions, but member
+variables should not use this style.</p>
 
 <div class="stylebody">
 <h3 id="Function_Names">Function Names</h3>

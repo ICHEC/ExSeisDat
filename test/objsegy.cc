@@ -315,15 +315,17 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
     std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, largeSEGYFile, segyOpt, dataOpt)));
     piol->isErr();
     size_t offset = 0;
+
     std::vector<uchar> tr(sz*SEGSz::getMDSz());
-    obj->readDOMD(0, ns, sz, tr.data());
+    obj->readDOMD(offset, ns, sz, tr.data());
     piol->isErr();
 
     for (size_t i = 0; i < sz; i++)
     {
-        uchar * md = tr.data() + i*SEGSz::getMDSz() + 188;
-        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[0])) << i;
-        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[4])) << i;
+        uchar * md = tr.data() + i*SEGSz::getMDSz();
+        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
+        std::cout << uint(md[192]) <<" " <<  uint(md[193]) <<" " <<  uint (md[194]) << " " << uint(md[195]) << std::endl;
+        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
     }
 }
 
