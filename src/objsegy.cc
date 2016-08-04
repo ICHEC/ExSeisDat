@@ -46,8 +46,9 @@ void SEGY::readDOMD(const size_t offset, const size_t ns, uchar * ho) const
 
 void SEGY::readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const
 {
-    for (size_t i = 0; i < sz; i++)
-        data->read(SEGSz::getDOLoc<float>(offset+i, ns), SEGSz::getMDSz(), &ho[i * SEGSz::getMDSz()]);
+    data->read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDFSz(ns), sz, ho);
+//    for (size_t i = 0; i < sz; i++)
+//        data->read(SEGSz::getDOLoc<float>(offset+i, ns), SEGSz::getMDSz(), &ho[i * SEGSz::getMDSz()]);
 }
 
 void SEGY::writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const

@@ -37,21 +37,30 @@ class Interface
     /*! \brief Pure virtual function to set the file size.
      *  \param[in] sz The size in bytes
      */
-    virtual void setFileSz(const size_t sz) const = 0;
+    virtual void setFileSz(csize_t sz) const = 0;
 
     /*! \brief Pure virtual function to read from storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to read from disk
      *  \param[out] d     The array to store the output in
      */
-    virtual void read(const size_t offset, const size_t sz, uchar * d) const = 0;
+    virtual void read(csize_t offset, csize_t sz, uchar * d) const = 0;
+
+    /*! \brief Pure virtual function to read data from storage in blocks.
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] osz    The number of bytes between blocks
+     *  \param[in] sz     The number of blocks
+     *  \param[out] d     The array to store the output in
+     */
+    virtual void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const = 0;
 
     /*! \brief Pure virtual function to write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to write to disk
      *  \param[out] d     The array to read data output from
      */
-    virtual void write(const size_t offset, const size_t sz, const uchar * d) const = 0;
+    virtual void write(csize_t offset, csize_t sz, const uchar * d) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the data layer.

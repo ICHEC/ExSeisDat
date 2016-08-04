@@ -35,9 +35,10 @@ struct FakeData : public Data::Interface
         return 0U;
     }
 
-    void read(const size_t offset, const size_t sz, uchar * d) const {}
-    void setFileSz(const size_t sz) const {}
-    void write(const size_t offset, const size_t sz, const uchar * d) const {}
+    void read(csize_t offset, csize_t sz, uchar * d) const {}
+    void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const {}
+    void setFileSz(csize_t sz) const {}
+    void write(csize_t offset, csize_t sz, const uchar * d) const {}
 };
 
 TEST_F(DataTest, Constructor)

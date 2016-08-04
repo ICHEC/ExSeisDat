@@ -34,6 +34,15 @@ constexpr size_t getMDSz()
     return static_cast<size_t>(Size::DOMd);
 }
 
+/*! \brief Return the size of the Data-Object Metadata object
+ *  \return Returns the size of the DOMD in bytes
+ */
+template <typename T = float>
+constexpr size_t getDFSz(size_t ns)
+{
+    return ns * sizeof(T);
+}
+
 /*! \brief Return the size of the Header Object (assuming text extensions are not used)
  *  \return Returns the size of the HO in bytes.
  */

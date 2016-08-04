@@ -26,21 +26,6 @@ static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, co
     return (err != MPI_SUCCESS ? MPI_FILE_NULL : file);
 }
 
-/*! \brief Set an MPI File view on the file.
- *  \tparam T The C++ equivalent for the elementary datatype (see MPI spec)
- *  \tparam U The C++ equivalent for the file datatype (see MPI spec)
- *  \param[in] file The MPI file handle
- *  \param[in] offset The offset from the beginning of the file.
- *  \return Returns the MPI error code from MPI_File_set_view
- */
-template <typename T, typename U=T>
-int setView(const MPI_File file, const MPI_Offset offset = 0)
-{
-    MPI_Info info = MPI_INFO_NULL;
-    int err = MPI_File_set_view(file, offset, MPIType<T>(), MPIType<U>(), "native", info);
-    return err;
-}
-
 /*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
  */
 template <typename U>
@@ -124,7 +109,7 @@ MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const M
     file = mopen(*piol, comm, opt, name);
     if (file != MPI_FILE_NULL)
     {
-        int err = setView<uchar>(file);
+        int err = MPI_File_set_view(file, 0, MPI_BYTE, MPI_BYTE, "native", info);
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
     }
 }
@@ -155,6 +140,42 @@ void MPIIO::read(const size_t offset, const size_t sz, uchar * d) const
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
+}
+
+MPI_Datatype strideView(MPI_File file, MPI_Info info, csize_t offset, csize_t bsz, csize_t osz, csize_t sz)
+{
+    MPI_Aint lb;
+    MPI_Aint esz;
+    MPI_Type_get_true_extent(MPI_BYTE, &lb, &esz);
+
+    int count = sz;
+    int block = bsz;
+    MPI_Aint stride = osz;
+
+    MPI_Datatype type;
+    MPI_Type_create_hvector(count, block, stride, MPI_BYTE, &type);
+    MPI_Type_commit(&type);
+
+    MPI_File_set_view(file, offset, MPI_BYTE, type, "native", info);
+
+    return type;
+}
+
+void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const
+{
+    if (std::max(sz, std::max(bsz, osz)) > size_t(std::numeric_limits<int>::max()))
+    {
+        std::string msg = "(sz, bsz, osz) = (" + std::to_string(sz) + ", "
+                                               + std::to_string(bsz) + ", "
+                                               + std::to_string(osz) + ")";
+        piol->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, Log::Verb::None);
+    }
+    auto view = strideView(file, info, offset, bsz, osz, sz);
+
+    MPIIO::read(offset, sz*bsz, d);
+
+    MPI_File_set_view(file, 0, MPI_BYTE, MPI_BYTE, "native", info);
+    MPI_Type_free(&view);
 }
 
 void MPIIO::write(const size_t offset, size_t sz, const uchar * d) const
