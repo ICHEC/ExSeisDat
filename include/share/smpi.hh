@@ -17,7 +17,6 @@ namespace PIOL {
  *  The side-effect of the function is to log an item with \c piol if there is an error
  *  otherwise no side-effect occurs. The function always returns.
  */
-#warning Change this functions parameters to match the guide.
 extern void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer, const int err,
                                         const MPI_Status * stat, std::string msg);
 

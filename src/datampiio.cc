@@ -10,6 +10,7 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
+#include <iostream>
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -17,7 +18,8 @@ namespace PIOL { namespace Data {
 static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, const std::string name)
 {
     MPI_File file = MPI_FILE_NULL;
-    int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
+    int err = MPI_File_open(comm, name.data(), opt.mode, opt.info, &file);
+    //int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
 
     printErr(piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
@@ -114,7 +116,7 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
     file = mopen(*piol, comm, opt, name);
     if (file != MPI_FILE_NULL)
     {
-        int err = MPI_File_set_view(file, 0, MPI_BYTE, MPI_BYTE, "native", info);
+        int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
     }
 }
@@ -147,20 +149,16 @@ void MPIIO::read(const size_t offset, const size_t sz, uchar * d) const
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 
-int strideView(MPI_File file, MPI_Info info, csize_t offset, csize_t bsz, csize_t osz, csize_t sz, MPI_Datatype * type)
+int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
 {
     MPI_Aint lb;
     MPI_Aint esz;
     //TODO: Do this only once.
-    int err = MPI_Type_get_true_extent(MPI_BYTE, &lb, &esz);
+    int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     if (err != MPI_SUCCESS)
         return err;
 
-    int count = sz;
-    int block = bsz;
-    MPI_Aint stride = osz;
-
-    err = MPI_Type_create_hvector(count, block, stride, MPI_BYTE, type);
+    err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
     if (err != MPI_SUCCESS)
         return err;
 
@@ -168,7 +166,7 @@ int strideView(MPI_File file, MPI_Info info, csize_t offset, csize_t bsz, csize_
     if (err != MPI_SUCCESS)
         return err;
 
-    err = MPI_File_set_view(file, offset, MPI_BYTE, *type, "native", info);
+    err = MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
     return err;
 }
 
@@ -176,7 +174,7 @@ int strideView(MPI_File file, MPI_Info info, csize_t offset, csize_t bsz, csize_
 //The idea is to get views working first, then address that.
 void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const
 {
-    if (std::max(sz, std::max(bsz, osz)) > size_t(maxSize))
+    if (sz*osz > size_t(maxSize))
     {
         std::string msg = "(sz, bsz, osz) = (" + std::to_string(sz) + ", "
                                                + std::to_string(bsz) + ", "
@@ -192,13 +190,13 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d
     MPI_Aint lb;
     MPI_Aint esz;
     //TODO: Do this only once.
-    err = MPI_Type_get_true_extent(MPI_BYTE, &lb, &esz);
+    err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to get extent.");
 
-    MPIIO::read(offset, esz * sz*bsz, d);
+    MPIIO::read(offset, sz*bsz, d);
 
     //Reset the view.
-    MPI_File_set_view(file, 0, MPI_BYTE, MPI_BYTE, "native", info);
+    MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     MPI_Type_free(&view);
 }
 
@@ -229,12 +227,13 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d
         MPIIO::read(offset, sz*bsz, d);
 
         //Reset the view.
-        int err = MPI_File_set_view(file, 0, MPI_BYTE, MPI_BYTE, "native", info);
+        int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to reset the view after reading.");
+
         int err = MPI_Type_free(&view);
         printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to free the type.");
     }
-    int err = io<MPI_BYTE, MPI_Info>(viewRead, file, offset, d, sz, &info, maxSize/bsz);
+    int err = io<MPI_CHAR, MPI_Info>(viewRead, file, offset, d, sz, &info, maxSize/bsz);
 
     printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to read data over the integer limit.");
 }

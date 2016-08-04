@@ -309,25 +309,31 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdr)
 
 TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
 {
-    const size_t sz = 20000;
-    const size_t ns = 1000;
+    const size_t sz = 400;
+    const size_t ns = 261;
+    //const size_t sz = 20000;
+    //const size_t ns = 1000;
     SCOPED_TRACE("SEGYReadTrHdr");
-    std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, largeSEGYFile, segyOpt, dataOpt)));
+    std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, "tmp/smallsegy.tmp", segyOpt, dataOpt)));
+    //std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, largeSEGYFile, segyOpt, dataOpt)));
     piol->isErr();
     size_t offset = 0;
 
     std::vector<uchar> tr(sz*SEGSz::getMDSz());
-    obj->readDOMD(offset, ns, sz, tr.data());
+    //obj->readDOMD(offset, ns, sz, tr.data());
+
+    obj->data->read(3600, 240, 4240, 400, tr.data());
+
     piol->isErr();
 
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = tr.data() + i*SEGSz::getMDSz();
-        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
-        std::cout << uint(md[192]) <<" " <<  uint(md[193]) <<" " <<  uint (md[194]) << " " << uint(md[195]) << std::endl;
-        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
+        EXPECT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
+        EXPECT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
     }
 }
+//ns 1000 DOLoc 3600 md 240 DOSz 4240 sz 200
 
 void SEGYWriteTrTest(size_t offset, size_t ns, Obj::Interface * obj)
 {
