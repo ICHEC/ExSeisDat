@@ -27,18 +27,22 @@ class SEGY : public Interface
 {
     private :
 
+    /*! The Datatype (or format in SEG-Y terminology)
+     */
     enum class Format : int16_t
     {
-        IBM  = 1,   //IBM format, big endian
-        TC4  = 2,   //Two's complement, 4 byte
-        TC2  = 3,   //Two's complement, 2 byte
-        FPG  = 4,   //Fixed-point gain (obsolete)
-        IEEE = 5,   //The IEEE format, big endian
-        NA1  = 6,   //Unused
-        NA2  = 7,   //Unused
-        TC1  = 8,   //Two's complement, 1 byte
-    } format;       //Type formats
+        IBM  = 1,   //<! IBM format, big endian
+        TC4  = 2,   //<! Two's complement, 4 byte
+        TC2  = 3,   //<! Two's complement, 2 byte
+        FPG  = 4,   //<! Fixed-point gain (obsolete)
+        IEEE = 5,   //<! The IEEE format, big endian
+        NA1  = 6,   //<! Unused
+        NA2  = 7,   //<! Unused
+        TC1  = 8,   //<! Two's complement, 1 byte
+    } format;       //<! Type formats
 
+    /*! State flags structure for File::SEGY
+     */
     struct Flags
     {
         uint64_t writeHO : 1;   //!< The header should be written before File::SEGY object is deleted

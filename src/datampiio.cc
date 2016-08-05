@@ -40,10 +40,10 @@ using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U
  *  \param[in] fn Function pointer to the MPI function.
  *  \param[in] file The MPI File
  *  \param[in] offset The offset from the current shared ptr
- *  \param[out] d The array to read into or from
  *  \param[in] sz The number of elements to read or write
  *  \param[in] arg The last argument of the MPI_File_... function
  *  \param[in] max The maximum size to read or write at once
+ *  \param[out] d The array to read into or from
  *  \return Returns the MPI error code. MPI_SUCCESS for success,
  *  MPI_ERR_IN_STATUS means the status structure should be checked.
  *
@@ -51,13 +51,14 @@ using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U
  * which would have issues with the number of operations being the same for each process
  */
 template <typename T, typename U = MPI_Status> inline
-int io(const MFp<U> fn, const MPI_File & file, csize_t offset, T * d, csize_t sz, U & arg, size_t max, csize_t bsz = 1U, csize_t osz = 1U)
+int io(const MFp<U> fn, const MPI_File & file, csize_t offset, csize_t sz, U & arg, size_t max, T * d, csize_t bsz = 1U, csize_t osz = 1U)
 {
     int err = MPI_SUCCESS;
 
     max /= osz;
     csize_t q = sz / max;
     csize_t r = sz % max;
+
     for (size_t i = 0U; i < q && err == MPI_SUCCESS; i++)
         err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<T>(), &arg);
 
@@ -94,6 +95,14 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 {
     maxSize = opt.maxSize;
     info = opt.info;
+
+    //TODO: Do this only once.
+    MPI_Aint lb, esz;
+    int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "Setting MPI extent failed");
+
+    if (esz != 1)
+        piol->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
 
     auto mcomm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
     if (mcomm == nullptr)
@@ -135,20 +144,13 @@ void MPIIO::setFileSz(csize_t sz) const
 void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
 {
     MPI_Status arg;
-    int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
+    int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, sz, arg, maxSize, d);
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 
 int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
 {
-    MPI_Aint lb;
-    MPI_Aint esz;
-    //TODO: Do this only once.
-    int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    if (err != MPI_SUCCESS)
-        return err;
-
-    err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
+    int err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
     if (err != MPI_SUCCESS)
         return err;
 
@@ -211,14 +213,14 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
         };
 
     MPI_Status stat;
-    int err = io<uchar, MPI_Status>(viewRead, file, offset, d, nb, stat, maxSize, bsz, osz);
+    int err = io<uchar, MPI_Status>(viewRead, file, offset, nb, stat, maxSize, d, bsz, osz);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
 
 void MPIIO::write(csize_t offset, size_t sz, const uchar * d) const
 {
     MPI_Status arg;
-    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, const_cast<uchar *>(d), sz, arg, maxSize);
+    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
     printErr(*piol, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
 }
 }}

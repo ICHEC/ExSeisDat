@@ -174,17 +174,27 @@ TEST(FileSEGY, getMdCrd)
     testGetCoord(getPair(Coord::Cmp), geom_t(1));
 }
 
-void testSetMd(Hdr item, size_t check)
+void testSetMd(std::vector<Hdr> item)
 {
     std::vector<uchar> ho(SEGSz::getHOSz());
     for (int16_t val = 0; val < 0x7FFF; val++)
     {
-        setMd(item, val, ho.data());
-        ASSERT_EQ((val >> 8) & 0xFF, ho[size_t(check)-1U]);
-        ASSERT_EQ(val & 0xFF, ho[size_t(check)]);
-        ho[size_t(item)-1U] = 0;
-        ho[size_t(item)] = 0;
+        for (size_t i = 0; i < item.size(); i++)
+            setMd(item[i], val, ho.data());
+
+        for (size_t i = 0; i < item.size(); i++)
+        {
+            ASSERT_EQ((val >> 8) & 0xFF, ho[size_t(item[i])-1U]);
+            ASSERT_EQ(val & 0xFF, ho[size_t(item[i])]);
+            ho[static_cast<size_t>(item[i])-1U] = ho[static_cast<size_t>(item[i])] = 0;
+        }
     }
+}
+
+void testSetMd(Hdr item, size_t check)
+{
+    ASSERT_EQ(size_t(item), check);
+    testSetMd({item});
 }
 
 TEST(FileSEGY, setNs)
@@ -222,6 +232,16 @@ TEST(FileSEGY, setExtensions)
     testSetMd(Hdr::Extensions, 3505);
 }
 
+//TODO: Add more tests like this for every set combination
+TEST(FileSEGY, setMdArray)
+{
+    //This test ensures no set overwrites the other
+    std::vector<Hdr> hdr = {Hdr::NumSample, Hdr::Type, Hdr::Increment,
+                            Hdr::Units, Hdr::SEGYFormat, Hdr::FixedTrace,
+                            Hdr::Extensions};
+    testSetMd(hdr);
+}
+
 void testSetScale(TrScal item, size_t check)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
@@ -253,20 +273,27 @@ void testSetGrid(Grid item, size_t check1, size_t check2)
         auto p = grid_t(val, val+1LL);
         setGrid(item, p, tr.data());
 
-        ASSERT_EQ((val >> 24) & 0xFF, tr[size_t(check1)-1U]);
-        ASSERT_EQ((val >> 16) & 0xFF, tr[size_t(check1)+0U]);
-        ASSERT_EQ((val >> 8) & 0xFF,  tr[size_t(check1)+1U]);
-        ASSERT_EQ(val & 0xFF,         tr[size_t(check1)+2U]);
+        ASSERT_EQ((val >> 24) & 0xFF, tr[check1-1U]);
+        ASSERT_EQ((val >> 16) & 0xFF, tr[check1+0U]);
+        ASSERT_EQ((val >> 8) & 0xFF,  tr[check1+1U]);
+        ASSERT_EQ(val & 0xFF,         tr[check1+2U]);
 
         val++;
-        ASSERT_EQ((val >> 24) & 0xFF, tr[size_t(check2)-1U]);
-        ASSERT_EQ((val >> 16) & 0xFF, tr[size_t(check2)+0U]);
-        ASSERT_EQ((val >> 8) & 0xFF,  tr[size_t(check2)+1U]);
-        ASSERT_EQ(val & 0xFF,         tr[size_t(check2)+2U]);
+        ASSERT_EQ((val >> 24) & 0xFF, tr[check2-1U]);
+        ASSERT_EQ((val >> 16) & 0xFF, tr[check2+0U]);
+        ASSERT_EQ((val >> 8) & 0xFF,  tr[check2+1U]);
+        ASSERT_EQ(val & 0xFF,         tr[check2+2U]);
 
+        tr[check1-1U] = 0;
+        tr[check1+0U] = 0;
+        tr[check1+1U] = 0;
+        tr[check1+2U] = 0;
 
-        tr[size_t(item)-1U] = 0;
-        tr[size_t(item)] = 0;
+        tr[check2-1U] = 0;
+        tr[check2+0U] = 0;
+        tr[check2+1U] = 0;
+        tr[check2+2U] = 0;
+        std::cout << "test " << val << std::endl;
     }
 }
 

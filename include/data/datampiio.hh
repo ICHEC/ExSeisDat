@@ -56,7 +56,7 @@ class MPIIO : public Interface
     /*! \brief Set the file size (preallocates).
      *  \param[in] sz The size in bytes
      */
-    void setFileSz(const size_t sz) const;
+    void setFileSz(csize_t sz) const;
 
     /*! \brief Read from storage using MPI-IO. If \c offset + \c sz is greater than the file size then
      *  only up to the file size is read. The rest of \c d is in an undefined state.
@@ -65,7 +65,7 @@ class MPIIO : public Interface
      *  sz elements.
      *  \param[out] d     The array to store the output in.
      */
-    void read(const size_t offset, const size_t sz, uchar * d) const;
+    void read(csize_t offset, csize_t sz, uchar * d) const;
 
     /*! \brief Read data from storage in blocks.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
@@ -81,7 +81,7 @@ class MPIIO : public Interface
      *  \param[in] sz     The amount of data to write to disk
      *  \param[in] d      The array to read data output from
      */
-    void write(const size_t offset, const size_t sz, const uchar * d) const;
+    void write(csize_t offset, csize_t sz, const uchar * d) const;
 };
 }}
 #endif

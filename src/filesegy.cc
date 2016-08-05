@@ -203,7 +203,7 @@ int32_t getMd(const TrGrd item, const uchar * src)
 /*! \brief Set the header metadata value corresponding to the item specified
  *  \param[in] item The header item of interest
  *  \param[in] src The metadata value to insert into the buffer.
- *  \param[out] dst The header as an array of uchar.
+ *  \param[in, out] dst The header as an array of uchar.
  */
 template <typename T = int16_t>
 void setMd(const Hdr item, const T src, uchar * dst)
@@ -226,7 +226,7 @@ void setMd(const Hdr item, const T src, uchar * dst)
 /*! \brief Set a trace scale in the trace header
  *  \param[in] item The scale item of interest
  *  \param[in] scale The metadata value to insert into the buffer.
- *  \param[out] buf The trace header as an array of uchar.
+ *  \param[in, out] buf The trace header as an array of uchar.
  */
 void setScale(const TrScal item, const int16_t scale, uchar * buf)
 {
@@ -237,7 +237,7 @@ void setScale(const TrScal item, const int16_t scale, uchar * buf)
  *  \param[in] item The coordinate point type of interest
  *  \param[in] coord The value of the coordinate point
  *  \param[in] scale The scale as an integer from the SEG-Y header
- *  \param[out] buf The trace header as an array of uchar.
+ *  \param[in, out] buf The trace header as an array of uchar.
  */
 void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar * buf)
 {
@@ -524,7 +524,7 @@ int16_t deScale(const geom_t val)
         *  hold the integer portion.
         *  We drop as much precision as it takes to store
         *  the most significant digit. */
-        for (int32_t scal = 1; scal <= tenk ; scal *= 10)
+        for (int32_t scal = 10; scal <= tenk ; scal *= 10)
         {
             llint v = llintpart / scal;
             int32_t iv = v;
@@ -561,6 +561,7 @@ int16_t deScale(const geom_t val)
         return 1;
     }
 }
+
 void SEGY::writeCoordPoint(const Coord item, csize_t i, coord_t coord) const
 {
     std::vector<uchar> md(SEGSz::getMDSz()); //Small.
