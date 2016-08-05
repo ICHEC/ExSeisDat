@@ -23,6 +23,7 @@ void Logger::record(const std::string file, const Layer layer, const Status stat
     if (stat == Status::Error)
         error = true;
 }
+
 size_t Logger::numStat(const Status stat) const
 {
     size_t sz = 0;
@@ -35,7 +36,6 @@ bool Logger::isErr(void) const
 {
     return error;
 }
-
 
 void Logger::procLog(void)
 {

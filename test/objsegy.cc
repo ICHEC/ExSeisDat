@@ -239,7 +239,6 @@ TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
         ASSERT_EQ(ho[i], getPattern(SEGSz::getHOSz() - i));
 }
 
-
 TEST_F(ObjIntegrationTest, SEGYReadHO)
 {
     SCOPED_TRACE("SEGYReadHO");

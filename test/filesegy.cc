@@ -508,7 +508,7 @@ TEST_F(FileIntegrationTest, SEGYWriteHO)
 //Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYWriteTraceGrid)
 {
-    SCOPED_TRACE("SEGYReadHO");
+    SCOPED_TRACE("SEGYWriteTraceGrid");
     const size_t ns = 261U;
     const size_t nt = 400U;
     std::string outFile = "tmp/testOutput.tmp";
@@ -538,7 +538,7 @@ TEST_F(FileIntegrationTest, SEGYWriteTraceGrid)
 //Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYWriteTraceCoord)
 {
-    SCOPED_TRACE("SEGYReadHO");
+    SCOPED_TRACE("SEGYWriteTraceCoord");
     const size_t ns = 261U;
     const size_t nt = 400U;
     std::string outFile = "tmp/testOutput.tmp";

@@ -451,7 +451,7 @@ grid_t SEGY::readGridPoint(const Grid item, const size_t i) const
  * \brief Take a coordinate and extract a suitable scale factor to represent that number
  * in 6 byte fixed point format of the SEG-Y specification.
  * \param[in] val The coordinate of interest.
- * \return An appropriate scale factor the coordinate.
+ * \return An appropriate scale factor for the coordinate.
  * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
  * There are ten possible values for the scale factor. Shown are the possible values
  * and the form the input float should have to use that scale factor.
@@ -487,7 +487,7 @@ int16_t deScale(const geom_t val)
         *  hold the integer portion.
         *  We drop as much precision as it takes to store
         *  the most significant digit. */
-        for (int32_t scal = 1; scal <= tenk ; scal *= 10)
+        for (int32_t scal = 10; scal <= tenk ; scal *= 10)
         {
             llint v = llintpart / scal;
             int32_t iv = v;
