@@ -81,6 +81,27 @@ TEST_F(MPIIOTest, LargeFileSize)
     piol->isErr();
     EXPECT_EQ(largeSize, mio.getFileSz());
 }
+
+TEST_F(MPIIOTest, ReadAllBlocks)
+{
+    const size_t sz = 400;
+    const size_t ns = 261;
+    Data::MPIIO mio(piol, "tmp/smallsegy.tmp", ioopt);
+    piol->isErr();
+    size_t offset = 0;
+
+    std::vector<uchar> tr((ns*4 + 240)*sz);
+    mio.read(3600, (ns*4 + 240)*sz, tr.data());
+    piol->isErr();
+
+    for (size_t i = 0; i < sz; i++)
+    {
+        uchar * md = &tr[(ns*4 + 240)*i];
+        EXPECT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
+        EXPECT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
+    }
+}
+
 TEST_F(MPIIOTest, ReadBlocks)
 {
     const size_t sz = 400;
@@ -90,12 +111,12 @@ TEST_F(MPIIOTest, ReadBlocks)
     size_t offset = 0;
 
     std::vector<uchar> tr(sz*240);
-    mio.read(3600, 240, ns*4 + 240, 400, tr.data());
+    mio.read(3600, 240, ns*4 + 240, sz, tr.data());
     piol->isErr();
 
     for (size_t i = 0; i < sz; i++)
     {
-        uchar * md = tr.data() + i*240;
+        uchar * md = &tr[240*i];
         EXPECT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
         EXPECT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
     }

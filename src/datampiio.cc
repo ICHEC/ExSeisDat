@@ -169,14 +169,14 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
     err = MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
     return err;
 }
-
+#warning TODO: Call sz NB!!!!!
 //TODO: Currently this implementation has a known issue with big sizes.
 //The idea is to get views working first, then address that.
-void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const
+void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
 {
-    if (sz*osz > size_t(maxSize))
+    if (nb*osz > size_t(maxSize))
     {
-        std::string msg = "(sz, bsz, osz) = (" + std::to_string(sz) + ", "
+        std::string msg = "(sz, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
         piol->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, Log::Verb::None);
@@ -184,16 +184,17 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d
 
     //Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
-    int err = strideView(file, info, offset, bsz, osz, sz, &view);
+    int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
     MPI_Aint lb;
     MPI_Aint esz;
+
     //TODO: Do this only once.
     err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to get extent.");
 
-    MPIIO::read(offset, sz*bsz, d);
+    MPIIO::read(0, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);

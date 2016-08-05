@@ -50,10 +50,10 @@ class Interface
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] bsz    The size of a block in bytes
      *  \param[in] osz    The number of bytes between the \c start of blocks
-     *  \param[in] sz     The number of blocks
+     *  \param[in] nb     The number of blocks
      *  \param[out] d     The array to store the output in
      */
-    virtual void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const = 0;
+    virtual void read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const = 0;
 
     /*! \brief Pure virtual function to write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer

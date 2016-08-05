@@ -320,17 +320,14 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
     size_t offset = 0;
 
     std::vector<uchar> tr(sz*SEGSz::getMDSz());
-    //obj->readDOMD(offset, ns, sz, tr.data());
-
-    obj->data->read(3600, 240, 4240, 400, tr.data());
-
+    obj->readDOMD(offset, ns, sz, tr.data());
     piol->isErr();
 
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = tr.data() + i*SEGSz::getMDSz();
-        EXPECT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
-        EXPECT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
+        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
+        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
     }
 }
 //ns 1000 DOLoc 3600 md 240 DOSz 4240 sz 200
