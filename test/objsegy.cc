@@ -88,17 +88,9 @@ TEST_F(ObjSpecTest, BigSEGYFileSize)
 
 void ExpectHOPattern(MockData * mock, std::vector<uchar> * ho)
 {
-    for (size_t i = 0U; i < 3600U; i++)
+    for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
         ho->at(i) = getPattern(i);
-    EXPECT_CALL(*mock, read(0U, 3600U, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(ho->begin(), ho->end()));
-}
-
-//TODO: Move to separate file
-TEST(SEGYSizes, All)
-{
-    ASSERT_EQ(3600U, SEGSz::getHOSz());
-    ASSERT_EQ(240U,  SEGSz::getMDSz());
-    ASSERT_EQ(3600U + (1111U*4U + 240U)*3333U, SEGSz::getDOLoc(3333, 1111));
+    EXPECT_CALL(*mock, read(0U, SEGSz::getHOSz(), _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(ho->begin(), ho->end()));
 }
 
 void ExpectTrHdrPattern(size_t offset, size_t ns, MockData * mock, std::vector<uchar> * tr)
@@ -330,7 +322,6 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
         ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
     }
 }
-//ns 1000 DOLoc 3600 md 240 DOSz 4240 sz 200
 
 void SEGYWriteTrTest(size_t offset, size_t ns, Obj::Interface * obj)
 {

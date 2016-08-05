@@ -35,6 +35,9 @@ class MPIIO : public Interface
     MPI_Comm comm;      //!< The MPI communicator for MPI-IO
     MPI_Info info;      //!< \copydoc MPIIOOpt::info
     size_t maxSize;     //!< \copydoc MPIIOOpt::maxSize
+
+    void readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
+
     public :
     /*! \brief The MPI-IO class constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.

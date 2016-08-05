@@ -6,11 +6,11 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <functional>
 #include "data/datampiio.hh"
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
-#include <iostream>
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -30,15 +30,11 @@ static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, co
 
 /*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
  */
-#ifdef TRAINING_WHEELS
 template <typename U>
 using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *)>;
-#else
-template <typename U>
-using MFp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
-#endif
 
-/*! \brief The MPI-IO inline template function for reading and writing
+/*! \brief The MPI-IO inline template function for dealing with
+ *  integer limits for reading and writing in MPI-IO.
  *  \tparam T The type of the array being read to or from.
  *  \tparam U The type of the last argument of MPI_File_...
  *  \param[in] fn Function pointer to the MPI function.
@@ -55,23 +51,17 @@ using MFp = int (*)(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *);
  * which would have issues with the number of operations being the same for each process
  */
 template <typename T, typename U = MPI_Status> inline
-int io(const MFp<U> fn, const MPI_File & file, const size_t offset, T * d, const size_t sz, U & arg, const size_t max)
+int io(const MFp<U> fn, const MPI_File & file, csize_t offset, T * d, csize_t sz, U & arg, size_t max, csize_t bsz = 1U, csize_t osz = 1U)
 {
     int err = MPI_SUCCESS;
-    auto q = sz / max;
-    auto r = sz % max;
 
-    for (auto i = 0U; i < q; i++)
-    {
-        err = fn(file, MPI_Offset(offset + i*max), &d[i*max], max, MPIType<T>(), &arg);
-        if (err != MPI_SUCCESS)
-            break;
-    }
+    max /= osz;
+    csize_t q = sz / max;
+    csize_t r = sz % max;
+    for (size_t i = 0U; i < q && err == MPI_SUCCESS; i++)
+        err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<T>(), &arg);
 
-    if (err == MPI_SUCCESS)
-        err = fn(file, MPI_Offset(offset + q*max), &d[q*max], r, MPIType<T>(), &arg);
-
-    return err;
+    return (err == MPI_SUCCESS ? fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<T>(), &arg) : err);
 }
 
 /*! \brief This function exists to hide the const from the MPI_File_write_at function signature
@@ -136,13 +126,13 @@ size_t MPIIO::getFileSz() const
     return size_t(fsz);
 }
 
-void MPIIO::setFileSz(const size_t sz) const
+void MPIIO::setFileSz(csize_t sz) const
 {
     int err = MPI_File_preallocate(file, MPI_Offset(sz));
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
 }
 
-void MPIIO::read(const size_t offset, const size_t sz, uchar * d) const
+void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
 {
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, d, sz, arg, maxSize);
@@ -169,14 +159,14 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
     err = MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
     return err;
 }
-#warning TODO: Call sz NB!!!!!
+
 //TODO: Currently this implementation has a known issue with big sizes.
 //The idea is to get views working first, then address that.
-void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
+void MPIIO::readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
 {
     if (nb*osz > size_t(maxSize))
     {
-        std::string msg = "(sz, bsz, osz) = (" + std::to_string(nb) + ", "
+        std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
         piol->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, Log::Verb::None);
@@ -190,24 +180,19 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
     MPI_Aint lb;
     MPI_Aint esz;
 
-    //TODO: Do this only once.
-    err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to get extent.");
-
-    MPIIO::read(0, nb*bsz, d);
+    MPIIO::read(0U, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     MPI_Type_free(&view);
 }
 
-#ifdef TRAINING_WHEELS
 constexpr size_t getFabricPacketSz(void)
 {
     return 4U*1024U*1024U;
 }
 
-void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const
+void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
 {
     /*
      *  If the bsz size is very large, we may as well read do this as a sequence of separate reads.
@@ -215,33 +200,22 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d
      *  TODO: Investigate which limit is the optimal choice if the need arises
     */
     if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
-        for (size_t i = 0; i < sz; i++)
+        for (size_t i = 0; i < nb; i++)
             MPIIO::read(offset+i*osz, bsz, d);
 
-    auto viewRead = [piol, bsz, osz] (MPI_File file, MPI_Offset offset, void * d, int sz, MPI_Datatype da, MPI_Info * info) -> int  
-    {
-        //Set a view so that MPI_File_read... functions only see contiguous data.
-        MPI_Datatype view;
-        int err = strideView(file, *info, offset, bsz, osz, sz, &view);
-        printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to set a view for reading.");
+    auto viewRead = [this, offset, bsz, osz]
+        (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
+        {
+            readSmall(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
+            return MPI_SUCCESS;
+        };
 
-        MPIIO::read(offset, sz*bsz, d);
-
-        //Reset the view.
-        int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
-        printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to reset the view after reading.");
-
-        int err = MPI_Type_free(&view);
-        printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to free the type.");
-    }
-    int err = io<MPI_CHAR, MPI_Info>(viewRead, file, offset, d, sz, &info, maxSize/bsz);
-
-    printErr(*piol, name, Log::Layer::Data, err, &arg, "Failed to read data over the integer limit.");
+    MPI_Status stat;
+    int err = io<uchar, MPI_Status>(viewRead, file, offset, d, nb, stat, maxSize, bsz, osz);
+    printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
-#endif
 
-
-void MPIIO::write(const size_t offset, size_t sz, const uchar * d) const
+void MPIIO::write(csize_t offset, size_t sz, const uchar * d) const
 {
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, const_cast<uchar *>(d), sz, arg, maxSize);
