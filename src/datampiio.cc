@@ -88,6 +88,7 @@ MPIIOOpt::MPIIOOpt(void)
 {
     mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
     info = MPI_INFO_NULL;
+    fcomm = MPI_COMM_SELF;
     maxSize = getLim<int32_t>();
 }
 
@@ -96,7 +97,6 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
     maxSize = opt.maxSize;
     info = opt.info;
 
-    //TODO: Do this only once.
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "Setting MPI extent failed");
@@ -104,15 +104,9 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
     if (esz != 1)
         piol->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
 
-    auto mcomm = std::dynamic_pointer_cast<Comm::MPI>(piol->comm);
-    if (mcomm == nullptr)
-    {
-        piol->record(name, Log::Layer::Data, Log::Status::Error, "Cast of communicator to MPI communicator failed", Log::Verb::None);
-        return;
-    }
-    comm = mcomm->getComm();
+    fcomm = MPI_COMM_SELF;
 
-    file = mopen(*piol, comm, opt, name);
+    file = mopen(*piol, fcomm, opt, name);
     if (file != MPI_FILE_NULL)
     {
         int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);

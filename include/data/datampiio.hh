@@ -23,6 +23,7 @@ struct MPIIOOpt : public Opt
     int mode;           //!< The mode to open the associated file with
     MPI_Info info;      //!< The info structure to use
     size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
+    MPI_Comm fcomm;     //!< The MPI communicator to use for file access
     MPIIOOpt(void);     //!< The constructor to set default options
 };
 
@@ -32,7 +33,7 @@ class MPIIO : public Interface
 {
     private :
     MPI_File file;      //!< The MPI file handle
-    MPI_Comm comm;      //!< The MPI communicator for MPI-IO
+    MPI_Comm fcomm;     //!< The MPI file communicator
     MPI_Info info;      //!< \copydoc MPIIOOpt::info
     size_t maxSize;     //!< \copydoc MPIIOOpt::maxSize
 
