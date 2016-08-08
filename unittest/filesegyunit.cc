@@ -293,7 +293,6 @@ void testSetGrid(Grid item, size_t check1, size_t check2)
         tr[check2+0U] = 0;
         tr[check2+1U] = 0;
         tr[check2+2U] = 0;
-        std::cout << "test " << val << std::endl;
     }
 }
 
