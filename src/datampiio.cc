@@ -51,7 +51,8 @@ using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U
  * which would have issues with the number of operations being the same for each process
  */
 template <typename T, typename U = MPI_Status> inline
-int io(const MFp<U> fn, const MPI_File & file, csize_t offset, csize_t sz, U & arg, size_t max, T * d, csize_t bsz = 1U, csize_t osz = 1U)
+int io(const MFp<U> fn, const MPI_File & file, csize_t offset, csize_t sz, U & arg,
+                                               size_t max, T * d, csize_t bsz = 1U, csize_t osz = 1U)
 {
     int err = MPI_SUCCESS;
 
@@ -63,6 +64,25 @@ int io(const MFp<U> fn, const MPI_File & file, csize_t offset, csize_t sz, U & a
         err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<T>(), &arg);
 
     return (err == MPI_SUCCESS ? fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<T>(), &arg) : err);
+}
+
+int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
+{
+    int err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
+    if (err != MPI_SUCCESS)
+        return err;
+
+    err = MPI_Type_commit(type);
+    if (err != MPI_SUCCESS)
+        return err;
+
+    err = MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
+    return err;
+}
+
+constexpr size_t getFabricPacketSz(void)
+{
+    return 4U*1024U*1024U;
 }
 
 /*! \brief This function exists to hide the const from the MPI_File_write_at function signature
@@ -142,23 +162,7 @@ void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 
-int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
-{
-    int err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
-    if (err != MPI_SUCCESS)
-        return err;
-
-    err = MPI_Type_commit(type);
-    if (err != MPI_SUCCESS)
-        return err;
-
-    err = MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
-    return err;
-}
-
-//TODO: Currently this implementation has a known issue with big sizes.
-//The idea is to get views working first, then address that.
-void MPIIO::readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
+void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
 {
     if (nb*osz > size_t(maxSize))
     {
@@ -173,19 +177,18 @@ void MPIIO::readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, ucha
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-    MPI_Aint lb;
-    MPI_Aint esz;
-
-    MPIIO::read(0U, nb*bsz, d);
+    read(0U, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     MPI_Type_free(&view);
 }
 
-constexpr size_t getFabricPacketSz(void)
+void MPIIO::write(csize_t offset, size_t sz, const uchar * d) const
 {
-    return 4U*1024U*1024U;
+    MPI_Status arg;
+    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
+    printErr(*piol, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
 }
 
 void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
@@ -197,24 +200,62 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
     */
     if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
         for (size_t i = 0; i < nb; i++)
-            MPIIO::read(offset+i*osz, bsz, d);
+            read(offset+i*osz, bsz, d);
 
-    auto viewRead = [this, offset, bsz, osz]
+    auto viewIO = [this, offset, bsz, osz]
         (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
         {
-            readSmall(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
+            readv(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
             return MPI_SUCCESS;
         };
 
     MPI_Status stat;
-    int err = io<uchar, MPI_Status>(viewRead, file, offset, nb, stat, maxSize, d, bsz, osz);
+    int err = io<uchar, MPI_Status>(viewIO, file, offset, nb, stat, maxSize, d, bsz, osz);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
 
-void MPIIO::write(csize_t offset, size_t sz, const uchar * d) const
+void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
 {
-    MPI_Status arg;
-    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
-    printErr(*piol, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
+    if (nb*osz > size_t(maxSize))
+    {
+        std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
+                                               + std::to_string(bsz) + ", "
+                                               + std::to_string(osz) + ")";
+        piol->record(name, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, Log::Verb::None);
+    }
+
+    //Set a view so that MPI_File_read... functions only see contiguous data.
+    MPI_Datatype view;
+    int err = strideView(file, info, offset, bsz, osz, nb, &view);
+    printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
+
+    write(0U, nb*bsz, d);
+
+    //Reset the view.
+    MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
+    MPI_Type_free(&view);
+}
+
+void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
+{
+    /*
+     *  If the bsz size is very large, we may as well read do this as a sequence of separate reads.
+     *  If MPI_Aint ignores the spec, then we are also contrained to this.
+     *  TODO: Investigate which limit is the optimal choice if the need arises
+    */
+    if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
+        for (size_t i = 0; i < nb; i++)
+            write(offset+i*osz, bsz, d);
+
+    auto viewIO = [this, offset, bsz, osz]
+        (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
+        {
+            writev(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
+            return MPI_SUCCESS;
+        };
+
+    MPI_Status stat;
+    int err = io<uchar, MPI_Status>(viewIO, file, offset, nb, stat, maxSize, const_cast<uchar *>(d), bsz, osz);
+    printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
 }}

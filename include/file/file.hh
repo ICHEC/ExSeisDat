@@ -31,6 +31,14 @@ enum class Grid : size_t
     Line    //!< Inline/Crossline grid points
 };
 
+struct TraceParam
+{
+    coord_t src;
+    coord_t rcv;
+    coord_t cmp;
+    grid_t line;
+};
+
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
  */
@@ -81,13 +89,6 @@ class Interface
      */
     geom_t readInc(void) const;
 
-    /*! \brief Pure virtual function to read the ith-trace coordinate pair
-     *  \param[in] item The coordinate pair of interest
-     *  \param[in] i The trace number
-     *  \return The ith-trace coordinate pair
-     */
-    virtual coord_t readCoordPoint(const Coord item, const size_t i) const = 0;
-
     /*! \brief Pure virtual function to read coordinate pairs from the ith-trace to i+sz.
      *  \param[in] item The coordinate pair of interest
      *  \param[in] i The starting trace number
@@ -104,12 +105,19 @@ class Interface
      */
     virtual void readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const = 0;
 
-    /*! \brief Pure virtual function to read the ith-trace grid pair
-     *  \param[in] item The Grid pair of interest
-     *  \param[in] i The trace number
-     *  \return The ith-trace grid pair
+    /*! \brief Pure virtual function to Write the trace parameters from offset to offset+sz to the respective
+     *  trace headers.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+     *
+     *  \details It is assumed that this operation is not an update. Any previous
+     *  contents of the trace header will be overwritten.
      */
-    virtual grid_t readGridPoint(const Grid item, const size_t i) const = 0;
+    void writeTraceParameters(csize_t offset, csize_t sz, const TraceParam * prm) const;
+
+    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace) const = 0;
+    virtual void writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const = 0;
 
     /*! \brief Pure virtual function to write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
@@ -130,20 +138,6 @@ class Interface
      *  \param[in] inc_ The new increment between trace samples.
      */
     virtual void writeInc(const geom_t inc_) = 0;
-
-    /*! \brief Pure virtual function to write the ith-trace coordinate pair.
-     *  \param[in] item The coordinate pair of interest
-     *  \param[in] i The trace number.
-     *  \param[in] coord The coordinate to write
-     */
-    virtual void writeCoordPoint(const Coord item, const size_t i, const coord_t coord) const = 0;
-
-    /*! \brief Pure virtual function to write the ith-trace grid pair.
-     *  \param[in] item The Grid pair of interest
-     *  \param[in] i The trace number.
-     *  \param[in] grid the grid point to write.
-     */
-    virtual void writeGridPoint(const Grid item, const size_t i, const grid_t grid) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the file layer.

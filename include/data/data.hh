@@ -58,9 +58,18 @@ class Interface
     /*! \brief Pure virtual function to write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to write to disk
-     *  \param[out] d     The array to read data output from
+     *  \param[in] d      The array to read data output from
      */
     virtual void write(csize_t offset, csize_t sz, const uchar * d) const = 0;
+
+    /*! \brief Pure virtual function to write data to storage in blocks.
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] osz    The number of bytes between the \c start of blocks
+     *  \param[in] nb     The number of blocks
+     *  \param[in] d      The array to read data output from
+     */
+    virtual void write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the data layer.

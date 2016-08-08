@@ -291,7 +291,7 @@ SEGY::~SEGY(void)
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
 
-        if (state.writeHO)
+        if (state.writeHO && !piol->comm->getRank())
         {
             std::vector<uchar> buf(SEGSz::getHOSz());
             packHeader(buf.data());
@@ -424,19 +424,6 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-coord_t SEGY::readCoordPoint(const Coord item, csize_t i) const
-{
-    std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
-    uchar * md = buf.data();
-    obj->readDOMD(i, ns, md);
-
-    geom_t scale = getMd(TrScal::ScaleCoord, md);
-
-    auto pair = getPair(item);
-    return coord_t(getMd(pair.first, scale, md),
-                   getMd(pair.second, scale, md));
-}
-
 void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * coords) const
 {
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
@@ -456,16 +443,6 @@ void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t 
     }
 }
 
-grid_t SEGY::readGridPoint(const Grid item, csize_t i) const
-{
-    std::vector<uchar> buf(SEGSz::getMDSz()); //Small.
-    uchar * md = buf.data();
-    obj->readDOMD(i, ns, md);
-
-    auto pair = getPair(item);
-    return std::make_pair(getMd(pair.first, md), getMd(pair.second, md));
-}
-
 void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * grids) const
 {
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
@@ -483,12 +460,26 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
     }
 }
 
+void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
+{
+    //Implict big endian conversion
+    obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
+    for (size_t i = 0; i < ns * sz; i++)
+        convertIBMtoIEEE(uint32_t(trace[i * ns]));
+}
+
+void SEGY::writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const
+{
+    for (size_t i = 0; i < sz; i++)
+        getBigEndian(toint(trace[i * ns]));
+    obj->writeDODF(offset, ns, sz, reinterpret_cast<const uchar *>(trace));
+}
 
 /*! \fn int16_t PIOL::File::deScale(const geom_t val)
  * \brief Take a coordinate and extract a suitable scale factor to represent that number
  * in 6 byte fixed point format of the SEG-Y specification.
  * \param[in] val The coordinate of interest.
- * \return An appropriate scale factor the coordinate.
+ * \return An appropriate scale factor for the coordinate.
  * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
  * There are ten possible values for the scale factor. Shown are the possible values
  * and the form the input float should have to use that scale factor.
@@ -562,35 +553,46 @@ int16_t deScale(const geom_t val)
     }
 }
 
-void SEGY::writeCoordPoint(const Coord item, csize_t i, coord_t coord) const
+int16_t scalComp(int16_t scal1, int16_t scal2)
 {
-    std::vector<uchar> md(SEGSz::getMDSz()); //Small.
-
-    //I get the minimum value so that I definitely store the result.
-    //This is at the expense of precision.
-    int16_t scale;
-    int16_t scal1 = deScale(coord.first);
-    int16_t scal2 = deScale(coord.second);
-
     //if the scale is bigger than 1 that means we need to use the largest
     //to ensure conservation of the most significant digit
     //otherwise we choose the scale that preserves the most digits
     //after the decimal place.
     if (scal1 > 1 || scal2 > 1)
-        scale = std::max(scal1, scal2);
+        return std::max(scal1, scal2);
     else
-        scale = std::min(scal1, scal2);
-
-    setScale(TrScal::ScaleCoord, scale, md.data());
-    setCoord(item, coord, scale, md.data());
-
-    obj->writeDOMD(i, ns, md.data());
+        return std::min(scal1, scal2);
 }
 
-void SEGY::writeGridPoint(const Grid item, csize_t i, const grid_t grid) const
+int16_t calcScale(coord_t coord)
 {
-    std::vector<uchar> md(SEGSz::getMDSz()); //Small.
-    setGrid(item, grid, md.data());
-    obj->writeDOMD(i, ns, md.data());
+    //I get the minimum value so that I definitely store the result.
+    //This is at the expense of precision.
+    int16_t scal1 = deScale(coord.first);
+    int16_t scal2 = deScale(coord.second);
+    return scalComp(scal1, scal2);
+}
+
+void SEGY::writeTraceParameters(csize_t offset, csize_t sz, const TraceParam * prm) const
+{
+    std::vector<uchar> md(SEGSz::getMDSz() * sz);
+
+    int16_t scale = 1;
+    for (size_t i = 0; i < sz; i++)
+    {
+        scale = scalComp(scale, calcScale(prm[i].src));
+        scale = scalComp(scale, calcScale(prm[i].rcv));
+        scale = scalComp(scale, calcScale(prm[i].cmp));
+        setScale(TrScal::ScaleCoord, scale, md.data());
+
+        setCoord(Coord::Src, prm[i].src, scale, md.data());
+        setCoord(Coord::Rcv, prm[i].rcv, scale, md.data());
+        setCoord(Coord::Cmp, prm[i].cmp, scale, md.data());
+
+        setGrid(Grid::Line, prm[i].line, md.data());
+    }
+
+    obj->writeDOMD(offset, ns, sz, md.data());
 }
 }}

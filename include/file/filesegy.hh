@@ -26,7 +26,6 @@ struct SEGYOpt : public Opt
 class SEGY : public Interface
 {
     private :
-
     /*! The Datatype (or format in SEG-Y terminology)
      */
     enum class Format : int16_t
@@ -55,7 +54,7 @@ class SEGY : public Interface
      *  \param[in] fsz The size of the file in bytes
      *  \param[in, out] The buffer to parse. The buffer is destructively modified
      */
-    void procHeader(const size_t fsz, uchar * buf);
+    void procHeader(csize_t fsz, uchar * buf);
 
     /*! \brief This function packs the state of the class object into the header.
      *  \param[in] buf The header object buffer
@@ -90,36 +89,6 @@ class SEGY : public Interface
      */
     ~SEGY(void);
 
-    /*! \brief Read the ith-trace coordinate pair
-     *  \param[in] item The coordinate pair of interest
-     *  \param[in] i The trace number
-     *  \return The ith-trace coordinate pair
-     */
-    coord_t readCoordPoint(const Coord item, const size_t i) const;
-
-    /*! \brief Read coordinate pairs from the ith-trace to i+sz.
-     *  \param[in] item The coordinate pair of interest
-     *  \param[in] i The starting trace number
-     *  \param[in] sz The tumber of traces to process
-     *  \param[out] buf The buffer
-     */
-    void readCoordPoint(const Coord item, csize_t i, csize_t sz, coord_t * buf) const;
-
-    /*! \brief Read grid pairs from the ith-trace to i+sz.
-     *  \param[in] item The grid pair of interest
-     *  \param[in] i The starting trace number
-     *  \param[in] sz The tumber of traces to process
-     *  \param[out] buf The buffer
-     */
-    void readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const;
-
-    /*! \brief Read the ith grid pair
-     *  \param[in] item The Grid pair of interest
-     *  \param[in] i The trace number
-     *  \return The ith-trace grid pair
-     */
-    grid_t readGridPoint(const Grid item, const size_t i) const;
-
     /*! \brief Write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
      */
@@ -128,33 +97,58 @@ class SEGY : public Interface
     /*! \brief Write the number of samples per trace
      *  \param[in] ns_ The new number of samples per trace.
      */
-    void writeNs(const size_t ns_);
+    void writeNs(csize_t ns_);
 
     /*! \brief Write the number of traces in the file
      *  \param[in] nt_ The new number of traces.
      */
-    void writeNt(const size_t nt_);
+    void writeNt(csize_t nt_);
 
     /*! \brief Write the number of increment between trace samples.
      *  \param[in] inc_ The new increment between trace samples.
      */
     void writeInc(const geom_t inc_);
 
-    /*! \brief Write the ith-trace coordinate pair.
-     *  \param[in] item The coordinate pair of interest
-     *  \param[in] i The trace number.
-     *  \param[in] coord The coordinate to write
+    /*! \brief Read coordinate pairs from the ith-trace to i+sz.
+     *  \param[in] item The coordinate pair of interest.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[out] buf The buffer which is sizeof(coord_t)*sz long.
+     */
+    void readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * buf) const;
+
+    /*! \brief Read grid pairs from the ith-trace to i+sz.
+     *  \param[in] item The grid pair of interest.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[out] buf The buffer which is sizeof(grid_t)*sz long.
+     */
+    void readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * buf) const;
+
+    /*! \brief Read the trace's from offset to offset+sz.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process
+     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     */
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace) const;
+
+    /*! \brief Read the trace's from offset to offset+sz.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process
+     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     */
+    void writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const;
+
+    /*! \brief Write the trace parameters from offset to offset+sz to the respective
+     *  trace headers.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+     *
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeCoordPoint(const Coord item, const size_t i, const coord_t coord) const;
-
-    /*! \brief Write the ith-trace grid pair.
-     *  \param[in] item The Grid pair of interest
-     *  \param[in] i The trace number.
-     *  \param[in] grid the grid point to write.
-     */
-    void writeGridPoint(const Grid item, const size_t i, const grid_t grid) const;
+    void writeTraceParameters(csize_t offset, csize_t sz, const TraceParam * prm) const;
 };
 }}
 #endif

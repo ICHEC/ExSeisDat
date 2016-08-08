@@ -48,43 +48,50 @@ class SEGY : public Interface
     SEGY(const Piol piol_, const std::string name_, const SEGYOpt & segyOpt_, const Data::Opt & dataOpt);
 
     /*! \brief Read the header object.
-     *  \param[out] ho An array which the caller guarantees is
-     *              long enough to hold the SEG-Y header.
+     *  \param[out] ho An array which the caller guarantees is long enough
+     *  to hold the header object.
      */
     void readHO(uchar * ho) const;
 
     /*! \brief Write the header object.
-     *  \param[in] ho An array which the caller guarantees is
-     *              at least as long as the header object.
+     *  \param[in] ho An array which the caller guarantees is long enough to hold the header object.
      */
     void writeHO(const uchar * ho) const;
 
-    /*! Read the data-object metadata.
-     *  \param[in] offset The trace number we are interested in.
-     *  \param[in] ns The number of samples per trace.
-     *  \param[out] ho An array which the caller guarantees is long enough for
-     *  the specific trace header.
-     *  \todo Extend this function to read more than one trace
-     */
-    void readDOMD(const size_t offset, const size_t ns, uchar * ho) const;
-
     /*! \brief Read a sequence of DOMDs.
-     *  \param[in] offset The trace number we are starting with.
-     *  \param[in] ns The number of samples per trace.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
      *  \param[out] ho An array which the caller guarantees is long enough for
-     *  the specific trace headers.
+     *  the DO metadata.
      */
     void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const;
 
-    /*! Write the data-object metadata.
-     *  \param[in] offset The trace number we are interested in.
-     *  \param[in] ns The number of samples per trace.
-     *  \param[out] ho An array which the caller guarantees is long enough for
-     *  the specific trace header.
-     *  \todo Extend this function to write more than one trace
+    /*! \brief Write the data-object metadata.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  the data-field.
      */
-    void writeDOMD(const size_t offset, const size_t ns, const uchar * ho) const;
+    void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * ho) const;
+
+    /*! \brief Read a sequence of data-fields.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of DOMDs to be read in a row.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the data-field.
+     */
+    void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * md) const;
+
+    /*! \brief Write a sequence of data-fields.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of DOMDs to be read in a row.
+     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  the data-field.
+     */
+    void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const;
 };
 }}
 #endif

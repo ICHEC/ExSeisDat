@@ -37,7 +37,23 @@ class MPIIO : public Interface
     MPI_Info info;      //!< \copydoc MPIIOOpt::info
     size_t maxSize;     //!< \copydoc MPIIOOpt::maxSize
 
-    void readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
+    /*! Read a file using MPI-IO views. This function does not handle the integer limit
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] osz    The number of bytes between the \c start of blocks
+     *  \param[in] sz     The number of blocks
+     *  \param[out] d     The array to store the output in
+     */
+    void readv(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
+
+    /*! Write a file using MPI-IO views. This function does not handle the integer limit
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] osz    The number of bytes between the \c start of blocks
+     *  \param[in] sz     The number of blocks
+     *  \param[in] d      The array to read data output from
+     */
+    void writev(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, const uchar * d) const;
 
     public :
     /*! \brief The MPI-IO class constructor.
@@ -83,6 +99,15 @@ class MPIIO : public Interface
      *  \param[in] d      The array to read data output from
      */
     void write(csize_t offset, csize_t sz, const uchar * d) const;
+
+    /*! \brief Write data to storage in blocks.
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] osz    The number of bytes between the \c start of blocks
+     *  \param[in] nb     The number of blocks
+     *  \param[in] d      The array to read data output from
+     */
+    void write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const;
 };
 }}
 #endif

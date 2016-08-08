@@ -59,32 +59,40 @@ class Interface
      */
     virtual void writeHO(const uchar * ho) const = 0;
 
-    /*! \brief Pure virtual function to read the data-object metadata.
-     *  \param[in] offset The trace number we are interested in.
-     *  \param[in] ns The number of samples per trace.
-     *  \param[out] ho An array which the caller guarantees is long enough for
-     *  the specific trace header.
-     *  \todo Extend this function to read more than one trace
-     */
-    virtual void readDOMD(csize_t offset, csize_t ns, uchar * ho) const = 0;
-
-    /*! \brief Pure virtual function to write the data-object metadata.
-     *  \param[in] offset The trace number we are interested in.
-     *  \param[in] ns The number of samples per trace.
-     *  \param[in] ho An array which the caller guarantees is long enough for
-     *  the specific trace header.
-     *  \todo Extend this function to write more than one trace
-     */
-    virtual void writeDOMD(csize_t offset, csize_t ns, const uchar * ho) const = 0;
-
-    /*! \brief Pure virtual function to write a sequence of DOMDs.
-     *  \param[in] offset The trace number we are starting with.
-     *  \param[in] ns The number of samples per trace.
+    /*! \brief Pure virtual function to read a sequence of DOMDs.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
      *  \param[out] ho An array which the caller guarantees is long enough for
-     *  the specific trace headers.
+     *  the DO metadata.
      */
     virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const = 0;
+
+    /*! \brief Pure virtual function to write the data-object metadata.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  the data-field.
+     */
+    virtual void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * ho) const = 0;
+
+    /*! \brief Pure virtual function to read a sequence of data-fields.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of DOMDs to be read in a row.
+     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  the data-field.
+     */
+    virtual void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * md) const = 0;
+
+    /*! \brief Pure virtual function to write a sequence of data-fields.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of DOMDs to be read in a row.
+     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  the data-field.
+     */
+    virtual void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.

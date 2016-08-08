@@ -58,6 +58,12 @@ void getBigEndian(const T src, uchar * dst)
     dst[3] = src & 0xFF;
 }
 
+template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
+T getBigEndian(const T src)
+{
+    return (24 & 0xFF) | (16 & 0xFF) | (8 & 0xFF) | 0xFF;
+}
+
 /*! \overload
  *  \brief Convert a host 2 byte type to a 2 byte \c char array in big endian
  *  \tparam The return type (type must be 2 bytes long)
@@ -72,4 +78,8 @@ void getBigEndian(const T src, uchar * dst)
     dst[0] = src >> 8 & 0xFF;
     dst[1] = src & 0xFF;
 }
+
+extern float tofloat(const uint32_t i);
+extern uint32_t toint(const float f);
+extern float convertIBMtoIEEE(const uint32_t i);
 }
