@@ -574,7 +574,7 @@ int16_t calcScale(coord_t coord)
     return scalComp(scal1, scal2);
 }
 
-void SEGY::writeTraceParameters(csize_t offset, csize_t sz, const TraceParam * prm) const
+void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const
 {
     std::vector<uchar> md(SEGSz::getMDSz() * sz);
 

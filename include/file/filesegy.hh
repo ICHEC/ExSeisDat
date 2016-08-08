@@ -148,7 +148,7 @@ class SEGY : public Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceParameters(csize_t offset, csize_t sz, const TraceParam * prm) const;
+    void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const;
 };
 }}
 #endif

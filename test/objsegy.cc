@@ -28,6 +28,7 @@ class MockData : public Data::Interface
     MOCK_CONST_METHOD3(read, void(csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD5(read, void(csize_t, csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD3(write, void(csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD5(write, void(csize_t, csize_t, csize_t, csize_t, const uchar *));
     // TODO: This method is not tested
     MOCK_CONST_METHOD1(setFileSz, void(csize_t));
 };
@@ -98,7 +99,7 @@ void ExpectTrHdrPattern(size_t offset, size_t ns, MockData * mock, std::vector<u
     size_t foff = SEGSz::getDOLoc(offset, ns);
     for (size_t i = 0U; i < SEGSz::getMDSz(); i++)
         tr->at(i) = getPattern(foff+i);
-    EXPECT_CALL(*mock, read(foff, SEGSz::getMDSz(), _)).Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr->begin(), tr->end()));
+    EXPECT_CALL(*mock, read(foff, SEGSz::getMDSz(), SEGSz::getDOSz(ns), 1U, _)).Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr->begin(), tr->end()));
 }
 
 TEST_F(ObjSpecTest, SEGYHORead)
@@ -129,7 +130,6 @@ TEST_F(ObjSpecTest, SEGYHORead)
 
 TEST_F(ObjSpecTest, SEGYTrRead)
 {
-    SCOPED_TRACE("SEGYRead");
     const size_t ns = 200U;
     const size_t traceNum = 10U;
     const size_t extra = 1111U;
@@ -146,7 +146,7 @@ TEST_F(ObjSpecTest, SEGYTrRead)
     for (auto i = 0U; i < extra; i++)
         trHdr[trHdr.size()-extra+i] = magicNum1;
 
-    segy.readDOMD(traceNum, ns, trHdr.data());
+    segy.readDOMD(traceNum, ns, 1U, trHdr.data());
 
     for (auto i = 0U; i < SEGSz::getMDSz(); i++)
     {
@@ -160,13 +160,13 @@ TEST_F(ObjSpecTest, SEGYTrRead)
 ACTION_P(extraTrCheck, ho)  //Use this when writing
 {
     for (size_t i = 0; i < SEGSz::getMDSz(); i++)
-        ASSERT_EQ(ho[i], arg2[i]) << "Error with header byte: " << i << " |\n";
+        ASSERT_EQ(ho[i], arg4[i]) << "Error with header byte: " << i << " |\n";
 }
 
 void ExpectWriteTrHdrPattern(size_t offset, size_t ns, MockData * mock, std::vector<uchar> * tr)
 {
     size_t foff = SEGSz::getDOLoc(offset, ns);
-    EXPECT_CALL(*mock, write(foff, SEGSz::getMDSz(), _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr->data()));
+    EXPECT_CALL(*mock, write(foff, SEGSz::getMDSz(), SEGSz::getDOSz(ns), 1U, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr->data()));
 }
 
 TEST_F(ObjSpecTest, SEGYTrWrite)
@@ -188,7 +188,7 @@ TEST_F(ObjSpecTest, SEGYTrWrite)
         trHdr[i] = getPattern(i);
 
     ExpectWriteTrHdrPattern(traceNum, ns, mock.get(), &cTrHdr);
-    segy.writeDOMD(traceNum, ns, trHdr.data());
+    segy.writeDOMD(traceNum, ns, 1U, trHdr.data());
 }
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// INTEGRATION-CLASS SPECIFICATION TESTING //////////////////////
@@ -233,7 +233,6 @@ TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
         ASSERT_EQ(ho[i], getPattern(SEGSz::getHOSz() - i));
 }
 
-
 TEST_F(ObjIntegrationTest, SEGYReadHO)
 {
     SCOPED_TRACE("SEGYReadHO");
@@ -275,7 +274,7 @@ void SEGYReadTrTest(size_t offset, const std::vector<size_t> & nsVals, const uch
         for (size_t i = 0U; i < extra; i++)
             tr[i] = tr[tr.size() - extra + i] = magicNum;
 
-        obj->readDOMD(offset, nsVals[j], tr.data() + extra);
+        obj->readDOMD(offset, nsVals[j], 1U, tr.data() + extra);
 
         //Overrun checks
         for (size_t i = 0U; i < extra; i++)
@@ -330,7 +329,7 @@ void SEGYWriteTrTest(size_t offset, size_t ns, Obj::Interface * obj)
     for (size_t i = 0U; i < tr.size(); i++)
         tr[i] = getPattern(foff + i);
 
-    obj->writeDOMD(offset, ns, tr.data());
+    obj->writeDOMD(offset, ns, 1U, tr.data());
 }
 
 TEST_F(ObjIntegrationTest, SEGYWriteTrHdr)

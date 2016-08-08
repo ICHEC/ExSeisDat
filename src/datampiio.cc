@@ -76,8 +76,7 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
     if (err != MPI_SUCCESS)
         return err;
 
-    err = MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
-    return err;
+    return MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
 }
 
 constexpr size_t getFabricPacketSz(void)

@@ -114,7 +114,7 @@ class Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceParameters(csize_t offset, csize_t sz, const TraceParam * prm) const;
+    virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const = 0;
 
     virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace) const = 0;
     virtual void writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const = 0;

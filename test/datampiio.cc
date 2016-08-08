@@ -123,6 +123,7 @@ TEST_F(MPIIOTest, ReadBlocksSmall)
     ReadBlocks<true>(nt, ns, &mio);
 }
 
+#ifdef BIG_TESTS
 TEST_F(MPIIOTest, ReadBlocksLarge)
 {
     const size_t nt = 2000000U;
@@ -131,7 +132,7 @@ TEST_F(MPIIOTest, ReadBlocksLarge)
     piol->isErr();
     ReadBlocks<true>(nt, ns, &mio);
 }
-
+#endif
 
 TEST_F(MPIIOTest, BlockingReadSmall)
 {
@@ -196,6 +197,7 @@ TEST_F(MPIIOTest, BlockingOneByteReadLarge)
     }
 }
 
+#ifdef BIG_TESTS
 //TODO: Find out why this is much slower on panasas
 TEST_F(MPIIOTest, BlockingReadEnd)
 {
@@ -213,3 +215,4 @@ TEST_F(MPIIOTest, BlockingReadEnd)
             EXPECT_EQ(d[i], getPattern(largeSize-j + i));
     }
 }
+#endif
