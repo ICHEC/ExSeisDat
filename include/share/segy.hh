@@ -43,7 +43,7 @@ constexpr size_t getMDSz()
 }
 
 /*! \brief Return the size of the Data-Object Field object
- *  \return Returns the size of the DOMD in bytes
+ *  \return Returns the size of the DODF in bytes
  */
 template <typename T = float>
 constexpr size_t getDFSz(size_t ns)

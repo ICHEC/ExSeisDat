@@ -68,15 +68,6 @@ class Interface
      */
     virtual void readDOMD(csize_t offset, csize_t ns, uchar * ho) const = 0;
 
-    /*! \brief Pure virtual function to write the data-object metadata.
-     *  \param[in] offset The trace number we are interested in.
-     *  \param[in] ns The number of samples per trace.
-     *  \param[in] ho An array which the caller guarantees is long enough for
-     *  the specific trace header.
-     *  \todo Extend this function to write more than one trace
-     */
-    virtual void writeDOMD(csize_t offset, csize_t ns, const uchar * ho) const = 0;
-
     /*! \brief Pure virtual function to write a sequence of DOMDs.
      *  \param[in] offset The trace number we are starting with.
      *  \param[in] ns The number of samples per trace.
@@ -85,6 +76,15 @@ class Interface
      *  the specific trace headers.
      */
     virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const = 0;
+
+    /*! \brief Pure virtual function to write the data-object metadata.
+     *  \param[in] offset The trace number we are interested in.
+     *  \param[in] ns The number of samples per trace.
+     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  the specific trace header.
+     *  \todo Extend this function to write more than one trace
+     */
+    virtual void writeDOMD(csize_t offset, csize_t ns, const uchar * ho) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.

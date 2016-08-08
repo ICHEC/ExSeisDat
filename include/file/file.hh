@@ -91,7 +91,7 @@ class Interface
     /*! \brief Pure virtual function to read coordinate pairs from the ith-trace to i+sz.
      *  \param[in] item The coordinate pair of interest
      *  \param[in] i The starting trace number
-     *  \param[in] sz The tumber of traces to process
+     *  \param[in] sz The number of traces to process
      *  \param[out] buf The buffer
      */
     virtual void readCoordPoint(const Coord item, csize_t i, csize_t sz, coord_t * buf) const = 0;
@@ -99,7 +99,7 @@ class Interface
     /*! \brief Pure virtual function to read grid pairs from the ith-trace to i+sz.
      *  \param[in] item The grid pair of interest
      *  \param[in] i The starting trace number
-     *  \param[in] sz The tumber of traces to process
+     *  \param[in] sz The number of traces to process
      *  \param[out] buf The buffer
      */
     virtual void readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const = 0;

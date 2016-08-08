@@ -14,9 +14,6 @@ typedef const std::size_t csize_t;
 #include "anc/piol.hh"
 #include "anc/log.hh"
 
-#include <iostream>
-#warning remove this
-
 namespace PIOL { namespace Data {
 class Interface;
 struct Opt;

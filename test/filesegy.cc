@@ -276,10 +276,10 @@ class FileSEGYReadSpecTest : public FileSEGYSpecTest
 
         initReadHOMock(*mock.get(), how, nt, ns, inc, 5, testString, false);
         file = new File::SEGY(piol, notFile, fileSegyOpt, mock);
-        InitTrBlock(nt);
+        initTrBlock(nt);
     }
 
-    void InitTrBlock(size_t nt)
+    void initTrBlock(size_t nt)
     {
         tr.resize(nt * SEGSz::getMDSz());
         for (size_t i = 0; i < nt; i++)

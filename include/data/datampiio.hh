@@ -37,6 +37,7 @@ class MPIIO : public Interface
     MPI_Info info;      //!< \copydoc MPIIOOpt::info
     size_t maxSize;     //!< \copydoc MPIIOOpt::maxSize
 
+//TODO document this function
     void readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
 
     public :

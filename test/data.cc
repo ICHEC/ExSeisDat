@@ -23,6 +23,8 @@ class DataTest : public Test
     }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 struct FakeData : public Data::Interface
 {
     FakeData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
@@ -40,6 +42,7 @@ struct FakeData : public Data::Interface
     void setFileSz(csize_t sz) const {}
     void write(csize_t offset, csize_t sz, const uchar * d) const {}
 };
+#pragma GCC diagnostic pop
 
 TEST_F(DataTest, Constructor)
 {

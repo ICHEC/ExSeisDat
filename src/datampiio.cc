@@ -19,7 +19,6 @@ static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, co
 {
     MPI_File file = MPI_FILE_NULL;
     int err = MPI_File_open(comm, name.data(), opt.mode, opt.info, &file);
-    //int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
 
     printErr(piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
@@ -33,6 +32,7 @@ static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, co
 template <typename U>
 using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *)>;
 
+#warning document bsz & osz
 /*! \brief The MPI-IO inline template function for dealing with
  *  integer limits for reading and writing in MPI-IO.
  *  \tparam T The type of the array being read to or from.
@@ -44,6 +44,8 @@ using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U
  *  \param[in] arg The last argument of the MPI_File_... function
  *  \param[in] max The maximum size to read or write at once
  *  \param[out] d The array to read into or from
+ *  \param[in] bsz
+ *  \param[in] osz
  *  \return Returns the MPI error code. MPI_SUCCESS for success,
  *  MPI_ERR_IN_STATUS means the status structure should be checked.
  *
@@ -99,7 +101,7 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    printErr(*piol, name, Log::Layer::Data, err, nullptr, "Setting MPI extent failed");
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
 
     if (esz != 1)
         piol->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
@@ -142,6 +144,7 @@ void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
     printErr(*piol, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 
+#warning document strideView function
 int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
 {
     int err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
@@ -173,9 +176,6 @@ void MPIIO::readSmall(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, ucha
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(*piol, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-    MPI_Aint lb;
-    MPI_Aint esz;
-
     MPIIO::read(0U, nb*bsz, d);
 
     //Reset the view.
@@ -192,7 +192,7 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
 {
     /*
      *  If the bsz size is very large, we may as well read do this as a sequence of separate reads.
-     *  If MPI_Aint ignores the spec, then we are also contrained to this.
+     *  If MPI_Aint ignores the spec, then we are also constrained to this.
      *  TODO: Investigate which limit is the optimal choice if the need arises
     */
     if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
