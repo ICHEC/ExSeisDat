@@ -16,6 +16,7 @@ const std::string zeroFile = "tmp/zeroSizeFile.tmp";
 const std::string smallFile = "tmp/smallSizeFile.tmp";
 const std::string largeFile = "tmp/largeSizeFile.tmp";
 const std::string plargeFile = "tmp/largeFilePattern.tmp";
+const std::string tempFile = "tmp/tempFile.tmp";
 const std::string smallSEGYFile = "tmp/smallsegy.tmp";
 const std::string largeSEGYFile = "tmp/largesegy.tmp";
 

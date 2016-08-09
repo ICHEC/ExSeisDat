@@ -24,6 +24,10 @@ class Interface
     size_t numRank;         //!< The total number of processes which are executing together.
 
     public :
+    /*! \brief A virtual destructor to allow deletion.
+     */
+    virtual ~Interface(void) { }
+
     /*! \brief Returns the rank of the process executing the function/
      *  \return The rank.
      */

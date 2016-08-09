@@ -25,12 +25,6 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
 
-%.dep: %.cc
-	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
-
-$(OBJDIR)/%.o: %.cc
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
 .PHONY: all
 all: $(DEP) $(OBJECTS)
 
@@ -65,5 +59,10 @@ clean:
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o
 
--include $(DEP)
+%.dep: %.cc
+	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+
+$(OBJDIR)/%.o: %.cc
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
 

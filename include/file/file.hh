@@ -72,6 +72,10 @@ class Interface
      */
     Interface(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
+    /*! \brief A virtual destructor to allow deletion.
+     */
+    virtual ~Interface(void) { }
+
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */

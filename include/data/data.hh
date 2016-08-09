@@ -29,6 +29,10 @@ class Interface
     {
     }
 
+    /*! \brief A virtual destructor to allow deletion.
+     */
+    virtual ~Interface(void) { }
+
     /*! \brief Pure virtual function to find out the file size.
      *  \return The file size in bytes.
      */

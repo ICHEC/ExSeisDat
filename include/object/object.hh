@@ -38,6 +38,10 @@ class Interface
      */
     Interface(const Piol piol_, const std::string name_, const Data::Opt & dataOpt);
 
+    /*! \brief A virtual destructor to allow deletion.
+     */
+    virtual ~Interface(void) { }
+
     /*! \brief Find out the file size.
      *  \return The file size in bytes.
      */
