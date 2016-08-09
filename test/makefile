@@ -25,20 +25,10 @@ CURR_OBJECTS=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP=$(wildcard $(DEP))
 CURR_DEPENDS=$(wildcard $(DEPENDS))
 
-.PHONY: all
-all: $(DEP) $(OBJECTS)
-
-$(DEP): $(DEPENDS)
-	cat *.dep > $(DEP)
-
-ifeq "$(CURR_DEP)" "$(DEP)"
--include $(DEP)
-endif
-
 BIN=unittests
 
 .PHONY: all
-all: libgmock.a $(BIN) $(DEP) genfiles
+all: libgmock.a $(BIN) $(DEP) $(OBJECTS)
 
 $(SRC_OBJDIR):
 	(cd ../src/; $(MAKE))
@@ -64,6 +54,13 @@ clean:
 
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o
+
+$(DEP): $(DEPENDS)
+	cat *.dep > $(DEP)
+
+ifeq "$(CURR_DEP)" "$(DEP)"
+-include $(DEP)
+endif
 
 %.dep: %.cc
 	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
