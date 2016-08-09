@@ -15,6 +15,7 @@
 namespace PIOL {
 /*! \brief Return whether a character is a "good" ASCII character (i.e letters, numbers, spaces etc).
  *  \param[in] s The character
+ *  \return True if the character is "good" (i.e typically used by a person leaving messages).
  */
 static bool isGoodChar(char s)
 {
@@ -26,9 +27,10 @@ static bool isGoodChar(char s)
 
 /*! \brief The number of standard characters in the ASCII string (i.e letters, numbers, spaces etc).
  *  \param[in] src The string.
- *  \param[sz] sz The size of the string.
+ *  \param[in] sz The size of the string.
+ *  \return The number of standard characters in the string.
  */
-static size_t getCount(const char * src, const size_t sz)
+static size_t getCount(const char * src, csize_t sz)
 {
     size_t count = 0;
     for (size_t i = 0; i < sz; i++)
@@ -37,7 +39,7 @@ static size_t getCount(const char * src, const size_t sz)
 }
 
 //Do conversion, if more printable letters and spaces etc post-conversion use it.
-void getAscii(Piol piol, const std::string file, uchar * src, const size_t sz)
+void getAscii(Piol piol, const std::string file, csize_t sz, uchar * src)
 {
     iconv_t toAsc = iconv_open("ASCII//", "EBCDICUS//");
     piol->log->record(file, Log::Layer::File, Log::Status::Error, "Iconv has failed to open ASCII and EBCDICUS",

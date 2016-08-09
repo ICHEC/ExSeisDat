@@ -11,7 +11,7 @@
 namespace PIOL {
 /*! \brief Convert a 2 byte \c char array in big endian to a host 2 byte datatype
  *  \param[in] src Data in big endian order to stuff into the host datatype
- *  \return Return a two byte datatype (host endianness)
+ *  \return Return a 2 byte datatype (host endianness)
  *  \details src[0] contains the most significant byte in big endian. src[1] contains
  *  the least significant. Shift src[0] to be in the position of the most significant byte
  *  and OR it with src[1] which is not shifted (as it is the least significant byte.
@@ -58,6 +58,11 @@ void getBigEndian(const T src, uchar * dst)
     dst[3] = src & 0xFF;
 }
 
+/*! \brief Convert a host 4 byte type to a big-endian 4 byte type
+ *  \tparam T The host type
+ *  \param[in] src The input 4 byte type with host endianness
+ *  \return Return a 4 byte datatype (big endian)
+ */
 template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
 T getBigEndian(const T src)
 {
@@ -79,7 +84,27 @@ void getBigEndian(const T src, uchar * dst)
     dst[1] = src & 0xFF;
 }
 
+/*! Convert the underlying bit representation of a 4 byte integer to a float.
+ *  \param[in] i The input 32 bit integer
+ *  \return The corresponding float
+ *  \details One could think of this function as providing the cast
+ *  reinterpret_cast<float>(i). It uses a union to avoid strict
+ *  aliasing rules.
+ */
 extern float tofloat(const uint32_t i);
+
+/*! Convert the underlying bit representation of a float to a 4 byte integer.
+ *  \param[in] f The input float
+ *  \return The corresponding 4 byte integer
+ *  \details This function is the same as the above but in reverse.
+ */
 extern uint32_t toint(const float f);
+
+/*! Convert the underlying bit representation of a 4 byte integer whose bits are
+ *  in IBM format to an IEEE754 float.
+ *  \param[in] i The input float
+ *  \return The corresponding 4 byte integer
+ *  \details This function assumes that the system uses IEEE754.
+ */
 extern float convertIBMtoIEEE(const uint32_t i);
 }

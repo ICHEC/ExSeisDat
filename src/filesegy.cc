@@ -74,8 +74,8 @@ enum class TrCrd : size_t
     ySrc = 77U,  //!< int32_t. The Y coordinate for the source
     xRcv = 81U,  //!< int32_t. The X coordinate for the receive group
     yRcv = 85U,  //!< int32_t. The Y coordinate for the receive group
-    xCDP = 181U, //!< int32_t  The X coordinate for the CDP
-    yCDP = 185U  //!< int32_t. The Y coordinate for the CDP
+    xCMP = 181U, //!< int32_t  The X coordinate for the CMP
+    yCMP = 185U  //!< int32_t. The Y coordinate for the CMP
 };
 
 /*! Trace Header offsets to grid components
@@ -103,8 +103,8 @@ std::pair<TrCrd, TrCrd> getPair(Coord pair)
             return std::make_pair(TrCrd::xSrc, TrCrd::ySrc);
         case Coord::Rcv :
             return std::make_pair(TrCrd::xRcv, TrCrd::yRcv);
-        case Coord::Cmp :
-            return std::make_pair(TrCrd::xCDP, TrCrd::yCDP);
+        case Coord::CMP :
+            return std::make_pair(TrCrd::xCMP, TrCrd::yCMP);
     }
 }
 
@@ -259,6 +259,118 @@ void setGrid(const Grid item, const grid_t grid, uchar * buf)
     getBigEndian(int32_t(grid.second), &buf[size_t(pair.second) - 1U]);
 }
 
+/*! \fn int16_t PIOL::File::deScale(const geom_t val)
+ * \brief Take a coordinate and extract a suitable scale factor to represent that number
+ * in 6 byte fixed point format of the SEG-Y specification.
+ * \param[in] val The coordinate of interest.
+ * \return An appropriate scale factor for the coordinate.
+ * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
+ * There are ten possible values for the scale factor. Shown are the possible values
+ * and the form the input float should have to use that scale factor.
+ * firstly, anything smaller than 4 decimal points is discarded since the approach
+ * can not represent it.
+*//*
+ * Shown is the
+ * position of the least significant digit:
+ * -10000 - \d0000.0000
+ * -1000  - \d000.0000
+ * -100   - \d00.0000
+ * -10    - \d0.0000
+ * -1     - \d
+ * 1      - \d
+ * 10     - \d.\d
+ * 100    - \d.\d\d
+ * 1000   - \d.\d\d\d
+ * 10000  - \d.\d\d\d\d
+ * TODO: Handle the annoying case of numbers at or around 2147483648 with a decimal somewhere.
+ * TODO: Add rounding before positive scale values
+*/
+int16_t deScale(const geom_t val)
+{
+    constexpr llint tenk = 10000;
+    //First we need to determine what scale is required to store the
+    //biggest decimal value of the int.
+    llint llintpart = llint(val);      //TODO: Double check spec
+    int32_t intpart = llintpart;       //TODO: Double check spec
+    if (llintpart != intpart)
+    {
+        /* Starting with the smallest scale factor, see
+        *  what is the smallest scale we can apply and still
+        *  hold the integer portion.
+        *  We drop as much precision as it takes to store
+        *  the most significant digit. */
+        for (int32_t scal = 10; scal <= tenk ; scal *= 10)
+        {
+            llint v = llintpart / scal;
+            int32_t iv = v;
+            if (v == iv)
+                return scal;
+        }
+        return 0;
+    }
+    else
+    {
+        //Get the first four digits
+        llint digits = std::llround(val*geom_t(tenk)) - llintpart*tenk;
+        //if the digits are all zero we don't need any scaling
+        if (digits != 0)
+        {
+            //We try the most negative scale values we can first. (scale = - 10000 / i)
+            for (int32_t i = 1; i < tenk ; i *= 10)
+            {
+                if (digits % (i*10))
+                {
+                    int16_t scaleFactor = -tenk / i;
+                    //Now we test that we can still store the most significant byte
+                    geom_t scal = scaleConv(scaleFactor);
+
+                    //int32_t t = llint(val / scal) - digits;
+                    int32_t t = std::lround(val / scal);
+                    t /= -scaleFactor;
+
+                    if (t == llintpart)
+                        return scaleFactor;
+                }
+            }
+        }
+        return 1;
+    }
+}
+
+/*! Compare two scales and return the appropriate one which maximises precision
+ *  while preventing overflow of the int32_t type.
+ *  \param[in] scal1 The first scale value
+ *  \param[in] scal2 The second scale value
+ *  \return The scal value which meets the precision criteria.
+ */
+int16_t scalComp(int16_t scal1, int16_t scal2)
+{
+    //if the scale is bigger than 1 that means we need to use the largest
+    //to ensure conservation of the most significant digit
+    //otherwise we choose the scale that preserves the most digits
+    //after the decimal place.
+    if (scal1 > 1 || scal2 > 1)
+        return std::max(scal1, scal2);
+    else
+        return std::min(scal1, scal2);
+}
+
+/*! Extract the scale value from each coordinate from a coordinate point
+ *  and return the most appropriate scale value that maximises precision
+ *  while preventing overflow of the int32_t type.
+ *  \param[in] coord A coordinate point
+ *  \return The extracted scal value which meets the precision criteria.
+ */
+int16_t calcScale(const coord_t coord)
+{
+    //I get the minimum value so that I definitely store the result.
+    //This is at the expense of precision.
+    int16_t scal1 = deScale(coord.first);
+    int16_t scal2 = deScale(coord.second);
+    return scalComp(scal1, scal2);
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -325,7 +437,7 @@ void SEGY::procHeader(csize_t fsz, uchar * buf)
     inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
     format = static_cast<Format>(getMd(Hdr::Type, buf));
 
-    getAscii(piol, name, buf, SEGSz::getTextSz());
+    getAscii(piol, name, SEGSz::getTextSz(), buf);
     for (size_t i = 0U; i < SEGSz::getTextSz(); i++)
         text.push_back(buf[i]);
 }
@@ -475,124 +587,26 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const
     obj->writeDODF(offset, ns, sz, reinterpret_cast<const uchar *>(trace));
 }
 
-/*! \fn int16_t PIOL::File::deScale(const geom_t val)
- * \brief Take a coordinate and extract a suitable scale factor to represent that number
- * in 6 byte fixed point format of the SEG-Y specification.
- * \param[in] val The coordinate of interest.
- * \return An appropriate scale factor for the coordinate.
- * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
- * There are ten possible values for the scale factor. Shown are the possible values
- * and the form the input float should have to use that scale factor.
- * firstly, anything smaller than 4 decimal points is discarded since the approach
- * can not represent it.
-*//*
- * Shown is the
- * position of the least significant digit:
- * -10000 - \d0000.0000
- * -1000  - \d000.0000
- * -100   - \d00.0000
- * -10    - \d0.0000
- * -1     - \d
- * 1      - \d
- * 10     - \d.\d
- * 100    - \d.\d\d
- * 1000   - \d.\d\d\d
- * 10000  - \d.\d\d\d\d
- * TODO: Handle the annoying case of numbers at or around 2147483648 with a decimal somewhere.
- * TODO: Add rounding before positive scale values
-*/
-int16_t deScale(const geom_t val)
-{
-    constexpr llint tenk = 10000;
-    //First we need to determine what scale is required to store the
-    //biggest decimal value of the int.
-    llint llintpart = llint(val);      //TODO: Double check spec
-    int32_t intpart = llintpart;       //TODO: Double check spec
-    if (llintpart != intpart)
-    {
-        /* Starting with the smallest scale factor, see
-        *  what is the smallest scale we can apply and still
-        *  hold the integer portion.
-        *  We drop as much precision as it takes to store
-        *  the most significant digit. */
-        for (int32_t scal = 10; scal <= tenk ; scal *= 10)
-        {
-            llint v = llintpart / scal;
-            int32_t iv = v;
-            if (v == iv)
-                return scal;
-        }
-        return 0;
-    }
-    else
-    {
-        //Get the first four digits
-        llint digits = std::llround(val*geom_t(tenk)) - llintpart*tenk;
-        //if the digits are all zero we don't need any scaling
-        if (digits != 0)
-        {
-            //We try the most negative scale values we can first. (scale = - 10000 / i)
-            for (int32_t i = 1; i < tenk ; i *= 10)
-            {
-                if (digits % (i*10))
-                {
-                    int16_t scaleFactor = -tenk / i;
-                    //Now we test that we can still store the most significant byte
-                    geom_t scal = scaleConv(scaleFactor);
-
-                    //int32_t t = llint(val / scal) - digits;
-                    int32_t t = std::lround(val / scal);
-                    t /= -scaleFactor;
-
-                    if (t == llintpart)
-                        return scaleFactor;
-                }
-            }
-        }
-        return 1;
-    }
-}
-
-int16_t scalComp(int16_t scal1, int16_t scal2)
-{
-    //if the scale is bigger than 1 that means we need to use the largest
-    //to ensure conservation of the most significant digit
-    //otherwise we choose the scale that preserves the most digits
-    //after the decimal place.
-    if (scal1 > 1 || scal2 > 1)
-        return std::max(scal1, scal2);
-    else
-        return std::min(scal1, scal2);
-}
-
-int16_t calcScale(coord_t coord)
-{
-    //I get the minimum value so that I definitely store the result.
-    //This is at the expense of precision.
-    int16_t scal1 = deScale(coord.first);
-    int16_t scal2 = deScale(coord.second);
-    return scalComp(scal1, scal2);
-}
-
 void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const
 {
-    std::vector<uchar> md(SEGSz::getMDSz() * sz);
+    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
     int16_t scale = 1;
     for (size_t i = 0; i < sz; i++)
     {
+        uchar * md = &buf[i * SEGSz::getMDSz()];
         scale = scalComp(scale, calcScale(prm[i].src));
         scale = scalComp(scale, calcScale(prm[i].rcv));
         scale = scalComp(scale, calcScale(prm[i].cmp));
-        setScale(TrScal::ScaleCoord, scale, md.data());
+        setScale(TrScal::ScaleCoord, scale, md);
 
-        setCoord(Coord::Src, prm[i].src, scale, md.data());
-        setCoord(Coord::Rcv, prm[i].rcv, scale, md.data());
-        setCoord(Coord::Cmp, prm[i].cmp, scale, md.data());
+        setCoord(Coord::Src, prm[i].src, scale, md);
+        setCoord(Coord::Rcv, prm[i].rcv, scale, md);
+        setCoord(Coord::CMP, prm[i].cmp, scale, md);
 
-        setGrid(Grid::Line, prm[i].line, md.data());
+        setGrid(Grid::Line, prm[i].line, md);
     }
 
-    obj->writeDOMD(offset, ns, sz, md.data());
+    obj->writeDOMD(offset, ns, sz, buf.data());
 }
 }}

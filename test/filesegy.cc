@@ -27,6 +27,43 @@ using PIOL::File::TraceParam;
 using namespace testing;
 using namespace PIOL;
 
+enum Hdr : size_t
+{
+    Increment  = 3216U,
+    NumSample  = 3220U,
+    Type       = 3224U,
+    Sort       = 3228U,
+    Units      = 3254U,
+    SEGYFormat = 3500U,
+    FixedTrace = 3502U,
+    Extensions = 3504U,
+};
+
+enum TrHdr : size_t
+{
+    SeqNum      = 0U,
+    SeqFNum     = 4U,
+    ORF         = 8U,
+    TORF        = 12U,
+    RcvElv      = 40U,
+    SurfElvSrc  = 44U,
+    SrcDpthSurf = 48U,
+    DtmElvRcv   = 52U,
+    DtmElvSrc   = 56U,
+    WtrDepSrc   = 60U,
+    WtrDepRcv   = 64U,
+    ScaleElev   = 68U,
+    ScaleCoord  = 70U,
+    xSrc        = 72U,
+    ySrc        = 76U,
+    xRcv        = 80U,
+    yRcv        = 84U,
+    xCMP        = 180U,
+    yCMP        = 184U,
+    il          = 188U,
+    xl          = 192U
+};
+
 class MockObj : public Obj::Interface
 {
     public :
@@ -104,10 +141,11 @@ void initReadHOMock(MockObj & mock, std::vector<uchar> & ho, size_t nt, size_t n
     }
     for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++)
         ho[i] = ho[i % testString.size()];
-    ho[3220U] = (ns >> 8) & 0xFF;
-    ho[3221U] = ns & 0xFF;
-    ho[3217U] = inc;
-    ho[3225U] = format;
+
+    ho[NumSample] = (ns >> 8) & 0xFF;
+    ho[NumSample+1] = ns & 0xFF;
+    ho[Increment+1] = inc;
+    ho[Type+1] = format;
     EXPECT_CALL(mock, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 }
 
@@ -289,8 +327,8 @@ class FileSEGYReadSpecTest : public FileSEGYSpecTest
         for (size_t i = 0; i < nt; i++)
         {
             uchar * md = &tr[i * SEGSz::getMDSz()];
-            getBigEndian(ilNum(i), &md[188U]);
-            getBigEndian(xlNum(i), &md[192U]);
+            getBigEndian(ilNum(i), &md[il]);
+            getBigEndian(xlNum(i), &md[xl]);
 
             int16_t scale;
             int16_t scal1 = deScale(xNum(i));
@@ -301,9 +339,9 @@ class FileSEGYReadSpecTest : public FileSEGYSpecTest
             else
                 scale = std::min(scal1, scal2);
 
-            getBigEndian(scale, &md[70U]);
-            getBigEndian(int32_t(std::lround(xNum(i)/scale)), &md[72U]);
-            getBigEndian(int32_t(std::lround(yNum(i)/scale)), &md[76U]);
+            getBigEndian(scale, &md[ScaleCoord]);
+            getBigEndian(int32_t(std::lround(xNum(i)/scale)), &md[xSrc]);
+            getBigEndian(int32_t(std::lround(yNum(i)/scale)), &md[ySrc]);
         }
     }
 
@@ -383,10 +421,12 @@ class FileSEGYWriteSpecTest : public FileSEGYSpecTest
 
     void writeTrHdrGridTest(MockObj & mock, size_t ns, size_t offset)
     {
-        std::vector<uchar> trg(SEGSz::getMDSz());
-        getBigEndian(ilNum(offset), trg.data()+188U);
-        getBigEndian(xlNum(offset), trg.data()+192U);
-        EXPECT_CALL(mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1)).WillOnce(extraTrCheck(trg.data()));
+        std::vector<uchar> tr(SEGSz::getMDSz());
+        getBigEndian(ilNum(offset), tr.data()+il);
+        getBigEndian(xlNum(offset), tr.data()+xl);
+        getBigEndian<int16_t>(1, &tr[ScaleCoord]);
+
+        EXPECT_CALL(mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr.data()));
 
         TraceParam prm;
         prm.line = {ilNum(offset), xlNum(offset)};
@@ -412,7 +452,7 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrGrid)
 TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord1)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
-    initWriteTrHdrCoord(*mock.get(), {180U, 184U}, {160010, 240022}, -100, ns, 10, &tr);
+    initWriteTrHdrCoord(*mock.get(), {xCMP, yCMP}, {160010, 240022}, -100, ns, 10, &tr);
 
     TraceParam prm;
     prm.cmp = {1600.1, 2400.22};
@@ -422,7 +462,7 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord1)
 TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord2)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
-    initWriteTrHdrCoord(*mock.get(), {72U, 76U}, {1600100,    3400222}, -1000, ns, 10, &tr);
+    initWriteTrHdrCoord(*mock.get(), {xSrc, ySrc}, {1600100,    3400222}, -1000, ns, 10, &tr);
     TraceParam prm;
     prm.src = {1600.1000, 3400.2220};
     file->writeTraceParam(10U, 1U, &prm);
@@ -431,7 +471,7 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord2)
 TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord3)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
-    initWriteTrHdrCoord(*mock.get(), {72U, 76U}, {1623001001,   34002220}, -10000, ns, 10, &tr);
+    initWriteTrHdrCoord(*mock.get(), {xSrc, ySrc}, {1623001001,   34002220}, -10000, ns, 10, &tr);
     TraceParam prm;
     prm.src = {162300.10009, 3400.22201};
     file->writeTraceParam(10U, 1U, &prm);
@@ -630,7 +670,7 @@ TEST_F(FileIntegrationTest, SEGYWriteTraceCoord)
     {
         File::SEGY segy(piol, outFile, fileSegyOpt, obj);
         File::coord_t crd;
-        segy.readCoordPoint(File::Coord::Cmp, 200, 1U, &crd);
+        segy.readCoordPoint(File::Coord::CMP, 200, 1U, &crd);
         EXPECT_EQ(coord, crd);
     }
 }

@@ -43,10 +43,11 @@ constexpr size_t getMDSz()
 }
 
 /*! \brief Return the size of the Data-Object Field object
+ *  \param[in] ns The number of elements in the data-field.
  *  \return Returns the size of the DOMD in bytes
  */
 template <typename T = float>
-constexpr size_t getDFSz(size_t ns)
+constexpr size_t getDFSz(const size_t ns)
 {
     return ns * sizeof(T);
 }
@@ -57,7 +58,7 @@ constexpr size_t getDFSz(size_t ns)
  *  \return Returns the DO size.
  */
 template <typename T = float>
-inline size_t getDOSz(const size_t ns)
+inline size_t getDOSz(csize_t ns)
 {
     return getMDSz() + getDFSz<T>(ns);
 }
@@ -70,7 +71,7 @@ inline size_t getDOSz(const size_t ns)
  *  \return Returns the expected file size.
  */
 template <typename T = float>
-inline size_t getFileSz(const size_t nt, const size_t ns)
+inline size_t getFileSz(csize_t nt, csize_t ns)
 {
     return getHOSz() + nt*getDOSz<T>(ns);
 }
@@ -82,7 +83,7 @@ inline size_t getFileSz(const size_t nt, const size_t ns)
  *  \return Returns the location.
  */
 template <typename T = float>
-inline size_t getDOLoc(const size_t i, const size_t ns)
+inline size_t getDOLoc(csize_t i, csize_t ns)
 {
     return getFileSz<T>(i, ns);
 }
@@ -94,7 +95,7 @@ inline size_t getDOLoc(const size_t i, const size_t ns)
  *  \return Returns the location.
  */
 template <typename T = float>
-inline size_t getDODFLoc(const size_t i, const size_t ns)
+inline size_t getDODFLoc(csize_t i, csize_t ns)
 {
     return getFileSz<T>(i, ns) + getMDSz();
 }

@@ -32,8 +32,8 @@ struct MPIIOOpt : public Opt
 class MPIIO : public Interface
 {
     private :
-    MPI_File file;      //!< The MPI file handle
-    MPI_Comm fcomm;     //!< The MPI file communicator
+    MPI_File file;      //!< The MPI-IO file handle
+    MPI_Comm fcomm;     //!< The MPI-IO file communicator
     MPI_Info info;      //!< \copydoc MPIIOOpt::info
     size_t maxSize;     //!< \copydoc MPIIOOpt::maxSize
 

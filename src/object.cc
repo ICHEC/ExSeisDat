@@ -46,7 +46,7 @@ size_t Interface::getFileSz(void) const
     return data->getFileSz();
 }
 
-void Interface::setFileSz(const size_t sz) const
+void Interface::setFileSz(csize_t sz) const
 {
     return data->setFileSz(sz);
 }

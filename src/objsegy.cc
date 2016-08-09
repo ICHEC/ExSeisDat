@@ -49,13 +49,13 @@ void SEGY::writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) c
     data->write(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), sz, md);
 }
 
-void SEGY::readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * md) const
+void SEGY::readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const
 {
-    data->read(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), sz, md);
+    data->read(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), sz, df);
 }
 
-void SEGY::writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const
+void SEGY::writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const
 {
-    data->write(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), sz, md);
+    data->write(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), sz, df);
 }
 }}

@@ -70,7 +70,7 @@ TEST(FileSEGY, getCmp)
 TEST(FileSEGY, getRcv)
 {
     auto p = std::pair<TrCrd, TrCrd>(static_cast<TrCrd>(181U), static_cast<TrCrd>(185U));
-    ASSERT_EQ(p, getPair(Coord::Cmp));
+    ASSERT_EQ(p, getPair(Coord::CMP));
 }
 TEST(FileSEGY, getLine)
 {
@@ -170,8 +170,8 @@ TEST(FileSEGY, getMdCrd)
     testGetCoord(getPair(Coord::Src), geom_t(.01));
     SCOPED_TRACE("Rcv");
     testGetCoord(getPair(Coord::Rcv), geom_t(1));
-    SCOPED_TRACE("Cmp");
-    testGetCoord(getPair(Coord::Cmp), geom_t(1));
+    SCOPED_TRACE("CMP");
+    testGetCoord(getPair(Coord::CMP), geom_t(1));
 }
 
 void testSetMd(std::vector<Hdr> item)
@@ -268,7 +268,7 @@ TEST(FileSEGY, setScaleElev)
 void testSetGrid(Grid item, size_t check1, size_t check2)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
-    for (int32_t val = 2; val >= 0; val = val * 10 - val*3)
+    for (int32_t val = 2; val < 201337000; val += 201337)
     {
         auto p = grid_t(val, val+1LL);
         setGrid(item, p, tr.data());
@@ -304,7 +304,7 @@ TEST(FileSEGY, setGrid)
 void testSetCoord(Coord item, size_t check1, size_t check2)
 {
     std::vector<uchar> tr(SEGSz::getMDSz());
-    for (int32_t val = 2; val >= 0; val = val * 10 - val*3)
+    for (int32_t val = 2; val < 201337000; val += 201337)
     {
         auto p = coord_t(val, val+3L);
         for (int32_t scal = 1; scal <= 10000; scal *= 10)
@@ -349,7 +349,7 @@ TEST(FileSEGY, setCoordRcv)
 }
 TEST(FileSEGY, setCoordCmp)
 {
-    testSetCoord(Coord::Cmp, 181, 185);
+    testSetCoord(Coord::CMP, 181, 185);
 }
 
 //Test every legitimate possibility

@@ -18,6 +18,8 @@ namespace PIOL { namespace File {
 struct SEGYOpt : public Opt
 {
     unit_t incFactor;   //!< The increment factor to multiply inc by.
+    /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
+     */
     SEGYOpt(void);
 };
 
@@ -37,8 +39,8 @@ class SEGY : public Interface
         IEEE = 5,   //<! The IEEE format, big endian
         NA1  = 6,   //<! Unused
         NA2  = 7,   //<! Unused
-        TC1  = 8,   //<! Two's complement, 1 byte
-    } format;       //<! Type formats
+        TC1  = 8    //<! Two's complement, 1 byte
+    } format;  //<! Type formats
 
     /*! State flags structure for File::SEGY
      */
@@ -48,7 +50,7 @@ class SEGY : public Interface
         uint64_t resize : 1;    //!< The file should be resized before File::SEGY object is deleted.
     } state;                    //!< State flags are stored in this structure
 
-    unit_t incFactor;       //!< The increment factor
+    unit_t incFactor;           //!< The increment factor
 
     /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.
      *  \param[in] fsz The size of the file in bytes

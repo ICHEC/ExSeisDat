@@ -63,43 +63,44 @@ class Interface
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  \param[out] md An array which the caller guarantees is long enough for
      *  the DO metadata.
      */
-    virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const = 0;
+    virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const = 0;
 
     /*! \brief Pure virtual function to write the data-object metadata.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
-     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  \param[in] sz The number of DOMDs to be written in a row.
+     *  \param[in] md An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * ho) const = 0;
+    virtual void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
 
     /*! \brief Pure virtual function to read a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
-     *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  \param[in] sz The number of data-fields to be read in a row.
+     *  \param[out] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * md) const = 0;
+    virtual void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const = 0;
 
     /*! \brief Pure virtual function to write a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
-     *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  \param[in] sz The number of data-fields to be written in a row.
+     *  \param[in] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
+    virtual void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const = 0;
 };
 
 /*! \brief An enum of the possible derived classes for the object layer.
  */
 enum class Type : size_t
 {
-    SEGY //!< The SEGY implementation. Currently the only option.
+    SEGY    //!< The SEGY implementation. Currently the only option.
 };
 
 /*! \brief The base-options structure. Specific Obj implementations include a derived version of this.

@@ -15,18 +15,6 @@ namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static MPI_File mopen(ExSeisPIOL & piol, MPI_Comm comm, const MPIIOOpt & opt, const std::string name)
-{
-    MPI_File file = MPI_FILE_NULL;
-    int err = MPI_File_open(comm, name.data(), opt.mode, opt.info, &file);
-    //int err = MPI_File_open(comm, name.c_str(), opt.mode, opt.info, &file);
-
-    printErr(piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
-
-    //I assume this check condition is unnecessary but the spec does not explicitly say what state
-    //file is in when there is an error.
-    return (err != MPI_SUCCESS ? MPI_FILE_NULL : file);
-}
 
 /*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
  */
@@ -43,6 +31,8 @@ using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U
  *  \param[in] sz The number of elements to read or write
  *  \param[in] arg The last argument of the MPI_File_... function
  *  \param[in] max The maximum size to read or write at once
+ *  \param[in] bsz    The size of a block in bytes (default 1U)
+ *  \param[in] osz    The number of bytes between the \c start of blocks (default 1U)
  *  \param[out] d The array to read into or from
  *  \return Returns the MPI error code. MPI_SUCCESS for success,
  *  MPI_ERR_IN_STATUS means the status structure should be checked.
@@ -66,6 +56,16 @@ int io(const MFp<U> fn, const MPI_File & file, csize_t offset, csize_t sz, U & a
     return (err == MPI_SUCCESS ? fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<T>(), &arg) : err);
 }
 
+/*! Set a view on a file so that a read of blocks separated by (stride-block) bytes appears contiguous
+ *  \param[in] file The MPI-IO file handle
+ *  \param[in] info The info structure to use
+ *  \param[in] offset The offset in bytes from the start of the file
+ *  \param[in] block The block size in bytes
+ *  \param[in] stride The stride size in bytes block start to block start
+ *  \param[in] count The number of blocks
+ *  \param[out] type The datatype which will have been used to create a view
+ *  \return Return an MPI error code.
+ */
 int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
 {
     int err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
@@ -79,6 +79,10 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
     return MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
 }
 
+/*! The size of the fabric
+ *  \return Returns the size of the packet sizes to the storage in bytes
+ *  \todo TODO: Implement a proper check
+ */
 constexpr size_t getFabricPacketSz(void)
 {
     return 4U*1024U*1024U;
@@ -123,10 +127,12 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
     if (esz != 1)
         piol->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
 
-    fcomm = MPI_COMM_SELF;
+    fcomm = opt.fcomm;
 
-    file = mopen(*piol, fcomm, opt, name);
-    if (file != MPI_FILE_NULL)
+    err = MPI_File_open(fcomm, name.data(), opt.mode, opt.info, &file);
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
+
+    if (err != MPI_SUCCESS)
     {
         int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
@@ -183,13 +189,6 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
     MPI_Type_free(&view);
 }
 
-void MPIIO::write(csize_t offset, size_t sz, const uchar * d) const
-{
-    MPI_Status arg;
-    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
-    printErr(*piol, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
-}
-
 void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
 {
     /*
@@ -233,6 +232,13 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     MPI_Type_free(&view);
+}
+
+void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
+{
+    MPI_Status arg;
+    int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
+    printErr(*piol, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
 }
 
 void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const

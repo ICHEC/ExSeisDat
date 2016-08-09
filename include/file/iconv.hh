@@ -15,9 +15,9 @@ namespace PIOL {
  * the strong. Otherwise it is unmodified.
  * \param[in, out] piol The PIOL object
  * \param[in] file The name of the file (for error reporting)
- * \param[in, out] src The EBCDIC or ASCII string. After the function ends, the string is ASCII
  * \param[in] sz The length of the string.
+ * \param[in, out] src The EBCDIC or ASCII string. After the function ends, the string is ASCII
  */
-extern void getAscii(Piol piol, const std::string file, uchar * src, const size_t sz);
+extern void getAscii(Piol piol, const std::string file, csize_t sz, uchar * src);
 }
 #endif

@@ -21,7 +21,7 @@ enum class Coord : size_t
 {
     Src,    //!< Source Coordinates
     Rcv,    //!< Receiver Coordinates
-    Cmp     //!< Common Midpoint Coordinates
+    CMP     //!< Common Midpoint Coordinates
 };
 
 /*! \brief Possible Grids
@@ -31,12 +31,15 @@ enum class Grid : size_t
     Line    //!< Inline/Crossline grid points
 };
 
+/*! \brief This structure holds all relevant trace parameters for describing a single trace
+ *  excluding what is contained in the header.
+ */
 struct TraceParam
 {
-    coord_t src;
-    coord_t rcv;
-    coord_t cmp;
-    grid_t line;
+    coord_t src;    //!< The Source coordinate
+    coord_t rcv;    //!< The Receiver coordinate
+    coord_t cmp;    //!< The common midpoint
+    grid_t line;    //!< The line coordinates (il, xl)
 };
 
 /*! \brief The File layer interface. Specific File implementations
@@ -105,7 +108,7 @@ class Interface
      */
     virtual void readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const = 0;
 
-    /*! \brief Pure virtual function to Write the trace parameters from offset to offset+sz to the respective
+    /*! \brief Pure virtual function to write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
@@ -116,7 +119,18 @@ class Interface
      */
     virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const = 0;
 
+    /*! \brief Pure virtual function to read the traces from offset to offset+sz
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[out] trace The array of traces to fill from the file
+     */
     virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace) const = 0;
+
+    /*! \brief Pure virtual function to write the traces from offset to offset+sz
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[in] trace The array of traces to write to the file
+     */
     virtual void writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const = 0;
 
     /*! \brief Pure virtual function to write the human readable text from the file.
