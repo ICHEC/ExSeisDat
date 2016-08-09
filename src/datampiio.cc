@@ -122,7 +122,7 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    printErr(*piol, name, Log::Layer::Data, err, nullptr, "Setting MPI extent failed");
+    printErr(*piol, name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
 
     if (esz != 1)
         piol->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
@@ -193,7 +193,7 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
 {
     /*
      *  If the bsz size is very large, we may as well read do this as a sequence of separate reads.
-     *  If MPI_Aint ignores the spec, then we are also contrained to this.
+     *  If MPI_Aint ignores the spec, then we are also constrained to this.
      *  TODO: Investigate which limit is the optimal choice if the need arises
     */
     if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))

@@ -14,6 +14,7 @@ extern const std::string zeroFile;
 extern const std::string smallFile;
 extern const std::string largeFile;
 extern const std::string plargeFile; //Large file with a pattern
+extern const std::string smallSEGYFile;
 extern const std::string largeSEGYFile;
 
 extern int32_t ilNum(size_t);

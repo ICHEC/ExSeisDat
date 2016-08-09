@@ -84,7 +84,7 @@ TEST_F(MPIIOTest, LargeFileSize)
 }
 
 template <bool block>
-void ReadBlocks(const size_t nt, const size_t ns, Data::Interface * data)
+void readBlocks(const size_t nt, const size_t ns, Data::Interface * data)
 {
     size_t offset = 0;
     size_t step = (block ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
@@ -107,10 +107,10 @@ TEST_F(MPIIOTest, ReadAllBlocks)
 {
     const size_t nt = 400;
     const size_t ns = 261;
-    Data::MPIIO mio(piol, "tmp/smallsegy.tmp", ioopt);
+    Data::MPIIO mio(piol, smallSEGYFile, ioopt);
     piol->isErr();
     size_t offset = 0;
-    ReadBlocks<false>(nt, ns, &mio);
+    readBlocks<false>(nt, ns, &mio);
 }
 
 
@@ -118,9 +118,9 @@ TEST_F(MPIIOTest, ReadBlocksSmall)
 {
     const size_t nt = 400;
     const size_t ns = 261;
-    Data::MPIIO mio(piol, "tmp/smallsegy.tmp", ioopt);
+    Data::MPIIO mio(piol, smallSEGYFile, ioopt);
     piol->isErr();
-    ReadBlocks<true>(nt, ns, &mio);
+    readBlocks<true>(nt, ns, &mio);
 }
 
 #ifdef BIG_TESTS
@@ -130,7 +130,7 @@ TEST_F(MPIIOTest, ReadBlocksLarge)
     const size_t ns = 1000;
     Data::MPIIO mio(piol, largeSEGYFile, ioopt);
     piol->isErr();
-    ReadBlocks<true>(nt, ns, &mio);
+    readBlocks<true>(nt, ns, &mio);
 }
 #endif
 

@@ -305,7 +305,7 @@ TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
     //const size_t sz = 20000;
     //const size_t ns = 1000;
     SCOPED_TRACE("SEGYReadTrHdr");
-    std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, "tmp/smallsegy.tmp", segyOpt, dataOpt)));
+    std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, smallSEGYFile, segyOpt, dataOpt)));
     //std::unique_ptr<Obj::Interface> obj(std::move(new Obj::SEGY(piol, largeSEGYFile, segyOpt, dataOpt)));
     piol->isErr();
     size_t offset = 0;

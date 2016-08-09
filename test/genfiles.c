@@ -69,7 +69,6 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
         size_t lnt = allocSz / dosz;
 
         uchar * buf = calloc(allocSz, sizeof(uchar));
-        printf("il %i xl %i\n", ilNum(0), xlNum(0));
         for (size_t i = 0; i < nt; i += lnt)
         {
             size_t chunk = (nt-i < lnt ? nt-i : lnt);
