@@ -5,4 +5,5 @@ depend
 doxygen/
 genfiles
 unittests
+spectests
 googletest

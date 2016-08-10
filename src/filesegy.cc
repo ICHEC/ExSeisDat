@@ -575,15 +575,19 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
     //Implict big endian conversion
+#warning Test the implicit conversion
     obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
-    for (size_t i = 0; i < ns * sz; i++)
-        convertIBMtoIEEE(uint32_t(trace[i * ns]));
+    if (format == Format::IBM)
+        for (size_t i = 0; i < ns * sz; i++)
+            convertIBMtoIEEE(uint32_t(trace[i * ns]));
 }
 
 void SEGY::writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const
 {
+#warning This won't work since it doesn't make any sense
     for (size_t i = 0; i < sz; i++)
         getBigEndian(toint(trace[i * ns]));
+
     obj->writeDODF(offset, ns, sz, reinterpret_cast<const uchar *>(trace));
 }
 

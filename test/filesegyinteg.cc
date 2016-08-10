@@ -22,12 +22,11 @@ TEST_F(FileIntegrationTest, SEGYReadHO)
 //Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileIntegrationTest, SEGYWriteReadHO)
 {
-    SCOPED_TRACE("SEGYWriteHO");
     csize_t ns = 261U;
     csize_t nt = 400U;
 
     std::shared_ptr<Obj::Interface> obj;
-    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
     makeSEGY(tempFile);
     piol->isErr();
 
@@ -89,7 +88,7 @@ TEST_F(FileIntegrationTest, SEGYWriteReadTraceCoord)
     File::coord_t coord(1600, 2000);
 
     std::shared_ptr<Obj::Interface> obj;
-    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+    dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
     makeSEGY(tempFile);
     piol->isErr();
     file->ns = ns;

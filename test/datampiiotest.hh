@@ -37,15 +37,17 @@ class MPIIOTest : public Test
         if (data != nullptr)
             delete data;
     }
+
     template <bool writeTest = false>
     void makeMPIIO(std::string name)
     {
         if (data != nullptr)
             delete data;
         if (writeTest)
-            ioopt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
+            ioopt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
         data = new Data::MPIIO(piol, name, ioopt);
     }
+
     void makeTestSz(csize_t sz)
     {
         makeMPIIO<true>(tempFile);

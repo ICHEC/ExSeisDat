@@ -96,14 +96,13 @@ class FileIntegrationTest : public Test
     File::Interface * file;
     FileIntegrationTest()
     {
+        file = nullptr;
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
-        file = nullptr;
     }
     ~FileIntegrationTest()
     {
         delete file;
-        file = nullptr;
     }
     virtual void makeSEGY(std::string name)
     {
