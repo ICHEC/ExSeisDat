@@ -1,4 +1,3 @@
-
 #include "objsegytest.hh"
 ACTION_P(extraTrCheck, ho)  //Use this when writing
 {
@@ -33,3 +32,4 @@ TEST_F(ObjSpecTest, SEGYTrWrite)
     ExpectWriteTrHdrPattern(traceNum, ns, mock.get(), &cTrHdr);
     segy.writeDOMD(traceNum, ns, 1U, trHdr.data());
 }
+

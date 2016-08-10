@@ -75,6 +75,9 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
             #pragma omp parallel for
             for (size_t j = 0; j < chunk; j++)
             {
+                for (size_t k = 0; k < ns*sizeof(float); k++)
+                    buf[dosz*j + 240 + k] = (i+j+k) % 0x100;
+
                 int32_t il = ilNum(i+j);
                 buf[dosz*j + 188] = (il >> 24) & 0xFF;
                 buf[dosz*j + 189] = (il >> 16) & 0xFF;
@@ -105,6 +108,7 @@ int main(void)
     makeFile("tmp/smallFilePattern.tmp", 4096ll, pattern, psz);
     makeFile("tmp/largeFilePattern.tmp", 10ll*1024ll*1024ll*1024ll, pattern, psz);
     makeSEGY("tmp/smallsegy.tmp", 261U, 400U, 1024U*1024U);
+    makeSEGY("tmp/bigtracesegy.tmp", 40000U, 40000U, 1024U*1024U);
     makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, 1024U*1024U);
     return 0;
 }

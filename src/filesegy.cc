@@ -433,7 +433,7 @@ void SEGY::procHeader(csize_t fsz, uchar * buf)
 {
     obj->readHO(buf);
     ns = getMd(Hdr::NumSample, buf);
-    nt = (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz(ns);
+    nt = SEGSz::getNt(fsz, ns);
     inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
     format = static_cast<Format>(getMd(Hdr::Type, buf));
 

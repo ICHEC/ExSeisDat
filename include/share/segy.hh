@@ -99,6 +99,18 @@ inline size_t getDODFLoc(csize_t i, csize_t ns)
 {
     return getFileSz<T>(i, ns) + getMDSz();
 }
+
+/*! \brief Return the number of traces in a file given a file size
+ *  \param[in] fsz the size of a file or expected size in bytes
+ *  \param[in] ns The number of elements in the data-field.
+ *  \tparam T The datatype of the data-field. The default value is float.
+ *  \return Returns the number of traces.
+ */
+template <typename T = float>
+inline size_t getNt(csize_t fsz, csize_t ns)
+{
+    return (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz<T>(ns);
+}
 }}
 #endif
 

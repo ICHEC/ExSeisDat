@@ -25,10 +25,10 @@ CURR_OBJECTS=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP=$(wildcard $(DEP))
 CURR_DEPENDS=$(wildcard $(DEPENDS))
 
-BIN=unittests
+BIN=spectests
 
 .PHONY: all
-all: libgmock.a $(BIN) $(DEP) $(OBJECTS)
+all: genfiles libgmock.a $(BIN) $(DEP) $(OBJECTS)
 
 $(SRC_OBJDIR):
 	(cd ../src/; $(MAKE))

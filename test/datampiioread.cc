@@ -1,11 +1,25 @@
 #include "datampiiotest.hh"
+size_t modifyNt(csize_t fs, csize_t offset, csize_t nt, csize_t ns)
+{
+    //We shouldn't have our ASSERT_EQ test beyond the actual number of traces which are
+    //so we reduce the number of traces down to the number of traces present after
+    //the given offset if the real number of traces is less than expected.
+    //We support this because it is allowed behaviour.
+
+    size_t realnt = SEGSz::getNt(fs, ns);
+    if (realnt >= offset+nt)
+        return nt;
+    else if (realnt < offset)
+        return 0;
+    return realnt -= offset;
+}
 
 typedef MPIIOTest MPIIODeathTest;
 TEST_F(MPIIODeathTest, FailedConstructor)
 {
-    Data::MPIIO mio(piol, notFile, ioopt);
-    EXPECT_EQ(piol, mio.piol);
-    EXPECT_EQ(notFile, mio.name);
+    makeMPIIO(notFile);
+    EXPECT_EQ(piol, data->piol);
+    EXPECT_EQ(notFile, data->name);
 
     Log::Item * item = &piol->log->loglist.front();
     EXPECT_EQ(notFile, item->file);
@@ -13,99 +27,56 @@ TEST_F(MPIIODeathTest, FailedConstructor)
     EXPECT_EQ(Log::Status::Error, item->stat);
     EXPECT_NE(0, item->msg.size());
     EXPECT_EQ(Log::Verb::None, item->vrbsy);
+
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
+////////////////////////////// MPI-IO getting the file size ///////////////////////////////////
 TEST_F(MPIIOTest, Constructor)
 {
-    Data::MPIIO mio(piol, zeroFile, ioopt);
-    EXPECT_EQ(piol, mio.piol);
-    EXPECT_EQ(zeroFile, mio.name);
+    makeMPIIO(zeroFile);
+    EXPECT_EQ(piol, data->piol);
+    EXPECT_EQ(zeroFile, data->name);
     piol->isErr();
     piol->log->procLog();
-    EXPECT_TRUE(piol->log->loglist.empty()) << "Unexpected log message";
-    EXPECT_TRUE(mio.file != MPI_FILE_NULL) << "File was not opened";
-}
 
-TEST_F(MPIIOTest, ZeroFileSize)
-{
-    Data::MPIIO mio(piol, zeroFile, ioopt);
+    EXPECT_TRUE(piol->log->loglist.empty()) << "Unexpected log message";
+
+    EXPECT_NE(nullptr, data) << "data is null";
+    auto mio = dynamic_cast<Data::MPIIO *>(data);
+    EXPECT_NE(nullptr, mio) << "MPI-IO data cast failed";
+    EXPECT_TRUE(mio->file != MPI_FILE_NULL) << "File was not opened";
+
     piol->isErr();
-    EXPECT_EQ(0, mio.getFileSz());
+    EXPECT_EQ(0, data->getFileSz());
 }
 
 TEST_F(MPIIOTest, SmallFileSize)
 {
-    Data::MPIIO mio(piol, smallFile, ioopt);
+    makeMPIIO(smallFile);
     piol->isErr();
-    EXPECT_EQ(smallSize, mio.getFileSz());
+    EXPECT_EQ(smallSize, data->getFileSz());
 }
 
 TEST_F(MPIIOTest, LargeFileSize)
 {
-    Data::MPIIO mio(piol, largeFile, ioopt);
+    makeMPIIO(largeFile);
     piol->isErr();
-    EXPECT_EQ(largeSize, mio.getFileSz());
+    EXPECT_EQ(largeSize, data->getFileSz());
 }
 
-template <bool block>
-void readBlocks(const size_t nt, const size_t ns, Data::Interface * data)
-{
-    size_t offset = 0;
-    size_t step = (block ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
-    std::vector<uchar> tr(step*nt);
-
-    if (block)
-        data->read(SEGSz::getHOSz(), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, tr.data());
-    else
-        data->read(SEGSz::getHOSz(), SEGSz::getDOSz(ns)*nt, tr.data());
-
-    for (size_t i = 0; i < nt; i++)
-    {
-        uchar * md = &tr[step*i];
-        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
-        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
-    }
-}
-
-TEST_F(MPIIOTest, ReadAllBlocks)
-{
-    const size_t nt = 400;
-    const size_t ns = 261;
-    Data::MPIIO mio(piol, smallSEGYFile, ioopt);
-    piol->isErr();
-    size_t offset = 0;
-    readBlocks<false>(nt, ns, &mio);
-}
-
-
-TEST_F(MPIIOTest, ReadBlocksSmall)
-{
-    const size_t nt = 400;
-    const size_t ns = 261;
-    Data::MPIIO mio(piol, smallSEGYFile, ioopt);
-    piol->isErr();
-    readBlocks<true>(nt, ns, &mio);
-}
-
-#ifdef BIG_TESTS
-TEST_F(MPIIOTest, ReadBlocksLarge)
-{
-    const size_t nt = 2000000U;
-    const size_t ns = 1000;
-    Data::MPIIO mio(piol, largeSEGYFile, ioopt);
-    piol->isErr();
-    readBlocks<true>(nt, ns, &mio);
-}
-#endif
+////////////////////////////// MPI-IO reading contiguous data ///////////////////////////////////
 
 TEST_F(MPIIOTest, BlockingReadSmall)
 {
-    Data::MPIIO mio(piol, smallFile, ioopt);
+    makeMPIIO(smallFile);
+
     std::vector<uchar> d(smallSize);
     d.back() = getPattern(d.size()-2);
-    mio.read(0, d.size()-1, d.data());
+
+    data->read(0, d.size()-1, d.data());
     piol->isErr();
+
     EXPECT_EQ(getPattern(d.size()-2), d.back());
 
     //Set the last element to zero
@@ -116,10 +87,10 @@ TEST_F(MPIIOTest, BlockingReadSmall)
 
 TEST_F(MPIIOTest, ZeroSizeReadOnLarge)
 {
-    Data::MPIIO mio(piol, plargeFile, ioopt);
+    makeMPIIO(plargeFile);
 
     std::vector<uchar> d = {getPattern(1U)};
-    mio.read(0, 0, d.data());
+    data->read(0, 0, d.data());
     piol->isErr();
 
     EXPECT_EQ(getPattern(1U), d[0]);
@@ -129,7 +100,7 @@ TEST_F(MPIIOTest, ZeroSizeReadOnLarge)
 TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
 {
     ioopt.maxSize = magicNum1;
-    Data::MPIIO mio(piol, plargeFile, ioopt);
+    makeMPIIO(plargeFile);
 
     //Test looping logic for big files, various offsets
     for (size_t j = 0; j < magicNum1; j += 10U)
@@ -138,7 +109,7 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
         size_t offset = (largeSize / magicNum1) * j;
         std::vector<uchar> d(sz);
 
-        mio.read(offset, d.size(), d.data());
+        data->read(offset, d.size(), d.data());
         piol->isErr();
 
         for (size_t i = 0; i < d.size(); i++)
@@ -148,36 +119,169 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
 
 TEST_F(MPIIOTest, BlockingOneByteReadLarge)
 {
-    Data::MPIIO mio(piol, plargeFile, ioopt);
+    makeMPIIO(plargeFile);
     //Test single value reads mid file
     for (size_t i = 0; i < magicNum1; i++)
     {
         size_t offset = largeSize / 2U + i;
         uchar test[2] = {getPattern(offset-2), getPattern(offset-1)};
 
-        mio.read(offset, 1, test);
+        data->read(offset, 1, test);
         piol->isErr();
         EXPECT_EQ(test[0], getPattern(offset));
         EXPECT_EQ(test[1], getPattern(offset-1));
     }
 }
 
-#ifdef BIG_TESTS
-//TODO: Find out why this is much slower on panasas
-TEST_F(MPIIOTest, BlockingReadEnd)
+////////////////////////////// MPI-IO reading non-contiguous blocks of data ///////////////////////////////////
+TEST_F(MPIIOTest, ReadContigZero)
 {
-    Data::MPIIO mio(piol, plargeFile, ioopt);
+    makeMPIIO(smallSEGYFile);
+    csize_t nt = 0;
+    csize_t ns = 0;
+    readSmallBlocks<false>(nt, ns);
     piol->isErr();
-
-    //Intentionally read much beyond the end of the file to make sure that MPI-IO doesn't abort/fails.
-    //MPI 3.1 spec says (or at least strongly implies) it should work.
-    std::vector<uchar> d(prefix(3));
-    for (size_t j = 0; j > magicNum1; j += 10U)
-    {
-        mio.read(largeSize-j, d.size(), d.data());
-        piol->isErr();
-        for (size_t i = 0; i < j; i++)
-            EXPECT_EQ(d[i], getPattern(largeSize-j + i));
-    }
 }
-#endif
+
+TEST_F(MPIIOTest, ReadContigSSS)
+{
+    makeMPIIO(smallSEGYFile);
+    csize_t nt = 400;
+    csize_t ns = 261;
+    readSmallBlocks<false>(nt, ns);
+    piol->isErr();
+}
+
+//Intentionally read much beyond the end of the file to make sure that MPI-IO doesn't abort/fails.
+//MPI 3.1 spec says (or at least strongly implies) it should work.
+TEST_F(MPIIOTest, ReadContigEnd)
+{
+    makeMPIIO(smallSEGYFile);
+    size_t nt = 400;
+    csize_t ns = 261;
+
+    //Read extra
+    nt *= 1024;
+    readSmallBlocks<false>(nt, ns, 200);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, ReadContigSLS)
+{
+    makeMPIIO(bigTraceSEGYFile);
+    csize_t nt = 40U;
+    csize_t ns = 40000U;
+    readSmallBlocks<false>(nt, ns, 1000U);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadContigSLM)
+{
+    makeMPIIO(bigTraceSEGYFile);
+    csize_t nt = 40000U;
+    csize_t ns = 40000U;
+    readSmallBlocks<false>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadContigSLL)
+{
+    makeMPIIO(largeSEGYFile);
+    csize_t nt = 2000000U;
+    csize_t ns = 1000U;
+    readSmallBlocks<false>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadContigLLM)
+{
+    makeMPIIO(bigTraceSEGYFile);
+    csize_t nt = 40000U;
+    csize_t ns = 40000U;
+    readBigBlocks<false>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadContigMLL)
+{
+    makeMPIIO(largeSEGYFile);
+    csize_t nt = 2000000U;
+    csize_t ns = 1000U;
+    readBigBlocks<false>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, ReadBlocksZero)
+{
+    makeMPIIO(smallSEGYFile);
+    csize_t nt = 0;
+    csize_t ns = 0;
+    readSmallBlocks<true>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, ReadBlocksSSS)
+{
+    makeMPIIO(smallSEGYFile);
+    csize_t nt = 400;
+    csize_t ns = 261;
+    readSmallBlocks<true>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, ReadBlocksEnd)
+{
+    makeMPIIO(smallSEGYFile);
+    size_t nt = 400;
+    csize_t ns = 261;
+
+    //Read extra
+    nt *= 1024;
+    readSmallBlocks<true>(nt, ns, 200);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, ReadBlocksSLS)
+{
+    makeMPIIO(bigTraceSEGYFile);
+    csize_t nt = 40U;
+    csize_t ns = 40000U;
+    readSmallBlocks<true>(nt, ns, 1000U);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadBlocksSLM)
+{
+    makeMPIIO(bigTraceSEGYFile);
+    csize_t nt = 40000U;
+    csize_t ns = 40000U;
+    readSmallBlocks<true>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadBlocksSLL)
+{
+    makeMPIIO(largeSEGYFile);
+    csize_t nt = 2000000U;
+    csize_t ns = 1000U;
+    readSmallBlocks<true>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadBlocksLLM)
+{
+    makeMPIIO(bigTraceSEGYFile);
+    csize_t nt = 40000U;
+    csize_t ns = 40000U;
+    readBigBlocks<true>(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmReadBlocksMLL)
+{
+    makeMPIIO(largeSEGYFile);
+    csize_t nt = 2000000U;
+    csize_t ns = 1000U;
+    readBigBlocks<true>(nt, ns);
+    piol->isErr();
+}

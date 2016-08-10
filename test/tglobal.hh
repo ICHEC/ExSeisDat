@@ -17,6 +17,7 @@ extern const std::string plargeFile;    //Large file with a pattern
 extern const std::string tempFile;      //File which is deleted after each creation
 extern const std::string smallSEGYFile;
 extern const std::string largeSEGYFile;
+extern const std::string bigTraceSEGYFile;
 
 extern int32_t ilNum(size_t);
 extern int32_t xlNum(size_t);

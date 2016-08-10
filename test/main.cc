@@ -19,6 +19,7 @@ const std::string plargeFile = "tmp/largeFilePattern.tmp";
 const std::string tempFile = "tmp/tempFile.tmp";
 const std::string smallSEGYFile = "tmp/smallsegy.tmp";
 const std::string largeSEGYFile = "tmp/largesegy.tmp";
+const std::string bigTraceSEGYFile = "tmp/bigtracesegy.tmp";
 
 int32_t ilNum(size_t i)
 {

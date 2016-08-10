@@ -8,7 +8,7 @@ class FileSEGYWriteSpecTest : public FileIntegrationTest
     const int inc = 10;
     csize_t format = 5;
     std::shared_ptr<MockObj> mock;
-    File::Interface * file;
+//    File::Interface * file;
     std::vector<uchar> ho;
 
     FileSEGYWriteSpecTest()
@@ -21,9 +21,7 @@ class FileSEGYWriteSpecTest : public FileIntegrationTest
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
         Mock::AllowLeak(mock.get());
 
-        size_t fsz = SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns);
         EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
-        EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
 
         file = new File::SEGY(piol, notFile, fileSegyOpt, mock);
         piol->isErr();
@@ -31,6 +29,9 @@ class FileSEGYWriteSpecTest : public FileIntegrationTest
 
     void writeHO()
     {
+        size_t fsz = SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns);
+        EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
+
         for (size_t i = 0U; i < std::min(testString.size(), SEGSz::getTextSz()); i++)
             ho[i] = testString[i];
         ho[NumSample+1] = ns;
