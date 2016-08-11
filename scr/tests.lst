@@ -1,0 +1,13 @@
+./spectests --gtest_color=yes --gtest_filter=ObjSpecTest.FarmSEGYDODFBigRead &> ../scr/test1
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmBlockingReadEnd &> ../scr/test2
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadContigMLL &> ../scr/test3
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadContigLLM &> ../scr/test4
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadContigSLL &> ../scr/test5
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadContigSLM &> ../scr/test6
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadBlockMLL &> ../scr/test7
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadBlockLLM &> ../scr/test8
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadBlockSLL &> ../scr/test9
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmReadBlockSLM &> ../scr/testA
+./spectests --gtest_color=yes --gtest_filter=MPIIOTest.FarmSetLargeFileSz &> ../scr/testB
+./spectests --gtest_color=yes --gtest_filter=-*.Farm* &> ../scr/test1
+./unittests --gtest_color=yes &> ../scr/testC

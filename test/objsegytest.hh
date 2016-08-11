@@ -55,13 +55,25 @@ class ObjSpecTest : public Test
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
     }
-
-    void makeSEGY()
+    template <bool WriteTest>
+    void makeRealSEGY(std::string name = notFile)
     {
-        mock = std::make_shared<MockData>(piol, notFile);
         if (obj != nullptr)
             delete obj;
-        obj = new Obj::SEGY(piol, notFile, segyOpt, mock);
+
+        if (WriteTest)
+            dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE
+                         | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
+        obj = new Obj::SEGY(piol, name, segyOpt, dataOpt);
+        piol->isErr();
+    }
+
+    void makeSEGY(std::string name = notFile)
+    {
+        if (obj != nullptr)
+            delete obj;
+        mock = std::make_shared<MockData>(piol, notFile);
+        obj = new Obj::SEGY(piol, name, segyOpt, mock);
         piol->isErr();
     }
 
@@ -106,6 +118,31 @@ class ObjSpecTest : public Test
             buf->at(i) = getPattern(offset+i);
     }
 
+    void SEGYReadTrTest(size_t offset, const std::vector<size_t> & nsVals, const uchar magicNum)
+    {
+        const size_t extra = 1111U;
+        std::vector<uchar> tr(extra + SEGSz::getMDSz() + extra);
+
+        ASSERT_TRUE(nsVals.size() > 0);
+        for (size_t j = 0U; j < nsVals.size(); j++)
+        {
+            size_t foff = SEGSz::getDOLoc(offset, nsVals[j]);
+            for (size_t i = 0U; i < extra; i++)
+                tr[i] = tr[tr.size() - extra + i] = magicNum;
+
+            obj->readDOMD(offset, nsVals[j], 1U, tr.data() + extra);
+
+            //Overrun checks
+            for (size_t i = 0U; i < extra; i++)
+            {
+                ASSERT_EQ(magicNum, tr[i]);
+                ASSERT_EQ(magicNum, tr[tr.size() - extra + i]);
+            }
+            for (size_t i = 0U; i < SEGSz::getMDSz(); i++)
+                ASSERT_EQ(getPattern(foff + i), tr[i+extra]);
+        }
+    }
+
     void ExpectTrHdrPattern(csize_t offset, csize_t ns, std::vector<uchar> * tr)
     {
         size_t foff = SEGSz::getDOLoc(offset, ns);
@@ -124,8 +161,48 @@ class ObjSpecTest : public Test
                                  SEGSz::getDOSz<float>(ns), 1U, _)).Times(Exactly(1)).WillOnce(extraTrCheck(cTrHdr.data()));
         obj->writeDOMD(offset, ns, 1U, trHdr.data());
     }
+    void SEGYWriteHOPattern(void)
+    {
+        std::vector<uchar> ho(SEGSz::getHOSz());
+        for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
+            ho[i] = getPattern(i);
+        obj->writeHO(ho.data());
+    }
 
-    template <bool DOMD>
+    void SEGYWriteTrTest(size_t offset, size_t ns)
+    {
+        std::vector<uchar> tr(SEGSz::getMDSz());
+        size_t foff = SEGSz::getDOLoc(offset, ns);
+        for (size_t i = 0U; i < tr.size(); i++)
+            tr[i] = getPattern(foff + i);
+
+        obj->writeDOMD(offset, ns, 1U, tr.data());
+    }
+
+    void SEGYReadHOTest(std::vector<uchar> magic)
+    {
+        const size_t extra = 1025U;
+        std::vector<uchar> ho(extra + SEGSz::getHOSz() + extra);
+
+        for (size_t j = 0U; j < magic.size(); j++)
+        {
+            for (size_t i = 0U; i < extra; i++)
+                ho[i] = ho[ho.size() - extra + i] = magic[j];
+
+            obj->readHO(ho.data() + extra);
+
+            //Overrun checks
+            for (size_t i = 0U; i < extra; i++)
+            {
+                ASSERT_EQ(magic[j], ho[i]);
+                ASSERT_EQ(magic[j], ho[ho.size() - extra + i]);
+            }
+            for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
+                ASSERT_EQ(getPattern(i), ho[i+extra]);
+        }
+    }
+
+    template <bool DOMD, bool MOCK = true>
     void readTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
         const size_t extra = 20U;
@@ -141,13 +218,15 @@ class ObjSpecTest : public Test
 
         if (DOMD)
         {
-            EXPECT_CALL(*mock, read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
+            if (MOCK)
+                EXPECT_CALL(*mock, read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
                               .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             obj->readDOMD(offset, ns, nt, &trnew[extra]);
         }
         else
         {
-            EXPECT_CALL(*mock, read(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
+            if (MOCK)
+                EXPECT_CALL(*mock, read(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
                               .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             obj->readDODF(offset, ns, nt, &trnew[extra]);
         }
@@ -162,4 +241,6 @@ class ObjSpecTest : public Test
         }
     }
 };
+
+typedef ObjSpecTest ObjIntegrationTest;
 

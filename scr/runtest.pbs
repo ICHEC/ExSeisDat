@@ -1,0 +1,18 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=24
+#PBS -l walltime=0:00:10:00
+#PBS -N unittest
+#PBS -A lero
+#PBS -r n
+#PBS -j oe
+#PBS -m bea
+
+cd $PBS_O_WORKDIR
+
+source ../mod_intel
+source run.sh intel
+
+cd $PBS_O_WORKDIR
+#source ../mod_gnu
+#source run.sh gnu
+

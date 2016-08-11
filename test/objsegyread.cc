@@ -1,30 +1,4 @@
 #include "objsegytest.hh"
-TEST_F(ObjSpecTest, TestBypassConstructor)
-{
-    makeSEGY();
-    EXPECT_EQ(piol, obj->piol);
-    EXPECT_EQ(notFile, obj->name);
-    EXPECT_EQ(mock, obj->data);
-}
-
-TEST_F(ObjSpecTest, ZeroSEGYFileSize)
-{
-    makeSEGY();
-    SEGYFileSizeTest(0U);
-}
-
-TEST_F(ObjSpecTest, SmallSEGYFileSize)
-{
-    makeSEGY();
-    SEGYFileSizeTest(40U*prefix(2U));
-}
-
-TEST_F(ObjSpecTest, BigSEGYFileSize)
-{
-    makeSEGY();
-    SEGYFileSizeTest(8U*prefix(4U));
-}
-
 TEST_F(ObjSpecTest, SEGYHORead)
 {
     makeSEGY();
