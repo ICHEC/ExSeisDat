@@ -23,6 +23,8 @@ MPI::MPI(const MPIOpt & opt) : comm(opt.comm), init(opt.initMPI)
             std::cerr << "MPI_Init failure\n";
             std::exit(EXIT_FAILURE);
         }
+        else
+            std::cout << "MPI Initialised\n";
     }
     int irank;
     int inumRank;

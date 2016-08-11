@@ -8,6 +8,8 @@
 
 using namespace PIOL;
 
+extern "C"
+{
 struct ExSeisFileWrapper
 {
     PIOL::File::Interface * file;
@@ -18,109 +20,147 @@ struct PIOLWrapper
     std::shared_ptr<PIOL::ExSeisPIOL> piol;
 };
 
-ExSeisHandle * initPIOL(size_t logLevel, MPIOptions * mpiOpt)
+ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt)
 {
     Comm::MPIOpt mpi;
-    if (mpiOpt != nullptr)
+    if (mpiOpt != NULL)
     {
         mpi.comm = mpiOpt->comm;
         mpi.initMPI = mpiOpt->initMPI;
     }
 
-    auto wrap = new ExSeisHandle;
+    auto wrap = new PIOLWrapper;
     wrap->piol = std::make_shared<ExSeisPIOL>(static_cast<Log::Verb>(logLevel), *dynamic_cast<Comm::Opt *>(&mpi));
     return wrap;
 }
 
-ExSeisFile * makeFile(ExSeisHandle * piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiOpt)
+void isErr(ExSeisHandle piol)
+{
+    piol->piol->isErr();
+}
+
+size_t getRank(ExSeisHandle piol)
+{
+    return piol->piol->comm->getRank();
+}
+
+size_t getNumRank(ExSeisHandle piol)
+{
+    return piol->piol->comm->getRank();
+}
+
+ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * ioOpt)
 {
     PIOL::Data::MPIIOOpt mpiio;
-    if (mpiOpt != nullptr)
+    if (ioOpt != NULL)
     {
-        mpiio.mode = mpiOpt->mode;
-        mpiio.info = mpiOpt->info;
-        mpiio.maxSize = mpiOpt->maxSize;
-        mpiio.fcomm = mpiOpt->fcomm;
+        mpiio.mode = ioOpt->mode;
+        mpiio.info = ioOpt->info;
+        mpiio.maxSize = ioOpt->maxSize;
+        mpiio.fcomm = ioOpt->fcomm;
     }
     PIOL::Obj::SEGYOpt objOpt;
     PIOL::File::SEGYOpt fileOpt;
-    if (opt != nullptr)
+    if (opt != NULL)
         fileOpt.incFactor = opt->incFactor;
 
     std::string name_(name);
 
-    auto filewrap = new ExSeisFile;
-    filewrap->file = new PIOL::File::SEGY(piol->piol, name_, fileOpt, objOpt, mpiio);
+    std::cout << "Open file " << name << std::endl;
+    auto filewrap = new ExSeisFileWrapper;
+    filewrap->file = new File::SEGY(piol->piol, name_, fileOpt, objOpt, mpiio);
+//TODO:    piol->piol->log
+
     return filewrap;
 }
 
-void deletePIOL(ExSeisHandle * piol)
+void closePIOL(ExSeisHandle piol)
 {
-    if (piol != nullptr)
+    if (piol != NULL)
     {
-        if (piol->piol != nullptr)
+        if (piol->piol != NULL)
             piol->piol.reset();
         delete piol;
     }
     else
-        std::cerr << "Invalid free of ExSeisPIOL nullptr.\n";
+        std::cerr << "Invalid free of ExSeisPIOL NULL.\n";
 }
 
-void deleteFile(ExSeisFile * file)
+void closeFile(ExSeisFile file)
 {
-    if (file != nullptr)
+    if (file != NULL)
     {
-        if (file->file != nullptr)
+        if (file->file != NULL)
             delete file->file;
         delete file;
     }
     else
-        std::cerr << "Invalid free of ExSeisFile nullptr.\n";
+        std::cerr << "Invalid free of ExSeisFile NULL.\n";
 }
 
-void writeText(ExSeisFile * f, const char * text)
+const char * readText(ExSeisFile f)
+{
+    return f->file->readText().c_str();
+}
+
+size_t readNs(ExSeisFile f)
+{
+    return f->file->readNs();
+}
+
+size_t readNt(ExSeisFile f)
+{
+    return f->file->readNt();
+}
+
+double readInc(ExSeisFile f)
+{
+   return f->file->readInc();
+}
+
+void writeText(ExSeisFile f, const char * text)
 {
     std::string text_(text);
     f->file->writeText(text_);
 }
 
-void writeNs(ExSeisFile * f, size_t ns)
+void writeNs(ExSeisFile f, size_t ns)
 {
     f->file->writeNs(ns);
 }
 
-void writeNt(ExSeisFile * f, size_t nt)
+void writeNt(ExSeisFile f, size_t nt)
 {
     f->file->writeNt(nt);
 }
 
-void writeInc(ExSeisFile * f, const double inc)
+void writeInc(ExSeisFile f, const double inc)
 {
     f->file->writeInc(inc);
 }
 
-void readCoordPoint(ExSeisFile * f, const CCoord item, size_t offset, size_t sz, ccoord_t * buf)
+void readCoordPoint(ExSeisFile f, const CCoord item, size_t offset, size_t sz, ccoord_t * buf)
 {
     f->file->readCoordPoint(static_cast<File::Coord>(item), offset, sz, (File::coord_t *)(buf));
 }
 
-void readGridPoint(ExSeisFile * f, const CGrid item, size_t offset, size_t sz, cgrid_t * buf)
+void readGridPoint(ExSeisFile f, const CGrid item, size_t offset, size_t sz, cgrid_t * buf)
 {
     f->file->readGridPoint(static_cast<File::Grid>(item), offset, sz, (File::grid_t *)(buf));
 }
 
-void readTrace(ExSeisFile * f, size_t offset, size_t sz, trace_t * trace)
+void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->readTrace(offset, sz, trace);
 }
 
-void writeTrace(ExSeisFile * f, size_t offset, size_t sz, const trace_t * trace)
+void writeTrace(ExSeisFile f, size_t offset, size_t sz, const trace_t * trace)
 {
     f->file->writeTrace(offset, sz, trace);
 }
 
-/*void writeTraceParam(ExSeisFile * f, size_t offset, size_t sz, const TraceParam * prm)
+/*void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
 {
     f->file->writeTraceParam(offset, sz, prm);
 }*/
-
+}

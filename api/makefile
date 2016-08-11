@@ -28,7 +28,10 @@ $(OBJDIR)/%.o: %.cc
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(BIN)
 
-$(BIN): $(OBJECTS)
+$(LIB_DIR)/lib$(CPPBIN).so:
+	cd ../src ; $(MAKE)
+
+$(BIN): $(OBJECTS) $(LIB_DIR)/lib$(CPPBIN).so
 	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(CPPBIN) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
