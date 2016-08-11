@@ -2,13 +2,18 @@ INC_FOLDER = -I../include
 CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
 include ../compiler.cfg
-BIN=$(LIB_DIR)/libpiol.so
+
 CXXFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
+
+CPPBIN=piol
+BIN=$(LIB_DIR)/libcpiol.so
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)
 OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
+OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
+
 DEPENDS:=$(patsubst %.cc, %.dep, $(SOURCES))
 
 CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
@@ -24,7 +29,7 @@ $(OBJDIR)/%.o: %.cc
 all: $(DEP) $(OBJECTS) $(BIN)
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ -shared $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(CPPBIN) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
@@ -35,5 +40,5 @@ endif
 
 .PHONY: clean
 clean:
-	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP)
+	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP) $(BIN)
 

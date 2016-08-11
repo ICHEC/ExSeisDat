@@ -5,20 +5,18 @@ LDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS)
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
-SRC_OBJDIR=../src/obj/*.o
-
-#GCOMP=clang++
+LIB_PIOL=piol
 GCOMP=g++
 
 include ../compiler.cfg
 
 INC_FOLDER=-I../include $(LOCAL_INC_FOLDER)
 CUSTOM_FLAGS=-DNT_LIMITS=10000000
-CXXFLAGS=$(STANDARDS) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CXXFLAGS=$(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 
 DEP=depend
 SOURCES=$(wildcard *.cc)
-OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES)) $(SRC_OBJDIR)
+OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
 DEPENDS=$(patsubst %.cc, %.dep, $(SOURCES))
 
 CURR_OBJECTS=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
@@ -30,7 +28,7 @@ BIN=spectests
 .PHONY: all
 all: genfiles libgmock.a $(BIN) $(DEP) $(OBJECTS)
 
-$(SRC_OBJDIR):
+$(LIB_DIR)/$(LIB_PIOL):
 	(cd ../src/; $(MAKE))
 
 libgmock.a:
@@ -43,7 +41,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ -L$(LIB_DIR) -l$(LIB_PIOL) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles
@@ -63,7 +61,7 @@ ifeq "$(CURR_DEP)" "$(DEP)"
 endif
 
 %.dep: %.cc
-	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@

@@ -14,7 +14,7 @@ include ../compiler.cfg
 
 INC_FOLDER = -I../include $(LOCAL_INC_FOLDER)
 CUSTOM_FLAGS=-DNT_LIMITS=10000000
-CXXFLAGS = $(STANDARDS) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CXXFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)
@@ -60,7 +60,7 @@ googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o
 
 %.dep: %.cc
-	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
