@@ -10,4 +10,3 @@ TEST_F(ObjSpecTest, SEGYTrWrite2)
     makeSEGY();
     ExpectWriteTrHdrPattern(10U, 200U);
 }
-

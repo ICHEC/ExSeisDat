@@ -32,41 +32,65 @@ TEST_F(ObjSpecTest, SEGYHORead)
     HOPatternTest(10, 46);
     HOPatternTest(0, 0);
 }
-/*
-TEST_F(ObjSpecTest, SEGYTrRead)
+
+TEST_F(ObjSpecTest, SEGYDOMDReadSingle)
 {
-    const size_t ns = 200U;
-    const size_t offset = 10U;
-    const size_t extra = 1111U;
-
     makeSEGY();
+    readTest<true>(10U, 1U, 200, 13, 117);
+    readTest<true>(10U, 1U, 200, 13, 13);
+}
 
-    std::vector<uchar> cTrHdr(SEGSz::getMDSz());
-    ExpectTrHdrPattern(traceNum, ns, &cTrHdr);
-
-    piol->isErr();
-
-    std::vector<uchar> trHdr(SEGSz::getMDSz() + extra);
-    for (auto i = 0U; i < extra; i++)
-        trHdr[trHdr.size()-extra+i] = magicNum1;
-
-    segy.readDOMD(traceNum, ns, 1U, trHdr.data());
-
-    for (auto i = 0U; i < SEGSz::getMDSz(); i++)
-    {
-        auto pat = getPattern(SEGSz::getDOLoc(traceNum, ns) + i);
-        ASSERT_EQ(pat, trHdr[i]) << "tr Pattern " << i;
-    }
-    for (auto i = 0U; i < extra; i++)
-        ASSERT_EQ(magicNum1, trHdr[trHdr.size()-extra+i]) << "tr Pattern Extra " << i;
-}*/
-
-TEST_F(ObjSpecTest, SEGYTrRead)
+TEST_F(ObjSpecTest, SEGYDOMDReadZeroNt)
 {
-    const size_t ns = 200U;
-    const size_t offset = 10U;
-    const size_t extra = 1111U;
-
     makeSEGY();
-    readTest<true>(10U, 1U, 200, 13);
+    readTest<true>(10U, 0U, 2000);
+}
+
+TEST_F(ObjSpecTest, SEGYDOMDReadZeroNs)
+{
+    makeSEGY();
+    readTest<true>(10U, 100U, 0U);
+}
+
+TEST_F(ObjSpecTest, SEGYDOMDRead)
+{
+    makeSEGY();
+    readTest<true>(10U, 100U, 2000);
+}
+
+TEST_F(ObjSpecTest, SEGYDOMDBigRead)
+{
+    makeSEGY();
+    readTest<true>(10U, 300000, 5000);
+}
+
+TEST_F(ObjSpecTest, SEGYDODFReadSingle)
+{
+    makeSEGY();
+    readTest<false>(10U, 1U, 200, 13, 117);
+    readTest<false>(10U, 1U, 200, 13, 13);
+}
+
+TEST_F(ObjSpecTest, SEGYDODFReadZeroNt)
+{
+    makeSEGY();
+    readTest<false>(10U, 0U, 2000);
+}
+
+TEST_F(ObjSpecTest, SEGYDODFReadZeroNs)
+{
+    makeSEGY();
+    readTest<false>(10U, 100U, 0U);
+}
+
+TEST_F(ObjSpecTest, SEGYDODFRead)
+{
+    makeSEGY();
+    readTest<false>(10U, 100U, 2000);
+}
+
+TEST_F(ObjSpecTest, FarmSEGYDODFBigRead)
+{
+    makeSEGY();
+    readTest<false>(10U, 300000, 5000);
 }

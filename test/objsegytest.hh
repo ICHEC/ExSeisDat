@@ -126,29 +126,40 @@ class ObjSpecTest : public Test
     }
 
     template <bool DOMD>
-    void readTest(csize_t offset, size_t nt, csize_t ns, csize_t poff)
+    void readTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
-        size_t step = (DOMD ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
-        std::vector<uchar> tr(step*nt);
-        std::vector<uchar> trnew(step*nt);
+        const size_t extra = 20U;
+        size_t step = nt * (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        std::vector<uchar> tr(step);
+        std::vector<uchar> trnew(step + 2U*extra);
+
         for (size_t i = 0U; i < tr.size(); i++)
             tr[i] = getPattern(poff + i);
+
+        for (size_t i = 0U; i < extra; i++)
+            trnew[i] = trnew[trnew.size()-extra+i] = magic;
 
         if (DOMD)
         {
             EXPECT_CALL(*mock, read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
                               .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
-            obj->readDOMD(offset, ns, nt, trnew.data());
+            obj->readDOMD(offset, ns, nt, &trnew[extra]);
         }
         else
         {
             EXPECT_CALL(*mock, read(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
                               .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
-            obj->readDODF(offset, ns, nt, trnew.data());
+            obj->readDODF(offset, ns, nt, &trnew[extra]);
         }
 
         for (size_t i = 0U; i < tr.size(); i++)
-            ASSERT_EQ(trnew[i],  getPattern(poff + i));
+            ASSERT_EQ(trnew[extra+i],  getPattern(poff + i));
+
+        for (size_t i = 0U; i < extra; i++)
+        {
+            ASSERT_EQ(trnew[i], magic);
+            ASSERT_EQ(trnew[trnew.size()-extra+i], magic);
+        }
     }
 };
 
