@@ -3,7 +3,7 @@ CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
 include ../compiler.cfg
 
-CXXFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CPPFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
 
 CPPBIN=piol
@@ -23,7 +23,7 @@ CURR_DEP:=$(wildcard $(DEP))
 	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(LIB_FLAG) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CPP) $(LIB_FLAG) $(CPPFLAGS) $(CPPFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(BIN)
@@ -32,7 +32,7 @@ $(LIB_DIR)/lib$(CPPBIN).so:
 	cd ../src ; $(MAKE)
 
 $(BIN): $(OBJECTS) $(LIB_DIR)/lib$(CPPBIN).so
-	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(CPPBIN) $(LDFLAGS) $(OBJECTS)
+	$(CPP) -o $@ -shared $(LIB_FLAG) $(CPPFLAGS) -L$(LIB_DIR) -l$(CPPBIN) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)

@@ -46,7 +46,7 @@ size_t getRank(ExSeisHandle piol)
 
 size_t getNumRank(ExSeisHandle piol)
 {
-    return piol->piol->comm->getRank();
+    return piol->piol->comm->getNumRank();
 }
 
 ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * ioOpt)
@@ -66,7 +66,6 @@ ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPI
 
     std::string name_(name);
 
-    std::cout << "Open file " << name << std::endl;
     auto filewrap = new ExSeisFileWrapper;
     filewrap->file = new File::SEGY(piol->piol, name_, fileOpt, objOpt, mpiio);
 //TODO:    piol->piol->log

@@ -14,7 +14,7 @@ include ../compiler.cfg
 
 INC_FOLDER = -I../include $(LOCAL_INC_FOLDER)
 CUSTOM_FLAGS=-DNT_LIMITS=10000000
-CXXFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CPPFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)
@@ -50,7 +50,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CPP) -o $@ $(CPPFLAGS) $(LDFLAGS) $(OBJECTS)
 
 .PHONY: clean
 clean:
@@ -63,6 +63,6 @@ googleclean:
 	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS) -c $< -o $@
 
 

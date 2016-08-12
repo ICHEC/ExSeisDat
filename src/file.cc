@@ -38,7 +38,7 @@ Interface::Interface(const Piol piol_, const std::string name_, const Obj::Opt &
     }
 }
 
-std::string Interface::readText(void) const
+const std::string & Interface::readText(void) const
 {
     return text;
 }

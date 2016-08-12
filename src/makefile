@@ -3,7 +3,7 @@ CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
 include ../compiler.cfg
 BIN=$(LIB_DIR)/libpiol.so
-CXXFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CPPFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
 
 DEP=depend
@@ -18,13 +18,13 @@ CURR_DEP:=$(wildcard $(DEP))
 	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(LIB_FLAG) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CPP) $(LIB_FLAG) $(CPPFLAGS) $(CPPFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(BIN)
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ -shared $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CPP) -o $@ -shared $(CPPFLAGS) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
