@@ -1,34 +1,37 @@
 #include "objsegytest.hh"
-TEST_F(ObjIntegrationTest, zeroSEGYFileSize)
-{
-    Obj::SEGY segy(piol, zeroFile, segyOpt, dataOpt);
-    piol->isErr();
-    EXPECT_NE(nullptr, segy.data);
-    EXPECT_EQ(0U, segy.getFileSz());
-}
-
-TEST_F(ObjIntegrationTest, SmallSEGYFileSize)
-{
-    Obj::SEGY segy(piol, smallFile, segyOpt, dataOpt);
-    piol->isErr();
-    EXPECT_NE(nullptr, segy.data);
-    EXPECT_EQ(smallSize, segy.getFileSz());
-}
-
-TEST_F(ObjIntegrationTest, BigSEGYFileSize)
-{
-    Obj::SEGY segy(piol, largeFile, segyOpt, dataOpt);
-    piol->isErr();
-    EXPECT_NE(nullptr, segy.data);
-    EXPECT_EQ(largeSize, segy.getFileSz());
-}
-
 TEST_F(ObjSpecTest, TestBypassConstructor)
 {
     makeSEGY();
     EXPECT_EQ(piol, obj->piol);
     EXPECT_EQ(notFile, obj->name);
     EXPECT_EQ(mock, obj->data);
+}
+
+TEST_F(ObjIntegTest, zeroSEGYFileSize)
+{
+    makeRealSEGY<false>(zeroFile);
+    piol->isErr();
+    EXPECT_NE(nullptr, obj->data);
+    EXPECT_EQ(0U, obj->getFileSz());
+    piol->isErr();
+}
+
+TEST_F(ObjIntegTest, SmallSEGYFileSize)
+{
+    makeRealSEGY<false>(smallFile);
+    piol->isErr();
+    EXPECT_NE(nullptr, obj->data);
+    EXPECT_EQ(smallSize, obj->getFileSz());
+    piol->isErr();
+}
+
+TEST_F(ObjIntegTest, BigSEGYFileSize)
+{
+    makeRealSEGY<false>(largeFile);
+    piol->isErr();
+    EXPECT_NE(nullptr, obj->data);
+    EXPECT_EQ(largeSize, obj->getFileSz());
+    piol->isErr();
 }
 
 TEST_F(ObjSpecTest, ZeroSEGYFileSize)

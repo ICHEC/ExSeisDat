@@ -42,7 +42,7 @@ class FileSEGYWriteSpecTest : public FileIntegrationTest
         ho[3503U] = 1;
         ho[3505U] = 0;
 
-        EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1)).WillOnce(extraCheck(ho.data()));
+        EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1)).WillOnce(check0(ho.data(), SEGSz::getHOSz()));
         file->writeNt(nt);
         piol->isErr();
 
@@ -63,7 +63,8 @@ class FileSEGYWriteSpecTest : public FileIntegrationTest
         getBigEndian(xlNum(offset), tr.data()+xl);
         getBigEndian<int16_t>(1, &tr[ScaleCoord]);
 
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr.data()));
+        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
+                                                        .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
 
         TraceParam prm;
         prm.line = {ilNum(offset), xlNum(offset)};
@@ -76,7 +77,8 @@ class FileSEGYWriteSpecTest : public FileIntegrationTest
         getBigEndian(scal, tr->data()+70U);
         getBigEndian(val.first, tr->data()+item.first);
         getBigEndian(val.second, tr->data()+item.second);
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1)).WillOnce(extraTrCheck(tr->data()));
+        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
+                                                        .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
     }
 };
 

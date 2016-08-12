@@ -154,7 +154,7 @@ TEST_F(MPIIOTest, ReadContigSSS)
 
 //Intentionally read much beyond the end of the file to make sure that MPI-IO doesn't abort/fails.
 //MPI 3.1 spec says (or at least strongly implies) it should work.
-TEST_F(MPIIOTest, ReadContigEnd)
+TEST_F(MPIIOTest, FarmReadContigEnd)
 {
     makeMPIIO(smallSEGYFile);
     size_t nt = 400;

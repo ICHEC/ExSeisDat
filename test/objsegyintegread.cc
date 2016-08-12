@@ -1,54 +1,75 @@
 #include "objsegytest.hh"
-
-/////////////////////////// Header Object Reading //////////////////////////////////
-TEST_F(ObjIntegrationTest, SEGYZeroReadHO)
-{
-    makeRealSEGY<false>(zeroFile);
-    std::vector<uchar> ho(SEGSz::getHOSz());
-    for (size_t i = 0; i < SEGSz::getHOSz(); i++)
-        ho[i] = getPattern(SEGSz::getHOSz() - i);
-
-    obj->readHO(ho.data());
-
-    for (size_t i = 0; i < SEGSz::getHOSz(); i++)
-        ASSERT_EQ(ho[i], getPattern(SEGSz::getHOSz() - i));
-}
-
-TEST_F(ObjIntegrationTest, SEGYReadHO)
+TEST_F(ObjIntegTest, SEGYHORead)
 {
     makeRealSEGY<false>(plargeFile);
-    SEGYReadHOTest({uchar(magicNum1), uchar(magicNum1+1)});
+    SCOPED_TRACE("Pattern 1");
+    readHOPatternTest<false>(0, 107);
+    SCOPED_TRACE("Pattern 2");
+    readHOPatternTest<false>(0, 46);
+    SCOPED_TRACE("Pattern 3");
+    readHOPatternTest<false>(0, 0);
 }
 
-TEST_F(ObjIntegrationTest, SEGYReadTrHdr)
+TEST_F(ObjIntegTest, SEGYDOMDReadSingle)
 {
     makeRealSEGY<false>(plargeFile);
-    SCOPED_TRACE("Read1");
-    SEGYReadTrTest(10U, {0U, 1U, 100U, 1000U, 1000U}, magicNum1);
-    SCOPED_TRACE("Read2");
-    SEGYReadTrTest(100U, {0U, 1U, 100U, 1000U, 1000U}, magicNum1+1U);
+    SCOPED_TRACE("Pattern 1");
+    readTest<true, false>(10U, 1U, 200, 0, 117);
+    SCOPED_TRACE("Pattern 2");
+    readTest<true, false>(10U, 1U, 200, 0, 13);
 }
 
-TEST_F(ObjIntegrationTest, SEGYReadTrHdrs)
+TEST_F(ObjIntegTest, SEGYDOMDReadZeroNt)
 {
-    const size_t sz = 400;
-    const size_t ns = 261;
-    //const size_t sz = 20000;
-    //const size_t ns = 1000;
-
-    makeRealSEGY<false>(smallSEGYFile);
-    piol->isErr();
-    size_t offset = 0;
-
-    std::vector<uchar> tr(sz*SEGSz::getMDSz());
-    obj->readDOMD(offset, ns, sz, tr.data());
-    piol->isErr();
-
-    for (size_t i = 0; i < sz; i++)
-    {
-        uchar * md = tr.data() + i*SEGSz::getMDSz();
-        ASSERT_EQ(ilNum(i+offset), getHost<int32_t>(&md[188])) << i;
-        ASSERT_EQ(xlNum(i+offset), getHost<int32_t>(&md[192])) << i;
-    }
+    makeRealSEGY<false>(plargeFile);
+    readTest<true, false>(10U, 0U, 2000);
 }
 
+TEST_F(ObjIntegTest, SEGYDOMDReadZeroNs)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<true, false>(10U, 100U, 0U);
+}
+
+TEST_F(ObjIntegTest, SEGYDOMDRead)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<true, false>(10U, 100U, 2000);
+}
+
+TEST_F(ObjIntegTest, FarmSEGYDOMDBigRead)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<true, false>(10U, 300000, 5000);
+}
+
+TEST_F(ObjIntegTest, SEGYDODFReadSingle)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<false, false>(10U, 1U, 200, 0, 117);
+    readTest<false, false>(10U, 1U, 200, 0, 13);
+}
+
+TEST_F(ObjIntegTest, SEGYDODFReadZeroNt)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<false, false>(10U, 0U, 2000);
+}
+
+TEST_F(ObjIntegTest, SEGYDODFReadZeroNs)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<false, false>(10U, 100U, 0U);
+}
+
+TEST_F(ObjIntegTest, SEGYDODFRead)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<false, false>(10U, 100U, 2000);
+}
+
+TEST_F(ObjIntegTest, FarmSEGYDODFBigRead)
+{
+    makeRealSEGY<false>(plargeFile);
+    readTest<false, false>(10U, 300000, 5000);
+}

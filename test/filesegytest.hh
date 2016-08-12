@@ -118,15 +118,3 @@ class FileIntegrationTest : public Test
     }
 };
 
-ACTION_P(extraCheck, ho)
-{
-    for (size_t i = 0; i < SEGSz::getHOSz(); i++)
-        ASSERT_EQ(ho[i], arg0[i]) << "Error with header byte: " << i << " |\n";
-}
-
-ACTION_P(extraTrCheck, md)  //Use this when writing
-{
-    for (size_t i = 0; i < SEGSz::getMDSz(); i++)
-        ASSERT_EQ(md[i], arg3[i]) << "Error with trace header byte: " << i << " |\n";
-}
-

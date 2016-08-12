@@ -5,7 +5,8 @@ TEST_F(MPIIOTest, SetZeroFileSz)
     makeTestSz(0);
 }
 
-TEST_F(MPIIOTest, SetNormalFileSz)
+//Takes about 3 seconds on Fionn
+TEST_F(MPIIOTest, FarmSetNormalFileSz)
 {
     makeTestSz(2*prefix(3));
 }

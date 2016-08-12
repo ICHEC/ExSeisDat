@@ -2,9 +2,9 @@
 TEST_F(ObjSpecTest, SEGYHORead)
 {
     makeSEGY();
-    HOPatternTest(7, 107);
-    HOPatternTest(10, 46);
-    HOPatternTest(0, 0);
+    readHOPatternTest(7, 107);
+    readHOPatternTest(10, 46);
+    readHOPatternTest(0, 0);
 }
 
 TEST_F(ObjSpecTest, SEGYDOMDReadSingle)
@@ -32,7 +32,7 @@ TEST_F(ObjSpecTest, SEGYDOMDRead)
     readTest<true>(10U, 100U, 2000);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDBigRead)
+TEST_F(ObjSpecTest, FarmSEGYDOMDBigRead)
 {
     makeSEGY();
     readTest<true>(10U, 300000, 5000);

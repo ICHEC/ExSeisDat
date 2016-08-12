@@ -1,6 +1,5 @@
+#include "tglobal.hh"
 #include "share/segy.hh"
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
 using namespace PIOL;
 
 TEST(SEGYSizes, All)
