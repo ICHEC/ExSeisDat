@@ -3,13 +3,13 @@ TEST_F(ObjIntegTest, SEGYHOWrite)
 {
     makeRealSEGY<true>(tempFile);
     SCOPED_TRACE("Pattern 1");
-    writeHOPattern<true>(0, 107);
+    writeHOPattern<false>(0, 107);
 
     SCOPED_TRACE("Pattern 2");
-    writeHOPattern<true>(0, 46);
+    writeHOPattern<false>(0, 46);
 
     SCOPED_TRACE("Pattern 3");
-    writeHOPattern<true>(0, 0);
+    writeHOPattern<false>(0, 0);
 }
 
 TEST_F(ObjIntegTest, SEGYDOMDWriteSingle)
@@ -75,3 +75,4 @@ TEST_F(ObjIntegTest, FarmSEGYDODFBigWrite)
     makeRealSEGY<true>(tempFile);
     writeTest<false, false>(10U, 300000, 5000);
 }
+

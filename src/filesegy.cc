@@ -18,6 +18,10 @@
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include <limits>
+
+#warning remove
+#include <iostream>
+
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -403,7 +407,7 @@ SEGY::~SEGY(void)
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
 
-        if (state.writeHO && !piol->comm->getRank())
+        if (state.writeHO == true && piol->comm->getRank() == 0)
         {
             std::vector<uchar> buf(SEGSz::getHOSz());
             packHeader(buf.data());
@@ -484,7 +488,6 @@ void SEGY::writeNs(csize_t ns_)
     if (ns != ns_)
     {
         ns = ns_;
-
         if (nt != 0U)           // If nt is zero this operaton is pointless.
         {
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
@@ -522,10 +525,10 @@ void SEGY::writeNt(csize_t nt_)
 
 void SEGY::writeInc(const geom_t inc_)
 {
-    if (!std::isnormal(inc_))
+    if (std::isnormal(inc_) == false)
     {
         piol->record(name, Log::Layer::File, Log::Status::Error,
-            "The SEG-Y Increment " + std::to_string(inc_) + "is not normal.", Log::Verb::None);
+            "The SEG-Y Increment " + std::to_string(inc_) + " is not normal.", Log::Verb::None);
         return;
     }
 
@@ -538,6 +541,9 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * coords) const
 {
+    if (sz == 0)   //Nothing to be read.
+        return;
+
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
 
     //TODO: Calculate number which actually would have been read based on filesize
@@ -557,6 +563,9 @@ void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t 
 
 void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * grids) const
 {
+    if (sz == 0)   //Nothing to be read.
+        return;
+
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
 
     //TODO: Calculate number which actually would have been read based on filesize
@@ -574,25 +583,40 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
-    //Implict big endian conversion
-#warning Test the implicit conversion
+    if (sz == 0 || readNs() == 0)   //Nothing to be read
+        return;
     obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
+
     if (format == Format::IBM)
+        for (size_t i = 0; i < ns * sz; i ++)
+            convertIBMtoIEEE(trace[i], true);
+    else
+    {
+        uchar * buf = reinterpret_cast<uchar *>(trace);
         for (size_t i = 0; i < ns * sz; i++)
-            convertIBMtoIEEE(uint32_t(trace[i * ns]));
+            reverse4Bytes(&buf[i*sizeof(float)]);
+    }
 }
 
 void SEGY::writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const
 {
+    if (sz == 0 || readNs() == 0)   //Nothing to be written.
+        return;
+
+/*    const uchar * buf = reinterpret_cast<const uchar *>(trace);
 #warning This won't work since it doesn't make any sense
     for (size_t i = 0; i < sz; i++)
-        getBigEndian(toint(trace[i * ns]));
-
+    {
+        auto val = toint(trace[i * ns]);
+        getBigEndian(val, buf);
+    }*/
     obj->writeDODF(offset, ns, sz, reinterpret_cast<const uchar *>(trace));
 }
 
 void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const
 {
+    if (sz == 0)   //Nothing to be written.
+        return;
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
     int16_t scale = 1;

@@ -1,94 +1,10 @@
 #include "filesegytest.hh"
-
-class FileSEGYWriteSpecTest : public FileIntegrationTest
+TEST_F(FileSEGYWrite, FileWriteHO)
 {
-    public :
-    size_t nt = 40U;
-    csize_t ns = 200U;
-    const int inc = 10;
-    csize_t format = 5;
-    std::shared_ptr<MockObj> mock;
-//    File::Interface * file;
-    std::vector<uchar> ho;
-
-    FileSEGYWriteSpecTest()
-    {
-        ho.resize(SEGSz::getHOSz());
-    }
-
-    void makeSEGY()
-    {
-        mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-        Mock::AllowLeak(mock.get());
-
-        EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
-
-        file = new File::SEGY(piol, notFile, fileSegyOpt, mock);
-        piol->isErr();
-    }
-
-    void writeHO()
-    {
-        size_t fsz = SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns);
-        EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
-
-        for (size_t i = 0U; i < std::min(testString.size(), SEGSz::getTextSz()); i++)
-            ho[i] = testString[i];
-        ho[NumSample+1] = ns;
-        ho[Increment+1] = inc;
-        ho[Type+1] = format;
-        ho[3255U] = 1;
-        ho[3500U] = 1;
-        ho[3503U] = 1;
-        ho[3505U] = 0;
-
-        EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1)).WillOnce(check0(ho.data(), SEGSz::getHOSz()));
-        file->writeNt(nt);
-        piol->isErr();
-
-        file->writeNs(ns);
-        piol->isErr();
-
-        file->writeInc(geom_t(inc*SI::Micro));
-        piol->isErr();
-
-        file->writeText(testString);
-        piol->isErr();
-    }
-
-    void writeTrHdrGridTest(size_t offset)
-    {
-        std::vector<uchar> tr(SEGSz::getMDSz());
-        getBigEndian(ilNum(offset), tr.data()+il);
-        getBigEndian(xlNum(offset), tr.data()+xl);
-        getBigEndian<int16_t>(1, &tr[ScaleCoord]);
-
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
-                                                        .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
-
-        TraceParam prm;
-        prm.line = {ilNum(offset), xlNum(offset)};
-        file->writeTraceParam(offset, 1U, &prm);
-    }
-
-    void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val, int16_t scal,
-                                       size_t offset, std::vector<uchar> * tr)
-    {
-        getBigEndian(scal, tr->data()+70U);
-        getBigEndian(val.first, tr->data()+item.first);
-        getBigEndian(val.second, tr->data()+item.second);
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
-                                                        .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
-    }
-};
-
-TEST_F(FileSEGYWriteSpecTest, FileWriteHO)
-{
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
 }
 
-TEST_F(FileSEGYWriteSpecTest, FileWriteHOLongString)
+TEST_F(FileSEGYWrite, FileWriteHOLongString)
 {
     //Extend the string beyond the text boundary
     //Extended text should be dropped in write call
@@ -98,29 +14,25 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteHOLongString)
     for (size_t i = 3200U; i < sz+extendSz; i++)
         testString[i] = uchar(0x7F);
 
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
 }
 
-TEST_F(FileSEGYWriteSpecTest, FileWriteHOEmptyString)
+TEST_F(FileSEGYWrite, FileWriteHOEmptyString)
 {
     testString.resize(0);
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
 }
 
-TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrGrid)
+TEST_F(FileSEGYWrite, FileWriteTrHdrGrid)
 {
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
     for (size_t i = 0; i < nt; i++)
         writeTrHdrGridTest(i);
 }
 
-TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord1)
+TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
 {
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
     std::vector<uchar> tr(SEGSz::getMDSz());
     initWriteTrHdrCoord({xCMP, yCMP}, {160010, 240022}, -100, 10, &tr);
 
@@ -129,10 +41,9 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord1)
     file->writeTraceParam(10U, 1U, &prm);
 }
 
-TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord2)
+TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
 {
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
     std::vector<uchar> tr(SEGSz::getMDSz());
     initWriteTrHdrCoord({xSrc, ySrc}, {1600100, 3400222}, -1000, 10, &tr);
 
@@ -141,10 +52,9 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord2)
     file->writeTraceParam(10U, 1U, &prm);
 }
 
-TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord3)
+TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
 {
-    makeSEGY();
-    writeHO();
+    makeMockSEGY<true>();
     std::vector<uchar> tr(SEGSz::getMDSz());
     initWriteTrHdrCoord({xSrc, ySrc}, {1623001001,   34002220}, -10000, 10, &tr);
 
@@ -156,41 +66,38 @@ TEST_F(FileSEGYWriteSpecTest, FileWriteTrHdrCoord3)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// DEATH TESTS ////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-typedef FileSEGYWriteSpecTest FileSEGYDeathTest;
+typedef FileSEGYWrite FileSEGYDeath;
 
-TEST_F(FileSEGYDeathTest, FileWriteAPIBadns)
+TEST_F(FileSEGYDeath, FileWriteAPIBadns)
 {
-    makeSEGY();
-
-    size_t badns = 0x470000;
-    file->writeNs(badns);
-
+    ns = 0x470000;
+    makeMockSEGY<true, false>();
+    std::cout << "here1\n";
+    file->writeNs(ns);
+    std::cout << "here2\n";
     mock.reset();
+    std::cout << "here3\n";
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
 #ifdef NT_LIMITS
-TEST_F(FileSEGYDeathTest, FileWriteAPIBadnt)
+TEST_F(FileSEGYDeath, FileWriteAPIBadnt)
 {
-    makeSEGY();
-
-    size_t badnt = NT_LIMITS + 1;
-    file->writeNt(badnt);
+    nt = NT_LIMITS + 1;
+    makeMockSEGY<true, false>();
+    file->writeNt(nt);
 
     mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 #endif
 
-#ifdef NT_LIMITS
-TEST_F(FileSEGYDeathTest, FileWriteAPIBadinc)
+TEST_F(FileSEGYDeath, FileWriteAPIBadinc)
 {
-    makeSEGY();
-
-    geom_t badinc = geom_t(1)/geom_t(0);
-    file->writeInc(badinc);
+    inc = geom_t(1)/geom_t(0);
+    makeMockSEGY<true, false>();
+    file->writeInc(inc);
 
     mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
-#endif

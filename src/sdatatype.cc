@@ -1,7 +1,14 @@
 #include <stdint.h>
+#include <arpa/inet.h>
 #include "global.hh"
 #include "share/datatype.hh"
 namespace PIOL {
+void reverse4Bytes(uchar * src)
+{
+    std::swap(src[0], src[3]);
+    std::swap(src[1], src[2]);
+}
+
 float tofloat(const uint32_t i)
 {
     union {
@@ -24,8 +31,11 @@ uint32_t toint(const float f)
 
 //TODO: Haven't done anything for underflow, overflow or nans
 //TODO: Not extensively tested yet
-float convertIBMtoIEEE(const uint32_t i)
+float convertIBMtoIEEE(const float f, bool bigEndian)
 {
+    uint32_t i = toint(f);
+    if (bigEndian)
+        i = ntohl(i);
     // The first 24 bits make up the fraction. If it's zero we can stop
     uint32_t frac = i & 0xFFFFFF;
     if (frac == 0)

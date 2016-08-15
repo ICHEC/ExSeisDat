@@ -45,6 +45,7 @@ class ObjSpecTest : public Test
 
     ObjSpecTest()
     {
+        mock = nullptr;
         obj = nullptr;
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
@@ -116,6 +117,11 @@ class ObjSpecTest : public Test
     template <bool MOCK = true>
     void writeHOPattern(size_t off, uchar magic)
     {
+        if (MOCK && mock == nullptr)
+        {
+            std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
+            return;
+        }
         csize_t extra = 20U;
         std::vector<uchar> cHo(SEGSz::getHOSz());
         for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
@@ -165,6 +171,11 @@ class ObjSpecTest : public Test
     template <bool DOMD, bool MOCK = true>
     void readTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
+        if (MOCK && mock == nullptr)
+        {
+            std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
+            return;
+        }
         const size_t extra = 20U;
         size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
         size_t step = nt * bsz;

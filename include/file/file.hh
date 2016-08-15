@@ -48,7 +48,7 @@ struct TraceParam
 class Interface
 {
     protected :
-    Piol piol;               //!< The PIOL object.
+    Piol piol;                                      //!< The PIOL object.
     std::string name;                               //!< Store the file name for debugging purposes.
     std::shared_ptr<Obj::Interface> obj = nullptr;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                                      //!< The number of samples per trace.
