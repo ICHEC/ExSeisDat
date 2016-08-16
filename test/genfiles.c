@@ -53,7 +53,7 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
         fseek(fs, 3216U, SEEK_SET);
         fwrite(cinc, sizeof(uchar), 2U, fs);
 
-        uchar format = 1;
+        uchar format = 5;
         fseek(fs, 3225U, SEEK_SET);
         fwrite(&format, sizeof(uchar), 1U, fs);
 
@@ -75,20 +75,26 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
             #pragma omp parallel for
             for (size_t j = 0; j < chunk; j++)
             {
-                for (size_t k = 0; k < ns*sizeof(float); k++)
-                    buf[dosz*j + 240 + k] = (i+j+k) % 0x100;
+                for (size_t k = 0; k < ns; k++)
+                {
+                    union { float f; uint32_t i; } n = { .f = (i+j+k) };
+                    buf[dosz*j + 240 + 4*k + 0] = n.i >> 24 & 0xFF;
+                    buf[dosz*j + 240 + 4*k + 1] = n.i >> 16 & 0xFF;
+                    buf[dosz*j + 240 + 4*k + 2] = n.i >> 8  & 0xFF;
+                    buf[dosz*j + 240 + 4*k + 3] = n.i       & 0xFF;
+                }
 
                 int32_t il = ilNum(i+j);
-                buf[dosz*j + 188] = (il >> 24) & 0xFF;
-                buf[dosz*j + 189] = (il >> 16) & 0xFF;
-                buf[dosz*j + 190] = (il >> 8)  & 0xFF;
-                buf[dosz*j + 191] =  il        & 0xFF;
+                buf[dosz*j + 188] = il >> 24 & 0xFF;
+                buf[dosz*j + 189] = il >> 16 & 0xFF;
+                buf[dosz*j + 190] = il >> 8  & 0xFF;
+                buf[dosz*j + 191] = il       & 0xFF;
 
                 int32_t xl = xlNum(i+j);
-                buf[dosz*j + 192] = (xl >> 24) & 0xFF;
-                buf[dosz*j + 193] = (xl >> 16) & 0xFF;
-                buf[dosz*j + 194] = (xl >> 8)  & 0xFF;
-                buf[dosz*j + 195] =  xl        & 0xFF;
+                buf[dosz*j + 192] = xl >> 24 & 0xFF;
+                buf[dosz*j + 193] = xl >> 16 & 0xFF;
+                buf[dosz*j + 194] = xl >> 8  & 0xFF;
+                buf[dosz*j + 195] = xl       & 0xFF;
             }
             fwrite(buf, sizeof(uchar), chunk*dosz, fs);
         }
@@ -108,7 +114,7 @@ int main(void)
     makeFile("tmp/smallFilePattern.tmp", 4096ll, pattern, psz);
     makeFile("tmp/largeFilePattern.tmp", 10ll*1024ll*1024ll*1024ll, pattern, psz);
     makeSEGY("tmp/smallsegy.tmp", 261U, 400U, 1024U*1024U);
-    makeSEGY("tmp/bigtracesegy.tmp", 40000U, 40000U, 1024U*1024U);
+    makeSEGY("tmp/bigtracesegy.tmp", 32000U, 40000U, 1024U*1024U);
     makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, 1024U*1024U);
     return 0;
 }

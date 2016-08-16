@@ -63,6 +63,53 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
     file->writeTraceParam(10U, 1U, &prm);
 }
 
+TEST_F(FileSEGYWrite, FileWriteTraceNormal)
+{
+    nt = 100;
+    ns = 300;
+    makeMockSEGY<true>();
+    writeTraceTest(0);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceBigNs)
+{
+    nt = 100;
+    ns = 10000;
+    makeMockSEGY<true>();
+    writeTraceTest(10);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceBigOffset)
+{
+    nt = 3000;
+    ns = 3000;
+    makeMockSEGY<true>();
+    writeTraceTest(3728270);
+}
+
+TEST_F(FileSEGYWrite, FarmFileWriteTraceBigNt)
+{
+    nt = 3728270;
+    ns = 300;
+    makeMockSEGY<true>();
+    writeTraceTest(0);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceZeroNt)
+{
+    nt = 0;
+    ns = 10;
+    makeMockSEGY<true>();
+    writeTraceTest(10);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
+{
+    nt = 10;
+    ns = 0;
+    makeMockSEGY<true>();
+    writeTraceTest(10);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// DEATH TESTS ////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,11 +119,8 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadns)
 {
     ns = 0x470000;
     makeMockSEGY<true, false>();
-    std::cout << "here1\n";
     file->writeNs(ns);
-    std::cout << "here2\n";
     mock.reset();
-    std::cout << "here3\n";
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
@@ -94,9 +138,9 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadnt)
 
 TEST_F(FileSEGYDeath, FileWriteAPIBadinc)
 {
-    inc = geom_t(1)/geom_t(0);
+    geom_t ginc = geom_t(1)/geom_t(0);
     makeMockSEGY<true, false>();
-    file->writeInc(inc);
+    file->writeInc(ginc);
 
     mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");

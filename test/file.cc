@@ -56,7 +56,7 @@ struct FakeFile : public File::Interface
     void writeNt(csize_t nt_) {}
     void writeInc(const geom_t inc_) {}
     void readTrace(csize_t offset, csize_t sz, trace_t * trace) const { }
-    void writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const { }
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace) const { }
     void writeTraceParam(csize_t offset, csize_t sz, const File::TraceParam * prm) const {}
 };
 #pragma GCC diagnostic pop

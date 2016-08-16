@@ -138,8 +138,9 @@ class SEGY : public Interface
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  \warning This function is not thread safe.
      */
-    void writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const;
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace) const;
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.

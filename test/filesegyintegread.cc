@@ -1,10 +1,17 @@
 #include "filesegytest.hh"
 
+csize_t largens = 1000U;
+csize_t largent = 2000000U;
+csize_t bigtns = 32000U;
+csize_t bigtnt = 40000U;
+csize_t smallns = 261U;
+csize_t smallnt = 400U;
+
 //Read test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileSEGYIntegRead, SEGYReadHO)
 {
-    csize_t ns = 261U;
-    csize_t nt = 400U;
+    nt = smallnt;
+    ns = smallns;
     makeSEGY<false>(smallSEGYFile);
 
     piol->isErr();
@@ -15,4 +22,43 @@ TEST_F(FileSEGYIntegRead, SEGYReadHO)
     EXPECT_DOUBLE_EQ(double(20e-6), file->readInc());
 }
 
+TEST_F(FileSEGYIntegRead, FileReadTraceSmall)
+{
+    nt = smallnt;
+    ns = smallns;
+    makeSEGY<false>(smallSEGYFile);
+    readTraceTest<false>(0);
+}
+
+TEST_F(FileSEGYIntegRead, FileReadTraceBigNS)
+{
+    nt = 200;
+    ns = bigtns;
+    makeSEGY<false>(bigTraceSEGYFile);
+    readTraceTest<false>(10);
+}
+
+TEST_F(FileSEGYIntegRead, FileReadTraceBigOffset)
+{
+    nt = 10;
+    ns = largens;
+    makeSEGY<false>(largeSEGYFile);
+    readTraceTest<false>(1999990U);
+}
+
+TEST_F(FileSEGYIntegRead, FarmFileReadTraceBigNt)
+{
+    nt = largent;
+    ns = largens;
+    makeSEGY<false>(largeSEGYFile);
+    readTraceTest<false>(0);
+}
+
+TEST_F(FileSEGYIntegRead, FileReadTraceZeroNt)
+{
+    nt = 0U;
+    ns = largens;
+    makeSEGY<false>(largeSEGYFile);
+    readTraceTest<false>(10);
+}
 

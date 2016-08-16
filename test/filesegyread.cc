@@ -51,14 +51,17 @@ TEST_F(FileSEGYRead, FileReadHOAPI)
 
 TEST_F(FileSEGYRead, FileReadTraceHeader)
 {
-    testTr();
+    makeMockSEGY<false>();
+    initTrBlock();
     for (size_t i = 0; i < nt; i++)
         initReadTrMock(ns, i);
 }
 
 TEST_F(FileSEGYRead, FileReadTrHdrBigNs)
 {
-    testTr();
+    makeMockSEGY<false>();
+    initTrBlock();
+
     const size_t bigns = 10000;
     file->ns = bigns;
     initReadTrMock(bigns, nt/2U);
@@ -66,7 +69,8 @@ TEST_F(FileSEGYRead, FileReadTrHdrBigNs)
 
 TEST_F(FileSEGYRead, FileReadFileTrs)
 {
-    testTr();
+    makeMockSEGY<false>();
+    initTrBlock();
     initReadTrHdrsMock(ns, nt);
 }
 

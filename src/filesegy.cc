@@ -583,8 +583,9 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
-    if (sz == 0 || readNs() == 0)   //Nothing to be read
+    if (sz == 0 || ns == 0)   //Nothing to be read
         return;
+
     obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
 
     if (format == Format::IBM)
@@ -598,19 +599,21 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
     }
 }
 
-void SEGY::writeTrace(csize_t offset, csize_t sz, const trace_t * trace) const
+void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
-    if (sz == 0 || readNs() == 0)   //Nothing to be written.
+    if (sz == 0 || ns == 0)   //Nothing to be written.
         return;
 
-/*    const uchar * buf = reinterpret_cast<const uchar *>(trace);
-#warning This won't work since it doesn't make any sense
-    for (size_t i = 0; i < sz; i++)
-    {
-        auto val = toint(trace[i * ns]);
-        getBigEndian(val, buf);
-    }*/
-    obj->writeDODF(offset, ns, sz, reinterpret_cast<const uchar *>(trace));
+    uchar * buf = reinterpret_cast<uchar *>(trace);
+
+    //TODO: Check cache effects doing both of these loops the other way.
+    for (size_t i = 0; i < ns * sz; i++)
+        reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
+
+    obj->writeDODF(offset, ns, sz, buf);
+
+    for (size_t i = 0; i < ns * sz; i++)
+        reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
 void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const
@@ -634,7 +637,6 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) c
 
         setGrid(Grid::Line, prm[i].line, md);
     }
-
     obj->writeDOMD(offset, ns, sz, buf.data());
 }
 }}
