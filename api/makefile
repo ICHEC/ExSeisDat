@@ -23,7 +23,7 @@ CURR_DEP:=$(wildcard $(DEP))
 	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CPP) $(LIB_FLAG) $(CPPFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CPP) $(LIB_FLAG) $(CPPFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(BIN)
