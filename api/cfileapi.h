@@ -1,3 +1,5 @@
+#ifndef PIOLCFILEAPI_INCLUDE_GUARD
+#define PIOLCFILEAPI_INCLUDE_GUARD
 #include <mpi.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -84,4 +86,5 @@ extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
 extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, const float * trace);
 #ifdef __cplusplus
 }
+#endif
 #endif

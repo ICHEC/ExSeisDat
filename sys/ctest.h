@@ -1,3 +1,5 @@
+#ifndef PIOLCTEST_INCLUDE_GUARD
+#define PIOLCTEST_INCLUDE_GUARD
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,4 +19,5 @@ extern void CTest_quit(const char * msg, size_t line);
                       { \
                           CTest_quit("Failure in ## __FILE__ ## Line %zu\n", line);\
                       }}
+#endif
 
