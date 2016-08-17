@@ -7,3 +7,4 @@ genfiles
 unittests
 spectests
 googletest
+gen_segycompare.cc

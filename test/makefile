@@ -28,7 +28,7 @@ CURR_DEPENDS=$(wildcard $(DEPENDS))
 BIN=spectests
 
 .PHONY: all
-all: genfiles libgmock.a $(BIN) $(DEP) $(OBJECTS)
+all: extract genfiles libgmock.a $(BIN) $(DEP) $(OBJECTS)
 
 $(SRC_OBJDIR):
 	(cd ../src/; $(MAKE))
@@ -48,6 +48,9 @@ $(BIN): $(OBJECTS)
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles
 
+extract: extract.c
+	gcc -g -Wall -Wextra -fopenmp -std=c11 extract.c -o extract
+
 .PHONY: clean
 clean:
 	rm -f $(OBJECTS) $(BIN) $(CURR_DEPENDS) $(CURR_DEP)
@@ -66,6 +69,6 @@ endif
 	gcc -std=c++14 -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 

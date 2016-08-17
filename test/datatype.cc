@@ -37,3 +37,35 @@ TEST(Datatype, getHost32Bit3)
     EXPECT_EQ(ans, h);
 }
 
+//include two very large vectors
+#include "ibm.cc-part"
+#include "ibm-compare.cc-part"
+
+std::string printBinary(uint32_t val)
+{
+    std::stringstream s;
+    s << "Number = ";
+    for (int i = 31; i >= 0; i--)
+    {
+        if (!((i + 1) % 4))
+            s << " ";
+        s <<((val >> i) & 0x1);
+    }
+    s << "\n";
+    return s.str();
+}
+
+
+TEST(Datatype, IBMToIEEE)
+{
+    ASSERT_EQ(rawTraces.size(), tktraces.size());
+    for (size_t i = 0; i < rawTraces.size(); i++)
+    {
+        float val = convertIBMtoIEEE(tofloat(rawTraces[i]), true);
+        EXPECT_EQ(val, tktraces[i]) << "float number " << i
+            << "\n raw " << printBinary(rawTraces[i])
+            << "me   " << printBinary(toint(convertIBMtoIEEE(tofloat(rawTraces[i]), true)))
+            << "them " << printBinary(*reinterpret_cast<uint32_t *>(&tktraces[i]));
+    }
+}
+
