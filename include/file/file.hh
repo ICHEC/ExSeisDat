@@ -79,7 +79,7 @@ class Interface
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */
-    std::string readText(void) const;
+    const std::string & readText(void) const;
 
     /*! \brief Read the number of samples per trace
      *  \return The number of samples per trace
