@@ -57,14 +57,15 @@ struct FakeObject : public Obj::Interface
 #pragma GCC diagnostic pop
 
 //In this test we pass the MPI-IO Data Options class.
-//We do not use a valid name as we are not interested in the result
+//Valid options, invalid name
 TEST_F(ObjectTest, InterfaceConstructor)
 {
     Data::MPIIOOpt dataOpt;
     FakeObject fake(piol, notFile, dataOpt);
-    EXPECT_NE(nullptr, fake.data);
+    EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
     EXPECT_EQ(notFile, fake.name);
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
 //In this test we pass the wrong Data Options class.
@@ -72,9 +73,10 @@ TEST_F(ObjectTest, InterfaceConstructor)
 TEST_F(ObjectTest, BadInterfaceConstructor)
 {
     Data::Opt dataOpt;
-    FakeObject fake(piol, notFile, dataOpt);
+    FakeObject fake(piol, tempFile, dataOpt);
     EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(notFile, fake.name);
+    EXPECT_EQ(tempFile, fake.name);
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 

@@ -110,6 +110,28 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
     makeMockSEGY<true>();
     writeTraceTest(10);
 }
+
+TEST_F(FileSEGYWrite, FileWriteTraceParam)
+{
+    makeMockSEGY<true>();
+    writeTraceHeaderTest(0);
+}
+
+
+TEST_F(FileSEGYWrite, FileWriteTraceParamBigOffset)
+{
+    makeMockSEGY<true>();
+    nt = 1;
+    writeTraceHeaderTest(NT_LIMITS-1);
+}
+
+//Akward to fit this into the current functions
+/*TEST_F(FileSEGYDeath, FileWriteTraceParamBigOffset)
+{
+    makeMockSEGY<true>();
+    writeTraceHeaderTest<false>(NT_LIMITS+1);
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
+}*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// DEATH TESTS ////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,3 +167,4 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadinc)
     mock.reset();
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
+

@@ -64,7 +64,7 @@ struct FakeFile : public File::Interface
 void compareConstructor(ExSeisPIOL * piol, FakeFile & fake)
 {
     EXPECT_EQ(piol, fake.piol.get());
-    EXPECT_EQ(notFile, fake.name);
+    EXPECT_EQ(tempFile, fake.name);
     EXPECT_EQ(1101U, fake.readNt());
     EXPECT_EQ(1010U, fake.readNs());
     EXPECT_EQ(geom_t(10), fake.readInc());
@@ -75,9 +75,8 @@ void compareConstructor(ExSeisPIOL * piol, FakeFile & fake)
 TEST_F(FileTest, ShortInterfaceConstructor)
 {
     std::shared_ptr<Obj::Interface> obj = nullptr;
-    FakeFile fake(piol, notFile, obj);
+    FakeFile fake(piol, tempFile, obj);
     EXPECT_EQ(nullptr, fake.obj);
-    SCOPED_TRACE("ShortInterfaceConstructor");
     compareConstructor(piol.get(), fake);
 }
 
@@ -88,9 +87,8 @@ TEST_F(FileTest, InterfaceConstructor)
     const Obj::SEGYOpt objOpt;
     const Data::MPIIOOpt dataOpt;
 
-    FakeFile fake(piol, notFile, objOpt, dataOpt);
-    EXPECT_NE(nullptr, fake.obj);
-    SCOPED_TRACE("InterfaceConstructor");
+    FakeFile fake(piol, tempFile, objOpt, dataOpt);
+    EXPECT_EQ(nullptr, fake.obj);
     compareConstructor(piol.get(), fake);
 }
 
@@ -102,6 +100,16 @@ void BadConstructor(std::shared_ptr<ExSeisPIOL> piol, std::string name, const Ob
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
+//In this test we pass the MPI-IO Data Options class within an invalid name
+//We do not use a valid name as we are not interested in the result
+TEST_F(FileTest, BadNameInterfaceConstructor)
+{
+    const Obj::SEGYOpt objOpt;
+    const Data::MPIIOOpt dataOpt;
+
+    BadConstructor(piol, notFile, objOpt, dataOpt);
+}
+
 //In this test we pass the wrong Data Options class.
 //We pass the base class instead of MPIIOOpt (the default class)
 TEST_F(FileTest, BadInterfaceConstructor1)
@@ -109,7 +117,7 @@ TEST_F(FileTest, BadInterfaceConstructor1)
     SCOPED_TRACE("BadInterface 1");
     const Obj::SEGYOpt objOpt;
     const Data::Opt dataOpt;
-    BadConstructor(piol, notFile, objOpt, dataOpt);
+    BadConstructor(piol, tempFile, objOpt, dataOpt);
 }
 
 //In this test we pass the wrong Object Options class.
@@ -119,7 +127,7 @@ TEST_F(FileTest, BadInterfaceConstructor2)
     SCOPED_TRACE("BadInterface 2");
     const Obj::Opt objOpt;
     const Data::MPIIOOpt dataOpt;
-    BadConstructor(piol, notFile, objOpt, dataOpt);
+    BadConstructor(piol, tempFile, objOpt, dataOpt);
 }
 
 //In this test we pass two wrong Object Options classes.
@@ -129,5 +137,5 @@ TEST_F(FileTest, BadInterfaceConstructor3)
     SCOPED_TRACE("BadInterface 3");
     const Obj::Opt objOpt;
     const Data::Opt dataOpt;
-    BadConstructor(piol, notFile, objOpt, dataOpt);
+    BadConstructor(piol, tempFile, objOpt, dataOpt);
 }

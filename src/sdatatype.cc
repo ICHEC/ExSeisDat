@@ -1,11 +1,16 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date August 2016
+ *   \brief This file performs a variety of bit operations and conversions on datatypes
+ *   \details
+ *//*******************************************************************************************/
+#include "share/datatype.hh"
 #include <stdint.h>
 #include <arpa/inet.h>
-
-#warning remove
-#include <iostream>
-#include <assert.h>
 #include "global.hh"
-#include "share/datatype.hh"
+
 namespace PIOL {
 void reverse4Bytes(uchar * src)
 {
@@ -45,7 +50,7 @@ float convertIBMtoIEEE(const float f, bool bigEndian)
     uint32_t frac = (i & 0x00FFFFFF);
     if (frac == 0)
         return float(0);
-
+//TODO: Compare EXP nan condition
     //Extract the sign of the fraction (last bit)
     uint32_t sign = (i >> 31) & 0x01;
 

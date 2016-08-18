@@ -19,15 +19,24 @@
 #undef protected
 
 namespace PIOL { namespace File {
+extern int16_t calcScale(const coord_t coord);
+extern int16_t scalComp(int16_t scal1, int16_t scal2);
+extern void setCoord(const File::Coord item, const coord_t coord, const int16_t scale, uchar * buf);
+extern void setGrid(const File::Grid item, const grid_t grid, uchar * buf);
 extern int16_t deScale(const geom_t val);
 }}
+
+using namespace testing;
+using namespace PIOL;
 using PIOL::File::deScale;
 using PIOL::File::grid_t;
 using PIOL::File::coord_t;
 using PIOL::File::TraceParam;
+using File::calcScale;
+using File::scalComp;
+using File::setCoord;
+using File::setGrid;
 
-using namespace testing;
-using namespace PIOL;
 
 enum Hdr : size_t
 {
@@ -373,7 +382,7 @@ class FileSEGYTest : public Test
                         getBigEndian(toint(val), &buf[(i*ns + j)*sizeof(float)]);
                     }
                 EXPECT_CALL(*mock, writeDODF(offset, ns, nt, _))
-                                .Times(Exactly(1)); //.WillOnce(check3(buf.data(), buf.size()));
+                                .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
             }
         }
         std::vector<float> bufnew(nt * ns);
@@ -385,6 +394,47 @@ class FileSEGYTest : public Test
 
         if (MOCK == false)
             readTraceTest<MOCK>(offset);
+    }
+
+    template <bool MOCK = true>
+    void writeTraceHeaderTest(csize_t offset)
+    {
+        std::vector<uchar> buf;
+        if (MOCK)
+        {
+            buf.resize(nt * SEGSz::getMDSz());
+            for (size_t i = 0; i < nt; i++)
+            {
+                coord_t src = coord_t(ilNum(i+1), xlNum(i+5));
+                coord_t rcv = coord_t(ilNum(i+2), xlNum(i+6));
+                coord_t cmp = coord_t(ilNum(i+3), xlNum(i+7));
+                grid_t line = grid_t(ilNum(i+4), xlNum(i+8));
+
+                int16_t scale = scalComp(1, calcScale(src));
+                scale = scalComp(scale, calcScale(rcv));
+                scale = scalComp(scale, calcScale(cmp));
+
+                uchar * md = &buf[i*SEGSz::getMDSz()];
+                getBigEndian(scale, &md[ScaleCoord]);
+                setCoord(File::Coord::Src, src, scale, md);
+                setCoord(File::Coord::Rcv, rcv, scale, md);
+                setCoord(File::Coord::CMP, cmp, scale, md);
+
+                setGrid(File::Grid::Line, line, md);
+            }
+            EXPECT_CALL(*mock.get(), writeDOMD(offset, ns, nt, _))
+                        .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
+        }
+
+        std::vector<TraceParam> prm(nt);
+        for (size_t i = 0; i < nt; i++)
+        {
+            prm[i].src = coord_t(ilNum(i+1), xlNum(i+5));
+            prm[i].rcv = coord_t(ilNum(i+2), xlNum(i+6));
+            prm[i].cmp = coord_t(ilNum(i+3), xlNum(i+7));
+            prm[i].line = grid_t(ilNum(i+4), xlNum(i+8));
+        }
+        file->writeTraceParam(offset, prm.size(), prm.data());
     }
 };
 typedef FileSEGYTest FileSEGYWrite;

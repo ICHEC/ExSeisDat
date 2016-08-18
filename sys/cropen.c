@@ -19,15 +19,10 @@ Extent decompose(size_t work, size_t nproc, size_t rank)
 
 int testManyFiles(ExSeisHandle piol, const char * name)
 {
-    MPIOptions opt = { .comm=MPI_COMM_SELF, .initMPI = false };
-    MPI_Comm comm;
-    bool initMPI;
-
     //Don't go too crazy or systems won't like you.
     const size_t rnum = 10;
     const size_t fnum = 1000;
     ExSeisFile * file = calloc(fnum, sizeof(ExSeisFile));
-
     ExSeisFile ffile = openFile(piol, name, NULL, NULL);
 
     const char * msg = readText(ffile);

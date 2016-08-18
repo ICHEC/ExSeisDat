@@ -11,6 +11,7 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
+
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -132,7 +133,7 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
     err = MPI_File_open(fcomm, name.data(), opt.mode, opt.info, &file);
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
-    if (err != MPI_SUCCESS)
+    if (err == MPI_SUCCESS)
     {
         int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
@@ -200,12 +201,15 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
         for (size_t i = 0; i < nb; i++)
             read(offset+i*osz, bsz, d);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
     auto viewIO = [this, offset, bsz, osz]
         (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
         {
             readv(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
             return MPI_SUCCESS;
         };
+#pragma GCC diagnostic pop
 
     MPI_Status stat;
     int err = io<uchar, MPI_Status>(viewIO, file, offset, nb, stat, maxSize, d, bsz, osz);
@@ -251,13 +255,15 @@ void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uc
     if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
         for (size_t i = 0; i < nb; i++)
             write(offset+i*osz, bsz, d);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
     auto viewIO = [this, offset, bsz, osz]
         (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
         {
             writev(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
             return MPI_SUCCESS;
         };
+#pragma GCC diagnostic pop
 
     MPI_Status stat;
     int err = io<uchar, MPI_Status>(viewIO, file, offset, nb, stat, maxSize, const_cast<uchar *>(d), bsz, osz);

@@ -29,6 +29,18 @@ Interface::Interface(const Piol piol_, const std::string name_, const Data::Opt 
             if (opt == nullptr)
                 return;
             auto mpiio = new Data::MPIIO(piol_, name_, *opt);
+            if (mpiio == nullptr)
+            {
+                piol->record(name_, Log::Layer::Object, Log::Status::Warning, "new failed in interface constructor: " + std::to_string(__LINE__), Log::Verb::Max);
+                data = nullptr;
+                return;
+            }
+            if (piol->log->isErr())
+            {
+                delete mpiio;
+                data = nullptr;
+                return;
+            }
             data = castToBase<Data::Interface, Data::MPIIO>(piol.get(), mpiio, name, Log::Layer::Object);
             if (data == nullptr)
                 return;

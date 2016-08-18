@@ -19,9 +19,6 @@
 #include "share/datatype.hh"
 #include <limits>
 
-#warning remove
-#include <iostream>
-
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -107,6 +104,7 @@ std::pair<TrCrd, TrCrd> getPair(Coord pair)
             return std::make_pair(TrCrd::xSrc, TrCrd::ySrc);
         case Coord::Rcv :
             return std::make_pair(TrCrd::xRcv, TrCrd::yRcv);
+        default :
         case Coord::CMP :
             return std::make_pair(TrCrd::xCMP, TrCrd::yCMP);
     }
@@ -128,6 +126,7 @@ std::pair<TrGrd, TrGrd> getPair(Grid pair)
 //Note: When a new set of grid points are required:
 //        case Grid::OFR :
 //            return std::make_pair(TrHdr::ORF, TrHdr::TORF);
+        default :
         case Grid::Line :
             return std::make_pair(TrGrd::il, TrGrd::xl);
     }
@@ -601,6 +600,15 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 
 void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
+    #ifdef NT_LIMITS
+    if (sz+offset > NT_LIMITS)
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Error,
+            "writeTrace() was called with an implied write of an nt value that is too large", Log::Verb::None);
+        return;
+    }
+    #endif
+
     if (sz == 0 || ns == 0)   //Nothing to be written.
         return;
 
@@ -618,15 +626,22 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace) const
 
 void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const
 {
+    #ifdef NT_LIMITS
+    if (sz+offset > NT_LIMITS)
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Error,
+            "writeTraceParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
+        return;
+    }
+    #endif
     if (sz == 0)   //Nothing to be written.
         return;
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    int16_t scale = 1;
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = &buf[i * SEGSz::getMDSz()];
-        scale = scalComp(scale, calcScale(prm[i].src));
+        int16_t scale = scalComp(1, calcScale(prm[i].src));
         scale = scalComp(scale, calcScale(prm[i].rcv));
         scale = scalComp(scale, calcScale(prm[i].cmp));
         setScale(TrScal::ScaleCoord, scale, md);
