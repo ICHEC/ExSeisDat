@@ -389,14 +389,22 @@ SEGYOpt::SEGYOpt(void)
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
            const std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
 {
-   Init(segyOpt);
+   SEGYInit(segyOpt);
 }
 
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
            const Obj::Opt & objOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, objOpt, dataOpt)
 {
-    Init(segyOpt);
+    SEGYInit(segyOpt);
 }
+
+SEGY::SEGY(const Piol piol_, const std::string name_)
+{
+    File::SEGYOpt segyOpt;
+    Init(piol_, name_);
+    SEGYInit(segyOpt);
+}
+
 #pragma GCC diagnostic pop
 
 SEGY::~SEGY(void)
@@ -445,7 +453,7 @@ void SEGY::procHeader(csize_t fsz, uchar * buf)
         text.push_back(buf[i]);
 }
 
-void SEGY::Init(const File::SEGYOpt & segyOpt)
+void SEGY::SEGYInit(const File::SEGYOpt & segyOpt)
 {
     incFactor = segyOpt.incFactor;
     memset(&state, 0, sizeof(Flags));

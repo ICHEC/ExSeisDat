@@ -11,7 +11,6 @@
 #include <string>
 #include "global.hh"
 namespace PIOL {
-
 /*! \brief Cast the options object to a derived class type and error check the cast.
  *  \tparam OBase The base class
  *  \tparam ODeriv The derived class

@@ -23,8 +23,6 @@ MPI::MPI(const MPIOpt & opt) : comm(opt.comm), init(opt.initMPI)
             std::cerr << "MPI_Init failure\n";
             std::exit(EXIT_FAILURE);
         }
-        else
-            std::cout << "MPI Initialised\n";
     }
     int irank;
     int inumRank;
@@ -50,6 +48,35 @@ MPI::~MPI(void)
 MPI_Comm MPI::getComm() const
 {
     return comm;
+}
+
+//Reduction for fundamental datatypes
+template <typename T>
+std::vector<T> MPIGather(const MPI * mpi, T val)
+{
+    std::vector<T> arr(mpi->getNumRank());
+    arr[mpi->getRank()] = val;
+
+    //TODO: Non-blocking target to be combined with other operations.
+    int err = MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, arr.data(), 1, MPIType<T>(), mpi->getComm());
+    if (err != MPI_SUCCESS)
+        std::cerr << "Allgather error\n";
+    return arr;
+}
+
+std::vector<llint> MPI::gather(llint val) const
+{
+    return MPIGather(this, val);
+}
+
+std::vector<size_t> MPI::gather(size_t val) const
+{
+    return MPIGather(this, val);
+}
+
+std::vector<geom_t> MPI::gather(geom_t val) const
+{
+    return MPIGather(this, val);
 }
 
 void MPI::barrier(void) const

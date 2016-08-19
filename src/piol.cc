@@ -9,11 +9,10 @@
 #include "share/casts.hh"
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
-#include <iostream>
 #include <string>
 namespace PIOL {
 
-ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
+void ExSeisPIOL::Init(const Log::Verb maxLevel, const Comm::Opt & comOpt)
 {
     log = std::make_unique<Log::Logger>(maxLevel);
     switch (comOpt.type)
@@ -35,8 +34,20 @@ ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
     }
 }
 
-ExSeisPIOL::ExSeisPIOL(const Comm::Opt & comm) : ExSeisPIOL(Log::Verb::None, comm)
+ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
 {
+    Init(maxLevel, comOpt);
+}
+
+ExSeisPIOL::ExSeisPIOL(const Comm::Opt & comOpt)
+{
+    Init(Log::Verb::None, comOpt);
+}
+
+ExSeisPIOL::ExSeisPIOL(void)
+{
+    Comm::MPIOpt comOpt;
+    Init(Log::Verb::None, comOpt);
 }
 
 ExSeisPIOL::~ExSeisPIOL(void)

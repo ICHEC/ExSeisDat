@@ -16,8 +16,12 @@ namespace PIOL {
 /*! \brief The ExSeisPIOL structure. A single instance of this structure should be created and
  *         passed to each subsequent PIOL object which is created.
  */
-struct ExSeisPIOL
+class ExSeisPIOL
 {
+    private :
+    void Init(const Log::Verb maxLevel, const Comm::Opt & comOpt);
+
+    public :
     std::unique_ptr<Log::Logger> log;       //!< The log stores all of the records for debugging and error checking.
     std::shared_ptr<Comm::Interface> comm;  //!< The communicator used for communication by the PIOL.
 
@@ -31,6 +35,10 @@ struct ExSeisPIOL
      *  \param[in] commOpt The options object corresponding to the desired inter-processor communicator.
      */
     ExSeisPIOL(const Comm::Opt & commOpt);
+
+    /*! \overload
+     */
+    ExSeisPIOL(void);
 
     /*! \brief The destructor outputs all of the log messages and deletes the communicator.
      *  This will free the communicator if the class contains the last shared pointer.

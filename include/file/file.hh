@@ -40,6 +40,8 @@ struct TraceParam
     coord_t rcv;    //!< The Receiver coordinate
     coord_t cmp;    //!< The common midpoint
     grid_t line;    //!< The line coordinates (il, xl)
+#warning Support this
+    size_t tn;      //!< TODO: The trace number
 };
 
 /*! \brief The File layer interface. Specific File implementations
@@ -56,6 +58,15 @@ class Interface
     std::string text;                               //!< Human readable text extracted from the file
     geom_t inc;                                     //!< The increment between samples in a trace
 
+    /*! \brief Initialises the generic components of the file layer
+     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name_ The name of the file associated with the instantiation.
+     *  \param[in] objOpt The options to use when creating the Object layer
+     *  \param[in] dataOpt The options to use when creating the Data layer
+     */
+    void Init(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+    void Init(const Piol piol_, const std::string name_); //!< \overload
+
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
@@ -71,6 +82,8 @@ class Interface
      *  \param[in] dataOpt The options to use when creating the Data layer
      */
     Interface(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+
+    Interface(void);
 
     /*! \brief A virtual destructor to allow deletion.
      */

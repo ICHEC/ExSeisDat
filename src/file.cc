@@ -8,17 +8,24 @@
  *//*******************************************************************************************/
 #include "file/file.hh"
 #include "object/objsegy.hh"
+#warning Temporary, this next include should be unnecessary
+#include "data/datampiio.hh"
 #include "share/casts.hh"
-
+#include <iostream>
 namespace PIOL { namespace File {
 
-Interface::Interface(const Piol piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_)
-                        : piol(piol_), name(name_), obj(obj_)
+void Interface::Init(const Piol piol_, const std::string name_)
 {
+    const Obj::SEGYOpt objOpt;
+    const Data::MPIIOOpt dataOpt;
+    Init(piol_, name_, static_cast<const Obj::Opt &>(objOpt), static_cast<const Data::Opt &>(dataOpt));
 }
 
-Interface::Interface(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt) : piol(piol_), name(name_)
+void Interface::Init(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt)
 {
+    piol = piol_;
+    name = name_;
+
     switch (objOpt.getType())
     {
         case (Obj::Type::SEGY) :
@@ -50,6 +57,21 @@ Interface::Interface(const Piol piol_, const std::string name_, const Obj::Opt &
         //TODO: Add warning
         break;
     }
+}
+
+Interface::Interface(const Piol piol_, const std::string name_, const std::shared_ptr<Obj::Interface> obj_)
+                        : piol(piol_), name(name_), obj(obj_)
+{
+}
+
+Interface::Interface(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt)
+{
+    Init(piol_, name_, objOpt, dataOpt);
+}
+
+//derived class must call Init
+Interface::Interface(void)
+{
 }
 
 const std::string & Interface::readText(void) const

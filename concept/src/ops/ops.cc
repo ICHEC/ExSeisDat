@@ -51,6 +51,7 @@ T find(Comms::MPI & comm, size_t offset, const U & obj1, const std::vector<U> & 
 
     return comm.reduce(val, offset, num, reducOp);
 }
+
 template <typename T>
 T calcDistance(const File::Pair<T> & pair1, const File::Pair<T> & pair2)
 {

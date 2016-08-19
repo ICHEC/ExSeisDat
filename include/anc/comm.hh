@@ -13,6 +13,7 @@
 #ifndef PIOLANCCOMM_INCLUDE_GUARD
 #define PIOLANCCOMM_INCLUDE_GUARD
 #include "global.hh"
+#include <vector>
 namespace PIOL { namespace Comm {
 /*! \brief The Communication layer interface. Specific communication implementations
  *  work off this base class.
@@ -42,6 +43,10 @@ class Interface
     {
         return numRank;
     }
+
+    virtual std::vector<geom_t> gather(geom_t val) const = 0;
+    virtual std::vector<llint> gather(llint val) const = 0;
+    virtual std::vector<size_t> gather(size_t val) const = 0;
 
     virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
 };

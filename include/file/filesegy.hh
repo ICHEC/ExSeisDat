@@ -63,10 +63,10 @@ class SEGY : public Interface
      */
     void packHeader(uchar * buf) const;
 
-    /*! \brief This function initialises the class.
+    /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
      */
-    void Init(const File::SEGYOpt & segyOpt);
+    void SEGYInit(const File::SEGYOpt & segyOpt);
 
     /*! \brief The constructor used for unit testing. It does not try to create a Data object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -86,6 +86,9 @@ class SEGY : public Interface
      */
     SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
                                                   const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+
+    SEGY(const Piol piol_, const std::string name_);
+
 
     /*! \brief Destructor. Processes any remaining flags
      */

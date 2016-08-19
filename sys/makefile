@@ -10,13 +10,14 @@ GCOMP=g++
 
 include ../compiler.cfg
 
-INC_FOLDER = -I../api/ $(LOCAL_INC_FOLDER)
+CPPINC_FOLDER = -I../include/ $(LOCAL_INC_FOLDER)
+CINC_FOLDER = -I../api/ $(LOCAL_INC_FOLDER)
 CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
 SOURCES=$(wildcard *.cc) $(wildcard *.c)
 OBJECTS=$(patsubst %.c, $(OBJDIR)/%.co, $(patsubst %.cc, $(OBJDIR)/%.cpo, $(SOURCES)))
-CPPFLAGS=$(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
-CFLAGS = $(CSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CPPFLAGS=$(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CPPINC_FOLDER) $(CUSTOM_FLAGS)
+CFLAGS = $(CSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CINC_FOLDER) $(CUSTOM_FLAGS)
 
 DEP=depend
 
@@ -27,10 +28,10 @@ CURR_DEPENDS:=$(wildcard $(DEPENDS))
 BIN=systest
 
 %.dep: %.c
-	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(INC_FOLDER) -o $@ 
+	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(CINC_FOLDER) -o $@ 
 
 %.dep: %.cc
-	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.cpo, $<) $(INC_FOLDER) -o $@ 
+	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.cpo, $<) $(CPPINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.cpo: %.cc
 	$(CPP) $(CPPFLAGS) -c $< -o $@
