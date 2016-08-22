@@ -4,6 +4,7 @@
 using namespace PIOL;
 using namespace Data;
 
+#warning EVENTUALLY WRITE AN OBJECT LAYER TEST
 std::pair<size_t, size_t> decompose(size_t work, size_t nproc, size_t rank)
 {
     size_t q = work/nproc;
@@ -11,7 +12,6 @@ std::pair<size_t, size_t> decompose(size_t work, size_t nproc, size_t rank)
     size_t start = q * rank + std::min(rank, r);
     return std::make_pair(start, std::min(work - start, q + (rank < r)));
 }
-
 
 int main(int argc, char ** argv)
 {
@@ -23,6 +23,7 @@ int main(int argc, char ** argv)
     MPIIO out(piol, "dat/bigsegy.segy", opt);
 
     size_t fsz = in.getFileSz();
+//    out.setFileSz(fsz*10U - 3600U*9U);
 
     if (!piol->comm->getRank())
     {

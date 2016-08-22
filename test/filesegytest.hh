@@ -94,9 +94,8 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t, const uchar *));
 };
 
-class FileSEGYTest : public Test
+struct FileSEGYTest : public Test
 {
-    public :
     std::shared_ptr<ExSeisPIOL> piol;
     std::shared_ptr<MockObj> mock;
     const File::SEGYOpt fileSegyOpt;

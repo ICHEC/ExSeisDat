@@ -60,12 +60,14 @@ typedef enum
     Line
 } CGrid;
 
+//Piol
 extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
 extern void closePIOL(ExSeisHandle piol);
 extern size_t getRank(ExSeisHandle piol);
 extern size_t getNumRank(ExSeisHandle piol);
 extern void isErr(ExSeisHandle piol);
 
+//File Layer
 extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiOpt);
 extern void closeFile(ExSeisFile file);
 

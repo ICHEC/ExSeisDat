@@ -31,7 +31,7 @@ BIN=systest
 	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(CINC_FOLDER) -o $@ 
 
 %.dep: %.cc
-	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.cpo, $<) $(CPPINC_FOLDER) -o $@ 
+	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(CPPINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.cpo: %.cc
 	$(CPP) $(CPPFLAGS) -c $< -o $@
@@ -44,7 +44,7 @@ all: libgmock.a $(OBJECTS) $(DEP) $(BIN)
 
 .PHONY: clean
 clean:
-	rm -f obj/*.co obj/*.cpo $(BIN) $(CURR_DEPENDS) *.dep
+	rm -f obj/*.co obj/*.cpo $(BIN) $(CURR_DEPENDS) $(CURR_DEP) *.dep
 
 $(BIN): $(OBJECTS) ../lib/libcpiol.so
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJECTS)
@@ -61,11 +61,10 @@ libgmock.a:
 	-pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
-$(DEP): $(DEPENDS)
-	cat *.dep > $(DEP)
-
 ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)
 endif
 
+$(DEP): $(DEPENDS)
+	cat *.dep > $(DEP)
 
