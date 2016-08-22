@@ -1,0 +1,4 @@
+#!/bin/bash
+set -o noglob
+./assess $1
+set +o noglob

@@ -4,10 +4,9 @@
 #include <iostream>
 using namespace PIOL;
 using namespace File;
-int main(int argc, char ** argv)
+int calcMin(Piol piol, std::string name)
 {
-    Piol piol(new ExSeisPIOL);
-    Interface * file = new SEGY(piol, argv[1]);
+    Interface * file = new SEGY(piol, name);
 
     //Just a test, don't care about remainder
     size_t num = file->readNt() / piol->comm->getNumRank();

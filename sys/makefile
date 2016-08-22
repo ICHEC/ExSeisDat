@@ -1,7 +1,8 @@
 GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
 GOOGLE_OBJ=gmock-all.o  gtest-all.o
-LDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS) -L../lib/ -lcpiol -lpiol
+CLDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS) -L../lib/ -lcpiol -lpiol
+CPPLDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS) -L../lib/ -lpiol
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
@@ -14,8 +15,12 @@ CPPINC_FOLDER = -I../include/ $(LOCAL_INC_FOLDER)
 CINC_FOLDER = -I../api/ $(LOCAL_INC_FOLDER)
 CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
-SOURCES=$(wildcard *.cc) $(wildcard *.c)
-OBJECTS=$(patsubst %.c, $(OBJDIR)/%.co, $(patsubst %.cc, $(OBJDIR)/%.cpo, $(SOURCES)))
+#SOURCES=$(wildcard *.cc) $(wildcard *.c)
+#OBJECTS=$(patsubst %.c, $(OBJDIR)/%.co, $(patsubst %.cc, $(OBJDIR)/%.cpo, $(SOURCES)))
+CSOURCES=$(wildcard *.c)
+CPPSOURCES=$(wildcard *.cc)
+COBJECTS=$(patsubst %.c, $(OBJDIR)/%.co, $(CSOURCES))
+CPPOBJECTS=$(patsubst %.cc, $(OBJDIR)/%.cpo, $(CPPSOURCES))
 CPPFLAGS=$(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CPPINC_FOLDER) $(CUSTOM_FLAGS)
 CFLAGS = $(CSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CINC_FOLDER) $(CUSTOM_FLAGS)
 
@@ -40,14 +45,17 @@ $(OBJDIR)/%.co: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: all
-all: libgmock.a $(OBJECTS) $(DEP) $(BIN)
+all: libgmock.a $(COBJECTS) $(CPPOBJECTS) $(DEP) $(BIN) genfile
 
 .PHONY: clean
 clean:
 	rm -f obj/*.co obj/*.cpo $(BIN) $(CURR_DEPENDS) $(CURR_DEP) *.dep
 
-$(BIN): $(OBJECTS) ../lib/libcpiol.so
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJECTS)
+systest: $(COBJECTS) ../lib/libcpiol.so
+	$(CC) -o $@ $(CFLAGS) $(CLDFLAGS) $(COBJECTS)
+
+genfile: $(CPPOBJECTS) ../lib/libpiol.so
+	$(CPP) -o $@ $(CPPFLAGS) $(CPPLDFLAGS) $(CPPOBJECTS)
 
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o

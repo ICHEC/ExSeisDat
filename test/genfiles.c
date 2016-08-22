@@ -62,6 +62,9 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
         fwrite(cns, sizeof(uchar), 2U, fs);
 
         fseek(fs, 3600U, SEEK_SET);
+        uchar zero = 0;
+        fwrite(&zero, 1, 1, fs);
+        fseek(fs, 3600U, SEEK_SET);
         sz -= hsz;
 
         size_t allocSz = (maxBlock < sz ? maxBlock : sz);
@@ -116,6 +119,12 @@ int main(void)
     makeSEGY("tmp/smallsegy.tmp", 261U, 400U, 1024U*1024U);
     makeSEGY("tmp/bigtracesegy.tmp", 32000U, 40000U, 1024U*1024U);
     makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, 1024U*1024U);
+
+/*  These are for generating system tests
+    makeSEGY("dat/notrace.segy", 1000U, 0U, 3600U);
+    makeSEGY("dat/onetrace.segy", 1000U, 1U, 1024U*1024U*1024U);
+    makeSEGY("dat/onebigtrace.segy", 32768U, 1U, 16U*1024U*1024U);
+    makeSEGY("dat/smallsegy.segy", 1000U, 2200000U, 1024U*1024U*1024U);*/
     return 0;
 }
 

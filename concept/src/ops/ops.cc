@@ -173,6 +173,7 @@ bool compareTraceVals(const std::pair<size_t, coreal> & arg1, const std::pair<si
 {
     return arg1.second > arg2.second;
 }
+
 template <typename T>
 void borderExchange(Comms::MPI & comm, size_t regionSz, std::vector<std::pair<size_t, T> > & tSort1, std::vector<std::pair<size_t, T> > & tSort2)
 {

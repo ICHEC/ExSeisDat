@@ -389,19 +389,26 @@ SEGYOpt::SEGYOpt(void)
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
            const std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
 {
-   SEGYInit(segyOpt);
+    if (obj == nullptr)
+        return;
+    SEGYInit(segyOpt);
 }
 
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
            const Obj::Opt & objOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, objOpt, dataOpt)
 {
+    if (obj == nullptr)
+        return;
     SEGYInit(segyOpt);
 }
 
 SEGY::SEGY(const Piol piol_, const std::string name_)
 {
-    File::SEGYOpt segyOpt;
     Init(piol_, name_);
+    if (obj == nullptr)
+        return;
+
+    File::SEGYOpt segyOpt;
     SEGYInit(segyOpt);
 }
 

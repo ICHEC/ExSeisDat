@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -l nodes=5:ppn=24
+#PBS -l walltime=0:00:30:00
+#PBS -N genfile
+#PBS -A lero
+#PBS -r n
+#PBS -j oe
+#PBS -m bea
+
+cd $PBS_O_WORKDIR
+
+source ../mod_intel
+module load darshan/gcc/3.0.1-preload
+export DARSHAN_LOG_PATH=$PBS_O_WORKDIR
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/ichec/home/staff/cathal/cathal/ExSeisDat/lib
+time mpirun -np 24 ./genfile
+
