@@ -1,21 +1,5 @@
-#include "ctest.h"
 #include "cfileapi.h"
-#include <stddef.h>
-
-typedef struct
-{
-    size_t start;
-    size_t end;
-} Extent;
-
-Extent decompose(size_t work, size_t nproc, size_t rank)
-{
-    size_t r = work%nproc;
-    size_t q = work/nproc;
-    size_t start = q * rank + MIN(rank, r);
-    Extent extent = {.start=start, .end=MIN(work - start, q + (rank < r))};
-    return extent;
-}
+#include "sglobal.h"
 
 int testManyFiles(ExSeisHandle piol, const char * name)
 {

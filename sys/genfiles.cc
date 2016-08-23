@@ -24,8 +24,9 @@ int main(int argc, char ** argv)
 //    mpiMakeSEGYCopy(Piol piol, "dat/big1.segy", 9);
 //    mpiMakeSEGYCopy(Piol piol, "dat/big1.segy", 17);
 //    mpiMakeSEGYCopy(Piol piol, "dat/big1.segy", 25);
-    mpiMakeSEGYCopy(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big1.segy", 1);
 
+    //mpiMakeSEGYCopy(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big1.segy", 1);
+    mpiMakeSEGYCopy(piol, "dat/GXT_IT5_RMS-TIME.segy", "dat/big1.segy", 1);
     return 0;
 }
 

@@ -1,6 +1,7 @@
 #include "sglobal.hh"
 #include "data/datampiio.hh"
 #include "share/segy.hh"
+#include "share/smpi.hh"
 #include <iostream>
 using namespace PIOL;
 using namespace Data;
@@ -8,36 +9,137 @@ using namespace Data;
 #warning EVENTUALLY WRITE AN OBJECT LAYER TEST
 
 
-std::pair<size_t, size_t> sendBorder(Piol piol, std::vector<uchar> * vec, size_t offset, size_t sz, size_t bsz, size_t fsz)
+#warning remove
+#include <assert.h>
+
+void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t, size_t> newd, std::vector<uchar> * vec)
 {
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+
     std::vector<MPI_Request> msg;
+    //if the old offset is less than the new offset
+    //Then the local process must give the data over to the
+    //-1 lower ranked process
+    std::vector<size_t> lvec, rvec;
 
-    size_t lq = offset / bsz;
-    size_t lr = (offset % bsz != 0);
-    size_t hq = (offset + sz)/ bsz;
-    size_t hr = ((offset + sz) % bsz != 0);
-    size_t low = (lq + lr) * bsz;
-    size_t high = std::min((hq + hr) * bsz, fsz);
+///////////// SENDS ////////////////////
+    std::cout << "First " << old.first << " " << newd.first << std::endl;
+    std::cout << "Secnd " << old.second << " " << newd.second << std::endl;
 
-    size_t size = high - low;
-    size_t sndLow = low - offset;
-    size_t rcvHigh = high - offset-sz;
-
-    if (piol->comm->getRank() && low-offset)
+    if (old.first < newd.first)
     {
+        if (rank == 0)
+            std::cerr << "Something has gone horribly wrong\n";
+        size_t sz = newd.first - old.first;
+
+        lvec.resize(sz);
+
+        std::move(vec->begin(), vec->begin() + sz, lvec.begin());
+        std::move_backward(vec->begin() + sz, vec->end(), vec->begin());
+
         msg.push_back(MPI_REQUEST_NULL);
-        MPI_Isend(vec.data(), sendLow, MPIType<size_t>(),
-                  piol->comm->getRank()-1, 0, MPI_COMM_WORLD, &msg[0]);
-    }
-    std::vector<uchar> rcv(rcvHigh);
-    if (piol->comm->getRank() != piol->comm->getNumRank()-1 && high-offset-sz)
-    {
-        msg.push_back(MPI_REQUEST_NULL);
-        MPI_Irecv(tSort1.data(), regionSz * sizeof(std::pair<size_t, T>), MPI_CHAR,
-                  comm.getRank()-1, 1, MPI_COMM_WORLD, &msg.back());
+        MPI_Isend(lvec.data(), sz, MPIType<uchar>(),
+                    rank, 0, MPI_COMM_WORLD, &msg.back());
     }
 
+    if (old.first > newd.first)
+    {
+        if (rank == 0)
+            std::cerr << "Something has gone horribly wrong\n";
+        size_t sz = old.first - newd.first;
+
+        if (vec->size() < newd.second)
+            vec->resize(newd.second);
+        std::move(vec->begin(), vec->end(), vec->begin() + sz);
+
+        MPI_Irecv(vec->data(), sz, MPIType<uchar>(),
+                    rank, 0, MPI_COMM_WORLD, &msg.back());
+
+    }
+ 
+    if (old.first + old.second > newd.first + newd.second)
+    {
+        if (rank == numRank -1)
+            std::cerr << "Something has gone horribly wrong\n";
+        size_t sz = old.first + old.second - (newd.first + newd.second);
+
+        rvec.resize(sz);
+
+        std::move(vec->end() - sz, vec->end(), rvec.begin());
+
+        msg.push_back(MPI_REQUEST_NULL);
+        MPI_Isend(rvec.data(), sz, MPIType<uchar>(),
+                    rank, 1, MPI_COMM_WORLD, &msg.back());
+    }
+
+    if (old.first + old.second < newd.first + newd.second)
+    {
+        if (rank == numRank -1)
+            std::cerr << "Something has gone horribly wrong\n";
+        size_t sz = old.first + old.second - (newd.first + newd.second);
+        if (vec->size() < newd.second)
+            vec->resize(newd.second);
+
+        msg.push_back(MPI_REQUEST_NULL);
+        MPI_Irecv(vec->data() + newd.second - sz, sz, MPIType<uchar>(),
+                    rank, 1, MPI_COMM_WORLD, &msg.back());
+    }
+
+
+    MPI_Status stat;
+    for (size_t i = 0; i < msg.size(); i++)
+    {
+        assert(msg[i] != MPI_REQUEST_NULL);
+        int err = MPI_Wait(&msg[i], &stat);
+//TODO: Replace with standard approach to error handling
+        if (err != MPI_SUCCESS)
+        {
+            std::cerr << "Wait " << i << std::endl;
+            std::cerr << " MPI Error " << stat.MPI_ERROR << std::endl;
+            std::exit(-1);
+        }
+    }
 }
+
+//Write an arbitrary parallelised block sz to an arbitrary offset with the minimal block contention
+//possible between processes.
+//writeArb(out, hosz + pieceSz*i + (fsz - hosz) * (j+1), pieceSz, &out)
+//off is the global offset
+std::pair<size_t, size_t> writeArb(Piol piol, Data::Interface * out, size_t bsz, size_t off, std::pair<size_t, size_t> dec, std::vector<uchar> * vec)
+{
+    size_t loff = dec.first; //local offset
+    size_t sz = dec.second; //local sz
+
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+
+    ///////////////Calculate a new decomposition////////
+    size_t bcnt = sz / bsz;
+    size_t rstart = off % bsz;
+    size_t rend = (off + sz) % bsz;
+    bcnt += (rstart != 0) + (rend != 0);
+
+    auto newdec = decompose(bcnt, numRank, rank);
+
+    newdec.first *= bsz;
+    newdec.second *= bsz;
+
+    std::cout << rstart << " " << rend << std::endl;
+    if (!rank)
+        newdec.second -= rstart;
+    else
+        newdec.first -= rstart;
+    if (rank == numRank-1)
+        newdec.second -= rend;
+
+    ///////////////////////////////////////////////////
+    distribToDistrib(piol, dec, newdec, vec);    //Reorder operations along new boundaries
+
+    out->write(off, newdec.second, vec->data());
+    return newdec;
+}
+
 
 /*! Make a SEGY file by copying the header object and the data payload of an existing file
  *  and writng the header object and then repeatedly writing the payload.
@@ -48,68 +150,41 @@ std::pair<size_t, size_t> sendBorder(Piol piol, std::vector<uchar> * vec, size_t
  */
 void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t repRate)
 {
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+
     MPIIOOpt opt;
     MPIIO in(piol, iname, opt);
 
     opt.mode = MPI_MODE_CREATE | MPI_MODE_WRONLY;
     MPIIO out(piol, oname, opt);
 
-    size_t fsz = in.getFileSz();
-//    out.setFileSz(fsz*10U - 3600U*9U);
+    csize_t fsz = in.getFileSz();
+    csize_t bsz = 2097152LU;
+    csize_t mem = 1200LU*bsz;
+    csize_t hosz = SEGSz::getHOSz();
 
-    if (!piol->comm->getRank())
-    {
-        std::vector<uchar> header(SEGSz::getHOSz());
-        in.read(0U, header.size(), header.data());
-        out.write(0U, header.size(), header.data());
-    }
-
-    //auto piece = blockDecomp(fsz-SEGSz::getHOSz(), 2097152U, piol->comm->getNumRank(), piol->comm->getRank());
-//Write first set of blocks
-    auto piece = blockDecomp(fsz, 2097152U, piol->comm->getNumRank(), piol->comm->getRank());
+    auto piece = blockDecomp(fsz, bsz, numRank, rank);
     for (size_t i = 0; i < piol->comm->getNumRank(); i++)
     {
         if (i == piol->comm->getRank())
-           std::cout << i << " " << piece.first << " " << piece.second << std::endl;
+           std::cout << i << " f " << piece.first << " s " << piece.second << std::endl;
         piol->comm->barrier();
     }
 
-    size_t pieceSz = std::min(2LU*1024LU*1024LU*1024LU, piece.second);
-    std::vector<uchar> buf(pieceSz);
-    size_t q = piece.second / pieceSz;
-    size_t r = piece.second % pieceSz;
-    for (size_t i = 0; i < q; i++)
+    std::vector<uchar> buf(piece.second);
+    in.read(piece.first, piece.second, buf.data());
+    out.write(piece.first, piece.second, buf.data());
+
+    if (piece.first == 0)   //If zero, then current process has read the header object
     {
-        size_t offset = SEGSz::getHOSz() + piece.first + pieceSz*i;
-        in.read(offset, buf.size(), buf.data());
-        out.write(offset, buf.size(), buf.data());
+        piece.second -= hosz;
+        std::move(buf.begin() + hosz, buf.begin() + piece.second, buf.begin());
     }
-    size_t offset = SEGSz::getHOSz() + piece.first + pieceSz*q;
-    in.read(offset, r, buf.data());
-    out.write(offset + (fsz-SEGSz::getHOSz()), r, buf.data());
+    else
+        piece.first -= hosz;
 
-//// Exchange on borders
-    if (repRate > 0)
-    {
-        //Send to neighbours so there is blocked workloads
-        //then repeatedly write.
-
-
-        size_t q = piece.second / pieceSz;
-        size_t r = piece.second % pieceSz;
-        for (size_t i = 0; i < q; i++)
-        {
-            size_t offset = SEGSz::getHOSz() + piece.first + pieceSz*i;
-            in.read(offset, buf.size(), buf.data());
-
-            for (size_t j = 0; j < repRate; j++)
-                out.write(offset + (fsz-SEGSz::getHOSz()) * j, buf.size(), buf.data());
-        }
-        size_t offset = SEGSz::getHOSz() + piece.first + pieceSz*q;
-        in.read(offset, r, buf.data());
-        for (size_t j = 0; j < repRate; j++)
-            out.write(offset + (fsz-SEGSz::getHOSz()) * j, r, buf.data());
-
-    }
+    size_t j = 1;
+    writeArb(piol, &out, bsz, hosz + (fsz - hosz) * j, piece, &buf);
 }
 

@@ -143,7 +143,7 @@ class SEGY : public Interface
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \warning This function is not thread safe.
      */
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace) const;
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace);
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
@@ -154,7 +154,10 @@ class SEGY : public Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const;
+    void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm);
+
+    //TODO: Document
+    void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const;
 };
 }}
 #endif

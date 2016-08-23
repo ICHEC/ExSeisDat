@@ -72,7 +72,7 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)
     nt = 100;
     ns = 300;
     makeSEGY<true>(tempFile);
-    writeTraceTest<false>(0);
+    writeTraceTest<false>(0, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceBigNs)
@@ -80,7 +80,7 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceBigNs)
     nt = 100;
     ns = 10000;
     makeSEGY<true>(tempFile);
-    writeTraceTest<false>(10);
+    writeTraceTest<false>(10, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceBigOffset)
@@ -88,7 +88,7 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceBigOffset)
     nt = 10;
     ns = 3000;
     makeSEGY<true>(tempFile);
-    writeTraceTest<false>(3728270);
+    writeTraceTest<false>(3728270, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FarmFileWriteTraceBigNt)
@@ -96,7 +96,7 @@ TEST_F(FileSEGYIntegWrite, FarmFileWriteTraceBigNt)
     nt = 3728270;
     ns = 300;
     makeSEGY<true>(tempFile);
-    writeTraceTest<false>(0);
+    writeTraceTest<false>(0, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNt)
@@ -104,7 +104,7 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNt)
     nt = 0;
     ns = 10;
     makeSEGY<true>(tempFile);
-    writeTraceTest<false>(10);
+    writeTraceTest<false>(10, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNs)
@@ -112,6 +112,6 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNs)
     nt = 10;
     ns = 0;
     makeSEGY<true>(tempFile);
-    writeTraceTest<false>(10);
+    writeTraceTest<false>(10, nt);
 }
 

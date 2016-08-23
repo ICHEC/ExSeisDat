@@ -68,7 +68,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceNormal)
     nt = 100;
     ns = 300;
     makeMockSEGY<true>();
-    writeTraceTest(0);
+    writeTraceTest(0U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceBigNs)
@@ -76,7 +76,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceBigNs)
     nt = 100;
     ns = 10000;
     makeMockSEGY<true>();
-    writeTraceTest(10);
+    writeTraceTest(10U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceBigOffset)
@@ -84,7 +84,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceBigOffset)
     nt = 3000;
     ns = 3000;
     makeMockSEGY<true>();
-    writeTraceTest(3728270);
+    writeTraceTest(3728270U, nt);
 }
 
 TEST_F(FileSEGYWrite, FarmFileWriteTraceBigNt)
@@ -92,7 +92,7 @@ TEST_F(FileSEGYWrite, FarmFileWriteTraceBigNt)
     nt = 3728270;
     ns = 300;
     makeMockSEGY<true>();
-    writeTraceTest(0);
+    writeTraceTest(0U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceZeroNt)
@@ -100,7 +100,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNt)
     nt = 0;
     ns = 10;
     makeMockSEGY<true>();
-    writeTraceTest(10);
+    writeTraceTest(10U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
@@ -108,21 +108,22 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
     nt = 10;
     ns = 0;
     makeMockSEGY<true>();
-    writeTraceTest(10);
+    writeTraceTest(10U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceParam)
 {
     makeMockSEGY<true>();
-    writeTraceHeaderTest(0);
+    writeTraceHeaderTest(0U, nt);
 }
 
 
 TEST_F(FileSEGYWrite, FileWriteTraceParamBigOffset)
 {
     makeMockSEGY<true>();
-    nt = 1;
-    writeTraceHeaderTest(NT_LIMITS-1);
+    nt = NT_LIMITS-1;
+    EXPECT_CALL(*mock, setFileSz(10400003600)).Times(Exactly(1));
+    writeTraceHeaderTest(NT_LIMITS-1, 1);
 }
 
 //Akward to fit this into the current functions

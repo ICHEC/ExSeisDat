@@ -47,7 +47,7 @@ constexpr size_t getMDSz()
  *  \return Returns the size of the data-field in bytes
  */
 template <typename T = float>
-constexpr size_t getDFSz(const size_t ns)
+constexpr size_t getDFSz(csize_t ns)
 {
     return ns * sizeof(T);
 }

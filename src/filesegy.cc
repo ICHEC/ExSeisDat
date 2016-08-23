@@ -18,7 +18,6 @@
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include <limits>
-
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -250,6 +249,22 @@ void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar 
     getBigEndian(int32_t(std::lround(coord.second / gscale)), &buf[size_t(pair.second) - 1U]);
 }
 
+//TODO: Document and unit test
+coord_t getCoord(const Coord item, const int16_t scale, const uchar * buf)
+{
+    auto p = getPair(item);
+    return coord_t(getMd(p.first, scale, buf),
+                   getMd(p.second, scale, buf));
+}
+
+//TODO: Document
+grid_t getGrid(const Grid item, const uchar * buf)
+{
+    auto p = getPair(item);
+    return grid_t(getMd(p.first, buf),
+                  getMd(p.second, buf));
+}
+
 /*! \brief Set a grid point in the trace header
  *  \param[in] item The grid point type of interest
  *  \param[in] grid The value of the grid point
@@ -420,8 +435,7 @@ SEGY::~SEGY(void)
     {
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
-
-        if (state.writeHO == true && piol->comm->getRank() == 0)
+        if (state.writeHO == true && !piol->comm->getRank())
         {
             std::vector<uchar> buf(SEGSz::getHOSz());
             packHeader(buf.data());
@@ -502,13 +516,7 @@ void SEGY::writeNs(csize_t ns_)
     if (ns != ns_)
     {
         ns = ns_;
-        if (nt != 0U)           // If nt is zero this operaton is pointless.
-        {
-            obj->setFileSz(SEGSz::getFileSz(nt, ns));
-            state.resize = false;
-        }
-        else
-            state.resize = true;
+        state.resize = true;
 
         state.writeHO = true;
     }
@@ -527,13 +535,7 @@ void SEGY::writeNt(csize_t nt_)
     if (nt != nt_)
     {
         nt = nt_;
-        if (ns != 0U)       // If ns is zero this operaton is pointless
-        {
-            obj->setFileSz(SEGSz::getFileSz(nt, ns));
-            state.resize = false;
-        }
-        else
-            state.resize = true;
+        state.resize = true;
     }
 }
 
@@ -555,7 +557,7 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * coords) const
 {
-    if (sz == 0)   //Nothing to be read.
+    if (sz == 0 || offset > nt)   //Nothing to be read.
         return;
 
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
@@ -577,7 +579,7 @@ void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t 
 
 void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * grids) const
 {
-    if (sz == 0)   //Nothing to be read.
+    if (sz == 0 || offset > nt)   //Nothing to be read.
         return;
 
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
@@ -597,14 +599,14 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
-    if (sz == 0 || ns == 0)   //Nothing to be read
+    if (sz == 0 || ns == 0 || offset > nt)   //Nothing to be read
         return;
 
     obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
 
     if (format == Format::IBM)
         for (size_t i = 0; i < ns * sz; i ++)
-            convertIBMtoIEEE(trace[i], true);
+            trace[i] = convertIBMtoIEEE(trace[i], true);
     else
     {
         uchar * buf = reinterpret_cast<uchar *>(trace);
@@ -613,7 +615,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
     }
 }
 
-void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace) const
+void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -630,6 +632,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace) const
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     //TODO: Check cache effects doing both of these loops the other way.
+    //TODO: Add unit test for reverse4Bytes
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
 
@@ -637,9 +640,42 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace) const
 
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]);
+
+    if (offset + sz >= nt)
+    {
+        if (state.resize == true)
+            state.resize = false;
+        if (offset + sz > nt)
+            nt = offset + sz;
+    }
 }
 
-void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const
+//TODO: Unit test
+void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
+{
+    if (sz == 0 || offset > nt)   //Nothing to be read.
+        return;
+
+    //Don't process beyond end of file
+    size_t nsz = (offset + sz > nt ? offset - nt : sz);
+
+    std::vector<uchar> buf(nsz * SEGSz::getMDSz());
+
+    obj->readDOMD(offset, ns, nsz, buf.data());
+
+    for (size_t i = 0; i < nsz; i++)
+    {
+        uchar * md = &buf[i * SEGSz::getMDSz()];
+        geom_t scale = getMd(TrScal::ScaleCoord, md);
+
+        prm[i].src = getCoord(Coord::Src, scale, md);
+        prm[i].rcv = getCoord(Coord::Rcv, scale, md);
+        prm[i].cmp = getCoord(Coord::CMP, scale, md);
+        prm[i].line = getGrid(Grid::Line, md);
+    }
+}
+
+void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -668,5 +704,13 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) c
         setGrid(Grid::Line, prm[i].line, md);
     }
     obj->writeDOMD(offset, ns, sz, buf.data());
+
+    if (offset + sz > nt)
+    {
+        nt = offset + sz;
+
+        //There is probably a mismatch between desired nt size and actual
+        state.resize = true;
+    }
 }
 }}

@@ -244,19 +244,19 @@ struct FileSEGYTest : public Test
         ASSERT_DOUBLE_EQ(yNum(offset), src.second);
     }
 
-    void initReadTrHdrsMock(size_t ns, size_t nt)
+    void initReadTrHdrsMock(size_t ns, size_t tn)
     {
-        EXPECT_CALL(*mock.get(), readDOMD(0, ns, nt, _))
+        EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
                     .Times(Exactly(2))
                     .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        std::vector<File::grid_t> line(nt);
-        file->readGridPoint(File::Grid::Line, 0U, nt, line.data());
+        std::vector<File::grid_t> line(tn);
+        file->readGridPoint(File::Grid::Line, 0U, tn, line.data());
 
-        std::vector<File::coord_t> src(nt);
-        file->readCoordPoint(File::Coord::Src, 0U, nt, src.data());
+        std::vector<File::coord_t> src(tn);
+        file->readCoordPoint(File::Coord::Src, 0U, tn, src.data());
 
-        for (size_t i = 0; i < nt; i++)
+        for (size_t i = 0; i < tn; i++)
         {
             ASSERT_EQ(ilNum(i), line[i].first);
             ASSERT_EQ(xlNum(i), line[i].second);
@@ -329,7 +329,7 @@ struct FileSEGYTest : public Test
     }
 
     template <bool MOCK = true>
-    void readTraceTest(csize_t offset)
+    void readTraceTest(csize_t offset, size_t tn)
     {
         std::vector<uchar> buf;
         if (MOCK)
@@ -339,29 +339,30 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (nt * ns)
+            if (tn * ns)
             {
-                buf.resize(nt * SEGSz::getDFSz(ns));
-                for (size_t i = 0U; i < nt; i++)
+                buf.resize(tn * SEGSz::getDFSz(ns));
+                for (size_t i = 0U; i < tn; i++)
                     for (size_t j = 0U; j < ns; j++)
                     {
                         float val = offset + i + j;
                         getBigEndian(toint(val), &buf[(i*ns+j)*sizeof(float)]);
                     }
-                EXPECT_CALL(*mock, readDODF(offset, ns, nt, _))
+                EXPECT_CALL(*mock, readDODF(offset, ns, tn, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
             }
         }
 
-        std::vector<float> bufnew(nt * ns);
-        file->readTrace(offset, nt, bufnew.data());
-        for (size_t i = 0U; i < nt; i++)
+        std::vector<float> bufnew(tn * ns);
+        file->readTrace(offset, tn, bufnew.data());
+        std::cout << "tn " << tn << " ns "<< ns << " " << offset << std::endl;
+        for (size_t i = 0U; i < tn; i++)
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset + i + j)) << "Trace Number: " << i << " " << j;
     }
 
     template <bool MOCK = true>
-    void writeTraceTest(csize_t offset)
+    void writeTraceTest(csize_t offset, size_t tn)
     {
         std::vector<uchar> buf;
         if (MOCK)
@@ -371,38 +372,39 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (nt * ns)
+            if (tn * ns)
             {
-                buf.resize(nt * SEGSz::getDFSz(ns));
-                for (size_t i = 0U; i < nt; i++)
+                buf.resize(tn * SEGSz::getDFSz(ns));
+                for (size_t i = 0U; i < tn; i++)
                     for (size_t j = 0U; j < ns; j++)
                     {
                         float val = offset + i + j;
                         getBigEndian(toint(val), &buf[(i*ns + j)*sizeof(float)]);
                     }
-                EXPECT_CALL(*mock, writeDODF(offset, ns, nt, _))
+                EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
             }
         }
-        std::vector<float> bufnew(nt * ns);
-        for (size_t i = 0U; i < nt; i++)
+        std::vector<float> bufnew(tn * ns);
+        std::cout << "tn " << tn << " ns "<< ns << " " << offset << std::endl;
+        for (size_t i = 0U; i < tn; i++)
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset + i + j);
 
-        file->writeTrace(offset, nt, bufnew.data());
+        file->writeTrace(offset, tn, bufnew.data());
 
         if (MOCK == false)
-            readTraceTest<MOCK>(offset);
+            readTraceTest<MOCK>(offset, tn);
     }
 
     template <bool MOCK = true>
-    void writeTraceHeaderTest(csize_t offset)
+    void writeTraceHeaderTest(csize_t offset, csize_t tn)
     {
         std::vector<uchar> buf;
         if (MOCK)
         {
-            buf.resize(nt * SEGSz::getMDSz());
-            for (size_t i = 0; i < nt; i++)
+            buf.resize(tn * SEGSz::getMDSz());
+            for (size_t i = 0; i < tn; i++)
             {
                 coord_t src = coord_t(ilNum(i+1), xlNum(i+5));
                 coord_t rcv = coord_t(ilNum(i+2), xlNum(i+6));
@@ -421,12 +423,12 @@ struct FileSEGYTest : public Test
 
                 setGrid(File::Grid::Line, line, md);
             }
-            EXPECT_CALL(*mock.get(), writeDOMD(offset, ns, nt, _))
+            EXPECT_CALL(*mock.get(), writeDOMD(offset, ns, tn, _))
                         .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
 
-        std::vector<TraceParam> prm(nt);
-        for (size_t i = 0; i < nt; i++)
+        std::vector<TraceParam> prm(tn);
+        for (size_t i = 0; i < tn; i++)
         {
             prm[i].src = coord_t(ilNum(i+1), xlNum(i+5));
             prm[i].rcv = coord_t(ilNum(i+2), xlNum(i+6));

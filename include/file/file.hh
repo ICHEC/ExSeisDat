@@ -134,7 +134,10 @@ class Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) const = 0;
+    virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) = 0;
+
+    //TODO: Document
+    virtual void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const = 0;
 
     /*! \brief Pure virtual function to read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -148,7 +151,7 @@ class Interface
      *  \param[in] sz The number of traces to process.
      *  \param[in] trace The array of traces to write to the file
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace) const = 0;
+    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace) = 0;
 
     /*! \brief Pure virtual function to write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).

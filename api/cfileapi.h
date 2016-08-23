@@ -60,6 +60,16 @@ typedef enum
     Line
 } CGrid;
 
+typedef struct
+{
+    ccoord_t src;    //!< The Source coordinate
+    ccoord_t rcv;    //!< The Receiver coordinate
+    ccoord_t cmp;    //!< The common midpoint
+    cgrid_t line;    //!< The line coordinates (il, xl)
+//TODO: Support will be added for next item
+    size_t tn;      //!< TODO: The trace number
+} TraceParam;
+
 //Piol
 extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
 extern void closePIOL(ExSeisHandle piol);
@@ -67,8 +77,17 @@ extern size_t getRank(ExSeisHandle piol);
 extern size_t getNumRank(ExSeisHandle piol);
 extern void isErr(ExSeisHandle piol);
 
+//SEG-Y Size functions
+size_t getSEGYTextSz(void);
+size_t getSEGYFileSz(size_t nt, size_t ns);
+size_t getSEGYTraceLen(size_t ns);
+
+
 //File Layer
 extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiOpt);
+extern ExSeisFile openReadFile(ExSeisHandle piol, const char * name);
+extern ExSeisFile openWriteFile(ExSeisHandle piol, const char * name);
+
 extern void closeFile(ExSeisFile file);
 
 extern const char * readText(ExSeisFile f);
@@ -83,6 +102,9 @@ extern void writeInc(ExSeisFile f, double inc);
 
 extern void readCoordPoint(ExSeisFile f, CCoord item, size_t offset, size_t sz, ccoord_t * buf);
 extern void readGridPoint(ExSeisFile f, CGrid item, size_t offset, size_t sz, cgrid_t * buf);
+
+extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm);
+extern void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm);
 
 extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
 extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);

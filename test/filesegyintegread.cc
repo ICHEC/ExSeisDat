@@ -27,7 +27,7 @@ TEST_F(FileSEGYIntegRead, FileReadTraceSmall)
     nt = smallnt;
     ns = smallns;
     makeSEGY<false>(smallSEGYFile);
-    readTraceTest<false>(0);
+    readTraceTest<false>(0, nt);
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceBigNS)
@@ -35,7 +35,7 @@ TEST_F(FileSEGYIntegRead, FileReadTraceBigNS)
     nt = 200;
     ns = bigtns;
     makeSEGY<false>(bigTraceSEGYFile);
-    readTraceTest<false>(10);
+    readTraceTest<false>(10, nt);
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceBigOffset)
@@ -43,7 +43,7 @@ TEST_F(FileSEGYIntegRead, FileReadTraceBigOffset)
     nt = 10;
     ns = largens;
     makeSEGY<false>(largeSEGYFile);
-    readTraceTest<false>(1999990U);
+    readTraceTest<false>(1999990U, nt);
 }
 
 TEST_F(FileSEGYIntegRead, FarmFileReadTraceBigNt)
@@ -51,7 +51,7 @@ TEST_F(FileSEGYIntegRead, FarmFileReadTraceBigNt)
     nt = largent;
     ns = largens;
     makeSEGY<false>(largeSEGYFile);
-    readTraceTest<false>(0);
+    readTraceTest<false>(0, nt);
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceZeroNt)
@@ -59,6 +59,6 @@ TEST_F(FileSEGYIntegRead, FileReadTraceZeroNt)
     nt = 0U;
     ns = largens;
     makeSEGY<false>(largeSEGYFile);
-    readTraceTest<false>(10);
+    readTraceTest<false>(10, nt);
 }
 

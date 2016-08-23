@@ -1,10 +1,13 @@
 #include "cfileapi.h"
 #include <iostream>
+#include <cstddef>
+#include <assert.h>
 #include "global.hh"
 #include "anc/cmpi.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
+#include "share/segy.hh"
 
 using namespace PIOL;
 
@@ -22,6 +25,11 @@ struct PIOLWrapper
 
 ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt)
 {
+//TODO: Test the cast of C structures to C++ types here.
+    assert(sizeof(File::TraceParam) == sizeof(TraceParam));
+    assert(sizeof(File::coord_t) == sizeof(ccoord_t));
+    assert(sizeof(File::grid_t) == sizeof(cgrid_t));
+
     Comm::MPIOpt mpi;
     if (mpiOpt != NULL)
     {
@@ -70,6 +78,29 @@ ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPI
     filewrap->file = new File::SEGY(piol->piol, name_, fileOpt, objOpt, mpiio);
 //TODO:    piol->piol->log
 
+    return filewrap;
+}
+
+ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
+{
+    PIOL::Data::MPIIOOpt mpiio;
+    mpiio.mode = MPI_MODE_CREATE | MPI_MODE_WRONLY;
+    PIOL::Obj::SEGYOpt objOpt;
+    PIOL::File::SEGYOpt fileOpt;
+
+    auto filewrap = new ExSeisFileWrapper;
+    filewrap->file = new File::SEGY(piol->piol, name, fileOpt, objOpt, mpiio);
+    return filewrap;
+}
+
+ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
+{
+    PIOL::Data::MPIIOOpt mpiio;
+    PIOL::Obj::SEGYOpt objOpt;
+    PIOL::File::SEGYOpt fileOpt;
+
+    auto filewrap = new ExSeisFileWrapper;
+    filewrap->file = new File::SEGY(piol->piol, name, fileOpt, objOpt, mpiio);
     return filewrap;
 }
 
@@ -158,8 +189,28 @@ void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->writeTrace(offset, sz, trace);
 }
 
-/*void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
+void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
 {
-    f->file->writeTraceParam(offset, sz, prm);
-}*/
+    f->file->writeTraceParam(offset, sz, reinterpret_cast<const File::TraceParam *>(prm));
+}
+
+void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
+{
+    f->file->readTraceParam(offset, sz, reinterpret_cast<File::TraceParam *>(prm));
+}
+
+size_t getSEGYTextSz()
+{
+    return SEGSz::getTextSz();
+}
+
+size_t getSEGYTraceLen(size_t ns)
+{
+    return SEGSz::getDFSz<float>(ns);
+}
+
+size_t getSEGYFileSz(size_t nt, size_t ns)
+{
+    return SEGSz::getFileSz<float>(nt, ns);
+}
 }

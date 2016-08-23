@@ -157,8 +157,11 @@ size_t MPIIO::getFileSz() const
 
 void MPIIO::setFileSz(csize_t sz) const
 {
-    int err = MPI_File_preallocate(file, MPI_Offset(sz));
-    printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
+    if ((fcomm == MPI_COMM_SELF && !piol->comm->getRank()) || fcomm != MPI_COMM_SELF)
+    {
+        int err = MPI_File_preallocate(file, MPI_Offset(sz));
+        printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
+    }
 }
 
 void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
