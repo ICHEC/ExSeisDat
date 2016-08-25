@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdio.h>
+#include <assert.h>
 #include <sys/resource.h>
 #include "sglobal.h"
 #include "cfileapi.h"
@@ -15,9 +16,11 @@ Extent decompose(size_t sz, size_t nrank, size_t rank)
     Extent extent = {.start=start, .end=MIN(sz - start, q + (rank < r))};
     return extent;
 }
-
+//TODO: Use argp
 int main(int argc, char ** argv)
 {
+    if (argc < 3)
+        return -1;
     ExSeisHandle piol = initPIOL(0, NULL);
     isErr(piol);
 
@@ -27,7 +30,8 @@ int main(int argc, char ** argv)
         printf("NumRank: %zu\n", numRank);
 
 //    testManyFiles(piol, "/ichec/work/exseisdat/dat/sortedfile.segy");
-    testReadWrite(piol, "dat/rtm_salt3d_data_shot.segy", "dat/test.segy", 2500LU);
+    testReadWrite(piol, argv[1], argv[2], 2500LU);
+
     //testReadWrite(piol, "dat/rtm_salt3d_data_shot.segy", "dat/test.segy", 2500LU);
 //    testReadWrite(piol, "dat/sortedfile.segy", "dat/test.segy", 2500LU);
 

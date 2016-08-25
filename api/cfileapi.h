@@ -15,9 +15,16 @@ typedef struct ExSeisFileWrapper * ExSeisFile;
 
 ////////// Options structures
 
+enum Mode
+{
+    ReadMode,
+    WriteMode,
+    ReadWriteMode
+};
+
 typedef struct
 {
-    int mode;
+    enum Mode mode;
     MPI_Info info;
     size_t maxSize;
     MPI_Comm fcomm;
@@ -76,12 +83,16 @@ extern void closePIOL(ExSeisHandle piol);
 extern size_t getRank(ExSeisHandle piol);
 extern size_t getNumRank(ExSeisHandle piol);
 extern void isErr(ExSeisHandle piol);
+extern void barrier(ExSeisHandle piol);
 
 //SEG-Y Size functions
-size_t getSEGYTextSz(void);
-size_t getSEGYFileSz(size_t nt, size_t ns);
-size_t getSEGYTraceLen(size_t ns);
+extern size_t getSEGYTextSz(void);
+extern size_t getSEGYFileSz(size_t nt, size_t ns);
 
+//These next size functions provide information on memory consumption
+//not on the size of any returned structure.
+extern size_t getSEGYTraceLen(size_t ns);
+extern size_t getSEGYParamSz(void);
 
 //File Layer
 extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiOpt);

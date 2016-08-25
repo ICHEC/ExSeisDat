@@ -75,34 +75,5 @@ class Interface
      */
     virtual void write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const = 0;
 };
-
-/*! \brief An enum of the possible derived classes for the data layer.
- */
-enum class Type : size_t
-{
-    MPIIO //!< The MPIIO implementation. Currently the only option.
-};
-
-/*! \brief The base-options structure. Specific Data implementations include a derived version of this.
- */
-struct Opt
-{
-    Type type;      //!< The Data type.
-
-    /* \brief Default constructor to prevent intel warnings
-     */
-    Opt(void)
-    {
-        type = Type::MPIIO;      //!< The Data type.
-    }
-
-    /*! \brief This function returns the Data type. This function is mainly included to provide a virtual function
-     * to allow polymorphic behaviour.
-     */
-    virtual Type getType(void) const
-    {
-        return type;
-    }
-};
 }}
 #endif

@@ -18,6 +18,7 @@ typedef MPIIOTest MPIIODeathTest;
 TEST_F(MPIIODeathTest, FailedConstructor)
 {
     makeMPIIO(notFile);
+
     EXPECT_EQ(piol, data->piol);
     EXPECT_EQ(notFile, data->name);
 

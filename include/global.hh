@@ -14,6 +14,15 @@ typedef const std::size_t csize_t;
 #include "anc/piol.hh"
 #include "anc/log.hh"
 
+//TODO: Document
+enum class FileMode : size_t
+{
+    Read,
+    Write,
+    ReadWrite,
+    Test
+};
+
 namespace PIOL { namespace Data {
 class Interface;
 struct Opt;

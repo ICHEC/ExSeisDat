@@ -135,8 +135,7 @@ struct FileSEGYTest : public Test
             delete file;
 
         if (WRITE)
-            dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR |
-                           MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
+            dataOpt.mode = FileMode::Test;
 
         file = new File::SEGY(piol, name, fileSegyOpt, objSegyOpt, dataOpt);
         piol->isErr();
@@ -163,13 +162,20 @@ struct FileSEGYTest : public Test
         }
         else
             EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
+        file = new File::SEGY(piol, notFile, fileSegyOpt, (WRITE ? FileMode::Write : FileMode::Read), mock);
 
-        file = new File::SEGY(piol, notFile, fileSegyOpt, mock);
-
-        if (WRITE && makeCall)
+        if (WRITE)
         {
-            piol->isErr();
-            writeHO<true>();
+            if (makeCall)
+            {
+                piol->isErr();
+                writeHO<true>();
+            }
+            else
+            {
+                file->nt = nt;
+                file->ns = ns;
+            }
         }
     }
 
@@ -355,18 +361,18 @@ struct FileSEGYTest : public Test
 
         std::vector<float> bufnew(tn * ns);
         file->readTrace(offset, tn, bufnew.data());
-        std::cout << "tn " << tn << " ns "<< ns << " " << offset << std::endl;
         for (size_t i = 0U; i < tn; i++)
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset + i + j)) << "Trace Number: " << i << " " << j;
     }
 
     template <bool MOCK = true>
-    void writeTraceTest(csize_t offset, size_t tn)
+    void writeTraceTest(csize_t offset, csize_t tn)
     {
         std::vector<uchar> buf;
         if (MOCK)
         {
+            EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
             if (mock == nullptr)
             {
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
@@ -386,7 +392,6 @@ struct FileSEGYTest : public Test
             }
         }
         std::vector<float> bufnew(tn * ns);
-        std::cout << "tn " << tn << " ns "<< ns << " " << offset << std::endl;
         for (size_t i = 0U; i < tn; i++)
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset + i + j);

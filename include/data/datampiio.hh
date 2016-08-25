@@ -14,13 +14,13 @@
 #include "global.hh"
 #include "anc/cmpi.hh"
 #include "data/data.hh"
+#include "data/dataopt.hh"
 
 namespace PIOL { namespace Data {
 /*! \brief The MPI-IO options structure.
  */
 struct MPIIOOpt : public Opt
 {
-    int mode;           //!< The mode to open the associated file with
     MPI_Info info;      //!< The info structure to use
     size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
     MPI_Comm fcomm;     //!< The MPI communicator to use for file access

@@ -17,6 +17,7 @@
 #include "file/iconv.hh"
 #include "share/units.hh"
 #include "share/datatype.hh"
+#include "data/dataopt.hh"
 #include <limits>
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -399,14 +400,21 @@ SEGYOpt::SEGYOpt(void)
     incFactor = SI::Micro;
 }
 
+/** A class for bypassing the options structure.
+  * This allows us to avoid creating a real options object
+  */
+class BypassOpt : public Data::Opt { };
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
+SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, const FileMode mode,
            const std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
 {
     if (obj == nullptr)
         return;
-    SEGYInit(segyOpt);
+    BypassOpt data;
+    data.mode = mode;
+    SEGYInit(segyOpt, data);
 }
 
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
@@ -414,7 +422,7 @@ SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segy
 {
     if (obj == nullptr)
         return;
-    SEGYInit(segyOpt);
+    SEGYInit(segyOpt, dataOpt);
 }
 
 SEGY::SEGY(const Piol piol_, const std::string name_)
@@ -424,7 +432,8 @@ SEGY::SEGY(const Piol piol_, const std::string name_)
         return;
 
     File::SEGYOpt segyOpt;
-    SEGYInit(segyOpt);
+    BypassOpt data;
+    SEGYInit(segyOpt, data);
 }
 
 #pragma GCC diagnostic pop
@@ -435,7 +444,7 @@ SEGY::~SEGY(void)
     {
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
-        if (state.writeHO == true && !piol->comm->getRank())
+        if (mode == FileMode::Write && state.writeHO && !piol->comm->getRank())
         {
             std::vector<uchar> buf(SEGSz::getHOSz());
             packHeader(buf.data());
@@ -474,13 +483,14 @@ void SEGY::procHeader(csize_t fsz, uchar * buf)
         text.push_back(buf[i]);
 }
 
-void SEGY::SEGYInit(const File::SEGYOpt & segyOpt)
+void SEGY::SEGYInit(const File::SEGYOpt & segyOpt, const Data::Opt & dataOpt)
 {
+    mode = dataOpt.mode;
     incFactor = segyOpt.incFactor;
     memset(&state, 0, sizeof(Flags));
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz = obj->getFileSz();
-    if (fsz >= hoSz)
+    if (fsz >= hoSz && mode != FileMode::Write)
     {
         auto buf = std::make_unique<uchar[]>(hoSz);
         procHeader(fsz, buf.get());
@@ -558,8 +568,11 @@ void SEGY::writeInc(const geom_t inc_)
 void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * coords) const
 {
     if (sz == 0 || offset > nt)   //Nothing to be read.
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Warning,
+            "readCoordPoint() was called for a zero byte read.", Log::Verb::None);
         return;
-
+    }
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
 
     //TODO: Calculate number which actually would have been read based on filesize
@@ -580,8 +593,11 @@ void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t 
 void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * grids) const
 {
     if (sz == 0 || offset > nt)   //Nothing to be read.
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Warning,
+            "readGridPoint() was called for a zero byte read.", Log::Verb::None);
         return;
-
+    }
     std::vector<uchar> buf(sz * SEGSz::getMDSz());
 
     //TODO: Calculate number which actually would have been read based on filesize
@@ -600,8 +616,11 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
     if (sz == 0 || ns == 0 || offset > nt)   //Nothing to be read
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Warning,
+            "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
-
+    }
     obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
 
     if (format == Format::IBM)
@@ -627,8 +646,12 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace)
     #endif
 
     if (sz == 0 || ns == 0)   //Nothing to be written.
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Warning,
+            "writeTrace() was called for a zero byte write. ns: "
+            + std::to_string(ns) + " sz: " + std::to_string(sz), Log::Verb::None);
         return;
-
+    }
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     //TODO: Check cache effects doing both of these loops the other way.
@@ -653,9 +676,12 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace)
 //TODO: Unit test
 void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
 {
-    if (sz == 0 || offset > nt)   //Nothing to be read.
+    if (sz == 0 || offset >= nt)   //Nothing to be read.
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Warning,
+            "readTraceParam() was called for a zero byte read", Log::Verb::None);
         return;
-
+    }
     //Don't process beyond end of file
     size_t nsz = (offset + sz > nt ? offset - nt : sz);
 
@@ -686,7 +712,11 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
     }
     #endif
     if (sz == 0)   //Nothing to be written.
+    {
+        piol->record(name, Log::Layer::File, Log::Status::Warning,
+            "writeTraceParam() was called for a zero byte write", Log::Verb::None);
         return;
+    }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
     for (size_t i = 0; i < sz; i++)

@@ -57,8 +57,7 @@ class ObjSpecTest : public Test
             delete obj;
 
         if (WriteTest)
-            dataOpt.mode = MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE
-                         | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
+            dataOpt.mode = FileMode::Test;
         obj = new Obj::SEGY(piol, name, segyOpt, dataOpt);
         piol->isErr();
     }

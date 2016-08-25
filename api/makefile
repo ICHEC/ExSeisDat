@@ -1,5 +1,4 @@
 INC_FOLDER = -I../include
-CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
 include ../compiler.cfg
 

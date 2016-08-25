@@ -110,10 +110,26 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 MPIIOOpt::MPIIOOpt(void)
 {
-    mode = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
+    mode = FileMode::Read;
     info = MPI_INFO_NULL;
     fcomm = MPI_COMM_SELF;
     maxSize = getLim<int32_t>();
+}
+
+int getMPIMode(FileMode mode)
+{
+    switch (mode)
+    {
+        default :
+        case FileMode::Read :
+            return MPI_MODE_RDONLY;
+        case FileMode::Write :
+            return MPI_MODE_WRONLY | MPI_MODE_CREATE;
+        case FileMode::ReadWrite :
+            return MPI_MODE_CREATE | MPI_MODE_RDWR;
+        case FileMode::Test :
+            return MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
+    }
 }
 
 MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
@@ -130,7 +146,9 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 
     fcomm = opt.fcomm;
 
-    err = MPI_File_open(fcomm, name.data(), opt.mode, opt.info, &file);
+    int flags = getMPIMode(opt.mode);
+
+    err = MPI_File_open(fcomm, name.data(), flags, opt.info, &file);
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     if (err == MPI_SUCCESS)

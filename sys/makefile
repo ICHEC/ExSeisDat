@@ -13,7 +13,6 @@ include ../compiler.cfg
 
 CPPINC_FOLDER = -I../include/ $(LOCAL_INC_FOLDER)
 CINC_FOLDER = -I../api/ $(LOCAL_INC_FOLDER)
-CUSTOM_FLAGS=-DNT_LIMITS=10000000
 
 #SOURCES=$(wildcard *.cc) $(wildcard *.c)
 #OBJECTS=$(patsubst %.c, $(OBJDIR)/%.co, $(patsubst %.cc, $(OBJDIR)/%.cpo, $(SOURCES)))

@@ -62,7 +62,7 @@ ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPI
     PIOL::Data::MPIIOOpt mpiio;
     if (ioOpt != NULL)
     {
-        mpiio.mode = ioOpt->mode;
+        mpiio.mode = static_cast<FileMode>(ioOpt->mode);
         mpiio.info = ioOpt->info;
         mpiio.maxSize = ioOpt->maxSize;
         mpiio.fcomm = ioOpt->fcomm;
@@ -84,7 +84,7 @@ ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPI
 ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
 {
     PIOL::Data::MPIIOOpt mpiio;
-    mpiio.mode = MPI_MODE_CREATE | MPI_MODE_WRONLY;
+    mpiio.mode = FileMode::Write;
     PIOL::Obj::SEGYOpt objOpt;
     PIOL::File::SEGYOpt fileOpt;
 
@@ -114,6 +114,11 @@ void closePIOL(ExSeisHandle piol)
     }
     else
         std::cerr << "Invalid free of ExSeisPIOL NULL.\n";
+}
+
+void barrier(ExSeisHandle piol)
+{
+    piol->piol->comm->barrier();
 }
 
 void closeFile(ExSeisFile file)
@@ -212,5 +217,10 @@ size_t getSEGYTraceLen(size_t ns)
 size_t getSEGYFileSz(size_t nt, size_t ns)
 {
     return SEGSz::getFileSz<float>(nt, ns);
+}
+
+size_t getSEGYParamSz(void)
+{
+    return sizeof(TraceParam) + SEGSz::getMDSz();
 }
 }

@@ -6,6 +6,7 @@
 #define private public
 #define protected public
 #include "data/data.hh"
+#include "data/dataopt.hh"
 #undef private
 #undef protected
 

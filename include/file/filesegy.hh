@@ -51,7 +51,7 @@ class SEGY : public Interface
     } state;                    //!< State flags are stored in this structure
 
     unit_t incFactor;           //!< The increment factor
-
+    FileMode mode;
     /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.
      *  \param[in] fsz The size of the file in bytes
      *  \param[in, out] The buffer to parse. The buffer is destructively modified
@@ -66,7 +66,7 @@ class SEGY : public Interface
     /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
      */
-    void SEGYInit(const File::SEGYOpt & segyOpt);
+    void SEGYInit(const File::SEGYOpt & segyOpt, const Data::Opt & dataOpt);
 
     /*! \brief The constructor used for unit testing. It does not try to create a Data object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -74,7 +74,8 @@ class SEGY : public Interface
      *  \param[in] segyOpt The SEGY-File options
      *  \param[in] obj_ Pointer to the associated Obj layer object.
      */
-    SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, const std::shared_ptr<Obj::Interface> obj_);
+    SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, FileMode mode,
+         const std::shared_ptr<Obj::Interface> obj_);
     public :
 
     /*! \brief The SEGY-Object class constructor.

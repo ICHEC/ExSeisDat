@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -l nodes=5:ppn=24
-#PBS -l walltime=0:00:30:00
+#PBS -l nodes=8:ppn=24
+#PBS -l walltime=0:04:00:00
 #PBS -N systest
 #PBS -A lero
 #PBS -r n
@@ -13,6 +13,7 @@ source ../mod_intel
 module load darshan/gcc/3.0.1-preload
 export DARSHAN_LOG_PATH=$PBS_O_WORKDIR
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/ichec/home/staff/cathal/cathal/ExSeisDat/lib
-#time mpirun -np 24 ./genfile
-time mpirun -np 24 ./systest
+#time mpirun -ppn 24 ./systest dat/GXT_IT5_RMS-TIME.segy dat/test1.segy
+#time mpirun -ppn 24 ./systest dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY dat/test.segy
+time mpirun -ppn 24 ./systest dat/test.segy dat/test1.segy
 

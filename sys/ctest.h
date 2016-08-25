@@ -7,6 +7,7 @@
 
 extern void CTest_quit(const char * msg, size_t line);
 #define MIN(x, y) (x < y ? x : y)
+#define MAX(x, y) (x > y ? x : y)
 #define CMP(X, Y) { size_t line = __LINE__; \
                       if (X != Y) \
                       { \

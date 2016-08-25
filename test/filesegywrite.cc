@@ -1,7 +1,10 @@
 #include "filesegytest.hh"
+
+//TODO:: Add tests were trace header writes cause a setFileSz call
+
 TEST_F(FileSEGYWrite, FileWriteHO)
 {
-    makeMockSEGY<true>();
+    makeMockSEGY<true, true>();
 }
 
 TEST_F(FileSEGYWrite, FileWriteHOLongString)
@@ -67,7 +70,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceNormal)
 {
     nt = 100;
     ns = 300;
-    makeMockSEGY<true>();
+    makeMockSEGY<true, false>();
     writeTraceTest(0U, nt);
 }
 
@@ -75,7 +78,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceBigNs)
 {
     nt = 100;
     ns = 10000;
-    makeMockSEGY<true>();
+    makeMockSEGY<true, false>();
     writeTraceTest(10U, nt);
 }
 
@@ -83,7 +86,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceBigOffset)
 {
     nt = 3000;
     ns = 3000;
-    makeMockSEGY<true>();
+    makeMockSEGY<true, false>();
     writeTraceTest(3728270U, nt);
 }
 
@@ -91,7 +94,7 @@ TEST_F(FileSEGYWrite, FarmFileWriteTraceBigNt)
 {
     nt = 3728270;
     ns = 300;
-    makeMockSEGY<true>();
+    makeMockSEGY<true, false>();
     writeTraceTest(0U, nt);
 }
 
@@ -99,7 +102,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNt)
 {
     nt = 0;
     ns = 10;
-    makeMockSEGY<true>();
+    makeMockSEGY<true, false>();
     writeTraceTest(10U, nt);
 }
 
@@ -107,7 +110,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
 {
     nt = 10;
     ns = 0;
-    makeMockSEGY<true>();
+    makeMockSEGY<true, false>();
     writeTraceTest(10U, nt);
 }
 
@@ -120,10 +123,9 @@ TEST_F(FileSEGYWrite, FileWriteTraceParam)
 
 TEST_F(FileSEGYWrite, FileWriteTraceParamBigOffset)
 {
-    makeMockSEGY<true>();
     nt = NT_LIMITS-1;
-    EXPECT_CALL(*mock, setFileSz(10400003600)).Times(Exactly(1));
-    writeTraceHeaderTest(NT_LIMITS-1, 1);
+    makeMockSEGY<true, false>();
+    writeTraceHeaderTest(NT_LIMITS-2, 1);
 }
 
 //Akward to fit this into the current functions
