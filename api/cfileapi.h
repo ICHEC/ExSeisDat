@@ -73,8 +73,7 @@ typedef struct
     ccoord_t rcv;    //!< The Receiver coordinate
     ccoord_t cmp;    //!< The common midpoint
     cgrid_t line;    //!< The line coordinates (il, xl)
-//TODO: Support will be added for next item
-    size_t tn;      //!< TODO: The trace number
+    size_t tn;       //!< The trace number
 } TraceParam;
 
 //Piol

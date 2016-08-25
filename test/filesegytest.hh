@@ -152,6 +152,7 @@ struct FileSEGYTest : public Test
         if (mock != nullptr)
             mock.reset();
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+        piol->isErr();
         Mock::AllowLeak(mock.get());
 
         ho.resize(SEGSz::getHOSz());
@@ -315,21 +316,24 @@ struct FileSEGYTest : public Test
         getBigEndian(ilNum(offset), tr.data()+il);
         getBigEndian(xlNum(offset), tr.data()+xl);
         getBigEndian<int16_t>(1, &tr[ScaleCoord]);
+        getBigEndian(int32_t(offset), &tr[SeqFNum]);
 
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
                                                         .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
 
         TraceParam prm;
         prm.line = {ilNum(offset), xlNum(offset)};
+        prm.tn = offset;
         file->writeTraceParam(offset, 1U, &prm);
     }
 
-    void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val, int16_t scal,
-                                       size_t offset, std::vector<uchar> * tr)
+    void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val,
+                             int16_t scal, size_t offset, std::vector<uchar> * tr)
     {
-        getBigEndian(scal, tr->data()+70U);
-        getBigEndian(val.first, tr->data()+item.first);
-        getBigEndian(val.second, tr->data()+item.second);
+        getBigEndian(scal,              tr->data()+ScaleCoord);
+        getBigEndian(val.first,         tr->data()+item.first);
+        getBigEndian(val.second,        tr->data()+item.second);
+        getBigEndian(int32_t(offset),   tr->data()+SeqFNum);
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
                                                         .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
     }
@@ -427,6 +431,7 @@ struct FileSEGYTest : public Test
                 setCoord(File::Coord::CMP, cmp, scale, md);
 
                 setGrid(File::Grid::Line, line, md);
+                getBigEndian(int32_t(offset + i), &md[SeqFNum]);
             }
             EXPECT_CALL(*mock.get(), writeDOMD(offset, ns, tn, _))
                         .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
@@ -439,6 +444,7 @@ struct FileSEGYTest : public Test
             prm[i].rcv = coord_t(ilNum(i+2), xlNum(i+6));
             prm[i].cmp = coord_t(ilNum(i+3), xlNum(i+7));
             prm[i].line = grid_t(ilNum(i+4), xlNum(i+8));
+            prm[i].tn = offset + i;
         }
         file->writeTraceParam(offset, prm.size(), prm.data());
     }

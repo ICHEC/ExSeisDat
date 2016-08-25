@@ -58,7 +58,8 @@ struct FakeObject : public Obj::Interface
 
 //In this test we pass the MPI-IO Data Options class.
 //Valid options, invalid name
-TEST_F(ObjectTest, InterfaceConstructor)
+typedef ObjectTest ObjDeathTest;
+TEST_F(ObjDeathTest, InterfaceConstructor)
 {
     Data::MPIIOOpt dataOpt;
     FakeObject fake(piol, notFile, dataOpt);
@@ -70,7 +71,7 @@ TEST_F(ObjectTest, InterfaceConstructor)
 
 //In this test we pass the wrong Data Options class.
 //We pass the base class instead of MPIIOOpt (the default class)
-TEST_F(ObjectTest, BadInterfaceConstructor)
+TEST_F(ObjDeathTest, BadInterfaceConstructor)
 {
     Data::Opt dataOpt;
     FakeObject fake(piol, tempFile, dataOpt);

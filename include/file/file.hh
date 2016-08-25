@@ -40,8 +40,7 @@ struct TraceParam
     coord_t rcv;    //!< The Receiver coordinate
     coord_t cmp;    //!< The common midpoint
     grid_t line;    //!< The line coordinates (il, xl)
-#warning Support this
-    size_t tn;      //!< TODO: The trace number
+    size_t tn;      //!< TODO: Add unit test
 };
 
 /*! \brief The File layer interface. Specific File implementations

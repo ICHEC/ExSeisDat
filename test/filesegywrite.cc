@@ -37,10 +37,11 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
 {
     makeMockSEGY<true>();
     std::vector<uchar> tr(SEGSz::getMDSz());
-    initWriteTrHdrCoord({xCMP, yCMP}, {160010, 240022}, -100, 10, &tr);
+    initWriteTrHdrCoord({xCMP, yCMP}, {160010, 240022}, -100, 10U, &tr);
 
     TraceParam prm;
     prm.cmp = {1600.1, 2400.22};
+    prm.tn = 10U;
     file->writeTraceParam(10U, 1U, &prm);
 }
 
@@ -48,10 +49,11 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
 {
     makeMockSEGY<true>();
     std::vector<uchar> tr(SEGSz::getMDSz());
-    initWriteTrHdrCoord({xSrc, ySrc}, {1600100, 3400222}, -1000, 10, &tr);
+    initWriteTrHdrCoord({xSrc, ySrc}, {1600100, 3400222}, -1000, 10U, &tr);
 
     TraceParam prm;
     prm.src = {1600.1000, 3400.2220};
+    prm.tn = 10U;
     file->writeTraceParam(10U, 1U, &prm);
 }
 
@@ -59,10 +61,11 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
 {
     makeMockSEGY<true>();
     std::vector<uchar> tr(SEGSz::getMDSz());
-    initWriteTrHdrCoord({xSrc, ySrc}, {1623001001,   34002220}, -10000, 10, &tr);
+    initWriteTrHdrCoord({xSrc, ySrc}, {1623001001,   34002220}, -10000, 10U, &tr);
 
     TraceParam prm;
     prm.src = {162300.10009, 3400.22201};
+    prm.tn = 10U;
     file->writeTraceParam(10U, 1U, &prm);
 }
 
@@ -120,6 +123,12 @@ TEST_F(FileSEGYWrite, FileWriteTraceParam)
     writeTraceHeaderTest(0U, nt);
 }
 
+TEST_F(FileSEGYWrite, FileWriteTraceParamOne)
+{
+    nt = 400;
+    makeMockSEGY<true>();
+    writeTraceHeaderTest(200, 1);
+}
 
 TEST_F(FileSEGYWrite, FileWriteTraceParamBigOffset)
 {

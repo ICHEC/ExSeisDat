@@ -3,8 +3,6 @@
 #include <iterator>
 #include "file/file.hh"
 
-#warning remove
-#include <iostream>
 namespace PIOL { namespace File {
 /*
 auto extractCrd(Coord crd)
@@ -75,8 +73,6 @@ geom_t xmin(Piol piol, size_t offset, size_t sz, const coord_t * val)
     xvec = piol->comm->gather(xval);
     xres = std::min_element(xvec.begin(), xvec.end());
 
-    if (!piol->comm->getRank())
-        std::cout << "(val, tn) = (" << *xres << ", " << xnt[std::distance(xvec.begin(), xres)] << ");" << std::endl;
     return *xres;
 }
 

@@ -400,11 +400,6 @@ SEGYOpt::SEGYOpt(void)
     incFactor = SI::Micro;
 }
 
-/** A class for bypassing the options structure.
-  * This allows us to avoid creating a real options object
-  */
-class BypassOpt : public Data::Opt { };
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, const FileMode mode,
@@ -412,7 +407,7 @@ SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segy
 {
     if (obj == nullptr)
         return;
-    BypassOpt data;
+    Data::Opt data;
     data.mode = mode;
     SEGYInit(segyOpt, data);
 }
@@ -432,7 +427,7 @@ SEGY::SEGY(const Piol piol_, const std::string name_)
         return;
 
     File::SEGYOpt segyOpt;
-    BypassOpt data;
+    Data::Opt data;
     SEGYInit(segyOpt, data);
 }
 
@@ -444,7 +439,7 @@ SEGY::~SEGY(void)
     {
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
-        if (mode == FileMode::Write && state.writeHO && !piol->comm->getRank())
+        if (mode != FileMode::Read && state.writeHO && !piol->comm->getRank())
         {
             std::vector<uchar> buf(SEGSz::getHOSz());
             packHeader(buf.data());
@@ -698,6 +693,7 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
         prm[i].rcv = getCoord(Coord::Rcv, scale, md);
         prm[i].cmp = getCoord(Coord::CMP, scale, md);
         prm[i].line = getGrid(Grid::Line, md);
+        prm[i].tn = getHost<int32_t>(&md[size_t(TrHdr::SeqFNum)-1]);
     }
 }
 
@@ -730,8 +726,10 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
         setCoord(Coord::Src, prm[i].src, scale, md);
         setCoord(Coord::Rcv, prm[i].rcv, scale, md);
         setCoord(Coord::CMP, prm[i].cmp, scale, md);
-
         setGrid(Grid::Line, prm[i].line, md);
+
+        //narrowing conversion of tn
+        getBigEndian(int32_t(prm[i].tn), &md[size_t(TrHdr::SeqFNum) - 1U]);
     }
     obj->writeDOMD(offset, ns, sz, buf.data());
 

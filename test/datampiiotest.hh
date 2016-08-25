@@ -92,7 +92,8 @@ class MPIIOTest : public Test
             //    buf[k] = (offset+i+k) % 0x100;
             for (size_t k = 0; k < ns; k++)
             {
-                union { float f; uint32_t i; } n = { .f = i+k };
+                union { float f; uint32_t i; } n;
+                n.f = i+k;
                 buf[4*k + 0] = n.i >> 24 & 0xFF;
                 buf[4*k + 1] = n.i >> 16 & 0xFF;
                 buf[4*k + 2] = n.i >> 8  & 0xFF;
@@ -146,7 +147,8 @@ class MPIIOTest : public Test
             uchar * buf = &tr[step*i];
             for (size_t k = 0; k < ns; k++)
             {
-                union { float f; uint32_t i; } n = { .f = i+k };
+                union { float f; uint32_t i; } n;
+                n.f = i+k;
                 ASSERT_EQ(buf[4*k + 0], n.i >> 24 & 0xFF);
                 ASSERT_EQ(buf[4*k + 1], n.i >> 16 & 0xFF);
                 ASSERT_EQ(buf[4*k + 2], n.i >> 8  & 0xFF);
