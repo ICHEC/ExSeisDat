@@ -11,6 +11,10 @@ using namespace Data;
 
 #warning remove
 #include <assert.h>
+void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
+{
+    std::cout << msg << sz << " " << rank << " " << rankn << std::endl;
+}
 
 void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t, size_t> newd, std::vector<uchar> * vec)
 {
@@ -34,30 +38,30 @@ void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t
     if (old.first < newd.first)
     {
         size_t sz = newd.first - old.first;
-        std::cout << " I am " << rank << " and sending " << sz << " to " << rank -1 << std::endl;
         msg.push_back(MPI_REQUEST_NULL);
+        printmsg("send ", 0, rank, rank-1);
         MPI_Isend(vec->data(), sz, MPIType<uchar>(), rank-1, 1, MPI_COMM_WORLD, &msg.back());
     }
     else if (old.first > newd.first)
     {
         size_t sz = old.first - newd.first;
-        std::cout << " I am " << rank << " and receiving " << sz << " from " << rank -1 << std::endl;
         msg.push_back(MPI_REQUEST_NULL);
+        printmsg("recv ", 0, rank, rank-1);
         MPI_Irecv(vec->data(), sz, MPIType<uchar>(), rank-1, 0, MPI_COMM_WORLD, &msg.back());
     }
 
     if (old.first + old.second > newd.first + newd.second)
     {
         size_t sz = old.first + old.second - (newd.first + newd.second);
-        std::cout << " I am " << rank << " and sending " << sz << " to " << rank +1 << std::endl;
         msg.push_back(MPI_REQUEST_NULL);
+        printmsg("send ", vec->size() - sz, rank, rank+1);
         MPI_Isend(vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank+1, 0, MPI_COMM_WORLD, &msg.back());
     }
     else if (old.first + old.second < newd.first + newd.second)
     {
         size_t sz = (newd.first + newd.second) - (old.first + old.second);
-        std::cout << " I am " << rank << " and receiving " << sz << " from " << rank +1 << std::endl;
         msg.push_back(MPI_REQUEST_NULL);
+        printmsg("recv ", sz, rank, rank+1);
         MPI_Irecv(vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank+1, 1, MPI_COMM_WORLD, &msg.back());
     }
 
@@ -85,19 +89,28 @@ void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t
 
 //Write an arbitrary parallelised block sz to an arbitrary offset with the minimal block contention
 //possible between processes.
-//writeArb(out, hosz + pieceSz*i + (fsz - hosz) * (j+1), pieceSz, &out)
+//writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
 //off is the global offset
 std::pair<size_t, size_t> writeArb(Piol piol, Data::Interface * out, size_t off, size_t bsz, std::pair<size_t, size_t> dec, size_t tsz, std::vector<uchar> * vec)
 {
     size_t rank = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
-
     auto newdec = blockDecomp(tsz, bsz, numRank, rank, off);
 
     if (numRank != 1)                               //If there is one rank this is pointless
         distribToDistrib(piol, dec, newdec, vec);   //Reorder operations along new boundaries
 
+    piol->comm->barrier();
+    for (size_t j = 0; j < numRank; j++)
+    {
+        if (j == rank)
+            std::cout << rank <<  " writing: " << off + newdec.first
+                      << " " << newdec.second << " size " << vec->size() << std::endl;
+        piol->comm->barrier();
+    }
+
     out->write(off + newdec.first, newdec.second, vec->data());
+
     return newdec;
 }
 
@@ -123,22 +136,73 @@ void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t rep
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
 
-    auto piece = blockDecomp(fsz, bsz, numRank, rank);
-    if (numRank-1 == 0)
-        if (piece.second != fsz)
-            std::cerr << "Size mismatch " << " f " << piece.first << " s " << piece.second << " " << fsz << std::endl;
+    size_t memlim = 1335U * bsz;
 
-    std::vector<uchar> buf(piece.second);
-    in.read(piece.first, piece.second, buf.data());
-    out.write(piece.first, piece.second, buf.data());
-
-    if (piece.first == 0)   //If zero, then current process has read the header object
+    size_t step = numRank * memlim;
+    for (size_t i = 0; i < fsz; i += step)
     {
-        std::move(buf.begin() + hosz, buf.begin() + piece.second, buf.begin());
-        piece.second -= hosz;
+        size_t rblock = (i + step < fsz ? step : fsz - i);
+        auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
+
+        std::vector<uchar> buf(dec.second);
+        in.read(dec.first, dec.second, buf.data());
+        piol->isErr();
+        out.write(dec.first, dec.second, buf.data());
+        piol->isErr();
+        if (i == 0)
+        {
+            if (dec.first == 0)   //If zero, then current process has read the header object
+            {
+                std::move(buf.begin() + hosz, buf.end(), buf.begin());
+                dec.second -= hosz;
+                buf.resize(dec.second);
+            }
+            else
+                dec.first -= hosz;
+            rblock -= hosz;
+        }
+        for (size_t j = 1; j < repRate; j++)
+            dec = writeArb(piol, &out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock, &buf);
     }
-    else
-        piece.first -= hosz;
-    size_t j = 1;
-    writeArb(piol, &out, hosz + (fsz - hosz) * j, bsz, piece, fsz - hosz, &buf);
+}
+
+void mpiMakeSEGYCopyNaive(Piol piol, std::string iname, std::string oname, size_t repRate)
+{
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+
+    MPIIOOpt opt;
+    MPIIO in(piol, iname, opt);
+
+    opt.mode = FileMode::Write;
+    MPIIO out(piol, oname, opt);
+
+    csize_t fsz = in.getFileSz();
+    csize_t bsz = 2097152LU;
+    csize_t hosz = SEGSz::getHOSz();
+
+    size_t memlim = 1335U * bsz;
+
+    size_t step = numRank * memlim;
+    for (size_t i = 0; i < fsz; i += step)
+    {
+        size_t rblock = (i + step < fsz ? step : fsz - i);
+        auto dec = blockDecomp(rblock, bsz, numRank, rank);
+
+        std::vector<uchar> buf(dec.second);
+        in.read(dec.first, dec.second, buf.data());
+        out.write(dec.first, dec.second, buf.data());
+        if (i == 0)
+            if (dec.first == 0)   //If zero, then current process has read the header object
+            {
+                std::move(buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
+                dec.second -= hosz;
+                buf.resize(dec.second);
+            }
+            else
+                dec.first -= hosz;
+
+        for (size_t j = 1; j < repRate; j++)
+            out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
+    }
 }

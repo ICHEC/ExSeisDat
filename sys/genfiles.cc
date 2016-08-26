@@ -5,6 +5,7 @@
 using namespace PIOL;
 
 extern void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t repRate);
+extern void mpiMakeSEGYCopyNaive(Piol piol, std::string iname, std::string oname, size_t repRate);
 
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
@@ -33,12 +34,15 @@ std::pair<size_t, size_t> blockDecomp(size_t sz, size_t bsz, size_t numRank, siz
 
     newdec.first *= bsz;
     newdec.second *= bsz;
+    if (newdec.second == 0)
+        return {sz, 0};
 
     //Now we compensate for the fact that the start and end block sizes can be different.
     if (!rank)                              //If the rank is zero, we shrink the first block by the leftover
         newdec.second -= bsz - rstart;
     else                                    //The subtraction above means every block is shifted
         newdec.first -= bsz - rstart;
+
     if (newdec.second && newdec.first+newdec.second > sz)    //The last rank with work must remove the leftover of its last block
         newdec.second -= bsz - rend;
     return newdec;
@@ -47,13 +51,19 @@ std::pair<size_t, size_t> blockDecomp(size_t sz, size_t bsz, size_t numRank, siz
 int main(int argc, char ** argv)
 {
     Piol piol(new ExSeisPIOL);
-//    mpiMakeSEGYCopy(Piol piol, "dat/big1.segy", 9);
-//    mpiMakeSEGYCopy(Piol piol, "dat/big1.segy", 17);
-//    mpiMakeSEGYCopy(Piol piol, "dat/big1.segy", 25);
-
     //mpiMakeSEGYCopy(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big1.segy", 1);
-    mpiMakeSEGYCopy(piol, "dat/GH_2013_MultiAz_ReGrid_Regular_VRMS.segy", "dat/big1.segy", 1);
-//    mpiMakeSEGYCopy(piol, "dat/GXT_IT5_RMS-TIME.segy", "dat/big1.segy", 1);
+
+
+//    mpiMakeSEGYCopy(piol, "dat/GH_2013_MultiAz_ReGrid_Regular_VRMS.segy", "dat/big1.segy", 10);
+//    mpiMakeSEGYCopyNaive(piol, "dat/GH_2013_MultiAz_ReGrid_Regular_VRMS.segy", "dat/big1.segy", 10);
+
+    mpiMakeSEGYCopy(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big1.segy", 10);
+    mpiMakeSEGYCopyNaive(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big2.segy", 10);
+
+//    mpiMakeSEGYCopy(piol, "dat/GXT_IT5_EPSILON-TIME.segy", "dat/big1.segy", 2);
+//    mpiMakeSEGYCopyNaive(piol, "dat/GXT_IT5_EPSILON-TIME.segy", "dat/big2.segy", 2);
+
+
     return 0;
 }
 

@@ -19,6 +19,9 @@
 #include "share/datatype.hh"
 #include "data/dataopt.hh"
 #include <limits>
+#warning remove
+#include <iostream>
+
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -251,7 +254,7 @@ void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar 
 }
 
 //TODO: Document and unit test
-coord_t getCoord(const Coord item, const int16_t scale, const uchar * buf)
+coord_t getCoord(const Coord item, const geom_t scale, const uchar * buf)
 {
     auto p = getPair(item);
     return coord_t(getMd(p.first, scale, buf),
@@ -680,10 +683,9 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
     //Don't process beyond end of file
     size_t nsz = (offset + sz > nt ? offset - nt : sz);
 
-    std::vector<uchar> buf(nsz * SEGSz::getMDSz());
+    std::vector<uchar> buf(SEGSz::getMDSz() * nsz);
 
     obj->readDOMD(offset, ns, nsz, buf.data());
-
     for (size_t i = 0; i < nsz; i++)
     {
         uchar * md = &buf[i * SEGSz::getMDSz()];
@@ -718,11 +720,14 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = &buf[i * SEGSz::getMDSz()];
+
         int16_t scale = scalComp(1, calcScale(prm[i].src));
         scale = scalComp(scale, calcScale(prm[i].rcv));
         scale = scalComp(scale, calcScale(prm[i].cmp));
         setScale(TrScal::ScaleCoord, scale, md);
 
+        if (i == 0)
+            std::cout << "Scale Factor " << scale << std::endl;
         setCoord(Coord::Src, prm[i].src, scale, md);
         setCoord(Coord::Rcv, prm[i].rcv, scale, md);
         setCoord(Coord::CMP, prm[i].cmp, scale, md);
