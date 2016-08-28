@@ -39,14 +39,12 @@ void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t
     {
         size_t sz = newd.first - old.first;
         msg.push_back(MPI_REQUEST_NULL);
-        printmsg("send ", 0, rank, rank-1);
         MPI_Isend(vec->data(), sz, MPIType<uchar>(), rank-1, 1, MPI_COMM_WORLD, &msg.back());
     }
     else if (old.first > newd.first)
     {
         size_t sz = old.first - newd.first;
         msg.push_back(MPI_REQUEST_NULL);
-        printmsg("recv ", 0, rank, rank-1);
         MPI_Irecv(vec->data(), sz, MPIType<uchar>(), rank-1, 0, MPI_COMM_WORLD, &msg.back());
     }
 
@@ -54,14 +52,12 @@ void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t
     {
         size_t sz = old.first + old.second - (newd.first + newd.second);
         msg.push_back(MPI_REQUEST_NULL);
-        printmsg("send ", vec->size() - sz, rank, rank+1);
         MPI_Isend(vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank+1, 0, MPI_COMM_WORLD, &msg.back());
     }
     else if (old.first + old.second < newd.first + newd.second)
     {
         size_t sz = (newd.first + newd.second) - (old.first + old.second);
         msg.push_back(MPI_REQUEST_NULL);
-        printmsg("recv ", sz, rank, rank+1);
         MPI_Irecv(vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank+1, 1, MPI_COMM_WORLD, &msg.back());
     }
 
@@ -100,14 +96,8 @@ std::pair<size_t, size_t> writeArb(Piol piol, Data::Interface * out, size_t off,
     if (numRank != 1)                               //If there is one rank this is pointless
         distribToDistrib(piol, dec, newdec, vec);   //Reorder operations along new boundaries
 
-    piol->comm->barrier();
-    for (size_t j = 0; j < numRank; j++)
-    {
-        if (j == rank)
-            std::cout << rank <<  " writing: " << off + newdec.first
-                      << " " << newdec.second << " size " << vec->size() << std::endl;
-        piol->comm->barrier();
-    }
+    size_t flt = ((off + newdec.first) % (2U * 1024U * 1024U));
+    assert(!flt || !rank);
 
     out->write(off + newdec.first, newdec.second, vec->data());
 
@@ -166,7 +156,7 @@ void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t rep
     }
 }
 
-void mpiMakeSEGYCopyNaive(Piol piol, std::string iname, std::string oname, size_t repRate)
+void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size_t repRate)
 {
     size_t rank = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
@@ -206,3 +196,45 @@ void mpiMakeSEGYCopyNaive(Piol piol, std::string iname, std::string oname, size_
             out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
     }
 }
+
+void mpiMakeSEGYCopyNaive2(Piol piol, std::string iname, std::string oname, size_t repRate)
+{
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+
+    MPIIOOpt opt;
+    MPIIO in(piol, iname, opt);
+
+    opt.mode = FileMode::Write;
+    MPIIO out(piol, oname, opt);
+
+    csize_t fsz = in.getFileSz();
+    csize_t bsz = 2097152LU;
+    csize_t hosz = SEGSz::getHOSz();
+
+    size_t memlim = 1335U * bsz;
+
+    size_t step = numRank * memlim;
+    for (size_t i = 0; i < fsz; i += step)
+    {
+        size_t rblock = (i + step < fsz ? step : fsz - i);
+        auto dec = decompose(rblock, numRank, rank);
+
+        std::vector<uchar> buf(dec.second);
+        in.read(dec.first, dec.second, buf.data());
+        out.write(dec.first, dec.second, buf.data());
+        if (i == 0)
+            if (dec.first == 0)   //If zero, then current process has read the header object
+            {
+                std::move(buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
+                dec.second -= hosz;
+                buf.resize(dec.second);
+            }
+            else
+                dec.first -= hosz;
+
+        for (size_t j = 1; j < repRate; j++)
+            out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
+    }
+}
+

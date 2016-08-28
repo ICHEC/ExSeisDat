@@ -25,6 +25,7 @@ struct MPIIOOpt : public Opt
     size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
     MPI_Comm fcomm;     //!< The MPI communicator to use for file access
     MPIIOOpt(void);     //!< The constructor to set default options
+    ~MPIIOOpt(void);    //!< The destructor
 };
 
 /*! \brief The MPI-IO Data class.

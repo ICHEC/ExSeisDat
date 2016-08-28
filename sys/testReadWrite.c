@@ -5,9 +5,6 @@
 #include <assert.h>
 
 #warning TODO: Continue
-typedef void (* ModPrm)(size_t, TraceParam *);
-typedef void (* ModTrc)(size_t, float *);
-
 void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
     TraceParam * trhdr = malloc(tcnt * sizeof(TraceParam));
@@ -23,7 +20,6 @@ void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size
     free(trhdr);
 }
 
-
 void readWriteTrace(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModTrc ftrc)
 {
     size_t ns = readNs(ifh);
@@ -33,7 +29,7 @@ void readWriteTrace(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t of
     readTrace(ifh, off, tcnt, trace);
     if (ftrc != NULL)
         for (size_t i = 0; i < tcnt; i++)
-            ftrc(off, &trace[i]);
+            ftrc(off, ns, &trace[i]);
     writeTrace(ofh, off, tcnt, trace);
 
     isErr(piol);
@@ -56,7 +52,7 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
     size_t q = lnt / tcnt;
     size_t r = lnt % tcnt;
 
-    printf("lnt %zu tcnt %zu q %zu r %zu\n", lnt, tcnt, q, r);
+    printf("rank %zu goff %zu lnt %zu tcnt %zu q %zu r %zu\n", getRank(piol), goff, lnt, tcnt, q, r);
     for (size_t i = 0U; i < q; i++)
     {
         size_t off = goff + i * tcnt;
@@ -66,10 +62,9 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
 
     readWriteTraceParam(piol, ifh, ofh, goff + lnt-r, r, fprm);
     readWriteTrace(piol, ifh, ofh, goff + lnt-r, r, ftrc);
-    barrier(piol);
 }
 
-int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax)
+int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax, ModPrm fprm, ModTrc ftrc)
 {
     ExSeisFile ifh = openReadFile(piol, iname);
 
@@ -90,6 +85,7 @@ int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, siz
 
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
     size_t tcnt = (memmax * 1024U * 1024U) / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
+
     writePayload(piol, ifh, ofh, dec.start, dec.end, tcnt, NULL, NULL);
 
     closeFile(ofh);

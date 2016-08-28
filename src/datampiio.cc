@@ -111,9 +111,29 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
 MPIIOOpt::MPIIOOpt(void)
 {
     mode = FileMode::Read;
+
     info = MPI_INFO_NULL;
+//    MPI_Info_create(&info);
+//    MPI_Info_set(info, "access_style", "read_once");
+//    MPI_Info_set(info, "romio_cb_read", "false");
+//    MPI_Info_set(info, "romio_cb_write", "false");
+//    MPI_Info_set(info, "ind_rd_buffer_size", "0");
+//    MPI_Info_set(info, "ind_wr_buffer_size", "0");
+//    MPI_Info_set(info, "direct_read", "true");
+//    MPI_Info_set(info, "direct_write", "true");
+
+//    MPI_Info_set(info, "cb_block_size", "");  see spec for more
+//    MPI_Info_set(info, "chunked", "");        see spec for more
+//    MPI_Info_set(info, "nb_proc", "");
+//    MPI_Info_set(info, "num_io_nodes", "");
+//    MPI_Info_set(info, "striping_factor", "10");
+//    MPI_Info_set(info, "striping_unit", "2097152");
     fcomm = MPI_COMM_SELF;
     maxSize = getLim<int32_t>();
+}
+MPIIOOpt::~MPIIOOpt(void)
+{
+//    MPI_Info_free( &info );
 }
 
 int getMPIMode(FileMode mode)
@@ -178,7 +198,8 @@ void MPIIO::setFileSz(csize_t sz) const
 {
     if ((fcomm == MPI_COMM_SELF && !piol->comm->getRank()) || fcomm != MPI_COMM_SELF)
     {
-        int err = MPI_File_preallocate(file, MPI_Offset(sz));
+        //int err = MPI_File_preallocate(file, MPI_Offset(sz));
+        int err = MPI_File_set_size(file, MPI_Offset(sz));
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "error setting the file size");
     }
 }

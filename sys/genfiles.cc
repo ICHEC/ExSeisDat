@@ -2,10 +2,12 @@
 #include <assert.h>
 #warning remove
 #include <iostream>
+#include <string>
 using namespace PIOL;
 
 extern void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t repRate);
-extern void mpiMakeSEGYCopyNaive(Piol piol, std::string iname, std::string oname, size_t repRate);
+extern void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size_t repRate);
+extern void mpiMakeSEGYCopyNaive2(Piol piol, std::string iname, std::string oname, size_t repRate);
 
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
@@ -50,20 +52,27 @@ std::pair<size_t, size_t> blockDecomp(size_t sz, size_t bsz, size_t numRank, siz
 
 int main(int argc, char ** argv)
 {
+    assert(argc > 2);
     Piol piol(new ExSeisPIOL);
-    //mpiMakeSEGYCopy(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big1.segy", 1);
-
-
-//    mpiMakeSEGYCopy(piol, "dat/GH_2013_MultiAz_ReGrid_Regular_VRMS.segy", "dat/big1.segy", 10);
-//    mpiMakeSEGYCopyNaive(piol, "dat/GH_2013_MultiAz_ReGrid_Regular_VRMS.segy", "dat/big1.segy", 10);
-
-    mpiMakeSEGYCopy(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big1.segy", 10);
-    mpiMakeSEGYCopyNaive(piol, "dat/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY", "dat/big2.segy", 10);
-
-//    mpiMakeSEGYCopy(piol, "dat/GXT_IT5_EPSILON-TIME.segy", "dat/big1.segy", 2);
-//    mpiMakeSEGYCopyNaive(piol, "dat/GXT_IT5_EPSILON-TIME.segy", "dat/big2.segy", 2);
-
-
+    int select = std::stoi(argv[1]);
+    switch (select)
+    {
+        case 1 :
+        if (!piol->comm->getRank())
+            std::cout << "Standard\n";
+        mpiMakeSEGYCopy(piol, argv[2], argv[3], std::stoi(argv[4]));
+        break;
+        case 2 :
+        if (!piol->comm->getRank())
+            std::cout << "Naive 1\n";
+        mpiMakeSEGYCopyNaive1(piol, argv[2], argv[3], std::stoi(argv[4]));
+        break;
+        default :
+        case 3 :
+        if (!piol->comm->getRank())
+            std::cout << "Naive 2\n";
+        mpiMakeSEGYCopyNaive2(piol, argv[2], argv[3], std::stoi(argv[4]));
+    }
     return 0;
 }
 

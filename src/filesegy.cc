@@ -726,8 +726,6 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
         scale = scalComp(scale, calcScale(prm[i].cmp));
         setScale(TrScal::ScaleCoord, scale, md);
 
-        if (i == 0)
-            std::cout << "Scale Factor " << scale << std::endl;
         setCoord(Coord::Src, prm[i].src, scale, md);
         setCoord(Coord::Rcv, prm[i].rcv, scale, md);
         setCoord(Coord::CMP, prm[i].cmp, scale, md);
