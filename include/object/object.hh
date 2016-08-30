@@ -19,9 +19,9 @@ namespace PIOL { namespace Obj {
 class Interface
 {
     protected :
-    Piol piol;                   //!< Pointer to the PIOL object.
-    std::string name;                                   //!< Store the file name for debugging purposes.
-    std::shared_ptr<Data::Interface> data = nullptr;    //!< Pointer to the Data layer object (polymorphic).
+    Piol piol;                              //!< Pointer to the PIOL object.
+    std::string name;                       //!< Store the file name for debugging purposes.
+    std::shared_ptr<Data::Interface> data;  //!< Pointer to the Data layer object (polymorphic).
 
     /*! \brief The constructor used for unit testing. It does not try to create a Data object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.

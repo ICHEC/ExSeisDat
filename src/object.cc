@@ -19,6 +19,7 @@ Interface::Interface(const Piol piol_, const std::string name_, const std::share
 
 Interface::Interface(const Piol piol_, const std::string name_, const Data::Opt & dataOpt) : piol(piol_), name(name_)
 {
+    data = nullptr;
     piol->record(name_, Log::Layer::Object, Log::Status::Warning, "Entered Object Interface", Log::Verb::Max);
     switch (dataOpt.getType())
     {

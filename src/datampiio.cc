@@ -114,7 +114,7 @@ MPIIOOpt::MPIIOOpt(void)
     mode = FileMode::Read;
 
     info = MPI_INFO_NULL;
-//    MPI_Info_create(&info);
+    MPI_Info_create(&info);
 //    MPI_Info_set(info, "access_style", "read_once");
 //    MPI_Info_set(info, "romio_cb_read", "false");
 //    MPI_Info_set(info, "romio_cb_write", "false");
@@ -129,6 +129,8 @@ MPIIOOpt::MPIIOOpt(void)
 //    MPI_Info_set(info, "num_io_nodes", "");
 //    MPI_Info_set(info, "striping_factor", "10");
 //    MPI_Info_set(info, "striping_unit", "2097152");
+
+    MPI_Info_set(info, "panfs_concurrent_write", "false");    //No idea why ROMIO has this on by default. Annoying.
     fcomm = MPI_COMM_SELF;
     maxSize = getLim<int32_t>();
 }
@@ -146,7 +148,7 @@ int getMPIMode(FileMode mode)
         case FileMode::Read :
             return MPI_MODE_RDONLY;
         case FileMode::Write :
-            return MPI_MODE_WRONLY | MPI_MODE_CREATE;
+            return MPI_MODE_CREATE | MPI_MODE_WRONLY;
         case FileMode::ReadWrite :
             return MPI_MODE_CREATE | MPI_MODE_RDWR;
         case FileMode::Test :
@@ -172,7 +174,6 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 
     if (opt.info != MPI_INFO_NULL)
     {
-        std::cout << "opt.info not equal to MPI_INFO_NULL\n";
         err = MPI_Info_dup(opt.info, &info);
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
     }

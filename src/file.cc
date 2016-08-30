@@ -25,7 +25,7 @@ void Interface::Init(const Piol piol_, const std::string name_, const Obj::Opt &
 {
     piol = piol_;
     name = name_;
-
+    obj = nullptr;
     switch (objOpt.getType())
     {
         case (Obj::Type::SEGY) :

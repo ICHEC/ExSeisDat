@@ -1,10 +1,6 @@
-GTEST_DIR=../googletest/googletest
-GMOCK_DIR=../googletest/googlemock
-GOOGLE_OBJ=gmock-all.o  gtest-all.o
-CLDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS) -L../lib/ -lcpiol -lpiol
-CPPLDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS) -L../lib/ -lpiol
-TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
-LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
+CLDFLAGS=$(TULLOW_LIBS) -L../lib/ -lcpiol -lpiol
+CPPLDFLAGS=$(TULLOW_LIBS) -L../lib/ -lpiol
+LOCAL_INC_FOLDER=-I../src/
 OBJDIR=obj
 
 GCOMP=g++
