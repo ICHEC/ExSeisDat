@@ -2,3 +2,4 @@ module load dev intel/2016-u3 gcc/5.3.0
 module load doxygen
 export I_MPI_CXX=g++
 export I_MPI_CC=gcc
+export PIOL_SYSTEM=Fionn

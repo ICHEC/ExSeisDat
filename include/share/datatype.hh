@@ -24,13 +24,6 @@ T getHost(const uchar * src)
 }
 
 /*! \overload
- *  \brief Reverse the byte sequence of a 4 byte \c char array
- *  \param[in] src Data to be reversed
- *  \details This can be used to switch between endianness representations.
- */
-extern void reverse4Bytes(uchar * src);
-
-/*! \overload
  *  \brief Convert a 4 byte datatype in big endian to a host 4 byte datatype
  *  \param[in] src Data in big endian order to stuff into the host datatype
  *  \return Return a short
@@ -96,6 +89,12 @@ void getBigEndian(const T src, uchar * dst)
     dst[0] = src >> 8 & 0xFF;
     dst[1] = src & 0xFF;
 }
+
+/*! \brief Reverse the byte sequence of a 4 byte \c char array
+ *  \param[in] src Data to be reversed
+ *  \details This can be used to switch between endianness representations.
+ */
+extern void reverse4Bytes(uchar * src);
 
 /*! Convert the underlying bit representation of a 4 byte integer to a float.
  *  \param[in] i The input 32 bit integer

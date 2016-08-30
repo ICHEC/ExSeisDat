@@ -54,7 +54,7 @@ float convertIBMtoIEEE(const float f, bool bigEndian)
     uint32_t sign = (i >> 31) & 0x01;
 
     //The exponent is 7 bits. A bias of 64 is removed.
-    //The exponent is in base 16, shift by 3 puts it into base 2.
+    //The exponent is in base 16, shift by 2 puts it into base 2.
     int32_t exp = ((int32_t((i >> 24) & 0x7F) - 64) << 2);// - 1;
 
     //Now we can Convert to IEEE
