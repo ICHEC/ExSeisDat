@@ -23,8 +23,8 @@ void printErr(ExSeisPIOL & piol, const std::string file, const Log::Layer layer,
 
         if ((err == MPI_ERR_IN_STATUS) && (stat != NULL || stat != nullptr))
             std::cerr << " MPI_Status: " << stat->MPI_ERROR << std::endl;
-        else
-            std::cerr << "MPI_ERR = " << err << std::endl << std::endl;
+//        else
+//            std::cerr << "MPI_ERR = " << err << std::endl << std::endl;
 /*        std::vector<void *> buf(20);
         int num = backtrace(buf.data(), buf.size());
         backtrace_symbols_fd(buf.data(), num, 1);*/

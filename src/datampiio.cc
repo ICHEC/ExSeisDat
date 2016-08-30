@@ -11,7 +11,8 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
-
+#warning remove
+#include <iostream>
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -133,7 +134,8 @@ MPIIOOpt::MPIIOOpt(void)
 }
 MPIIOOpt::~MPIIOOpt(void)
 {
-//    MPI_Info_free( &info );
+    if (info != MPI_INFO_NULL)
+        MPI_Info_free(&info);
 }
 
 int getMPIMode(FileMode mode)
@@ -156,8 +158,7 @@ int getMPIMode(FileMode mode)
 MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
 {
     maxSize = opt.maxSize;
-    info = opt.info;
-
+    file = MPI_FILE_NULL;
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
@@ -169,7 +170,16 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 
     int flags = getMPIMode(opt.mode);
 
-    err = MPI_File_open(fcomm, name.data(), flags, opt.info, &file);
+    if (opt.info != MPI_INFO_NULL)
+    {
+        std::cout << "opt.info not equal to MPI_INFO_NULL\n";
+        err = MPI_Info_dup(opt.info, &info);
+        printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
+    }
+    else
+        info = MPI_INFO_NULL;
+
+    err = MPI_File_open(fcomm, name.data(), flags, info, &file);
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     if (err == MPI_SUCCESS)
@@ -183,12 +193,14 @@ MPIIO::~MPIIO(void)
 {
     if (file != MPI_FILE_NULL)
         MPI_File_close(&file);
+    if (info != MPI_INFO_NULL)
+        MPI_Info_free(&info);
 }
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
 size_t MPIIO::getFileSz() const
 {
-    MPI_Offset fsz;
+    MPI_Offset fsz = 0;
     int err = MPI_File_get_size(file, &fsz);
     printErr(*piol, name, Log::Layer::Data, err, nullptr, "error getting the file size");
     return size_t(fsz);

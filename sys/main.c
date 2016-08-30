@@ -46,29 +46,31 @@ int main(int argc, char ** argv)
     {
         case 1 :
         {
-            printf("Many Files test.\n");
+            if (!getRank(piol))
+                printf("Many Files test.\n");
             testManyFiles(piol, "/ichec/work/exseisdat/dat/sortedfile.segy");
         } break;
         case 2 :
         {
-            printf("Read/Write test from %s to %s\n", argv[2], argv[3]);
+            if (!getRank(piol))
+                printf("Read/Write test from %s to %s\n", argv[2], argv[3]);
             testReadWrite(piol, argv[2], argv[3], 2500LU, NULL, NULL);
         } break;
         case 3 :
         {
-            printf("Read/Write test (trace param mod) from %s to %s\n", argv[2], argv[3]);
+            if (!getRank(piol))
+                printf("Read/Write test (trace param mod) from %s to %s\n", argv[2], argv[3]);
             testReadWrite(piol, argv[2], argv[3], 2500LU, SourceX1600Y2400, NULL);
         } break;
         case 4 :
         {
-            printf("Read/Write test (trace mod) from %s to %s\n", argv[2], argv[3]);
+            if (!getRank(piol))
+                printf("Read/Write test (trace mod) from %s to %s\n", argv[2], argv[3]);
             testReadWrite(piol, argv[2], argv[3], 2500LU, NULL, TraceLinearInc);
         } break;
         default :
             fprintf(stderr, "Unknown test\n");
     }
-    //testReadWrite(piol, "dat/rtm_salt3d_data_shot.segy", "dat/test.segy", 2500LU);
-//    testReadWrite(piol, "dat/sortedfile.segy", "dat/test.segy", 2500LU);
 
     closePIOL(piol);
     return 0;

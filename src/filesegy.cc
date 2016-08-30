@@ -495,6 +495,7 @@ void SEGY::SEGYInit(const File::SEGYOpt & segyOpt, const Data::Opt & dataOpt)
     }
     else
     {
+        format = Format::IEEE;
         ns = 0U;
         nt = 0U;
         inc = geom_t(0);

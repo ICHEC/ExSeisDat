@@ -42,6 +42,19 @@ ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt)
     return wrap;
 }
 
+ExSeisHandle initMPIOL(void)
+{
+//TODO: Test the cast of C structures to C++ types here.
+    assert(sizeof(File::TraceParam) == sizeof(TraceParam));
+    assert(sizeof(File::coord_t) == sizeof(ccoord_t));
+    assert(sizeof(File::grid_t) == sizeof(cgrid_t));
+
+    Comm::MPIOpt mpi;
+    auto wrap = new PIOLWrapper;
+    wrap->piol = std::make_shared<ExSeisPIOL>(*dynamic_cast<Comm::Opt *>(&mpi));
+    return wrap;
+}
+
 void isErr(ExSeisHandle piol)
 {
     piol->piol->isErr();

@@ -126,7 +126,7 @@ void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t rep
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
 
-    size_t memlim = 1335U * bsz;
+    size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
     for (size_t i = 0; i < fsz; i += step)
@@ -163,15 +163,18 @@ void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size
 
     MPIIOOpt opt;
     MPIIO in(piol, iname, opt);
+    piol->isErr();
 
     opt.mode = FileMode::Write;
     MPIIO out(piol, oname, opt);
+    piol->isErr();
 
     csize_t fsz = in.getFileSz();
+    piol->isErr();
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
 
-    size_t memlim = 1335U * bsz;
+    size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
     for (size_t i = 0; i < fsz; i += step)
@@ -181,7 +184,9 @@ void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size
 
         std::vector<uchar> buf(dec.second);
         in.read(dec.first, dec.second, buf.data());
+        piol->isErr();
         out.write(dec.first, dec.second, buf.data());
+        piol->isErr();
         if (i == 0)
             if (dec.first == 0)   //If zero, then current process has read the header object
             {
@@ -193,7 +198,10 @@ void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size
                 dec.first -= hosz;
 
         for (size_t j = 1; j < repRate; j++)
+        {
             out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
+            piol->isErr();
+        }
     }
 }
 
@@ -212,7 +220,7 @@ void mpiMakeSEGYCopyNaive2(Piol piol, std::string iname, std::string oname, size
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
 
-    size_t memlim = 1335U * bsz;
+    size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
     for (size_t i = 0; i < fsz; i += step)

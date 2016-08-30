@@ -52,7 +52,7 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
     size_t q = lnt / tcnt;
     size_t r = lnt % tcnt;
 
-    printf("rank %zu goff %zu lnt %zu tcnt %zu q %zu r %zu\n", getRank(piol), goff, lnt, tcnt, q, r);
+//    printf("rank %zu goff %zu lnt %zu tcnt %zu q %zu r %zu\n", getRank(piol), goff, lnt, tcnt, q, r);
     for (size_t i = 0U; i < q; i++)
     {
         size_t off = goff + i * tcnt;
@@ -67,6 +67,7 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
 int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax, ModPrm fprm, ModTrc ftrc)
 {
     ExSeisFile ifh = openReadFile(piol, iname);
+    isErr(piol);
 
     size_t ns = readNs(ifh);
     size_t nt = readNt(ifh);
@@ -75,6 +76,7 @@ int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, siz
     if (!rank)
         printf("Open write mode file\n");
     ExSeisFile ofh = openWriteFile(piol, oname);
+    isErr(piol);
 
     if (!rank)
     {
