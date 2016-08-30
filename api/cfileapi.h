@@ -125,6 +125,9 @@ extern void closeFile(ExSeisFile file);
  * Read binary and text headers
  */
 /*! \brief Read the human readable text from the file
+ *  \description When readText is called the ExSeisPIOL is responsible for
+ *  the memory returned. The string should not be dereferenced after the
+ *  associated file is closed. 
  *  \param[in] file A handle for the file.
  *  \return A string containing the text (in ASCII format)
  */

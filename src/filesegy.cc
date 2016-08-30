@@ -423,7 +423,7 @@ SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segy
     SEGYInit(segyOpt, dataOpt);
 }
 
-SEGY::SEGY(const Piol piol_, const std::string name_)
+SEGY::SEGY(const Piol piol_, const std::string name_, FileMode mode)
 {
     Init(piol_, name_);
     if (obj == nullptr)
@@ -431,6 +431,7 @@ SEGY::SEGY(const Piol piol_, const std::string name_)
 
     File::SEGYOpt segyOpt;
     Data::Opt data;
+    data.mode = mode;
     SEGYInit(segyOpt, data);
 }
 

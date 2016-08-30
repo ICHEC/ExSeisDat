@@ -37,7 +37,7 @@ int main(int argc, char ** argv)
     File::SEGYOpt segyOpt;
     Obj::SEGYOpt objOpt;
     Data::MPIIOOpt dataOpt;
-    dataOpt.mode = FileMode::ReadWrite;
+    dataOpt.mode = FileMode::Write;
 
     if (!rank)
         std::cout << "Create file\n";

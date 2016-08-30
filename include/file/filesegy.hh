@@ -88,7 +88,7 @@ class SEGY : public Interface
     SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
                                                   const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
-    SEGY(const Piol piol_, const std::string name_);
+    SEGY(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
 
 
     /*! \brief Destructor. Processes any remaining flags
