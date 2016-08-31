@@ -17,16 +17,16 @@ typedef struct ExSeisFileWrapper * ExSeisFile;
 /*!  */
 typedef struct
 {
-    double first;   //!< The first coordinate.
-    double second;  //!< The second coordinate.
+    double x;   //!< The first coordinate.
+    double y;  //!< The second coordinate.
 } ccoord_t;         //!< The structure for a coordinate point. Naming is to copy std::pair<> in C++.
 
-/*! The structure for a grid point. Naming is to copy std::pair<> in C++.
+/*! The structure for a grid point.
  */
 typedef struct
 {
-    int64_t first;  //!< The first coordinate.
-    int64_t second; //!< The second coordinate.
+    int64_t il;     //!< The first grid value
+    int64_t xl;     //!< The second grid value.
 } cgrid_t;
 
 /*! The options for various coordinate points associated with a trace.

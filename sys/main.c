@@ -19,8 +19,8 @@ Extent decompose(size_t sz, size_t nrank, size_t rank)
 
 void SourceX1600Y2400(size_t offset, TraceParam * prm)
 {
-    prm->src.first = 1600.0;
-    prm->src.second = 2400.0;
+    prm->src.x = 1600.0;
+    prm->src.y = 2400.0;
 }
 
 void TraceLinearInc(size_t offset, size_t ns, float * trc)
