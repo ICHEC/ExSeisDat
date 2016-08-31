@@ -134,6 +134,7 @@ void barrier(ExSeisHandle piol)
     piol->piol->comm->barrier();
 }
 
+//TODO: Inconsistent naming of ExSeisFile file/fh/f variable
 void closeFile(ExSeisFile file)
 {
     if (file != NULL)

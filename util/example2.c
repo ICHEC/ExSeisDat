@@ -32,11 +32,11 @@ int main(void)
     writeNt(ofh, readNt(ifh));
     writeInc(ofh, readInc(ifh));
 
-    //Read the trace parameters from the input file and to the ouput
+    //Read the trace parameters from the input file and to the output
     readTraceParam(ifh, lnt * rank, lnt, trhdr);
     writeTraceParam(ofh, lnt * rank, lnt, trhdr);
 
-    //Read the traces from the input file and to the ouput
+    //Read the traces from the input file and to the output
     readTrace(ifh, lnt * rank, lnt, trace);
     writeTrace(ofh, lnt * rank, lnt, trace);
 
