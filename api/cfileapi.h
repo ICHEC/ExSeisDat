@@ -14,37 +14,46 @@ typedef struct ExSeisFileWrapper * ExSeisFile;
 /*
  * Relevant structures containing data
  */
+/*!  */
 typedef struct
 {
-    double first;
-    double second;
-} ccoord_t;
+    double first;   //!< The first coordinate.
+    double second;  //!< The second coordinate.
+} ccoord_t;         //!< The structure for a coordinate point. Naming is to copy std::pair<> in C++.
 
+/*! The structure for a grid point. Naming is to copy std::pair<> in C++.
+ */
 typedef struct
 {
-    int64_t first;
-    int64_t second;
+    int64_t first;  //!< The first coordinate.
+    int64_t second; //!< The second coordinate.
 } cgrid_t;
 
+/*! The options for various coordinate points associated with a trace.
+ */
 typedef enum
 {
-    Src,
-    Rcv,
-    CMP
+    Src,            //!< The source coordinate point.
+    Rcv,            //!< The receiver coordinate point.
+    CMP             //!< The common-midpoint.
 } CCoord;
 
+/*! The options for grid points associated with a trace.
+ */
 typedef enum
 {
-    Line
+    Line            //!< The only current option for a grid. The inline/crossline pair.
 } CGrid;
 
+/*! A structure containing all known parameters
+ */
 typedef struct
 {
-    ccoord_t src;    //!< The Source coordinate
-    ccoord_t rcv;    //!< The Receiver coordinate
-    ccoord_t cmp;    //!< The common midpoint
-    cgrid_t line;    //!< The line coordinates (il, xl)
-    size_t tn;       //!< The trace number
+    ccoord_t src;    //!< The Source coordinate point.
+    ccoord_t rcv;    //!< The Receiver coordinate point.
+    ccoord_t cmp;    //!< The common midpoint.
+    cgrid_t line;    //!< The line grid (il, xl).
+    size_t tn;       //!< The trace number.
 } TraceParam;
 
 /*
@@ -243,33 +252,53 @@ extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
 /*
  *     Extended parameters
  */
+
+/*! A list of the different modes of file access.
+ */
 enum Mode
 {
-    ReadMode,
-    WriteMode,
-    ReadWriteMode
+    ReadMode,       //!< The file is opened as read only.
+    WriteMode,      //!< The file is opened as write only.
+    ReadWriteMode   //!< The file is opened as Read/Write.
 };
 
+/*! A structure specifying all MPI-IO options
+ */
 typedef struct
 {
-    enum Mode mode;
-    MPI_Info info;
-    size_t maxSize;
-    MPI_Comm fcomm;
+    enum Mode mode; //!< The file access mode
+    MPI_Info info;  //!< The MPI_Info object
+    size_t maxSize; //!< The maximum size to write in an MPI-IO call.
+    MPI_Comm fcomm; //!< The MPI communicator which should be used.
 } MPIIOOptions;
 
+/*! A structure specifying MPI options.
+ */
 typedef struct
 {
     MPI_Comm comm;
     bool initMPI;
 } MPIOptions;
 
+/*! A structure specifying file layer options.
+ */
 typedef struct
 {
     double incFactor;
 } SEGYOptions;
 
+/*!  Initialise the PIOL and optionally MPI.
+ *  \param[in] The log level
+ *  \param[in] mpiOpt The MPI options structure
+ *  \return A handle to the PIOL.
+ */
 extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
+/*! Open a file and return a handle for the file
+ * \param[in] piol A handle to the PIOL.
+ * \param[in] name The name of the file.
+
+ * \return file A handle for the file.
+ */
 extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiOpt);
 
 #ifdef __cplusplus

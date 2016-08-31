@@ -55,15 +55,6 @@ void getBigEndian(const T src, uchar * dst)
     dst[3] = src & 0xFF;
 }
 
-template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-void getHostEndian(const T src, uchar * dst)
-{
-    dst[3] = src >> 24 & 0xFF;
-    dst[2] = src >> 16 & 0xFF;
-    dst[1] = src >> 8 & 0xFF;
-    dst[0] = src & 0xFF;
-}
-
 /*! \brief Convert a host 4 byte type to a big-endian 4 byte type
  *  \tparam T The host type
  *  \param[in] src The input 4 byte type with host endianness
