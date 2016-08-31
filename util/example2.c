@@ -43,7 +43,9 @@ int main(void)
     free(trace);
     free(trhdr);
 
-    closeFile(ofh);
+    //Close the file handles and close the piol
     closeFile(ifh);
+    closeFile(ofh);
+    closePIOL(piol);
     return 0;
 }
