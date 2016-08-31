@@ -14,12 +14,13 @@ typedef struct ExSeisFileWrapper * ExSeisFile;
 /*
  * Relevant structures containing data
  */
-/*!  */
+/*! The structure for a coordinate point. Naming is to copy std::pair<> in C++.
+ */
 typedef struct
 {
     double first;   //!< The first coordinate.
     double second;  //!< The second coordinate.
-} ccoord_t;         //!< The structure for a coordinate point. Naming is to copy std::pair<> in C++.
+} ccoord_t;
 
 /*! The structure for a grid point. Naming is to copy std::pair<> in C++.
  */
@@ -63,6 +64,7 @@ typedef struct
  *  \return A handle to the PIOL.
  */
 extern ExSeisHandle initMPIOL(void);
+
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
  */
@@ -72,14 +74,17 @@ extern void closePIOL(ExSeisHandle piol);
  * \param[in] piol A handle to the PIOL.
  */
 extern size_t getRank(ExSeisHandle piol);
+
 /*! Get the number of processes (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
  */
 extern size_t getNumRank(ExSeisHandle piol);
+
 /*! Check if the PIOL has any error conditions
  * \param[in] piol A handle to the PIOL.
  */
 extern void isErr(ExSeisHandle piol);
+
 /*!  A barrier. All PIOL processes must call this.
  * \param[in] piol A handle to the PIOL.
  */
@@ -90,6 +95,7 @@ extern void barrier(ExSeisHandle piol);
  * \return The text size in bytes for SEG-Y
  */
 extern size_t getSEGYTextSz(void);
+
 /*! Get the size a SEGY file should be given the number of traces (\c nt) and sample size (\c ns)
  * \param[in] nt The number of traces
  * \param[in] ns The number of samples per trace
@@ -136,7 +142,7 @@ extern void closeFile(ExSeisFile file);
 /*! \brief Read the human readable text from the file
  *  \description When readText is called the ExSeisPIOL is responsible for
  *  the memory returned. The string should not be dereferenced after the
- *  associated file is closed. 
+ *  associated file is closed.
  *  \param[in] file A handle for the file.
  *  \return A string containing the text (in ASCII format)
  */
@@ -154,7 +160,7 @@ extern size_t readNs(ExSeisFile f);
  */
 extern size_t readNt(ExSeisFile f);
 
-/*! \brief Read the number of increment between trace samples
+/*! \brief Read the increment between trace samples
  *  \param[in] file A handle for the file.
  *  \return The increment between trace samples
  */
@@ -178,7 +184,7 @@ extern void writeNs(ExSeisFile file, size_t ns);
  */
 extern void writeNt(ExSeisFile f, size_t nt);
 
-/*! \brief Write the number of increment between trace samples.
+/*! \brief Write the increment between trace samples.
  *  \param[in] file A handle for the file.
  *  \param[in] inc The new increment between trace samples.
  */
@@ -252,7 +258,6 @@ extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
 /*
  *     Extended parameters
  */
-
 /*! A list of the different modes of file access.
  */
 enum Mode
@@ -293,10 +298,10 @@ typedef struct
  *  \return A handle to the PIOL.
  */
 extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
+
 /*! Open a file and return a handle for the file
  * \param[in] piol A handle to the PIOL.
  * \param[in] name The name of the file.
-
  * \return file A handle for the file.
  */
 extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiOpt);

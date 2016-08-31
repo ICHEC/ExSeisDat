@@ -88,8 +88,6 @@ class MPIIOTest : public Test
         for (size_t i = 0; i < nt; i++)
         {
             uchar * buf = &tr[step*i];
-            //for (size_t k = 0; k < ns*sizeof(float); k++)
-            //    buf[k] = (offset+i+k) % 0x100;
             for (size_t k = 0; k < ns; k++)
             {
                 union { float f; uint32_t i; } n;

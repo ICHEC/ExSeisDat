@@ -87,6 +87,7 @@ TEST_F(FileSEGYRead, FileReadTraceBigOffset)
     nt = 3738270;
     ns = 3000;
     makeMockSEGY<false>();
+#warning //TODO: should be readTraceTest( 3728270, nt)?
     readTraceTest(3728270, 3000);
 }
 
