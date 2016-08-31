@@ -19,8 +19,11 @@
 #include "share/datatype.hh"
 #include "data/dataopt.hh"
 #include <limits>
-#warning remove
-#include <iostream>
+
+//TODO:Make unnecessary
+#include "object/objsegy.hh"
+#include "data/datampiio.hh"
+
 
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -423,15 +426,18 @@ SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segy
     SEGYInit(segyOpt, dataOpt);
 }
 
+//TODO: Untested
 SEGY::SEGY(const Piol piol_, const std::string name_, FileMode mode)
 {
-    Init(piol_, name_);
+    File::SEGYOpt segyOpt;
+    Obj::SEGYOpt objOpt;
+    Data::MPIIOOpt data;
+    data.mode = mode;
+
+    Init(piol_, name_, objOpt, data);
     if (obj == nullptr)
         return;
 
-    File::SEGYOpt segyOpt;
-    Data::Opt data;
-    data.mode = mode;
     SEGYInit(segyOpt, data);
 }
 

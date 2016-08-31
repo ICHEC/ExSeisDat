@@ -130,7 +130,7 @@ MPIIOOpt::MPIIOOpt(void)
 //    MPI_Info_set(info, "striping_factor", "10");
 //    MPI_Info_set(info, "striping_unit", "2097152");
 
-    MPI_Info_set(info, "panfs_concurrent_write", "false");    //No idea why ROMIO has this on by default. Annoying.
+//    MPI_Info_set(info, "panfs_concurrent_write", "false");    //No idea why ROMIO has this on by default. Annoying.
     fcomm = MPI_COMM_SELF;
     maxSize = getLim<int32_t>();
 }
