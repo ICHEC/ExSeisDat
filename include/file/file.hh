@@ -64,7 +64,13 @@ class Interface
      *  \param[in] dataOpt The options to use when creating the Data layer
      */
     void Init(const Piol piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt);
-    void Init(const Piol piol_, const std::string name_); //!< \overload
+
+    /*! \overload
+     *  \brief Initialises the generic components of the file layer
+     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name_ The name of the file associated with the instantiation.
+     */
+    void Init(const Piol piol_, const std::string name_);
 
     /*! \brief The constructor used for unit testing. It does not try to create an Object-layer object
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -135,7 +141,12 @@ class Interface
      */
     virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) = 0;
 
-    //TODO: Document
+    /*! \brief Pure virtual function to read the trace parameters from offset to offset+sz of the respective
+     *  trace headers.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+     */
     virtual void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const = 0;
 
     /*! \brief Pure virtual function to read the traces from offset to offset+sz

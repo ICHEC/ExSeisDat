@@ -51,6 +51,13 @@ MPI_Comm MPI::getComm() const
 }
 
 //Reduction for fundamental datatypes
+
+/*! Retrieve the corresponding values from every process in a collective call
+ * \param[in] mpi The MPI communication class
+ * \param[in] val The local value to use in the gather
+ * \tparam T The datatype for the gather
+ * \return Return a vector where the nth element is the value from the nth rank.
+ */
 template <typename T>
 std::vector<T> MPIGather(const MPI * mpi, T val)
 {

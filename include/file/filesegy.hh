@@ -88,6 +88,11 @@ class SEGY : public Interface
     SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
                                                   const Obj::Opt & objOpt, const Data::Opt & dataOpt);
 
+    /*! \brief The SEGY-Object class constructor.
+     *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name_   The name of the file associated with the instantiation.
+     *  \param[in] mode    The mode of file access.
+     */
     SEGY(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
 
 

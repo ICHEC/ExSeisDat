@@ -62,36 +62,37 @@ class SEGY : public Interface
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  \param[out] md An array which the caller guarantees is long enough for
      *  the DO metadata.
      */
-    void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * ho) const;
+    void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const;
 
     /*! \brief Write the data-object metadata.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
-     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  \param[in] sz The number of DOMDs to be written in a row.
+     *  \param[in] md An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * ho) const;
+    void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const;
 
     /*! \brief Read a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[out] ho An array which the caller guarantees is long enough for
+     *  \param[out] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * md) const;
+    void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const;
 
     /*! \brief Write a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[in] ho An array which the caller guarantees is long enough for
+     *  \param[in] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const;
+    void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const;
 };
 }}
 #endif
