@@ -49,13 +49,13 @@ struct TraceParam
 class Interface
 {
     protected :
-    Piol piol;                                      //!< The PIOL object.
-    std::string name;                               //!< Store the file name for debugging purposes.
+    Piol piol;                            //!< The PIOL object.
+    std::string name;                     //!< Store the file name for debugging purposes.
     std::shared_ptr<Obj::Interface> obj;  //!< Pointer to the Object-layer object (polymorphic).
-    size_t ns;                                      //!< The number of samples per trace.
-    size_t nt;                                      //!< The number of traces.
-    std::string text;                               //!< Human readable text extracted from the file
-    geom_t inc;                                     //!< The increment between samples in a trace
+    size_t ns;                            //!< The number of samples per trace.
+    size_t nt;                            //!< The number of traces.
+    std::string text;                     //!< Human readable text extracted from the file
+    geom_t inc;                           //!< The increment between samples in a trace
 
     /*! \brief Initialises the generic components of the file layer
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.

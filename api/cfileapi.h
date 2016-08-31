@@ -64,6 +64,7 @@ typedef struct
  *  \return A handle to the PIOL.
  */
 extern ExSeisHandle initMPIOL(void);
+
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
  */
@@ -73,14 +74,17 @@ extern void closePIOL(ExSeisHandle piol);
  * \param[in] piol A handle to the PIOL.
  */
 extern size_t getRank(ExSeisHandle piol);
+
 /*! Get the number of processes (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
  */
 extern size_t getNumRank(ExSeisHandle piol);
+
 /*! Check if the PIOL has any error conditions
  * \param[in] piol A handle to the PIOL.
  */
 extern void isErr(ExSeisHandle piol);
+
 /*!  A barrier. All PIOL processes must call this.
  * \param[in] piol A handle to the PIOL.
  */
@@ -91,6 +95,7 @@ extern void barrier(ExSeisHandle piol);
  * \return The text size in bytes for SEG-Y
  */
 extern size_t getSEGYTextSz(void);
+
 /*! Get the size a SEGY file should be given the number of traces (\c nt) and sample size (\c ns)
  * \param[in] nt The number of traces
  * \param[in] ns The number of samples per trace
@@ -155,7 +160,7 @@ extern size_t readNs(ExSeisFile fh);
  */
 extern size_t readNt(ExSeisFile fh);
 
-/*! \brief Read the number of increment between trace samples
+/*! \brief Read the increment between trace samples
  *  \param[in] fh A handle for the file.
  *  \return The increment between trace samples
  */
@@ -179,7 +184,7 @@ extern void writeNs(ExSeisFile fh, size_t ns);
  */
 extern void writeNt(ExSeisFile fh, size_t nt);
 
-/*! \brief Write the number of increment between trace samples.
+/*! \brief Write the increment between trace samples.
  *  \param[in] fh A handle for the file.
  *  \param[in] inc The new increment between trace samples.
  */
@@ -253,7 +258,6 @@ extern void writeTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace);
 /*
  *     Extended parameters
  */
-
 /*! A list of the different modes of file access.
  */
 enum Mode
@@ -288,18 +292,19 @@ typedef struct
     double incFactor;   //!< The increment factor which should be used with inc.
 } SEGYOptions;
 
-/*!  Initialise the PIOL and optionally MPI.
+/*! Initialise the PIOL and optionally MPI.
  *  \param[in] logLevel The log level
  *  \param[in] mpiOpt The MPI options structure
  *  \return A handle to the PIOL.
  */
 extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
+
 /*! Open a file and return a handle for the file
  *  \param[in] piol A handle to the PIOL.
  *  \param[in] name The name of the file.
  *  \param[in] opt The SEG-Y options structure
  *  \param[in] mpiioOpt The MPI-IO options structure
- * \return A handle for the file.
+ *  \return A handle for the file.
  */
 extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiioOpt);
 

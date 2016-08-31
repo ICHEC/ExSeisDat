@@ -109,6 +109,7 @@ ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
 ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
 {
     PIOL::Data::MPIIOOpt mpiio;
+    mpiio.mode = FileMode::Read;
     PIOL::Obj::SEGYOpt objOpt;
     PIOL::File::SEGYOpt fileOpt;
 
