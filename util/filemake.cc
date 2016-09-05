@@ -1,7 +1,8 @@
+#include "sglobal.hh"
 #include <memory>
 #include <string>
 #include <iostream>
-#include "global.hh"
+#include <assert.h>
 #include "anc/piol.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
@@ -9,22 +10,40 @@
 #include "share/segy.hh"
 using namespace PIOL;
 
-std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
-{
-    size_t q = sz/numRank;
-    size_t r = sz%numRank;
-    size_t start = q * rank + std::min(rank, r);
-    return std::make_pair(start, std::min(sz - start, q + (rank < r)));
-}
-
 int main(int argc, char ** argv)
 {
-    std::string outname(argv[1]);
-    size_t ns = std::stoul(argv[2]);
-    size_t nt = std::stoul(argv[3]);
-    size_t max = std::stoul(argv[4]);
+    std::string name;
+    size_t ns = 0;
+    size_t nt = 0;
+    size_t max = 0;
+    float inc = 0.0;
 
-    float inc = 0.04;
+
+    std::string opt = "s:t:m:o:i";  //TODO: uses a GNU extension
+    for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
+        switch (c)
+        {
+            case 'o' :
+                name = optarg;
+            break;
+            case 's' :
+                ns = std::stoul(optarg);
+            break;
+            case 't' :
+                nt = std::stoul(optarg);
+            break;
+            case 'm' :
+                max = std::stoul(optarg);
+            break;
+            case 'i' :
+                inc = std::stof(optarg);
+            break;
+            default :
+                fprintf(stderr, "One of the command line arguments is invalid\n");
+            break;
+        }
+    assert(name.size() && ns && nt && max && inc != 0.0);
+
 
     //TODO: This is an annoying way to create the PIOL object
     auto piol = std::make_shared<ExSeisPIOL>();
@@ -32,7 +51,7 @@ int main(int argc, char ** argv)
     size_t numRank = piol->comm->getNumRank();
 
     if (!rank)
-        std::cout << outname << " ns " << ns << " nt " << nt << " max " << max << std::endl;
+        std::cout << name << " ns " << ns << " nt " << nt << " max " << max << std::endl;
 
     File::SEGYOpt segyOpt;
     Obj::SEGYOpt objOpt;
@@ -42,7 +61,7 @@ int main(int argc, char ** argv)
     if (!rank)
         std::cout << "Create file\n";
     //TODO:: Too many arguments
-    auto file = std::make_unique<File::SEGY>(piol, outname, segyOpt, objOpt, dataOpt);
+    auto file = std::make_unique<File::SEGY>(piol, name, segyOpt, objOpt, dataOpt);
     piol->isErr();
     file->writeNs(ns);
     file->writeNt(nt);

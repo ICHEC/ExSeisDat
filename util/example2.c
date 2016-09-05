@@ -1,14 +1,35 @@
-#include "cfileapi.h"
+#include "sglobal.h"
+#include <unistd.h>
+#include <assert.h>
 #include <stdlib.h>
+#include "cfileapi.h"
 
-int main(void)
+int main(int argc, char ** argv)
 {
-    //Initialise the PIOL by creating an ExSeisPIOL object
+    char * opt = "i:o:";  //TODO: uses a GNU extension
+    char * iname = NULL;
+    char * oname = NULL;
+    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+        switch (c)
+        {
+            case 'i' :
+                //TODO: POSIX is vague about the lifetime of optarg. Next function may be unnecessary
+                iname = copyString(optarg);
+            break;
+            case 'o' :
+                oname = copyString(optarg);
+            break;
+            default :
+                fprintf(stderr, "One of the command line arguments is invalid\n");
+            break;
+        }
+    assert(iname && oname);
+
     ExSeisHandle piol = initMPIOL();
     size_t rank = getRank(piol);
 
     //Create a SEGY file object for input
-    ExSeisFile ifh = openReadFile(piol, "test.segy");
+    ExSeisFile ifh = openReadFile(piol, iname);
     isErr(piol);
 
     //Create some local variables based on the input file
@@ -23,7 +44,7 @@ int main(void)
     TraceParam * trhdr = malloc(lnt * sizeof(TraceParam));
 
     //Create a SEGY file object for output
-    ExSeisFile ofh = openWriteFile(piol, "test1.segy");
+    ExSeisFile ofh = openWriteFile(piol, oname);
     isErr(piol);
 
     //Write the headers based on the input file.

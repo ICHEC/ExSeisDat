@@ -1,10 +1,10 @@
-#include "ctest.h"
-#include "cfileapi.h"
 #include "sglobal.h"
+#include <unistd.h>
 #include <stddef.h>
 #include <assert.h>
+#include "ctest.h"
+#include "cfileapi.h"
 
-#warning TODO: Continue
 void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
     TraceParam * trhdr = malloc(tcnt * sizeof(TraceParam));
@@ -64,7 +64,7 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
     readWriteTrace(piol, ifh, ofh, goff + lnt-r, r, ftrc);
 }
 
-int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax, ModPrm fprm, ModTrc ftrc)
+int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax, ModPrm fprm, ModTrc ftrc)
 {
     ExSeisFile ifh = openReadFile(piol, iname);
     isErr(piol);
@@ -88,10 +88,79 @@ int testReadWrite(ExSeisHandle piol, const char * iname, const char * oname, siz
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
     size_t tcnt = (memmax * 1024U * 1024U) / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
 
-    writePayload(piol, ifh, ofh, dec.start, dec.end, tcnt, NULL, NULL);
+    writePayload(piol, ifh, ofh, dec.start, dec.end, tcnt, fprm, ftrc);
 
     closeFile(ofh);
     closeFile(ifh);
     isErr(piol);
     return 0;
 }
+
+void SourceX1600Y2400(size_t offset, TraceParam * prm)
+{
+    prm->src.x = offset + 1600.0;
+    prm->src.y = offset + 2400.0;
+}
+
+void TraceLinearInc(size_t offset, size_t ns, float * trc)
+{
+    for (size_t i = 0; i < ns; i++)
+        trc[i] = 2.0*i + offset;
+}
+
+
+int main(int argc, char ** argv)
+{
+//  Flags:
+// -i input file
+// -o output file
+// -m maximum memory
+    char * opt = "i:o:m:pt";  //TODO: uses a GNU extension
+    char * iname = NULL;
+    char * oname = NULL;
+    size_t memmax = 2U*1024U*1024U*1024U;
+    ModPrm modPrm = NULL;
+    ModTrc modTrc = false;
+    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+        switch (c)
+        {
+            case 'i' :
+                //TODO: POSIX is vague about the lifetime of optarg. Next function may be unnecessary
+                iname = copyString(optarg);
+            break;
+            case 'o' :
+                oname = copyString(optarg);
+            break;
+            case 'm' :
+            if (sscanf(optarg, "%zu", &memmax) != 1)
+            {
+                fprintf(stderr, "Incorrect arguments to memmax option\n");
+                return -1;
+            }
+            break;
+            case 'p' :
+                printf("The trace parameters will be modified\n");
+                modPrm = SourceX1600Y2400;
+            break;
+            case 't' :
+                printf("The traces will be modified\n");
+                modTrc = TraceLinearInc;
+            break;
+            default :
+                fprintf(stderr, "One of the command line arguments is invalid\n");
+            break;
+        }
+    assert(iname && oname);
+
+    ExSeisHandle piol = initPIOL(0, NULL);
+    isErr(piol);
+
+    ReadWriteFile(piol, iname, oname, memmax, modPrm, modTrc);
+
+    if (iname != NULL)
+        free(iname);
+    if (oname != NULL)
+        free(oname);
+    return 0;
+}
+

@@ -1,12 +1,26 @@
 #include <memory>
 #include <string>
 #include <iostream>
-#include "global.hh"
+#include "sglobal.hh"
+#include <unistd.h>
+#include <assert.h>
 #include "anc/piol.hh"
 #include "file/filesegy.hh"
 using namespace PIOL;
-int main(void)
+int main(int argc, char ** argv)
 {
+    std::string opt = "o:";  //TODO: uses a GNU extension
+    std::string name = NULL;
+    for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
+        if (c == 'o')
+            name = optarg;
+        else
+        {
+            std::cerr << "One of the command line arguments is invalid" << std::endl;
+            return -1;
+        }
+    assert(name.size() > 0);
+
     //Initialise the PIOL by creating an ExSeisPIOL object
     auto piol = std::make_shared<ExSeisPIOL>();
 
@@ -14,7 +28,7 @@ int main(void)
     size_t numRank = piol->comm->getNumRank();
 
     //Create a SEGY file object
-    File::SEGY file(piol, "test.segy", FileMode::Write);
+    File::SEGY file(piol, name, FileMode::Write);
 
     //lnt is the number of traces and sets of trace parameters we will write per process
     size_t lnt = 40, ns = 300;

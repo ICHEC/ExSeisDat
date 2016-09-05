@@ -1,5 +1,8 @@
-#ifndef SYS_SGLOBAL_INCLUDE_GUARD
-#define SYS_SGLOBAL_INCLUDE_GUARD
+#ifndef UTIL_SGLOBALHH_INCLUDE_GUARD
+#define UTIL_SGLOBALHH_INCLUDE_GUARD
+#define _POSIX_C_SOURCE 200809L //POSIX includes
+#include <unistd.h>
+#include <utility>
 #include "global.hh"
 
 extern std::pair<size_t, size_t> decompose(size_t work, size_t nproc, size_t rank);

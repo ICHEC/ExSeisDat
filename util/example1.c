@@ -1,7 +1,22 @@
+#include "sglobal.h"
+#include <unistd.h>
+#include <assert.h>
 #include <stdlib.h>
 #include "cfileapi.h"
-int main(void)
+int main(int argc, char ** argv)
 {
+    char * opt = "o:";  //TODO: uses a GNU extension
+    char * name = NULL;
+    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+        if (c == 'o')
+            name = copyString(optarg);
+        else
+        {
+            fprintf(stderr, "One of the command line arguments is invalid\n");
+            return -1;
+        }
+    assert(name);
+
     //Initialise the PIOL by creating an ExSeisPIOL object
     ExSeisHandle piol = initMPIOL();
 
@@ -9,7 +24,7 @@ int main(void)
     size_t numRank = getNumRank(piol);
 
     //Create a SEGY file object
-    ExSeisFile fh = openWriteFile(piol, "test.segy");
+    ExSeisFile fh = openWriteFile(piol, name);
 
     //lnt is the number of traces and sets of trace parameters we will write per process
     size_t lnt = 40, ns = 300;

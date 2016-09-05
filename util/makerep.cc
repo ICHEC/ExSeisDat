@@ -1,16 +1,13 @@
 #include "sglobal.hh"
+#include <assert.h>
+#include <unordered_map>
+#include <iostream>
 #include "data/datampiio.hh"
 #include "share/segy.hh"
 #include "share/smpi.hh"
-#include <iostream>
 using namespace PIOL;
 using namespace Data;
 
-#warning EVENTUALLY WRITE AN OBJECT LAYER TEST
-
-
-#warning remove
-#include <assert.h>
 void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 {
     std::cout << msg << sz << " " << rank << " " << rankn << std::endl;
@@ -19,7 +16,6 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 void distribToDistrib(Piol piol, std::pair<size_t, size_t> old, std::pair<size_t, size_t> newd, std::vector<uchar> * vec)
 {
     size_t rank = piol->comm->getRank();
-    size_t numRank = piol->comm->getNumRank();
 
     std::vector<MPI_Request> msg;
     //if the old offset is less than the new offset
@@ -188,6 +184,7 @@ void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size
         out.write(dec.first, dec.second, buf.data());
         piol->isErr();
         if (i == 0)
+        {
             if (dec.first == 0)   //If zero, then current process has read the header object
             {
                 std::move(buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
@@ -196,7 +193,7 @@ void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size
             }
             else
                 dec.first -= hosz;
-
+        }
         for (size_t j = 1; j < repRate; j++)
         {
             out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
@@ -232,6 +229,7 @@ void mpiMakeSEGYCopyNaive2(Piol piol, std::string iname, std::string oname, size
         in.read(dec.first, dec.second, buf.data());
         out.write(dec.first, dec.second, buf.data());
         if (i == 0)
+        {
             if (dec.first == 0)   //If zero, then current process has read the header object
             {
                 std::move(buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
@@ -240,9 +238,77 @@ void mpiMakeSEGYCopyNaive2(Piol piol, std::string iname, std::string oname, size
             }
             else
                 dec.first -= hosz;
-
+        }
         for (size_t j = 1; j < repRate; j++)
             out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
     }
+}
+
+enum Version : size_t
+{
+    Block,
+    Naive1,
+    Naive2
+};
+
+size_t getVersion(std::string version)
+{
+    std::unordered_map<std::string, Version> val =
+    {
+        {"standard", Version::Block},
+        {"naive1", Version::Naive1},
+        {"naive2", Version::Naive2}
+    };
+    return val.find(version)->second;
+}
+
+int main(int argc, char ** argv)
+{
+    std::string opt = "i:o:v:";  //TODO: uses a GNU extension
+    std::string iname = NULL;
+    std::string oname = NULL;
+    size_t version = 0;
+    for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
+        switch (c)
+        {
+            case 'i' :
+                iname = optarg;
+            break;
+            case 'o' :
+                oname = optarg;
+            break;
+            case 'v' :
+                version = getVersion(optarg);
+            break;
+
+            default :
+                fprintf(stderr, "One of the command line arguments is invalid\n");
+            break;
+        }
+    assert(iname.size() && oname.size() && version);
+
+    Piol piol(new ExSeisPIOL);
+    switch (version)
+    {
+        case Version::Block :
+        if (!piol->comm->getRank())
+            std::cout << "Standard\n";
+        mpiMakeSEGYCopy(piol, argv[2], argv[3], std::stoi(argv[4]));
+        break;
+
+        case Version::Naive1 :
+        if (!piol->comm->getRank())
+            std::cout << "Naive 1\n";
+        mpiMakeSEGYCopyNaive1(piol, argv[2], argv[3], std::stoi(argv[4]));
+        break;
+
+        default :
+        case Version::Naive2 :
+        if (!piol->comm->getRank())
+            std::cout << "Naive 2\n";
+        mpiMakeSEGYCopyNaive2(piol, argv[2], argv[3], std::stoi(argv[4]));
+        break;
+    }
+    return 0;
 }
 

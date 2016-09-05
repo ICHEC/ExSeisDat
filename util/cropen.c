@@ -1,5 +1,8 @@
-#include "cfileapi.h"
 #include "sglobal.h"
+#include <unistd.h>
+#include <stddef.h>
+#include <assert.h>
+#include "cfileapi.h"
 
 int testManyFiles(ExSeisHandle piol, const char * name)
 {
@@ -37,4 +40,34 @@ int testManyFiles(ExSeisHandle piol, const char * name)
 
     return 0;
 }
+
+int main(int argc, char ** argv)
+{
+//  Flags:
+// -i input file
+// -o output file
+// -m maximum memory
+    char * opt = "i:";  //TODO: uses a GNU extension
+    char * name = NULL;
+    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+        if (c == 'i')
+            name = copyString(optarg);
+        else
+        {
+            fprintf(stderr, "One of the command line arguments is invalid\n");
+            return -1;
+        }
+    assert(name);
+
+    ExSeisHandle piol = initPIOL(0, NULL);
+    isErr(piol);
+
+    testManyFiles(piol, name);
+
+    if (name != NULL)
+        free(name);
+    return 0;
+}
+
+
 
