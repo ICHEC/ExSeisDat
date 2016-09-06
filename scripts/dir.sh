@@ -1,5 +1,3 @@
-set -e
-set -v
 #    Make test directory
 #    Making sub-directories
 #    Move input files / links

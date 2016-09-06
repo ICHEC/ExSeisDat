@@ -49,6 +49,9 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
                   size_t goff, size_t lnt, size_t tcnt,
                   ModPrm fprm, ModTrc ftrc)
 {
+    if (lnt == 0)   //No work to do
+        return;
+
     size_t q = lnt / tcnt;
     size_t r = lnt % tcnt;
 

@@ -3,9 +3,9 @@
 
 #########SETTINGS#########
 source genenv.sh
-source ctestReadWrite.sh
+source test_$1.sh $2
 export STRIPE_COUNT=10
-DIR_NAME=$TEST_DIR/$NAME$(date +%s)
+DIR_NAME=$TEST_DIR/$NAME$(date +%s)$$
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR_NAME/lib
 export LIBRARY_PATH=$LIBRARY_PATH:$DIR_NAME/lib
 ##########################
@@ -24,6 +24,8 @@ time mpirun -ppn 20 $NAME $ARGUMENTS
 #    checksum
 #    record pass/fail
 md5sum dat/$OUTPUT | cut -d ' ' -f 1  > newChecksum
-cmp newChecksum $PIOL_DIR/checksum/checksum_largesegy.segy_ctestReadWrite
+
+#Get the filename
+cmp newChecksum $PIOL_DIR/checksum/checksum_$(basename $2)_$1
 echo $? > CHECK
 

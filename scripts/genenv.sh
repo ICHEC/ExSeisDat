@@ -4,5 +4,3 @@ export FILES_DIR=/ichec/work/exseisdat/dat16
 export PIOL_DIR=$PWD/..
 export C_INCLUDE_PATH=$PIOL_DIR/api
 export CPLUS_INCLUDE_PATH=$PIOL_DIR/include
-set -e
-set -v
