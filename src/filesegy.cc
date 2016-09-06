@@ -24,6 +24,8 @@
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
 
+#warning remove
+#include <iostream>
 
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -445,12 +447,18 @@ SEGY::SEGY(const Piol piol_, const std::string name_, FileMode mode)
 
 SEGY::~SEGY(void)
 {
+    if (!piol->comm->getRank())
+        std::cout << "Destructor\n";
     if (!piol->log->isErr())
     {
+        if (!piol->comm->getRank())
+            std::cout << "Test\n";
+
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
         if (mode != FileMode::Read && state.writeHO && !piol->comm->getRank())
         {
+            std::cout << "Write header\n";
             std::vector<uchar> buf(SEGSz::getHOSz());
             packHeader(buf.data());
             obj->writeHO(buf.data());
@@ -533,7 +541,6 @@ void SEGY::writeNs(csize_t ns_)
     {
         ns = ns_;
         state.resize = true;
-
         state.writeHO = true;
     }
 }

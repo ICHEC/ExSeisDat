@@ -26,28 +26,27 @@ $(OBJDIR)/%.co: %.c
 .PHONY: all
 all: $(DEP) cropen cexample1 cexample2 ctestReadWrite example1 filemake makerep min
 
-
 .PHONY: clean
 clean:
 	rm -f obj/*.co obj/*.cpo $(BIN) $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
 
-cropen: obj/cropen.co obj/sglobal.co obj/ctest.co ../lib/libcpiol.so
+cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
-cexample1: obj/example1.co obj/sglobal.co ../lib/libcpiol.so
+cexample1: obj/example1.co obj/sglobal.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
-cexample2: obj/example2.co obj/sglobal.co ../lib/libcpiol.so
+cexample2: obj/example2.co obj/sglobal.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
-ctestReadWrite: obj/testReadWrite.co obj/sglobal.co ../lib/libcpiol.so
+ctestReadWrite: obj/testReadWrite.co obj/sglobal.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
-assess: obj/assess.cpo obj/sglobal.cpo ../lib/libpiol.so
+assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
-example1: obj/example1.cpo obj/sglobal.cpo ../lib/libpiol.so
+example1: obj/example1.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
-filemake: obj/filemake.cpo obj/sglobal.cpo ../lib/libpiol.so
+filemake: obj/filemake.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
-makerep: obj/makerep.cpo obj/sglobal.cpo ../lib/libpiol.so
+makerep: obj/makerep.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
-min: obj/min.cpo obj/sglobal.cpo ../lib/libpiol.so
+min: obj/min.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 
 ifeq "$(CURR_DEP)" "$(DEP)"

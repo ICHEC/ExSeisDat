@@ -80,19 +80,19 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
 
     if (!rank)
     {
-        printf("%zu %zu %zu %zu\n", nt, (memmax * 1024U * 1024U), getSEGYTraceLen(ns), 4U*sizeof(TraceParam));
+        printf("%zu %zu %zu %zu\n", nt, memmax, getSEGYTraceLen(ns), 4U*sizeof(TraceParam));
         printf("Write metadata to file %zu %zu %e\n", ns, nt, readInc(ifh));
     }
     writeHeader(piol, ifh, ofh);
 
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
-    size_t tcnt = (memmax * 1024U * 1024U) / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
+    size_t tcnt = memmax / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
 
     writePayload(piol, ifh, ofh, dec.start, dec.end, tcnt, fprm, ftrc);
 
+    isErr(piol);
     closeFile(ofh);
     closeFile(ifh);
-    isErr(piol);
     return 0;
 }
 
@@ -118,7 +118,7 @@ int main(int argc, char ** argv)
     char * opt = "i:o:m:pt";  //TODO: uses a GNU extension
     char * iname = NULL;
     char * oname = NULL;
-    size_t memmax = 2U*1024U*1024U*1024U;
+    size_t memmax = 2U*1024U * 1024U * 1024U;   //bytes
     ModPrm modPrm = NULL;
     ModTrc modTrc = false;
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
@@ -156,6 +156,8 @@ int main(int argc, char ** argv)
     isErr(piol);
 
     ReadWriteFile(piol, iname, oname, memmax, modPrm, modTrc);
+
+    closePIOL(piol);
 
     if (iname != NULL)
         free(iname);

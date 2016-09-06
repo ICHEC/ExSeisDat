@@ -11,7 +11,7 @@ GCOMP=g++
 include ../compiler.cfg
 
 INC_FOLDER=-I../include $(LOCAL_INC_FOLDER)
-CPPFLAGS=$(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CXXFLAGS=$(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 
 DEP=depend
 SOURCES=$(wildcard *.cc)
@@ -40,7 +40,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CPP) -o $@ -L$(LIB_DIR) -l$(LIB_PIOL) $(CPPFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ -L$(LIB_DIR) -l$(LIB_PIOL) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles
@@ -63,8 +63,8 @@ ifeq "$(CURR_DEP)" "$(DEP)"
 endif
 
 %.dep: %.cc
-	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 

@@ -2,10 +2,10 @@ INC_FOLDER = -I../include
 
 include ../compiler.cfg
 
-CPPFLAGS = $(CPPSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
 
-CPPBIN=piol
+CXXBIN=piol
 BIN=$(LIB_DIR)/libcpiol.so
 
 DEP=depend
@@ -19,19 +19,19 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(CPPSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CPP) $(LIB_FLAG) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(BIN)
 
-$(LIB_DIR)/lib$(CPPBIN).so:
+$(LIB_DIR)/lib$(CXXBIN).so:
 	cd ../src ; $(MAKE)
 
-$(BIN): $(OBJECTS) $(LIB_DIR)/lib$(CPPBIN).so
-	$(CPP) -o $@ -shared $(LIB_FLAG) $(CPPFLAGS) -L$(LIB_DIR) -l$(CPPBIN) $(LDFLAGS) $(OBJECTS)
+$(BIN): $(OBJECTS) $(LIB_DIR)/lib$(CXXBIN).so
+	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(CXXBIN) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
