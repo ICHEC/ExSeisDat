@@ -2,11 +2,9 @@
 #PBS -N test1_24
 #PBS -A lero
 #PBS -r n
-#PBS -j oe
+#PBS -o /dev/null
+#PBS -e /dev/null
 #PBS -m bea
-
-# #PBS -l nodes=1:ppn=24
-# #PBS -l walltime=0:00:05:00
 
 cd $PBS_O_WORKDIR
 
@@ -15,5 +13,6 @@ cd $PBS_O_WORKDIR
 #export TASKFARM_SMT=1
 #taskfarm utiltasks.sh
 
-bash tasks.sh
+export PROC_COUNT=24
+bash tasks.sh &> TEST$PBS_JOBID
 

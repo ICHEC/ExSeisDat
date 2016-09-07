@@ -5,7 +5,7 @@
 source genenv.sh
 source test_$1.sh $2
 export STRIPE_COUNT=10
-DIR_NAME=$TEST_DIR/$NAME$(date +%s)$$
+DIR_NAME=$TEST_DIR/$(date +%s)$$
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR_NAME/lib
 export LIBRARY_PATH=$LIBRARY_PATH:$DIR_NAME/lib
 ##########################
@@ -19,7 +19,7 @@ bash make.sh $DIR_NAME
 #    run the test
 cd $DIR_NAME
 mv util/$NAME .
-time mpirun -ppn 20 $NAME $ARGUMENTS
+$(which time) -f "%e %I %O %M %W" mpirun -ppn $PROC_COUNT $NAME $ARGUMENTS 2> TIME
 
 #    checksum
 #    record pass/fail
@@ -27,5 +27,4 @@ md5sum dat/$OUTPUT | cut -d ' ' -f 1  > newChecksum
 
 #Get the filename
 cmp newChecksum $PIOL_DIR/checksum/checksum_$(basename $2)_$1
-echo $? > CHECK
-
+echo $1 $(basename $2) $? $PROC_COUNT $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK

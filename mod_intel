@@ -3,3 +3,6 @@ module load doxygen
 export I_MPI_CXX=icpc
 export I_MPI_CC=icc
 export PIOL_SYSTEM=Fionn
+
+module load mvapich2/intel/2.1a
+
