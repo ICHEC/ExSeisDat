@@ -34,7 +34,7 @@ int calcMin(Piol piol, std::string name)
 int main(int argc, char ** argv)
 {
     std::string opt = "i:";  //TODO: uses a GNU extension
-    std::string name = NULL;
+    std::string name = "";
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         if (c == 'i')
             name = optarg;

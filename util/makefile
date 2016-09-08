@@ -8,7 +8,7 @@ DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = makerep example1 filemake min example1 cexample1 cexample2 cropen ctestReadWrite
+BIN = makerep example1 filemake min example1 cexample1 cexample2 cropen creadwrite
 CURR_BIN=$(wildcard $(BINARIES))
 
 %.dep: %.c
@@ -24,7 +24,7 @@ $(OBJDIR)/%.co: %.c
 	$(CC) $(CFLAGS) $(CINC_FOLDER) -c $< -o $@
 
 .PHONY: all
-all: $(DEP) cropen cexample1 cexample2 ctestReadWrite example1 filemake makerep min
+all: $(DEP) cropen cexample1 cexample2 creadwrite example1 filemake makerep min
 
 .PHONY: clean
 clean:
@@ -36,7 +36,7 @@ cexample1: obj/example1.co obj/sglobal.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
 cexample2: obj/example2.co obj/sglobal.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
-ctestReadWrite: obj/testReadWrite.co obj/sglobal.co
+creadwrite: obj/creadwrite.co obj/sglobal.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
 assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 

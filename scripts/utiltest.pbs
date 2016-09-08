@@ -13,6 +13,6 @@ cd $PBS_O_WORKDIR
 #export TASKFARM_SMT=1
 #taskfarm utiltasks.sh
 
-export PROC_COUNT=24
+#export PROC_COUNT=$PPN_
 bash tasks.sh &> TEST$PBS_JOBID
 

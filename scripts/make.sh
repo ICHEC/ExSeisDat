@@ -26,10 +26,10 @@ cp $PIOL_DIR/compiler.cfg .
 
 #    compile
 cd src
-time make -j 24 > /dev/null
+make -j 24 > /dev/null
 cd ../api
-time make > /dev/null
+make > /dev/null
 cd ../util
-time make -j 24 $NAME > /dev/null
+make -j 24 $NAME > /dev/null
 echo build finished.
 

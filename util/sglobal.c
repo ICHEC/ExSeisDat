@@ -2,6 +2,7 @@
 #include <assert.h>
 Extent decompose(size_t sz, size_t nrank, size_t rank)
 {
+    assert(nrank > rank);
     size_t r = sz%nrank;
     size_t q = sz/nrank;
     size_t start = q * rank + MIN(rank, r);

@@ -36,8 +36,9 @@ int main(int argc, char ** argv)
     size_t nt = readNt(ifh);
     size_t ns = readNs(ifh);
 
-    //lnt is a local subset of the number of traces
-    size_t lnt = nt / getNumRank(piol);
+    Extent dec = decompose(nt, getNumRank(piol), rank);
+    size_t offset = dec.start;
+    size_t lnt = dec.end;
 
     //Alloc the required memory for the data we want.
     float * trace = malloc(lnt * getSEGYTraceLen(ns));
@@ -54,12 +55,12 @@ int main(int argc, char ** argv)
     writeInc(ofh, readInc(ifh));
 
     //Read the trace parameters from the input file and to the output
-    readTraceParam(ifh, lnt * rank, lnt, trhdr);
-    writeTraceParam(ofh, lnt * rank, lnt, trhdr);
+    readTraceParam(ifh, offset, lnt, trhdr);
+    writeTraceParam(ofh, offset, lnt, trhdr);
 
     //Read the traces from the input file and to the output
-    readTrace(ifh, lnt * rank, lnt, trace);
-    writeTrace(ofh, lnt * rank, lnt, trace);
+    readTrace(ifh, offset, lnt, trace);
+    writeTrace(ofh, offset, lnt, trace);
 
     free(trace);
     free(trhdr);

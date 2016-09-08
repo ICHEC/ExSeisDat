@@ -2,6 +2,7 @@
 #include <assert.h>
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
+    assert(numRank > rank);
     size_t q = sz/numRank;
     size_t r = sz%numRank;
     size_t start = q * rank + std::min(rank, r);

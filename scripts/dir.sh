@@ -8,7 +8,7 @@ mkdir src dat api util lib
 mkdir src/obj api/obj util/obj
 lfs setstripe -c $STRIPE_COUNT dat
 
-for i in $DIR_FILES; do
-    ln -s $FILES_DIR/$i dat/
-done
+#for i in $DIR_FILES; do
+#    ln -s $i dat/
+#done
 

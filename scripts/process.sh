@@ -12,14 +12,14 @@ EOL
 for dir in $TEST_DIR/*
 do
     read -r NAME FILE SUCCESS PPN PPNN < <(head -n 1 $dir/CHECK)
+    read -r TIME < <(tail -n 1 $dir/TIME | cut -d ' ' -f 1)
     cat >> tests.cc << EOL
 TEST($NAME, $(basename $FILE .segy)${PPN}${PPNN})
 {
     ASSERT_EQ(0, $SUCCESS);
+    std::cout << "runtime " << $TIME << std::endl;
 }
 EOL
-
-    read -r TIME < <(cut -d ' ' -f 1 $dir/TIME)
 done
 
 #compile
@@ -30,8 +30,10 @@ make -j 2 > /dev/null
 
 #remove & cleanup
 make clean > /dev/null
-rm -f tests.cc
 if [ -n $TEST_DIR ]; then
-echo To delete test directories, type rm -r "$TEST_DIR/*"
+echo rm -r -I "$TEST_DIR/*"
+rm -r -I $TEST_DIR/*
+rm -r -I TEST*
 fi
 
+rm -f tests.cc

@@ -264,10 +264,11 @@ size_t getVersion(std::string version)
 
 int main(int argc, char ** argv)
 {
-    std::string opt = "i:o:v:";  //TODO: uses a GNU extension
-    std::string iname = NULL;
-    std::string oname = NULL;
-    size_t version = 0;
+    std::string opt = "i:o:v:r:";  //TODO: uses a GNU extension
+    std::string iname = "";
+    std::string oname = "";
+    size_t rep = 1;
+    size_t version = size_t(Version::Block);
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -280,12 +281,14 @@ int main(int argc, char ** argv)
             case 'v' :
                 version = getVersion(optarg);
             break;
-
+            case 'r' :
+                rep = std::stoul(optarg);
+            break;
             default :
                 fprintf(stderr, "One of the command line arguments is invalid\n");
             break;
         }
-    assert(iname.size() && oname.size() && version);
+    assert(iname.size() && oname.size());
 
     Piol piol(new ExSeisPIOL);
     switch (version)
@@ -293,20 +296,20 @@ int main(int argc, char ** argv)
         case Version::Block :
         if (!piol->comm->getRank())
             std::cout << "Standard\n";
-        mpiMakeSEGYCopy(piol, argv[2], argv[3], std::stoi(argv[4]));
+        mpiMakeSEGYCopy(piol, iname, oname, rep);
         break;
 
         case Version::Naive1 :
         if (!piol->comm->getRank())
             std::cout << "Naive 1\n";
-        mpiMakeSEGYCopyNaive1(piol, argv[2], argv[3], std::stoi(argv[4]));
+        mpiMakeSEGYCopyNaive1(piol, iname, oname, rep);
         break;
 
         default :
         case Version::Naive2 :
         if (!piol->comm->getRank())
             std::cout << "Naive 2\n";
-        mpiMakeSEGYCopyNaive2(piol, argv[2], argv[3], std::stoi(argv[4]));
+        mpiMakeSEGYCopyNaive2(piol, iname, oname, rep);
         break;
     }
     return 0;
