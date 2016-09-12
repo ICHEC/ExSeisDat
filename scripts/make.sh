@@ -29,6 +29,10 @@ make -j 24 > /dev/null
 cd ../api
 make > /dev/null
 cd ../util
+echo Making: $1
+echo $I_MPI_CXX
+echo $I_MPI_CC
+
 make -j 24 $1 > /dev/null
 echo build finished.
 
