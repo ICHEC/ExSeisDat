@@ -1,0 +1,8 @@
+1. git clone https://github.com/Microsoft/pict
+2. Use pict to generate a file of combinations: testmatrix
+3. Run que.sh
+    a. use testmatrix to generate a list of parameters for a specific node count
+    b. que jobs corresponding to the node counts
+4. After the jobs finish running, process them by "bash process.sh"
+
+

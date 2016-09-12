@@ -1,0 +1,7 @@
+NODE_COUNT: 1, 5
+NODE_PPN: 1, 23, 24
+MPI: openmpi, mvapich, intelmpi
+TEST_NAMES: cexample2, creadwrite, filemake, makerepn1, makerepn2, makerep
+INPUT: /ichec/work/exseisdat/dat16/largesegy.segy
+STRIPE_COUNT: 10
+COMPILER: intel, gnu
