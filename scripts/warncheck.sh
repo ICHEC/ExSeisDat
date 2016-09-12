@@ -6,22 +6,26 @@ set -u
 DIR_NAME=$TEST_DIR/$(date +%s)$$
 mkdir $DIR_NAME
 cp -r $PIOL_DIR/src $DIR_NAME/
+cp -r $PIOL_DIR/compiler.cfg $DIR_NAME/
+ln -s $PIOL_DIR/include $DIR_NAME/
+mkdir $DIR_NAME/lib
+cd $PIOL_DIR/src
 
 red='\e[31m'
 DIR=$(pwd)
 gfile=$PIOL_DIR/scripts/temp/gnuwarnings
 ifile=$PIOL_DIR/scripts/temp/intelwarnings
 
-cd $DIR_NAME
+cd $DIR_NAME/src
 
 module purge
 source $PIOL_DIR/mod_intel
-make clean
+make -s clean
 make -j 24  -s 2> $ifile
 
 module purge
-make clean
 source $PIOL_DIR/mod_gnu
+make -s clean
 make -j 24 -s 2> $gfile
 
 RET=0
@@ -38,5 +42,6 @@ if [ -s $gfile ]; then
 fi
 module purge
 
-echo WarningsTest SRC $RET 0 0 > CHECK
+echo WarningsTest SRC $RET 0 0 > ../CHECK
+echo 0 0 0 0 0 0 0 0 > ../TIME
 

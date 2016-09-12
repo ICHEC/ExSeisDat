@@ -6,9 +6,6 @@ cat > tests.cc << EOL
 #include "gmock/gmock.h"
 EOL
 
-#TEMP=$(mktemp)
-#cat $TEST_DIR/*/CHECK > $TEMP
-
 for dir in $TEST_DIR/*
 do
     read -r NAME FILE SUCCESS PPN PPNN < <(head -n 1 $dir/CHECK)
@@ -22,12 +19,16 @@ TEST($NAME, $(basename $FILE .segy)${PPN}${PPNN})
 EOL
 done
 
+echo DONE1
+
 #compile
 make -j 2 > /dev/null
 
+echo DONE1
 #run
 ./test
 
+echo DONE2
 #remove & cleanup
 make clean > /dev/null
 if [ -n $TEST_DIR ]; then
