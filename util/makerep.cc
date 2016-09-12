@@ -125,15 +125,16 @@ void mpiMakeSEGYCopy(Piol piol, std::string iname, std::string oname, size_t rep
     size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
+    assert(fsz/numRank >= hosz);
     for (size_t i = 0; i < fsz; i += step)
     {
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
 
         std::vector<uchar> buf(dec.second);
-        in.read(dec.first, dec.second, buf.data());
+        in.read(i+dec.first, dec.second, buf.data());
         piol->isErr();
-        out.write(dec.first, dec.second, buf.data());
+        out.write(i+dec.first, dec.second, buf.data());
         piol->isErr();
         if (i == 0)
         {
@@ -173,15 +174,16 @@ void mpiMakeSEGYCopyNaive1(Piol piol, std::string iname, std::string oname, size
     size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
+    assert(fsz/numRank >= hosz);
     for (size_t i = 0; i < fsz; i += step)
     {
         size_t rblock = (i + step < fsz ? step : fsz - i);
-        auto dec = blockDecomp(rblock, bsz, numRank, rank);
+        auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
 
         std::vector<uchar> buf(dec.second);
-        in.read(dec.first, dec.second, buf.data());
+        in.read(i+dec.first, dec.second, buf.data());
         piol->isErr();
-        out.write(dec.first, dec.second, buf.data());
+        out.write(i+dec.first, dec.second, buf.data());
         piol->isErr();
         if (i == 0)
         {
@@ -226,8 +228,8 @@ void mpiMakeSEGYCopyNaive2(Piol piol, std::string iname, std::string oname, size
         auto dec = decompose(rblock, numRank, rank);
 
         std::vector<uchar> buf(dec.second);
-        in.read(dec.first, dec.second, buf.data());
-        out.write(dec.first, dec.second, buf.data());
+        in.read(i + dec.first, dec.second, buf.data());
+        out.write(i + dec.first, dec.second, buf.data());
         if (i == 0)
         {
             if (dec.first == 0)   //If zero, then current process has read the header object

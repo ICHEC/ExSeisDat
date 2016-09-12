@@ -24,7 +24,9 @@ $(OBJDIR)/%.co: %.c
 	$(CC) $(CFLAGS) $(CINC_FOLDER) -c $< -o $@
 
 .PHONY: all
-all: $(DEP) cropen cexample1 cexample2 creadwrite example1 filemake makerep min
+all: 
+
+# cropen cexample1 cexample2 creadwrite example1 filemake makerep min
 
 .PHONY: clean
 clean:
@@ -45,6 +47,10 @@ example1: obj/example1.cpo obj/sglobal.cpo
 filemake: obj/filemake.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 makerep: obj/makerep.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+makerepn1: obj/makerep.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+makerepn2: obj/makerep.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 min: obj/min.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 

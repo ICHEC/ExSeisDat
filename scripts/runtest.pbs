@@ -1,0 +1,18 @@
+#PBS -N piolsystest
+#PBS -A lero
+#PBS -r n
+#PBS -o /dev/null
+#PBS -e /dev/null
+#PBS -m bea
+
+cd $PBS_O_WORKDIR
+while read -r all; do
+{
+    bash farm_1param.sh $all >> TEST$PBS_JOBID 2>&1
+} < /dev/null
+done < $PBS_O_WORKDIR/temp/util_1_$NODES.sh
+
+#while read -r all; do
+#    bash farm_1param.sh $all >> TEST$PBS_JOBID 2>&1
+#done 3<&0 < $PBS_O_WORKDIR/temp/util_1_$NODES.sh
+

@@ -26,8 +26,6 @@ export LIBRARY_PATH=$LIBRARY_PATH:$DIR_NAME/lib
 ##########################
 
 echo $DIR_NAME
-#    Module loading
-source $PIOL_DIR/mod_$MODULE
 
 bash dir.sh $DIR_NAME
 bash make.sh $DIR_NAME

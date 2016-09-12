@@ -33,7 +33,11 @@ make clean > /dev/null
 if [ -n $TEST_DIR ]; then
 echo rm -r -I "$TEST_DIR/*"
 rm -r -I $TEST_DIR/*
+echo rm -r -I "TEST*"
 rm -r -I TEST*
 fi
 
 rm -f tests.cc
+rm -f tasks.sh
+rm -f str.awk
+

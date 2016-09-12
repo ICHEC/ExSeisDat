@@ -1,7 +1,6 @@
 
 #    copy src files and the utility
 #C
-cd $1
 
 if [ -z $PIOL_DIR ]
 then
@@ -30,6 +29,6 @@ make -j 24 > /dev/null
 cd ../api
 make > /dev/null
 cd ../util
-make -j 24 $NAME > /dev/null
+make -j 24 $1 > /dev/null
 echo build finished.
 
