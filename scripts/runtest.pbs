@@ -1,3 +1,4 @@
+#!/bin/bash
 #PBS -N piolsystest
 #PBS -A lero
 #PBS -r n
@@ -6,6 +7,14 @@
 #PBS -m bea
 
 cd $PBS_O_WORKDIR
+
+export PIOL_DIR=$PBS_O_WORKDIR/..
+export C_INCLUDE_PATH=$PIOL_DIR/api
+export CPLUS_INCLUDE_PATH=$PIOL_DIR/include
+export TEST_DIR=/ichec/work/exseisdat/test
+
+bash warncheck.sh
+
 while read -r all; do
 {
     bash farm_1param.sh $all >> TEST$PBS_JOBID 2>&1
