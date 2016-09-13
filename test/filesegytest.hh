@@ -242,13 +242,13 @@ struct FileSEGYTest : public Test
 
         grid_t line;
         file->readGridPoint(File::Grid::Line, offset, 1U, &line);
-        ASSERT_EQ(ilNum(offset), line.first);
-        ASSERT_EQ(xlNum(offset), line.second);
+        ASSERT_EQ(ilNum(offset), line.il);
+        ASSERT_EQ(xlNum(offset), line.xl);
 
         coord_t src;
         file->readCoordPoint(File::Coord::Src, offset, 1U, &src);
-        ASSERT_DOUBLE_EQ(xNum(offset), src.first);
-        ASSERT_DOUBLE_EQ(yNum(offset), src.second);
+        ASSERT_DOUBLE_EQ(xNum(offset), src.x);
+        ASSERT_DOUBLE_EQ(yNum(offset), src.y);
     }
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
@@ -265,11 +265,11 @@ struct FileSEGYTest : public Test
 
         for (size_t i = 0; i < tn; i++)
         {
-            ASSERT_EQ(ilNum(i), line[i].first);
-            ASSERT_EQ(xlNum(i), line[i].second);
+            ASSERT_EQ(ilNum(i), line[i].il);
+            ASSERT_EQ(xlNum(i), line[i].xl);
 
-            ASSERT_DOUBLE_EQ(xNum(i), src[i].first);
-            ASSERT_DOUBLE_EQ(yNum(i), src[i].second);
+            ASSERT_DOUBLE_EQ(xNum(i), src[i].x);
+            ASSERT_DOUBLE_EQ(yNum(i), src[i].y);
         }
     }
 

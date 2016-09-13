@@ -8,8 +8,8 @@ DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = makerep example1 filemake min example1 cexample1 cexample2 cropen creadwrite
-CURR_BIN=$(wildcard $(BINARIES))
+BIN = cropen cexample1 cexample2 creadwrite assess example1 filemake makerep makerepn1 makerepn2 minmax
+CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
 	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(CINC_FOLDER) -o $@ 
@@ -24,13 +24,12 @@ $(OBJDIR)/%.co: %.c
 	$(CC) $(CFLAGS) $(CINC_FOLDER) -c $< -o $@
 
 .PHONY: all
-all: 
-
-# cropen cexample1 cexample2 creadwrite example1 filemake makerep min
+all: $(BIN)
+# 
 
 .PHONY: clean
 clean:
-	rm -f obj/*.co obj/*.cpo $(BIN) $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
+	rm -f obj/*.co obj/*.cpo $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
 
 cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
@@ -52,7 +51,7 @@ makerepn1: obj/makerep.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 makerepn2: obj/makerep.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
-min: obj/min.cpo obj/sglobal.cpo
+minmax: obj/minmax.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 
 ifeq "$(CURR_DEP)" "$(DEP)"

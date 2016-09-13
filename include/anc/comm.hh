@@ -48,19 +48,19 @@ class Interface
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<geom_t> gather(geom_t val) const = 0;
+    virtual std::vector<geom_t> gather(const std::vector<geom_t> & val) const = 0;
 
     /*! \brief Pass a llint value and return the corresponding value on each process
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<llint> gather(llint val) const = 0;
+    virtual std::vector<llint> gather(const std::vector<llint> & val) const = 0;
 
     /*! \brief Pass a size_t value and return the corresponding value on each process
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<size_t> gather(size_t val) const = 0;
+    virtual std::vector<size_t> gather(const std::vector<size_t> & val) const = 0;
 
     /*! \brief A barrier between all processes which are members of the communication collective.
      */

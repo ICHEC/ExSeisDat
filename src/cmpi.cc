@@ -54,36 +54,38 @@ MPI_Comm MPI::getComm() const
 
 /*! Retrieve the corresponding values from every process in a collective call
  * \param[in] mpi The MPI communication class
- * \param[in] val The local value to use in the gather
+ * \param[in] in The local value to use in the gather
  * \tparam T The datatype for the gather
  * \return Return a vector where the nth element is the value from the nth rank.
  */
 template <typename T>
-std::vector<T> MPIGather(const MPI * mpi, T val)
+std::vector<T> MPIGather(const MPI * mpi, const std::vector<T> & in)
 {
-    std::vector<T> arr(mpi->getNumRank());
-    arr[mpi->getRank()] = val;
+    size_t isz = in.size();
+    std::vector<T> arr(mpi->getNumRank() * in.size());
+    int err = MPI_Allgather(in.data(), in.size(), MPIType<T>(), arr.data(), in.size(), MPIType<T>(), mpi->getComm());
 
-    //TODO: Non-blocking target to be combined with other operations.
-    int err = MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, arr.data(), 1, MPIType<T>(), mpi->getComm());
     if (err != MPI_SUCCESS)
         std::cerr << "Allgather error\n";
     return arr;
 }
 
-std::vector<llint> MPI::gather(llint val) const
+inline
+std::vector<llint> MPI::gather(const std::vector<llint> & in) const
 {
-    return MPIGather(this, val);
+    return MPIGather(this, in);
 }
 
-std::vector<size_t> MPI::gather(size_t val) const
+inline
+std::vector<size_t> MPI::gather(const std::vector<size_t> & in) const
 {
-    return MPIGather(this, val);
+    return MPIGather(this, in);
 }
 
-std::vector<geom_t> MPI::gather(geom_t val) const
+inline
+std::vector<geom_t> MPI::gather(const std::vector<geom_t> & in) const
 {
-    return MPIGather(this, val);
+    return MPIGather(this, in);
 }
 
 void MPI::barrier(void) const

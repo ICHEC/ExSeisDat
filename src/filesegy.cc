@@ -251,8 +251,8 @@ void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar 
 {
     auto pair = getPair(item);
     geom_t gscale = scaleConv(scale);
-    getBigEndian(int32_t(std::lround(coord.first / gscale)), &buf[size_t(pair.first) - 1U]);
-    getBigEndian(int32_t(std::lround(coord.second / gscale)), &buf[size_t(pair.second) - 1U]);
+    getBigEndian(int32_t(std::lround(coord.x / gscale)), &buf[size_t(pair.first) - 1U]);
+    getBigEndian(int32_t(std::lround(coord.y / gscale)), &buf[size_t(pair.second) - 1U]);
 }
 
 //TODO: Document and unit test
@@ -279,8 +279,8 @@ grid_t getGrid(const Grid item, const uchar * buf)
 void setGrid(const Grid item, const grid_t grid, uchar * buf)
 {
     auto pair = getPair(item);
-    getBigEndian(int32_t(grid.first), &buf[size_t(pair.first) - 1U]);
-    getBigEndian(int32_t(grid.second), &buf[size_t(pair.second) - 1U]);
+    getBigEndian(int32_t(grid.il), &buf[size_t(pair.first) - 1U]);
+    getBigEndian(int32_t(grid.xl), &buf[size_t(pair.second) - 1U]);
 }
 
 /*! \fn int16_t PIOL::File::deScale(const geom_t val)
@@ -389,8 +389,8 @@ int16_t calcScale(const coord_t coord)
 {
     //I get the minimum value so that I definitely store the result.
     //This is at the expense of precision.
-    int16_t scal1 = deScale(coord.first);
-    int16_t scal2 = deScale(coord.second);
+    int16_t scal1 = deScale(coord.x);
+    int16_t scal2 = deScale(coord.y);
     return scalComp(scal1, scal2);
 }
 

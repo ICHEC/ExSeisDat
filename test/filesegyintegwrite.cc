@@ -41,7 +41,8 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceGrid)
 
     grid_t grd;
     file->readGridPoint(File::Grid::Line, 201, 1U, &grd);
-    EXPECT_EQ(grid, grd);
+    EXPECT_EQ(grid.il, grd.il);
+    EXPECT_EQ(grid.xl, grd.xl);
 }
 
 //Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
@@ -64,7 +65,8 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceCoord)
 
     File::coord_t crd;
     file->readCoordPoint(File::Coord::CMP, 200, 1U, &crd);
-    EXPECT_EQ(coord, crd);
+    EXPECT_EQ(coord.x, crd.x);
+    EXPECT_EQ(coord.y, crd.y);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)

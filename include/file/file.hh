@@ -12,8 +12,25 @@
 #include "global.hh"
 
 namespace PIOL { namespace File {
-typedef std::pair<geom_t, geom_t> coord_t;  //!< The type for coordinate points
-typedef std::pair<llint, llint> grid_t;     //!< The type for grid points
+
+struct coord_t
+{
+    geom_t x;
+    geom_t y;
+    coord_t(const geom_t x_, const geom_t y_) : x(x_), y(y_) { }
+    coord_t() : x(geom_t(0)), y(geom_t(0)) { }
+};
+
+//typedef std::pair<geom_t, geom_t> coord_t;  //!< The type for coordinate points
+
+struct grid_t
+{
+    llint il;
+    llint xl;
+    grid_t(const geom_t i_, const geom_t x_) : il(i_), xl(x_) { }
+    grid_t() : il(llint(0)), xl(llint(0)) { }
+};
+//typedef std::pair<llint, llint> grid_t;     //!< The type for grid points
 
 /*! \brief Possible coordinate sets
  */

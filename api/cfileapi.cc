@@ -1,13 +1,14 @@
+#include "global.hh"
 #include "cfileapi.h"
 #include <iostream>
 #include <cstddef>
 #include <assert.h>
-#include "global.hh"
 #include "anc/cmpi.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
 #include "share/segy.hh"
+#include "ops/ops.hh"
 
 using namespace PIOL;
 
@@ -48,6 +49,7 @@ ExSeisHandle initMPIOL(void)
     assert(sizeof(File::TraceParam) == sizeof(TraceParam));
     assert(sizeof(File::coord_t) == sizeof(ccoord_t));
     assert(sizeof(File::grid_t) == sizeof(cgrid_t));
+    assert(sizeof(File::CoordElem) == sizeof(CoordElem));
 
     Comm::MPIOpt mpi;
     auto wrap = new PIOLWrapper;
@@ -219,6 +221,14 @@ void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
     f->file->readTraceParam(offset, sz, reinterpret_cast<File::TraceParam *>(prm));
 }
 
+/////////////////////////////////////Operations///////////////////////////////
+
+void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax)
+{
+    getMinMax(piol->piol, offset, sz, reinterpret_cast<const File::coord_t *>(coord), reinterpret_cast<File::CoordElem * >(minmax));
+}
+
+//////////////////////////////////////SEGSZ///////////////////////////////////
 size_t getSEGYTextSz()
 {
     return SEGSz::getTextSz();

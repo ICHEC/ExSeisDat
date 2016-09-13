@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
         if (std::regex_match(globs.gl_pathv[i], reg))
         {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
-            Interface * file = new SEGY(piol, globs.gl_pathv[i]);
+            std::unique_ptr<Interface> file = std::make_unique<SEGY>(piol, globs.gl_pathv[i]);
             if (piol->log->isErr())
                 continue;
 //    std::cout << "--\tText: " << file->readText() << "\n";

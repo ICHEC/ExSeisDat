@@ -20,7 +20,7 @@ enum class Layer : size_t
     Object,
     File,
     Set,
-    Operations,
+    Ops,
     Comm,
     Log,        //!< The Log layer itself.
     MPI,        //!< Misc MPI.

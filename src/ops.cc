@@ -1,107 +1,90 @@
 #include "global.hh"
 #include <algorithm>
 #include <iterator>
+#include "ops/ops.hh"
 #include "file/file.hh"
 
+#warning remove
+#include <iostream>
+
 namespace PIOL { namespace File {
-/*
-auto extractCrd(Coord crd)
-{
-    switch (crd)
-    {
-        case Src :
-            return [] (const TraceParam & v) -> TraceParam & { return v.src };
-        case Rcv :
-            return [] (const TraceParam & v) -> TraceParam & { return v.rcv };
-        default :
-        case CMP :
-            return [] (const TraceParam & v) -> TraceParam & { return v.cmp };
-    }
-}
-
-
-std::vector<coord_t> & getCoordPoint(Coord crd, size_t sz, const TraceParam * prm)
-{
-    std::vector<coord_t> vec(sz);
-    auto elem = extractCrd(crd);
-    for (size_t i = 0; i < sz; i++)
-        std::transform(std::begin(prm), std::end(&prm[sz-1]), vec.begin(), elem);
-
-    return vec;
-}
-*/
-
-/*//TODO: This is temporarily hosting the communication. Move this to the communication layer
-void getExtent(Piol piol, size_t sz, Coord crd, const TraceParam * prm,  std::pair<coord_t, size_t> * extent)
-{
-    auto crdvec = getCoordPoint(crd, sz, prm);
-    std::vector<geom_t> xvec(sz), yvec(sz);
-    std::transform(crdvec.begin(), crdvec.end(), xvec.begin(), [] (const coord_t & c) -> coord_t & { return c.first; });
-    std::transform(crdvec.begin(), crdvec.end(), yvec.begin(), [] (const coord_t & c) -> coord_t & { return c.second; });
-
-    crdvec.resize(0);
-
-    auto xres = std::minmax_element(xvec.begin(), xvec.end());
-    geom_t xval = xres;
-    size_t xnum = std::distance(xvec.begin(), xres);
-    xvec.resize(0);
-
-    auto yres = std::minmax_element(yvec.begin(), yvec.end());
-    geom_t yval = yres;
-    size_t ynum = std::distance(yvec.begin(), yres);
-    yvec.resize(0);
-
-    std::vector< gather(yval);
-    gather(yval);
-
-
-    return ;
-}*/
-
-geom_t xmin(Piol piol, size_t offset, size_t sz, const coord_t * val)
+/*geom_t xmin(Piol piol, size_t offset, size_t sz, const coord_t * coord)
 {
     std::vector<geom_t> xvec(sz);
-    std::transform(val, &val[sz], xvec.begin(), [] (const coord_t & c) -> geom_t { return c.first; });
+    std::transform(coord, &coord[sz], xvec.begin(), [] (const coord_t & c) -> geom_t { return c.x; });
 
     //Local
     auto xres = std::min_element(xvec.begin(), xvec.end());
-    geom_t xval = *xres;
-    auto xnt = piol->comm->gather(offset + std::distance(xvec.begin(), xres));
+    geom_t xcoord = *xres;
+    auto xnt = piol->comm->gather(std::vector<size_t>{offset + std::distance(xvec.begin(), xres)});
     xvec.resize(0);
 
     //Global
-    xvec = piol->comm->gather(xval);
+    xvec = piol->comm->gather(std::vector<geom_t>{xcoord});
     xres = std::min_element(xvec.begin(), xvec.end());
 
     return *xres;
-}
-
-/*template <typename T>
-using RedOp = std::function<Iterator::T(Iterator::T, Iterator::T)>;
-
-template <typename T, size_t Item>
-T reducOp(RedOp op, Iterator::T start, Iterator T end, std::pair<T, T> * val)
-{
-    std::vector<T> vec(sz);
-    std::transform(val, &val[sz], vec.begin(), [] (const std::pair<T, T> & c) -> geom_t { return std::get<Item>(c); });
-
-    //Local
-    auto xres = op(vec.begin(), vec.end());
-    geom_t val = *res;
-    auto nt = piol->comm->gather(offset + std::distance(vec.begin(), res));
-    vec.resize(0);
-
-    //Global
-    vec = piol->comm->gather(val);
-    res = op(vec.begin(), vec.end());
-    return *res;
 }*/
 
-geom_t xmin(Piol piol, size_t sz, const coord_t * val)
+template <bool GetY>
+std::vector<CoordElem> getCoordMinMax(Piol piol, size_t offset, size_t sz, const coord_t * coord)
 {
-//    return reducOp([](Iterator::geom , Iterator::T start, Iterator T end, std::pair<T, T> * val);
-    return xmin(piol, 0, sz, val);
+    bool active = true;
+    if (!sz)
+    {
+        piol->record("", Log::Layer::Ops, Log::Status::Warning,
+                     "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
+                     Log::Verb::Extended);
+    }
+    if (coord == NULL)
+    {
+        active = false;
+        piol->record("", Log::Layer::Ops, Log::Status::Warning,
+                     "getCoordMinMax() was called but process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
+                     Log::Verb::Extended);
+    }
+
+//    std::unique_ptr<Comm::Interface> comm = piol->comm->dupe(active);
+
+    auto minY = [] (const File::coord_t & a, const File::coord_t & b) -> bool
+    {
+        if (a.y < b.y)
+            return true;
+        if (a.y == b.y && a.x < b.x)
+            return true;
+        return false;
+    };
+    auto minX = [] (const File::coord_t & a, const File::coord_t & b) -> bool
+    {
+        if (a.x < b.x)
+            return true;
+        if (a.x == b.x && a.y < b.y)
+            return true;
+        return false;
+    };
+    auto p = std::minmax_element(coord, coord + sz, (GetY ? minY : minX));
+
+    auto lminmax = (GetY ? std::vector<geom_t>{ p.first->y, p.second->y } :
+                           std::vector<geom_t>{ p.first->x, p.second->x });
+    std::vector<size_t> ltrace = {offset + std::distance(coord, p.first),
+                                  offset + std::distance(coord, p.second)};
+    auto tminmax = piol->comm->gather(lminmax);
+    auto ttrace = piol->comm->gather(ltrace);
+    //Global
+    auto s = std::minmax_element(tminmax.begin(), tminmax.end());
+
+    std::vector<CoordElem> minmax = {{*s.first, ttrace[std::distance(tminmax.begin(), s.first)]},
+                                     {*s.second, ttrace[std::distance(tminmax.begin(), s.second)]}};
+
+    return minmax;
+}
+
+void getMinMax(Piol piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax)
+{
+    auto x = getCoordMinMax<false>(piol, offset, sz, coord);
+    auto y = getCoordMinMax<true>(piol, offset, sz, coord);
+
+    std::copy(x.begin(), x.end(), minmax);
+    std::copy(y.begin(), y.end(), minmax + x.size());
 }
 }}
-
-

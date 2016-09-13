@@ -313,24 +313,24 @@ void testSetCoord(Coord item, size_t check1, size_t check2)
                 setCoord(item, p, scal, tr.data());
                 auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
                 auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
-                ASSERT_EQ(val1, std::lround(p.first / scal)) << "val1 " << val1 << " p.first " << p.first << " val "
+                ASSERT_EQ(val1, std::lround(p.x / scal)) << "val1 " << val1 << " p.x " << p.x << " val "
                                               << val << " scal " << scal << std::endl;
-                ASSERT_EQ(val2, std::lround(p.second / scal)) << "val1 " << val2 << " p.second " << p.second << " val "
+                ASSERT_EQ(val2, std::lround(p.y / scal)) << "val1 " << val2 << " p.y " << p.y << " val "
                                                << val << " scal " << scal << std::endl;
                 tr[size_t(check1)-1U] = 0;
                 tr[size_t(check2)-1U] = 0;
             }
-            if (int32_t(p.second * scal) > 0)
+            if (int32_t(p.y * scal) > 0)
             {
                 int nscal = -scal;
                 setCoord(item, p, nscal, tr.data());
 
                 auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
                 auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
-                ASSERT_EQ(val1/geom_t(scal), p.first) << "1st " << std::lround(val1/geom_t(scal)) << " p.first " << p.first << " val "
+                ASSERT_EQ(val1/geom_t(scal), p.x) << "1st " << std::lround(val1/geom_t(scal)) << " p.x " << p.x << " val "
                                                    << val << " scal " << scal << std::endl;
 
-                ASSERT_EQ(val2/geom_t(scal), p.second) << "1st " << std::lround(val1/geom_t(scal)) << " p.second " << p.second << " val "
+                ASSERT_EQ(val2/geom_t(scal), p.y) << "1st " << std::lround(val1/geom_t(scal)) << " p.y " << p.y << " val "
                                                    << val << " scal " << scal << std::endl;
                 tr[size_t(check1)-1U] = 0;
                 tr[size_t(check2)-1U] = 0;

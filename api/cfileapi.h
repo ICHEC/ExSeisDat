@@ -57,6 +57,12 @@ typedef struct
     size_t tn;       //!< The trace number.
 } TraceParam;
 
+typedef struct
+{
+    double val;
+    size_t num;
+} CoordElem;
+
 /*
  * PIOL calls. Non-file specific
  */
@@ -113,6 +119,18 @@ extern size_t getSEGYTraceLen(size_t ns);
  * \return The trace header size in bytes
  */
 extern size_t getSEGYParamSz(void);
+
+/*
+ * Operations
+ */
+/*! Find the traces with the min and max of a supplied set of coordinates within a file.
+ *  \param[in] piol A handle to the PIOL.
+ *  \param[in] offset The starting trace number.
+ *  \param[in] sz The number of local traces to process.
+ *  \param[in] coord The array of local coordinates which one wants to process
+ *  \param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
+ */
+extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax);
 
 /*
  * Opening and closing files
