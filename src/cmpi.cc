@@ -92,4 +92,27 @@ void MPI::barrier(void) const
 {
     MPI_Barrier(comm);
 }
+
+Interface * MPI::subcomm(bool active)
+{
+    MPI_Comm newcomm;
+    MPI_Group cgroup, ngroup;
+
+    auto list = gather(std::vector<size_t>{active});
+    std::vector<int> ranks;
+    for (size_t i = 0; i < list.size(); i++)
+        if (list[i] == true)
+            ranks.push_back(i);
+
+    MPI_Comm_group(comm, &cgroup);
+    MPI_Group_incl(cgroup, ranks.size(), ranks.data(), &ngroup);
+    MPI_Comm_create(comm, ngroup, &newcomm);
+    MPI_Group_free(&cgroup);
+    MPI_Group_free(&ngroup);
+
+    MPIOpt opt;
+    opt.initMPI = false;
+    opt.comm = newcomm;
+    return new MPI(opt);
+}
 }}

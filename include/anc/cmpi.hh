@@ -64,6 +64,8 @@ class MPI : public Comm::Interface
      *  The MPI implementation of the pure virtual base member simply calls MPI_Barrier
      */
     void barrier(void) const;
+
+    Interface * subcomm(bool active);
 };
 }}
 #endif

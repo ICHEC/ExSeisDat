@@ -29,23 +29,6 @@ namespace PIOL { namespace File {
 template <bool GetY>
 std::vector<CoordElem> getCoordMinMax(Piol piol, size_t offset, size_t sz, const coord_t * coord)
 {
-    bool active = true;
-    if (!sz)
-    {
-        piol->record("", Log::Layer::Ops, Log::Status::Warning,
-                     "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
-                     Log::Verb::Extended);
-    }
-    if (coord == NULL)
-    {
-        active = false;
-        piol->record("", Log::Layer::Ops, Log::Status::Warning,
-                     "getCoordMinMax() was called but process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
-                     Log::Verb::Extended);
-    }
-
-//    std::unique_ptr<Comm::Interface> comm = piol->comm->dupe(active);
-
     auto minY = [] (const File::coord_t & a, const File::coord_t & b) -> bool
     {
         if (a.y < b.y)
@@ -75,12 +58,28 @@ std::vector<CoordElem> getCoordMinMax(Piol piol, size_t offset, size_t sz, const
 
     std::vector<CoordElem> minmax = {{*s.first, ttrace[std::distance(tminmax.begin(), s.first)]},
                                      {*s.second, ttrace[std::distance(tminmax.begin(), s.second)]}};
-
     return minmax;
+
 }
 
 void getMinMax(Piol piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax)
 {
+    //TODO: Create and use a subcommunicator to avoid the deadlock the next conditions will cause
+    if (!sz || !coord)
+    {
+        piol->record("", Log::Layer::Ops, Log::Status::Warning,
+                     "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
+                     Log::Verb::Extended);
+        return;
+    }
+    if (!minmax)
+    {
+        piol->record("", Log::Layer::Ops, Log::Status::Warning,
+                     "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") does not have minmax allocated.",
+                     Log::Verb::Extended);
+        return;
+    }
+
     auto x = getCoordMinMax<false>(piol, offset, sz, coord);
     auto y = getCoordMinMax<true>(piol, offset, sz, coord);
 

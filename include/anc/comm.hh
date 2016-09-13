@@ -65,6 +65,8 @@ class Interface
     /*! \brief A barrier between all processes which are members of the communication collective.
      */
     virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
+
+    Interface * subcomm(bool active);
 };
 
 /*! \brief An enum of the possible derived classes for communication.
