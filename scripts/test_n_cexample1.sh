@@ -1,3 +1,1 @@
-#Test description
-export OUTPUT=test1.segy
-export ARGUMENTS="-o dat/$OUTPUT" #TODO: Construct argument
+export ARGUMENTS="-o dat/$1"

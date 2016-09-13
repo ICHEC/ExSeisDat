@@ -2,6 +2,6 @@ NODE_COUNT: 1, 5
 NODE_PPN: 1, 23, 24
 MPI: openmpi, mvapich, intelmpi
 TEST_NAMES: cexample2, creadwrite, filemake, makerepn1, makerepn2, makerep
-INPUT: /ichec/work/exseisdat/dat16/largesegy.segy
+INPUT: /ichec/work/exseisdat/dat16/largesegy.segy /ichec/work/exseisdat/dat10/GXT_IT5_RMS-TIME.segy
 STRIPE_COUNT: 10
 COMPILER: intel, gnu

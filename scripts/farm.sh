@@ -12,10 +12,12 @@ if [ $MPI == mvapich ] ; then
     module load mvapich2/intel/2.1a
 elif [ $MPI == openmpi ]; then
     PPN_COMMAND="-npernode"
+
+    module load openmpi/gcc/1.8.4
     if [ $MODULE == intel ]; then
-        module load openmpi/intel/1.8.1
-    else
-        module load openmpi/gcc/1.8.4
+        export OMPI_CXX=icpc
+        export OMPI_CC=icc
+#        module load openmpi/intel/1.8.1
     fi
 fi
 

@@ -12,16 +12,31 @@ export PIOL_DIR=$PBS_O_WORKDIR/..
 export C_INCLUDE_PATH=$PIOL_DIR/api
 export CPLUS_INCLUDE_PATH=$PIOL_DIR/include
 export TEST_DIR=/ichec/work/exseisdat/test
+export OUTPUT=test.segy
 
 while read -r all; do
 {
-    bash farm_1param.sh $all >> TEST$PBS_JOBID 2>&1
+#    bash farm_1param.sh $all >> TEST$PBS_JOBID 2>&1
+    set -- $all
+    if [ ! -e test_f_$4.sh ]; then
+        echo script test_f_$4.sh does not exist >> TEST$PBS_JOBID
+        exit -1
+    fi
+    source test_f_$4.sh $5 $OUTPUT
+    bash farm.sh "$@" >> TEST$PBS_JOBID 2>&1
 } < /dev/null
 done < $PBS_O_WORKDIR/temp/util_1_$NODES.sh
 
 while read -r all; do
 {
-    bash farm_0param.sh $all >> TEST$PBS_JOBID 2>&1
+#    bash farm_0param.sh $all >> TEST$PBS_JOBID 2>&1
+    set -- $all
+    if [ ! -e test_n_$4.sh ]; then
+        echo script test_n_$4.sh does not exist >> TEST$PBS_JOBID
+        exit -1
+    fi
+    source test_n_$4.sh $OUTPUT
+    bash farm.sh "$@" >> TEST$PBS_JOBID 2>&1
 } < /dev/null
 done < $PBS_O_WORKDIR/temp/util_0_$NODES.sh
 
