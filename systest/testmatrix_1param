@@ -1,9 +1,0 @@
-1   24  openmpi makerepn1   /ichec/work/exseisdat/dat10/rtm_salt3d_data_shot.segy   10  intel
-5   1   intelmpi    makerepn1   /ichec/work/exseisdat/dat10/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY   10  gnu
-1   24  intelmpi    makerepn2   /ichec/work/exseisdat/dat16/largesegy.segy  10  intel
-1   1   mvapich makerep /ichec/work/exseisdat/dat16/largesegy.segy  10  gnu
-5   23  intelmpi    makerep /ichec/work/exseisdat/dat10/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY   10  intel
-1   24  openmpi makerep /ichec/work/exseisdat/dat10/rtm_salt3d_data_shot.segy   10  intel
-5   23  openmpi makerepn2   /ichec/work/exseisdat/dat10/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY   10  gnu
-5   1   mvapich makerepn2   /ichec/work/exseisdat/dat10/rtm_salt3d_data_shot.segy   10  gnu
-1   23  mvapich makerepn1   /ichec/work/exseisdat/dat16/largesegy.segy  10  intel

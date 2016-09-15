@@ -1,8 +1,14 @@
 #!/bin/bash
+#Training wheels
+set -u
+set -e
+
 source /etc/profile.d/modules.sh #So we can use the module command
 
 DIR_NAME=$TEST_DIR/$(date +%s)$$
+
 mkdir $DIR_NAME
+
 cp -r $PIOL_DIR/src $DIR_NAME/
 cp -r $PIOL_DIR/compiler.cfg $DIR_NAME/
 ln -s $PIOL_DIR/include $DIR_NAME/
@@ -38,6 +44,7 @@ if [ -s $gfile ]; then
     echo $red GNU warnings not removed
     cat $gfile
 fi
+
 module purge
 
 echo WarningsTest SRC $RET 0 0 > ../CHECK

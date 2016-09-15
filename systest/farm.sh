@@ -1,4 +1,7 @@
 #!/bin/bash
+#Training wheels
+set -e
+
 #TODO: Safety checks
 read -r NODE_COUNT NODE_PPN MPI NAME FILENAME STRIPE_COUNT MODULE < <(echo "$@")
 
@@ -8,16 +11,24 @@ source /etc/profile.d/modules.sh #So we can use the module command
 source ../mod_$MODULE
 
 PPN_COMMAND="-ppn"
-if [ $MPI == mvapich ] ; then
-    module load mvapich2/intel/2.1a
-elif [ $MPI == openmpi ]; then
+
+module load $MPI
+
+export MPI_BASE=$(echo $MPI | cut -d \/ -f 1)
+
+if [ $MPI_BASE == "openmpi" ]; then
     PPN_COMMAND="-npernode"
 
-    module load openmpi/gcc/1.8.4
     if [ $MODULE == intel ]; then
         export OMPI_CXX=icpc
         export OMPI_CC=icc
-#        module load openmpi/intel/1.8.1
+    fi
+fi
+
+if [ $MPI_BASE == "mpich2" ]; then
+    if [ $MODULE == intel -o $MODULE == tullow ]; then
+        export MPICH_CXX=icpc
+        export MPICH_CC=icc
     fi
 fi
 
@@ -34,16 +45,27 @@ cp make.sh $DIR_NAME/
 cd $DIR_NAME
 mkdir src dat api util lib
 mkdir src/obj api/obj util/obj
-lfs setstripe -c $STRIPE_COUNT dat
 
-module list
+if [ $PIOL_SYSTEM != "Tullow" ]; then
+    lfs setstripe -c $STRIPE_COUNT dat
+    else
+#TODO: I am not aware of any panasas ability to set stripe counts
+#      on a per file basis.
+    echo Can not set stripes to $STRIPE_COUNT - Panasas
+fi
+
 bash make.sh $NAME
 
 #    run the test
 mv util/$NAME .
 
 if [ -f $NAME ]; then
-    $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME
+    if [ $PIOL_SYSTEM == "Tullow" ]; then
+        head -n $NODES hosts.txt > hostsfinal.txt
+        $(which time) -f "%e %I %O %M %W" mpirun -f hostsfinal.txt $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME
+    else
+        $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME
+    fi
 else
     echo FILE DID NOT COMPILE
 fi
@@ -51,7 +73,14 @@ fi
 #    checksum
 #    record pass/fail
 md5sum dat/$OUTPUT | cut -d ' ' -f 1  > newChecksum
+if [ ! -f $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME ]; then
+RET=4
+else
 cmp newChecksum $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME
 RET=$?
-echo $NAME$NODE_COUNT$NODE_PPN$MPI$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $RET $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
-module purge
+fi
+if [ -z $PBS_NODEFILE ]; then
+    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $RET $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
+else
+    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $RET $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
+fi

@@ -1,6 +1,10 @@
 #ctestReadWrite largesegy.segy 0 24 48
 #For each line, create a google-test function
-TEST_DIR=/ichec/work/exseisdat/test
+if [ $PIOL_SYSTEM == Tullow ]; then
+    TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test
+else
+    TEST_DIR=/ichec/work/exseisdat/test
+fi
 cat > tests.cc << EOL
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -52,6 +56,4 @@ rm -r -I TEST*
 fi
 
 rm -f tests.cc
-rm -f tasks.sh
-rm -f str.awk
 

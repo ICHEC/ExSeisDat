@@ -114,17 +114,17 @@ int main(void)
         pattern[i] = i % psz;
         //pattern[i] = i + i % 3 + i % 9 + i % (psz - 7);
 
-    makeFile("tmp/smallFilePattern.tmp", 4096ll, pattern, psz);
+/*    makeFile("tmp/smallFilePattern.tmp", 4096ll, pattern, psz);
     makeFile("tmp/largeFilePattern.tmp", 10ll*1024ll*1024ll*1024ll, pattern, psz);
     makeSEGY("tmp/smallsegy.tmp", 261U, 400U, 1024U*1024U);
     makeSEGY("tmp/bigtracesegy.tmp", 32000U, 40000U, 1024U*1024U);
-    makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, 1024U*1024U);
+    makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, 1024U*1024U);*/
 
-/*  These are for generating system tests
+//  These are for generating system tests
     makeSEGY("dat/notrace.segy", 1000U, 0U, 3600U);
     makeSEGY("dat/onetrace.segy", 1000U, 1U, 1024U*1024U*1024U);
     makeSEGY("dat/onebigtrace.segy", 32768U, 1U, 16U*1024U*1024U);
-    makeSEGY("dat/smallsegy.segy", 1000U, 2200000U, 1024U*1024U*1024U);*/
+    makeSEGY("dat/smallsegy.segy", 1000U, 2200000U, 1024U*1024U*1024U);
     return 0;
 }
 

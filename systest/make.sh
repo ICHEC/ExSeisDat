@@ -1,3 +1,6 @@
+#Training wheels
+set -u
+set -e
 
 #    copy src files and the utility
 #C
@@ -16,7 +19,9 @@ cp $PIOL_DIR/util/makefile util/
 cp $PIOL_DIR/api/cfileapi.cc api/
 cp $PIOL_DIR/api/cfileapi.h api/
 cp $PIOL_DIR/api/makefile api/
-
+if [ $PIOL_SYSTEM == "Tullow" ]; then
+cp $PIOL_DIR/systest/hosts.txt .
+fi
 cp $PIOL_DIR/src/*.cc src/
 cp $PIOL_DIR/src/makefile src/
 
