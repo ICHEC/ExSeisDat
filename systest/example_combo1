@@ -2,6 +2,6 @@ NODE_COUNT: 1, 5
 NODE_PPN: 1, 23, 24
 MPI: openmpi, mvapich, intelmpi
 TEST_NAMES: cexample2, creadwrite, minmax, makerepn1, makerepn2, makerep
-INPUT: /ichec/work/exseisdat/dat16/largesegy.segy /ichec/work/exseisdat/dat10/rtm_salt3d_data_shot.segy /ichec/work/exseisdat/dat10/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.SEGY
+INPUT: /ichec/work/exseisdat/dat16/largesegy.segy /ichec/work/exseisdat/dat10/rtm_salt3d_data_shot.segy /ichec/work/exseisdat/dat10/4D_REPEAT_LINES_2013_ALL_PRE-MIG_GATHERS.segy
 STRIPE_COUNT: 10
 COMPILER: intel, gnu
