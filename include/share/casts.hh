@@ -20,7 +20,7 @@ namespace PIOL {
  *  \param[in] layer The layer of ExSeisPIOL for logging purposes
  *  \return Returns a pointer to the derived options object
  */
-template <class ODeriv, class OBase> inline
+template <class ODeriv, class OBase>
 const ODeriv * castOptToDeriv(ExSeisPIOL * piol, const OBase & bopt, const std::string name, const Log::Layer layer)
 {
     auto opt = dynamic_cast<ODeriv const *>(&bopt);
@@ -38,7 +38,7 @@ const ODeriv * castOptToDeriv(ExSeisPIOL * piol, const OBase & bopt, const std::
  *  \param[in] layer The layer of ExSeisPIOL for logging purposes
  *  \return Returns a shared ptr to the object case to the base class
  */
-template <class TBase, class TDeriv> inline
+template <class TBase, class TDeriv>
 std::shared_ptr<TBase> castToBase(ExSeisPIOL * piol, TDeriv * layObj, const std::string name, const Log::Layer layer)
 {
     if (layObj != nullptr)

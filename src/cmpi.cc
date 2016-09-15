@@ -61,7 +61,6 @@ MPI_Comm MPI::getComm() const
 template <typename T>
 std::vector<T> MPIGather(const MPI * mpi, const std::vector<T> & in)
 {
-    size_t isz = in.size();
     std::vector<T> arr(mpi->getNumRank() * in.size());
     int err = MPI_Allgather(in.data(), in.size(), MPIType<T>(), arr.data(), in.size(), MPIType<T>(), mpi->getComm());
 
@@ -70,19 +69,16 @@ std::vector<T> MPIGather(const MPI * mpi, const std::vector<T> & in)
     return arr;
 }
 
-inline
 std::vector<llint> MPI::gather(const std::vector<llint> & in) const
 {
     return MPIGather(this, in);
 }
 
-inline
 std::vector<size_t> MPI::gather(const std::vector<size_t> & in) const
 {
     return MPIGather(this, in);
 }
 
-inline
 std::vector<geom_t> MPI::gather(const std::vector<geom_t> & in) const
 {
     return MPIGather(this, in);
@@ -91,28 +87,5 @@ std::vector<geom_t> MPI::gather(const std::vector<geom_t> & in) const
 void MPI::barrier(void) const
 {
     MPI_Barrier(comm);
-}
-
-Interface * MPI::subcomm(bool active)
-{
-    MPI_Comm newcomm;
-    MPI_Group cgroup, ngroup;
-
-    auto list = gather(std::vector<size_t>{active});
-    std::vector<int> ranks;
-    for (size_t i = 0; i < list.size(); i++)
-        if (list[i] == true)
-            ranks.push_back(i);
-
-    MPI_Comm_group(comm, &cgroup);
-    MPI_Group_incl(cgroup, ranks.size(), ranks.data(), &ngroup);
-    MPI_Comm_create(comm, ngroup, &newcomm);
-    MPI_Group_free(&cgroup);
-    MPI_Group_free(&ngroup);
-
-    MPIOpt opt;
-    opt.initMPI = false;
-    opt.comm = newcomm;
-    return new MPI(opt);
 }
 }}

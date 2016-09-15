@@ -21,7 +21,7 @@ namespace PIOL { namespace Data {
 template <typename U>
 using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *)>;
 
-/*! \brief The MPI-IO inline template function for dealing with
+/*! \brief The MPI-IO template function for dealing with
  *  integer limits for reading and writing in MPI-IO.
  *  \tparam T The type of the array being read to or from.
  *  \tparam U The type of the last argument of MPI_File_...
@@ -40,7 +40,7 @@ using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U
  * This function does not currently take into account collective MPI calls
  * which would have issues with the number of operations being the same for each process
  */
-template <typename T, typename U = MPI_Status> inline
+template <typename T, typename U = MPI_Status>
 int io(const MFp<U> fn, const MPI_File & file, csize_t offset, csize_t sz, U & arg,
                                                size_t max, T * d, csize_t bsz = 1U, csize_t osz = 1U)
 {

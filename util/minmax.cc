@@ -23,16 +23,18 @@ int calcMin(Piol piol, std::string iname, std::string oname)
         return -1;
     }
 
+    std::vector<CoordElem> srcmm(4);
+    std::vector<CoordElem> rcvmm(4);
+    std::vector<CoordElem> cmpmm(4);
+
     in->readCoordPoint(Coord::Src, offset, num, buf.data());
-    geom_t min = xmin(piol, offset, num, buf.data());
+    getMinMax(piol, offset, num, buf.data(), srcmm.data());
 
-    std::vector<CoordElem> minmax(4);
-    getMinMax(piol, offset, num, buf.data(), minmax.data());
+    in->readCoordPoint(Coord::Rcv, offset, num, buf.data());
+    getMinMax(piol, offset, num, buf.data(), rcvmm.data());
 
-    std::cout << "xmin " << minmax[0].val << " tn " << minmax[0].num << "\n";
-    std::cout << "xmax " << minmax[1].val << " tn " << minmax[1].num << "\n";
-    std::cout << "ymin " << minmax[2].val << " tn " << minmax[2].num << "\n";
-    std::cout << "ymax " << minmax[3].val << " tn " << minmax[3].num << "\n";
+    in->readCoordPoint(Coord::CMP, offset, num, buf.data());
+    getMinMax(piol, offset, num, buf.data(), cmpmm.data());
 
     std::unique_ptr<Interface> out = std::make_unique<SEGY>(piol, oname, FileMode::Write);
     out->writeNt(4);
@@ -50,7 +52,7 @@ int calcMin(Piol piol, std::string iname, std::string oname)
     out->writeTrace(0, 4, data);
 
     if (!piol->comm->getRank())
-        std::cout << "Minimum x src for first " << num*piol->comm->getNumRank() << " traces is " << min << std::endl;
+        std::cout << "Minimum x src is " << min << std::endl;
     return 0;
 }
 

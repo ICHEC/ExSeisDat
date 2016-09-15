@@ -1,8 +1,6 @@
 #!/bin/bash
 source /etc/profile.d/modules.sh #So we can use the module command
 
-set -u
-
 DIR_NAME=$TEST_DIR/$(date +%s)$$
 mkdir $DIR_NAME
 cp -r $PIOL_DIR/src $DIR_NAME/
@@ -13,8 +11,8 @@ cd $PIOL_DIR/src
 
 red='\e[31m'
 DIR=$(pwd)
-gfile=$PIOL_DIR/scripts/temp/gnuwarnings
-ifile=$PIOL_DIR/scripts/temp/intelwarnings
+gfile=$PIOL_DIR/systest/temp/gnuwarnings
+ifile=$PIOL_DIR/systest/temp/intelwarnings
 
 cd $DIR_NAME/src
 

@@ -98,8 +98,6 @@ enum class TrGrd : size_t
  */
 #ifndef __ICC
 constexpr
-#else
-inline
 #endif
 std::pair<TrCrd, TrCrd> getPair(Coord pair)
 {
@@ -121,8 +119,6 @@ std::pair<TrCrd, TrCrd> getPair(Coord pair)
  */
 #ifndef __ICC
 constexpr
-#else
-inline
 #endif
 std::pair<TrGrd, TrGrd> getPair(Grid pair)
 {

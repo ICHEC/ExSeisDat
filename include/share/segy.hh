@@ -58,7 +58,7 @@ constexpr size_t getDFSz(csize_t ns)
  *  \return Returns the DO size.
  */
 template <typename T = float>
-inline size_t getDOSz(csize_t ns)
+size_t getDOSz(csize_t ns)
 {
     return getMDSz() + getDFSz<T>(ns);
 }
@@ -71,7 +71,7 @@ inline size_t getDOSz(csize_t ns)
  *  \return Returns the expected file size.
  */
 template <typename T = float>
-inline size_t getFileSz(csize_t nt, csize_t ns)
+size_t getFileSz(csize_t nt, csize_t ns)
 {
     return getHOSz() + nt*getDOSz<T>(ns);
 }
@@ -83,7 +83,7 @@ inline size_t getFileSz(csize_t nt, csize_t ns)
  *  \return Returns the location.
  */
 template <typename T = float>
-inline size_t getDOLoc(csize_t i, csize_t ns)
+size_t getDOLoc(csize_t i, csize_t ns)
 {
     return getFileSz<T>(i, ns);
 }
@@ -95,7 +95,7 @@ inline size_t getDOLoc(csize_t i, csize_t ns)
  *  \return Returns the location.
  */
 template <typename T = float>
-inline size_t getDODFLoc(csize_t i, csize_t ns)
+size_t getDODFLoc(csize_t i, csize_t ns)
 {
     return getFileSz<T>(i, ns) + getMDSz();
 }
@@ -107,7 +107,7 @@ inline size_t getDODFLoc(csize_t i, csize_t ns)
  *  \return Returns the number of traces.
  */
 template <typename T = float>
-inline size_t getNt(csize_t fsz, csize_t ns)
+size_t getNt(csize_t fsz, csize_t ns)
 {
     return (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz<T>(ns);
 }
