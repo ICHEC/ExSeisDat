@@ -64,6 +64,8 @@ int main(int argc, char ** argv)
         return -1;
     }
 
+// -i input file name
+// -o output file name
     std::string opt = "i:o:";  //TODO: uses a GNU extension
     std::string iname = "";
     std::string oname = "";

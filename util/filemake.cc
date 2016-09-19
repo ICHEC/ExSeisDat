@@ -18,6 +18,12 @@ int main(int argc, char ** argv)
     size_t max = 0;
     float inc = 0.0;
 
+    //TODO document these arguments
+    // o output file
+    // s number of samples
+    // t number of traces
+    // m max
+    // i increment
     std::string opt = "s:t:m:o:i:";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)

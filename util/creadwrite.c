@@ -118,6 +118,8 @@ int main(int argc, char ** argv)
 // -i input file
 // -o output file
 // -m maximum memory
+// -p modify trace paramaters
+// -t modify trace values
     char * opt = "i:o:m:pt";  //TODO: uses a GNU extension
     char * iname = NULL;
     char * oname = NULL;
