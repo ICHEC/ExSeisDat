@@ -13,24 +13,40 @@
 
 namespace PIOL { namespace File {
 
+/*! A structure composed of two coordinates to form a single coordinate point
+ */
 struct coord_t
 {
-    geom_t x;
-    geom_t y;
+    geom_t x;   //!< The x coordinate
+    geom_t y;   //!< The y coordinate
+
+    /*! Constructor for initialising coordinates
+     *  \param[in] x_ intialisation value for x
+     *  \param[in] y_ intialisation value for x
+     */
     coord_t(const geom_t x_, const geom_t y_) : x(x_), y(y_) { }
+    /*! Default constructor (set both coordinates to 0)
+     */
     coord_t() : x(geom_t(0)), y(geom_t(0)) { }
 };
 
-//typedef std::pair<geom_t, geom_t> coord_t;  //!< The type for coordinate points
-
+/*! A structure composed of two grid values to form a single grid point
+ */
 struct grid_t
 {
-    llint il;
-    llint xl;
+    llint il;   //!< The inline value
+    llint xl;   //!< The crossline value
+
+    /*! Constructor for initialising a grid point
+     *  \param[in] i_ intialisation value for il
+     *  \param[in] x_ intialisation value for xl
+     */
     grid_t(const geom_t i_, const geom_t x_) : il(i_), xl(x_) { }
+
+    /*! Default constructor (set both grid values to 0)
+     */
     grid_t() : il(llint(0)), xl(llint(0)) { }
 };
-//typedef std::pair<llint, llint> grid_t;     //!< The type for grid points
 
 /*! \brief Possible coordinate sets
  */

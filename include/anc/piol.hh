@@ -19,6 +19,11 @@ namespace PIOL {
 class ExSeisPIOL
 {
     private :
+
+    /*! Function to initialise the PIOL. Called by the constructors.
+     *  \param[in] maxLevel The verbosity level of the logs.
+     *  \param[in] comOpt The options object corresponding to the desired inter-processor communicator.
+     */
     void Init(const Log::Verb maxLevel, const Comm::Opt & comOpt);
 
     public :

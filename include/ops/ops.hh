@@ -2,13 +2,37 @@
 #include <memory>
 #include "file/file.hh"
 namespace PIOL { namespace File {
+
+/*! A structure to hold a reference to a single coordinate and
+ * the corresponding trace number
+ */
 struct CoordElem
 {
-    geom_t val;
-    size_t num;
+    geom_t val;     //!< The value
+    size_t num;     //!< The trace number
 };
 
-extern void getMinMax(Piol piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax);
-//TODO: Untested:
-extern void getMinMax(Piol piol, size_t offset, size_t sz, File::Coord item, const TraceParam * prm, CoordElem * minmax);
+/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+ *  the collective min and max across all processes (which also must all call this file).
+ *  \param[in, out] piol The PIOL object
+ *  \param[in] offset The starting trace number (local).
+ *  \param[in] lnt The local number of traces to process.
+ *  \param[in] coord
+ *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+ *  and their respective trace numbers.
+*/
+extern void getMinMax(Piol piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax);
+
+#warning write a test
+/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+ *  the collective min and max across all processes (which also must all call this file).
+ *  \param[in, out] piol The PIOL object
+ *  \param[in] offset The starting trace number (local).
+ *  \param[in] lnt The local number of traces to process.
+ *  \param[in] item The coordinate item of interest.
+ *  \param[in] prm An array of trace parameter structures
+ *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+ *  and their respective trace numbers.
+ */
+extern void getMinMax(Piol piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
 }}

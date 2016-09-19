@@ -251,7 +251,17 @@ void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar 
     getBigEndian(int32_t(std::lround(coord.y / gscale)), &buf[size_t(pair.second) - 1U]);
 }
 
-//TODO: Document and unit test
+//TODO: unit test
+/*!
+ */
+
+/*! \brief Get a coordinate point from the trace header
+ *  \param[in] item The coordinate point type of interest
+ *  \param[in] scale The scale from the SEG-Y header
+ *  \param[in] buf A buffer containing the trace header
+ *  \param[in, out] buf The trace header as an array of uchar.
+ *  \return The coordinate point associated with the coordinate item
+ */
 coord_t getCoord(const Coord item, const geom_t scale, const uchar * buf)
 {
     auto p = getPair(item);
@@ -260,6 +270,12 @@ coord_t getCoord(const Coord item, const geom_t scale, const uchar * buf)
 }
 
 //TODO: Document
+/*! \brief Get a grid point from the trace header
+ *  \param[in] item The grid type of interest
+ *  \param[in] buf A buffer containing the trace header
+ *  \param[in, out] buf The trace header as an array of uchar.
+ *  \return The grid point associated with the requested grid
+ */
 grid_t getGrid(const Grid item, const uchar * buf)
 {
     auto p = getPair(item);

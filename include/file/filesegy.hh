@@ -28,6 +28,7 @@ struct SEGYOpt : public Opt
 class SEGY : public Interface
 {
     private :
+
     /*! The Datatype (or format in SEG-Y terminology)
      */
     enum class Format : int16_t
@@ -51,10 +52,10 @@ class SEGY : public Interface
     } state;                    //!< State flags are stored in this structure
 
     unit_t incFactor;           //!< The increment factor
-    FileMode mode;
+    FileMode mode;              //!< The file mode (Read, Write etc)
     /*! \brief Read the text and binary header and store the metadata variables in this File::SEGY object.
      *  \param[in] fsz The size of the file in bytes
-     *  \param[in, out] The buffer to parse. The buffer is destructively modified
+     *  \param[in, out] buf The buffer to parse. The buffer is destructively modified
      */
     void procHeader(csize_t fsz, uchar * buf);
 
@@ -65,6 +66,7 @@ class SEGY : public Interface
 
     /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
+     *  \param[in] dataOpt The Data options
      */
     void SEGYInit(const File::SEGYOpt & segyOpt, const Data::Opt & dataOpt);
 
@@ -72,6 +74,7 @@ class SEGY : public Interface
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] segyOpt The SEGY-File options
+     *  \param[in] mode The file mode. e.g Read, Write ReadWrite
      *  \param[in] obj_ Pointer to the associated Obj layer object.
      */
     SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, FileMode mode,

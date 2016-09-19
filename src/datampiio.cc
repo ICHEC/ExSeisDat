@@ -138,6 +138,10 @@ MPIIOOpt::~MPIIOOpt(void)
         MPI_Info_free(&info);
 }
 
+/*! GEt an MPI mode flag
+ *  \param[in] mode The generic input mode.
+ *  \return The MPI mode flag associated with the inpute enum
+ */
 int getMPIMode(FileMode mode)
 {
     switch (mode)
