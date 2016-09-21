@@ -107,10 +107,8 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-MPIIOOpt::MPIIOOpt(void)
+Data::MPIIO::Opt::Opt(void)
 {
-    mode = FileMode::Read;
-
     info = MPI_INFO_NULL;
     MPI_Info_create(&info);
 //    MPI_Info_set(info, "access_style", "read_once");
@@ -132,7 +130,8 @@ MPIIOOpt::MPIIOOpt(void)
     fcomm = MPI_COMM_SELF;
     maxSize = getLim<int32_t>();
 }
-MPIIOOpt::~MPIIOOpt(void)
+
+Data::MPIIO::Opt::~Opt(void)
 {
     if (info != MPI_INFO_NULL)
         MPI_Info_free(&info);
@@ -159,7 +158,27 @@ int getMPIMode(FileMode mode)
     }
 }
 
-MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::Data::Interface(piol_, name_)
+MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIO::Opt & opt, FileMode mode) : PIOL::Data::Interface(piol_, name_)
+{
+    Init(opt, mode);
+}
+
+MPIIO::MPIIO(Piol piol_, const std::string name_, FileMode mode) : PIOL::Data::Interface(piol_, name_)
+{
+    const MPIIO::Opt opt;
+    Init(opt, mode);
+}
+
+MPIIO::~MPIIO(void)
+{
+    if (file != MPI_FILE_NULL)
+        MPI_File_close(&file);
+    if (info != MPI_INFO_NULL)
+        MPI_Info_free(&info);
+}
+
+
+void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
 {
     maxSize = opt.maxSize;
     file = MPI_FILE_NULL;
@@ -172,7 +191,7 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
 
     fcomm = opt.fcomm;
 
-    int flags = getMPIMode(opt.mode);
+    int flags = getMPIMode(mode);
 
     if (opt.info != MPI_INFO_NULL)
     {
@@ -190,14 +209,6 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, const MPIIOOpt & opt) : PIOL::
         int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         printErr(*piol, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
     }
-}
-
-MPIIO::~MPIIO(void)
-{
-    if (file != MPI_FILE_NULL)
-        MPI_File_close(&file);
-    if (info != MPI_INFO_NULL)
-        MPI_Info_free(&info);
 }
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////

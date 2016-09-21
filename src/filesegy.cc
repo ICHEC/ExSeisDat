@@ -17,7 +17,6 @@
 #include "file/iconv.hh"
 #include "share/units.hh"
 #include "share/datatype.hh"
-#include "data/dataopt.hh"
 #include <limits>
 
 //TODO:Make unnecessary
@@ -269,7 +268,6 @@ coord_t getCoord(const Coord item, const geom_t scale, const uchar * buf)
                    getMd(p.second, scale, buf));
 }
 
-//TODO: Document
 /*! \brief Get a grid point from the trace header
  *  \param[in] item The grid type of interest
  *  \param[in] buf A buffer containing the trace header
@@ -410,49 +408,24 @@ int16_t calcScale(const coord_t coord)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-SEGYOpt::SEGYOpt(void)
+SEGY::Opt::Opt(void)
 {
     incFactor = SI::Micro;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, const FileMode mode,
-           const std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
+SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode_)
+    : Interface(piol_, name_, obj_)
 {
-    if (obj == nullptr)
-        return;
-    Data::Opt data;
-    data.mode = mode;
-    SEGYInit(segyOpt, data);
+    Init(opt, mode_);
 }
 
-SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
-           const Obj::Opt & objOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, objOpt, dataOpt)
+SEGY::SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_, const FileMode mode)
+    : Interface(piol_, name_, obj_)
 {
-    if (obj == nullptr)
-        return;
-    SEGYInit(segyOpt, dataOpt);
+    File::SEGY::Opt opt;
+    Init(opt, mode);
 }
-
-//TODO: Untested
-SEGY::SEGY(const Piol piol_, const std::string name_, FileMode mode)
-{
-    File::SEGYOpt segyOpt;
-    Obj::SEGYOpt objOpt;
-    Data::MPIIOOpt data;
-    data.mode = mode;
-
-    Init(piol_, name_, objOpt, data);
-    if (obj == nullptr)
-        return;
-
-    SEGYInit(segyOpt, data);
-}
-
-#pragma GCC diagnostic pop
 
 SEGY::~SEGY(void)
 {
@@ -499,9 +472,9 @@ void SEGY::procHeader(csize_t fsz, uchar * buf)
         text.push_back(buf[i]);
 }
 
-void SEGY::SEGYInit(const File::SEGYOpt & segyOpt, const Data::Opt & dataOpt)
+void SEGY::Init(const File::SEGY::Opt & segyOpt, const FileMode mode_)
 {
-    mode = dataOpt.mode;
+    mode = mode_;
     incFactor = segyOpt.incFactor;
     memset(&state, 0, sizeof(Flags));
     size_t hoSz = SEGSz::getHOSz();

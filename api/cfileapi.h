@@ -324,7 +324,7 @@ extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
  *  \param[in] mpiioOpt The MPI-IO options structure
  *  \return A handle for the file.
  */
-extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiioOpt);
+//extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiioOpt);
 
 #ifdef __cplusplus
 }

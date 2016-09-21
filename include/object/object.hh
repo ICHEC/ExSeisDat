@@ -23,20 +23,14 @@ class Interface
     std::string name;                       //!< Store the file name for debugging purposes.
     std::shared_ptr<Data::Interface> data;  //!< Pointer to the Data layer object (polymorphic).
 
-    /*! \brief The constructor used for unit testing. It does not try to create a Data object
-     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
-     *  \param[in] name_ The name of the file associated with the instantiation.
-     *  \param[in] data_ Pointer to the associated Data layer object.
-     */
-    Interface(const Piol piol_, const std::string name_, const std::shared_ptr<Data::Interface> data_);
-
     public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
-     *  \param[in] dataOpt The options to use when creating the Data layer
      */
-    Interface(const Piol piol_, const std::string name_, const Data::Opt & dataOpt);
+    Interface(const Piol piol_, const std::string name_, std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
+    {
+    }
 
     /*! \brief A virtual destructor to allow deletion.
      */

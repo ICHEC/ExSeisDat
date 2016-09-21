@@ -14,24 +14,24 @@
 #include "global.hh"
 #include "anc/cmpi.hh"
 #include "data/data.hh"
-#include "data/dataopt.hh"
 
 namespace PIOL { namespace Data {
-/*! \brief The MPI-IO options structure.
- */
-struct MPIIOOpt : public Opt
-{
-    MPI_Info info;      //!< The info structure to use
-    size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
-    MPI_Comm fcomm;     //!< The MPI communicator to use for file access
-    MPIIOOpt(void);     //!< The constructor to set default options
-    ~MPIIOOpt(void);    //!< The destructor
-};
-
 /*! \brief The MPI-IO Data class.
  */
 class MPIIO : public Interface
 {
+    public :
+    /*! \brief The MPI-IO options structure.
+     */
+    struct Opt
+    {
+        MPI_Info info;      //!< The info structure to use
+        size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
+        MPI_Comm fcomm;     //!< The MPI communicator to use for file access
+        Opt(void);     //!< The constructor to set default options
+        ~Opt(void);    //!< The destructor
+    };
+
     private :
     MPI_File file;      //!< The MPI-IO file handle
     MPI_Comm fcomm;     //!< The MPI-IO file communicator
@@ -56,13 +56,18 @@ class MPIIO : public Interface
      */
     void writev(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, const uchar * d) const;
 
+    void Init(const MPIIO::Opt & opt, FileMode mode);
+
     public :
+
     /*! \brief The MPI-IO class constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] opt   The MPI-IO options
      */
-    MPIIO(const Piol piol_, const std::string name_, const MPIIOOpt & opt);
+    MPIIO(const Piol piol_, const std::string name_, const MPIIO::Opt & opt, FileMode mode = FileMode::Read);
+
+    MPIIO(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
 
     ~MPIIO(void);
 

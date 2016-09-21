@@ -9,6 +9,7 @@
 #include "data/datampiio.hh"
 #include "share/segy.hh"
 #include "ops/ops.hh"
+#include "builder.hh"
 
 using namespace PIOL;
 
@@ -16,7 +17,7 @@ extern "C"
 {
 struct ExSeisFileWrapper
 {
-    PIOL::File::Interface * file;
+    std::shared_ptr<PIOL::File::Interface> file;
 };
 
 struct PIOLWrapper
@@ -31,7 +32,7 @@ ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt)
     assert(sizeof(File::coord_t) == sizeof(ccoord_t));
     assert(sizeof(File::grid_t) == sizeof(cgrid_t));
 
-    Comm::MPIOpt mpi;
+    Comm::MPI::Opt mpi;
     if (mpiOpt != NULL)
     {
         mpi.comm = mpiOpt->comm;
@@ -39,7 +40,7 @@ ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt)
     }
 
     auto wrap = new PIOLWrapper;
-    wrap->piol = std::make_shared<ExSeisPIOL>(static_cast<Log::Verb>(logLevel), *dynamic_cast<Comm::Opt *>(&mpi));
+    wrap->piol = makePIOL<Comm::MPI>(Log::Verb(logLevel), &mpi);
     return wrap;
 }
 
@@ -51,9 +52,9 @@ ExSeisHandle initMPIOL(void)
     assert(sizeof(File::grid_t) == sizeof(cgrid_t));
     assert(sizeof(File::CoordElem) == sizeof(CoordElem));
 
-    Comm::MPIOpt mpi;
+    Comm::MPI::Opt mpi;
     auto wrap = new PIOLWrapper;
-    wrap->piol = std::make_shared<ExSeisPIOL>(*dynamic_cast<Comm::Opt *>(&mpi));
+    wrap->piol = makePIOL<Comm::MPI>(Log::Verb::Minimal, &mpi);
     return wrap;
 }
 
@@ -72,7 +73,7 @@ size_t getNumRank(ExSeisHandle piol)
     return piol->piol->comm->getNumRank();
 }
 
-ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * ioOpt)
+/*ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * ioOpt)
 {
     PIOL::Data::MPIIOOpt mpiio;
     if (ioOpt != NULL)
@@ -94,29 +95,27 @@ ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPI
 //TODO:    piol->piol->log
 
     return filewrap;
-}
+}*/
 
 ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
 {
-    PIOL::Data::MPIIOOpt mpiio;
-    mpiio.mode = FileMode::Write;
-    PIOL::Obj::SEGYOpt objOpt;
-    PIOL::File::SEGYOpt fileOpt;
+    Data::MPIIO::Opt data;
+    Obj::SEGY::Opt obj;
+    File::SEGY::Opt file;
 
     auto filewrap = new ExSeisFileWrapper;
-    filewrap->file = new File::SEGY(piol->piol, name, fileOpt, objOpt, mpiio);
+    filewrap->file = makeFile<File::SEGY, Obj::SEGY, Data::MPIIO>(piol->piol, name, file, obj, data, FileMode::Write);
     return filewrap;
 }
 
 ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
 {
-    PIOL::Data::MPIIOOpt mpiio;
-    mpiio.mode = FileMode::Read;
-    PIOL::Obj::SEGYOpt objOpt;
-    PIOL::File::SEGYOpt fileOpt;
+    Data::MPIIO::Opt data;
+    Obj::SEGY::Opt obj;
+    File::SEGY::Opt file;
 
     auto filewrap = new ExSeisFileWrapper;
-    filewrap->file = new File::SEGY(piol->piol, name, fileOpt, objOpt, mpiio);
+    filewrap->file = makeFile<File::SEGY, Obj::SEGY, Data::MPIIO>(piol->piol, name, file, obj, data, FileMode::Read);
     return filewrap;
 }
 
@@ -143,7 +142,7 @@ void closeFile(ExSeisFile file)
     if (file != NULL)
     {
         if (file->file != NULL)
-            delete file->file;
+            file->file.reset();
         delete file;
     }
     else

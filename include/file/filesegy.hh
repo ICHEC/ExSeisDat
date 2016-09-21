@@ -13,20 +13,21 @@
 #include "file/file.hh"
 
 namespace PIOL { namespace File {
-/*! \brief The SEG-Y options structure. Currently empty.
- */
-struct SEGYOpt : public Opt
-{
-    unit_t incFactor;   //!< The increment factor to multiply inc by.
-    /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
-     */
-    SEGYOpt(void);
-};
-
 /*! \brief The SEG-Y File class.
  */
 class SEGY : public Interface
 {
+    public :
+    /*! \brief The SEG-Y options structure. Currently empty.
+     */
+    struct Opt
+    {
+        unit_t incFactor;   //!< The increment factor to multiply inc by.
+        /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
+         */
+        Opt(void);
+    };
+
     private :
 
     /*! The Datatype (or format in SEG-Y terminology)
@@ -68,19 +69,8 @@ class SEGY : public Interface
      *  \param[in] segyOpt The SEGY-File options
      *  \param[in] dataOpt The Data options
      */
-    void SEGYInit(const File::SEGYOpt & segyOpt, const Data::Opt & dataOpt);
-
-    /*! \brief The constructor used for unit testing. It does not try to create a Data object
-     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
-     *  \param[in] name_ The name of the file associated with the instantiation.
-     *  \param[in] segyOpt The SEGY-File options
-     *  \param[in] mode The file mode. e.g Read, Write ReadWrite
-     *  \param[in] obj_ Pointer to the associated Obj layer object.
-     */
-    SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt, FileMode mode,
-         const std::shared_ptr<Obj::Interface> obj_);
+    void Init(const File::SEGY::Opt & segyOpt, const FileMode mode_);
     public :
-
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
@@ -88,16 +78,14 @@ class SEGY : public Interface
      *  \param[in] objOpt  The Object options
      *  \param[in] dataOpt The Data options
      */
-    SEGY(const Piol piol_, const std::string name_, const File::SEGYOpt & segyOpt,
-                                                  const Obj::Opt & objOpt, const Data::Opt & dataOpt);
+    SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode = FileMode::Read);
 
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] mode    The mode of file access.
      */
-    SEGY(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
-
+    SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_, const FileMode mode = FileMode::Read);
 
     /*! \brief Destructor. Processes any remaining flags
      */

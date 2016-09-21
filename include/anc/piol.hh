@@ -18,32 +18,9 @@ namespace PIOL {
  */
 class ExSeisPIOL
 {
-    private :
-
-    /*! Function to initialise the PIOL. Called by the constructors.
-     *  \param[in] maxLevel The verbosity level of the logs.
-     *  \param[in] comOpt The options object corresponding to the desired inter-processor communicator.
-     */
-    void Init(const Log::Verb maxLevel, const Comm::Opt & comOpt);
-
     public :
     std::unique_ptr<Log::Logger> log;       //!< The log stores all of the records for debugging and error checking.
     std::shared_ptr<Comm::Interface> comm;  //!< The communicator used for communication by the PIOL.
-
-    /*! \brief The constructor with the most options
-     *  \param[in] maxLevel The verbosity level of the logs.
-     *  \param[in] commOpt The options object corresponding to the desired inter-processor communicator.
-     */
-    ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & commOpt);
-
-    /*! \overload
-     *  \param[in] commOpt The options object corresponding to the desired inter-processor communicator.
-     */
-    ExSeisPIOL(const Comm::Opt & commOpt);
-
-    /*! \overload
-     */
-    ExSeisPIOL(void);
 
     /*! \brief The destructor outputs all of the log messages and deletes the communicator.
      *  This will free the communicator if the class contains the last shared pointer.

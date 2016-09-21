@@ -66,34 +66,5 @@ class Interface
      */
     virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
 };
-
-/*! \brief An enum of the possible derived classes for communication.
- */
-enum class Type : size_t
-{
-    MPI  //!< The MPI layer. Currently the only option.
-};
-
-/*! \brief The base-options structure. Specific communicators include a derived version of this.
- */
-struct Opt
-{
-    Type type;      //!< The communicator type.
-
-    /*! Constructor
-     */
-    Opt(void)
-    {
-        type = Type::MPI;
-    }
-
-    /*! \brief This function returns the communicator type. This function is mainly included to provide a virtual function
-     * to allow polymorphic behaviour.
-     */
-    virtual Type getType(void) const
-    {
-        return type;
-    }
-};
 }}
 #endif

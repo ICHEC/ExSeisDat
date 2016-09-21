@@ -19,11 +19,10 @@ namespace PIOL { namespace Obj {
 //pragma to ignore unusued-paramter warnings here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-SEGY::SEGY(Piol piol_, std::string name_, const SEGYOpt & segyOpt_, std::shared_ptr<Data::Interface> data_) : Interface(piol_, name_, data_)
+SEGY::SEGY(Piol piol_, std::string name_, const SEGY::Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode) : Interface(piol_, name_, data_)
 {
 }
-
-SEGY::SEGY(Piol piol_, std::string name_, const SEGYOpt & segyOpt, const Data::Opt & dataOpt) : Interface(piol_, name_, dataOpt)
+SEGY::SEGY(Piol piol_, std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode) : Interface(piol_, name_, data_)
 {
 }
 #pragma GCC diagnostic pop

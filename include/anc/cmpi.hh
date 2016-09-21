@@ -15,23 +15,6 @@
 #include <mpi.h>
 
 namespace PIOL { namespace Comm {
-/*! \brief The MPI-Communicator options structure.
- */
-struct MPIOpt : Opt
-{
-    MPI_Comm comm; //!< This variable defines the default MPI communicator.
-    bool initMPI;  //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
-
-    /* \brief Default constructor to prevent intel warnings
-     */
-    MPIOpt(void)
-    {
-        comm = MPI_COMM_WORLD;
-        initMPI = true;
-    }
-
-};
-
 /*! \brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.
  */
 class MPI : public Comm::Interface
@@ -40,11 +23,25 @@ class MPI : public Comm::Interface
     MPI_Comm comm;  //!< The MPI communicator.
     bool init;      //!< This variable records whether the class is responsible for initialisation of MPI or not.
     public :
+    /*! \brief The MPI-Communicator options structure.
+     */
+    struct Opt
+    {
+        MPI_Comm comm; //!< This variable defines the default MPI communicator.
+        bool initMPI;  //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
 
+        /* \brief Default constructor to prevent intel warnings
+         */
+        Opt(void)
+        {
+            comm = MPI_COMM_WORLD;
+            initMPI = true;
+        }
+    };
     /*! \brief The constructor.
      *  \param[in] opt Any options for the communication layer.
      */
-    MPI(const MPIOpt & opt);
+    MPI(const MPI::Opt & opt);
 
     /*! \brief The destructor. If the object is responsible for initialisation it deinitialises MPI
      *  in this routine.

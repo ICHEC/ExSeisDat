@@ -11,45 +11,6 @@
 #include "anc/cmpi.hh"
 #include <string>
 namespace PIOL {
-
-void ExSeisPIOL::Init(const Log::Verb maxLevel, const Comm::Opt & comOpt)
-{
-    log = std::make_unique<Log::Logger>(maxLevel);
-    switch (comOpt.type)
-    {
-        case Comm::Type::MPI :
-        {
-            auto mpiOpt = castOptToDeriv<Comm::MPIOpt, Comm::Opt>(this, comOpt, "", Log::Layer::PIOL);
-            if (mpiOpt == nullptr)
-                return;
-            auto mpicomm = new Comm::MPI(*mpiOpt);
-            comm = castToBase<Comm::Interface, Comm::MPI>(this, mpicomm, "", Log::Layer::PIOL);
-            if (comm == nullptr)
-                return;
-        }
-        break;
-        default :
-//TODO Add error
-        break;
-    }
-}
-
-ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel, const Comm::Opt & comOpt)
-{
-    Init(maxLevel, comOpt);
-}
-
-ExSeisPIOL::ExSeisPIOL(const Comm::Opt & comOpt)
-{
-    Init(Log::Verb::None, comOpt);
-}
-
-ExSeisPIOL::ExSeisPIOL(void)
-{
-    Comm::MPIOpt comOpt;
-    Init(Log::Verb::None, comOpt);
-}
-
 ExSeisPIOL::~ExSeisPIOL(void)
 {
     log.reset();

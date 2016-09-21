@@ -25,19 +25,13 @@ enum class FileMode : size_t
 
 namespace PIOL { namespace Data {
 class Interface;
-struct Opt;
-struct MPIIOOpt;
 }}
 
 namespace PIOL { namespace Obj {
 class Interface;
-struct Opt;
-struct SEGYOpt;
 }}
 
 namespace PIOL { namespace File {
 class Interface;
-struct Opt;
-struct SEGYOpt;
 }}
 #endif
