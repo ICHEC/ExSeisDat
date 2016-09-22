@@ -14,6 +14,7 @@
 
 #define private public
 #define protected public
+#include "cppfile.hh"
 #include "file/filesegy.hh"
 #undef private
 #undef protected
@@ -98,13 +99,10 @@ struct FileSEGYTest : public Test
 {
     std::shared_ptr<ExSeisPIOL> piol;
     std::shared_ptr<MockObj> mock;
-    const File::SEGYOpt fileSegyOpt;
-    const Obj::SEGYOpt objSegyOpt;
-    Data::MPIIOOpt dataOpt;
-    Comm::MPIOpt opt;
+    Comm::MPI::Opt opt;
     bool testEBCDIC;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    File::Interface * file;
+    std::unique_ptr<File::Interface> file;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
@@ -118,26 +116,22 @@ struct FileSEGYTest : public Test
         file = nullptr;
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
-
         ho.resize(SEGSz::getHOSz());
     }
 
     ~FileSEGYTest()
     {
         if (file != nullptr)
-            delete file;
+            file.reset();
     }
 
     template <bool WRITE = true>
     void makeSEGY(std::string name)
     {
         if (file != nullptr)
-            delete file;
-
-        if (WRITE)
-            dataOpt.mode = FileMode::Test;
-
-        file = new File::SEGY(piol, name, fileSegyOpt, objSegyOpt, dataOpt);
+            file.reset();
+        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
+        file = std::make_unique<File::Direct>(piol, name, mode);
         piol->isErr();
 
         if (WRITE)
@@ -148,7 +142,7 @@ struct FileSEGYTest : public Test
     void makeMockSEGY()
     {
         if (file != nullptr)
-            delete file;
+            file.reset();
         if (mock != nullptr)
             mock.reset();
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
@@ -156,6 +150,7 @@ struct FileSEGYTest : public Test
         Mock::AllowLeak(mock.get());
 
         ho.resize(SEGSz::getHOSz());
+
         if (!WRITE)
         {
             EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
@@ -163,7 +158,9 @@ struct FileSEGYTest : public Test
         }
         else
             EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
-        file = new File::SEGY(piol, notFile, fileSegyOpt, (WRITE ? FileMode::Write : FileMode::Read), mock);
+
+        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
+        file = std::make_unique<File::SEGY>(piol, notFile, mock, mode);
 
         if (WRITE)
         {

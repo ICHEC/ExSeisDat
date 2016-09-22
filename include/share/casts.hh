@@ -25,7 +25,7 @@ const ODeriv * castOptToDeriv(ExSeisPIOL * piol, const OBase & bopt, const std::
 {
     auto opt = dynamic_cast<ODeriv const *>(&bopt);
     if (opt == nullptr)
-        piol->record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
+        piol->log->record(name, layer, Log::Status::Error, "Options object is of the wrong type.", Log::Verb::None);
     return opt;
 }
 
@@ -45,7 +45,7 @@ std::shared_ptr<TBase> castToBase(ExSeisPIOL * piol, TDeriv * layObj, const std:
         return std::shared_ptr<TBase>(std::move(layObj));
 
     //Issue warning on the layer
-    piol->record(name, layer, Log::Status::Warning, "Could not create layer object", Log::Verb::None);
+    piol->log->record(name, layer, Log::Status::Warning, "Could not create layer object", Log::Verb::None);
     return nullptr;
 }
 }

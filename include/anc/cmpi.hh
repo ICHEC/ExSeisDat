@@ -20,8 +20,9 @@ namespace PIOL { namespace Comm {
 class MPI : public Comm::Interface
 {
     private :
-    MPI_Comm comm;  //!< The MPI communicator.
-    bool init;      //!< This variable records whether the class is responsible for initialisation of MPI or not.
+    MPI_Comm comm;      //!< The MPI communicator.
+    bool init;          //!< This variable records whether the class is responsible for initialisation of MPI or not.
+    Log::Logger * log;  //!< For logging messages
     public :
     /*! \brief The MPI-Communicator options structure.
      */
@@ -41,7 +42,7 @@ class MPI : public Comm::Interface
     /*! \brief The constructor.
      *  \param[in] opt Any options for the communication layer.
      */
-    MPI(const MPI::Opt & opt);
+    MPI(Log::Logger * log_, const MPI::Opt & opt);
 
     /*! \brief The destructor. If the object is responsible for initialisation it deinitialises MPI
      *  in this routine.

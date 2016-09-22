@@ -11,7 +11,7 @@ template <typename T>
 using Func = std::function<geom_t(const T &)>;
 
 template <typename T>
-std::vector<CoordElem> getCoordMinMax(Piol piol, size_t offset, size_t sz, const T * coord,
+std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord,
                                       Func<T> elem1, Func<T> elem2)
 {
     auto min = [elem1, elem2] (const T & a, const T & b) -> bool
@@ -38,19 +38,19 @@ std::vector<CoordElem> getCoordMinMax(Piol piol, size_t offset, size_t sz, const
 }
 
 template <typename T>
-void getMinMax(Piol piol, size_t offset, size_t sz, const T * coord, Func<T> xlam, Func<T> ylam, CoordElem * minmax)
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Func<T> xlam, Func<T> ylam, CoordElem * minmax)
 {
     //TODO: Create and use a subcommunicator to avoid the deadlock the next conditions will cause
     if (!sz || !coord)
     {
-        piol->record("", Log::Layer::Ops, Log::Status::Warning,
+        piol->log->record("", Log::Layer::Ops, Log::Status::Warning,
                      "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
                      Log::Verb::Extended);
         return;
     }
     if (!minmax)
     {
-        piol->record("", Log::Layer::Ops, Log::Status::Warning,
+        piol->log->record("", Log::Layer::Ops, Log::Status::Warning,
                      "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") does not have minmax allocated.",
                      Log::Verb::Extended);
         return;
@@ -62,14 +62,14 @@ void getMinMax(Piol piol, size_t offset, size_t sz, const T * coord, Func<T> xla
     std::copy(y.begin(), y.end(), minmax + x.size());
 }
 
-void getMinMax(Piol piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax)
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax)
 {
     auto xlam = [](const coord_t & a) -> geom_t { return a.x; };
     auto ylam = [](const coord_t & a) -> geom_t { return a.y; };
     getMinMax<coord_t>(piol, offset, sz, coord, xlam, ylam, minmax);
 }
 
-void getMinMax(Piol piol, size_t offset, size_t sz, File::Coord item, const TraceParam * prm, CoordElem * minmax)
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, File::Coord item, const TraceParam * prm, CoordElem * minmax)
 {
     switch (item)
     {
@@ -92,7 +92,7 @@ void getMinMax(Piol piol, size_t offset, size_t sz, File::Coord item, const Trac
                           minmax);
         break;
         default :
-            piol->record("", Log::Layer::Ops, Log::Status::Warning,
+            piol->log->record("", Log::Layer::Ops, Log::Status::Warning,
                          "getCoordMinMax() was called for an unknown coordinate.",
                           Log::Verb::Extended);
         break;

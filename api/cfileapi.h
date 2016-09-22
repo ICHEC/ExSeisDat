@@ -66,11 +66,6 @@ typedef struct
 /*
  * PIOL calls. Non-file specific
  */
-/*!  Initialise the PIOL and MPI
- *  \return A handle to the PIOL.
- */
-extern ExSeisHandle initMPIOL(void);
-
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
  */
@@ -310,22 +305,10 @@ typedef struct
     double incFactor;   //!< The increment factor which should be used with inc.
 } SEGYOptions;
 
-/*! Initialise the PIOL and optionally MPI.
- *  \param[in] logLevel The log level
- *  \param[in] mpiOpt The MPI options structure
+/*! Initialise the PIOL and MPI.
  *  \return A handle to the PIOL.
  */
-extern ExSeisHandle initPIOL(size_t logLevel, MPIOptions * mpiOpt);
-
-/*! Open a file and return a handle for the file
- *  \param[in] piol A handle to the PIOL.
- *  \param[in] name The name of the file.
- *  \param[in] opt The SEG-Y options structure
- *  \param[in] mpiioOpt The MPI-IO options structure
- *  \return A handle for the file.
- */
-//extern ExSeisFile openFile(ExSeisHandle piol, const char * name, SEGYOptions * opt, MPIIOOptions * mpiioOpt);
-
+extern ExSeisHandle initMPIOL();
 #ifdef __cplusplus
 }
 #endif

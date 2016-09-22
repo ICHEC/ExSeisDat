@@ -22,10 +22,10 @@ extern size_t modifyNt(csize_t fs, csize_t offset, csize_t nt, csize_t ns);
 class MPIIOTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPIOpt opt;
-    Data::MPIIOOpt ioopt;
-    Data::Interface * data;
+    Piol piol;
+    Comm::MPI::Opt opt;
+    Data::MPIIO::Opt ioopt;
+    std::shared_ptr<Data::Interface> data;
     MPIIOTest()
     {
         data = nullptr;
@@ -35,17 +35,16 @@ class MPIIOTest : public Test
     ~MPIIOTest()
     {
         if (data != nullptr)
-            delete data;
+            data.reset();
     }
 
-    template <bool writeTest = false>
+    template <bool WRITE = false>
     void makeMPIIO(std::string name)
     {
         if (data != nullptr)
-            delete data;
-        if (writeTest)
-            ioopt.mode = FileMode::Test;
-        data = new Data::MPIIO(piol, name, ioopt);
+            data.reset();
+        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
+        data = std::make_shared<Data::MPIIO>(piol, name, mode);
     }
 
     void makeTestSz(csize_t sz)

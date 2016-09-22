@@ -21,7 +21,7 @@ struct CoordElem
  *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
  *  and their respective trace numbers.
 */
-extern void getMinMax(Piol piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax);
+extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax);
 
 #warning write a test
 /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
@@ -34,5 +34,5 @@ extern void getMinMax(Piol piol, size_t offset, size_t lnt, const coord_t * coor
  *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
  *  and their respective trace numbers.
  */
-extern void getMinMax(Piol piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
+extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
 }}

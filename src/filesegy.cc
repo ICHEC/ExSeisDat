@@ -467,7 +467,7 @@ void SEGY::procHeader(csize_t fsz, uchar * buf)
     inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
     format = static_cast<Format>(getMd(Hdr::Type, buf));
 
-    getAscii(piol, name, SEGSz::getTextSz(), buf);
+    getAscii(piol.get(), name, SEGSz::getTextSz(), buf);
     for (size_t i = 0U; i < SEGSz::getTextSz(); i++)
         text.push_back(buf[i]);
 }
@@ -509,7 +509,7 @@ void SEGY::writeNs(csize_t ns_)
 {
     if (ns_ > size_t(std::numeric_limits<int16_t>::max()))
     {
-        piol->record(name, Log::Layer::File, Log::Status::Error, "Ns value is too large for SEG-Y", Log::Verb::None);
+        piol->log->record(name, Log::Layer::File, Log::Status::Error, "Ns value is too large for SEG-Y", Log::Verb::None);
         return;
     }
 
@@ -527,7 +527,7 @@ void SEGY::writeNt(csize_t nt_)
     if (nt_ > NT_LIMITS)
     {
         const std::string msg = "nt_ beyond limited size: "  + std::to_string(NT_LIMITS) + " in writeNt()";
-        piol->record(name, Log::Layer::File, Log::Status::Error, msg, Log::Verb::None);
+        piol->log->record(name, Log::Layer::File, Log::Status::Error, msg, Log::Verb::None);
     }
 #endif
 
@@ -542,7 +542,7 @@ void SEGY::writeInc(const geom_t inc_)
 {
     if (std::isnormal(inc_) == false)
     {
-        piol->record(name, Log::Layer::File, Log::Status::Error,
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
             "The SEG-Y Increment " + std::to_string(inc_) + " is not normal.", Log::Verb::None);
         return;
     }
@@ -558,7 +558,7 @@ void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t 
 {
     if (sz == 0 || offset > nt)   //Nothing to be read.
     {
-        piol->record(name, Log::Layer::File, Log::Status::Warning,
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readCoordPoint() was called for a zero byte read.", Log::Verb::None);
         return;
     }
@@ -583,7 +583,7 @@ void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * g
 {
     if (sz == 0 || offset > nt)   //Nothing to be read.
     {
-        piol->record(name, Log::Layer::File, Log::Status::Warning,
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readGridPoint() was called for a zero byte read.", Log::Verb::None);
         return;
     }
@@ -606,7 +606,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
     if (sz == 0 || ns == 0 || offset > nt)   //Nothing to be read
     {
-        piol->record(name, Log::Layer::File, Log::Status::Warning,
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
     }
@@ -628,7 +628,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace)
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
     {
-        piol->record(name, Log::Layer::File, Log::Status::Error,
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
             "writeTrace() was called with an implied write of an nt value that is too large", Log::Verb::None);
         return;
     }
@@ -636,7 +636,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace)
 
     if (sz == 0 || ns == 0)   //Nothing to be written.
     {
-        piol->record(name, Log::Layer::File, Log::Status::Warning,
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "writeTrace() was called for a zero byte write. ns: "
             + std::to_string(ns) + " sz: " + std::to_string(sz), Log::Verb::None);
         return;
@@ -667,7 +667,7 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
 {
     if (sz == 0 || offset >= nt)   //Nothing to be read.
     {
-        piol->record(name, Log::Layer::File, Log::Status::Warning,
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTraceParam() was called for a zero byte read", Log::Verb::None);
         return;
     }
@@ -695,14 +695,14 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
     {
-        piol->record(name, Log::Layer::File, Log::Status::Error,
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
             "writeTraceParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
         return;
     }
     #endif
     if (sz == 0)   //Nothing to be written.
     {
-        piol->record(name, Log::Layer::File, Log::Status::Warning,
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "writeTraceParam() was called for a zero byte write", Log::Verb::None);
         return;
     }

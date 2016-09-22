@@ -15,8 +15,8 @@ using namespace PIOL;
 class ObjectTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPIOpt opt;
+    Piol piol;
+    Comm::MPI::Opt opt;
     ObjectTest()
     {
         opt.initMPI = false;
@@ -29,11 +29,8 @@ class ObjectTest : public Test
 //FakeObject to test the constructor of the abstract Interface class
 struct FakeObject : public Obj::Interface
 {
-    FakeObject(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_)
-               : Obj::Interface(piol_, name_, data_) { }
-
-    FakeObject(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Data::Opt & dataOpt)
-               : Obj::Interface(piol_, name_, dataOpt) { }
+    FakeObject(Piol piol_, const std::string name_)
+               : Obj::Interface(piol_, name_, nullptr) { }
 
     size_t getFileSz() const
     {
@@ -61,8 +58,7 @@ struct FakeObject : public Obj::Interface
 typedef ObjectTest ObjDeathTest;
 TEST_F(ObjDeathTest, InterfaceConstructor)
 {
-    Data::MPIIOOpt dataOpt;
-    FakeObject fake(piol, notFile, dataOpt);
+    FakeObject fake(piol, notFile);
     EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
     EXPECT_EQ(notFile, fake.name);
@@ -73,8 +69,7 @@ TEST_F(ObjDeathTest, InterfaceConstructor)
 //We pass the base class instead of MPIIOOpt (the default class)
 TEST_F(ObjDeathTest, BadInterfaceConstructor)
 {
-    Data::Opt dataOpt;
-    FakeObject fake(piol, tempFile, dataOpt);
+    FakeObject fake(piol, tempFile);
     EXPECT_EQ(nullptr, fake.data);
     EXPECT_EQ(piol, fake.piol);
     EXPECT_EQ(tempFile, fake.name);

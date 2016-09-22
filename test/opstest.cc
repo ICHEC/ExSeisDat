@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
+#include "cppfile.hh"
 #include "ops/ops.hh"
 #include "anc/cmpi.hh"
 using namespace testing;
@@ -9,13 +10,9 @@ using namespace File;
 
 struct OpsTest : public Test
 {
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPIOpt opt;
-
-    OpsTest(void)
+    ExSeis piol;
+    OpsTest(void) : piol(false)
     {
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
     }
 };
 
@@ -29,7 +26,7 @@ TEST_F(OpsTest, getMinMaxSimple)
     for (size_t offset = 0; offset < 300000; offset += 1 + offset * 10)
     {
         getMinMax(piol, offset, coord.size(), coord.data(), minmax.data());
-        piol->isErr();
+        piol.isErr();
         ASSERT_DOUBLE_EQ(minmax[0].val, 1500.); //min x
         ASSERT_EQ(offset, minmax[0].num);
         ASSERT_DOUBLE_EQ(minmax[1].val, 2499.); //max x
@@ -50,11 +47,11 @@ TEST_F(OpsTest, getMinMaxFail)  //These fails won't surive a multi-processor exa
     std::vector<CoordElem> minmax(4);
 
     getMinMax(piol, 10, coord.size(), coord.data(), NULL);
-    piol->isErr();
+    piol.isErr();
     getMinMax(piol, 10, coord.size(), NULL, minmax.data());
-    piol->isErr();
+    piol.isErr();
     getMinMax(piol, 10, 0, coord.data(), minmax.data());
-    piol->isErr();
+    piol.isErr();
 }
 
 
@@ -88,7 +85,7 @@ TEST_F(OpsTest, getMinMaxRand)
             coord[i] = { rand(), rand() };
 
         getMinMax(piol, 0, coord.size(), coord.data(), minmax.data());
-        piol->isErr();
+        piol.isErr();
         testMinMax<false, false>(coord, minmax);
         testMinMax<false, true>(coord, minmax);
         testMinMax<true, false>(coord, minmax);

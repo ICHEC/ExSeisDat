@@ -1,14 +1,14 @@
 #include "sglobal.hh"
 #include "ops/ops.hh"
-#include "file/filesegy.hh"
+#include "cppfile.hh"
 #include <iostream>
 using namespace PIOL;
 using namespace File;
-int calcMin(Piol piol, std::string iname, std::string oname)
+int calcMin(ExSeis piol, std::string iname, std::string oname)
 {
-    std::unique_ptr<Interface> in = std::make_unique<SEGY>(piol, iname);
+    File::Direct in(piol, iname);
 
-    auto dec = decompose(in->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+    auto dec = decompose(in.readNt(), piol.getNumRank(), piol.getRank());
     size_t offset = dec.first;
     size_t num = dec.second;
 
@@ -25,32 +25,32 @@ int calcMin(Piol piol, std::string iname, std::string oname)
 
     std::vector<CoordElem> minmax(12U);
 
-    in->readCoordPoint(Coord::Src, offset, num, buf.data());
+    in.readCoordPoint(Coord::Src, offset, num, buf.data());
     getMinMax(piol, offset, num, buf.data(), minmax.data());
 
-    in->readCoordPoint(Coord::Rcv, offset, num, buf.data());
+    in.readCoordPoint(Coord::Rcv, offset, num, buf.data());
     getMinMax(piol, offset, num, buf.data(), minmax.data()+4U);
 
-    in->readCoordPoint(Coord::CMP, offset, num, buf.data());
+    in.readCoordPoint(Coord::CMP, offset, num, buf.data());
     getMinMax(piol, offset, num, buf.data(), minmax.data()+8U);
 
-    std::unique_ptr<Interface> out = std::make_unique<SEGY>(piol, oname, FileMode::Write);
-    out->writeNt(minmax.size());
-    out->writeNs(1U);
-    out->writeInc(in->readInc());
+    File::Direct out(piol, oname, FileMode::Write);
+    out.writeNt(minmax.size());
+    out.writeNs(1U);
+    out.writeInc(in.readInc());
 
     TraceParam hdr;
     for (size_t i = 0U; i < minmax.size(); i++)
     {
-        in->readTraceParam(i, 1U, &hdr);
+        in.readTraceParam(i, 1U, &hdr);
         hdr.tn = minmax[i].num;
-        out->writeTraceParam(i, 1U, &hdr);
+        out.writeTraceParam(i, 1U, &hdr);
     }
 
     std::vector<trace_t> trace(minmax.size());
     for (auto & d : trace)
         d = trace_t(1);
-    out->writeTrace(0, trace.size(), trace.data());
+    out.writeTrace(0, trace.size(), trace.data());
     return 0;
 }
 
@@ -89,7 +89,7 @@ int main(int argc, char ** argv)
         return -1;
     }
 
-    Piol piol(new ExSeisPIOL);
+    ExSeis piol;
     calcMin(piol, iname, oname);
 
     return 0;

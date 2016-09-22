@@ -6,7 +6,6 @@
 #define private public
 #define protected public
 #include "data/data.hh"
-#include "data/dataopt.hh"
 #undef private
 #undef protected
 
@@ -16,7 +15,7 @@ class DataTest : public Test
 {
     protected :
     std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPIOpt opt;
+    Comm::MPI::Opt opt;
     DataTest()
     {
         opt.initMPI = false;
@@ -51,10 +50,4 @@ TEST_F(DataTest, Constructor)
     FakeData fake(piol, notFile);
     EXPECT_EQ(piol, fake.piol);
     EXPECT_EQ(notFile, fake.name);
-}
-
-TEST(DataOptTest, Opt)
-{
-    Data::Opt opt;
-    EXPECT_EQ(Data::Type::MPIIO, opt.getType());
 }

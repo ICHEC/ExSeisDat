@@ -3,10 +3,7 @@
 #include <string>
 #include <iostream>
 #include <assert.h>
-#include "anc/piol.hh"
-#include "file/filesegy.hh"
-#include "object/objsegy.hh"
-#include "data/datampiio.hh"
+#include "cppfile.hh"
 #include "share/segy.hh"
 using namespace PIOL;
 
@@ -50,17 +47,16 @@ int main(int argc, char ** argv)
     assert(name.size() && ns && nt && max && inc != 0.0);
     max *= 1024 * 1024;
 
-    //TODO: This is an annoying way to create the PIOL object
-    auto piol = std::make_shared<ExSeisPIOL>();
-    auto file = std::make_unique<File::SEGY>(piol, name, FileMode::Write);
-    piol->isErr();
-    file->writeNs(ns);
-    file->writeNt(nt);
-    file->writeInc(inc);
-    file->writeText("Test file\n");
-    piol->isErr();
+    ExSeis piol;
+    File::Direct file(piol, name, FileMode::Write);
+    piol.isErr();
+    file.writeNs(ns);
+    file.writeNt(nt);
+    file.writeInc(inc);
+    file.writeText("Test file\n");
+    piol.isErr();
 
-    auto dec = decompose(nt, piol->comm->getNumRank(), piol->comm->getRank());
+    auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
     max /= std::max(SEGSz::getMDSz(), SEGSz::getDFSz(ns));
 
     //Not the optimal pattern
@@ -78,15 +74,15 @@ int main(int argc, char ** argv)
                 prm[j].line = {2400 + k, 1600 + k};
                 prm[j].tn = dec.first+i+j;
             }
-            file->writeTraceParam(dec.first + i, rblock, prm.data());
-            piol->isErr();
+            file.writeTraceParam(dec.first + i, rblock, prm.data());
+            piol.isErr();
         }
         {
             std::vector<float> trc(rblock*ns);
             for (size_t j = 0; j < trc.size(); j++)
                 trc[j] = float((dec.first+i)*ns+j);
-            file->writeTrace(dec.first + i, rblock, trc.data());
-            piol->isErr();
+            file.writeTrace(dec.first + i, rblock, trc.data());
+            piol.isErr();
         }
     }
     return 0;

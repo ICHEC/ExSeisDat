@@ -157,7 +157,7 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    ExSeisHandle piol = initPIOL(0, NULL);
+    ExSeisHandle piol = initMPIOL();
     isErr(piol);
 
     ReadWriteFile(piol, iname, oname, memmax, modPrm, modTrc);

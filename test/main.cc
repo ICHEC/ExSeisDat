@@ -1,6 +1,5 @@
 #include "tglobal.hh"
-#include "anc/piol.hh"
-#include "anc/cmpi.hh"
+#include "cppfile.hh"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 using namespace testing;
@@ -65,23 +64,21 @@ uchar getPattern(size_t i)
 
 int main(int argc, char ** argv)
 {
-    Comm::MPIOpt opt;
-    ExSeisPIOL piol(opt);
+    ExSeis piol;
     InitGoogleTest(&argc, argv);
 
-    auto comm = piol.comm;
-    if (!comm->getRank())
+    if (!piol.getRank())
     {
         makeFile(zeroFile, 0U);
         makeFile(smallFile, smallSize);
         makeFile(largeFile, largeSize);
     }
-    comm->barrier();
+    piol.barrier();
 
     int code = RUN_ALL_TESTS();
 
-    comm->barrier();
-    if (!comm->getRank())
+    piol.barrier();
+    if (piol.getRank())
     {
         std::remove(zeroFile.c_str());
         std::remove(smallFile.c_str());

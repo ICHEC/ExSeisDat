@@ -1,10 +1,11 @@
-#include "global.hh"
-#include "file/filesegy.hh"
+//#include "global.hh"
+//#include "anc/cmpi.hh"
+//#include "file/filesegy.hh"
+#include "cppfile.hh"
 #include <iostream>
 #include <glob.h>
 #include <regex>
 using namespace PIOL;
-using namespace File;
 int main(int argc, char ** argv)
 {
     if (argc < 2)
@@ -12,7 +13,7 @@ int main(int argc, char ** argv)
         std::cout << "Too few arguments\n";
         return -1;
     }
-    Piol piol(new ExSeisPIOL);
+    ExSeis piol;
 
     glob_t globs;
     std::cout << "Pattern: " << argv[1] << "\n";
@@ -27,13 +28,12 @@ int main(int argc, char ** argv)
         if (std::regex_match(globs.gl_pathv[i], reg))
         {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
-            std::unique_ptr<Interface> file = std::make_unique<SEGY>(piol, globs.gl_pathv[i]);
-            if (piol->log->isErr())
-                continue;
-//    std::cout << "--\tText: " << file->readText() << "\n";
-            std::cout << "-\tNs: " << file->readNs() << "\n";
-            std::cout << "-\tNt: " << file->readNt() << "\n";
-            std::cout << "-\tInc: " << file->readInc() << "\n";
+
+            File::Direct file(piol, globs.gl_pathv[i]);
+            piol.isErr();
+            std::cout << "-\tNs: " << file.readNs() << "\n";
+            std::cout << "-\tNt: " << file.readNt() << "\n";
+            std::cout << "-\tInc: " << file.readInc() << "\n";
         }
     globfree(&globs);
     return 0;

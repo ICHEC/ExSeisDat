@@ -6,6 +6,7 @@
 #include "object/objsegy.hh"
 #define private public
 #define protected public
+#include "cppfile.hh"
 #include "file/file.hh"
 #undef private
 #undef protected
@@ -17,7 +18,7 @@ class FileTest : public Test
 {
     protected :
     std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPIOpt opt;
+    Comm::MPI::Opt opt;
 
     FileTest()
     {
@@ -31,15 +32,11 @@ class FileTest : public Test
 //FakeFile to test the constructor of the abstract Interface class
 struct FakeFile : public File::Interface
 {
-    FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
+    struct Opt
     {
-        inc = geom_t(10);
-        text = "test";
-        nt = 1101U;
-        ns = 1010U;
-    }
-
-    FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Obj::Opt & objOpt, const Data::Opt & dataOpt) : File::Interface(piol_, name_, objOpt, dataOpt)
+        typedef FakeFile Type;
+    };
+    FakeFile(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : File::Interface(piol_, name_, obj_)
     {
         inc = geom_t(10);
         text = "test";
@@ -72,8 +69,8 @@ void compareConstructor(ExSeisPIOL * piol, FakeFile & fake)
     EXPECT_EQ("test", fake.readText());
 }
 
-//We test the short-cut constructor. No sanity checks
-TEST_F(FileTest, ShortInterfaceConstructor)
+//We test the constructor
+TEST_F(FileTest, Constructor)
 {
     std::shared_ptr<Obj::Interface> obj = nullptr;
     FakeFile fake(piol, tempFile, obj);
@@ -81,62 +78,13 @@ TEST_F(FileTest, ShortInterfaceConstructor)
     compareConstructor(piol.get(), fake);
 }
 
-//In this test we pass the MPI-IO Data Options class.
-//We do not use a valid name as we are not interested in the result
-TEST_F(FileTest, InterfaceConstructor)
-{
-    const Obj::SEGYOpt objOpt;
-    const Data::MPIIOOpt dataOpt;
-
-    FakeFile fake(piol, tempFile, objOpt, dataOpt);
-    EXPECT_EQ(nullptr, fake.obj);
-    compareConstructor(piol.get(), fake);
-}
-
-void BadConstructor(std::shared_ptr<ExSeisPIOL> piol, std::string name, const Obj::Opt & objOpt, const Data::Opt & dataOpt)
-{
-    FakeFile fake(piol, name, objOpt, dataOpt);
-    EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(name, fake.name);
-    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
-}
 typedef FileTest FileDeathTest;
+
 //In this test we pass the MPI-IO Data Options class within an invalid name
-//We do not use a valid name as we are not interested in the result
 TEST_F(FileDeathTest, BadNameInterfaceConstructor)
 {
-    const Obj::SEGYOpt objOpt;
-    const Data::MPIIOOpt dataOpt;
-
-    BadConstructor(piol, notFile, objOpt, dataOpt);
-}
-
-//In this test we pass the wrong Data Options class.
-//We pass the base class instead of MPIIOOpt (the default class)
-TEST_F(FileDeathTest, BadInterfaceConstructor1)
-{
-    SCOPED_TRACE("BadInterface 1");
-    const Obj::SEGYOpt objOpt;
-    const Data::Opt dataOpt;
-    BadConstructor(piol, tempFile, objOpt, dataOpt);
-}
-
-//In this test we pass the wrong Object Options class.
-//We pass the base class
-TEST_F(FileDeathTest, BadInterfaceConstructor2)
-{
-    SCOPED_TRACE("BadInterface 2");
-    const Obj::Opt objOpt;
-    const Data::MPIIOOpt dataOpt;
-    BadConstructor(piol, tempFile, objOpt, dataOpt);
-}
-
-//In this test we pass two wrong Object Options classes.
-//We pass the base classes
-TEST_F(FileDeathTest, BadInterfaceConstructor3)
-{
-    SCOPED_TRACE("BadInterface 3");
-    const Obj::Opt objOpt;
-    const Data::Opt dataOpt;
-    BadConstructor(piol, tempFile, objOpt, dataOpt);
+    File::Direct file(piol, tempFile);
+    EXPECT_EQ(piol, file->piol);
+    EXPECT_EQ(tempFile, file->name);
+    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }

@@ -22,6 +22,7 @@ class SEGY : public Interface
      */
     struct Opt
     {
+        typedef SEGY Type;
         unit_t incFactor;   //!< The increment factor to multiply inc by.
         /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
          */

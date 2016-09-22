@@ -25,6 +25,7 @@ class MPIIO : public Interface
      */
     struct Opt
     {
+        typedef MPIIO Type;
         MPI_Info info;      //!< The info structure to use
         size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
         MPI_Comm fcomm;     //!< The MPI communicator to use for file access

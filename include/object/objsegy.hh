@@ -9,7 +9,6 @@
 #ifndef PIOLOBJSEGY_INCLUDE_GUARD
 #define PIOLOBJSEGY_INCLUDE_GUARD
 #include <memory>
-#include "anc/piol.hh"
 #include "global.hh"
 #include "object/object.hh"
 
@@ -23,6 +22,7 @@ class SEGY : public Interface
     */
     struct Opt
     {
+        typedef SEGY Type;
         /* \brief Default constructor to prevent intel warnings
          */
         Opt(void)

@@ -10,7 +10,7 @@ int testManyFiles(ExSeisHandle piol, const char * name)
     const size_t rnum = 10;
     const size_t fnum = 1000;
     ExSeisFile * file = calloc(fnum, sizeof(ExSeisFile));
-    ExSeisFile ffile = openFile(piol, name, NULL, NULL);
+    ExSeisFile ffile = openReadFile(piol, name);
 
     const char * msg = readText(ffile);
     size_t ln = strlen(msg);
@@ -21,7 +21,7 @@ int testManyFiles(ExSeisHandle piol, const char * name)
     for (size_t i = 0; i < rnum; i++)
     {
         for (size_t j = 0; j < fnum; j++)
-            file[j] = openFile(piol, name, NULL, NULL);
+            file[j] = openReadFile(piol, name);
 
         for (size_t j = 0; j < fnum; j++)
         {
@@ -59,7 +59,7 @@ int main(int argc, char ** argv)
         }
     assert(name);
 
-    ExSeisHandle piol = initPIOL(0, NULL);
+    ExSeisHandle piol = initMPIOL();
     isErr(piol);
 
     testManyFiles(piol, name);

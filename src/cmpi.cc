@@ -11,7 +11,7 @@
 #include "share/smpi.hh"
 #include <iostream>
 namespace PIOL { namespace Comm {
-MPI::MPI(const MPI::Opt & opt) : comm(opt.comm), init(opt.initMPI)
+MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), init(opt.initMPI), log(log_)
 {
     if (init)
     {

@@ -20,7 +20,7 @@ using namespace PIOL;
 class MockData : public Data::Interface
 {
     public :
-    MockData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
+    MockData(const Piol piol_, const std::string name_) : Data::Interface(piol_, name_)
     {
     }
 
@@ -36,10 +36,8 @@ class MockData : public Data::Interface
 class ObjSpecTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
-    const Obj::SEGYOpt segyOpt;
-    Data::MPIIOOpt dataOpt;
-    Comm::MPIOpt opt;
+    Piol piol;
+    Comm::MPI::Opt opt;
     std::shared_ptr<MockData> mock;
     Obj::Interface * obj;
 
@@ -50,15 +48,14 @@ class ObjSpecTest : public Test
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
     }
-    template <bool WriteTest>
+    template <bool WRITE>
     void makeRealSEGY(std::string name)
     {
         if (obj != nullptr)
             delete obj;
 
-        if (WriteTest)
-            dataOpt.mode = FileMode::Test;
-        obj = new Obj::SEGY(piol, name, segyOpt, dataOpt);
+        auto data = std::make_shared<Data::MPIIO>(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
+        obj = new Obj::SEGY(piol, name, data, (WRITE ? FileMode::Test : FileMode::Read));
         piol->isErr();
     }
 
@@ -67,7 +64,7 @@ class ObjSpecTest : public Test
         if (obj != nullptr)
             delete obj;
         mock = std::make_shared<MockData>(piol, notFile);
-        obj = new Obj::SEGY(piol, name, segyOpt, mock);
+        obj = new Obj::SEGY(piol, name, mock);
         piol->isErr();
     }
 

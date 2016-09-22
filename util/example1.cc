@@ -4,8 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <assert.h>
-#include "anc/piol.hh"
-#include "file/filesegy.hh"
+#include "cppfile.hh"
 using namespace PIOL;
 int main(int argc, char ** argv)
 {
@@ -22,16 +21,16 @@ int main(int argc, char ** argv)
     assert(name.size() > 0);
 
     //Initialise the PIOL by creating an ExSeisPIOL object
-    auto piol = std::make_shared<ExSeisPIOL>();
+    ExSeis piol;
 
     //Create a SEGY file object
-    File::SEGY file(piol, name, FileMode::Write);
+    File::Direct file(piol, name, FileMode::Write);
 
     //lnt is the number of traces and sets of trace parameters we will write per process
     size_t nt = 40000, ns = 300;
     double inc = 0.04;
 
-    auto dec = decompose(nt, piol->comm->getNumRank(), piol->comm->getRank());
+    auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
