@@ -17,14 +17,15 @@ namespace PIOL {
  */
 class ExSeisPIOL
 {
+    void Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
     public :
-    std::unique_ptr<Log::Logger> log;
-    std::shared_ptr<Comm::Interface> comm;
-
-    ExSeisPIOL(const Log::Verb maxLevel = Log::Verb::None);
-    ExSeisPIOL(bool initMPI, const Log::Verb maxLevel = Log::Verb::None);
     ExSeisPIOL(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
+    ExSeisPIOL(bool initMPI, const Log::Verb maxLevel = Log::Verb::None);
+    ExSeisPIOL(const Log::Verb maxLevel = Log::Verb::None);
     ~ExSeisPIOL(void);
+
+    std::unique_ptr<Log::Logger> log;
+    std::unique_ptr<Comm::Interface> comm;
 
     /*! \brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
      *  and the code aborts.

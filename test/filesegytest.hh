@@ -102,7 +102,8 @@ struct FileSEGYTest : public Test
     Comm::MPI::Opt opt;
     bool testEBCDIC;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    std::unique_ptr<File::Interface> file;
+    //std::unique_ptr<File::Interface> file;
+    File::Interface * file;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
@@ -122,16 +123,24 @@ struct FileSEGYTest : public Test
     ~FileSEGYTest()
     {
         if (file != nullptr)
-            file.reset();
+        //if (file.get() != nullptr)
+            //file.reset();
+            delete file;
     }
 
     template <bool WRITE = true>
     void makeSEGY(std::string name)
     {
         if (file != nullptr)
-            file.reset();
-        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
-        file = std::make_unique<File::Direct>(piol, name, mode);
+        //if (file.get() != nullptr)
+            //file.reset();
+            delete file;
+        std::cout << "rank " << piol->comm->getRank() << std::endl;
+        file = new File::Direct(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
+       // file = std::make_unique<File::Direct>(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
+//      if (file.get() == nullptr)
+  //        std::cout << "nullptr" << std::endl;
+
         piol->isErr();
 
         if (WRITE)
@@ -142,7 +151,8 @@ struct FileSEGYTest : public Test
     void makeMockSEGY()
     {
         if (file != nullptr)
-            file.reset();
+            //file.reset();
+            delete file;
         if (mock != nullptr)
             mock.reset();
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
@@ -160,7 +170,8 @@ struct FileSEGYTest : public Test
             EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
 
         FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
-        file = std::make_unique<File::SEGY>(piol, notFile, mock, mode);
+        file = new File::SEGY(piol, notFile, mock, mode);
+        //file = std::make_unique<File::SEGY>(piol, notFile, mock, mode);
 
         if (WRITE)
         {
@@ -296,6 +307,8 @@ struct FileSEGYTest : public Test
 
         file->writeNt(nt);
         piol->isErr();
+
+        std::cout << "file->readNt() " << file->readNt() << std::endl;
 
         file->writeNs(ns);
         piol->isErr();

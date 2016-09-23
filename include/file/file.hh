@@ -99,7 +99,7 @@ class Interface
     {
     }
     Interface(void) { }
-    /*! \brief A virtual destructor to allow deletion.
+    /*! \brief A virtual destructor to allow deletion, unique_pr polymorphism.
      */
     virtual ~Interface(void) { }
 

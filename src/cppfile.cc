@@ -27,7 +27,7 @@ void ExSeis::isErr(std::string msg) const
 }
 
 namespace File {
-Direct::Direct(const Piol piol, const std::string name_, FileMode mode)
+Direct::Direct(const Piol piol_, const std::string name_, FileMode mode) : Interface(piol_, name, nullptr)
 {
     const File::SEGY::Opt f;
     const Obj::SEGY::Opt o;
@@ -39,7 +39,7 @@ Direct::Direct(const Piol piol, const std::string name_, FileMode mode)
 
 const std::string & Direct::readText(void) const
 {
- return file->readText();
+    return file->readText();
 }
 
 size_t Direct::readNs(void) const

@@ -10,25 +10,28 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include <string>
-
 namespace PIOL {
-ExSeisPIOL::ExSeisPIOL(Comm::MPI::Opt & copt, const Log::Verb maxLevel)
+void ExSeisPIOL::Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel)
 {
     log = std::make_unique<Log::Logger>(maxLevel);
-    comm = std::make_shared<Comm::MPI>(log.get(), copt);
+    comm = std::make_unique<Comm::MPI>(log.get(), copt);
+}
+ExSeisPIOL::ExSeisPIOL(Comm::MPI::Opt & copt, const Log::Verb maxLevel)
+{
+    Init(copt, maxLevel);
 }
 
 ExSeisPIOL::ExSeisPIOL(bool initMPI, const Log::Verb maxLevel)
 {
     Comm::MPI::Opt copt;
     copt.initMPI = initMPI;
-    ExSeisPIOL(copt, maxLevel);
+    Init(copt, maxLevel);
 }
 
 ExSeisPIOL::ExSeisPIOL(const Log::Verb maxLevel)
 {
     Comm::MPI::Opt copt;
-    ExSeisPIOL(copt, maxLevel);
+    Init(copt, maxLevel);
 }
 
 ExSeisPIOL::~ExSeisPIOL(void)

@@ -16,7 +16,7 @@ class ExSeis
     {
         return piol.get();
     }
-    operator Piol & ()
+    operator Piol ()
     {
         return piol;
     }
@@ -31,19 +31,19 @@ class ExSeis
     void record(const std::string file, const Log::Layer layer,
                 const Log::Status stat, const std::string msg, const Log::Verb verbosity) const;
 
-    size_t getRank(void) const
+    size_t getRank(void)
     {
         return piol->comm->getRank();
     }
 
-    size_t getNumRank(void) const
+    size_t getNumRank(void)
     {
-        return piol->comm->getNumRank();
+        return piol->comm.get()->getNumRank();
     }
 
     void barrier(void) const
     {
-        piol->comm->barrier();
+        piol->comm.get()->barrier();
     }
 
     /*! \brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
@@ -60,15 +60,16 @@ class Direct : public Interface
 
     public :
     template <class F, class O, class D>
-    Direct(const Piol piol, const std::string name_,
-                             const F & f, const O & o,
-                             const D & d, FileMode mode)
+    Direct(const Piol piol_, const std::string name_,
+                            const F & f, const O & o,
+                            const D & d, FileMode mode) : Interface(piol_, name, nullptr)
     {
         auto data = std::make_shared<D::Type>(piol, name_, d, mode);
         auto obj = std::make_shared<O::Type>(piol, name_, o, data, mode);
         file = std::make_shared<F::Type>(piol, name_, f, obj, mode);
     }
-    Direct(const Piol piol, const std::string name_, FileMode mode = FileMode::Read);
+    Direct(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
+    ~Direct(void) { }
     Interface * operator->() const
     {
         return file.get();

@@ -7,7 +7,6 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
     nt = 400U;
 
     makeSEGY<true>(tempFile);
-
     EXPECT_EQ(ns, file->readNs());
     piol->isErr();
 
