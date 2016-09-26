@@ -9,7 +9,7 @@
 #include <execinfo.h>
 #include "share/smpi.hh"
 namespace PIOL {
-void printErr(ExSeisPIOL * piol, const std::string file, const Log::Layer layer, const int err, const MPI_Status * stat, std::string msg)
+void printErr(Log::Logger * log, const std::string file, const Log::Layer layer, const int err, const MPI_Status * stat, std::string msg)
 {
     if (err != MPI_SUCCESS)
     {
@@ -17,7 +17,7 @@ void printErr(ExSeisPIOL * piol, const std::string file, const Log::Layer layer,
             msg += " MPI_Status: " + std::to_string(stat->MPI_ERROR);
         else
             msg += "MPI_ERR = " + std::to_string(err);
-        piol->log->record(file, layer, Log::Status::Error, msg, Log::Verb::None);
+        log->record(file, layer, Log::Status::Error, msg, Log::Verb::None);
     }
 }
 }

@@ -185,10 +185,10 @@ void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
     file = MPI_FILE_NULL;
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    printErr(piol.get(), name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
+    printErr(log, name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
 
     if (esz != 1)
-        piol->log->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
+        log->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
 
     fcomm = opt.fcomm;
 
@@ -197,18 +197,18 @@ void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
     if (opt.info != MPI_INFO_NULL)
     {
         err = MPI_Info_dup(opt.info, &info);
-        printErr(piol.get(), name, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
+        printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
     }
     else
         info = MPI_INFO_NULL;
 
     err = MPI_File_open(fcomm, name.data(), flags, info, &file);
-    printErr(piol.get(), name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
+    printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     if (err == MPI_SUCCESS)
     {
         int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
-        printErr(piol.get(), name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
+        printErr(log, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
     }
 }
 
@@ -217,7 +217,7 @@ size_t MPIIO::getFileSz() const
 {
     MPI_Offset fsz = 0;
     int err = MPI_File_get_size(file, &fsz);
-    printErr(piol.get(), name, Log::Layer::Data, err, nullptr, "error getting the file size");
+    printErr(log, name, Log::Layer::Data, err, nullptr, "error getting the file size");
     return size_t(fsz);
 }
 
@@ -227,7 +227,7 @@ void MPIIO::setFileSz(csize_t sz) const
     {
         //int err = MPI_File_preallocate(file, MPI_Offset(sz));
         int err = MPI_File_set_size(file, MPI_Offset(sz));
-        printErr(piol.get(), name, Log::Layer::Data, err, nullptr, "error setting the file size");
+        printErr(log, name, Log::Layer::Data, err, nullptr, "error setting the file size");
     }
 }
 
@@ -235,7 +235,7 @@ void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
 {
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(MPI_File_read_at, file, offset, sz, arg, maxSize, d);
-    printErr(piol.get(), name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
+    printErr(log, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
 }
 
 void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
@@ -245,13 +245,13 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
-        piol->log->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, Log::Verb::None);
+        log->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, Log::Verb::None);
     }
 
     //Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
-    printErr(piol.get(), name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
+    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
     read(0U, nb*bsz, d);
 
@@ -283,7 +283,7 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
 
     MPI_Status stat;
     int err = io<uchar, MPI_Status>(viewIO, file, offset, nb, stat, maxSize, d, bsz, osz);
-    printErr(piol.get(), name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
+    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
@@ -293,13 +293,13 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
-        piol->log->record(name, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, Log::Verb::None);
+        log->record(name, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, Log::Verb::None);
     }
 
     //Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
-    printErr(piol.get(), name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
+    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
     write(0U, nb*bsz, d);
 
@@ -312,7 +312,7 @@ void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
 {
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
-    printErr(piol.get(), name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
+    printErr(log, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
 }
 
 void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
@@ -337,6 +337,6 @@ void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uc
 
     MPI_Status stat;
     int err = io<uchar, MPI_Status>(viewIO, file, offset, nb, stat, maxSize, const_cast<uchar *>(d), bsz, osz);
-    printErr(piol.get(), name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
+    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
 }}

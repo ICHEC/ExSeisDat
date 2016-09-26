@@ -247,9 +247,6 @@ void setCoord(const Coord item, const coord_t coord, const int16_t scale, uchar 
 }
 
 //TODO: unit test
-/*!
- */
-
 /*! \brief Get a coordinate point from the trace header
  *  \param[in] item The coordinate point type of interest
  *  \param[in] scale The scale from the SEG-Y header
@@ -320,8 +317,8 @@ int16_t deScale(const geom_t val)
     constexpr llint tenk = 10000;
     //First we need to determine what scale is required to store the
     //biggest decimal value of the int.
-    llint llintpart = llint(val);      //TODO: Double check spec
-    int32_t intpart = llintpart;       //TODO: Double check spec
+    llint llintpart = llint(val);
+    int32_t intpart = llintpart;
     if (llintpart != intpart)
     {
         /* Starting with the smallest scale factor, see

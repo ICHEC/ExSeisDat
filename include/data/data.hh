@@ -18,7 +18,8 @@ namespace PIOL { namespace Data {
 class Interface
 {
     protected :
-    Piol piol;   //!< Pointer to the PIOL object.
+    Piol piol;                          //!< Pointer to the PIOL object.
+    Log::Logger * log;                  //!< For convienience
     const std::string name;             //!< Store the file name for debugging purposes.
 
     public :
@@ -26,7 +27,7 @@ class Interface
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      */
-    Interface(const Piol piol_, const std::string name_) : piol(piol_), name(name_)
+    Interface(const Piol piol_, const std::string name_) : piol(piol_), log(piol_->log.get()), name(name_)
     {
     }
 

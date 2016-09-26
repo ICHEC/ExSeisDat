@@ -17,7 +17,7 @@ namespace PIOL {
  *  The side-effect of the function is to log an item with \c piol if there is an error
  *  otherwise no side-effect occurs. The function always returns.
  */
-extern void printErr(ExSeisPIOL * piol, const std::string file, const Log::Layer layer, const int err,
+extern void printErr(Log::Logger * log, const std::string file, const Log::Layer layer, const int err,
                                         const MPI_Status * stat, std::string msg);
 
 /*! \brief Return the fundamental MPI datatype associated with a fundamental datatype.
