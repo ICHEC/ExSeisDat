@@ -30,6 +30,14 @@ TEST_F(FileSEGYIntegRead, FileReadTraceSmall)
     readTraceTest<false>(0, nt);
 }
 
+TEST_F(FileSEGYIntegRead, FileReadTraceSmallOpts)
+{
+    nt = smallnt;
+    ns = smallns;
+    makeSEGY<false, true>(smallSEGYFile);
+    readTraceTest<false>(0, nt);
+}
+
 TEST_F(FileSEGYIntegRead, FileReadTraceBigNS)
 {
     nt = 200;

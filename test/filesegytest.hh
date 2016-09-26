@@ -123,12 +123,21 @@ struct FileSEGYTest : public Test
     {
     }
 
-    template <bool WRITE = true>
+    template <bool WRITE = true, bool OPTS = false>
     void makeSEGY(std::string name)
     {
         if (file.get() != nullptr)
             file.reset();
-        file = std::make_unique<File::Direct>(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
+        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
+        if (OPTS)
+        {
+            File::SEGY::Opt fopt;
+            Obj::SEGY::Opt oopt;
+            Data::MPIIO::Opt dopt;
+            file = std::make_unique<File::Direct>(piol, name, fopt, oopt, dopt, mode);
+        }
+        else
+            file = std::make_unique<File::Direct>(piol, name, mode);
 
         piol->isErr();
 

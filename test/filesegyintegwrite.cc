@@ -76,6 +76,14 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)
     writeTraceTest<false>(0, nt);
 }
 
+TEST_F(FileSEGYIntegWrite, FileWriteTraceNormalOpt)
+{
+    nt = 100;
+    ns = 300;
+    makeSEGY<true, true>(tempFile);
+    writeTraceTest<false>(0, nt);
+}
+
 TEST_F(FileSEGYIntegWrite, FileWriteTraceBigNs)
 {
     nt = 100;

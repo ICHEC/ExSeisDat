@@ -55,10 +55,9 @@ class Direct : public Interface
                             const F & f, const O & o,
                             const D & d, FileMode mode) : Interface(piol_, name_, nullptr)
     {
-#warning add Unit test for D::Type
-        auto data = std::make_shared<D::Type>(piol, name, d, mode);
-        auto obj = std::make_shared<O::Type>(piol, name, o, data, mode);
-        file = std::make_shared<F::Type>(piol, name, f, obj, mode);
+        auto data = std::make_shared<typename D::Type>(piol, name, d, mode);
+        auto obj = std::make_shared<typename O::Type>(piol, name, o, data, mode);
+        file = std::make_shared<typename F::Type>(piol, name, f, obj, mode);
     }
 
     Direct(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
