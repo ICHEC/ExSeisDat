@@ -26,7 +26,7 @@ class MPIIO : public Interface
      */
     struct Opt
     {
-        typedef MPIIO Type;
+        typedef MPIIO Type; //!< The Type of the class this structure is nested in
         MPI_Info info;      //!< The info structure to use
         size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
         MPI_Comm fcomm;     //!< The MPI communicator to use for file access
@@ -37,8 +37,8 @@ class MPIIO : public Interface
     private :
     MPI_File file;      //!< The MPI-IO file handle
     MPI_Comm fcomm;     //!< The MPI-IO file communicator
-    MPI_Info info;      //!< \copydoc MPIIOOpt::info
-    size_t maxSize;     //!< \copydoc MPIIOOpt::maxSize
+    MPI_Info info;      //!< \copydoc MPIIO::Opt::info
+    size_t maxSize;     //!< \copydoc MPIIO::Opt::maxSize
 
     /*! Read a file using MPI-IO views. This function does not handle the integer limit
      *  \param[in] offset The offset in bytes from the current internal shared pointer
@@ -58,6 +58,10 @@ class MPIIO : public Interface
      */
     void writev(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, const uchar * d) const;
 
+    /*! \brief The MPI-IO Init function.
+     *  \param[in] opt  The MPI-IO options
+     *  \param[in] mode The filemode
+     */
     void Init(const MPIIO::Opt & opt, FileMode mode);
 
     public :
@@ -66,9 +70,15 @@ class MPIIO : public Interface
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] opt   The MPI-IO options
+     *  \param[in] mode The filemode
      */
     MPIIO(const Piol piol_, const std::string name_, const MPIIO::Opt & opt, FileMode mode = FileMode::Read);
 
+    /*! \brief The MPI-IO class constructor.
+     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name_ The name of the file associated with the instantiation.
+     *  \param[in] mode The filemode
+     */
     MPIIO(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
 
     ~MPIIO(void);

@@ -27,6 +27,7 @@ class Interface
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
+     *  \param[in] data_ Pointer to the Data layer object (polymorphic).
      */
     Interface(const Piol piol_, const std::string name_, std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
     {

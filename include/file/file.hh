@@ -94,6 +94,7 @@ class Interface
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
+     *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
     Interface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
     {

@@ -7,7 +7,7 @@
 namespace PIOL {
 
 /*! \brief Check the MPI error code and log an error event if there is an error.
- *  \param[in,out] piol The PIOL object. The log object is stored within it.
+ *  \param[in,out] log  The log object
  *  \param[in] file The related file. Use "" if the option is not applicable.
  *  \param[in] layer The layer one was working with (generally Comm or Data).
  *  \param[in] err The MPI error code.
@@ -48,6 +48,7 @@ MPI_Datatype MPIType(void)
 }
 
 /*! \brief Return the known limit for Intel MPI on Fionn
+ *  \tparam T The type one wishes to find the limit for
  */
 template <typename T>
 constexpr size_t getLim()

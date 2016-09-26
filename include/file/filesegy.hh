@@ -22,7 +22,7 @@ class SEGY : public Interface
      */
     struct Opt
     {
-        typedef SEGY Type;
+        typedef SEGY Type;  //!< The Type of the class this structure is nested in
         unit_t incFactor;   //!< The increment factor to multiply inc by.
         /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
          */
@@ -68,7 +68,7 @@ class SEGY : public Interface
 
     /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
-     *  \param[in] dataOpt The Data options
+     *  \param[in] mode_    The mode of file access.
      */
     void Init(const File::SEGY::Opt & segyOpt, const FileMode mode_);
     public :
@@ -76,14 +76,15 @@ class SEGY : public Interface
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] segyOpt The SEGY-File options
-     *  \param[in] objOpt  The Object options
-     *  \param[in] dataOpt The Data options
+     *  \param[in] obj_    A shared pointer to the object layer
+     *  \param[in] mode    The mode of file access.
      */
     SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode = FileMode::Read);
 
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
+     *  \param[in] obj_    A shared pointer to the object layer
      *  \param[in] mode    The mode of file access.
      */
     SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_, const FileMode mode = FileMode::Read);
