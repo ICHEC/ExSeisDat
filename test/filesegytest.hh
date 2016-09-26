@@ -14,7 +14,7 @@
 
 #define private public
 #define protected public
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 #include "file/filesegy.hh"
 #undef private
 #undef protected
@@ -136,10 +136,9 @@ struct FileSEGYTest : public Test
             //file.reset();
             delete file;
         std::cout << "rank " << piol->comm->getRank() << std::endl;
+        std::cout << " Name " << name << std::endl;
         file = new File::Direct(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
        // file = std::make_unique<File::Direct>(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
-//      if (file.get() == nullptr)
-  //        std::cout << "nullptr" << std::endl;
 
         piol->isErr();
 

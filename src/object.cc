@@ -7,11 +7,7 @@
  *   \details
  *//*******************************************************************************************/
 #include "object/object.hh"
-#include <string>
-#include <typeinfo>
-#include <iostream>
-#include "share/casts.hh"
-#include "data/datampiio.hh"
+#include "data/data.hh"
 namespace PIOL { namespace Obj {
 size_t Interface::getFileSz(void) const
 {

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <unordered_map>
 #include <iostream>
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 #include "data/datampiio.hh"
 #include "share/segy.hh"
 #include "share/smpi.hh"

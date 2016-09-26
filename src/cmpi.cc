@@ -9,6 +9,7 @@
 #include "global.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
+#warning temp
 #include <iostream>
 namespace PIOL { namespace Comm {
 MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), init(opt.initMPI), log(log_)

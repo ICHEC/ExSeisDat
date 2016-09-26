@@ -4,7 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <assert.h>
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 using namespace PIOL;
 int main(int argc, char ** argv)
 {

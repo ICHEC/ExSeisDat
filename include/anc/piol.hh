@@ -18,10 +18,14 @@ namespace PIOL {
 class ExSeisPIOL
 {
     void Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
+
     public :
     ExSeisPIOL(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
+
     ExSeisPIOL(bool initMPI, const Log::Verb maxLevel = Log::Verb::None);
+
     ExSeisPIOL(const Log::Verb maxLevel = Log::Verb::None);
+
     ~ExSeisPIOL(void);
 
     std::unique_ptr<Log::Logger> log;

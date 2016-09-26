@@ -171,6 +171,7 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, FileMode mode) : PIOL::Data::I
 
 MPIIO::~MPIIO(void)
 {
+#warning Check MPI_File_close and MPI_info free returns
     if (file != MPI_FILE_NULL)
         MPI_File_close(&file);
     if (info != MPI_INFO_NULL)

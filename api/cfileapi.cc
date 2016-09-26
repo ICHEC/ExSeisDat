@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstddef>
 #include <assert.h>
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 #include "share/segy.hh"
 #include "ops/ops.hh"
 
@@ -162,7 +162,7 @@ void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
 
 void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax)
 {
-    getMinMax(*piol->piol.get(), offset, sz, reinterpret_cast<const File::coord_t *>(coord), reinterpret_cast<File::CoordElem * >(minmax));
+    getMinMax(*piol->piol, offset, sz, reinterpret_cast<const File::coord_t *>(coord), reinterpret_cast<File::CoordElem * >(minmax));
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////

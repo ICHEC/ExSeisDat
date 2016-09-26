@@ -6,7 +6,7 @@
 #include "object/objsegy.hh"
 #define private public
 #define protected public
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 #include "file/file.hh"
 #undef private
 #undef protected
@@ -81,7 +81,7 @@ TEST_F(FileTest, Constructor)
 typedef FileTest FileDeathTest;
 
 //In this test we pass the MPI-IO Data Options class within an invalid name
-TEST_F(FileDeathTest, BadNameInterfaceConstructor)
+TEST_F(FileDeathTest, BadNameConstructor)
 {
     File::Direct file(piol, tempFile);
     EXPECT_EQ(piol, file->piol);

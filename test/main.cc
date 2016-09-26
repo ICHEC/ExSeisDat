@@ -1,5 +1,5 @@
 #include "tglobal.hh"
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 using namespace testing;

@@ -21,6 +21,7 @@ namespace PIOL { namespace Data {
 class MPIIO : public Interface
 {
     public :
+
     /*! \brief The MPI-IO options structure.
      */
     struct Opt
@@ -29,8 +30,8 @@ class MPIIO : public Interface
         MPI_Info info;      //!< The info structure to use
         size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
         MPI_Comm fcomm;     //!< The MPI communicator to use for file access
-        Opt(void);     //!< The constructor to set default options
-        ~Opt(void);    //!< The destructor
+        Opt(void);          //!< The constructor to set default options
+        ~Opt(void);         //!< The destructor
     };
 
     private :

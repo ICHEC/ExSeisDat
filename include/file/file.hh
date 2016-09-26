@@ -106,22 +106,22 @@ class Interface
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */
-    const std::string & readText(void) const;
+    virtual const std::string & readText(void) const;
 
     /*! \brief Read the number of samples per trace
      *  \return The number of samples per trace
      */
-    size_t readNs(void) const;
+    virtual size_t readNs(void) const;
 
     /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
-    size_t readNt(void) const;
+    virtual size_t readNt(void) const;
 
     /*! \brief Read the number of increment between trace samples
      *  \return The increment between trace samples
      */
-    geom_t readInc(void) const;
+    virtual geom_t readInc(void) const;
 
     /*! \brief Pure virtual function to read coordinate pairs from the ith-trace to i+sz.
      *  \param[in] item The coordinate pair of interest

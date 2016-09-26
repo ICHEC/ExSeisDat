@@ -10,6 +10,7 @@
 #include <vector>
 #include <memory>
 #include <cmath>
+#include <limits>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "object/object.hh"
@@ -17,11 +18,6 @@
 #include "file/iconv.hh"
 #include "share/units.hh"
 #include "share/datatype.hh"
-#include <limits>
-
-//TODO:Make unnecessary
-#include "object/objsegy.hh"
-#include "data/datampiio.hh"
 
 namespace PIOL { namespace File {
 ///////////////////////////////////////////////////////////////////////////////////////////////////

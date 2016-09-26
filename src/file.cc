@@ -7,11 +7,6 @@
  *   \details
  *//*******************************************************************************************/
 #include "file/file.hh"
-#include "object/objsegy.hh"
-//TODO: replace
-#include "data/datampiio.hh"
-#include "share/casts.hh"
-#include <iostream>
 namespace PIOL { namespace File {
 const std::string & Interface::readText(void) const
 {

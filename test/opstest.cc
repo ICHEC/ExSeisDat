@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-#include "cppfile.hh"
+#include "cppfileapi.hh"
 #include "ops/ops.hh"
 #include "anc/cmpi.hh"
 using namespace testing;

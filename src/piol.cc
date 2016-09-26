@@ -6,7 +6,6 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include "share/casts.hh"
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include <string>
@@ -16,6 +15,7 @@ void ExSeisPIOL::Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel)
     log = std::make_unique<Log::Logger>(maxLevel);
     comm = std::make_unique<Comm::MPI>(log.get(), copt);
 }
+
 ExSeisPIOL::ExSeisPIOL(Comm::MPI::Opt & copt, const Log::Verb maxLevel)
 {
     Init(copt, maxLevel);

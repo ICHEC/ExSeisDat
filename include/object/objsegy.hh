@@ -35,8 +35,8 @@ class SEGY : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] segyOpt_ The SEGY-Obj options
      */
-    SEGY(Piol piol_, std::string name_, const Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
-    SEGY(Piol piol_, std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
+    SEGY(const Piol piol_, const std::string name_, const Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
+    SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
 
     /*! \brief Read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough
