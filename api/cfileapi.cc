@@ -13,7 +13,7 @@ extern "C"
 {
 struct ExSeisFileWrapper
 {
-    std::shared_ptr<PIOL::File::Direct> file;
+    PIOL::File::Direct * file;
 };
 
 struct PIOLWrapper
@@ -52,14 +52,14 @@ size_t getNumRank(ExSeisHandle piol)
 ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
 {
     auto filewrap = new ExSeisFileWrapper;
-    filewrap->file = std::make_shared<File::Direct>(*piol->piol, name, FileMode::Write);
+    filewrap->file = new File::Direct(*piol->piol, name, FileMode::Write);
     return filewrap;
 }
 
 ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
 {
     auto filewrap = new ExSeisFileWrapper;
-    filewrap->file = std::make_shared<File::Direct>(*piol->piol, name, FileMode::Read);
+    filewrap->file = new File::Direct(*piol->piol, name, FileMode::Read);
     return filewrap;
 }
 
@@ -81,6 +81,8 @@ void closeFile(ExSeisFile file)
 {
     if (file != NULL)
     {
+        if (file->file != NULL)
+            delete file->file;
         delete file;
     }
     else

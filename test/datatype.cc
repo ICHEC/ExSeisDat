@@ -3,16 +3,6 @@
 #include <vector>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-/*
-template <typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
-T getHost(const uchar * src)
-
-template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-void getBigEndian(const T src, uchar * dst)
-
-template <typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
-void getBigEndian(const T src, uchar * dst)
-*/
 using namespace PIOL;
 TEST(Datatype, getHost32Bit1)
 {
@@ -55,7 +45,6 @@ std::string printBinary(uint32_t val)
     return s.str();
 }
 
-
 TEST(Datatype, IBMToIEEE)
 {
     ASSERT_EQ(rawTraces.size(), tktraces.size());
@@ -68,4 +57,3 @@ TEST(Datatype, IBMToIEEE)
             << "them " << printBinary(*reinterpret_cast<uint32_t *>(&tktraces[i]));
     }
 }
-

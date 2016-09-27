@@ -172,11 +172,16 @@ MPIIO::MPIIO(Piol piol_, const std::string name_, FileMode mode) : PIOL::Data::I
 MPIIO::~MPIIO(void)
 {
     if (file != MPI_FILE_NULL)
-        MPI_File_close(&file);
+    {
+        int err = MPI_File_close(&file);
+        printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_File_close failed");
+    }
     if (info != MPI_INFO_NULL)
-        MPI_Info_free(&info);
+    {
+        int err = MPI_Info_free(&info);
+        printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_Info_free failed");
+    }
 }
-
 
 void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
 {
