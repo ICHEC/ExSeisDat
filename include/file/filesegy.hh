@@ -18,7 +18,7 @@ namespace PIOL { namespace File {
 class SEGY : public Interface
 {
     public :
-    /*! \brief The SEG-Y options structure. Currently empty.
+    /*! \brief The SEG-Y options structure.
      */
     struct Opt
     {

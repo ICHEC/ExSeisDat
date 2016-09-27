@@ -1,7 +1,6 @@
 #include "sglobal.hh"
 #include <memory>
 #include <string>
-#include <iostream>
 #include <assert.h>
 #include "cppfileapi.hh"
 #include "share/segy.hh"
@@ -48,8 +47,6 @@ int main(int argc, char ** argv)
     max *= 1024 * 1024;
 
     ExSeis piol;
-#warning delete
-    std::cout << "name " << name << std::endl;
     File::Direct file(piol, name, FileMode::Write);
     piol.isErr();
     file.writeNs(ns);

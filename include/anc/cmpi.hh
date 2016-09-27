@@ -56,20 +56,20 @@ class MPI : public Comm::Interface
     MPI_Comm getComm() const;
 
     /*! Perform an allgather and return an array of values (geom_t)
-     *  \param[in] val A vector of the processes values
-     *  \return A vector containing each processes value on each processor
+     *  \param[in] val A vector of the processes' values
+     *  \return A vector containing each processes' value on each processor
      */
     std::vector<geom_t> gather(const std::vector<geom_t> & val) const;
 
     /*! Perform an allgather and return an array of values (llint)
-     *  \param[in] val A vector of the processes values
-     *  \return A vector containing each processes value on each processor
+     *  \param[in] val A vector of the processes' values
+     *  \return A vector containing each processes' value on each processor
      */
     std::vector<llint> gather(const std::vector<llint> & val) const;
 
     /*! Perform an allgather and return an array of values (size_t)
-     *  \param[in] val A vector of the processes values
-     *  \return A vector containing each processes value on each processor
+     *  \param[in] val A vector of the processes' values
+     *  \return A vector containing each processes' value on each processor
      */
     std::vector<size_t> gather(const std::vector<size_t> & val) const;
 
