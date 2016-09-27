@@ -59,6 +59,8 @@ bash make.sh $NAME
 #    run the test
 mv util/$NAME .
 
+echo $NAME $ARGUMENTS > ARGUMENTS
+
 if [ -f $NAME ]; then
     if [ $PIOL_SYSTEM == "Tullow" ]; then
         head -n $NODES hosts.txt > hostsfinal.txt

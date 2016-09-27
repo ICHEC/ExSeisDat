@@ -119,34 +119,43 @@ void mpiMakeSEGYCopy(ExSeis piol, std::string iname, std::string oname, size_t r
     size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
-    assert(fsz/numRank >= hosz);
-    for (size_t i = 0; i < fsz; i += step)
-    {
-        size_t rblock = (i + step < fsz ? step : fsz - i);
-        auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
-
-        std::vector<uchar> buf(dec.second);
-        in.read(i+dec.first, dec.second, buf.data());
-        piol.isErr();
-        out.write(i+dec.first, dec.second, buf.data());
-        piol.isErr();
-        if (i == 0)
+    if (fsz/numRank < hosz)
+        if (rank)
         {
-            if (dec.first == 0)   //If zero, then current process has read the header object
-            {
-                std::move(buf.begin() + hosz, buf.end(), buf.begin());
-                dec.second -= hosz;
-                buf.resize(dec.second);
-            }
-            else
-                dec.first -= hosz;
-            rblock -= hosz;
+            std::vector<uchar> buf(fsz);
+            in.read(0, fsz, buf.data());
+            piol.isErr();
+            out.write(0, fsz, buf.data());
+            piol.isErr();
         }
-        size_t rank = piol.getRank();
-        size_t numRank = piol.getNumRank();
-        for (size_t j = 1; j < repRate; j++)
-            dec = writeArb(rank, numRank, &out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock, &buf);
-    }
+    else
+        for (size_t i = 0; i < fsz; i += step)
+        {
+            size_t rblock = (i + step < fsz ? step : fsz - i);
+            auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
+
+            std::vector<uchar> buf(dec.second);
+            in.read(i+dec.first, dec.second, buf.data());
+            piol.isErr();
+            out.write(i+dec.first, dec.second, buf.data());
+            piol.isErr();
+            if (i == 0)
+            {
+                if (dec.first == 0)   //If zero, then current process has read the header object
+                {
+                    std::move(buf.begin() + hosz, buf.end(), buf.begin());
+                    dec.second -= hosz;
+                    buf.resize(dec.second);
+                }
+                else
+                    dec.first -= hosz;
+                rblock -= hosz;
+            }
+            size_t rank = piol.getRank();
+            size_t numRank = piol.getNumRank();
+            for (size_t j = 1; j < repRate; j++)
+                dec = writeArb(rank, numRank, &out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock, &buf);
+        }
 }
 
 void mpiMakeSEGYCopyNaive1(ExSeis piol, std::string iname, std::string oname, size_t repRate)

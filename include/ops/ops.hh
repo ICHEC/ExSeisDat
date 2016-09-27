@@ -23,7 +23,7 @@ struct CoordElem
 */
 extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax);
 
-#warning write a test
+//TODO: Write a test for this function
 /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
  *  the collective min and max across all processes (which also must all call this file).
  *  \param[in, out] piol The PIOL object
