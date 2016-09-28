@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <arpa/inet.h>
+#include <assert.h>
 typedef unsigned char uchar;
 
 void writePattern(FILE * fs, const size_t sz, const uchar const * pattern, const size_t psz)
@@ -45,7 +46,7 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
     size_t dosz = (thsz + ns*sizeof(float));
     size_t sz = hsz + (thsz + ns*sizeof(float)) * nt;
     FILE * fs = fopen(out, "w");
-
+    assert(fs); //If you are trapped here, make sure you created the required folders
     if (sz >= hsz)
     {
         int16_t inc = 20;
