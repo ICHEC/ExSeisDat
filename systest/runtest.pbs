@@ -6,9 +6,6 @@
 #PBS -e /dev/null
 #PBS -m bea
 
-#Training wheels
-set -e
-
 if [ -z $PBS_O_WORKDIR ]; then
     PBS_O_WORKDIR=$PWD
 fi

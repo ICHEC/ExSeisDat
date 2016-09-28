@@ -1,5 +1,10 @@
 #ctestReadWrite largesegy.segy 0 24 48
 #For each line, create a google-test function
+if [ -z $PIOL_SYSTEM ]; then
+    echo Please load relevant modules.
+    exit
+fi
+
 if [ $PIOL_SYSTEM == Tullow ]; then
     TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test
 else

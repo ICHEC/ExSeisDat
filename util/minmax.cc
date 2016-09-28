@@ -42,7 +42,7 @@ int calcMin(ExSeis piol, std::string iname, std::string oname)
     TraceParam hdr;
     for (size_t i = 0U; i < minmax.size(); i++)
     {
-        in.readTraceParam(i, 1U, &hdr);
+        in.readTraceParam(minmax[i].num, 1U, &hdr);
         hdr.tn = minmax[i].num;
         out.writeTraceParam(i, 1U, &hdr);
     }

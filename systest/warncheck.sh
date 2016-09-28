@@ -1,8 +1,4 @@
 #!/bin/bash
-#Training wheels
-set -u
-set -e
-
 source /etc/profile.d/modules.sh #So we can use the module command
 
 DIR_NAME=$TEST_DIR/$(date +%s)$$

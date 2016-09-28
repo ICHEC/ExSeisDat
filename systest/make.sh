@@ -1,7 +1,3 @@
-#Training wheels
-set -u
-set -e
-
 #    copy src files and the utility
 #C
 

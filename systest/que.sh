@@ -1,7 +1,3 @@
-#Training wheels
-set -u
-set -e
-
 rm -f temp/*
 
 if [ -f  testmatrix_1param ]; then

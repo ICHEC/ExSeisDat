@@ -1,7 +1,4 @@
 #!/bin/bash
-#Training wheels
-set -e
-
 #TODO: Safety checks
 read -r NODE_COUNT NODE_PPN MPI NAME FILENAME STRIPE_COUNT MODULE < <(echo "$@")
 
@@ -12,7 +9,9 @@ source ../mod_$MODULE
 
 PPN_COMMAND="-ppn"
 
+if [ $MPI != "intel" ]; then
 module load $MPI
+fi
 
 export MPI_BASE=$(echo $MPI | cut -d \/ -f 1)
 

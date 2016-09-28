@@ -14,6 +14,27 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
     std::cout << msg << sz << " " << rank << " " << rankn << std::endl;
 }
 
+void smallCopy(ExSeisPIOL * piol, Data::Interface * out, Data::Interface * in, size_t repRate)
+{
+    csize_t fsz = in->getFileSz();
+    csize_t hosz = SEGSz::getHOSz();
+    std::vector<uchar> buf(fsz);
+
+    in->read(0, fsz, buf.data());
+    piol->isErr();
+
+    out->write(0, fsz, buf.data());
+    piol->isErr();
+
+    std::copy(buf.begin()+hosz, buf.end(), buf.begin());
+
+    for (size_t j = 1; j < repRate; j++)
+    {
+        out->write(hosz + (fsz - hosz) * j, fsz - hosz, buf.data());
+        piol->isErr();
+    }
+}
+
 void distribToDistrib(size_t rank, std::pair<size_t, size_t> old, std::pair<size_t, size_t> newd, std::vector<uchar> * vec)
 {
     std::vector<MPI_Request> msg;
@@ -89,9 +110,6 @@ std::pair<size_t, size_t> writeArb(size_t rank, size_t numRank, Data::Interface 
     if (numRank != 1)                               //If there is one rank this is pointless
         distribToDistrib(rank, dec, newdec, vec);   //Reorder operations along new boundaries
 
-    size_t flt = ((off + newdec.first) % (2U * 1024U * 1024U));
-    assert(!flt || !rank);
-
     out->write(off + newdec.first, newdec.second, vec->data());
 
     return newdec;
@@ -120,14 +138,10 @@ void mpiMakeSEGYCopy(ExSeis piol, std::string iname, std::string oname, size_t r
 
     size_t step = numRank * memlim;
     if (fsz/numRank < hosz)
+    {
         if (rank)
-        {
-            std::vector<uchar> buf(fsz);
-            in.read(0, fsz, buf.data());
-            piol.isErr();
-            out.write(0, fsz, buf.data());
-            piol.isErr();
-        }
+            smallCopy(piol, &out, &in, repRate);
+    }
     else
         for (size_t i = 0; i < fsz; i += step)
         {
@@ -175,7 +189,12 @@ void mpiMakeSEGYCopyNaive1(ExSeis piol, std::string iname, std::string oname, si
     size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
-    assert(fsz/numRank >= hosz);
+    if (fsz/numRank < hosz)
+    {
+        if (rank)
+            smallCopy(piol, &out, &in, repRate);
+    }
+    else
     for (size_t i = 0; i < fsz; i += step)
     {
         size_t rblock = (i + step < fsz ? step : fsz - i);
@@ -220,6 +239,12 @@ void mpiMakeSEGYCopyNaive2(ExSeis piol, std::string iname, std::string oname, si
     size_t memlim = 1280U * bsz;
 
     size_t step = numRank * memlim;
+    if (fsz/numRank < hosz)
+    {
+        if (rank)
+            smallCopy(piol, &out, &in, repRate);
+    }
+    else
     for (size_t i = 0; i < fsz; i += step)
     {
         size_t rblock = (i + step < fsz ? step : fsz - i);
