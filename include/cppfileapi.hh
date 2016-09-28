@@ -95,7 +95,7 @@ class Direct : public Interface
     /*! Constructor without options.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
-     *  \param[in] mode    The mode of file access.
+     *  \param[in] mode  The mode of file access.
      */
     Direct(const Piol piol_, const std::string name_, const FileMode mode = FileMode::Read);
 
@@ -110,6 +110,7 @@ class Direct : public Interface
     {
         return file.get();
     }
+
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */
@@ -145,7 +146,7 @@ class Direct : public Interface
      */
     void writeNt(csize_t nt_);
 
-    /*! \brief Write the number of increment between trace samples.
+    /*! \brief Write the increment between trace samples.
      *  \param[in] inc_ The new increment between trace samples.
      */
     void writeInc(const geom_t inc_);
@@ -166,14 +167,14 @@ class Direct : public Interface
      */
     void readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * buf) const;
 
-    /*! \brief Read the trace's from offset to offset+sz.
+    /*! \brief Read the traces from offset to offset+sz.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      */
     void readTrace(csize_t offset, csize_t sz, trace_t * trace) const;
 
-    /*! \brief Read the trace's from offset to offset+sz.
+    /*! \brief Read the traces from offset to offset+sz.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))

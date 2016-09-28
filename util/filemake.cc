@@ -86,12 +86,11 @@ int main(int argc, char ** argv)
                 inc = std::stod(optarg);
             break;
             default :
-                fprintf(stderr, "One of the command line arguments is invalid\n");
+                std::cerr << "One of the command line arguments is invalid\n";
             break;
         }
 
     assert(name.size() && max && inc != 0.0);
-
     max *= 1024 * 1024;
 
     FileMake(name, max, ns, nt, inc);
