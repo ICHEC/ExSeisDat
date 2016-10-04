@@ -124,22 +124,6 @@ class Interface
      */
     virtual geom_t readInc(void) const;
 
-    /*! \brief Pure virtual function to read coordinate pairs from the ith-trace to i+sz.
-     *  \param[in] item The coordinate pair of interest
-     *  \param[in] i The starting trace number
-     *  \param[in] sz The number of traces to process
-     *  \param[out] buf The buffer
-     */
-    virtual void readCoordPoint(const Coord item, csize_t i, csize_t sz, coord_t * buf) const = 0;
-
-    /*! \brief Pure virtual function to read grid pairs from the ith-trace to i+sz.
-     *  \param[in] item The grid pair of interest
-     *  \param[in] i The starting trace number
-     *  \param[in] sz The number of traces to process
-     *  \param[out] buf The buffer
-     */
-    virtual void readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const = 0;
-
     /*! \brief Pure virtual function to write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.

@@ -240,39 +240,34 @@ struct FileSEGYTest : public Test
     {
         std::vector<uchar>::iterator iter = tr.begin() + offset*SEGSz::getMDSz();
         EXPECT_CALL(*mock.get(), readDOMD(offset, ns, 1U, _))
-                    .Times(Exactly(2))
+                    .Times(Exactly(1))
                     .WillRepeatedly(SetArrayArgument<3>(iter, iter + SEGSz::getMDSz()));
 
-        grid_t line;
-        file->readGridPoint(File::Grid::Line, offset, 1U, &line);
-        ASSERT_EQ(ilNum(offset), line.il);
-        ASSERT_EQ(xlNum(offset), line.xl);
+        TraceParam prm;
+        file->readTraceParam(offset, 1U, &prm);
+        ASSERT_EQ(ilNum(offset), prm.line.il);
+        ASSERT_EQ(xlNum(offset), prm.line.xl);
 
-        coord_t src;
-        file->readCoordPoint(File::Coord::Src, offset, 1U, &src);
-        ASSERT_DOUBLE_EQ(xNum(offset), src.x);
-        ASSERT_DOUBLE_EQ(yNum(offset), src.y);
+        ASSERT_DOUBLE_EQ(xNum(offset), prm.src.x);
+        ASSERT_DOUBLE_EQ(yNum(offset), prm.src.y);
     }
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
     {
         EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
-                    .Times(Exactly(2))
+                    .Times(Exactly(1))
                     .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        std::vector<File::grid_t> line(tn);
-        file->readGridPoint(File::Grid::Line, 0U, tn, line.data());
-
-        std::vector<File::coord_t> src(tn);
-        file->readCoordPoint(File::Coord::Src, 0U, tn, src.data());
+        std::vector<File::TraceParam> prm(tn);
+        file->readTraceParam(0, tn, prm.data());
 
         for (size_t i = 0; i < tn; i++)
         {
-            ASSERT_EQ(ilNum(i), line[i].il);
-            ASSERT_EQ(xlNum(i), line[i].xl);
+            ASSERT_EQ(ilNum(i), prm[i].line.il);
+            ASSERT_EQ(xlNum(i), prm[i].line.xl);
 
-            ASSERT_DOUBLE_EQ(xNum(i), src[i].x);
-            ASSERT_DOUBLE_EQ(yNum(i), src[i].y);
+            ASSERT_DOUBLE_EQ(xNum(i), prm[i].src.x);
+            ASSERT_DOUBLE_EQ(yNum(i), prm[i].src.y);
         }
     }
 

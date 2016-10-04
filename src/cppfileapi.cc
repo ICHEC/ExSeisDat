@@ -51,16 +51,6 @@ geom_t Direct::readInc(void) const
     return file->readInc();
 }
 
-void Direct::readCoordPoint(const Coord item, csize_t i, csize_t sz, coord_t * buf) const
-{
-    file->readCoordPoint(item, i, sz, buf);
-}
-
-void Direct::readGridPoint(const Grid item, csize_t i, csize_t sz, grid_t * buf) const
-{
-    file->readGridPoint(item, i, sz, buf);
-}
-
 void Direct::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 {
     file->writeTraceParam(offset, sz, prm);

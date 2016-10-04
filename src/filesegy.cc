@@ -172,7 +172,7 @@ geom_t scaleConv(int16_t scale)
  *  1 is returned, otherwise the value is returned. No check is done
  *  to ensure other restrictions are in place (i.e 1, 10, 1000 etc).
  */
-geom_t getMd(const TrScal scal, uchar * src)
+geom_t getMd(const TrScal scal, const uchar * src)
 {
     auto scale = getHost<int16_t>(&src[size_t(scal)-1U]);
     return scaleConv(scale);
@@ -397,6 +397,31 @@ int16_t calcScale(const coord_t coord)
     return scalComp(scal1, scal2);
 }
 
+void extractTraceParam(const uchar * md, TraceParam * prm)
+{
+    geom_t scale = getMd(TrScal::ScaleCoord, md);
+    prm->src = getCoord(Coord::Src, scale, md);
+    prm->rcv = getCoord(Coord::Rcv, scale, md);
+    prm->cmp = getCoord(Coord::CMP, scale, md);
+    prm->line = getGrid(Grid::Line, md);
+    prm->tn = getHost<int32_t>(&md[size_t(TrHdr::SeqFNum)-1]);
+}
+
+void insertTraceParam(const TraceParam * prm, uchar * md)
+{
+    int16_t scale = scalComp(1, calcScale(prm->src));
+    scale = scalComp(scale, calcScale(prm->rcv));
+    scale = scalComp(scale, calcScale(prm->cmp));
+    setScale(TrScal::ScaleCoord, scale, md);
+
+    setCoord(Coord::Src, prm->src, scale, md);
+    setCoord(Coord::Rcv, prm->rcv, scale, md);
+    setCoord(Coord::CMP, prm->cmp, scale, md);
+    setGrid(Grid::Line, prm->line, md);
+
+    //narrowing conversion of tn
+    getBigEndian(int32_t(prm->tn), &md[size_t(TrHdr::SeqFNum) - 1U]);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
@@ -547,54 +572,6 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-void SEGY::readCoordPoint(const Coord item, csize_t offset, csize_t sz, coord_t * coords) const
-{
-    if (sz == 0 || offset > nt)   //Nothing to be read.
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readCoordPoint() was called for a zero byte read.", Log::Verb::None);
-        return;
-    }
-    std::vector<uchar> buf(sz * SEGSz::getMDSz());
-
-    //TODO: Calculate number which actually would have been read based on filesize
-    //Don't process beyond end of file
-
-    obj->readDOMD(offset, ns, sz, buf.data());
-
-    for (size_t i = 0; i < sz; i++)
-    {
-        uchar * md = &buf[i * SEGSz::getMDSz()];
-        geom_t scale = getMd(TrScal::ScaleCoord, md);
-        auto pair = getPair(item);
-        coords[i] = coord_t(getMd(pair.first, scale, md),
-                            getMd(pair.second, scale, md));
-    }
-}
-
-void SEGY::readGridPoint(const Grid item, csize_t offset, csize_t sz, grid_t * grids) const
-{
-    if (sz == 0 || offset > nt)   //Nothing to be read.
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readGridPoint() was called for a zero byte read.", Log::Verb::None);
-        return;
-    }
-    std::vector<uchar> buf(sz * SEGSz::getMDSz());
-
-    //TODO: Calculate number which actually would have been read based on filesize
-    //Don't process beyond end of file
-
-    obj->readDOMD(offset, ns, sz, buf.data());
-
-    for (size_t i = 0; i < sz; i++)
-    {
-        uchar * md = &buf[i * SEGSz::getMDSz()];
-        auto p = getPair(item);
-        grids[i] = grid_t(getMd(p.first, md), getMd(p.second, md));
-    }
-}
-
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
 {
     if (sz == 0 || ns == 0 || offset > nt)   //Nothing to be read
@@ -670,17 +647,9 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
     std::vector<uchar> buf(SEGSz::getMDSz() * nsz);
 
     obj->readDOMD(offset, ns, nsz, buf.data());
-    for (size_t i = 0; i < nsz; i++)
-    {
-        uchar * md = &buf[i * SEGSz::getMDSz()];
-        geom_t scale = getMd(TrScal::ScaleCoord, md);
 
-        prm[i].src = getCoord(Coord::Src, scale, md);
-        prm[i].rcv = getCoord(Coord::Rcv, scale, md);
-        prm[i].cmp = getCoord(Coord::CMP, scale, md);
-        prm[i].line = getGrid(Grid::Line, md);
-        prm[i].tn = getHost<int32_t>(&md[size_t(TrHdr::SeqFNum)-1]);
-    }
+    for (size_t i = 0; i < nsz; i++)
+        extractTraceParam(&buf[i * SEGSz::getMDSz()], &prm[i]);
 }
 
 void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
@@ -702,22 +671,8 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
     for (size_t i = 0; i < sz; i++)
-    {
-        uchar * md = &buf[i * SEGSz::getMDSz()];
+        insertTraceParam(&prm[i], &buf[i * SEGSz::getMDSz()]);
 
-        int16_t scale = scalComp(1, calcScale(prm[i].src));
-        scale = scalComp(scale, calcScale(prm[i].rcv));
-        scale = scalComp(scale, calcScale(prm[i].cmp));
-        setScale(TrScal::ScaleCoord, scale, md);
-
-        setCoord(Coord::Src, prm[i].src, scale, md);
-        setCoord(Coord::Rcv, prm[i].rcv, scale, md);
-        setCoord(Coord::CMP, prm[i].cmp, scale, md);
-        setGrid(Grid::Line, prm[i].line, md);
-
-        //narrowing conversion of tn
-        getBigEndian(int32_t(prm[i].tn), &md[size_t(TrHdr::SeqFNum) - 1U]);
-    }
     obj->writeDOMD(offset, ns, sz, buf.data());
 
     if (offset + sz > nt)

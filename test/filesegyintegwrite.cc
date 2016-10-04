@@ -25,47 +25,27 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceGrid)
 {
     ns = 261U;
     nt = 400U;
-    File::grid_t grid(ilNum(201), xlNum(201));
-
-    makeSEGY<true>(tempFile);
-
-    piol->isErr();
-    file->ns = ns;
-    file->writeNt(nt);
-    piol->isErr();
-
-    TraceParam prm;
-    prm.line = grid;
-    file->writeTraceParam(201U, 1U, &prm);
-
-    grid_t grd;
-    file->readGridPoint(File::Grid::Line, 201, 1U, &grd);
-    EXPECT_EQ(grid.il, grd.il);
-    EXPECT_EQ(grid.xl, grd.xl);
-}
-
-//Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
-TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceCoord)
-{
-    csize_t ns = 261U;
-    csize_t nt = 400U;
     File::coord_t coord(1600, 2000);
+    File::grid_t grid(ilNum(201), xlNum(201));
+    TraceParam prm, prm2;
 
-    std::shared_ptr<Obj::Interface> obj;
     makeSEGY<true>(tempFile);
+
     piol->isErr();
     file->ns = ns;
     file->writeNt(nt);
     piol->isErr();
 
-    TraceParam prm;
+    prm.line = grid;
     prm.cmp = coord;
-    file->writeTraceParam(200U, 1U, &prm);
+    file->writeTraceParam(201U, 1U, &prm);
+    file->readTraceParam(201U, 1U, &prm);
 
-    File::coord_t crd;
-    file->readCoordPoint(File::Coord::CMP, 200, 1U, &crd);
-    EXPECT_EQ(coord.x, crd.x);
-    EXPECT_EQ(coord.y, crd.y);
+    EXPECT_EQ(grid.il, prm.line.il);
+    EXPECT_EQ(grid.xl, prm.line.xl);
+    EXPECT_EQ(coord.x, prm.cmp.x);
+    EXPECT_EQ(coord.y, prm.cmp.y);
+    //TODO: Add the rest
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)
