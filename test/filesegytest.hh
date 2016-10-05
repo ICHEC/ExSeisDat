@@ -93,6 +93,16 @@ class MockObj : public Obj::Interface
 #warning Not covered yet.
     MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t, const uchar *));
+
+    MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t *, uchar *));
+    MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t *, const uchar *));
+
+    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t *, uchar *));
+    MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t *, const uchar *));
+    MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t *, uchar *));
+    MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t *, const uchar *));
 };
 
 struct FileSEGYTest : public Test
@@ -362,7 +372,7 @@ struct FileSEGYTest : public Test
         }
 
         std::vector<float> bufnew(tn * ns);
-        file->readTrace(offset, tn, bufnew.data());
+        file->readTrace(offset, tn, bufnew.data(), NULL);
         for (size_t i = 0U; i < tn; i++)
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset + i + j)) << "Trace Number: " << i << " " << j;
@@ -398,7 +408,7 @@ struct FileSEGYTest : public Test
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset + i + j);
 
-        file->writeTrace(offset, tn, bufnew.data());
+        file->writeTrace(offset, tn, bufnew.data(), NULL);
 
         if (MOCK == false)
             readTraceTest<MOCK>(offset, tn);
