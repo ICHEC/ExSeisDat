@@ -176,15 +176,30 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * p
             "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
     }
-    obj->readDODF(offset, ns, sz, reinterpret_cast<uchar *>(trace));
+    size_t ntz = (offset + sz > nt ? offset - nt : sz);
+    uchar * buf = reinterpret_cast<uchar *>(trace);
+
+    if (!prm)
+        obj->readDODF(offset, ntz, sz, buf);
+    else
+    {
+        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ntz)); //FIXME: Potentially a big allocation
+        obj->readDO(offset, ntz, sz, dobuf.data());
+
+        for (size_t i = 0; i < ntz; i++)
+        {
+            extractTraceParam(&dobuf[i * SEGSz::getDOSz(ntz)], &prm[i]);
+            std::copy(&dobuf[i * SEGSz::getDOSz(ns)], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
+                      buf + i * SEGSz::getDFSz(ns) + SEGSz::getDFSz(ns));
+        }
+    }
 
     if (format == Format::IBM)
-        for (size_t i = 0; i < ns * sz; i ++)
+        for (size_t i = 0; i < ntz * sz; i ++)
             trace[i] = convertIBMtoIEEE(trace[i], true);
     else
     {
-        uchar * buf = reinterpret_cast<uchar *>(trace);
-        for (size_t i = 0; i < ns * sz; i++)
+        for (size_t i = 0; i < ntz * sz; i++)
             reverse4Bytes(&buf[i*sizeof(float)]);
     }
 }
@@ -208,6 +223,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
         return;
     }
     uchar * buf = reinterpret_cast<uchar *>(trace);
+
     //TODO: Check cache effects doing both of these loops the other way.
     //TODO: Add unit test for reverse4Bytes
     for (size_t i = 0; i < ns * sz; i++)
@@ -230,13 +246,11 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]);
 
-
     if (offset + sz >= nt)
     {
         if (state.resize == true)
             state.resize = false;
-        if (offset + sz > nt)
-            nt = offset + sz;
+        nt = std::max(offset + sz, nt);
     }
 }
 
@@ -250,13 +264,13 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
         return;
     }
     //Don't process beyond end of file
-    size_t nsz = (offset + sz > nt ? offset - nt : sz);
+    size_t ntz = (offset + sz > nt ? offset - nt : sz);
 
-    std::vector<uchar> buf(SEGSz::getMDSz() * nsz);
+    std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
 
-    obj->readDOMD(offset, ns, nsz, buf.data());
+    obj->readDOMD(offset, ns, ntz, buf.data());
 
-    for (size_t i = 0; i < nsz; i++)
+    for (size_t i = 0; i < ntz; i++)
         extractTraceParam(&buf[i * SEGSz::getMDSz()], &prm[i]);
 }
 
@@ -285,27 +299,138 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 
     if (offset + sz > nt)
     {
-        nt = offset + sz;
-
         //There is probably a mismatch between desired nt size and actual
         state.resize = true;
+        nt = offset + sz;
     }
 }
 
 void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
 {
+    if (sz == 0 || ns == 0)   //Nothing to be read
+    {
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
+            "readTrace() was called for a zero byte read.", Log::Verb::None);
+        return;
+    }
+
+    uchar * buf = reinterpret_cast<uchar *>(trace);
+    if (!prm)
+        obj->readDODF(ns, sz, offset, buf);
+    else
+    {
+        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+        obj->readDO(ns, sz, offset, dobuf.data());
+
+        for (size_t i = 0; i < ns; i++)
+        {
+            extractTraceParam(&dobuf[i * SEGSz::getDOSz(ns)], &prm[i]);
+            std::copy(&dobuf[i * SEGSz::getDOSz(ns)], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
+                      buf + i * SEGSz::getDFSz(ns) + SEGSz::getDFSz(ns));
+        }
+    }
+
+    if (format == Format::IBM)
+        for (size_t i = 0; i < ns * sz; i ++)
+            trace[i] = convertIBMtoIEEE(trace[i], true);
+    else
+        for (size_t i = 0; i < ns * sz; i++)
+            reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
 void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm)
 {
+    if (sz == 0 || ns == 0)   //Nothing to be written.
+    {
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
+            "writeTrace() was called for a zero byte write. ns: "
+            + std::to_string(ns) + " sz: " + std::to_string(sz), Log::Verb::None);
+        return;
+    }
+    uchar * buf = reinterpret_cast<uchar *>(trace);
+
+    //TODO: Check cache effects doing both of these loops the other way.
+    //TODO: Add unit test for reverse4Bytes
+    for (size_t i = 0; i < ns * sz; i++)
+        reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
+
+    if (!prm)
+        obj->writeDODF(ns, sz, offset, buf);
+    else
+    {
+        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+        for (size_t i = 0; i < sz; i++)
+        {
+            insertTraceParam(&prm[i], &dobuf[i * SEGSz::getDOSz(ns)]);
+            std::copy(&buf[i * SEGSz::getMDSz()], &buf[(i+1) * SEGSz::getMDSz()],
+                      dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
+        }
+        obj->writeDO(ns, sz, offset, dobuf.data());
+    }
+
+    for (size_t i = 0; i < ns * sz; i++)
+        reverse4Bytes(&buf[i*sizeof(float)]);
+
+    size_t max = 0;
+    for (size_t i = 0; i < sz; i++)
+        max = std::max(offset[i], max);
+    if (max + sz > nt)
+    {
+        //There is probably a mismatch between desired nt size and actual
+        state.resize = false;
+        nt = max + sz;
+    }
 }
 
 void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 {
+    size_t max = 0;
+    for (size_t i = 0; i < sz; i++)
+        max = std::max(offset[i], max);
+
+    #ifdef NT_LIMITS
+    if (sz+max > NT_LIMITS)
+    {
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
+            "writeTraceParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
+        return;
+    }
+    #endif
+
+    if (sz == 0)   //Nothing to be written.
+    {
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
+            "writeTraceParam() was called for a zero byte write", Log::Verb::None);
+        return;
+    }
+    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+
+    for (size_t i = 0; i < sz; i++)
+        insertTraceParam(&prm[i], &buf[i * SEGSz::getMDSz()]);
+
+    obj->writeDOMD(ns, sz, offset, buf.data());
+
+    if (max + sz > nt)
+    {
+        //There is probably a mismatch between desired nt size and actual
+        state.resize = true;
+        nt = max + sz;
+    }
 }
 
 void SEGY::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
 {
-}
+//TODO: Is it useful to check if all the offsets are greater than nt?
+    if (sz == 0)   //Nothing to be read.
+    {
+        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
+            "readTraceParam() was called for a zero byte read", Log::Verb::None);
+        return;
+    }
+    std::vector<uchar> buf(SEGSz::getMDSz() * nt);
+    obj->readDOMD(ns, nt, offset, buf.data());
 
+    for (size_t i = 0; i < nt; i++)
+        extractTraceParam(&buf[i * SEGSz::getMDSz()], &prm[i]);
+}
 }}
