@@ -5,6 +5,8 @@
  *   \date July 2016
  *   \brief
  *//*******************************************************************************************/
+#ifndef ANCDATATYPE_INCLUDE_GUARD
+#define ANCDATATYPE_INCLUDE_GUARD
 #include <type_traits>
 #include <cstdint>
 #include "global.hh"
@@ -112,3 +114,4 @@ extern uint32_t toint(const float f);
  */
 extern float convertIBMtoIEEE(const float f, bool bigEndian);
 }
+#endif

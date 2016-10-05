@@ -135,7 +135,7 @@ class Interface
      */
     virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) = 0;
 
-    /*! \brief Pure virtual function to read the trace parameters from offset to offset+sz of the respective
+    /*! \brief Read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
@@ -148,14 +148,19 @@ class Interface
      *  \param[in] sz The number of traces to process.
      *  \param[out] trace The array of traces to fill from the file
      */
-    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace) const = 0;
+    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const = 0;
 
     /*! \brief Pure virtual function to write the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[in] trace The array of traces to write to the file
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace) = 0;
+    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm) = 0;
+
+    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const = 0;
+    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm) = 0;
+    virtual void readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const = 0;
+    virtual void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm) = 0;
 
     /*! \brief Pure virtual function to write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).

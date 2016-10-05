@@ -11,10 +11,10 @@
 #include <memory>
 #include "global.hh"
 #include "file/file.hh"
+#include "file/segymd.hh"
 
 namespace PIOL { namespace File {
-/*! \brief The SEG-Y File class.
- */
+enum class Format : int16_t;
 class SEGY : public Interface
 {
     public :
@@ -30,20 +30,7 @@ class SEGY : public Interface
     };
 
     private :
-
-    /*! The Datatype (or format in SEG-Y terminology)
-     */
-    enum class Format : int16_t
-    {
-        IBM  = 1,   //<! IBM format, big endian
-        TC4  = 2,   //<! Two's complement, 4 byte
-        TC2  = 3,   //<! Two's complement, 2 byte
-        FPG  = 4,   //<! Fixed-point gain (obsolete)
-        IEEE = 5,   //<! The IEEE format, big endian
-        NA1  = 6,   //<! Unused
-        NA2  = 7,   //<! Unused
-        TC1  = 8    //<! Two's complement, 1 byte
-    } format;  //<! Type formats
+    Format format;  //<! Type formats
 
     /*! State flags structure for File::SEGY
      */
@@ -118,7 +105,7 @@ class SEGY : public Interface
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      */
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace) const;
+   void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const;
 
     /*! \brief Read the trace's from offset to offset+sz.
      *  \param[in] offset The starting trace number.
@@ -126,7 +113,15 @@ class SEGY : public Interface
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \warning This function is not thread safe.
      */
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm);
+
+    /*! \brief Read the trace parameters from offset to offset+sz of the respective
+     *  trace headers.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+     */
+    void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const;
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
@@ -139,8 +134,10 @@ class SEGY : public Interface
      */
     void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm);
 
-    //TODO: Document
-    void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const;
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const;
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm);
+    void readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const;
+    void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm);
 };
 }}
 #endif

@@ -93,34 +93,15 @@ class Interface
      *  the data-field.
      */
     virtual void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const = 0;
-};
+    virtual void readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const = 0;
+    virtual void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const = 0;
 
-/*! \brief An enum of the possible derived classes for the object layer.
- */
-enum class Type : size_t
-{
-    SEGY    //!< The SEGY implementation. Currently the only option.
-};
-
-/*! \brief The base-options structure. Specific Obj implementations include a derived version of this.
- */
-struct Opt
-{
-    Type type;      //!< The Obj type.
-    /* \brief Default constructor to prevent intel warnings
-     */
-    Opt(void)
-    {
-        type = Type::SEGY;      //!< The Obj type.
-    }
-
-    /*! \brief This function returns the Obj type. This function is mainly included to provide a virtual function
-     * to allow polymorphic behaviour.
-     */
-    virtual Type getType(void) const
-    {
-        return type;
-    }
+    virtual void readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const = 0;
+    virtual void writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const = 0;
+    virtual void readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const = 0;
+    virtual void writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const = 0;
+    virtual void readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const = 0;
+    virtual void writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const = 0;
 };
 }}
 #endif

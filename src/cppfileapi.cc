@@ -61,14 +61,34 @@ void Direct::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
     file->readTraceParam(offset, sz, prm);
 }
 
-void Direct::readTrace(csize_t offset, csize_t sz, trace_t * trace) const
+void Direct::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
 {
-    file->readTrace(offset, sz, trace);
+    file->readTrace(offset, sz, trace, prm);
 }
 
-void Direct::writeTrace(csize_t offset, csize_t sz, trace_t * trace)
+void Direct::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm)
 {
-    file->writeTrace(offset, sz, trace);
+    file->writeTrace(offset, sz, trace, prm);
+}
+
+void Direct::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
+{
+    file->readTrace(sz, offset, trace, prm);
+}
+
+void Direct::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm)
+{
+    file->writeTrace(sz, offset, trace, prm);
+}
+
+void Direct::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
+{
+    file->readTraceParam(sz, offset, prm);
+}
+
+void Direct::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
+{
+    file->writeTraceParam(sz, offset, prm);
 }
 
 void Direct::writeText(const std::string text_)

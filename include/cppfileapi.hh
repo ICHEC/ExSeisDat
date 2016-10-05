@@ -172,7 +172,7 @@ class Direct : public Interface
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      */
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace) const;
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm = nullptr) const;
 
     /*! \brief Read the traces from offset to offset+sz.
      *  \param[in] offset The starting trace number.
@@ -180,7 +180,7 @@ class Direct : public Interface
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \warning This function is not thread safe.
      */
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm = nullptr);
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
@@ -200,5 +200,10 @@ class Direct : public Interface
      *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
      */
     void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const;
+
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const;
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm);
+    void readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const;
+    void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm);
 };
 }}
