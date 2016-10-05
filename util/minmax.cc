@@ -12,10 +12,10 @@ int calcMin(ExSeis piol, std::string iname, std::string oname)
     size_t offset = dec.first;
     size_t num = dec.second;
 
-    std::vector<coord_t> buf;
+    std::vector<TraceParam> prm;
     try
     {
-        buf.resize(num);
+        prm.resize(num);
     }
     catch (std::bad_alloc e)
     {
@@ -24,15 +24,10 @@ int calcMin(ExSeis piol, std::string iname, std::string oname)
     }
 
     std::vector<CoordElem> minmax(12U);
-
-    in.readCoordPoint(Coord::Src, offset, num, buf.data());
-    getMinMax(piol, offset, num, buf.data(), minmax.data());
-
-    in.readCoordPoint(Coord::Rcv, offset, num, buf.data());
-    getMinMax(piol, offset, num, buf.data(), minmax.data()+4U);
-
-    in.readCoordPoint(Coord::CMP, offset, num, buf.data());
-    getMinMax(piol, offset, num, buf.data(), minmax.data()+8U);
+    in.readTraceParam(offset, num, prm.data());
+    getMinMax(piol, offset, num, Coord::Src, prm.data(), minmax.data());
+    getMinMax(piol, offset, num, Coord::Rcv, prm.data(), minmax.data()+4U);
+    getMinMax(piol, offset, num, Coord::CMP, prm.data(), minmax.data()+8U);
 
     File::Direct out(piol, oname, FileMode::Write);
     out.writeNt(minmax.size());
