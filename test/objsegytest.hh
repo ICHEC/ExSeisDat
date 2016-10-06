@@ -55,6 +55,7 @@ class ObjSpecTest : public Test
             delete obj;
 
         auto data = std::make_shared<Data::MPIIO>(piol, name, (WRITE ? FileMode::Test : FileMode::Read));
+        piol->isErr();
         obj = new Obj::SEGY(piol, name, data, (WRITE ? FileMode::Test : FileMode::Read));
         piol->isErr();
     }
@@ -64,6 +65,7 @@ class ObjSpecTest : public Test
         if (obj != nullptr)
             delete obj;
         mock = std::make_shared<MockData>(piol, notFile);
+        piol->isErr();
         obj = new Obj::SEGY(piol, name, mock);
         piol->isErr();
     }
@@ -143,6 +145,7 @@ class ObjSpecTest : public Test
 
     void SEGYReadHOTest(std::vector<uchar> magic)
     {
+        size_t tcnt = 0;
         const size_t extra = 1025U;
         std::vector<uchar> ho(extra + SEGSz::getHOSz() + extra);
 
@@ -154,13 +157,14 @@ class ObjSpecTest : public Test
             obj->readHO(ho.data() + extra);
 
             //Overrun checks
-            for (size_t i = 0U; i < extra; i++)
+            for (size_t i = 0U; i < extra; i++, tcnt++)
             {
                 ASSERT_EQ(magic[j], ho[i]);
                 ASSERT_EQ(magic[j], ho[ho.size() - extra + i]);
             }
-            for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
+            for (size_t i = 0U; i < SEGSz::getHOSz(); i++, tcnt++)
                 ASSERT_EQ(getPattern(i), ho[i+extra]);
+            ASSERT_EQ(tcnt, SEGSz::getHOSz() + extra);
         }
     }
 
@@ -181,8 +185,12 @@ class ObjSpecTest : public Test
         if (MOCK)
         {
             tr.resize(step);
-            for (size_t i = 0U; i < tr.size(); i++)
-                tr[i] = getPattern(poff + i + (i / bsz) * SEGSz::getDOSz(ns));
+            for (size_t i = 0U; i < nt; i++)
+                for (size_t j = 0U; j < bsz; j++)
+                {
+                    size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                    tr[i*bsz+j] = getPattern(pos % 0x100);
+                }
         }
 
         for (size_t i = 0U; i < extra; i++)
@@ -191,26 +199,33 @@ class ObjSpecTest : public Test
         if (DOMD)
         {
             if (MOCK)
-                EXPECT_CALL(*mock, read(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
+                EXPECT_CALL(*mock, read(SEGSz::getDOLoc(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             obj->readDOMD(offset, ns, nt, &trnew[extra]);
+            piol->isErr();
         }
         else
         {
             if (MOCK)
-                EXPECT_CALL(*mock, read(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
+                EXPECT_CALL(*mock, read(SEGSz::getDODFLoc(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             obj->readDODF(offset, ns, nt, &trnew[extra]);
+            piol->isErr();
         }
 
-        for (size_t i = 0U; i < tr.size(); i++)
-            ASSERT_EQ(trnew[extra+i], getPattern(poff + i + (i / bsz) * SEGSz::getDOSz(ns)));
-
-        for (size_t i = 0U; i < extra; i++)
+        size_t tcnt = 0;
+        for (size_t i = 0U; i < nt; i++)
+            for (size_t j = 0U; j < bsz; j++, tcnt++)
+            {
+                size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                ASSERT_EQ(trnew[extra+i*bsz+j], getPattern(pos % 0x100)) << i << " " << j;
+            }
+        for (size_t i = 0U; i < extra; i++, tcnt += 2U)
         {
             ASSERT_EQ(trnew[i], magic);
             ASSERT_EQ(trnew[trnew.size()-extra+i], magic);
         }
+        ASSERT_EQ(tcnt, step + 2U*extra);
     }
 
     template <bool DOMD, bool MOCK = true>
@@ -225,12 +240,19 @@ class ObjSpecTest : public Test
         if (MOCK)
         {
             tr.resize(step);
-            for (size_t i = 0U; i < tr.size(); i++)
-                trnew[i+extra] = tr[i] = getPattern(poff + i + (i / bsz) * SEGSz::getDOSz(ns));
+            for (size_t i = 0U; i < nt; i++)
+                for (size_t j = 0U; j < bsz; j++)
+                {
+                    size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                    tr[i*bsz+j] = getPattern(pos % 0x100);
+                }
         }
-        else
-            for (size_t i = 0U; i < tr.size(); i++)
-                trnew[i+extra] = tr[i] = getPattern(poff + i + (i / bsz) * SEGSz::getDOSz(ns));
+        for (size_t i = 0U; i < nt; i++)
+            for (size_t j = 0U; j < bsz; j++)
+            {
+                size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                trnew[extra + i*bsz+j] = getPattern(pos % 0x100);
+            }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
@@ -252,6 +274,115 @@ class ObjSpecTest : public Test
 
         if (!MOCK)
             readTest<DOMD, MOCK>(offset, nt, ns, poff, magic);
+    }
+
+    template <bool DOMD, bool MOCK = true>
+    void readRandomTest(csize_t ns, const std::vector<size_t> offset, uchar magic = 0)
+    {
+        size_t nt = offset.size();
+        if (MOCK && mock == nullptr)
+        {
+            std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
+            return;
+        }
+        const size_t extra = 20U;
+        size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        size_t step = nt * bsz;
+        std::vector<uchar> trnew(step + 2U*extra);
+        std::vector<uchar> tr;
+        if (MOCK)
+        {
+            tr.resize(step);
+            for (size_t i = 0U; i < nt; i++)
+                for (size_t j = 0U; j < bsz; j++)
+                {
+                    size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                    tr[i*bsz+j] = getPattern(pos % 0x100);
+                }
+        }
+
+        for (size_t i = 0U; i < extra; i++)
+            trnew[i] = trnew[trnew.size()-extra+i] = magic;
+
+        if (DOMD)
+        {
+            if (MOCK)
+                for (size_t i = 0; i < nt; i++)
+                    EXPECT_CALL(*mock, read(SEGSz::getDOLoc(offset[i], ns), SEGSz::getMDSz(), _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+            obj->readDOMD(ns, nt, offset.data(), &trnew[extra]);
+        }
+        else
+        {
+            if (MOCK)
+                for (size_t i = 0; i < nt; i++)
+                    EXPECT_CALL(*mock, read(SEGSz::getDODFLoc(offset[i], ns), SEGSz::getDFSz(ns), _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+            obj->readDODF(ns, nt, offset.data(), &trnew[extra]);
+        }
+
+        size_t tcnt = 0;
+        for (size_t i = 0U; i < nt; i++)
+            for (size_t j = 0U; j < bsz; j++, tcnt++)
+            {
+                size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                ASSERT_EQ(trnew[extra+i*bsz+j], getPattern(pos % 0x100)) << i << " " << j;
+            }
+        for (size_t i = 0U; i < extra; i++, tcnt += 2U)
+        {
+            ASSERT_EQ(trnew[i], magic);
+            ASSERT_EQ(trnew[trnew.size()-extra+i], magic);
+        }
+        ASSERT_EQ(tcnt, step + 2U*extra);
+    }
+
+    template <bool DOMD, bool MOCK = true>
+    void writeRandomTest(csize_t ns, const std::vector<size_t> offset, uchar magic = 0)
+    {
+        size_t nt = offset.size();
+        const size_t extra = 20U;
+        size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        size_t step = nt * bsz;
+        std::vector<uchar> tr;
+        std::vector<uchar> trnew(step + 2U*extra);
+
+        if (MOCK)
+        {
+            tr.resize(step);
+            for (size_t i = 0U; i < nt; i++)
+                for (size_t j = 0U; j < bsz; j++)
+                {
+                    size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                    tr[i*bsz+j] = getPattern(pos % 0x100);
+                }
+        }
+        for (size_t i = 0U; i < nt; i++)
+            for (size_t j = 0U; j < bsz; j++)
+            {
+                size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                trnew[extra + i*bsz+j] = getPattern(pos % 0x100);
+            }
+        for (size_t i = 0U; i < extra; i++)
+            trnew[i] = trnew[trnew.size()-extra+i] = magic;
+
+        if (DOMD)
+        {
+            if (MOCK)
+                for (size_t i = 0; i < nt; i++)
+                    EXPECT_CALL(*mock, write(SEGSz::getDOLoc(offset[i], ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
+                              .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
+            obj->writeDOMD(ns, nt, offset.data(), &trnew[extra]);
+        }
+        else
+        {
+            if (MOCK)
+                for (size_t i = 0; i < nt; i++)
+                    EXPECT_CALL(*mock, write(SEGSz::getDODFLoc(offset[i], ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
+                              .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
+            obj->writeDODF(ns, nt, offset.data(), &trnew[extra]);
+        }
+        if (!MOCK)
+            readRandomTest<DOMD, MOCK>(nt, ns, offset, magic);
     }
 };
 
