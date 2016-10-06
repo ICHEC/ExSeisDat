@@ -153,6 +153,7 @@ class ObjTest : public Test
         }
         const size_t extra = 20U;
         size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> trnew(step + 2U*extra);
 
@@ -163,36 +164,28 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                    size_t pos = poff + LocFunc(offset + i, ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
+            EXPECT_CALL(*mock, read(LocFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
+                        .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
         }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
 
         if (DOMD)
-        {
-            if (MOCK)
-                EXPECT_CALL(*mock, read(SEGSz::getDOLoc(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
-                            .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             obj->readDOMD(offset, ns, nt, &trnew[extra]);
-            piol->isErr();
-        }
         else
-        {
-            if (MOCK)
-                EXPECT_CALL(*mock, read(SEGSz::getDODFLoc(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
-                            .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             obj->readDODF(offset, ns, nt, &trnew[extra]);
-            piol->isErr();
-        }
+
+        piol->isErr();
 
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++, tcnt++)
             {
-                size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                size_t pos = poff + LocFunc(offset + i, ns) + j;
                 ASSERT_EQ(trnew[extra+i*bsz+j], getPattern(pos % 0x100)) << i << " " << j;
             }
         for (size_t i = 0U; i < extra; i++, tcnt += 2U)
@@ -208,6 +201,7 @@ class ObjTest : public Test
     {
         const size_t extra = 20U;
         size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> tr;
         std::vector<uchar> trnew(step + 2U*extra);
@@ -218,34 +212,25 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                    size_t pos = poff + LocFunc(offset + i, ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
+            EXPECT_CALL(*mock, write(LocFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
+                        .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
         }
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++)
             {
-                size_t pos = poff + (!DOMD ? SEGSz::getDODFLoc(offset + i, ns) : SEGSz::getDOLoc(offset + i, ns)) + j;
+                size_t pos = poff + LocFunc(offset + i, ns) + j;
                 trnew[extra + i*bsz+j] = getPattern(pos % 0x100);
             }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
-
         if (DOMD)
-        {
-            if (MOCK)
-                EXPECT_CALL(*mock, write(SEGSz::getDOLoc<float>(offset, ns), SEGSz::getMDSz(), SEGSz::getDOSz(ns), nt, _))
-                              .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
             obj->writeDOMD(offset, ns, nt, &trnew[extra]);
-        }
         else
-        {
-            if (MOCK)
-                EXPECT_CALL(*mock, write(SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), nt, _))
-                              .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
             obj->writeDODF(offset, ns, nt, &trnew[extra]);
-        }
 
         if (!MOCK)
             readTest<DOMD, MOCK>(offset, nt, ns, poff, magic);
@@ -262,6 +247,7 @@ class ObjTest : public Test
         }
         const size_t extra = 20U;
         size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> trnew(step + 2U*extra);
         std::vector<uchar> tr;
@@ -271,36 +257,27 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                    size_t pos = LocFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
+            for (size_t i = 0; i < nt; i++)
+                EXPECT_CALL(*mock, read(LocFunc(offset[i], ns), bsz, _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
         }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
 
         if (DOMD)
-        {
-            if (MOCK)
-                for (size_t i = 0; i < nt; i++)
-                    EXPECT_CALL(*mock, read(SEGSz::getDOLoc(offset[i], ns), bsz, _))
-                            .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
             obj->readDOMD(ns, nt, offset.data(), &trnew[extra]);
-        }
         else
-        {
-            if (MOCK)
-                for (size_t i = 0; i < nt; i++)
-                    EXPECT_CALL(*mock, read(SEGSz::getDODFLoc(offset[i], ns), SEGSz::getDFSz(ns), _))
-                            .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
             obj->readDODF(ns, nt, offset.data(), &trnew[extra]);
-        }
 
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++, tcnt++)
             {
-                size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                size_t pos = LocFunc(offset[i], ns) + j;
                 ASSERT_EQ(trnew[extra+i*bsz+j], getPattern(pos % 0x100)) << i << " " << j;
             }
         for (size_t i = 0U; i < extra; i++, tcnt += 2U)
@@ -317,6 +294,7 @@ class ObjTest : public Test
         size_t nt = offset.size();
         const size_t extra = 20U;
         size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
+        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> tr;
         std::vector<uchar> trnew(step + 2U*extra);
@@ -327,35 +305,28 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                    size_t pos = LocFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
+            for (size_t i = 0; i < nt; i++)
+                EXPECT_CALL(*mock, write(LocFunc(offset[i], ns), bsz, _))
+                          .Times(Exactly(1)).WillOnce(check2(tr.data()+i*bsz, bsz));
         }
+
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++)
             {
-                size_t pos = (!DOMD ? SEGSz::getDODFLoc(offset[i], ns) : SEGSz::getDOLoc(offset[i], ns)) + j;
+                size_t pos = LocFunc(offset[i], ns) + j;
                 trnew[extra + i*bsz+j] = getPattern(pos % 0x100);
             }
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[i+trnew.size()-extra] = magic;
 
         if (DOMD)
-        {
-            if (MOCK)
-                for (size_t i = 0; i < nt; i++)
-                    EXPECT_CALL(*mock, write(SEGSz::getDOLoc(offset[i], ns), bsz, _))
-                              .Times(Exactly(1)).WillOnce(check2(tr.data()+i*bsz, bsz));
             obj->writeDOMD(ns, nt, offset.data(), &trnew[extra]);
-        }
         else
-        {
-            if (MOCK)
-                for (size_t i = 0; i < nt; i++)
-                    EXPECT_CALL(*mock, write(SEGSz::getDODFLoc(offset[i], ns), bsz, _))
-                              .Times(Exactly(1)).WillOnce(check2(tr.data()+i*bsz, bsz));
             obj->writeDODF(ns, nt, offset.data(), &trnew[extra]);
-        }
+
         if (!MOCK)
             readRandomTest<DOMD, MOCK>(ns, offset, magic);
     }
