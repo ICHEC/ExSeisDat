@@ -176,30 +176,29 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * p
             "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
     }
-    size_t ntz = (offset + sz > nt ? offset - nt : sz);
+    size_t ntz = (offset + sz > nt ? nt - offset : sz);
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     if (!prm)
-        obj->readDODF(offset, ntz, sz, buf);
+        obj->readDODF(offset, ns, ntz, buf);
     else
     {
-        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ntz)); //FIXME: Potentially a big allocation
-        obj->readDO(offset, ntz, sz, dobuf.data());
+        std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+        obj->readDO(offset, ns, ntz, dobuf.data());
 
         for (size_t i = 0; i < ntz; i++)
         {
-            extractTraceParam(&dobuf[i * SEGSz::getDOSz(ntz)], &prm[i]);
-            std::copy(&dobuf[i * SEGSz::getDOSz(ns)], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
-                      buf + i * SEGSz::getDFSz(ns) + SEGSz::getDFSz(ns));
+            extractTraceParam(&dobuf[i * SEGSz::getDOSz(ns)], &prm[i]);
+            std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
+                      buf + i * SEGSz::getDFSz(ns));
         }
     }
-
     if (format == Format::IBM)
-        for (size_t i = 0; i < ntz * sz; i ++)
+        for (size_t i = 0; i < ns * ntz; i ++)
             trace[i] = convertIBMtoIEEE(trace[i], true);
     else
     {
-        for (size_t i = 0; i < ntz * sz; i++)
+        for (size_t i = 0; i < ns * ntz; i++)
             reverse4Bytes(&buf[i*sizeof(float)]);
     }
 }
@@ -264,7 +263,7 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
         return;
     }
     //Don't process beyond end of file
-    size_t ntz = (offset + sz > nt ? offset - nt : sz);
+    size_t ntz = (offset + sz > nt ? nt - offset : sz);
 
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
 
