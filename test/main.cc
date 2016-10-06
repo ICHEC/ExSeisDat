@@ -62,6 +62,15 @@ uchar getPattern(size_t i)
     return i;
 }
 
+std::vector<size_t> getRandomVec(size_t nt, int seed)
+{
+    srand(seed);
+    std::vector<size_t> vec(nt);
+    for (auto & v : vec)
+        v = rand() % 1234567;
+    return vec;
+}
+
 int main(int argc, char ** argv)
 {
     ExSeis piol;

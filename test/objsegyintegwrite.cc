@@ -1,23 +1,31 @@
 #include "objsegytest.hh"
-TEST_F(ObjIntegTest, SEGYHOWrite)
+TEST_F(ObjIntegTest, SEGYHOWrite1)
 {
     makeRealSEGY<true>(tempFile);
-    SCOPED_TRACE("Pattern 1");
     writeHOPattern<false>(0, 107);
+}
 
-    SCOPED_TRACE("Pattern 2");
+TEST_F(ObjIntegTest, SEGYHOWrite2)
+{
+    makeRealSEGY<true>(tempFile);
     writeHOPattern<false>(0, 46);
+}
 
-    SCOPED_TRACE("Pattern 3");
+TEST_F(ObjIntegTest, SEGYHOWrite3)
+{
+    makeRealSEGY<true>(tempFile);
     writeHOPattern<false>(0, 0);
 }
 
-TEST_F(ObjIntegTest, SEGYDOMDWriteSingle)
+TEST_F(ObjIntegTest, SEGYDOMDWriteSingle1)
 {
     makeRealSEGY<true>(tempFile);
-    SCOPED_TRACE("Pattern 1");
     writeTest<true, false>(10U, 1U, 200, 0, 117);
-    SCOPED_TRACE("Pattern 2");
+}
+
+TEST_F(ObjIntegTest, SEGYDOMDWriteSingle2)
+{
+    makeRealSEGY<true>(tempFile);
     writeTest<true, false>(10U, 1U, 200, 0, 13);
 }
 
@@ -74,5 +82,84 @@ TEST_F(ObjIntegTest, FarmSEGYDODFBigWrite)
 {
     makeRealSEGY<true>(tempFile);
     writeTest<false, false>(10U, 300000, 5000);
+}
+
+//random read
+TEST_F(ObjIntegTest, SEGYRandomDOMDWriteSingle1)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(1U, 1337);
+    writeRandomTest<true, false>(200, vec, 117);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDOMDWriteSingle2)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(1U, 1337);
+    writeRandomTest<true, false>(200, vec, 13);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDOMDWriteZeroNt)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(0U, 1337);
+    writeRandomTest<true, false>(2000, vec);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDOMDWriteZeroNs)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(100U, 1337);
+    writeRandomTest<true, false>(0U, vec);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDOMDWrite)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(100U, 1337);
+    writeRandomTest<true, false>(2000, vec);
+}
+
+TEST_F(ObjIntegTest, FarmSEGYRandomDOMDBigWrite)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(300000U, 1337);
+    writeRandomTest<true, false>(5000U, vec);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDODFWriteSingle)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(1U, 1337);
+    writeRandomTest<false, false>(200, vec, 117);
+    writeRandomTest<false, false>(200, vec, 13);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDODFWriteZeroNt)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(0U, 1337);
+    writeRandomTest<false, false>(2000, vec);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDODFWriteZeroNs)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(100U, 1337);
+    writeRandomTest<false, false>(0U, vec);
+}
+
+TEST_F(ObjIntegTest, SEGYRandomDODFWrite)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(100U, 1337);
+    writeRandomTest<false, false>(2000, vec);
+}
+
+TEST_F(ObjIntegTest, FarmSEGYRandomDODFBigWrite)
+{
+    makeRealSEGY<true>(tempFile);
+    auto vec = getRandomVec(300000U, 1337);
+    writeRandomTest<false, false>(5000U, vec);
 }
 

@@ -1,12 +1,19 @@
 #include "objsegytest.hh"
-TEST_F(ObjIntegTest, SEGYHORead)
+TEST_F(ObjIntegTest, SEGYHORead1)
 {
     makeRealSEGY<false>(plargeFile);
-    SCOPED_TRACE("Pattern 1");
     readHOPatternTest<false>(0, 107);
-    SCOPED_TRACE("Pattern 2");
+}
+
+TEST_F(ObjIntegTest, SEGYHORead2)
+{
+    makeRealSEGY<false>(plargeFile);
     readHOPatternTest<false>(0, 46);
-    SCOPED_TRACE("Pattern 3");
+}
+
+TEST_F(ObjIntegTest, SEGYHORead3)
+{
+    makeRealSEGY<false>(plargeFile);
     readHOPatternTest<false>(0, 0);
 }
 
@@ -77,15 +84,6 @@ TEST_F(ObjIntegTest, FarmSEGYDODFBigRead)
 {
     makeRealSEGY<false>(plargeFile);
     readTest<false, false>(10U, 300000, 5000);
-}
-
-std::vector<size_t> getRandomVec(size_t nt, int seed)
-{
-    srand(seed);
-    std::vector<size_t> vec(nt);
-    for (auto & v : vec)
-        v = rand() % 1234567;
-    return vec;
 }
 
 //Random reads

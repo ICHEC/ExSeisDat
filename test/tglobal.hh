@@ -27,6 +27,7 @@ extern int32_t xlNum(size_t);
 extern geom_t xNum(size_t i);
 extern geom_t yNum(size_t i);
 extern uchar getPattern(size_t);
+extern std::vector<size_t> getRandomVec(size_t nt, int seed);
 
 constexpr size_t prefix(const size_t pow)
 {
@@ -45,7 +46,7 @@ ACTION_P2(check1, buf, sz)
         ASSERT_EQ(buf[i], arg1[i]) << "Error with byte: " << i << "\n";
 }
 
-ACTION_P2(check2, buf, sz)  //Use this when writing
+ACTION_P2(check2, buf, sz)
 {
     for (size_t i = 0; i < sz; i++)
         ASSERT_EQ(buf[i], arg2[i]) << "Error with byte: " << i << "\n";
