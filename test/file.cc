@@ -44,10 +44,6 @@ struct FakeFile : public File::Interface
         ns = 1010U;
     }
 
-//    File::coord_t readCoordPoint(File::Coord item, csize_t i) const { return File::coord_t(0, 0); }
-//    void readCoordPoint(File::Coord item, csize_t offset, csize_t sz, File::coord_t * coord) const {}
-//    void readGridPoint(File::Grid item, csize_t offset, csize_t sz, File::grid_t * grid) const {}
-//    File::grid_t readGridPoint(File::Grid item, csize_t i) const { return File::grid_t(llint(0), llint(0)); }
     void writeText(const std::string text_) {}
     void writeNs(csize_t ns_) {}
     void writeNt(csize_t nt_) {}
