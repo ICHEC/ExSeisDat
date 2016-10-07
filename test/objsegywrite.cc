@@ -14,136 +14,95 @@ TEST_F(ObjSpecTest, SEGYHOWrite3)
     writeHOPattern(0, 0);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDWriteSingle1)
+TEST_F(ObjSpecTest, SEGYWriteSingle1)
 {
-    writeTest<true>(10U, 1U, 200, 13, 13);
+    writeTest<Block::DOMD>(10U, 1U, 200, 13, 13);
+    writeTest<Block::DODF>(10U, 1U, 200, 13, 13);
+    writeTest<Block::DO>(10U, 1U, 200, 13, 13);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDWriteSingle2)
+TEST_F(ObjSpecTest, SEGYWriteSingle2)
 {
-    writeTest<true>(10U, 1U, 200, 13, 117);
+    writeTest<Block::DOMD>(10U, 1U, 200, 13, 117);
+    writeTest<Block::DODF>(10U, 1U, 200, 13, 117);
+    writeTest<Block::DO>(10U, 1U, 200, 13, 117);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDWriteZeroNt)
+TEST_F(ObjSpecTest, SEGYWriteZeroNt)
 {
-    writeTest<true>(10U, 0U, 2000);
+    writeTest<Block::DOMD>(10U, 0U, 2000);
+    writeTest<Block::DODF>(10U, 0U, 2000);
+    writeTest<Block::DO>(10U, 0U, 2000);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDWriteZeroNs)
+TEST_F(ObjSpecTest, SEGYWriteZeroNs)
 {
-    writeTest<true>(10U, 100U, 0U);
+    writeTest<Block::DOMD>(10U, 100U, 0U);
+    writeTest<Block::DODF>(10U, 100U, 0U);
+    writeTest<Block::DO>(10U, 100U, 0U);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDWrite)
+TEST_F(ObjSpecTest, SEGYWrite)
 {
-    writeTest<true>(10U, 100U, 2000);
+    writeTest<Block::DOMD>(10U, 100U, 2000);
+    writeTest<Block::DODF>(10U, 100U, 2000);
+    writeTest<Block::DO>(10U, 100U, 2000);
 }
 
-TEST_F(ObjSpecTest, FarmSEGYDOMDBigWrite)
+TEST_F(ObjSpecTest, FarmSEGYBigWrite)
 {
-    writeTest<true>(10U, 300000, 5000);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFWriteSingle1)
-{
-    writeTest<false>(10U, 1U, 200, 13, 13);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFWriteSingle2)
-{
-    writeTest<false>(10U, 1U, 200, 13, 117);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFWriteZeroNt)
-{
-    writeTest<false>(10U, 0U, 2000);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFWriteZeroNs)
-{
-    writeTest<false>(10U, 100U, 0U);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFWrite)
-{
-    writeTest<false>(10U, 100U, 2000);
-}
-
-TEST_F(ObjSpecTest, FarmSEGYDODFBigWrite)
-{
-    writeTest<false>(10U, 300000, 5000);
+    writeTest<Block::DOMD>(10U, 300000, 5000);
+    writeTest<Block::DODF>(10U, 300000, 5000);
+    writeTest<Block::DO>(10U, 300000, 5000);
 }
 
 //random read
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDWriteSingle1)
+TEST_F(ObjSpecTest, SEGYRandomWriteSingle1)
 {
     auto vec = getRandomVec(1U, 1337);
-    writeRandomTest<true>(200, vec, 13);
+    writeRandomTest<Block::DOMD>(200, vec, 13);
+    writeRandomTest<Block::DODF>(200, vec, 13);
+    writeRandomTest<Block::DO>(200, vec, 13);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDWriteSingle2)
+TEST_F(ObjSpecTest, SEGYRandomWriteSingle2)
 {
     auto vec = getRandomVec(1U, 1337);
-    writeRandomTest<true>(200, vec, 117);
+    writeRandomTest<Block::DOMD>(200, vec, 117);
+    writeRandomTest<Block::DODF>(200, vec, 117);
+    writeRandomTest<Block::DO>(200, vec, 117);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDWriteZeroNt)
+TEST_F(ObjSpecTest, SEGYRandomWriteZeroNt)
 {
     auto vec = getRandomVec(0U, 1337);
-    writeRandomTest<true>(2000, vec);
+    writeRandomTest<Block::DOMD>(2000, vec);
+    writeRandomTest<Block::DODF>(2000, vec);
+    writeRandomTest<Block::DO>(2000, vec);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDWriteZeroNs)
+TEST_F(ObjSpecTest, SEGYRandomWriteZeroNs)
 {
     auto vec = getRandomVec(100U, 1337);
-    writeRandomTest<true>(0U, vec);
+    writeRandomTest<Block::DOMD>(0U, vec);
+    writeRandomTest<Block::DODF>(0U, vec);
+    writeRandomTest<Block::DO>(0U, vec);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDWrite)
+TEST_F(ObjSpecTest, SEGYRandomWrite)
 {
     auto vec = getRandomVec(100U, 1337);
-    writeRandomTest<true>(2000, vec);
+    writeRandomTest<Block::DOMD>(2000, vec);
+    writeRandomTest<Block::DODF>(2000, vec);
+    writeRandomTest<Block::DO>(2000, vec);
 }
 
-TEST_F(ObjSpecTest, FarmSEGYRandomDOMDBigWrite)
+TEST_F(ObjSpecTest, FarmSEGYRandomBigWrite)
 {
     auto vec = getRandomVec(300000U, 1337);
-    writeRandomTest<true>(5000U, vec);
+    writeRandomTest<Block::DOMD>(5000U, vec);
+    writeRandomTest<Block::DODF>(5000U, vec);
+    writeRandomTest<Block::DO>(5000U, vec);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDODFWriteSingle1)
-{
-    auto vec = getRandomVec(1U, 1337);
-    writeRandomTest<false>(200U, vec, 13U);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFWriteSingle2)
-{
-    auto vec = getRandomVec(1U, 1337);
-    writeRandomTest<false>(200, vec, 117);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFWriteZeroNt)
-{
-    auto vec = getRandomVec(0U, 1337);
-    writeRandomTest<false>(2000, vec);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFWriteZeroNs)
-{
-    auto vec = getRandomVec(100U, 1337);
-    writeRandomTest<false>(0U, vec);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFWrite)
-{
-    auto vec = getRandomVec(100U, 1337);
-    writeRandomTest<false>(2000, vec);
-}
-
-TEST_F(ObjSpecTest, FarmSEGYRandomDODFBigWrite)
-{
-    auto vec = getRandomVec(300000U, 1337);
-    writeRandomTest<false>(5000U, vec);
-}

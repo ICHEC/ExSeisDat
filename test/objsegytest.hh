@@ -1,4 +1,5 @@
 #include <memory>
+#include <string>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "global.hh"
@@ -31,6 +32,13 @@ class MockData : public Data::Interface
     MOCK_CONST_METHOD5(write, void(csize_t, csize_t, csize_t, csize_t, const uchar *));
     // TODO: This method is not tested
     MOCK_CONST_METHOD1(setFileSz, void(csize_t));
+};
+
+enum class Block
+{
+    DOMD,
+    DODF,
+    DO
 };
 
 class ObjTest : public Test
@@ -143,17 +151,18 @@ class ObjTest : public Test
             readHOPatternTest<MOCK>(off, magic);
     }
 
-    template <bool DOMD, bool MOCK = true>
+    template <Block Type, bool MOCK = true>
     void readTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
+        SCOPED_TRACE("readTest " + std::to_string(size_t(Block::DOMD)));
         if (MOCK && mock == nullptr)
         {
             std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
             return;
         }
         const size_t extra = 20U;
-        size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
-        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
+        size_t bsz = (Type == Block::DOMD ? SEGSz::getMDSz() : (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+        auto locFunc = (Type != Block::DODF ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> trnew(step + 2U*extra);
 
@@ -164,28 +173,40 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = poff + LocFunc(offset + i, ns) + j;
+                    size_t pos = poff + locFunc(offset + i, ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
-            EXPECT_CALL(*mock, read(LocFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
+            if (Type == Block::DO)
+                EXPECT_CALL(*mock, read(locFunc(offset, ns), nt*bsz, _))
+                        .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+            else
+                EXPECT_CALL(*mock, read(locFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
                         .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
         }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
 
-        if (DOMD)
-            obj->readDOMD(offset, ns, nt, &trnew[extra]);
-        else
-            obj->readDODF(offset, ns, nt, &trnew[extra]);
-
+        switch (Type)
+        {
+            case Block::DODF :
+                obj->readDODF(offset, ns, nt, &trnew[extra]);
+            break;
+            case Block::DOMD :
+                obj->readDOMD(offset, ns, nt, &trnew[extra]);
+            break;
+            default :
+            case Block::DO :
+                obj->readDO(offset, ns, nt, &trnew[extra]);
+            break;
+        }
         piol->isErr();
 
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++, tcnt++)
             {
-                size_t pos = poff + LocFunc(offset + i, ns) + j;
+                size_t pos = poff + locFunc(offset + i, ns) + j;
                 ASSERT_EQ(trnew[extra+i*bsz+j], getPattern(pos % 0x100)) << i << " " << j;
             }
         for (size_t i = 0U; i < extra; i++, tcnt += 2U)
@@ -196,12 +217,15 @@ class ObjTest : public Test
         ASSERT_EQ(tcnt, step + 2U*extra);
     }
 
-    template <bool DOMD, bool MOCK = true>
+    template <Block Type, bool MOCK = true>
     void writeTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
+        SCOPED_TRACE("writeTest " + std::to_string(size_t(Block::DOMD)));
+
         const size_t extra = 20U;
-        size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
-        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
+        size_t bsz = (Type == Block::DOMD ? SEGSz::getMDSz() : (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+        auto locFunc = (Type != Block::DODF ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
+
         size_t step = nt * bsz;
         std::vector<uchar> tr;
         std::vector<uchar> trnew(step + 2U*extra);
@@ -212,33 +236,48 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = poff + LocFunc(offset + i, ns) + j;
+                    size_t pos = poff + locFunc(offset + i, ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
-            EXPECT_CALL(*mock, write(LocFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
+            if (Type == Block::DO)
+                EXPECT_CALL(*mock, write(locFunc(offset, ns), nt*bsz, _))
+                        .Times(Exactly(1)).WillOnce(check2(tr, tr.size()));
+            else
+                EXPECT_CALL(*mock, write(locFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
                         .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
         }
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++)
             {
-                size_t pos = poff + LocFunc(offset + i, ns) + j;
+                size_t pos = poff + locFunc(offset + i, ns) + j;
                 trnew[extra + i*bsz+j] = getPattern(pos % 0x100);
             }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
-        if (DOMD)
-            obj->writeDOMD(offset, ns, nt, &trnew[extra]);
-        else
-            obj->writeDODF(offset, ns, nt, &trnew[extra]);
+
+        switch (Type)
+        {
+            case Block::DODF :
+                obj->writeDODF(offset, ns, nt, &trnew[extra]);
+            break;
+            case Block::DOMD :
+                obj->writeDOMD(offset, ns, nt, &trnew[extra]);
+            break;
+            default :
+            case Block::DO :
+                obj->writeDO(offset, ns, nt, &trnew[extra]);
+            break;
+        }
 
         if (!MOCK)
-            readTest<DOMD, MOCK>(offset, nt, ns, poff, magic);
+            readTest<Type, MOCK>(offset, nt, ns, poff, magic);
     }
 
-    template <bool DOMD, bool MOCK = true>
+    template <Block Type, bool MOCK = true>
     void readRandomTest(csize_t ns, const std::vector<size_t> & offset, uchar magic = 0)
     {
+        SCOPED_TRACE("readRandomTest " + std::to_string(size_t(Block::DOMD)));
         size_t nt = offset.size();
         if (MOCK && mock == nullptr)
         {
@@ -246,8 +285,9 @@ class ObjTest : public Test
             return;
         }
         const size_t extra = 20U;
-        size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
-        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
+        size_t bsz = (Type == Block::DOMD ? SEGSz::getMDSz() : (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+        auto locFunc = (Type != Block::DODF ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
+
         size_t step = nt * bsz;
         std::vector<uchar> trnew(step + 2U*extra);
         std::vector<uchar> tr;
@@ -257,27 +297,36 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = LocFunc(offset[i], ns) + j;
+                    size_t pos = locFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
             for (size_t i = 0; i < nt; i++)
-                EXPECT_CALL(*mock, read(LocFunc(offset[i], ns), bsz, _))
+                EXPECT_CALL(*mock, read(locFunc(offset[i], ns), bsz, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
         }
 
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[trnew.size()-extra+i] = magic;
 
-        if (DOMD)
-            obj->readDOMD(ns, nt, offset.data(), &trnew[extra]);
-        else
-            obj->readDODF(ns, nt, offset.data(), &trnew[extra]);
+        switch (Type)
+        {
+            case Block::DODF :
+                obj->readDODF(ns, nt, offset.data(), &trnew[extra]);
+            break;
+            case Block::DOMD :
+                obj->readDOMD(ns, nt, offset.data(), &trnew[extra]);
+            break;
+            default :
+            case Block::DO :
+                obj->readDO(ns, nt, offset.data(), &trnew[extra]);
+            break;
+        }
 
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++, tcnt++)
             {
-                size_t pos = LocFunc(offset[i], ns) + j;
+                size_t pos = locFunc(offset[i], ns) + j;
                 ASSERT_EQ(trnew[extra+i*bsz+j], getPattern(pos % 0x100)) << i << " " << j;
             }
         for (size_t i = 0U; i < extra; i++, tcnt += 2U)
@@ -288,13 +337,14 @@ class ObjTest : public Test
         ASSERT_EQ(tcnt, step + 2U*extra);
     }
 
-    template <bool DOMD, bool MOCK = true>
+    template <Block Type, bool MOCK = true>
     void writeRandomTest(csize_t ns, const std::vector<size_t> & offset, uchar magic = 0)
     {
+        SCOPED_TRACE("writeRandomTest " + std::to_string(size_t(Block::DOMD)));
         size_t nt = offset.size();
         const size_t extra = 20U;
-        size_t bsz = (DOMD ? SEGSz::getMDSz() : SEGSz::getDFSz(ns));
-        auto LocFunc = (DOMD ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
+        size_t bsz = (Type == Block::DOMD ? SEGSz::getMDSz() : (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+        auto locFunc = (Type != Block::DODF ? SEGSz::getDOLoc<float> : SEGSz::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> tr;
         std::vector<uchar> trnew(step + 2U*extra);
@@ -305,30 +355,39 @@ class ObjTest : public Test
             for (size_t i = 0U; i < nt; i++)
                 for (size_t j = 0U; j < bsz; j++)
                 {
-                    size_t pos = LocFunc(offset[i], ns) + j;
+                    size_t pos = locFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
             for (size_t i = 0; i < nt; i++)
-                EXPECT_CALL(*mock, write(LocFunc(offset[i], ns), bsz, _))
+                EXPECT_CALL(*mock, write(locFunc(offset[i], ns), bsz, _))
                           .Times(Exactly(1)).WillOnce(check2(tr.data()+i*bsz, bsz));
         }
 
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++)
             {
-                size_t pos = LocFunc(offset[i], ns) + j;
+                size_t pos = locFunc(offset[i], ns) + j;
                 trnew[extra + i*bsz+j] = getPattern(pos % 0x100);
             }
         for (size_t i = 0U; i < extra; i++)
             trnew[i] = trnew[i+trnew.size()-extra] = magic;
 
-        if (DOMD)
-            obj->writeDOMD(ns, nt, offset.data(), &trnew[extra]);
-        else
-            obj->writeDODF(ns, nt, offset.data(), &trnew[extra]);
+        switch (Type)
+        {
+            case Block::DODF :
+                obj->writeDODF(ns, nt, offset.data(), &trnew[extra]);
+            break;
+            case Block::DOMD :
+                obj->writeDOMD(ns, nt, offset.data(), &trnew[extra]);
+            break;
+            default :
+            case Block::DO :
+                obj->writeDO(ns, nt, offset.data(), &trnew[extra]);
+            break;
+        }
 
         if (!MOCK)
-            readRandomTest<DOMD, MOCK>(ns, offset, magic);
+            readRandomTest<Type, MOCK>(ns, offset, magic);
     }
 };
 

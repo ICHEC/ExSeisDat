@@ -130,16 +130,6 @@ void writeInc(ExSeisFile f, const double inc)
     f->file->writeInc(inc);
 }
 
-void readCoordPoint(ExSeisFile f, const CCoord item, size_t offset, size_t sz, ccoord_t * buf)
-{
-    f->file->readCoordPoint(static_cast<File::Coord>(item), offset, sz, (File::coord_t *)(buf));
-}
-
-void readGridPoint(ExSeisFile f, const CGrid item, size_t offset, size_t sz, cgrid_t * buf)
-{
-    f->file->readGridPoint(static_cast<File::Grid>(item), offset, sz, (File::grid_t *)(buf));
-}
-
 void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->readTrace(offset, sz, trace);

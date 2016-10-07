@@ -12,10 +12,14 @@ if [ -n "$PBS_O_WORKDIR" ]; then
 fi
 
 source /etc/profile.d/modules.sh #So we can use the module command
-source ../mod_intel
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/ichec/work/staff/cathal/ExSeisDat/lib
+if [ $PIOL_SYSTEM == Tullow ]; then
+    dat=/panfs/gpt2/MODELLING/DEVELOP/piotest/dat/
+else
+    source ../mod_intel
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/ichec/work/staff/cathal/ExSeisDat/lib
+    dat=/ichec/work/exseisdat/dat/10/
+fi
 
-dat=/ichec/work/exseisdat/dat/10/
 time ../util/filemake -s 200 -t 0 -m 2048 -i 0.04 -o $dat/zero.segy
 time ../util/filemake -s 200 -t 1 -m 2048 -i 0.04 -o $dat/one.segy
 time ../util/filemake -s 32767 -t 100 -m 2048 -i 0.04 -o $dat/bigns.segy

@@ -14,136 +14,95 @@ TEST_F(ObjSpecTest, SEGYHORead3)
     readHOPatternTest(0, 0);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDReadSingle1)
+TEST_F(ObjSpecTest, SEGYReadSingle1)
 {
-    readTest<true>(10U, 1U, 200, 13, 117);
+    readTest<Block::DOMD>(10U, 1U, 200, 13, 117);
+    readTest<Block::DODF>(10U, 1U, 200, 13, 117);
+    readTest<Block::DO>(10U, 1U, 200, 13, 117);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDReadSingle2)
+TEST_F(ObjSpecTest, SEGYReadSingle2)
 {
-    readTest<true>(10U, 1U, 200, 13, 13);
+    readTest<Block::DOMD>(10U, 1U, 200, 13, 13);
+    readTest<Block::DODF>(10U, 1U, 200, 13, 13);
+    readTest<Block::DO>(10U, 1U, 200, 13, 13);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDReadZeroNt)
+TEST_F(ObjSpecTest, SEGYReadZeroNt)
 {
-    readTest<true>(10U, 0U, 2000);
+    readTest<Block::DOMD>(10U, 0U, 2000);
+    readTest<Block::DODF>(10U, 0U, 2000);
+    readTest<Block::DO>(10U, 0U, 2000);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDReadZeroNs)
+TEST_F(ObjSpecTest, SEGYReadZeroNs)
 {
-    readTest<true>(10U, 100U, 0U);
+    readTest<Block::DOMD>(10U, 100U, 0U);
+    readTest<Block::DODF>(10U, 100U, 0U);
+    readTest<Block::DO>(10U, 100U, 0U);
 }
 
-TEST_F(ObjSpecTest, SEGYDOMDRead)
+TEST_F(ObjSpecTest, SEGYRead)
 {
-    readTest<true>(10U, 100U, 2000);
+    readTest<Block::DOMD>(10U, 100U, 2000);
+    readTest<Block::DODF>(10U, 100U, 2000);
+    readTest<Block::DO>(10U, 100U, 2000);
 }
 
-TEST_F(ObjSpecTest, FarmSEGYDOMDBigRead)
+TEST_F(ObjSpecTest, FarmSEGYBigRead)
 {
-    readTest<true>(10U, 300000, 5000);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFReadSingle1)
-{
-    readTest<false>(10U, 1U, 200, 13, 117);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFReadSingle2)
-{
-    readTest<false>(10U, 1U, 200, 13, 13);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFReadZeroNt)
-{
-    readTest<false>(10U, 0U, 2000);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFReadZeroNs)
-{
-    readTest<false>(10U, 100U, 0U);
-}
-
-TEST_F(ObjSpecTest, SEGYDODFRead)
-{
-    readTest<false>(10U, 100U, 2000);
-}
-
-TEST_F(ObjSpecTest, FarmSEGYDODFBigRead)
-{
-    readTest<false>(10U, 300000, 5000);
+    readTest<Block::DOMD>(10U, 300000, 5000);
+    readTest<Block::DODF>(10U, 300000, 5000);
+    readTest<Block::DO>(10U, 300000, 5000);
 }
 
 //random read
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDReadSingle1)
+TEST_F(ObjSpecTest, SEGYRandomReadSingle1)
 {
     auto vec = getRandomVec(1U, 1337);
-    readTest<true>(10U, 1U, 200, 13, 117);
+    readRandomTest<Block::DOMD>(200, vec, 117);
+    readRandomTest<Block::DODF>(200, vec, 117);
+    readRandomTest<Block::DO>(200, vec, 117);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDReadSingle2)
+TEST_F(ObjSpecTest, SEGYRandomReadSingle2)
 {
     auto vec = getRandomVec(1U, 1337);
-    readTest<true>(10U, 1U, 200, 13, 13);
+    readRandomTest<Block::DOMD>(200, vec, 13);
+    readRandomTest<Block::DODF>(200, vec, 13);
+    readRandomTest<Block::DO>(200, vec, 13);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDReadZeroNt)
+TEST_F(ObjSpecTest, SEGYRandomReadZeroNt)
 {
     auto vec = getRandomVec(0U, 1337);
-    readTest<true>(10U, 0U, 2000);
+    readRandomTest<Block::DOMD>(2000, vec);
+    readRandomTest<Block::DODF>(2000, vec);
+    readRandomTest<Block::DO>(2000, vec);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDReadZeroNs)
+TEST_F(ObjSpecTest, SEGYRandomReadZeroNs)
 {
     auto vec = getRandomVec(100U, 1337);
-    readTest<true>(10U, 100U, 0U);
+    readRandomTest<Block::DOMD>(0U, vec);
+    readRandomTest<Block::DODF>(0U, vec);
+    readRandomTest<Block::DO>(0U, vec);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDOMDRead)
+TEST_F(ObjSpecTest, SEGYRandomRead)
 {
     auto vec = getRandomVec(100U, 1337);
-    readTest<true>(10U, 100U, 2000);
+    readRandomTest<Block::DOMD>(2000, vec);
+    readRandomTest<Block::DODF>(2000, vec);
+    readRandomTest<Block::DO>(2000, vec);
 }
 
-TEST_F(ObjSpecTest, FarmSEGYRandomDOMDBigRead)
+TEST_F(ObjSpecTest, FarmSEGYRandomBigRead)
 {
     auto vec = getRandomVec(300000U, 1337);
-    readTest<true>(10U, 300000U, 5000);
+    readRandomTest<Block::DOMD>(5000, vec);
+    readRandomTest<Block::DODF>(5000, vec);
+    readRandomTest<Block::DO>(5000, vec);
 }
 
-TEST_F(ObjSpecTest, SEGYRandomDODFReadSingle1)
-{
-    auto vec = getRandomVec(1U, 1337);
-    readTest<false>(10U, 1U, 200, 13, 117);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFReadSingle2)
-{
-    auto vec = getRandomVec(1U, 1337);
-    readTest<false>(10U, 1U, 200U, 13, 13);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFReadZeroNt)
-{
-    auto vec = getRandomVec(0U, 1337);
-    readTest<false>(10U, 0U, 2000U);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFReadZeroNs)
-{
-    auto vec = getRandomVec(100U, 1337);
-    readTest<false>(10U, 100U, 0U);
-}
-
-TEST_F(ObjSpecTest, SEGYRandomDODFRead)
-{
-    auto vec = getRandomVec(100U, 1337);
-    readTest<false>(10U, 100U, 2000);
-}
-
-TEST_F(ObjSpecTest, FarmSEGYRandomDODFBigRead)
-{
-    auto vec = getRandomVec(300000U, 1337);
-    readTest<false>(10U, 300000U, 5000);
-}

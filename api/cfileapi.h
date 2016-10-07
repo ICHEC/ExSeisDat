@@ -206,23 +206,6 @@ extern void writeInc(ExSeisFile fh, double inc);
 /*
  *    Reading data from the trace headers
  */
-/*! \brief Read coordinate pairs from the ith-trace to i+sz.
- *  \param[in] fh A handle for the file.
- *  \param[in] item The coordinate pair of interest.
- *  \param[in] offset The starting trace number.
- *  \param[in] sz The number of traces to process.
- *  \param[out] buf The buffer which is sizeof(coord_t)*sz long.
- */
-extern void readCoordPoint(ExSeisFile fh, CCoord item, size_t offset, size_t sz, ccoord_t * buf);
-
-/*! \brief Read grid pairs from the ith-trace to i+sz.
- *  \param[in] fh A handle for the file.
- *  \param[in] item The grid pair of interest.
- *  \param[in] offset The starting trace number.
- *  \param[in] sz The number of traces to process.
- *  \param[out] buf The buffer which is sizeof(grid_t)*sz long.
- */
-extern void readGridPoint(ExSeisFile fh, CGrid item, size_t offset, size_t sz, cgrid_t * buf);
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
