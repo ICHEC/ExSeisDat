@@ -462,6 +462,70 @@ struct FileSEGYTest : public Test
     }
 
     template <bool MOCK = true>
+    void writeTraceWPrmTest(csize_t offset, csize_t tn)
+    {
+        std::vector<uchar> buf;
+        if (MOCK)
+        {
+            EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
+            if (mock == nullptr)
+            {
+                std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
+                return;
+            }
+            if (tn * ns)
+            {
+                buf.resize(tn * SEGSz::getDOSz(ns));
+                for (size_t i = 0; i < tn; i++)
+                {
+                    coord_t src = coord_t(ilNum(i+1), xlNum(i+5));
+                    coord_t rcv = coord_t(ilNum(i+2), xlNum(i+6));
+                    coord_t cmp = coord_t(ilNum(i+3), xlNum(i+7));
+                    grid_t line = grid_t(ilNum(i+4), xlNum(i+8));
+
+                    int16_t scale = scalComp(1, calcScale(src));
+                    scale = scalComp(scale, calcScale(rcv));
+                    scale = scalComp(scale, calcScale(cmp));
+
+                    uchar * md = &buf[i*SEGSz::getDOSz(ns)];
+                    getBigEndian(scale, &md[ScaleCoord]);
+                    setCoord(File::Coord::Src, src, scale, md);
+                    setCoord(File::Coord::Rcv, rcv, scale, md);
+                    setCoord(File::Coord::CMP, cmp, scale, md);
+
+                    setGrid(File::Grid::Line, line, md);
+                    getBigEndian(int32_t(offset + i), &md[SeqFNum]);
+                }
+                for (size_t i = 0U; i < tn; i++)
+                    for (size_t j = 0U; j < ns; j++)
+                    {
+                        float val = offset + i + j;
+                        getBigEndian(toint(val), &buf[(i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float))]);
+                    }
+                EXPECT_CALL(*mock, writeDO(offset, ns, tn, _))
+                                .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
+            }
+        }
+        std::vector<TraceParam> prm(tn);
+        std::vector<float> bufnew(tn * ns);
+        for (size_t i = 0U; i < tn; i++)
+        {
+            prm[i].src = coord_t(ilNum(i+1), xlNum(i+5));
+            prm[i].rcv = coord_t(ilNum(i+2), xlNum(i+6));
+            prm[i].cmp = coord_t(ilNum(i+3), xlNum(i+7));
+            prm[i].line = grid_t(ilNum(i+4), xlNum(i+8));
+            prm[i].tn = offset + i;
+            for (size_t j = 0U; j < ns; j++)
+                bufnew[i*ns + j] = float(offset + i + j);
+        }
+
+        file->writeTrace(offset, tn, bufnew.data(), prm.data());
+
+        if (MOCK == false)
+            readTraceWPrmTest<MOCK>(offset, tn);
+    }
+
+    template <bool MOCK = true>
     void writeTraceHeaderTest(csize_t offset, csize_t tn)
     {
         std::vector<uchar> buf;
