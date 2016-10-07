@@ -75,6 +75,13 @@ TEST_F(FileSEGYWrite, FileWriteTraceNormal)
     ns = 300;
     makeMockSEGY<true, false>();
     writeTraceTest(0U, nt);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceWPrmNormal)
+{
+    nt = 100;
+    ns = 300;
+    makeMockSEGY<true, false>();
     writeTraceWPrmTest(0U, nt);
 }
 
@@ -84,6 +91,13 @@ TEST_F(FileSEGYWrite, FileWriteTraceBigNs)
     ns = 10000;
     makeMockSEGY<true, false>();
     writeTraceTest(10U, nt);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceWPrmBigNs)
+{
+    nt = 100;
+    ns = 10000;
+    makeMockSEGY<true, false>();
     writeTraceWPrmTest(10U, nt);
 }
 
@@ -93,6 +107,13 @@ TEST_F(FileSEGYWrite, FileWriteTraceBigOffset)
     ns = 3000;
     makeMockSEGY<true, false>();
     writeTraceTest(3728270U, nt);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceWPrmBigOffset)
+{
+    nt = 3000;
+    ns = 3000;
+    makeMockSEGY<true, false>();
     writeTraceWPrmTest(3728270U, nt);
 }
 
@@ -102,6 +123,13 @@ TEST_F(FileSEGYWrite, FarmFileWriteTraceBigNt)
     ns = 300;
     makeMockSEGY<true, false>();
     writeTraceTest(0U, nt);
+}
+
+TEST_F(FileSEGYWrite, FarmFileWriteTraceWPrmBigNt)
+{
+    nt = 3728270;
+    ns = 300;
+    makeMockSEGY<true, false>();
     writeTraceWPrmTest(0U, nt);
 }
 
@@ -111,6 +139,13 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNt)
     ns = 10;
     makeMockSEGY<true, false>();
     writeTraceTest(10U, nt);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceWPrmZeroNt)
+{
+    nt = 0;
+    ns = 10;
+    makeMockSEGY<true, false>();
     writeTraceWPrmTest(10U, nt);
 }
 
@@ -120,6 +155,13 @@ TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
     ns = 0;
     makeMockSEGY<true, false>();
     writeTraceTest(10U, nt);
+}
+
+TEST_F(FileSEGYWrite, FileWriteTraceWPrmZeroNs)
+{
+    nt = 10;
+    ns = 0;
+    makeMockSEGY<true, false>();
     writeTraceWPrmTest(10U, nt);
 }
 

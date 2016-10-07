@@ -80,6 +80,14 @@ TEST_F(FileSEGYRead, FileReadTraceBigNS)
     ns = 10000;
     makeMockSEGY<false>();
     readTraceTest(10, nt);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceBigNSWPrm)
+{
+    nt = 100;
+    ns = 10000;
+    makeMockSEGY<false>();
+    initTrBlock();
     readTraceWPrmTest(10, nt);
 }
 
@@ -90,6 +98,15 @@ TEST_F(FileSEGYRead, FileReadTraceBigOffset)
     makeMockSEGY<false>();
 #warning //TODO: should be readTraceTest( 3728270, nt)?
     readTraceTest(3728270, 3000);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceWPrmBigOffset)
+{
+    nt = 3738270;
+    ns = 3000;
+    makeMockSEGY<false>();
+#warning //TODO: should be readTraceTest( 3728270, nt)?
+    initTrBlock();
     readTraceWPrmTest(3728270, 3000);
 }
 
@@ -99,6 +116,14 @@ TEST_F(FileSEGYRead, FarmFileReadTraceBigNt)
     ns = 300;
     makeMockSEGY<false>();
     readTraceTest(0, nt);
+}
+
+TEST_F(FileSEGYRead, FarmFileReadTraceWPrmBigNt)
+{
+    nt = 3728270;
+    ns = 300;
+    makeMockSEGY<false>();
+    initTrBlock();
     readTraceWPrmTest(0, nt);
 }
 
@@ -108,6 +133,14 @@ TEST_F(FileSEGYRead, FileReadTraceZeroNt)
     ns = 10;
     makeMockSEGY<false, false>();
     readTraceTest(10, nt);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceWPrmZeroNt)
+{
+    nt = 0;
+    ns = 10;
+    makeMockSEGY<false, false>();
+    initTrBlock();
     readTraceWPrmTest(10, nt);
 }
 
@@ -117,5 +150,13 @@ TEST_F(FileSEGYRead, FileReadTraceZeroNs)
     ns = 0;
     makeMockSEGY<false, false>();
     readTraceTest(10, nt);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceWPrmZeroNs)
+{
+    nt = 10;
+    ns = 0;
+    makeMockSEGY<false, false>();
+    initTrBlock();
     readTraceWPrmTest(10, nt);
 }
