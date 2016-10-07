@@ -39,6 +39,16 @@ int32_t xlNum(size_t i)
     return 1600L + (i % 3000L);
 }
 
+int32_t xNum(size_t i)
+{
+    return 1000L + (i / 2000L);
+}
+
+int32_t yNum(size_t i)
+{
+    return 1000L + (i % 2000L);
+}
+
 void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t maxBlock)
 {
     const size_t hsz  = 3600;
@@ -87,6 +97,22 @@ void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t m
                     buf[dosz*j + 240 + 4*k + 2] = n.i >> 8  & 0xFF;
                     buf[dosz*j + 240 + 4*k + 3] = n.i       & 0xFF;
                 }
+
+                int16_t scale = 1;
+                buf[dosz*j + 70] = scale >> 8  & 0xFF;
+                buf[dosz*j + 71] = scale       & 0xFF;
+
+                int32_t x = xNum(i+j);
+                buf[dosz*j + 72] = x >> 24 & 0xFF;
+                buf[dosz*j + 73] = x >> 16 & 0xFF;
+                buf[dosz*j + 74] = x >> 8  & 0xFF;
+                buf[dosz*j + 75] = x       & 0xFF;
+
+                int32_t y = yNum(i+j);
+                buf[dosz*j + 76] = y >> 24 & 0xFF;
+                buf[dosz*j + 77] = y >> 16 & 0xFF;
+                buf[dosz*j + 78] = y >> 8  & 0xFF;
+                buf[dosz*j + 79] = y       & 0xFF;
 
                 int32_t il = ilNum(i+j);
                 buf[dosz*j + 188] = il >> 24 & 0xFF;
