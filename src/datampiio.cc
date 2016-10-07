@@ -316,7 +316,7 @@ void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
 {
     MPI_Status arg;
     int err = io<uchar, MPI_Status>(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
-    printErr(log, name, Log::Layer::Data, err, &arg, "Non-collective read failure.");
+    printErr(log, name, Log::Layer::Data, err, &arg, "Non-collective write failure.");
 }
 
 void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const

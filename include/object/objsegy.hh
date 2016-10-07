@@ -93,6 +93,7 @@ class SEGY : public Interface
      *  the data-field.
      */
     void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const;
+
     void readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const;
     void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const;
 
