@@ -380,6 +380,39 @@ struct FileSEGYTest : public Test
     }
 
     template <bool MOCK = true>
+    void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
+    {
+        ASSERT_EQ( tn, offset.size() );
+        std::vector<uchar> buf;
+        if (MOCK)
+        {
+            if (mock == nullptr)
+            {
+                std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
+                return;
+            }
+            if (tn * ns)
+            {
+                buf.resize(tn * SEGSz::getDFSz(ns));
+                for (size_t i = 0U; i < tn; i++)
+                    for (size_t j = 0U; j < ns; j++)
+                    {
+                        float val = offset[i] + i + j;
+                        getBigEndian(toint(val), &buf[(i*ns+j)*sizeof(float)]);
+                    }
+                EXPECT_CALL(*mock, readDODF(ns, tn, offset.data(), _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
+            }
+        }
+
+        std::vector<float> bufnew(tn * ns);
+        file->readTrace(tn, offset.data(), bufnew.data(), NULL);
+        for (size_t i = 0U; i < tn; i++)
+            for (size_t j = 0U; j < ns; j++)
+                ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + i + j)) << "Trace Number: " << i << " " << j;
+    }
+
+    template <bool MOCK = true>
     void readTraceWPrmTest(csize_t offset, size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
