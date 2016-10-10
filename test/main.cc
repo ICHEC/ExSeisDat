@@ -71,6 +71,15 @@ std::vector<size_t> getRandomVec(size_t nt, int seed)
     return vec;
 }
 
+std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
+{
+    srand(seed);
+    std::vector<size_t> vec(nt);
+    for (auto & v : vec)
+        v = rand() % max;
+    return vec;
+}
+
 int main(int argc, char ** argv)
 {
     ExSeis piol;

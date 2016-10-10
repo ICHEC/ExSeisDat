@@ -110,6 +110,29 @@ TEST_F(FileSEGYRead, FileReadTraceWPrmBigOffset)
     readTraceWPrmTest(3728270, 3000);
 }
 
+TEST_F(FileSEGYRead, FileReadRandomTrace)
+{
+    nt = 3728270;
+    ns = 300;
+    size_t size = 100U;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, nt, 1337);
+    readRandomTraceTest(size, offsets);
+}
+
+TEST_F(FileSEGYRead, FileReadRandomTraceWPrm)
+{
+    nt = 3728270;
+    ns = 300;
+    size_t size = 100U;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, nt, 1337);
+    readRandomTraceWPrmTest(size, offsets);
+}
+
+
 TEST_F(FileSEGYRead, FarmFileReadTraceBigNt)
 {
     nt = 3728270;
@@ -131,12 +154,22 @@ TEST_F(FileSEGYRead, FarmFileReadRandomTraceBigNt)
 {
     nt = 3728270;
     ns = 300;
+    size_t size = nt/2;
     makeMockSEGY<false>();
     initTrBlock();
-    std::vector<size_t> offsets(10);
-    for ( size_t i=0; i<10; i++)
-        offsets.push_back(i);
-    readRandomTraceTest(10, offsets);
+    auto offsets = getRandomVec(size, nt, 1337);
+    readRandomTraceTest(size, offsets);
+}
+
+TEST_F(FileSEGYRead, FarmFileReadRandomTraceWPrmBigNt)
+{
+    nt = 3728270;
+    ns = 300;
+    size_t size = nt/2;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, nt, 1337);
+    readRandomTraceWPrmTest(size, offsets);
 }
 
 TEST_F(FileSEGYRead, FileReadTraceZeroNt)
@@ -156,6 +189,28 @@ TEST_F(FileSEGYRead, FileReadTraceWPrmZeroNt)
     readTraceWPrmTest(10, nt);
 }
 
+TEST_F(FileSEGYRead, FileReadRandomTraceZeroNt)
+{
+    nt = 0;
+    ns = 10;
+    size_t size = nt;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, 10U, 1337);
+    readRandomTraceTest(size, offsets);
+}
+
+TEST_F(FileSEGYRead, FileReadRandomTraceWPrmZeroNt)
+{
+    nt = 0;
+    ns = 10;
+    size_t size = nt;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, 10U, 1337);
+    readRandomTraceWPrmTest(size, offsets);
+}
+
 TEST_F(FileSEGYRead, FileReadTraceZeroNs)
 {
     nt = 10;
@@ -171,4 +226,26 @@ TEST_F(FileSEGYRead, FileReadTraceWPrmZeroNs)
     makeMockSEGY<false, false>();
     initTrBlock();
     readTraceWPrmTest(10, nt);
+}
+
+TEST_F(FileSEGYRead, FileReadRandomTraceZeroNs)
+{
+    nt = 10;
+    ns = 0;
+    size_t size = 5U;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, nt, 1337);
+    readRandomTraceTest(size, offsets);
+}
+
+TEST_F(FileSEGYRead, FileReadRandomTraceWPrmZeroNs)
+{
+    nt = 10;
+    ns = 0;
+    size_t size = 5U;
+    makeMockSEGY<false>();
+    initTrBlock();
+    auto offsets = getRandomVec(size, nt, 1337);
+    readRandomTraceWPrmTest(size, offsets);
 }
