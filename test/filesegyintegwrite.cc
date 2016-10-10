@@ -56,12 +56,28 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)
     writeTraceTest<false>(0, nt);
 }
 
+TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmNormal)
+{
+    nt = 100;
+    ns = 300;
+    makeSEGY<true>(tempFile);
+    writeTraceWPrmTest<false>(0, nt);
+}
+
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormalOpt)
 {
     nt = 100;
     ns = 300;
     makeSEGY<true, true>(tempFile);
     writeTraceTest<false>(0, nt);
+}
+
+TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmNormalOpt)
+{
+    nt = 100;
+    ns = 300;
+    makeSEGY<true, true>(tempFile);
+    writeTraceWPrmTest<false>(0, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceBigNs)
@@ -72,12 +88,28 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceBigNs)
     writeTraceTest<false>(10, nt);
 }
 
+TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmBigNs)
+{
+    nt = 100;
+    ns = 10000;
+    makeSEGY<true>(tempFile);
+    writeTraceWPrmTest<false>(10, nt);
+}
+
 TEST_F(FileSEGYIntegWrite, FileWriteTraceBigOffset)
 {
     nt = 10;
     ns = 3000;
     makeSEGY<true>(tempFile);
     writeTraceTest<false>(3728270, nt);
+}
+
+TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmBigOffset)
+{
+    nt = 10;
+    ns = 3000;
+    makeSEGY<true>(tempFile);
+    writeTraceWPrmTest<false>(3728270, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FarmFileWriteTraceBigNt)
@@ -88,12 +120,28 @@ TEST_F(FileSEGYIntegWrite, FarmFileWriteTraceBigNt)
     writeTraceTest<false>(0, nt);
 }
 
+TEST_F(FileSEGYIntegWrite, FarmFileWriteTraceWPrmBigNt)
+{
+    nt = 3728270;
+    ns = 300;
+    makeSEGY<true>(tempFile);
+    writeTraceWPrmTest<false>(0, nt);
+}
+
 TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNt)
 {
     nt = 0;
     ns = 10;
     makeSEGY<true>(tempFile);
     writeTraceTest<false>(10, nt);
+}
+
+TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmZeroNt)
+{
+    nt = 0;
+    ns = 10;
+    makeSEGY<true>(tempFile);
+    writeTraceWPrmTest<false>(10, nt);
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNs)
@@ -104,3 +152,10 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceZeroNs)
     writeTraceTest<false>(10, nt);
 }
 
+TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmZeroNs)
+{
+    nt = 10;
+    ns = 0;
+    makeSEGY<true>(tempFile);
+    writeTraceWPrmTest<false>(10, nt);
+}

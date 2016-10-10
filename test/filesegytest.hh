@@ -90,12 +90,12 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t, const uchar *));
 
-#warning Not covered yet.
     MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t, const uchar *));
     MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t, const uchar *));
 
+#warning Not covered yet.
     MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t *, uchar *));
     MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t *, const uchar *));
 
@@ -380,6 +380,39 @@ struct FileSEGYTest : public Test
     }
 
     template <bool MOCK = true>
+    void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
+    {
+        ASSERT_EQ( tn, offset.size() );
+        std::vector<uchar> buf;
+        if (MOCK)
+        {
+            if (mock == nullptr)
+            {
+                std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
+                return;
+            }
+            if (tn * ns)
+            {
+                buf.resize(tn * SEGSz::getDFSz(ns));
+                for (size_t i = 0U; i < tn; i++)
+                    for (size_t j = 0U; j < ns; j++)
+                    {
+                        float val = offset[i] + i + j;
+                        getBigEndian(toint(val), &buf[(i*ns+j)*sizeof(float)]);
+                    }
+                EXPECT_CALL(*mock, readDODF(ns, tn, offset.data(), _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
+            }
+        }
+
+        std::vector<float> bufnew(tn * ns);
+        file->readTrace(tn, offset.data(), bufnew.data(), NULL);
+        for (size_t i = 0U; i < tn; i++)
+            for (size_t j = 0U; j < ns; j++)
+                ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + i + j)) << "Trace Number: " << i << " " << j;
+    }
+
+    template <bool MOCK = true>
     void readTraceWPrmTest(csize_t offset, size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
@@ -414,8 +447,8 @@ struct FileSEGYTest : public Test
         for (size_t i = 0U; i < tnRead; i++) {
             if ( tnRead * ns )
             {
-                ASSERT_EQ(ilNum(i+offset), prm[i].line.il);
-                ASSERT_EQ(xlNum(i+offset), prm[i].line.xl);
+                ASSERT_EQ(ilNum(i+offset), prm[i].line.il) << "Trace Number " << i << " offset " << offset;
+                ASSERT_EQ(xlNum(i+offset), prm[i].line.xl) << "Trace Number " << i << " offset " << offset;
 
                 ASSERT_DOUBLE_EQ(xNum(i+offset), prm[i].src.x);
                 ASSERT_DOUBLE_EQ(yNum(i+offset), prm[i].src.y);
@@ -478,10 +511,10 @@ struct FileSEGYTest : public Test
                 buf.resize(tn * SEGSz::getDOSz(ns));
                 for (size_t i = 0; i < tn; i++)
                 {
-                    coord_t src = coord_t(ilNum(i+1), xlNum(i+5));
-                    coord_t rcv = coord_t(ilNum(i+2), xlNum(i+6));
-                    coord_t cmp = coord_t(ilNum(i+3), xlNum(i+7));
-                    grid_t line = grid_t(ilNum(i+4), xlNum(i+8));
+                    coord_t src = coord_t(xNum(offset+i), yNum(offset+i));
+                    coord_t rcv = coord_t(xNum(offset+i), yNum(offset+i));
+                    coord_t cmp = coord_t(xNum(offset+i), yNum(offset+i));
+                    grid_t line = grid_t(ilNum(offset+i), xlNum(offset+i));
 
                     int16_t scale = scalComp(1, calcScale(src));
                     scale = scalComp(scale, calcScale(rcv));
@@ -510,10 +543,10 @@ struct FileSEGYTest : public Test
         std::vector<float> bufnew(tn * ns);
         for (size_t i = 0U; i < tn; i++)
         {
-            prm[i].src = coord_t(ilNum(i+1), xlNum(i+5));
-            prm[i].rcv = coord_t(ilNum(i+2), xlNum(i+6));
-            prm[i].cmp = coord_t(ilNum(i+3), xlNum(i+7));
-            prm[i].line = grid_t(ilNum(i+4), xlNum(i+8));
+            prm[i].src = coord_t(xNum(offset+i), yNum(offset+i));
+            prm[i].rcv = coord_t(xNum(offset+i), yNum(offset+i));
+            prm[i].cmp = coord_t(xNum(offset+i), yNum(offset+i));
+            prm[i].line = grid_t(ilNum(offset+i), xlNum(offset+i));
             prm[i].tn = offset + i;
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset + i + j);

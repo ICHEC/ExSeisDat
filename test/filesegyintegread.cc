@@ -30,12 +30,28 @@ TEST_F(FileSEGYIntegRead, FileReadTraceSmall)
     readTraceTest<false>(0, nt);
 }
 
+TEST_F(FileSEGYIntegRead, FileReadTraceWPrmSmall)
+{
+    nt = smallnt;
+    ns = smallns;
+    makeSEGY<false>(smallSEGYFile);
+    readTraceWPrmTest<false>(0, nt);
+}
+
 TEST_F(FileSEGYIntegRead, FileReadTraceSmallOpts)
 {
     nt = smallnt;
     ns = smallns;
     makeSEGY<false, true>(smallSEGYFile);
     readTraceTest<false>(0, nt);
+}
+
+TEST_F(FileSEGYIntegRead, FileReadTraceWPrmSmallOpts)
+{
+    nt = smallnt;
+    ns = smallns;
+    makeSEGY<false, true>(smallSEGYFile);
+    readTraceWPrmTest<false>(0, nt);
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceBigNS)
@@ -46,12 +62,28 @@ TEST_F(FileSEGYIntegRead, FileReadTraceBigNS)
     readTraceTest<false>(10, nt);
 }
 
+TEST_F(FileSEGYIntegRead, FileReadTraceWPrmBigNS)
+{
+    nt = 200;
+    ns = bigtns;
+    makeSEGY<false>(bigTraceSEGYFile);
+    readTraceWPrmTest<false>(10, nt);
+}
+
 TEST_F(FileSEGYIntegRead, FileReadTraceBigOffset)
 {
     nt = 10;
     ns = largens;
     makeSEGY<false>(largeSEGYFile);
     readTraceTest<false>(1999990U, nt);
+}
+
+TEST_F(FileSEGYIntegRead, FileReadTraceWPrmBigOffset)
+{
+    nt = 10;
+    ns = largens;
+    makeSEGY<false>(largeSEGYFile);
+    readTraceWPrmTest<false>(1999990U, nt);
 }
 
 TEST_F(FileSEGYIntegRead, FarmFileReadTraceBigNt)
@@ -62,11 +94,27 @@ TEST_F(FileSEGYIntegRead, FarmFileReadTraceBigNt)
     readTraceTest<false>(0, nt);
 }
 
+TEST_F(FileSEGYIntegRead, FarmFileReadTraceWPrmBigNt)
+{
+    nt = largent;
+    ns = largens;
+    makeSEGY<false>(largeSEGYFile);
+    readTraceWPrmTest<false>(0, nt);
+}
+
 TEST_F(FileSEGYIntegRead, FileReadTraceZeroNt)
 {
     nt = 0U;
     ns = largens;
     makeSEGY<false>(largeSEGYFile);
     readTraceTest<false>(10, nt);
+}
+
+TEST_F(FileSEGYIntegRead, FileReadTraceWPrmZeroNt)
+{
+    nt = 0U;
+    ns = largens;
+    makeSEGY<false>(largeSEGYFile);
+    readTraceWPrmTest<false>(10, nt);
 }
 

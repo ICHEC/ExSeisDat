@@ -127,6 +127,18 @@ TEST_F(FileSEGYRead, FarmFileReadTraceWPrmBigNt)
     readTraceWPrmTest(0, nt);
 }
 
+TEST_F(FileSEGYRead, FarmFileReadRandomTraceBigNt)
+{
+    nt = 3728270;
+    ns = 300;
+    makeMockSEGY<false>();
+    initTrBlock();
+    std::vector<size_t> offsets(10);
+    for ( size_t i=0; i<10; i++)
+        offsets.push_back(i);
+    readRandomTraceTest(10, offsets);
+}
+
 TEST_F(FileSEGYRead, FileReadTraceZeroNt)
 {
     nt = 0;
