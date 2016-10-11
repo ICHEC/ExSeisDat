@@ -16,6 +16,11 @@
 #include "data/data.hh"
 
 namespace PIOL { namespace Data {
+/*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
+ */
+template <typename U>
+using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *)>;
+
 /*! \brief The MPI-IO Data class.
  */
 class MPIIO : public Interface
@@ -63,6 +68,9 @@ class MPIIO : public Interface
      *  \param[in] mode The filemode
      */
     void Init(const MPIIO::Opt & opt, FileMode mode);
+
+
+    void ColIO(MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const;
 
     public :
 
@@ -118,6 +126,8 @@ class MPIIO : public Interface
      *  \param[out] d     The array to store the output in
      */
     void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const;
+//TODO: Document
+    void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const;
 
     /*! \brief Write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer

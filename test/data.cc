@@ -43,6 +43,7 @@ struct FakeData : public Data::Interface
     void setFileSz(csize_t sz) const {}
     void write(csize_t offset, csize_t sz, const uchar * d) const {}
     void write(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, const uchar * d) const {}
+    void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const {}
 };
 #pragma GCC diagnostic pop
 

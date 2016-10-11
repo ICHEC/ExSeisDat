@@ -68,6 +68,8 @@ class Interface
      *  \param[out] d     The array to store the output in
      */
     virtual void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const = 0;
+//TODO: Document
+    virtual void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const = 0;
 
     /*! \brief Pure virtual function to write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer

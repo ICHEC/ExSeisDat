@@ -126,6 +126,20 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
     return MPI_File_write_at(f, o, d, s, da, st);
 }
 
+/*! \brief This function exists to hide the const from the MPI_File_write_at_all function signature
+ *  \param[in] f The MPI file handle
+ *  \param[in] o The offset in bytes from the current internal shared pointer
+ *  \param[in] d The array to read data output from
+ *  \param[in] s The amount of data to write to disk in terms of datatypes
+ *  \param[in] da The MPI datatype
+ *  \param[in] st The MPI status structure
+ *  \return Returns the associated MPI error code.
+ */
+int mpiio_write_at_all(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st)
+{
+    return MPI_File_write_at_all(f, o, d, s, da, st);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -343,12 +357,8 @@ int cio(const MFp<U> fn, Comm::Interface * comm, const MPI_File & file, csize_t 
     return err;
 }
 
-void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
+void MPIIO::ColIO(MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
 {
-    if (bsz > getFabricPacketSz())
-        for (size_t i = 0; i < sz; i++)
-            read(offset[i], bsz, d);
-
     size_t num = maxSize / bsz;
 
     std::vector<size_t> sizes = {sz};
@@ -367,7 +377,7 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
             return;
 
         MPI_Status arg;
-        MPI_File_read_at_all(file, i*bsz, &d[i*bsz], chunk*bsz, MPI_CHAR, &arg);
+        fn(file, i*bsz, &d[i*bsz], chunk*bsz, MPI_CHAR, &arg);
         printErr(log, name, Log::Layer::Data, err, &arg, " read_at Failure\n");
         if (err != MPI_SUCCESS)
             return;
@@ -379,8 +389,27 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
 
     if (remCall)
         for (size_t i = 0; i < remCall; i++)
-            MPI_File_read_at_all(file, 0, NULL, 0, MPI_CHAR, NULL);
+            fn(file, 0, NULL, 0, MPI_CHAR, NULL);
 }
+
+void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
+{
+    if (bsz > getFabricPacketSz())
+        for (size_t i = 0; i < sz; i++)
+            read(offset[i], bsz, d);
+
+    ColIO(MPI_File_read_at_all, bsz, sz, offset, d);
+}
+
+void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
+{
+    if (bsz > getFabricPacketSz())
+        for (size_t i = 0; i < sz; i++)
+            write(offset[i], bsz, d);
+
+    ColIO(mpiio_write_at_all, bsz, sz, offset, const_cast<uchar *>(d));
+}
+
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
 {

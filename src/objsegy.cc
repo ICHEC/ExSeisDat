@@ -81,9 +81,10 @@ void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
 
 void SEGY::writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const
 {
-    size_t dosz = SEGSz::getDOSz(ns);
+    std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
-        data->write(SEGSz::getDOLoc(offset[i], ns), dosz, &d[i*dosz]);
+        dooff[i] = SEGSz::getDOLoc(offset[i], ns);
+    data->write(SEGSz::getDOSz(ns), sz, dooff.data(), d);
 }
 
 void SEGY::readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const
@@ -96,9 +97,10 @@ void SEGY::readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const
 
 void SEGY::writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const
 {
-    size_t mdsz = SEGSz::getMDSz();
+    std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
-        data->write(SEGSz::getDOLoc(offset[i], ns), mdsz, &md[i*mdsz]);
+        dooff[i] = SEGSz::getDOLoc(offset[i], ns);
+    data->write(SEGSz::getMDSz(), sz, dooff.data(), md);
 }
 
 void SEGY::readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const
@@ -115,8 +117,9 @@ void SEGY::writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df)
 {
     if (ns == 0)
         return;
-    size_t dfsz = SEGSz::getDFSz(ns);
+    std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
-        data->write(SEGSz::getDODFLoc(offset[i], ns), dfsz, &df[i*dfsz]);
+        dooff[i] = SEGSz::getDODFLoc(offset[i], ns);
+    data->write(SEGSz::getDFSz(ns), sz, dooff.data(), df);
 }
 }}

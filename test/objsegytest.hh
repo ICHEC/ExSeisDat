@@ -31,6 +31,7 @@ class MockData : public Data::Interface
     MOCK_CONST_METHOD4(read, void(csize_t, csize_t, csize_t *, uchar *));
     MOCK_CONST_METHOD3(write, void(csize_t, csize_t, const uchar *));
     MOCK_CONST_METHOD5(write, void(csize_t, csize_t, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(write, void(csize_t, csize_t, csize_t *, const uchar *));
     // TODO: This method is not tested
     MOCK_CONST_METHOD1(setFileSz, void(csize_t));
 };
@@ -301,7 +302,7 @@ class ObjTest : public Test
                 }
 
             if (Type != Block::DODF || bsz > 0)
-            EXPECT_CALL(*mock, read(bsz, nt, _, _))
+                EXPECT_CALL(*mock, read(bsz, nt, _, _))
                                .WillOnce(SetArrayArgument<3>(tr.begin(), tr.end()))
                                .RetiresOnSaturation();
 
@@ -360,15 +361,10 @@ class ObjTest : public Test
                     size_t pos = locFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
-            {
-                InSequence s;
-
-                if (Type != Block::DODF || bsz > 0)
-                for (size_t i = 0; i < nt; i++)
-                    EXPECT_CALL(*mock, write(locFunc(offset[i], ns), bsz, _))
-                          .WillOnce(check2(tr.data()+i*bsz, bsz))
-                          .RetiresOnSaturation();
-            }
+            if (Type != Block::DODF || bsz > 0)
+                EXPECT_CALL(*mock, write(bsz, nt, _, _))
+                               .WillOnce(check3(tr.data(), step))
+                               .RetiresOnSaturation();
         }
 
         for (size_t i = 0U; i < nt; i++)
