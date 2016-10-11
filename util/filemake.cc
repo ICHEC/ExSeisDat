@@ -11,6 +11,10 @@ void FileMake(const std::string name, size_t max, size_t ns, size_t nt, geom_t i
 {
     ExSeis piol;
     File::Direct file(piol, name, FileMode::Write);
+
+    std::cout << "DEBUG here " << piol.getRank() << std::endl;
+    piol.barrier();
+
     piol.isErr();
     file.writeNs(ns);
     file.writeNt(nt);
@@ -60,6 +64,8 @@ int main(int argc, char ** argv)
     size_t max = 0;
     geom_t inc = 0.0;
 
+    if (argc <= 1)
+        std::cout << "Options: filemake -o \"name.segy\" -s <ns> -t <nt> -m <mem(MiB)> -i <inc>\n";
     //TODO document these arguments
     // o output file
     // s number of samples

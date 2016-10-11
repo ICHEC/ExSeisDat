@@ -20,46 +20,6 @@ namespace PIOL { namespace Data {
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
- */
-template <typename U>
-using MFp = std::function<int(MPI_File, MPI_Offset, void *, int, MPI_Datatype, U *)>;
-
-/*! \brief The MPI-IO template function for dealing with
- *  integer limits for reading and writing in MPI-IO.
- *  \tparam U The type of the last argument of MPI_File_...
- *  \param[in] fn Function pointer to the MPI function.
- *  \param[in] file The MPI File
- *  \param[in] offset The offset from the current shared ptr
- *  \param[in] sz The number of elements to read or write
- *  \param[in] arg The last argument of the MPI_File_... function
- *  \param[in] max The maximum size to read or write at once
- *  \param[in] bsz    The size of a block in bytes (default 1U)
- *  \param[in] osz    The number of bytes between the \c start of blocks (default 1U)
- *  \param[out] d The array to read into or from
- *  \return Returns the MPI error code. MPI_SUCCESS for success,
- *  MPI_ERR_IN_STATUS means the status structure should be checked.
- *
- * This function does not currently take into account collective MPI calls
- * which would have issues with the number of operations being the same for each process
- */
-int io(const MFp<MPI_Status> fn, const MPI_File & file, csize_t offset, csize_t sz, MPI_Status & arg,
-                                               size_t max, uchar * d, csize_t bsz = 1U, csize_t osz = 1U)
-{
-    int err = MPI_SUCCESS;
-
-    max /= osz;
-    csize_t q = sz / max;
-    csize_t r = sz % max;
-
-    for (size_t i = 0U; i < q && err == MPI_SUCCESS; i++)
-        err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<uchar>(), &arg);
-
-    if (r)
-        err = fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<uchar>(), &arg);
-    return err;
-}
-
 /*! Set a view on a file so that a read of blocks separated by (stride-block) bytes appears contiguous
  *  \param[in] file The MPI-IO file handle
  *  \param[in] info The info structure to use
@@ -138,6 +98,27 @@ int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, M
 int mpiio_write_at_all(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st)
 {
     return MPI_File_write_at_all(f, o, d, s, da, st);
+}
+
+//random list I/O
+int ior(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chunk, const MPI_Aint * offset, uchar * d, MPI_Status * stat)
+{
+    //Set a view so that MPI_File_read... functions only see contiguous data.
+    MPI_Datatype type;
+    int err = randBlockView(file, info, chunk, bsz, offset, &type);
+    if (err != MPI_SUCCESS)
+        return err;
+
+    fn(file, 0, d, chunk*bsz, MPI_CHAR, stat);
+    if (err != MPI_SUCCESS)
+        return err;
+
+    //Reset the view.
+    err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
+    if (err != MPI_SUCCESS)
+        return err;
+
+    return MPI_Type_free(&type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +246,7 @@ size_t MPIIO::getFileSz() const
 
 void MPIIO::setFileSz(csize_t sz) const
 {
-    if ((fcomm == MPI_COMM_SELF && !piol->comm->getRank()) || fcomm != MPI_COMM_SELF)
+//    if ((fcomm == MPI_COMM_SELF && !piol->comm->getRank()) || fcomm != MPI_COMM_SELF)
     {
         //int err = MPI_File_preallocate(file, MPI_Offset(sz));
         int err = MPI_File_set_size(file, MPI_Offset(sz));
@@ -275,9 +256,7 @@ void MPIIO::setFileSz(csize_t sz) const
 
 void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
 {
-    MPI_Status arg;
-    int err = io(MPI_File_read_at, file, offset, sz, arg, maxSize, d);
-    printErr(log, name, Log::Layer::Data, err, &arg, " non-collective read Failure\n");
+    contigIO(MPI_File_read_at_all, offset, sz, d, " non-collective read Failure\n");
 }
 
 void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
@@ -295,11 +274,9 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-//    read(0U, nb*bsz, d);
-
-    MPI_Status arg;
-    MPI_File_read_at(file, 0, d, nb*bsz, MPI_CHAR, &arg);
-    printErr(log, name, Log::Layer::Data, err, &arg, " read_at Failure\n");
+    MPI_Status stat;
+    MPI_File_read_at_all(file, 0, d, nb*bsz, MPI_CHAR, &stat);
+    printErr(log, name, Log::Layer::Data, err, &stat, " read_at Failure\n");
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
@@ -327,69 +304,80 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
         };
 #pragma GCC diagnostic pop
 
+    contigIO(viewIO, offset, nb, d, "Failed to read data over the integer limit.", bsz, osz);
+}
+
+
+/*! \brief The MPI-IO template function for dealing with
+ *  integer limits for reading and writing in MPI-IO.
+ *  \param[in] fn Function pointer to the MPI function.
+ *  \param[in] offset The offset from the current shared ptr
+ *  \param[in] sz The number of elements to read or write
+ *  \param[in] msg A message to be printed in the case of an error
+ *  \param[in] bsz    The size of a block in bytes (default 1U)
+ *  \param[in] osz    The number of bytes between the \c start of blocks (default 1U)
+ *  \param[out] d The array to read into or from
+ *  \return Returns the MPI error code. MPI_SUCCESS for success,
+ *  MPI_ERR_IN_STATUS means the status structure should be checked.
+ *
+ * This function does not currently take into account collective MPI calls
+ * which would have issues with the number of operations being the same for each process
+ */
+void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
+                    uchar * d, std::string msg, csize_t bsz, csize_t osz) const
+{
+    const bool Coll = true;   //This can be exposed as a parameter
     MPI_Status stat;
-    int err = io(viewIO, file, offset, nb, stat, maxSize, d, bsz, osz);
-    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
-}
-
-template <typename U = MPI_Status>
-int cio(const MFp<U> fn, Comm::Interface * comm, const MPI_File & file, csize_t offset, csize_t sz, U & arg,
-                                               size_t max, uchar * d, csize_t bsz = 1U, csize_t osz = 1U)
-{
     int err = MPI_SUCCESS;
-
-    max /= osz;
-    csize_t q = sz / max;
-    csize_t r = sz % max;
-
-    std::vector<size_t> sizes = {sz};
-    auto vec = comm->gather(sizes);
-    auto remCall = *std::max_element(vec.begin(), vec.end());
-    remCall = remCall / max + (remCall % max > 0) -  q - (r > 0);
-
-    for (size_t i = 0U; i < q && err == MPI_SUCCESS; i++)
-        err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<uchar>(), &arg);
-    if (r)
-        err = fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<uchar>(), &arg);
-
-    for (size_t i = 0U; i < remCall; i++)
-        err = fn(file, 0LL, NULL, 0, MPIType<uchar>(), &arg);
-    return err;
-}
-
-void MPIIO::ColIO(MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
-{
-    size_t num = maxSize / bsz;
-
-    std::vector<size_t> sizes = {sz};
-    auto vec = piol->comm->gather(sizes);
-    auto remCall = *std::max_element(vec.begin(), vec.end());
-    remCall = remCall / maxSize + (remCall % maxSize > 0) -  (sz / num) - (sz % num > 0);
-
-    for (size_t i = 0; i < sz; i += num)
+    size_t max = maxSize / osz;
+    size_t remCall = 0;
+    if (Coll)
     {
-        size_t chunk = std::min(sz - i, num);
-        //Set a view so that MPI_File_read... functions only see contiguous data.
-        MPI_Datatype type;
-        int err = randBlockView(file, info, chunk, bsz, reinterpret_cast<const MPI_Aint *>(&offset[i]), &type);
-        printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a hindexed_block view for reading.");
-        if (err != MPI_SUCCESS)
-            return;
-
-        MPI_Status arg;
-        fn(file, i*bsz, &d[i*bsz], chunk*bsz, MPI_CHAR, &arg);
-        printErr(log, name, Log::Layer::Data, err, &arg, " read_at Failure\n");
-        if (err != MPI_SUCCESS)
-            return;
-
-        //Reset the view.
-        MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
-        MPI_Type_free(&type);
+        std::vector<size_t> sizes = {sz};
+        auto vec = piol->comm->gather(sizes);
+        remCall = *std::max_element(vec.begin(), vec.end());
+        remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
     }
 
-    if (remCall)
-        for (size_t i = 0; i < remCall; i++)
-            fn(file, 0, NULL, 0, MPI_CHAR, NULL);
+    for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += max)
+    {
+        size_t chunk = std::min(sz - i, max);
+        err = fn(file, MPI_Offset(offset + osz*i), &d[bsz*i], chunk, MPIType<uchar>(), &stat);
+    }
+
+    if (Coll && remCall)
+        for (size_t i = 0; i < remCall && err == MPI_SUCCESS; i++)
+            err = fn(file, 0, NULL, 0, MPI_CHAR, &stat);
+    printErr(log, name, Log::Layer::Data, err, &stat, msg);
+}
+
+//Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
+void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
+{
+    const bool Coll = true;   //This can be exposed as a parameter
+    size_t num = maxSize / bsz;
+
+    size_t remCall = 0;
+    if (Coll)
+    {
+        std::vector<size_t> sizes = {sz};
+        auto vec = piol->comm->gather(sizes);
+        remCall = *std::max_element(vec.begin(), vec.end());
+        remCall = remCall / maxSize + (remCall % maxSize > 0) -  (sz / num) - (sz % num > 0);
+    }
+
+    int err = MPI_SUCCESS;
+    MPI_Status stat;
+    for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += num)
+    {
+        size_t chunk = std::min(sz - i, num);
+        err = ior(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
+    }
+
+    if (Coll && remCall)
+        for (size_t i = 0; i < remCall && err == MPI_SUCCESS; i++)
+            err = fn(file, 0, NULL, 0, MPI_CHAR, NULL);
+    printErr(log, name, Log::Layer::Data, err, &stat, msg);
 }
 
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
@@ -398,7 +386,7 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
         for (size_t i = 0; i < sz; i++)
             read(offset[i], bsz, d);
 
-    ColIO(MPI_File_read_at_all, bsz, sz, offset, d);
+    randomIO(MPI_File_read_at_all, bsz, sz, offset, d, "random read failure");
 }
 
 void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
@@ -407,9 +395,8 @@ void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) co
         for (size_t i = 0; i < sz; i++)
             write(offset[i], bsz, d);
 
-    ColIO(mpiio_write_at_all, bsz, sz, offset, const_cast<uchar *>(d));
+    randomIO(mpiio_write_at_all, bsz, sz, offset, const_cast<uchar *>(d), "random write failure");
 }
-
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
 {
@@ -435,9 +422,7 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
 
 void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
 {
-    MPI_Status arg;
-    int err = io(mpiio_write_at, file, offset, sz, arg, maxSize, const_cast<uchar *>(d));
-    printErr(log, name, Log::Layer::Data, err, &arg, "Non-collective write failure.");
+    contigIO(mpiio_write_at_all, offset, sz, const_cast<uchar *>(d), "Non-collective write failure.");
 }
 
 void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
@@ -460,8 +445,6 @@ void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uc
         };
 #pragma GCC diagnostic pop
 
-    MPI_Status stat;
-    int err = io(viewIO, file, offset, nb, stat, maxSize, const_cast<uchar *>(d), bsz, osz);
-    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
+    contigIO(viewIO, offset, nb, const_cast<uchar *>(d), "Failed to read data over the integer limit.", bsz, osz);
 }
 }}

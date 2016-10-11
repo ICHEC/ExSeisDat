@@ -252,12 +252,18 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]);
 
+/*
     if (offset + sz >= nt)
     {
         if (state.resize == true)
             state.resize = false;
         nt = std::max(offset + sz, nt);
-    }
+    }*/
+}
+
+size_t updateNt(size_t newNt, bool needResize)
+{
+
 }
 
 //TODO: Unit test
@@ -303,12 +309,12 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 
     obj->writeDOMD(offset, ns, sz, buf.data());
 
-    if (offset + sz > nt)
+/*    if (offset + sz > nt)
     {
         //There is probably a mismatch between desired nt size and actual
         state.resize = true;
         nt = offset + sz;
-    }
+    }*/
 }
 
 void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
@@ -377,7 +383,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]);
 
-    size_t max = 0;
+/*    size_t max = 0;
     for (size_t i = 0; i < sz; i++)
         max = std::max(offset[i], max);
     if (max + sz > nt)
@@ -385,7 +391,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
         //There is probably a mismatch between desired nt size and actual
         state.resize = false;
         nt = max + sz;
-    }
+    }*/
 }
 
 void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
@@ -416,12 +422,13 @@ void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 
     obj->writeDOMD(ns, sz, offset, buf.data());
 
-    if (max + sz > nt)
+    updateNt(max+sz, true);
+/*    if (max + sz > nt)
     {
         //There is probably a mismatch between desired nt size and actual
         state.resize = true;
         nt = max + sz;
-    }
+    }*/
 }
 
 void SEGY::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
@@ -433,10 +440,10 @@ void SEGY::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
             "readTraceParam() was called for a zero byte read", Log::Verb::None);
         return;
     }
-    std::vector<uchar> buf(SEGSz::getMDSz() * nt);
-    obj->readDOMD(ns, nt, offset, buf.data());
+    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+    obj->readDOMD(ns, sz, offset, buf.data());
 
-    for (size_t i = 0; i < nt; i++)
+    for (size_t i = 0; i < sz; i++)
         extractTraceParam(&buf[i * SEGSz::getMDSz()], &prm[i]);
 }
 }}
