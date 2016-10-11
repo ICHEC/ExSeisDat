@@ -82,7 +82,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceWPrmNormal)
     nt = 100;
     ns = 300;
     makeMockSEGY<true, false>();
-    writeTraceWPrmTest(0U, nt);
+    writeTraceTest<true>(0U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteRandomTraceNormal)
@@ -102,7 +102,7 @@ TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmNormal)
     size_t size = 1U;
     auto offsets = getRandomVec(size, nt, 1337);
     makeMockSEGY<true, false>();
-    writeRandomTraceWPrmTest(size, offsets);
+    writeRandomTraceTest<true>(size, offsets);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceBigNs)
@@ -128,7 +128,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceWPrmBigNs)
     nt = 100;
     ns = 10000;
     makeMockSEGY<true, false>();
-    writeTraceWPrmTest(10U, nt);
+    writeTraceTest<true>(10U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmBigNs)
@@ -138,7 +138,7 @@ TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmBigNs)
     size_t size = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeMockSEGY<true, false>();
-    writeRandomTraceWPrmTest(size, offsets);
+    writeRandomTraceTest<true>(size, offsets);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceBigOffset)
@@ -165,7 +165,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceWPrmBigOffset)
     nt = 3000;
     ns = 3000;
     makeMockSEGY<true, false>();
-    writeTraceWPrmTest(3728270U, nt);
+    writeTraceTest<true>(3728270U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmBigOffset)
@@ -176,7 +176,7 @@ TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmBigOffset)
     auto offsets = std::vector<size_t>(size);
     offsets[0] = 3001;
     makeMockSEGY<true, false>();
-    writeRandomTraceWPrmTest(size, offsets);
+    writeRandomTraceTest<true>(size, offsets);
 }
 
 TEST_F(FileSEGYWrite, FarmFileWriteTraceBigNt)
@@ -202,7 +202,7 @@ TEST_F(FileSEGYWrite, FarmFileWriteTraceWPrmBigNt)
     nt = 3728270;
     ns = 300;
     makeMockSEGY<true, false>();
-    writeTraceWPrmTest(0U, nt);
+    writeTraceTest<true>(0U, nt);
 }
 
 TEST_F(FileSEGYWrite, FarmFileWriteRandomTraceWPrmBigNt)
@@ -212,7 +212,7 @@ TEST_F(FileSEGYWrite, FarmFileWriteRandomTraceWPrmBigNt)
     size_t size = nt/2;
     auto offsets = getRandomVec(size, nt, 1337);
     makeMockSEGY<true, false>();
-    writeRandomTraceWPrmTest(size, offsets);
+    writeRandomTraceTest<true>(size, offsets);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceZeroNt)
@@ -238,7 +238,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceWPrmZeroNt)
     nt = 0;
     ns = 10;
     makeMockSEGY<true, false>();
-    writeTraceWPrmTest(10U, nt);
+    writeTraceTest<true>(10U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmZeroNt)
@@ -248,7 +248,7 @@ TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmZeroNt)
     size_t size = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeMockSEGY<true, false>();
-    writeRandomTraceWPrmTest(size, offsets);
+    writeRandomTraceTest<true>(size, offsets);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceZeroNs)
@@ -274,7 +274,7 @@ TEST_F(FileSEGYWrite, FileWriteTraceWPrmZeroNs)
     nt = 10;
     ns = 0;
     makeMockSEGY<true, false>();
-    writeTraceWPrmTest(10U, nt);
+    writeTraceTest<true>(10U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmZeroNs)
@@ -284,7 +284,7 @@ TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmZeroNs)
     size_t size = 10U;
     auto offsets = getRandomVec(size, nt, 1337);
     makeMockSEGY<true, false>();
-    writeRandomTraceWPrmTest(size, offsets);
+    writeRandomTraceTest<true>(size, offsets);
 }
 
 TEST_F(FileSEGYWrite, FileWriteTraceParam)
