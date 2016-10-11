@@ -153,7 +153,7 @@ class ObjTest : public Test
     template <Block Type, bool MOCK = true>
     void readTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
-        SCOPED_TRACE("readTest " + std::to_string(size_t(Block::DOMD)));
+        SCOPED_TRACE("readTest " + std::to_string(size_t(Type)));
         if (MOCK && mock == nullptr)
         {
             std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
@@ -219,7 +219,7 @@ class ObjTest : public Test
     template <Block Type, bool MOCK = true>
     void writeTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
     {
-        SCOPED_TRACE("writeTest " + std::to_string(size_t(Block::DOMD)));
+        SCOPED_TRACE("writeTest " + std::to_string(size_t(Type)));
 
         const size_t extra = 20U;
         size_t bsz = (Type == Block::DOMD ? SEGSz::getMDSz() : (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
@@ -276,7 +276,7 @@ class ObjTest : public Test
     template <Block Type, bool MOCK = true>
     void readRandomTest(csize_t ns, const std::vector<size_t> & offset, uchar magic = 0)
     {
-        SCOPED_TRACE("readRandomTest " + std::to_string(size_t(Block::DOMD)));
+        SCOPED_TRACE("readRandomTest " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
         if (MOCK && mock == nullptr)
         {
@@ -300,16 +300,11 @@ class ObjTest : public Test
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
 
-            {
-                InSequence s;
-                for (size_t i = 0; i < nt; i++)
-                    EXPECT_CALL(*mock, read(locFunc(offset[i], ns), bsz, _))
-                            .WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz))
-                            .RetiresOnSaturation();
-            }
-            //for (size_t i = 0; i < nt; i++)
-//                EXPECT_CALL(*mock, read(locFunc(offset[i], ns), bsz, _))
-//                            .WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
+            if (Type != Block::DODF || bsz > 0)
+            EXPECT_CALL(*mock, read(bsz, nt, _, _))
+                               .WillOnce(SetArrayArgument<3>(tr.begin(), tr.end()))
+                               .RetiresOnSaturation();
+
         }
 
         for (size_t i = 0U; i < extra; i++)
@@ -329,7 +324,6 @@ class ObjTest : public Test
             break;
         }
 
-        Mock::VerifyAndClearExpectations(&mock);
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++, tcnt++)
@@ -348,7 +342,7 @@ class ObjTest : public Test
     template <Block Type, bool MOCK = true>
     void writeRandomTest(csize_t ns, const std::vector<size_t> & offset, uchar magic = 0)
     {
-        SCOPED_TRACE("writeRandomTest " + std::to_string(size_t(Block::DOMD)));
+        SCOPED_TRACE("writeRandomTest " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
         const size_t extra = 20U;
         size_t bsz = (Type == Block::DOMD ? SEGSz::getMDSz() : (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
@@ -369,6 +363,7 @@ class ObjTest : public Test
             {
                 InSequence s;
 
+                if (Type != Block::DODF || bsz > 0)
                 for (size_t i = 0; i < nt; i++)
                     EXPECT_CALL(*mock, write(locFunc(offset[i], ns), bsz, _))
                           .WillOnce(check2(tr.data()+i*bsz, bsz))
@@ -398,7 +393,6 @@ class ObjTest : public Test
                 obj->writeDO(ns, nt, offset.data(), &trnew[extra]);
             break;
         }
-        Mock::VerifyAndClearExpectations(&mock);
         if (!MOCK)
             readRandomTest<Type, MOCK>(ns, offset, magic);
     }

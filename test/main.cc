@@ -65,10 +65,14 @@ uchar getPattern(size_t i)
 std::vector<size_t> getRandomVec(size_t nt, int seed)
 {
     srand(seed);
-    std::vector<size_t> vec(nt);
-    for (auto & v : vec)
-        v = rand() % 1234567;
-    return vec;
+    if (nt == 0)
+        return std::vector<size_t>();
+
+    std::vector<size_t> v(nt);
+    v[0] = rand() % 1234;
+    for (size_t i = 1; i < nt; i++)
+        v[i] = v[i-1] + 1U + rand() % 1234U;
+    return v;
 }
 
 int main(int argc, char ** argv)

@@ -37,8 +37,8 @@ TEST_F(ObjIntegTest, SEGYWriteZeroNt)
 {
     makeRealSEGY<true>(tempFile);
     writeTest<Block::DOMD, false>(10U, 0U, 2000);
-    writeTest<Block::DODF, false>(10U, 1U, 200, 0, 13);
-    writeTest<Block::DO, false>(10U, 1U, 200, 0, 13);
+    writeTest<Block::DODF, false>(10U, 0U, 200);
+    writeTest<Block::DO, false>(10U, 0U, 200);
 }
 
 TEST_F(ObjIntegTest, SEGYWriteZeroNs)

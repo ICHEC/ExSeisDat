@@ -12,6 +12,9 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
+
+#warning here
+#include <iostream>
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -57,32 +60,6 @@ int io(const MFp<MPI_Status> fn, const MPI_File & file, csize_t offset, csize_t 
     return err;
 }
 
-
-template <typename U = MPI_Status>
-int cio(const MFp<U> fn, Comm::Interface * comm, const MPI_File & file, csize_t offset, csize_t sz, U & arg,
-                                               size_t max, uchar * d, csize_t bsz = 1U, csize_t osz = 1U)
-{
-    int err = MPI_SUCCESS;
-
-    max /= osz;
-    csize_t q = sz / max;
-    csize_t r = sz % max;
-
-    std::vector<size_t> sizes = {sz};
-    auto vec = comm->gather(sizes);
-    auto remCall = *std::max_element(vec.begin(), vec.end());
-    remCall = remCall / max + (remCall % max > 0) -  q - (r > 0);
-
-    for (size_t i = 0U; i < q && err == MPI_SUCCESS; i++)
-        err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<uchar>(), &arg);
-    if (r)
-        err = fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<uchar>(), &arg);
-
-    for (size_t i = 0U; i < remCall; i++)
-        err = fn(file, 0LL, NULL, 0, MPIType<uchar>(), &arg);
-    return err;
-}
-
 /*! Set a view on a file so that a read of blocks separated by (stride-block) bytes appears contiguous
  *  \param[in] file The MPI-IO file handle
  *  \param[in] info The info structure to use
@@ -108,21 +85,22 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
 
 int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_Aint * offset, MPI_Datatype * type)
 {
+    #ifndef HINDEXED_BLOCK_WORKS
     std::vector<int> bl(count);
     for (size_t i = 0; i < count; i++)
         bl[i] = block;
-    MPI_Type_create_hindexed(count, bl.data(), offset, MPI_CHAR, type);
-
-#ifdef BROKEN
+    int err = MPI_Type_create_hindexed(count, bl.data(), offset, MPI_CHAR, type);
+    #else
     int err = MPI_Type_create_hindexed_block(count, block, offset, MPI_CHAR, type);
-#endif
     if (err != MPI_SUCCESS)
         return err;
+    #endif
 
     err = MPI_Type_commit(type);
     if (err != MPI_SUCCESS)
         return err;
-    return MPI_File_set_view(file, 0, MPI_CHAR, *type, "native", info);
+
+    return MPI_File_set_view(file, 0, MPI_BYTE, *type, "native", info);
 }
 
 /*! The size of the fabric
@@ -199,8 +177,8 @@ int getMPIMode(FileMode mode)
         case FileMode::ReadWrite :
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
         case FileMode::Test :
-            return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_UNIQUE_OPEN;
-            //return MPI_MODE_UNIQUE_OPEN | MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_EXCL;
+            return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
+            //return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_UNIQUE_OPEN;
     }
 }
 
@@ -340,6 +318,31 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
     printErr(log, name, Log::Layer::Data, err, NULL, "Failed to read data over the integer limit.");
 }
 
+template <typename U = MPI_Status>
+int cio(const MFp<U> fn, Comm::Interface * comm, const MPI_File & file, csize_t offset, csize_t sz, U & arg,
+                                               size_t max, uchar * d, csize_t bsz = 1U, csize_t osz = 1U)
+{
+    int err = MPI_SUCCESS;
+
+    max /= osz;
+    csize_t q = sz / max;
+    csize_t r = sz % max;
+
+    std::vector<size_t> sizes = {sz};
+    auto vec = comm->gather(sizes);
+    auto remCall = *std::max_element(vec.begin(), vec.end());
+    remCall = remCall / max + (remCall % max > 0) -  q - (r > 0);
+
+    for (size_t i = 0U; i < q && err == MPI_SUCCESS; i++)
+        err = fn(file, MPI_Offset(offset + osz*i*max), &d[bsz*i*max], max, MPIType<uchar>(), &arg);
+    if (r)
+        err = fn(file, MPI_Offset(offset + osz*q*max), &d[bsz*q*max], r, MPIType<uchar>(), &arg);
+
+    for (size_t i = 0U; i < remCall; i++)
+        err = fn(file, 0LL, NULL, 0, MPIType<uchar>(), &arg);
+    return err;
+}
+
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
 {
     if (bsz > getFabricPacketSz())
@@ -347,9 +350,15 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
             read(offset[i], bsz, d);
 
     size_t num = maxSize / bsz;
+
+    std::vector<size_t> sizes = {sz};
+    auto vec = piol->comm->gather(sizes);
+    auto remCall = *std::max_element(vec.begin(), vec.end());
+    remCall = remCall / maxSize + (remCall % maxSize > 0) -  (sz / num) - (sz % num > 0);
+
     for (size_t i = 0; i < sz; i += num)
     {
-        size_t chunk = (sz - i > num ? num : sz - i);
+        size_t chunk = std::min(sz - i, num);
         //Set a view so that MPI_File_read... functions only see contiguous data.
         MPI_Datatype type;
         int err = randBlockView(file, info, chunk, bsz, reinterpret_cast<const MPI_Aint *>(&offset[i]), &type);
@@ -367,6 +376,10 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
         MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         MPI_Type_free(&type);
     }
+
+    if (remCall)
+        for (size_t i = 0; i < remCall; i++)
+            MPI_File_read_at_all(file, 0, NULL, 0, MPI_CHAR, NULL);
 }
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
