@@ -192,7 +192,7 @@ TEST_F(FileSEGYIntegWrite, FarmFileWriteRandomTraceBigNt)
 {
     nt = 3728270;
     ns = 300;
-    size_t size = nt/2;
+    size_t size = nt/100;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<true>(tempFile);
     writeRandomTraceTest<false,false>(size, offsets);
@@ -202,7 +202,7 @@ TEST_F(FileSEGYIntegWrite, FarmFileWriteRandomTraceWPrmBigNt)
 {
     nt = 3728270;
     ns = 300;
-    size_t size = nt/2;
+    size_t size = nt/100;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<true>(tempFile);
     writeRandomTraceTest<true,false>(size, offsets);
