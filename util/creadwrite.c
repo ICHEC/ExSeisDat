@@ -76,16 +76,9 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
     size_t nt = readNt(ifh);
     size_t rank = getRank(piol);
     //Write all header metadata
-    if (!rank)
-        printf("Open write mode file\n");
     ExSeisFile ofh = openWriteFile(piol, oname);
     isErr(piol);
 
-    if (!rank)
-    {
-        printf("%zu %zu %zu %zu\n", nt, memmax, getSEGYTraceLen(ns), 4U*sizeof(TraceParam));
-        printf("Write metadata to file %zu %zu %e\n", ns, nt, readInc(ifh));
-    }
     writeHeader(piol, ifh, ofh);
 
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));

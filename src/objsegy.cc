@@ -35,7 +35,10 @@ void SEGY::readHO(uchar * ho) const
 
 void SEGY::writeHO(const uchar * ho) const
 {
-    data->write(0U, SEGSz::getHOSz(), ho);
+    if (ho)
+        data->write(0U, SEGSz::getHOSz(), ho);
+    else
+        data->write(0U, 0, ho);
 }
 
 void SEGY::readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const
@@ -70,9 +73,10 @@ void SEGY::writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) c
 
 void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
 {
-    size_t dosz = SEGSz::getDOSz(ns);
+    std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
-        data->read(SEGSz::getDOLoc(offset[i], ns), dosz, &d[i*dosz]);
+        dooff[i] = SEGSz::getDOLoc(offset[i], ns);
+    data->read(SEGSz::getDOSz(ns), sz, dooff.data(), d);
 }
 
 void SEGY::writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const

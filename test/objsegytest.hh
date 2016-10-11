@@ -28,6 +28,7 @@ class MockData : public Data::Interface
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
     MOCK_CONST_METHOD3(read, void(csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD5(read, void(csize_t, csize_t, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(read, void(csize_t, csize_t, csize_t *, uchar *));
     MOCK_CONST_METHOD3(write, void(csize_t, csize_t, const uchar *));
     MOCK_CONST_METHOD5(write, void(csize_t, csize_t, csize_t, csize_t, const uchar *));
     // TODO: This method is not tested
@@ -86,7 +87,7 @@ class ObjTest : public Test
 
     void SEGYFileSizeTest(size_t sz)
     {
-        EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(sz));
+        EXPECT_CALL(*mock, getFileSz()).WillOnce(Return(sz));
         piol->isErr();
         EXPECT_EQ(sz, obj->getFileSz());
     }
@@ -102,7 +103,6 @@ class ObjTest : public Test
             for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
                 cHo[i] = getPattern(off + i);
                 EXPECT_CALL(*mock, read(0U, SEGSz::getHOSz(), _))
-                            .Times(Exactly(1))
                             .WillOnce(SetArrayArgument<2>(cHo.begin(), cHo.end()));
         }
 
@@ -135,7 +135,6 @@ class ObjTest : public Test
 
         if (MOCK)
             EXPECT_CALL(*mock, write(0U, SEGSz::getHOSz(), _))
-                        .Times(Exactly(1))
                         .WillOnce(check2(cHo.data(), SEGSz::getHOSz()));
 
         std::vector<uchar> ho(SEGSz::getHOSz() + 2*extra);
@@ -178,10 +177,10 @@ class ObjTest : public Test
                 }
             if (Type == Block::DO)
                 EXPECT_CALL(*mock, read(locFunc(offset, ns), nt*bsz, _))
-                        .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+                        .WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
             else
                 EXPECT_CALL(*mock, read(locFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
-                        .Times(Exactly(1)).WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
+                        .WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
         }
 
         for (size_t i = 0U; i < extra; i++)
@@ -241,10 +240,10 @@ class ObjTest : public Test
                 }
             if (Type == Block::DO)
                 EXPECT_CALL(*mock, write(locFunc(offset, ns), nt*bsz, _))
-                        .Times(Exactly(1)).WillOnce(check2(tr, tr.size()));
+                        .WillOnce(check2(tr, tr.size()));
             else
                 EXPECT_CALL(*mock, write(locFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
-                        .Times(Exactly(1)).WillOnce(check4(tr, tr.size()));
+                        .WillOnce(check4(tr, tr.size()));
         }
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++)
@@ -300,9 +299,17 @@ class ObjTest : public Test
                     size_t pos = locFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
-            for (size_t i = 0; i < nt; i++)
-                EXPECT_CALL(*mock, read(locFunc(offset[i], ns), bsz, _))
-                            .Times(Exactly(1)).WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
+
+            {
+                InSequence s;
+                for (size_t i = 0; i < nt; i++)
+                    EXPECT_CALL(*mock, read(locFunc(offset[i], ns), bsz, _))
+                            .WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz))
+                            .RetiresOnSaturation();
+            }
+            //for (size_t i = 0; i < nt; i++)
+//                EXPECT_CALL(*mock, read(locFunc(offset[i], ns), bsz, _))
+//                            .WillOnce(SetArrayArgument<2>(tr.begin() + i*bsz, tr.begin() + (i+1)*bsz));
         }
 
         for (size_t i = 0U; i < extra; i++)
@@ -322,6 +329,7 @@ class ObjTest : public Test
             break;
         }
 
+        Mock::VerifyAndClearExpectations(&mock);
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++)
             for (size_t j = 0U; j < bsz; j++, tcnt++)
@@ -358,9 +366,14 @@ class ObjTest : public Test
                     size_t pos = locFunc(offset[i], ns) + j;
                     tr[i*bsz+j] = getPattern(pos % 0x100);
                 }
-            for (size_t i = 0; i < nt; i++)
-                EXPECT_CALL(*mock, write(locFunc(offset[i], ns), bsz, _))
-                          .Times(Exactly(1)).WillOnce(check2(tr.data()+i*bsz, bsz));
+            {
+                InSequence s;
+
+                for (size_t i = 0; i < nt; i++)
+                    EXPECT_CALL(*mock, write(locFunc(offset[i], ns), bsz, _))
+                          .WillOnce(check2(tr.data()+i*bsz, bsz))
+                          .RetiresOnSaturation();
+            }
         }
 
         for (size_t i = 0U; i < nt; i++)
@@ -385,7 +398,7 @@ class ObjTest : public Test
                 obj->writeDO(ns, nt, offset.data(), &trnew[extra]);
             break;
         }
-
+        Mock::VerifyAndClearExpectations(&mock);
         if (!MOCK)
             readRandomTest<Type, MOCK>(ns, offset, magic);
     }

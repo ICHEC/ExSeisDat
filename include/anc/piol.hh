@@ -24,6 +24,8 @@ class ExSeisPIOL
     void Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
 
     public :
+    std::unique_ptr<Log::Logger> log;       //!< The ExSeisPIOL logger
+    std::unique_ptr<Comm::Interface> comm;  //!< The ExSeisPIOL communication
 
     /*! Constructor where one can also initialise MPI optionally.
      *  \param[in] copt An options structure for MPI
@@ -43,9 +45,6 @@ class ExSeisPIOL
     ExSeisPIOL(const Log::Verb maxLevel = Log::Verb::None);
 
     ~ExSeisPIOL(void);
-
-    std::unique_ptr<Log::Logger> log;       //!< The ExSeisPIOL logger
-    std::unique_ptr<Comm::Interface> comm;  //!< The ExSeisPIOL communication
 
     /*! \brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
      *  and the code aborts.

@@ -47,11 +47,18 @@ SEGY::~SEGY(void)
     {
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
-        if (mode != FileMode::Read && state.writeHO && !piol->comm->getRank())
+        if (mode != FileMode::Read && state.writeHO)
         {
-            std::vector<uchar> buf(SEGSz::getHOSz());
-            packHeader(buf.data());
-            obj->writeHO(buf.data());
+            if (!piol->comm->getRank())
+            {
+                std::vector<uchar> buf(SEGSz::getHOSz());
+                packHeader(buf.data());
+                obj->writeHO(buf.data());
+            }
+            else
+            {
+                obj->writeHO(NULL);
+            }
         }
     }
 }

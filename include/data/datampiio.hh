@@ -111,6 +111,14 @@ class MPIIO : public Interface
      */
     void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
 
+    /*! Read a file where each block is determined from the list of offset
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] sz     The number of blocks to read and so the size of the offset array
+     *  \param[in] offset The list of offsets. In bytes from the current internal shared pointer
+     *  \param[out] d     The array to store the output in
+     */
+    void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const;
+
     /*! \brief Write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to write to disk
