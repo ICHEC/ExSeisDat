@@ -28,6 +28,7 @@ extern geom_t xNum(size_t i);
 extern geom_t yNum(size_t i);
 extern uchar getPattern(size_t);
 extern std::vector<size_t> getRandomVec(size_t nt, int seed);
+extern std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed);
 
 constexpr size_t prefix(const size_t pow)
 {
