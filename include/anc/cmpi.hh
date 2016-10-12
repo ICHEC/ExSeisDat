@@ -73,6 +73,7 @@ class MPI : public Comm::Interface
      */
     std::vector<size_t> gather(const std::vector<size_t> & val) const;
 
+    size_t max(size_t val);
     /*! \brief All processors will wait at the barrier until everyone arrives.
      *  The MPI implementation of the pure virtual base member simply calls MPI_Barrier
      */

@@ -114,10 +114,10 @@ class Interface
      */
     virtual size_t readNs(void) const;
 
-    /*! \brief Read the number of traces in the file
+    /*! \brief Pure virtual function to read the number of traces in the file
      *  \return The number of traces
      */
-    virtual size_t readNt(void) const;
+    virtual size_t readNt(void) = 0;
 
     /*! \brief Read the number of increment between trace samples
      *  \return The increment between trace samples

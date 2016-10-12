@@ -62,6 +62,8 @@ class Interface
      */
     virtual std::vector<size_t> gather(const std::vector<size_t> & val) const = 0;
 
+    virtual size_t max(size_t val) = 0;
+
     /*! \brief A barrier between all processes which are members of the communication collective.
      */
     virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.

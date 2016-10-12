@@ -21,7 +21,7 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
 }
 
 //Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
-TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceGrid)
+TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceParam)
 {
     ns = 261U;
     nt = 400U;

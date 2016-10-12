@@ -18,11 +18,6 @@ size_t Interface::readNs(void) const
     return ns;
 }
 
-size_t Interface::readNt(void) const
-{
-    return nt;
-}
-
 geom_t Interface::readInc(void) const
 {
    return inc;

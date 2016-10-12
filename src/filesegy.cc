@@ -45,6 +45,7 @@ SEGY::~SEGY(void)
 {
     if (!piol->log->isErr())
     {
+        readNt();
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
         if (mode != FileMode::Read && state.writeHO)
@@ -116,6 +117,20 @@ void SEGY::Init(const File::SEGY::Opt & segyOpt, const FileMode mode_)
     }
 }
 
+size_t SEGY::readNt(void)
+{
+    size_t oldnt = nt;
+    if (state.stalent)
+    {
+        nt = piol->comm->max(nt);
+        state.stalent = false;
+
+        if (nt != oldnt)
+            state.resize = true;
+    }
+    return nt;
+}
+
 void SEGY::writeText(const std::string text_)
 {
     if (text != text_)
@@ -157,6 +172,7 @@ void SEGY::writeNt(csize_t nt_)
         nt = nt_;
         state.resize = true;
     }
+    state.stalent = false;
 }
 
 void SEGY::writeInc(const geom_t inc_)
@@ -177,13 +193,13 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
 {
-    if (sz == 0 || ns == 0 || offset > nt)   //Nothing to be read
+    if (sz == 0 || ns == 0 || (offset > nt && !state.stalent))   //Nothing to be read
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
     }
-    size_t ntz = (offset + sz > nt ? nt - offset : sz);
+    size_t ntz = (state.stalent ? nt : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     if (!prm)
@@ -252,31 +268,20 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]);
 
-/*
-    if (offset + sz >= nt)
-    {
-        if (state.resize == true)
-            state.resize = false;
-        nt = std::max(offset + sz, nt);
-    }*/
-}
-
-size_t updateNt(size_t newNt, bool needResize)
-{
-
+    state.stalent = true;
 }
 
 //TODO: Unit test
 void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
 {
-    if (sz == 0 || offset >= nt)   //Nothing to be read.
+    if (sz == 0 || (offset >= nt && !state.stalent))   //Nothing to be read.
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTraceParam() was called for a zero byte read", Log::Verb::None);
         return;
     }
-    //Don't process beyond end of file
-    size_t ntz = (offset + sz > nt ? nt - offset : sz);
+    //Don't process beyond end of file if we can
+    size_t ntz = (state.stalent ? sz : (offset + sz > nt ? nt - offset : sz));
 
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
 
@@ -309,12 +314,7 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 
     obj->writeDOMD(offset, ns, sz, buf.data());
 
-/*    if (offset + sz > nt)
-    {
-        //There is probably a mismatch between desired nt size and actual
-        state.resize = true;
-        nt = offset + sz;
-    }*/
+    state.stalent = true;
 }
 
 void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
@@ -383,15 +383,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]);
 
-/*    size_t max = 0;
-    for (size_t i = 0; i < sz; i++)
-        max = std::max(offset[i], max);
-    if (max + sz > nt)
-    {
-        //There is probably a mismatch between desired nt size and actual
-        state.resize = false;
-        nt = max + sz;
-    }*/
+    state.stalent = true;
 }
 
 void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
@@ -422,13 +414,7 @@ void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 
     obj->writeDOMD(ns, sz, offset, buf.data());
 
-    updateNt(max+sz, true);
-/*    if (max + sz > nt)
-    {
-        //There is probably a mismatch between desired nt size and actual
-        state.resize = true;
-        nt = max + sz;
-    }*/
+    state.stalent = true;
 }
 
 void SEGY::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const

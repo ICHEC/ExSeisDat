@@ -38,6 +38,7 @@ class SEGY : public Interface
     {
         uint64_t writeHO : 1;   //!< The header should be written before File::SEGY object is deleted
         uint64_t resize : 1;    //!< The file should be resized before File::SEGY object is deleted.
+        uint64_t stalent : 1;   //!< The nt value is stale and should be resynced.
     } state;                    //!< State flags are stored in this structure
 
     unit_t incFactor;           //!< The increment factor
@@ -79,6 +80,11 @@ class SEGY : public Interface
     /*! \brief Destructor. Processes any remaining flags
      */
     ~SEGY(void);
+
+    /*! \brief Read the number of traces in the file
+     *  \return The number of traces
+     */
+    size_t readNt(void);
 
     /*! \brief Write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).

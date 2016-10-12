@@ -44,6 +44,7 @@ struct FakeFile : public File::Interface
         ns = 1010U;
     }
 
+    size_t readNt(void) { return nt; }
     void writeText(const std::string text_) {}
     void writeNs(csize_t ns_) {}
     void writeNt(csize_t nt_) {}
@@ -64,7 +65,6 @@ void compareConstructor(ExSeisPIOL * piol, FakeFile & fake)
 {
     EXPECT_EQ(piol, fake.piol.get());
     EXPECT_EQ(tempFile, fake.name);
-    EXPECT_EQ(1101U, fake.readNt());
     EXPECT_EQ(1010U, fake.readNs());
     EXPECT_EQ(geom_t(10), fake.readInc());
     EXPECT_EQ("test", fake.readText());
