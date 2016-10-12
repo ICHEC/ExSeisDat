@@ -360,14 +360,14 @@ struct FileSEGYTest : public Test
             }
             if (tn * ns)
             {
-                if ( readPrm )
+                if (readPrm)
                     buf.resize(tnRead * SEGSz::getDOSz(ns));
                 else
                     buf.resize(tnRead * SEGSz::getDFSz(ns));
                 for (size_t i = 0U; i < tnRead; i++)
                 {
-                    if ( readPrm )
-                        std::copy( tr.begin() + (offset+i) * SEGSz::getMDSz(), tr.begin() + (offset+i+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
+                    if (readPrm)
+                        std::copy(tr.begin() + (offset+i) * SEGSz::getMDSz(), tr.begin() + (offset+i+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
                     for (size_t j = 0U; j < ns; j++)
                     {
                         float val = offset + i + j;
@@ -386,10 +386,7 @@ struct FileSEGYTest : public Test
 
         std::vector<float> bufnew(tn * ns);
         std::vector<File::TraceParam> prm(tn);
-        if ( readPrm )
-            file->readTrace(offset, tn, bufnew.data(), prm.data());
-        else
-            file->readTrace(offset, tn, bufnew.data(), NULL);
+        file->readTrace(offset, tn, bufnew.data(), (readPrm ? prm.data() : NULL));
         for (size_t i = 0U; i < tnRead; i++)
         {
             if ( readPrm && tnRead * ns )
@@ -408,7 +405,7 @@ struct FileSEGYTest : public Test
     template <bool readPrm = false, bool MOCK = true>
     void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
     {
-        ASSERT_EQ( tn, offset.size() );
+        ASSERT_EQ(tn, offset.size());
         std::vector<uchar> buf;
         if (MOCK)
         {

@@ -62,26 +62,25 @@ uchar getPattern(size_t i)
     return i;
 }
 
-std::vector<size_t> getRandomVec(size_t nt, int seed)
+std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
 {
     srand(seed);
     if (nt == 0)
         return std::vector<size_t>();
 
+    llint range = (max / nt)-1LL;
+    assert(range >= 0);
+
     std::vector<size_t> v(nt);
-    v[0] = rand() % 1234;
+    v[0] = (range ? rand() % range : 0);
     for (size_t i = 1; i < nt; i++)
-        v[i] = v[i-1] + 1U + rand() % 1234U;
+        v[i] = v[i-1] + 1U + (range ? rand() % range : 0);
     return v;
 }
 
-std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
+std::vector<size_t> getRandomVec(size_t nt, int seed)
 {
-    srand(seed);
-    std::vector<size_t> vec(nt);
-    for (auto & v : vec)
-        v = rand() % max;
-    return vec;
+    return getRandomVec(nt, 12345, seed);
 }
 
 int main(int argc, char ** argv)

@@ -128,6 +128,7 @@ TEST_F(FileSEGYRead, FileReadRandomTraceWPrm)
     size_t size = 100U;
     makeMockSEGY<false>();
     initTrBlock();
+
     auto offsets = getRandomVec(size, nt, 1337);
     readRandomTraceTest<true>(size, offsets);
 }
