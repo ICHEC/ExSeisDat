@@ -1,5 +1,8 @@
 #include "sglobal.hh"
 #include <assert.h>
+#include <cmath>
+#include <algorithm>
+#include <numeric>
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
     assert(numRank > rank);
@@ -7,6 +10,26 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
     size_t r = sz%numRank;
     size_t start = q * rank + std::min(rank, r);
     return std::make_pair(start, std::min(sz - start, q + (rank < r)));
+}
+
+std::vector<size_t> lobdecompose(PIOL::ExSeisPIOL * piol, size_t work, size_t numRank, size_t rank)
+{
+    double total = (numRank*(numRank+1U))/2U;
+    rank++;
+    size_t lnt = std::lround(double(work * rank) / total);
+
+    auto rem = work - piol->comm->sum(lnt);
+    if (rank == 1)
+        lnt += rem;
+
+    auto nts = piol->comm->gather(std::vector<size_t>{lnt});
+    size_t biggest = *std::max_element(nts.begin(), nts.end());
+    assert(work == std::accumulate(nts.begin(), nts.end(), 0U));
+
+    if (rank == 1)
+        return std::vector<size_t>{0U, lnt, biggest};
+    else
+        return std::vector<size_t>{std::accumulate(nts.begin(), nts.begin() + rank - 1U, 0U), lnt, biggest};
 }
 
 std::pair<size_t, size_t> blockDecomp(size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off)

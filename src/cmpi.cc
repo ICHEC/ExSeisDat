@@ -9,9 +9,6 @@
 #include "global.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
-
-#warning note
-#include <iostream>
 namespace PIOL { namespace Comm {
 MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), init(opt.initMPI), log(log_)
 {
@@ -63,19 +60,22 @@ std::vector<T> MPIGather(Log::Logger * log, const MPI * mpi, const std::vector<T
 }
 
 template <typename T>
-T getMPIMax(Log::Logger * log, const MPI * mpi, T val, MPI_Op op)
+T getMPIOp(Log::Logger * log, const MPI * mpi, T val, MPI_Op op)
 {
     T result = 0;
-std::cout << "max val " << val << std::endl;
     int err = MPI_Allreduce(&val, &result, 1, MPIType<T>(), op, mpi->getComm());
     printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Allreduce failure");
-std::cout << "max res " << result << std::endl;
     return (err == MPI_SUCCESS ? result : 0U);
+}
+
+size_t MPI::sum(size_t val)
+{
+    return getMPIOp(log, this, val, MPI_SUM);
 }
 
 size_t MPI::max(size_t val)
 {
-    return getMPIMax(log, this, val, MPI_MAX);
+    return getMPIOp(log, this, val, MPI_MAX);
 }
 
 std::vector<llint> MPI::gather(const std::vector<llint> & in) const

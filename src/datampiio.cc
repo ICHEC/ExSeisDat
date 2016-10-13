@@ -12,9 +12,6 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
-
-#warning here
-#include <iostream>
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -336,26 +333,29 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
         std::vector<size_t> sizes = {sz};
         auto vec = piol->comm->gather(sizes);
         remCall = *std::max_element(vec.begin(), vec.end());
-        remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
+        remCall = remCall/max + (remCall % max > 0) - sz/max - (sz % max > 0);
     }
 
-    for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += max)
+    for (size_t i = 0; i < sz; i += max)
     {
         size_t chunk = std::min(sz - i, max);
         err = fn(file, MPI_Offset(offset + osz*i), &d[bsz*i], chunk, MPIType<uchar>(), &stat);
+        printErr(log, name, Log::Layer::Data, err, &stat, msg);
     }
 
     if (Coll && remCall)
-        for (size_t i = 0; i < remCall && err == MPI_SUCCESS; i++)
-            err = fn(file, 0, NULL, 0, MPI_CHAR, &stat);
-    printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        for (size_t i = 0; i < remCall; i++)
+        {
+            err = fn(file, 0, NULL, 0, MPIType<uchar>(), &stat);
+            printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        }
 }
 
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
 void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
     const bool Coll = true;   //This can be exposed as a parameter
-    size_t num = maxSize / bsz;
+    size_t max = maxSize / bsz;
 
     size_t remCall = 0;
     if (Coll)
@@ -363,20 +363,20 @@ void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t 
         std::vector<size_t> sizes = {sz};
         auto vec = piol->comm->gather(sizes);
         remCall = *std::max_element(vec.begin(), vec.end());
-        remCall = remCall / maxSize + (remCall % maxSize > 0) -  (sz / num) - (sz % num > 0);
+        remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
     }
 
     int err = MPI_SUCCESS;
     MPI_Status stat;
-    for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += num)
+    for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += max)
     {
-        size_t chunk = std::min(sz - i, num);
+        size_t chunk = std::min(sz - i, max);
         err = ior(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
     }
 
     if (Coll && remCall)
         for (size_t i = 0; i < remCall && err == MPI_SUCCESS; i++)
-            err = fn(file, 0, NULL, 0, MPI_CHAR, NULL);
+            err = fn(file, 0, NULL, 0, MPIType<uchar>(), NULL);
     printErr(log, name, Log::Layer::Data, err, &stat, msg);
 }
 

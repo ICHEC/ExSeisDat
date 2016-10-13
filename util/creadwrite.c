@@ -74,7 +74,6 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
 
     size_t ns = readNs(ifh);
     size_t nt = readNt(ifh);
-    size_t rank = getRank(piol);
     //Write all header metadata
     ExSeisFile ofh = openWriteFile(piol, oname);
     isErr(piol);

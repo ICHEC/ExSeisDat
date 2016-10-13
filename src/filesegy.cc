@@ -20,7 +20,8 @@
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include "file/segymd.hh"
-
+#warning
+#include <iostream>
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 SEGY::Opt::Opt(void)
@@ -43,7 +44,7 @@ SEGY::SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Inter
 
 SEGY::~SEGY(void)
 {
-    if (!piol->log->isErr())
+    if (!piol->log->isErr() && (mode != FileMode::Read))
     {
         readNt();
         if (state.resize)
@@ -57,9 +58,7 @@ SEGY::~SEGY(void)
                 obj->writeHO(buf.data());
             }
             else
-            {
                 obj->writeHO(NULL);
-            }
         }
     }
 }
@@ -193,12 +192,21 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
 {
-    if (sz == 0 || ns == 0 || (offset > nt && !state.stalent))   //Nothing to be read
+    if (ns == 0 || (offset > nt && !state.stalent))   //Nothing to be read
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
     }
+
+    if (!sz)
+    {
+        if (!prm)
+            obj->readDODF(0, 0, size_t(0), NULL);
+        else
+            obj->readDO(0, 0, size_t(0), NULL);
+    }
+
     size_t ntz = (state.stalent ? nt : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
@@ -237,13 +245,6 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
     }
     #endif
 
-    if (sz == 0 || ns == 0)   //Nothing to be written.
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "writeTrace() was called for a zero byte write. ns: "
-            + std::to_string(ns) + " sz: " + std::to_string(sz), Log::Verb::None);
-        return;
-    }
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     //TODO: Check cache effects doing both of these loops the other way.
@@ -274,17 +275,22 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
 //TODO: Unit test
 void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
 {
-    if (sz == 0 || (offset >= nt && !state.stalent))   //Nothing to be read.
+    if (offset >= nt && !state.stalent)   //Nothing to be read.
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTraceParam() was called for a zero byte read", Log::Verb::None);
         return;
     }
+    if (!sz)
+    {
+        obj->readDOMD(0, 0, size_t(0), NULL);
+        return;
+    }
+
     //Don't process beyond end of file if we can
     size_t ntz = (state.stalent ? sz : (offset + sz > nt ? nt - offset : sz));
 
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
-
     obj->readDOMD(offset, ns, ntz, buf.data());
 
     for (size_t i = 0; i < ntz; i++)
@@ -301,10 +307,9 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
         return;
     }
     #endif
-    if (sz == 0)   //Nothing to be written.
+    if (!sz)   //Nothing to be written.
     {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "writeTraceParam() was called for a zero byte write", Log::Verb::None);
+        obj->writeDOMD(0, 0, size_t(0), nullptr);
         return;
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
@@ -319,10 +324,12 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 
 void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
 {
-    if (sz == 0 || ns == 0)   //Nothing to be read
+    if (!sz || !ns)
     {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readTrace() was called for a zero byte read.", Log::Verb::None);
+        if (!prm)
+            obj->readDODF(0, 0, nullptr, nullptr);
+        else
+            obj->readDO(0, 0, nullptr, nullptr);
         return;
     }
 
@@ -352,13 +359,6 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam *
 
 void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm)
 {
-    if (sz == 0 || ns == 0)   //Nothing to be written.
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "writeTrace() was called for a zero byte write. ns: "
-            + std::to_string(ns) + " sz: " + std::to_string(sz), Log::Verb::None);
-        return;
-    }
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     //TODO: Check cache effects doing both of these loops the other way.
@@ -388,11 +388,11 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
 
 void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 {
+    #ifdef NT_LIMITS
     size_t max = 0;
     for (size_t i = 0; i < sz; i++)
         max = std::max(offset[i], max);
 
-    #ifdef NT_LIMITS
     if (sz+max > NT_LIMITS)
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
@@ -401,10 +401,9 @@ void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
     }
     #endif
 
-    if (sz == 0)   //Nothing to be written.
+    if (!sz)   //Nothing to be written.
     {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "writeTraceParam() was called for a zero byte write", Log::Verb::None);
+        obj->writeDOMD(0, 0, nullptr, nullptr);
         return;
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
@@ -420,12 +419,12 @@ void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 void SEGY::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
 {
 //TODO: Is it useful to check if all the offsets are greater than nt?
-    if (sz == 0)   //Nothing to be read.
+    if (!sz)   //Nothing to be written.
     {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readTraceParam() was called for a zero byte read", Log::Verb::None);
+        obj->readDOMD(0, 0, nullptr, nullptr);
         return;
     }
+
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
     obj->readDOMD(ns, sz, offset, buf.data());
 
