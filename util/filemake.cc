@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <memory>
 #include <string>
-#include <functional>
 #include <iostream>
 #include <cmath>
 #include "cppfileapi.hh"
@@ -14,10 +13,11 @@ void writeContig(ExSeis piol, File::Interface * file, size_t offset, size_t nt, 
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
     long nhalf = nt/2;
+    std::vector<File::TraceParam> prm(max);
+    std::vector<float> trc(max*ns);
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        std::vector<File::TraceParam> prm(rblock);
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset+i+j));
@@ -27,18 +27,78 @@ void writeContig(ExSeis piol, File::Interface * file, size_t offset, size_t nt, 
             prm[j].line = {2400 + k, 1600 + k};
             prm[j].tn = offset+i+j;
         }
-        piol.isErr();
-        std::vector<float> trc(rblock*ns);
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset+i)*ns+j)) - off;
         file->writeTrace(offset + i, rblock, trc.data(), prm.data());
         piol.isErr();
     }
     for (size_t j = 0; j < extra; j++)
+    {
         file->writeTrace(0U, size_t(0), nullptr, (File::TraceParam *)1);
+        piol.isErr();
+    }
 }
 
-void FileMake(bool lob, const std::string name, size_t max, size_t ns, size_t nt, geom_t inc)
+void writeRandom(ExSeisPIOL * piol, File::Interface * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+{
+    float fhalf = float(nt*ns)/2.0;
+    float off = float(nt*ns)/4.0;
+    long nhalf = nt/2;
+
+    std::vector<size_t> offset(lnt);
+    auto num = piol->comm->gather(std::vector<size_t>{lnt});
+
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+
+    size_t offcount = 0;
+    size_t t = 0;
+    while (num[rank] > 0 && offcount < nt)
+    {
+        for (size_t j = 0; j < numRank; j++)
+            if (j != rank)
+            {
+                if (num[j] != 0)
+                {
+                    num[j]--;
+                    offcount++;
+                }
+            }
+            else
+            {
+                num[rank]--;
+                offset[t++] = offcount++;
+            }
+    }
+
+    for (size_t i = 0; i < lnt; i += max)
+    {
+        size_t rblock = (i + max < lnt ? max : lnt - i);
+        std::vector<File::TraceParam> prm(rblock);
+        std::vector<float> trc(rblock*ns);
+
+        for (size_t j = 0; j < rblock; j++)
+        {
+            float k = nhalf - std::abs(-nhalf + long(offset[i+j]));
+            prm[j].src = {1600.0 + k, 2400.0 + k};
+            prm[j].rcv = {100000.0 + k, 3000000.0 + k};
+            prm[j].cmp = {10000.0 + k, 4000.0 + k};
+            prm[j].line = {2400 + k, 1600 + k};
+            prm[j].tn = offset[i+j];
+        }
+        for (size_t j = 0; j < trc.size(); j++)
+            trc[j] = fhalf - std::abs(-fhalf + float((offset[i])*ns+j)) - off;
+        file->writeTrace(rblock, &offset[i], trc.data(), prm.data());
+        piol->isErr();
+    }
+    for (size_t j = 0; j < extra; j++)
+    {
+        file->writeTrace(0U, (size_t *)NULL, nullptr, (File::TraceParam *)1);
+        piol->isErr();
+    }
+}
+
+void FileMake(bool lob, bool random, const std::string name, size_t max, size_t ns, size_t nt, geom_t inc)
 {
     ExSeis piol;
     File::Direct file(piol, name, FileMode::Write);
@@ -70,7 +130,10 @@ void FileMake(bool lob, const std::string name, size_t max, size_t ns, size_t nt
 
     max /= SEGSz::getDOSz(ns);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-    writeContig(piol, &file, offset, nt, ns, lnt, extra, max);
+    if (random)
+        writeRandom(piol, &file, nt, ns, lnt, extra, max);
+    else
+        writeContig(piol, &file, offset, nt, ns, lnt, extra, max);
 }
 
 int main(int argc, char ** argv)
@@ -81,6 +144,7 @@ int main(int argc, char ** argv)
     size_t max = 0;
     geom_t inc = 0.0;
     bool lob = false;
+    bool random = false;
 
     if (argc <= 1)
     {
@@ -93,7 +157,9 @@ int main(int argc, char ** argv)
     // t number of traces
     // m max
     // i increment
-    std::string opt = "s:t:m:o:i:l";  //TODO: uses a GNU extension
+    // l lobsided
+    // r 'random' offsets
+    std::string opt = "s:t:m:o:i:lr";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -115,6 +181,9 @@ int main(int argc, char ** argv)
             case 'l' :
                 lob = true;
             break;
+            case 'r' :
+                random = true;
+            break;
             default :
                 std::cerr << "One of the command line arguments is invalid\n";
             break;
@@ -122,7 +191,7 @@ int main(int argc, char ** argv)
 
     assert(name.size() && max && inc != 0.0);
     max *= 1024 * 1024;
-    FileMake(lob, name, max, ns, nt, inc);
+    FileMake(lob, random, name, max, ns, nt, inc);
     return 0;
 }
 

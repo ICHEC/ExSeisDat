@@ -44,7 +44,7 @@ int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_
 {
     #ifndef HINDEXED_BLOCK_WORKS
     std::vector<int> bl(count);
-    for (size_t i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
         bl[i] = block;
     int err = MPI_Type_create_hindexed(count, bl.data(), offset, MPI_CHAR, type);
     #else
@@ -125,6 +125,7 @@ int ior(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chu
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 Data::MPIIO::Opt::Opt(void)
 {
+    coll = true;
     info = MPI_INFO_NULL;
     MPI_Info_create(&info);
 //    MPI_Info_set(info, "access_style", "read_once");
@@ -201,6 +202,7 @@ MPIIO::~MPIIO(void)
 
 void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
 {
+    coll = opt.coll;
     maxSize = opt.maxSize;
     file = MPI_FILE_NULL;
     MPI_Aint lb, esz;
@@ -243,17 +245,13 @@ size_t MPIIO::getFileSz() const
 
 void MPIIO::setFileSz(csize_t sz) const
 {
-//    if ((fcomm == MPI_COMM_SELF && !piol->comm->getRank()) || fcomm != MPI_COMM_SELF)
-    {
-        //int err = MPI_File_preallocate(file, MPI_Offset(sz));
-        int err = MPI_File_set_size(file, MPI_Offset(sz));
-        printErr(log, name, Log::Layer::Data, err, nullptr, "error setting the file size");
-    }
+    int err = MPI_File_set_size(file, MPI_Offset(sz));
+    printErr(log, name, Log::Layer::Data, err, nullptr, "error setting the file size");
 }
 
 void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
 {
-    contigIO(MPI_File_read_at_all, offset, sz, d, " non-collective read Failure\n");
+    contigIO((coll ? MPI_File_read_at_all : MPI_File_read_at), offset, sz, d, " non-collective read Failure\n");
 }
 
 void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
@@ -321,14 +319,13 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
  * which would have issues with the number of operations being the same for each process
  */
 void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
-                    uchar * d, std::string msg, csize_t bsz, csize_t osz) const
+                     uchar * d, std::string msg, csize_t bsz, csize_t osz) const
 {
-    const bool Coll = true;   //This can be exposed as a parameter
     MPI_Status stat;
     int err = MPI_SUCCESS;
     size_t max = maxSize / osz;
     size_t remCall = 0;
-    if (Coll)
+    if (coll)
     {
         std::vector<size_t> sizes = {sz};
         auto vec = piol->comm->gather(sizes);
@@ -343,7 +340,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
         printErr(log, name, Log::Layer::Data, err, &stat, msg);
     }
 
-    if (Coll && remCall)
+    if (coll && remCall)
         for (size_t i = 0; i < remCall; i++)
         {
             err = fn(file, 0, NULL, 0, MPIType<uchar>(), &stat);
@@ -354,11 +351,8 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
 void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
-    const bool Coll = true;   //This can be exposed as a parameter
     size_t max = maxSize / bsz;
-
     size_t remCall = 0;
-    if (Coll)
     {
         std::vector<size_t> sizes = {sz};
         auto vec = piol->comm->gather(sizes);
@@ -372,12 +366,15 @@ void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t 
     {
         size_t chunk = std::min(sz - i, max);
         err = ior(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
+        printErr(log, name, Log::Layer::Data, err, &stat, msg);
     }
 
-    if (Coll && remCall)
-        for (size_t i = 0; i < remCall && err == MPI_SUCCESS; i++)
-            err = fn(file, 0, NULL, 0, MPIType<uchar>(), NULL);
-    printErr(log, name, Log::Layer::Data, err, &stat, msg);
+    if (remCall)
+        for (size_t i = 0; i < remCall; i++)
+        {
+            err = ior(fn, file, info, 0, 0, nullptr, nullptr, &stat);
+            printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        }
 }
 
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
@@ -386,7 +383,7 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
         for (size_t i = 0; i < sz; i++)
             read(offset[i], bsz, d);
 
-    randomIO(MPI_File_read_at_all, bsz, sz, offset, d, "random read failure");
+   randomIO((coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d, "random read failure");
 }
 
 void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
@@ -395,7 +392,7 @@ void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) co
         for (size_t i = 0; i < sz; i++)
             write(offset[i], bsz, d);
 
-    randomIO(mpiio_write_at_all, bsz, sz, offset, const_cast<uchar *>(d), "random write failure");
+    randomIO((coll ? mpiio_write_at_all : mpiio_write_at_all), bsz, sz, offset, const_cast<uchar *>(d), "random write failure");
 }
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
@@ -422,7 +419,7 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
 
 void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
 {
-    contigIO(mpiio_write_at_all, offset, sz, const_cast<uchar *>(d), "Non-collective write failure.");
+    contigIO((coll ? mpiio_write_at_all : mpiio_write_at), offset, sz, const_cast<uchar *>(d), "Non-collective write failure.");
 }
 
 void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
