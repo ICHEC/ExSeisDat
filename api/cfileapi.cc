@@ -134,10 +134,20 @@ void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->readTrace(offset, sz, trace);
 }
+//Contiguous traces
+void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, TraceParam * prm)
+{
+    f->file->readTrace(offset, sz, trace, reinterpret_cast<File::TraceParam *>(prm));
+}
 
 void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->writeTrace(offset, sz, trace);
+}
+
+void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const TraceParam * prm)
+{
+    f->file->writeTrace(offset, sz, trace, reinterpret_cast<const File::TraceParam *>(prm));
 }
 
 void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
@@ -148,6 +158,32 @@ void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * 
 void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
 {
     f->file->readTraceParam(offset, sz, reinterpret_cast<File::TraceParam *>(prm));
+}
+
+//List traces
+void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, TraceParam * prm)
+{
+    f->file->readTrace(sz, offset, trace, reinterpret_cast<File::TraceParam *>(prm));
+}
+
+void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
+{
+    f->file->writeTrace(sz, offset, trace);
+}
+
+void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const TraceParam * prm)
+{
+    f->file->writeTrace(sz, offset, trace, reinterpret_cast<const File::TraceParam *>(prm));
+}
+
+void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm)
+{
+    f->file->writeTraceParam(sz, offset, reinterpret_cast<const File::TraceParam *>(prm));
+}
+
+void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm)
+{
+    f->file->readTraceParam(sz, offset, reinterpret_cast<File::TraceParam *>(prm));
 }
 
 /////////////////////////////////////Operations///////////////////////////////

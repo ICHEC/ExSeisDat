@@ -20,8 +20,7 @@
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include "file/segymd.hh"
-#warning
-#include <iostream>
+
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 SEGY::Opt::Opt(void)
@@ -84,6 +83,7 @@ void SEGY::procHeader(size_t fsz, uchar * buf)
 {
     ns = getMd(Hdr::NumSample, buf);
     nt = SEGSz::getNt(fsz, ns);
+    state.stalent = false;
     inc = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
     format = static_cast<Format>(getMd(Hdr::Type, buf));
 
@@ -192,25 +192,17 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
 {
-    if (ns == 0 || (offset > nt && !state.stalent))   //Nothing to be read
+    if (ns == 0 || (offset > nt && sz && !state.stalent))   //Nothing to be read
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTrace() was called for a zero byte read.", Log::Verb::None);
         return;
     }
 
-    if (!sz)
-    {
-        if (!prm)
-            obj->readDODF(0, 0, size_t(0), NULL);
-        else
-            obj->readDO(0, 0, size_t(0), NULL);
-    }
-
-    size_t ntz = (state.stalent ? nt : (offset + sz > nt ? nt - offset : sz));
+    size_t ntz = (state.stalent || !sz ? sz : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
-    if (!prm)
+    if (prm == PRM_NULL)
         obj->readDODF(offset, ns, ntz, buf);
     else
     {
@@ -228,10 +220,8 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * p
         for (size_t i = 0; i < ns * ntz; i ++)
             trace[i] = convertIBMtoIEEE(trace[i], true);
     else
-    {
         for (size_t i = 0; i < ns * ntz; i++)
             reverse4Bytes(&buf[i*sizeof(float)]);
-    }
 }
 
 void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm)
@@ -252,7 +242,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
 
-    if (!prm)
+    if (prm == PRM_NULL)
         obj->writeDODF(offset, ns, sz, buf);
     else
     {
@@ -275,20 +265,15 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
 //TODO: Unit test
 void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
 {
-    if (offset >= nt && !state.stalent)   //Nothing to be read.
+    if (offset >= nt && sz && !state.stalent)   //Nothing to be read.
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTraceParam() was called for a zero byte read", Log::Verb::None);
         return;
     }
-    if (!sz)
-    {
-        obj->readDOMD(0, 0, size_t(0), NULL);
-        return;
-    }
 
     //Don't process beyond end of file if we can
-    size_t ntz = (state.stalent ? sz : (offset + sz > nt ? nt - offset : sz));
+    size_t ntz = (state.stalent || !sz ? sz : (offset + sz > nt ? nt - offset : sz));
 
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
     obj->readDOMD(offset, ns, ntz, buf.data());
@@ -326,7 +311,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam *
 {
     if (!sz || !ns)
     {
-        if (!prm)
+        if (prm == PRM_NULL)
             obj->readDODF(0, 0, nullptr, nullptr);
         else
             obj->readDO(0, 0, nullptr, nullptr);
@@ -334,7 +319,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam *
     }
 
     uchar * buf = reinterpret_cast<uchar *>(trace);
-    if (!prm)
+    if (prm == PRM_NULL)
         obj->readDODF(ns, sz, offset, buf);
     else
     {
@@ -366,7 +351,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
 
-    if (!prm)
+    if (prm == PRM_NULL)
         obj->writeDODF(ns, sz, offset, buf);
     else
     {

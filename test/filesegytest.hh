@@ -386,7 +386,7 @@ struct FileSEGYTest : public Test
 
         std::vector<float> bufnew(tn * ns);
         std::vector<File::TraceParam> prm(tn);
-        file->readTrace(offset, tn, bufnew.data(), (readPrm ? prm.data() : NULL));
+        file->readTrace(offset, tn, bufnew.data(), (readPrm ? prm.data() : const_cast<TraceParam *>(File::PRM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
             if ( readPrm && tnRead * ns )
@@ -445,7 +445,7 @@ struct FileSEGYTest : public Test
         if (readPrm)
             file->readTrace(tn, offset.data(), bufnew.data(), prm.data());
         else
-            file->readTrace(tn, offset.data(), bufnew.data(), NULL);
+            file->readTrace(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
             if (readPrm && tn * ns)
@@ -540,7 +540,7 @@ struct FileSEGYTest : public Test
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset + i + j);
 
-            file->writeTrace(offset, tn, bufnew.data(), NULL);
+            file->writeTrace(offset, tn, bufnew.data());
         }
 
         if (MOCK == false)
@@ -604,7 +604,7 @@ struct FileSEGYTest : public Test
         if (writePrm)
             file->writeTrace(tn, offset.data(), bufnew.data(), prm.data());
         else
-            file->writeTrace(tn, offset.data(), bufnew.data(), NULL);
+            file->writeTrace(tn, offset.data(), bufnew.data());
 
         if (MOCK == false)
             readRandomTraceTest<writePrm, MOCK>(tn, offset);

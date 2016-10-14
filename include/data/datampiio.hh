@@ -73,7 +73,7 @@ class MPIIO : public Interface
 
     void contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz, uchar * d, std::string msg,
                                                            csize_t bsz = 1U, csize_t osz = 1U) const;
-    void randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const;
+    void listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const;
 
     public :
 

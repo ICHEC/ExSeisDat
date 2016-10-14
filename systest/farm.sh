@@ -58,7 +58,7 @@ bash make.sh $NAME
 #    run the test
 mv util/$NAME .
 
-echo $NAME $ARGUMENTS > ARGUMENTS
+echo $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS > ARGUMENTS
 
 if [ -f $NAME ]; then
     if [ $PIOL_SYSTEM == "Tullow" ]; then

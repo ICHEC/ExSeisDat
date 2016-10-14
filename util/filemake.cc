@@ -34,7 +34,7 @@ void writeContig(ExSeis piol, File::Interface * file, size_t offset, size_t nt, 
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, size_t(0), nullptr, (File::TraceParam *)1);
+        file->writeTrace(0U, size_t(0), nullptr, File::PRM_NULL);
         piol.isErr();
     }
 }
@@ -93,7 +93,7 @@ void writeRandom(ExSeisPIOL * piol, File::Interface * file, size_t nt, size_t ns
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, (size_t *)NULL, nullptr, (File::TraceParam *)1);
+        file->writeTrace(0U, (size_t *)NULL, nullptr, File::PRM_NULL);
         piol->isErr();
     }
 }

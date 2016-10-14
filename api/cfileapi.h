@@ -238,18 +238,29 @@ extern void readTraceParam(ExSeisFile fh, size_t offset, size_t sz, TraceParam *
  *  \param[in] fh A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+ *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
 extern void readTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace);
+extern void readFullTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace, TraceParam * prm);
 
 /*! \brief Read the trace's from offset to offset+sz.
  *  \param[in] fh A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+ *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  *  \warning This function is not thread safe.
  */
 extern void writeTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace);
+extern void writeFullTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace, const TraceParam * prm);
+
+//Lists
+extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, TraceParam * prm);
+extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
+extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const TraceParam * prm);
+extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm);
+extern void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm);
 
 /*
  *     Extended parameters

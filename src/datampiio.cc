@@ -97,8 +97,8 @@ int mpiio_write_at_all(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype d
     return MPI_File_write_at_all(f, o, d, s, da, st);
 }
 
-//random list I/O
-int ior(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chunk, const MPI_Aint * offset, uchar * d, MPI_Status * stat)
+//list I/O
+int iol(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chunk, const MPI_Aint * offset, uchar * d, MPI_Status * stat)
 {
     //Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype type;
@@ -349,7 +349,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 }
 
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
-void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
+void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
     size_t max = maxSize / bsz;
     size_t remCall = 0;
@@ -365,14 +365,14 @@ void MPIIO::randomIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t 
     for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += max)
     {
         size_t chunk = std::min(sz - i, max);
-        err = ior(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
+        err = iol(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
         printErr(log, name, Log::Layer::Data, err, &stat, msg);
     }
 
     if (remCall)
         for (size_t i = 0; i < remCall; i++)
         {
-            err = ior(fn, file, info, 0, 0, nullptr, nullptr, &stat);
+            err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
             printErr(log, name, Log::Layer::Data, err, &stat, msg);
         }
 }
@@ -383,7 +383,7 @@ void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
         for (size_t i = 0; i < sz; i++)
             read(offset[i], bsz, d);
 
-   randomIO((coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d, "random read failure");
+   listIO((coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d, "list read failure");
 }
 
 void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
@@ -392,7 +392,7 @@ void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) co
         for (size_t i = 0; i < sz; i++)
             write(offset[i], bsz, d);
 
-    randomIO((coll ? mpiio_write_at_all : mpiio_write_at_all), bsz, sz, offset, const_cast<uchar *>(d), "random write failure");
+    listIO((coll ? mpiio_write_at_all : mpiio_write_at_all), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
 }
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const

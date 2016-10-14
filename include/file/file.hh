@@ -75,7 +75,7 @@ struct TraceParam
     grid_t line;    //!< The line coordinates (il, xl)
     size_t tn;      //!< TODO: Add unit test
 };
-
+extern const TraceParam * PRM_NULL;
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
  */
@@ -133,7 +133,7 @@ class Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm) = 0;
+    virtual void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm = PRM_NULL) = 0;
 
     /*! \brief Read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
@@ -141,24 +141,24 @@ class Interface
      *  \param[in] sz The number of traces to process.
      *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
      */
-    virtual void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const = 0;
+    virtual void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm  = const_cast<TraceParam *>(PRM_NULL)) const = 0;
 
     /*! \brief Pure virtual function to read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[out] trace The array of traces to fill from the file
      */
-    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const = 0;
+    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm = const_cast<TraceParam *>(PRM_NULL)) const = 0;
 
     /*! \brief Pure virtual function to write the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[in] trace The array of traces to write to the file
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm) = 0;
+    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm = PRM_NULL) = 0;
 
-    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const = 0;
-    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm) = 0;
+    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm = const_cast<TraceParam *>(PRM_NULL)) const = 0;
+    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm = PRM_NULL) = 0;
     virtual void readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const = 0;
     virtual void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm) = 0;
 
