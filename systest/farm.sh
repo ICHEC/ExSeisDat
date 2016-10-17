@@ -25,7 +25,7 @@ if [ $MPI_BASE == "openmpi" ]; then
 fi
 
 if [ $MPI_BASE == "mpich2" ]; then
-    if [ $MODULE == intel -o $MODULE == tullow ]; then
+    if [ $MODULE == "intel" -o $MODULE == "tullow" ]; then
         export MPICH_CXX=icpc
         export MPICH_CC=icc
     fi

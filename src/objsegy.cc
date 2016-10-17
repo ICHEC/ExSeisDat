@@ -71,6 +71,7 @@ void SEGY::writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) c
     data->write(SEGSz::getDODFLoc(offset, ns), SEGSz::getDFSz(ns), SEGSz::getDOSz(ns), sz, df);
 }
 
+//TODO: Add optional validation in this layer?
 void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
 {
     std::vector<size_t> dooff(sz);

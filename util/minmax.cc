@@ -2,10 +2,12 @@
 #include "ops/ops.hh"
 #include "cppfileapi.hh"
 #include <iostream>
+#include <algorithm>
 using namespace PIOL;
 using namespace File;
-int calcMin(ExSeis piol, std::string iname, std::string oname)
+int calcMin(std::string iname, std::string oname)
 {
+    ExSeis piol;
     File::Direct in(piol, iname);
 
     auto dec = decompose(in.readNt(), piol.getNumRank(), piol.getRank());
@@ -29,23 +31,41 @@ int calcMin(ExSeis piol, std::string iname, std::string oname)
     getMinMax(piol, offset, num, Coord::Rcv, prm.data(), minmax.data()+4U);
     getMinMax(piol, offset, num, Coord::CMP, prm.data(), minmax.data()+8U);
 
+    size_t sz = (!piol.getRank() ? minmax.size() : 0U);
+    std::vector<size_t> list(sz);
+    std::vector<size_t> uniqlist(sz);
+
+    for (size_t i = 0U; i < sz; i++)
+        uniqlist[i] = list[i] = minmax[i].num;
+
+    std::sort(uniqlist.begin(), uniqlist.end());
+    auto end = std::unique(uniqlist.begin(), uniqlist.end());
+    uniqlist.resize(std::distance(uniqlist.begin(), end));
+
+    size_t usz = uniqlist.size();
+    std::vector<TraceParam> tprm(usz);
+
+    in.readTraceParam(usz, uniqlist.data(), tprm.data());
+
+    std::vector<TraceParam> oprm(sz);
+    std::vector<trace_t> trace(sz);
+    for (size_t i = 0U; i < sz; i++)
+        for (size_t j = 0U; j < usz; j++)
+        {
+            if (list[i] == uniqlist[j])
+            {
+                oprm[i] = tprm[j];
+                oprm[i].tn = minmax[i].num;
+                trace[i] = trace_t(1);
+                j = usz;
+            }
+        }
+
     File::Direct out(piol, oname, FileMode::Write);
-    out.writeNt(minmax.size());
+    out.writeNt(sz);
     out.writeNs(1U);
     out.writeInc(in.readInc());
-
-    TraceParam hdr;
-    for (size_t i = 0U; i < minmax.size(); i++)
-    {
-        in.readTraceParam(minmax[i].num, 1U, &hdr);
-        hdr.tn = minmax[i].num;
-        out.writeTraceParam(i, 1U, &hdr);
-    }
-
-    std::vector<trace_t> trace(minmax.size());
-    for (auto & d : trace)
-        d = trace_t(1);
-    out.writeTrace(0, trace.size(), trace.data());
+    out.writeTrace(0, sz, trace.data(), oprm.data());
     return 0;
 }
 
@@ -84,8 +104,7 @@ int main(int argc, char ** argv)
         return -1;
     }
 
-    ExSeis piol;
-    calcMin(piol, iname, oname);
+    calcMin(iname, oname);
 
     return 0;
 }

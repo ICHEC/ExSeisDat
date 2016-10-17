@@ -125,10 +125,12 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
     {
         auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
         offset = dec.first;
-        biggest = lnt = dec.second;
+        lnt = dec.second;
+        ExSeisPIOL * tpiol = piol;
+        biggest = tpiol->comm->gather(std::vector<size_t>{lnt})[0];
     }
 
-    max /= SEGSz::getDOSz(ns);
+    max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns) + sizeof(File::TraceParam) + sizeof(size_t));
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
     if (random)
         writeRandom(piol, &file, nt, ns, lnt, extra, max);

@@ -14,23 +14,27 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
     std::cout << msg << sz << " " << rank << " " << rankn << std::endl;
 }
 
-void smallCopy(ExSeisPIOL * piol, Data::Interface * out, Data::Interface * in, size_t repRate)
+void smallCopy(ExSeisPIOL * piol, Data::Interface * in, Data::Interface * out, size_t repRate)
 {
+    csize_t rank = piol->comm->getRank();
+
     csize_t fsz = in->getFileSz();
     csize_t hosz = SEGSz::getHOSz();
-    std::vector<uchar> buf(fsz);
+    size_t wsz = (!rank ? fsz : 0);
+    std::vector<uchar> buf(wsz);
 
-    in->read(0, fsz, buf.data());
+    in->read(0, wsz, buf.data());
     piol->isErr();
 
-    out->write(0, fsz, buf.data());
+    out->write(0, wsz, buf.data());
     piol->isErr();
 
-    std::copy(buf.begin()+hosz, buf.end(), buf.begin());
+    if (!rank)
+        std::copy(buf.begin()+hosz, buf.end(), buf.begin());
 
     for (size_t j = 1; j < repRate; j++)
     {
-        out->write(hosz + (fsz - hosz) * j, fsz - hosz, buf.data());
+        out->write(hosz + (fsz - hosz) * j, (!rank ? fsz - hosz : 0), buf.data());
         piol->isErr();
     }
 }
@@ -122,137 +126,67 @@ std::pair<size_t, size_t> writeArb(size_t rank, size_t numRank, Data::Interface 
  *  \param[in] oname The SEG-Y output file name
  *  \param[in] repRate The repetition rate
  */
-void mpiMakeSEGYCopy(ExSeis piol, std::string iname, std::string oname, size_t repRate)
+void mpiMakeSEGYCopy(ExSeis piol, Interface * in, Interface * out, size_t repRate)
 {
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
-    MPIIO in(piol, iname, FileMode::Read);
-    MPIIO out(piol, oname, FileMode::Write);
-
-    csize_t fsz = in.getFileSz();
-    csize_t bsz = 2097152LU;
-    csize_t hosz = SEGSz::getHOSz();
-
-    size_t memlim = 1280U * bsz;
-
-    size_t step = numRank * memlim;
-    if (fsz/numRank < hosz)
-    {
-        if (rank)
-            smallCopy(piol, &out, &in, repRate);
-    }
-    else
-        for (size_t i = 0; i < fsz; i += step)
-        {
-            size_t rblock = (i + step < fsz ? step : fsz - i);
-            auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
-
-            std::vector<uchar> buf(dec.second);
-            in.read(i+dec.first, dec.second, buf.data());
-            piol.isErr();
-            out.write(i+dec.first, dec.second, buf.data());
-            piol.isErr();
-            if (i == 0)
-            {
-                if (dec.first == 0)   //If zero, then current process has read the header object
-                {
-                    std::move(buf.begin() + hosz, buf.end(), buf.begin());
-                    dec.second -= hosz;
-                    buf.resize(dec.second);
-                }
-                else
-                    dec.first -= hosz;
-                rblock -= hosz;
-            }
-            size_t rank = piol.getRank();
-            size_t numRank = piol.getNumRank();
-            for (size_t j = 1; j < repRate; j++)
-                dec = writeArb(rank, numRank, &out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock, &buf);
-        }
-}
-
-void mpiMakeSEGYCopyNaive1(ExSeis piol, std::string iname, std::string oname, size_t repRate)
-{
-    size_t rank = piol.getRank();
-    size_t numRank = piol.getNumRank();
-
-    MPIIO in(piol, iname, FileMode::Read);
-    MPIIO out(piol, oname, FileMode::Write);
+    csize_t fsz = in->getFileSz();
     piol.isErr();
 
-    csize_t fsz = in.getFileSz();
-    piol.isErr();
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
-
     size_t memlim = 1280U * bsz;
-
     size_t step = numRank * memlim;
-    if (fsz/numRank < hosz)
-    {
-        if (rank)
-            smallCopy(piol, &out, &in, repRate);
-    }
-    else
+
     for (size_t i = 0; i < fsz; i += step)
     {
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec = blockDecomp(rblock, bsz, numRank, rank, i);
 
         std::vector<uchar> buf(dec.second);
-        in.read(i+dec.first, dec.second, buf.data());
+        in->read(i+dec.first, dec.second, buf.data());
         piol.isErr();
-        out.write(i+dec.first, dec.second, buf.data());
+        out->write(i+dec.first, dec.second, buf.data());
         piol.isErr();
         if (i == 0)
         {
             if (dec.first == 0)   //If zero, then current process has read the header object
             {
-                std::move(buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
+                std::move(buf.begin() + hosz, buf.end(), buf.begin());
                 dec.second -= hosz;
                 buf.resize(dec.second);
             }
             else
                 dec.first -= hosz;
+            rblock -= hosz;
         }
+        size_t rank = piol.getRank();
+        size_t numRank = piol.getNumRank();
         for (size_t j = 1; j < repRate; j++)
-        {
-            out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
-            piol.isErr();
-        }
+            dec = writeArb(rank, numRank, out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock, &buf);
     }
 }
 
-void mpiMakeSEGYCopyNaive2(ExSeis piol, std::string iname, std::string oname, size_t repRate)
+template <bool Block>
+void mpiMakeSEGYCopyNaive(ExSeis piol, Interface * in, Interface * out, size_t repRate)
 {
-    size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
-
-    MPIIO in(piol, iname, FileMode::Read);
-    MPIIO out(piol, oname, FileMode::Write);
-
-    csize_t fsz = in.getFileSz();
+    csize_t fsz = in->getFileSz();
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
-
     size_t memlim = 1280U * bsz;
-
     size_t step = numRank * memlim;
-    if (fsz/numRank < hosz)
-    {
-        if (rank)
-            smallCopy(piol, &out, &in, repRate);
-    }
-    else
+
     for (size_t i = 0; i < fsz; i += step)
     {
         size_t rblock = (i + step < fsz ? step : fsz - i);
-        auto dec = decompose(rblock, numRank, rank);
+        auto dec = (Block ? decompose(rblock, numRank, piol.getRank())
+                          : blockDecomp(rblock, bsz, numRank, piol.getRank(), i));
 
         std::vector<uchar> buf(dec.second);
-        in.read(i + dec.first, dec.second, buf.data());
-        out.write(i + dec.first, dec.second, buf.data());
+        in->read(i + dec.first, dec.second, buf.data());
+        out->write(i + dec.first, dec.second, buf.data());
         if (i == 0)
         {
             if (dec.first == 0)   //If zero, then current process has read the header object
@@ -265,7 +199,7 @@ void mpiMakeSEGYCopyNaive2(ExSeis piol, std::string iname, std::string oname, si
                 dec.first -= hosz;
         }
         for (size_t j = 1; j < repRate; j++)
-            out.write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
+            out->write(hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
     }
 }
 
@@ -316,27 +250,37 @@ int main(int argc, char ** argv)
     assert(iname.size() && oname.size());
 
     ExSeis piol;
-    switch (version)
-    {
-        case Version::Block :
-        if (!piol.getRank())
-            std::cout << "Standard\n";
-        mpiMakeSEGYCopy(piol, iname, oname, rep);
-        break;
 
-        case Version::Naive1 :
-        if (!piol.getRank())
-            std::cout << "Naive 1\n";
-        mpiMakeSEGYCopyNaive1(piol, iname, oname, rep);
-        break;
+    size_t numRank = piol.getNumRank();
 
-        default :
-        case Version::Naive2 :
-        if (!piol.getRank())
-            std::cout << "Naive 2\n";
-        mpiMakeSEGYCopyNaive2(piol, iname, oname, rep);
-        break;
-    }
+    MPIIO in(piol, iname, FileMode::Read);
+    MPIIO out(piol, oname, FileMode::Write);
+    piol.isErr();
+
+    csize_t fsz = in.getFileSz();
+    piol.isErr();
+    if (fsz/numRank < SEGSz::getHOSz())
+        smallCopy(piol, &in, &out, rep);
+    else
+        switch (version)
+        {
+            case Version::Block :
+            if (!piol.getRank())
+                std::cout << "Standard\n";
+            mpiMakeSEGYCopy(piol, &in, &out, rep);
+            break;
+            case Version::Naive1 :
+            if (!piol.getRank())
+                std::cout << "Naive 1\n";
+            mpiMakeSEGYCopyNaive<true>(piol, &in, &out, rep);
+            break;
+            default :
+            case Version::Naive2 :
+            if (!piol.getRank())
+                std::cout << "Naive 2\n";
+            mpiMakeSEGYCopyNaive<false>(piol, &in, &out, rep);
+            break;
+        }
     return 0;
 }
 
