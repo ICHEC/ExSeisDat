@@ -142,3 +142,32 @@ TEST_F(MPIIOTest, FarmWriteBlocksMLL)
     piol->isErr();
 }
 
+////////Lists///////
+TEST_F(MPIIOTest, WriteListZero)
+{
+    makeMPIIO<true>(tempFile);
+    csize_t nt = 0;
+    csize_t ns = 0;
+    writeList(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, WriteListSmall)
+{
+    makeMPIIO<true>(tempFile);
+    csize_t nt = 400;
+    csize_t ns = 261;
+
+    writeList(nt, ns);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, FarmWriteListLarge)
+{
+    makeMPIIO<true>(tempFile);
+    csize_t nt = 2000000U;
+    csize_t ns = 1000U;
+    writeList(nt, ns);
+    piol->isErr();
+}
+

@@ -286,3 +286,36 @@ TEST_F(MPIIOTest, FarmReadBlocksMLL)
     readBigBlocks<true>(nt, ns);
     piol->isErr();
 }
+
+///////Lists//////////
+csize_t largens = 1000U;
+csize_t largent = 2000000U;
+csize_t smallns = 261U;
+csize_t smallnt = 400U;
+
+TEST_F(MPIIOTest, ReadListZero)
+{
+    makeMPIIO(smallSEGYFile);
+    readList(0, 0, NULL);
+    piol->isErr();
+}
+
+TEST_F(MPIIOTest, ReadListSmall)
+{
+    makeMPIIO(smallSEGYFile);
+    auto vec = getRandomVec(smallnt/2, smallnt, 1337);
+    readList(smallnt/2, smallns, vec.data());
+    piol->isErr();
+}
+
+
+TEST_F(MPIIOTest, FarmReadListLarge)
+{
+    makeMPIIO(largeSEGYFile);
+    auto vec = getRandomVec(largent/2, largent, 1337);
+
+    readList(largent/2, largens, vec.data());
+    piol->isErr();
+}
+
+

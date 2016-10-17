@@ -154,4 +154,56 @@ class MPIIOTest : public Test
             }
         }
     }
+
+    void writeList(csize_t sz, csize_t ns)
+    {
+        auto offset = getRandomVec(sz, 1337);
+        size_t bsz = SEGSz::getDFSz(ns);
+        std::vector<uchar> d(bsz*sz);
+        for (size_t i = 0; i < sz; i++)
+        {
+            uchar * buf = &d[bsz*i];
+            for (size_t k = 0; k < ns; k++)
+            {
+                union { float f; uint32_t i; } n;
+                n.f = offset[i]+k;
+                buf[4*k + 0] = n.i >> 24 & 0xFF;
+                buf[4*k + 1] = n.i >> 16 & 0xFF;
+                buf[4*k + 2] = n.i >> 8  & 0xFF;
+                buf[4*k + 3] = n.i       & 0xFF;
+            }
+        }
+
+        std::vector<size_t> boffset(sz);
+        for (size_t i = 0; i < sz; i++)
+            boffset[i] = SEGSz::getDODFLoc<float>(offset[i], ns);
+        data->write(bsz, sz, boffset.data(), d.data());
+        piol->isErr();
+        readList(sz, ns, offset.data());
+    }
+
+    void readList(csize_t sz, csize_t ns, csize_t * offset)
+    {
+        size_t bsz = SEGSz::getDFSz(ns);
+        std::vector<uchar> d(bsz*sz);
+        std::vector<size_t> boffset(sz);
+        for (size_t i = 0; i < sz; i++)
+            boffset[i] = SEGSz::getDODFLoc<float>(offset[i], ns);
+        data->read(bsz, sz, boffset.data(), d.data());
+        piol->isErr();
+
+        for (size_t i = 0; i < sz; i++)
+        {
+            uchar * buf = &d[bsz*i];
+            for (size_t k = 0; k < ns; k++)
+            {
+                union { float f; uint32_t i; } n;
+                n.f = offset[i] + k;
+                ASSERT_EQ(buf[4*k + 0], n.i >> 24 & 0xFF) << i << " " << k;
+                ASSERT_EQ(buf[4*k + 1], n.i >> 16 & 0xFF) << i << " " << k;
+                ASSERT_EQ(buf[4*k + 2], n.i >> 8  & 0xFF) << i << " " << k;
+                ASSERT_EQ(buf[4*k + 3], n.i       & 0xFF) << i << " " << k;
+            }
+        }
+    }
 };

@@ -217,7 +217,7 @@ TEST_F(FileSEGYRead, FileReadTraceZeroNs)
     nt = 10;
     ns = 0;
     makeMockSEGY<false, false>();
-    readTraceTest(10, nt);
+    readTraceTest(9, nt);
 }
 
 TEST_F(FileSEGYRead, FileReadTraceWPrmZeroNs)
@@ -226,7 +226,7 @@ TEST_F(FileSEGYRead, FileReadTraceWPrmZeroNs)
     ns = 0;
     makeMockSEGY<false, false>();
     initTrBlock();
-    readTraceTest<true>(10, nt);
+    readTraceTest<true>(0, nt);
 }
 
 TEST_F(FileSEGYRead, FileReadRandomTraceZeroNs)

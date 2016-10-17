@@ -192,7 +192,7 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
 {
-    if (ns == 0 || (offset > nt && sz && !state.stalent))   //Nothing to be read
+    if (offset > nt && sz && !state.stalent)   //Nothing to be read
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
             "readTrace() was called for a zero byte read.", Log::Verb::None);
@@ -309,15 +309,6 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 
 void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
 {
-    if (!sz || !ns)
-    {
-        if (prm == PRM_NULL)
-            obj->readDODF(0, 0, nullptr, nullptr);
-        else
-            obj->readDO(0, 0, nullptr, nullptr);
-        return;
-    }
-
     uchar * buf = reinterpret_cast<uchar *>(trace);
     if (prm == PRM_NULL)
         obj->readDODF(ns, sz, offset, buf);

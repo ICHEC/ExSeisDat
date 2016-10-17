@@ -155,7 +155,7 @@ struct FileSEGYTest : public Test
             writeHO<false>();
     }
 
-    template <bool WRITE = true, bool makeCall = true>
+    template <bool WRITE = true, bool callHO = true>
     void makeMockSEGY()
     {
         if (file.get() != nullptr)
@@ -180,7 +180,7 @@ struct FileSEGYTest : public Test
 
         if (WRITE)
         {
-            if (makeCall)
+            if (callHO)
             {
                 piol->isErr();
                 writeHO<true>();
@@ -358,30 +358,27 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (tn * ns)
+            if (readPrm)
+                buf.resize(tnRead * SEGSz::getDOSz(ns));
+            else
+                buf.resize(tnRead * SEGSz::getDFSz(ns));
+            for (size_t i = 0U; i < tnRead; i++)
             {
                 if (readPrm)
-                    buf.resize(tnRead * SEGSz::getDOSz(ns));
-                else
-                    buf.resize(tnRead * SEGSz::getDFSz(ns));
-                for (size_t i = 0U; i < tnRead; i++)
+                    std::copy(tr.begin() + (offset+i) * SEGSz::getMDSz(), tr.begin() + (offset+i+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
+                for (size_t j = 0U; j < ns; j++)
                 {
-                    if (readPrm)
-                        std::copy(tr.begin() + (offset+i) * SEGSz::getMDSz(), tr.begin() + (offset+i+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
-                    for (size_t j = 0U; j < ns; j++)
-                    {
-                        float val = offset + i + j;
-                        size_t addr = readPrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns+j)*sizeof(float);
-                        getBigEndian(toint(val), &buf[addr]);
-                    }
+                    float val = offset + i + j;
+                    size_t addr = readPrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns+j)*sizeof(float);
+                    getBigEndian(toint(val), &buf[addr]);
                 }
-                if (readPrm)
-                    EXPECT_CALL(*mock, readDO(offset, ns, tnRead, _))
-                                .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-                else
-                    EXPECT_CALL(*mock, readDODF(offset, ns, tnRead, _))
-                                .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
             }
+            if (readPrm)
+                EXPECT_CALL(*mock, readDO(offset, ns, tnRead, _))
+                                .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
+            else
+                EXPECT_CALL(*mock, readDODF(offset, ns, tnRead, _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
         }
 
         std::vector<float> bufnew(tn * ns);
@@ -414,30 +411,27 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (tn * ns)
+            if (readPrm)
+                buf.resize(tn * SEGSz::getDOSz(ns));
+            else
+                buf.resize(tn * SEGSz::getDFSz(ns));
+            for (size_t i = 0U; i < tn; i++)
             {
-                if (readPrm)
-                    buf.resize(tn * SEGSz::getDOSz(ns));
-                else
-                    buf.resize(tn * SEGSz::getDFSz(ns));
-                for (size_t i = 0U; i < tn; i++)
+                if (readPrm && ns*tn)
+                    std::copy(tr.begin() + offset[i] * SEGSz::getMDSz(), tr.begin() + (offset[i]+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
+                for (size_t j = 0U; j < ns; j++)
                 {
-                    if (readPrm)
-                        std::copy(tr.begin() + offset[i] * SEGSz::getMDSz(), tr.begin() + (offset[i]+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
-                    for (size_t j = 0U; j < ns; j++)
-                    {
-                        size_t addr = readPrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns+j)*sizeof(float);
-                        float val = offset[i] + j;
-                        getBigEndian(toint(val), &buf[addr]);
-                    }
+                    size_t addr = readPrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns+j)*sizeof(float);
+                    float val = offset[i] + j;
+                    getBigEndian(toint(val), &buf[addr]);
                 }
-                if (readPrm)
-                    EXPECT_CALL(*mock, readDO(ns, tn, offset.data(), _))
-                                .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-                else
-                    EXPECT_CALL(*mock, readDODF(ns, tn, offset.data(), _))
-                                .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
             }
+            if (readPrm)
+                EXPECT_CALL(*mock, readDO(ns, tn, offset.data(), _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
+            else
+                EXPECT_CALL(*mock, readDODF(ns, tn, offset.data(), _))
+                            .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
         }
 
         std::vector<float> bufnew(tn * ns);
@@ -492,30 +486,27 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (tn * ns)
-            {
-                if (writePrm)
+            if (writePrm)
                 buf.resize(tn * SEGSz::getDOSz(ns));
-                else
-                    buf.resize(tn * SEGSz::getDFSz(ns));
-                for (size_t i = 0U; i < tn; i++)
+            else
+                buf.resize(tn * SEGSz::getDFSz(ns));
+            for (size_t i = 0U; i < tn; i++)
+            {
+                if(writePrm)
+                    initWriteHeaders(offset+i, &buf[i*SEGSz::getDOSz(ns)]);
+                for (size_t j = 0U; j < ns; j++)
                 {
-                    if(writePrm)
-                        initWriteHeaders(offset+i, &buf[i*SEGSz::getDOSz(ns)]);
-                    for (size_t j = 0U; j < ns; j++)
-                    {
-                        size_t addr = writePrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns + j)*sizeof(float);
-                        float val = offset + i + j;
-                        getBigEndian(toint(val), &buf[addr]);
-                    }
+                    size_t addr = writePrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns + j)*sizeof(float);
+                    float val = offset + i + j;
+                    getBigEndian(toint(val), &buf[addr]);
                 }
-                if (writePrm)
-                    EXPECT_CALL(*mock, writeDO(offset, ns, tn, _))
-                                    .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
-                else
-                    EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
-                                    .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
             }
+            if (writePrm)
+                EXPECT_CALL(*mock, writeDO(offset, ns, tn, _))
+                                .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
+            else
+                EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
+                                .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
         std::vector<TraceParam> prm(tn);
         std::vector<float> bufnew(tn * ns);
@@ -550,7 +541,7 @@ struct FileSEGYTest : public Test
     template <bool writePrm = false, bool MOCK = true>
     void writeRandomTraceTest(size_t tn, const std::vector<size_t> offset)
     {
-        ASSERT_EQ( tn, offset.size() );
+        ASSERT_EQ(tn, offset.size());
         std::vector<uchar> buf;
         if (MOCK)
         {
@@ -560,30 +551,27 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (tn * ns)
+            if (writePrm)
+                buf.resize(tn * SEGSz::getDOSz(ns));
+            else
+                buf.resize(tn * SEGSz::getDFSz(ns));
+            for (size_t i = 0U; i < tn; i++)
             {
                 if (writePrm)
-                    buf.resize(tn * SEGSz::getDOSz(ns));
-                else
-                    buf.resize(tn * SEGSz::getDFSz(ns));
-                for (size_t i = 0U; i < tn; i++)
+                    initWriteHeaders(offset[i], &buf[i*SEGSz::getDOSz(ns)]);
+                for (size_t j = 0U; j < ns; j++)
                 {
-                    if (writePrm)
-                        initWriteHeaders(offset[i], &buf[i*SEGSz::getDOSz(ns)]);
-                    for (size_t j = 0U; j < ns; j++)
-                    {
-                        size_t addr = writePrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns + j)*sizeof(float);
-                        float val = offset[i] + j;
-                        getBigEndian(toint(val), &buf[addr]);
-                    }
+                    size_t addr = writePrm ? (i*SEGSz::getDOSz(ns)+SEGSz::getMDSz()+j*sizeof(float)) : (i*ns + j)*sizeof(float);
+                    float val = offset[i] + j;
+                    getBigEndian(toint(val), &buf[addr]);
                 }
-                if (writePrm)
-                    EXPECT_CALL(*mock, writeDO(ns, tn, offset.data(), _))
-                                    .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
-                else
-                    EXPECT_CALL(*mock, writeDODF(ns, tn, offset.data(), _))
-                                    .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
             }
+            if (writePrm)
+                EXPECT_CALL(*mock, writeDO(ns, tn, offset.data(), _))
+                                .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
+            else
+                EXPECT_CALL(*mock, writeDODF(ns, tn, offset.data(), _))
+                                .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
         std::vector<TraceParam> prm(tn);
         std::vector<float> bufnew(tn * ns);

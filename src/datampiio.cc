@@ -351,7 +351,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
 void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
-    size_t max = maxSize / bsz;
+    size_t max = maxSize / (bsz ? bsz : 1U);
     size_t remCall = 0;
     {
         std::vector<size_t> sizes = {sz};
@@ -392,7 +392,7 @@ void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) co
         for (size_t i = 0; i < sz; i++)
             write(offset[i], bsz, d);
 
-    listIO((coll ? mpiio_write_at_all : mpiio_write_at_all), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
+    listIO((coll ? mpiio_write_at_all : mpiio_write_at), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
 }
 
 void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
