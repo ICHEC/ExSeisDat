@@ -14,6 +14,13 @@ int calcMin(std::string iname, std::string oname)
     size_t offset = dec.first;
     size_t num = dec.second;
 
+    for (size_t i = 0; i < piol.getNumRank(); i++)
+    {
+        if (i == piol.getRank())
+            std::cout << piol.getRank() << " " << offset << " "  << num << std::endl;
+        piol.barrier();
+    }
+
     std::vector<TraceParam> prm;
     try
     {
@@ -27,6 +34,7 @@ int calcMin(std::string iname, std::string oname)
 
     std::vector<CoordElem> minmax(12U);
     in.readTraceParam(offset, num, prm.data());
+
     getMinMax(piol, offset, num, Coord::Src, prm.data(), minmax.data());
     getMinMax(piol, offset, num, Coord::Rcv, prm.data(), minmax.data()+4U);
     getMinMax(piol, offset, num, Coord::CMP, prm.data(), minmax.data()+8U);
@@ -43,8 +51,8 @@ int calcMin(std::string iname, std::string oname)
     uniqlist.resize(std::distance(uniqlist.begin(), end));
 
     size_t usz = uniqlist.size();
-    std::vector<TraceParam> tprm(usz);
 
+    std::vector<TraceParam> tprm(usz);
     in.readTraceParam(usz, uniqlist.data(), tprm.data());
 
     std::vector<TraceParam> oprm(sz);

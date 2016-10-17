@@ -4,7 +4,7 @@
 #include <functional>
 #include "ops/ops.hh"
 #include "file/file.hh"
-
+#include <cstring>
 namespace PIOL { namespace File {
 
 template <typename T>
@@ -22,13 +22,30 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
             return true;
         return false;
     };
-    auto p = std::minmax_element(coord, coord + sz, min);
 
+    T temp;
+    if (!sz)
+    {
+        memset(&temp, 0, sizeof(T));
+        coord = &temp;
+    }
+
+    auto p = std::minmax_element(coord, coord + sz, min);
     std::vector<geom_t> lminmax = { elem1(*p.first), elem1(*p.second) };
     std::vector<size_t> ltrace = {offset + std::distance(coord, p.first),
                                   offset + std::distance(coord, p.second)};
+
     auto tminmax = piol->comm->gather(lminmax);
     auto ttrace = piol->comm->gather(ltrace);
+
+    auto tsz = piol->comm->gather(std::vector<size_t>{sz});
+    for (size_t i = 0; i < tsz.size(); i++)
+        if (!tsz[i])
+        {
+            tminmax.erase(tminmax.begin() + i);
+            ttrace.erase(ttrace.begin() + i);
+        }
+
     //Global
     auto s = std::minmax_element(tminmax.begin(), tminmax.end());
 
@@ -40,26 +57,14 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
 template <typename T>
 void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Func<T> xlam, Func<T> ylam, CoordElem * minmax)
 {
-    //TODO: Create and use a subcommunicator to avoid the deadlock the next conditions will cause
-    if (!sz || !coord)
-    {
-        piol->log->record("", Log::Layer::Ops, Log::Status::Warning,
-                     "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") has no traces.",
-                     Log::Verb::Extended);
-        return;
-    }
-    if (!minmax)
-    {
-        piol->log->record("", Log::Layer::Ops, Log::Status::Warning,
-                     "getCoordMinMax() was called but a process (" + std::to_string(piol->comm->getRank()) +") does not have minmax allocated.",
-                     Log::Verb::Extended);
-        return;
-    }
     auto x = getCoordMinMax<T>(piol, offset, sz, coord, xlam, ylam);
     auto y = getCoordMinMax<T>(piol, offset, sz, coord, ylam, xlam);
 
-    std::copy(x.begin(), x.end(), minmax);
-    std::copy(y.begin(), y.end(), minmax + x.size());
+    if (minmax)
+    {
+        std::copy(x.begin(), x.end(), minmax);
+        std::copy(y.begin(), y.end(), minmax + x.size());
+    }
 }
 
 void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax)
