@@ -48,7 +48,7 @@ SEGY::~SEGY(void)
         readNt();
         if (state.resize)
             obj->setFileSz(SEGSz::getFileSz(nt, ns));
-        if (mode != FileMode::Read && state.writeHO)
+        if (state.writeHO)
         {
             if (!piol->comm->getRank())
             {

@@ -32,7 +32,7 @@ class MPIIO : public Interface
     struct Opt
     {
         typedef MPIIO Type; //!< The Type of the class this structure is nested in
-        bool coll;
+        bool coll;          //!< Whether collective read/write operations will be used
         MPI_Info info;      //!< The info structure to use
         size_t maxSize;     //!< The maximum size to allow to be written to disk per process in one operation
         MPI_Comm fcomm;     //!< The MPI communicator to use for file access
@@ -41,7 +41,7 @@ class MPIIO : public Interface
     };
 
     private :
-    bool coll;
+    bool coll;          //!< Whether collective read/write operations will be used
     MPI_File file;      //!< The MPI-IO file handle
     MPI_Comm fcomm;     //!< The MPI-IO file communicator
     MPI_Info info;      //!< \copydoc MPIIO::Opt::info

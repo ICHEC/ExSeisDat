@@ -73,8 +73,18 @@ class MPI : public Comm::Interface
      */
     std::vector<size_t> gather(const std::vector<size_t> & val) const;
 
+    /*! Perform a reduce across all process to get the sum of the passed values
+     * \param[in] val variable to be used in the operation from thie process
+     * \return the global sum (same value on all processes)
+     */
     size_t sum(size_t val);
+
+    /*! Perform a reduce across all process to get the max of the passed values
+     * \param[in] val variable to be used in the operation from thie process
+     * \return the global max (same value on all processes)
+     */
     size_t max(size_t val);
+
     /*! \brief All processors will wait at the barrier until everyone arrives.
      *  The MPI implementation of the pure virtual base member simply calls MPI_Barrier
      */

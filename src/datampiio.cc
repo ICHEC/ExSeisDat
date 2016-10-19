@@ -40,6 +40,15 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
     return MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
 }
 
+/*! Set a view on a file so that a read of random traces appears contiguous
+ *  \param[in] file The MPI-IO file handle
+ *  \param[in] info The info structure to use
+ *  \param[in] count The number of offsets
+ *  \param[in] block The block size in bytes
+ *  \param[in] offset An array of offsets in bytes from the start of the file of sizze count
+ *  \param[out] type The datatype which will have been used to create a view
+ *  \return Return an MPI error code.
+ */
 int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_Aint * offset, MPI_Datatype * type)
 {
     #ifndef HINDEXED_BLOCK_WORKS

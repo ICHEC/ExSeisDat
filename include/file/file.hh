@@ -147,6 +147,7 @@ class Interface
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[out] trace The array of traces to fill from the file
+     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
      */
     virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm = const_cast<TraceParam *>(PRM_NULL)) const = 0;
 
@@ -154,12 +155,47 @@ class Interface
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[in] trace The array of traces to write to the file
+     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
      */
     virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm = PRM_NULL) = 0;
 
+    /*! \brief Read the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read.
+     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *
+     *  \details When prm==PRM_NULL only the trace DF is read.
+     */
     virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm = const_cast<TraceParam *>(PRM_NULL)) const = 0;
+
+    /*! \brief write the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to write.
+     *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *
+     *  \details When prm==PRM_NULL only the trace DF is written.
+     *  It is assumed that the parameter writing operation is not an update. Any previous
+     *  contents of the trace header will be overwritten.
+     */
     virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm = PRM_NULL) = 0;
+
+    /*! \brief Read the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read.
+     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     */
     virtual void readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const = 0;
+
+    /*! \brief write the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to write.
+     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *
+     *  \details It is assumed that the parameter writing operation is not an update. Any previous
+     *  contents of the trace header will be overwritten.
+     */
     virtual void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm) = 0;
 
     /*! \brief Pure virtual function to write the human readable text from the file.

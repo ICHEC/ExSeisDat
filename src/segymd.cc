@@ -244,6 +244,11 @@ int16_t calcScale(const coord_t coord)
     return scalComp(scal1, scal2);
 }
 
+/*! Extract the trace parameters from a character array and copy
+ *  them to a TraceParam structure
+ *  \param[in] md A charachter array of raw trace header contents
+ *  \param[out] prm An array of TraceParam structures
+ */
 void extractTraceParam(const uchar * md, TraceParam * prm)
 {
     geom_t scale = getMd(TrScal::ScaleCoord, md);
@@ -254,6 +259,11 @@ void extractTraceParam(const uchar * md, TraceParam * prm)
     prm->tn = getHost<int32_t>(&md[size_t(TrHdr::SeqFNum)-1]);
 }
 
+/*! Insert the trace parameters from a TraceParam structure and
+ *  copy them into a character array ready for writing to a segy file
+ *  \param[in] prm An array of TraceParam structures
+ *  \param[out] md A charachter array of raw trace header contents
+ */
 void insertTraceParam(const TraceParam * prm, uchar * md)
 {
     int16_t scale = scalComp(1, calcScale(prm->src));

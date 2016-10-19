@@ -95,14 +95,14 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t, const uchar *));
 
-#warning Not covered yet.
     MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t *, uchar *));
     MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t *, const uchar *));
-
-    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t *, const uchar *));
     MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t *, uchar *));
     MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t *, const uchar *));
+
+#warning Not covered yet.
+    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t *, uchar *));
+    MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t *, const uchar *));
 };
 
 struct FileSEGYTest : public Test
