@@ -336,8 +336,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
     size_t remCall = 0;
     if (coll)
     {
-        std::vector<size_t> sizes = {sz};
-        auto vec = piol->comm->gather(sizes);
+        auto vec = piol->comm->gather(std::vector<size_t>{sz});
         remCall = *std::max_element(vec.begin(), vec.end());
         remCall = remCall/max + (remCall % max > 0) - sz/max - (sz % max > 0);
     }
@@ -364,7 +363,7 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
     size_t remCall = 0;
     {
         std::vector<size_t> sizes = {sz};
-        auto vec = piol->comm->gather(sizes);
+        auto vec = piol->comm->gather(std::vector<size_t>{sz});
         remCall = *std::max_element(vec.begin(), vec.end());
         remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
     }

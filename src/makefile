@@ -1,9 +1,9 @@
-INC_FOLDER = -I../include
 
 include ../compiler.cfg
 BIN=$(LIB_DIR)/libpiol.so
-CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
+CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CXXINC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
+#IMELD_FLAG=-Wl,--dynamic-linker=/ichec/home/staff/cathal/env/extract/lib64/ld-linux-x86-64.so.2 
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)
@@ -14,7 +14,7 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@ 
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
@@ -23,7 +23,7 @@ $(OBJDIR)/%.o: %.cc
 all: $(DEP) $(OBJECTS) $(BIN)
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ -shared $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ $(IMELD_FLAG) -shared $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)

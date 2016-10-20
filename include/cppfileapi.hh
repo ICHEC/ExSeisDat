@@ -111,6 +111,11 @@ class Direct : public Interface
         return file.get();
     }
 
+    operator Interface * () const
+    {
+        return file.get();
+    }
+
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */

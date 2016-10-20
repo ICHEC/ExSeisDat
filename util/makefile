@@ -2,13 +2,14 @@ OBJDIR=obj
 
 GCOMP=g++
 
+#IMELD_FLAG=-Wl,--dynamic-linker=/ichec/home/staff/cathal/env/extract/lib64/ld-linux-x86-64.so.2 
 include ../compiler.cfg
 
 DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = cropen cexample1 cexample2 creadwrite assess example1 filemake makerep makerepn1 makerepn2 minmax
+BIN = fourdbin cropen cexample1 cexample2 creadwrite assess example1 filemake makerep makerepn1 makerepn2 minmax
 CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
@@ -43,10 +44,12 @@ assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 example1: obj/example1.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 filemake: obj/filemake.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 makerep: obj/makerep.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 makerepn1: obj/makerep.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 makerepn2: obj/makerep.cpo obj/sglobal.cpo
