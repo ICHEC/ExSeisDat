@@ -100,12 +100,11 @@ int main(void)
     File::Direct file1(piol, name1, FileMode::Read);
     File::Direct file2(piol, name2, FileMode::Read);
 
-    if (!rank)
-        std::cout << "Input files opened\n";
-
     vec<geom_t> coords1;
     vec<geom_t> coords2;
     size_t sz[2];
+
+    //Perform the decomposition and read coordinates of interest.
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
         auto dec2 = decompose(file2.readNt(), numRank, rank);
@@ -118,21 +117,30 @@ int main(void)
         coords2.resize(4U*sz[1]);
         getCoords(file2, dec2.first, coords2);
     }
+
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
 
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
 
+
+    //Perform a local update of min and minrs
     update<true>(szall, coords1, rank, coords2, min, minrs);
+
+    //Perform the updates of min and minrs using data from other processes.
     for (size_t i = 1U; i < numRank; i ++)
     {
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
 
-        //TODO: Check if it is possible that the other process has data of interest.
+        //TODO: Check if the other process has data of interest.
+
         vec<geom_t> proc(4U*szall[lrank]);
         MPI_Request msg[2];
+        //Receive data from the process on the left
         MPI_Irecv(proc.data(), 4U*szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &msg[0]);
+
+        //Send data to the process on the right
         MPI_Isend(coords2.data(), 4U*szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &msg[1]);
 
         MPI_Status stat;

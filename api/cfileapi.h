@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+//TODO: size_t -> csize_t
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -234,17 +235,24 @@ extern void readTraceParam(ExSeisFile fh, size_t offset, size_t sz, TraceParam *
 /*
  *    Reading the traces themselves
  */
-/*! \brief Read the trace's from offset to offset+sz.
+/*! \brief Read the traces from offset to offset+sz.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] offset The starting trace number.
+ *  \param[in] sz The number of traces to process
+ *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ */
+extern void readTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace);
+
+/*! \brief Read the trace and trace parameters from offset to offset+sz.
  *  \param[in] fh A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void readTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace);
 extern void readFullTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace, TraceParam * prm);
 
-/*! \brief Read the trace's from offset to offset+sz.
+/*! \brief Read the traces from offset to offset+sz.
  *  \param[in] fh A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
@@ -253,13 +261,69 @@ extern void readFullTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace
  *  \warning This function is not thread safe.
  */
 extern void writeTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace);
+
+/*! \brief Read the traces and trace parameters from offset to offset+sz.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] offset The starting trace number.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \warning This function is not thread safe.
+ */
 extern void writeFullTrace(ExSeisFile fh, size_t offset, size_t sz, float * trace, const TraceParam * prm);
 
 //Lists
-extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, TraceParam * prm);
+
+/*! \brief Write the traces and trace parameters corresponding to the list of trace numbers.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] offset A list of trace numbers.
+ *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ */
+extern void ReadListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
+
+/*! \brief Write the traces corresponding to the list of trace numbers.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] offset A list of trace numbers.
+ *  \param[int] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \warning This function is not thread safe.
+ */
 extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
+
+/*! \brief Read the traces and trace parameters corresponding to the list of trace numbers.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] offset A list of trace numbers.
+ *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ */
+extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, TraceParam * prm);
+
+/*! \brief Write the traces corresponding to the list of trace numbers.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] offset A list of trace numbers.
+ *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ */
 extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const TraceParam * prm);
+
+/*! \brief Write the trace parameters corresponding to the list of trace numbers.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] offset A list of trace numbers.
+ *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ */
 extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm);
+
+/*! \brief Read the trace parameters corresponding to the list of trace numbers.
+ *  \param[in] fh A handle for the file.
+ *  \param[in] sz The number of traces to process
+ *  \param[in] offset A list of trace numbers.
+ *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ */
 extern void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm);
 
 /*

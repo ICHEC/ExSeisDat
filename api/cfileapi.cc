@@ -130,11 +130,12 @@ void writeInc(ExSeisFile f, const double inc)
     f->file->writeInc(inc);
 }
 
+//Contiguous traces
 void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->readTrace(offset, sz, trace);
 }
-//Contiguous traces
+
 void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, TraceParam * prm)
 {
     f->file->readTrace(offset, sz, trace, reinterpret_cast<File::TraceParam *>(prm));
@@ -161,14 +162,19 @@ void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
 }
 
 //List traces
-void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, TraceParam * prm)
+void readListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
 {
-    f->file->readTrace(sz, offset, trace, reinterpret_cast<File::TraceParam *>(prm));
+    f->file->readTrace(sz, offset, trace);
 }
 
 void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
 {
     f->file->writeTrace(sz, offset, trace);
+}
+
+void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, TraceParam * prm)
+{
+    f->file->readTrace(sz, offset, trace, reinterpret_cast<File::TraceParam *>(prm));
 }
 
 void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const TraceParam * prm)
