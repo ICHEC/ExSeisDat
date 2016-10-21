@@ -52,12 +52,12 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
         }
 
     for (size_t i = 0; i < sz; i++)
-        for (size_t j = Init ? 1U : 0U; j < szall[orank]; j++)
+        for (size_t j = (Init ? 1U : 0U); j < szall[orank]; j++)
         {
-            geom_t sr = dsr(&local[4U*i], &other[4U*j]);
-            if (sr < minrs[i])
+            geom_t dval = dsr(&local[4U*i], &other[4U*j]);
+            if ((dval < minrs[i]) || (dval == minrs[i] && min[i] > offset + j))
             {
-                minrs[i] = sr;
+                minrs[i] = dval;
                 min[i] = offset + j;
             }
         }
@@ -65,19 +65,15 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
 
 int main(void)
 {
+    ExSeis piol;
+    ExSeisPIOL * ppiol = piol;
     std::string name1 = "s1.segy";
     std::string name2 = "s2.segy";
     std::string name3 = "s3.segy";
     std::string name4 = "s4.segy";
 
-    ExSeis piol;
-
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
-    if (!rank)
-        std::cout << "Piol initialised\n";
-
-    ExSeisPIOL * ppiol = piol;
 
     File::Direct file1(piol, name1, FileMode::Read);
     File::Direct file2(piol, name2, FileMode::Read);
@@ -87,24 +83,18 @@ int main(void)
 
     vec<geom_t> coords1;
     vec<geom_t> coords2;
-    size_t offset[2];
     size_t sz[2];
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
         auto dec2 = decompose(file2.readNt(), numRank, rank);
+
         sz[0] = dec1.second;
-        sz[1] = dec2.second;
-        offset[0] = dec1.first;
-        offset[1] = dec2.first;
-
-        if (!rank)
-            std::cout << "Decomposition done " << sz[0] << " " << file1.readNt() << " " << sz[1] << " " << file2->readNt() << std::endl;
-
         coords1.resize(4U*sz[0]);
-        getCoords(file1, offset[0], coords1);
+        getCoords(file1, dec1.first, coords1);
 
+        sz[1] = dec2.second;
         coords2.resize(4U*sz[1]);
-        getCoords(file2, offset[1], coords2);
+        getCoords(file2, dec2.first, coords2);
     }
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
@@ -113,8 +103,9 @@ int main(void)
         std::cout << "Traces Read\n";
 
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
+
     update<true>(szall, coords1, rank, coords2, min, minrs);
-    for (size_t i = 1; i < numRank; i ++)
+    for (size_t i = 1U; i < numRank; i ++)
     {
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
@@ -129,16 +120,20 @@ int main(void)
         assert(msg[0] != MPI_REQUEST_NULL);
         assert(msg[1] != MPI_REQUEST_NULL);
         assert(MPI_Wait(&msg[0], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
-        assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
-
         update<false>(szall, coords1, lrank, proc, min, minrs);
+        assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
     }
 
+    size_t offset = 0;
+    auto szall1 = ppiol->comm->gather(vec<size_t>{sz[0]});
     for (size_t r = 0; r < numRank; r++)
     {
+        piol.barrier();
         if (r == rank)
             for (size_t i = 0; i < sz[0]; i++)
-                std::cout << " " <<  min[i] << " " << minrs[i] << std::endl;
+                std::cout << offset+i << " " <<  min[i] << " " << minrs[i] << std::endl;
+        else
+            offset += szall1[r];
         piol.barrier();
     }
     return 0;
