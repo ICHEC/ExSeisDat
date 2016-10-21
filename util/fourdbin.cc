@@ -63,6 +63,28 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
         }
 }
 
+//Non-Contiguous read, contiguous write
+void select(ExSeisPIOL * piol, File::Interface * dst, File::Interface * src, vec<size_t> & list)
+{
+    const size_t sz = list.size();
+    dst->writeText("ExSeisDat 4d-bin file.\n");
+    dst->writeNt(sz);
+    dst->writeInc(src->readInc());
+    dst->writeNs(src->readNs());
+
+    vec<File::TraceParam> prm(sz);
+    vec<trace_t> trc(sz * src->readNs());
+
+    src->readTrace(sz, list.data(), trc.data(), prm.data());
+
+    auto offsets = piol->comm->gather(vec<size_t>{list.size()});
+    size_t offset = 0;
+    for (size_t i = 0; i < piol->comm->getRank(); i++)
+        offset += offsets[i];
+
+    dst->writeTrace(offset, sz, trc.data(), prm.data());
+}
+
 int main(void)
 {
     ExSeis piol;
@@ -99,9 +121,6 @@ int main(void)
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
 
-    if (!rank)
-        std::cout << "Traces Read\n";
-
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
 
     update<true>(szall, coords1, rank, coords2, min, minrs);
@@ -124,18 +143,26 @@ int main(void)
         assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
     }
 
-    size_t offset = 0;
-    auto szall1 = ppiol->comm->gather(vec<size_t>{sz[0]});
-    for (size_t r = 0; r < numRank; r++)
+    const geom_t dsrmax = 0.5;
+    size_t cnt = 0U;
+    vec<size_t> list1(sz[0]);
+    vec<size_t> list2(sz[0]);
+    for (size_t i = 0U; i < sz[0]; i++)
     {
-        piol.barrier();
-        if (r == rank)
-            for (size_t i = 0; i < sz[0]; i++)
-                std::cout << offset+i << " " <<  min[i] << " " << minrs[i] << std::endl;
-        else
-            offset += szall1[r];
-        piol.barrier();
+        if (minrs[i] <= dsrmax)
+        {
+            list2[cnt] = min[i];
+            list1[cnt++] = i;
+        }
     }
+    list1.resize(cnt);
+    list2.resize(cnt);
+
+    File::Direct file3(piol, name3, FileMode::Write);
+    File::Direct file4(piol, name4, FileMode::Write);
+
+    select(piol, file3, file1, list1);
+    select(piol, file4, file2, list2);
     return 0;
 }
 
