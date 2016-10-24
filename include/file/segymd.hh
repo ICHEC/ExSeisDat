@@ -160,7 +160,7 @@ extern int16_t scalComp(int16_t scal1, int16_t scal2);
 extern int16_t calcScale(const coord_t coord);
 extern void extractTraceParam(const uchar * md, TraceParam * prm);
 extern void insertTraceParam(const TraceParam * prm, uchar * md);
-extern void setScale(const TrScal item, const int16_t scale, uchar * buf);
+extern void setScale(const TrScal item, const int16_t scale, uchar * buf, size_t start = 0);
 
 /*! \brief Get the header metadata value from the binary header.
  *  \param[in] item The header item of interest.
@@ -208,5 +208,9 @@ void setMd(const Hdr item, const T src, uchar * dst)
         break;
     }
 }
+
+#warning temp
+extern void extractDynTraceParam(size_t sz, const uchar * md, TraceParam * prm);
+extern void insertDynTraceParam(size_t sz, const TraceParam * prm, uchar * md);
 }}
 #endif

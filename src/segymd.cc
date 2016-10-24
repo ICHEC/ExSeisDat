@@ -74,9 +74,9 @@ int32_t getMd(const TrGrd item, const uchar * src)
  *  \param[in] scale The metadata value to insert into the buffer.
  *  \param[in, out] buf The trace header as an array of uchar.
  */
-void setScale(const TrScal item, const int16_t scale, uchar * buf)
+void setScale(const TrScal item, const int16_t scale, uchar * buf, size_t start)
 {
-    getBigEndian(scale, &buf[size_t(item)-1U]);
+    getBigEndian(scale, &buf[size_t(item)-start-1U]);
 }
 
 /*! \brief Set a coordinate point in the trace header

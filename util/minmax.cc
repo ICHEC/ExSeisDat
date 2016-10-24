@@ -14,12 +14,12 @@ int calcMin(std::string iname, std::string oname)
     size_t offset = dec.first;
     size_t num = dec.second;
 
-    for (size_t i = 0; i < piol.getNumRank(); i++)
+/*    for (size_t i = 0; i < piol.getNumRank(); i++)
     {
         if (i == piol.getRank())
             std::cout << piol.getRank() << " " << offset << " "  << num << std::endl;
         piol.barrier();
-    }
+    }*/
 
     std::vector<TraceParam> prm;
     try
