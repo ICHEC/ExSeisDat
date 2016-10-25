@@ -1,4 +1,5 @@
 #include "global.hh"
+#include <unordered_map>
 
 namespace PIOL { namespace File {
 struct Rule;
@@ -91,17 +92,65 @@ struct prmRet
     }
 };
 
-class DynParam : public Param
+struct EnumHash
 {
-    Rule * rules;
+    template <typename T>
+    size_t operator()(T t) const
+    {
+        return static_cast<size_t>(t);
+    }
+};
+
+enum class MdType : size_t
+{
+    Long,
+    Short,
+    Float
+};
+
+struct RuleEntry
+{
+    size_t num;
+    size_t loc;
+    RuleEntry(size_t num_, Tr loc_) : num(num_), loc(size_t(loc_)) { }
+    virtual size_t min(void) = 0;
+    virtual size_t max(void) = 0;
+    virtual MdType type(void) = 0;
+};
+
+class Rule
+{
+    protected :
+    size_t numLong;     //Number of long rules
+    size_t numFloat;    //Number of float rules
+    size_t numShort;    //Number of short rules
+    size_t start;
+    size_t end;
+    struct
+    {
+        uint32_t badextent;
+        uint32_t fullextent;
+    } flag;
+
+    std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
+    public :
+    Rule(bool full, bool defaults);
+
+    void addLong(Meta m, Tr loc);
+    void addFloat(Meta m, Tr loc, Tr scalLoc);
+    void addShort(Meta m, Tr loc);
+    void rmRule(Meta);
+    size_t extent(void);
+};
+
+class DynParam : public Rule
+{
     Param prm;
 
     size_t sz;
     size_t stride;
-    size_t start;
-    size_t end;
     public :
-    DynParam(Rule * rules_, csize_t sz_ = 0, csize_t stride_ = 0);
+    DynParam(bool full, bool defaults, csize_t sz_ = 0, csize_t stride_ = 0);
     ~DynParam(void);
 
     prmRet getPrm(size_t i, Meta entry);
