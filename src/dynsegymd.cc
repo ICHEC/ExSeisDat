@@ -26,7 +26,7 @@ struct EnumHash
     }
 };
 
-enum MDType
+enum class MdType : size_t
 {
     Long,
     Short,
@@ -35,64 +35,103 @@ enum MDType
 
 struct RuleEntry
 {
-    Tr loc;
-    RuleEntry(Tr loc_) : loc(loc_) { }
+    size_t num;
+    size_t loc;
+    RuleEntry(size_t num_, Tr loc_) : num(num_), loc(size_t(loc_)) { }
+    virtual size_t min(void) = 0;
+    virtual size_t max(void) = 0;
+    virtual MdType type(void) = 0;
 };
 
 struct LongRuleEntry : public RuleEntry
 {
-    LongRuleEntry(Tr loc_) : RuleEntry(loc_) { }
+    LongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, loc_) { }
+    size_t min(void)
+    {
+        return loc;
+    }
+    size_t max(void)
+    {
+        return loc;
+    }
+    MdType type(void)
+    {
+        return MdType::Long;
+    }
 };
 
 struct ShortRuleEntry : public RuleEntry
 {
-    ShortRuleEntry(Tr loc_) : RuleEntry(loc_) { }
+    ShortRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, loc_) { }
+    size_t min(void)
+    {
+        return loc;
+    }
+    size_t max(void)
+    {
+        return loc;
+    }
+    MdType type(void)
+    {
+        return MdType::Short;
+    }
 };
 
 struct FloatRuleEntry : public RuleEntry
 {
-    Tr scalLoc;
-    FloatRuleEntry(Tr loc_, Tr scalLoc_) : RuleEntry(loc_), scalLoc(scalLoc_) { }
+    size_t scalLoc;
+    FloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_) : RuleEntry(num_, loc_), scalLoc(size_t(scalLoc_)) { }
+    size_t min(void)
+    {
+        return std::min(scalLoc, loc);
+    }
+    size_t max(void)
+    {
+        return std::max(scalLoc, loc);
+    }
+    MdType type(void)
+    {
+        return MdType::Float;
+    }
 };
+
 
 //A mechanism to store new rules
 struct Rule
 {
-    std::vector<LongRuleEntry> longrules;
-    std::vector<ShortRuleEntry> shortrules;
-    std::vector<FloatRuleEntry> floatrules;
-    std::unordered_map<Meta, std::pair<MDType, size_t>, EnumHash> translate;
+    std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
+    size_t numLong;
+    size_t numFloat;
+    size_t numShort;
+    void addLong(Meta m, Tr loc)
+    {
+        translate[m] = new LongRuleEntry(numLong++, loc);
+    }
+
+    void addShort(Meta m, Tr loc)
+    {
+        translate[m] = new ShortRuleEntry(numShort++, loc);
+    }
+
+    void addFloat(Meta m, Tr loc, Tr scalLoc)
+    {
+        translate[m] = new FloatRuleEntry(numFloat++, loc, scalLoc);
+    }
+
     Rule(void)
     {
-        translate[Meta::xSrc] = addFloat(Tr::xSrc, Tr::ScaleCoord);
-        translate[Meta::ySrc] = addFloat(Tr::ySrc, Tr::ScaleCoord);
-        translate[Meta::xRcv] = addFloat(Tr::xRcv, Tr::ScaleCoord);
-        translate[Meta::yRcv] = addFloat(Tr::yRcv, Tr::ScaleCoord);
-        translate[Meta::xCmp] = addFloat(Tr::xCmp, Tr::ScaleCoord);
-        translate[Meta::yCmp] = addFloat(Tr::yCmp, Tr::ScaleCoord);
-        translate[Meta::il] = addLong(Tr::il);
-        translate[Meta::xl] = addLong(Tr::xl);
-        translate[Meta::tn] = addLong(Tr::SeqFNum);
-    }
-
-//TODO: Don't allow duplicates?
-
-    std::pair<MDType, size_t> addLong(Tr loc)
-    {
-        longrules.emplace_back(loc);
-        return std::make_pair(MDType::Long, longrules.size() - 1);
-    }
-
-    std::pair<MDType, size_t> addShort(Tr loc)
-    {
-        shortrules.emplace_back(loc);
-        return std::make_pair(MDType::Short, shortrules.size() - 1);
-    }
-
-    std::pair<MDType, size_t> addFloat(Tr loc, Tr scalLoc)
-    {
-        floatrules.emplace_back(loc, scalLoc);
-        return std::make_pair(MDType::Float, floatrules.size() - 1);
+        numLong = 0;
+        numShort = 0;
+        numFloat = 0;
+        addFloat(Meta::xSrc, Tr::xSrc, Tr::ScaleCoord);
+        addFloat(Meta::ySrc, Tr::ySrc, Tr::ScaleCoord);
+        addFloat(Meta::xRcv, Tr::xRcv, Tr::ScaleCoord);
+        addFloat(Meta::yRcv, Tr::yRcv, Tr::ScaleCoord);
+        addFloat(Meta::xCmp, Tr::xCmp, Tr::ScaleCoord);
+        addFloat(Meta::yCmp, Tr::yCmp, Tr::ScaleCoord);
+        addLong(Meta::il, Tr::il);
+        addLong(Meta::xl, Tr::xl);
+        addLong(Meta::tn, Tr::SeqFNum);
     }
 };
 
@@ -112,36 +151,24 @@ DynParam::DynParam(Rule * rules_, csize_t sz_, csize_t stride_) : rules(rules_),
     }
     else
     {
-    start = 240U;
-    end = 0U;
-    for (size_t i = 0; i < rules->longrules.size(); i++)
-    {
-        start = std::min(start, size_t(rules->longrules[i].loc));
-        end = std::max(end, size_t(rules->longrules[i].loc));
-    }
-
-    for (size_t i = 0; i < rules->shortrules.size(); i++)
-    {
-        start = std::min(start, size_t(rules->shortrules[i].loc));
-        end = std::max(start, size_t(rules->shortrules[i].loc));
-    }
-
-    for (size_t i = 0; i < rules->floatrules.size(); i++)
-    {
-        start = std::min(start, std::min(size_t(rules->floatrules[i].loc), size_t(rules->floatrules[i].scalLoc)));
-        end = std::max(start, std::max(size_t(rules->floatrules[i].loc), size_t(rules->floatrules[i].scalLoc)));
-    }
+        start = 240U;
+        end = 0U;
+        for (const auto r : rules->translate)
+        {
+            start = std::min(start, r.second->min());
+            end = std::max(end, r.second->max());
+        }
     }
     if (sz > 0)
     {
-        if (sz * rules->floatrules.size())
-            prm.f = new geom_t[sz * rules->floatrules.size()];
+        if (sz * rules->numFloat)
+            prm.f = new geom_t[sz * rules->numFloat];
 
-        if (sz * rules->longrules.size())
-            prm.i = new llint[sz * rules->longrules.size()];
+        if (sz * rules->numLong)
+            prm.i = new llint[sz * rules->numLong];
 
-        if (sz * rules->shortrules.size())
-            prm.s = new short[sz * rules->shortrules.size()];
+        if (sz * rules->numShort)
+            prm.s = new short[sz * rules->numShort];
 
         prm.t = new size_t[sz];
     }
@@ -166,39 +193,36 @@ DynParam::~DynParam(void)
 prmRet DynParam::getPrm(size_t i, Meta entry)
 {
     prmRet ret;
-    std::pair<MDType, size_t> id = rules->translate[entry];
-    switch (id.first)
+    RuleEntry * id = rules->translate[entry];
+    switch (id->type())
     {
-        case MDType::Long :
-        ret.val.i = prm.i[i * rules->longrules.size() + id.second];
+        case MdType::Long :
+        ret.val.i = prm.i[i * rules->numLong + id->num];
         break;
-        case MDType::Short :
-        ret.val.s = prm.s[i * rules->shortrules.size() + id.second];
+        case MdType::Short :
+        ret.val.s = prm.s[i * rules->numShort + id->num];
         break;
-        case MDType::Float :
-        ret.val.f = prm.f[i * rules->floatrules.size() + id.second];
+        case MdType::Float :
+        ret.val.f = prm.f[i * rules->numFloat + id->num];
         break;
     }
     return ret;
 }
 
+#warning todo: Do type checks
 void DynParam::setPrm(size_t i, Meta entry, geom_t val)
 {
-    auto id = rules->translate[entry];
-#warning todo: Do type checks
-    prm.f[i * rules->floatrules.size() + id.second] = val;
+    prm.f[i * rules->numFloat + rules->translate[entry]->num] = val;
 }
 
 void DynParam::setPrm(size_t i, Meta entry, llint val)
 {
-    auto id = rules->translate[entry];
-    prm.i[i * rules->longrules.size() + id.second] = val;
+    prm.i[i * rules->numLong + rules->translate[entry]->num] = val;
 }
 
 void DynParam::setPrm(size_t i, Meta entry, short val)
 {
-    auto id = rules->translate[entry];
-    prm.s[i * rules->shortrules.size() + id.second] = val;
+    prm.s[i * rules->numShort + rules->translate[entry]->num] = val;
 }
 
 void DynParam::fill(uchar * buf)
@@ -206,30 +230,39 @@ void DynParam::fill(uchar * buf)
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = &buf[(end-start + stride)*i];
-//Longs
-        for (size_t len = rules->longrules.size(), j = 0; j < len; j++)
-            getBigEndian(int32_t(prm.i[i * len + j]), &md[size_t(rules->longrules[j].loc)-start-1U]);
-
-//Shorts
-        for (size_t len = rules->shortrules.size(), j = 0; j < len; j++)
-            getBigEndian(prm.s[i * len + j], &md[size_t(rules->shortrules[j].loc)-start-1U]);
-
-//Floats
         std::unordered_map<Tr, int16_t, EnumHash> scal;
-        for (size_t len = rules->floatrules.size(), j = 0; j < len; j++)
+        std::vector<const FloatRuleEntry *> rule;
+        for (const auto v : rules->translate)
         {
-            Tr sLoc = rules->floatrules[j].scalLoc;
-            int16_t val1 = (scal.find(sLoc) != scal.end() ? scal[sLoc] : 1);
-            int16_t val2 = deScale(prm.f[i * len + j]);
-            scal[sLoc] = scalComp(val1, val2);
+            const auto t = v.second;
+            switch (t->type())
+            {
+                case MdType::Float :
+                {
+                    rule.push_back(dynamic_cast<FloatRuleEntry *>(t));
+                    auto tr = static_cast<Tr>(rule.back()->scalLoc);
+                    int16_t val1 = (scal.find(tr) != scal.end() ? scal[tr] : 1);
+                    int16_t val2 = deScale(prm.f[i * rules->numFloat + t->num]);
+                    scal[tr] = scalComp(val1, val2);
+                }
+                break;
+                case MdType::Short :
+                getBigEndian(prm.s[i * rules->numShort + t->num], &md[t->loc-start-1U]);
+                break;
+                case MdType::Long :
+                getBigEndian(int32_t(prm.i[i * rules->numLong + t->num]), &md[t->loc-start-1U]);
+                break;
+            }
         }
+
+        //Finish off the floats
         for (const auto & s : scal)
             getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
 
-        for (size_t len = rules->floatrules.size(), j = 0; j < len; j++)
+        for (size_t j = 0; j < rule.size(); j++)
         {
-            geom_t gscale = scaleConv(scal[rules->floatrules[j].scalLoc]);
-            getBigEndian(int32_t(std::lround(prm.f[i * len + j] / gscale)), &md[size_t(rules->floatrules[j].loc)-start-1U]);
+            geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
+            getBigEndian(int32_t(std::lround(prm.f[i * rules->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
         }
     }
 }
@@ -240,25 +273,25 @@ void DynParam::take(const uchar * buf)
     {
         const uchar * md = &buf[(end-start + stride)*i];
         //Loop through each rule and extract data
-//Floats
-        for (size_t len = rules->floatrules.size(), j = 0; j < len; j++)
-            prm.f[i * len + j] = scaleConv(getHost<int16_t>(&md[size_t(rules->floatrules[j].scalLoc)-start-1U]))
-                                  * geom_t(getHost<int32_t>(&md[size_t(rules->floatrules[j].loc)-start-1U]));
-
-//Longs
-        for (size_t len = rules->longrules.size(), j = 0; j < len; j++)
-            prm.i[i * len + j] = getHost<int32_t>(&md[size_t(rules->longrules[j].loc)-start-1U]);
-
-//Shorts
-        for (size_t len = rules->shortrules.size(), j = 0; j < len; j++)
-            prm.s[i * len + j] = getHost<int16_t>(&md[size_t(rules->shortrules[j].loc)-start-1U]);
+        for (const auto v : rules->translate)
+        {
+            const auto t = v.second;
+            switch (t->type())
+            {
+                case MdType::Float :
+                prm.f[i * rules->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<FloatRuleEntry *>(t)->scalLoc - start-1U]))
+                                                       * geom_t(getHost<int32_t>(&md[t->loc - start-1U]));
+                break;
+                case MdType::Short :
+                prm.s[i * rules->numShort + t->num] = getHost<int16_t>(&md[t->loc - start-1U]);
+                break;
+                case MdType::Long :
+                prm.i[i * rules->numLong + t->num] = getHost<int32_t>(&md[t->loc - start-1U]);
+                break;
+            }
+        }
     }
 }
-
-/*struct RuleStore
-{
-    Rule r;
-};*/
 
 /*! Extract the trace parameters from a character array and copy
  *  them to a TraceParam structure
