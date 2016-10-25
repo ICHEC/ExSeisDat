@@ -1,3 +1,6 @@
+#ifndef PIOLFILEDYNSEGYMD_INCLUDE_GUARD
+#define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
+
 #include "global.hh"
 #include <unordered_map>
 
@@ -135,6 +138,7 @@ class Rule
     std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
     public :
     Rule(bool full, bool defaults);
+    Rule(const Rule * rule);
 
     void addLong(Meta m, Tr loc);
     void addFloat(Meta m, Tr loc, Tr scalLoc);
@@ -150,7 +154,7 @@ class DynParam : public Rule
     size_t sz;
     size_t stride;
     public :
-    DynParam(bool full, bool defaults, csize_t sz_ = 0, csize_t stride_ = 0);
+    DynParam(const Rule * rule, csize_t sz_ = 0, csize_t stride_ = 0);
     ~DynParam(void);
 
     prmRet getPrm(size_t i, Meta entry);
@@ -163,3 +167,5 @@ class DynParam : public Rule
     void take(const uchar * buf);
 };
 }}
+#endif
+

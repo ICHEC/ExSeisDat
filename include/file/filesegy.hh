@@ -11,7 +11,8 @@
 #include <memory>
 #include "global.hh"
 #include "file/file.hh"
-#include "file/segymd.hh"
+//#include "file/segymd.hh"
+#include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
 enum class Format : int16_t;
@@ -31,6 +32,8 @@ class SEGY : public Interface
 
     private :
     Format format;  //<! Type formats
+    Rule mdRule;
+
 
     /*! State flags structure for File::SEGY
      */

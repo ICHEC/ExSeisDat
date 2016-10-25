@@ -6,7 +6,6 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-
 #include "file/dynsegymd.hh"
 #include "file/segymd.hh"
 #include <algorithm>
@@ -96,6 +95,12 @@ Rule::Rule(bool full, bool defaults)
     }
 }
 
+Rule::Rule(const Rule * rule)
+{
+    *this = *rule;
+}
+
+
 size_t Rule::extent(void)
 {
     if (flag.fullextent)
@@ -138,8 +143,13 @@ void Rule::rmRule(Meta m)
     flag.badextent = (!flag.fullextent);
 }
 
-DynParam::DynParam(bool full, bool defaults, csize_t sz_, csize_t stride_) : Rule(full, defaults), sz(sz_), stride(stride_)
+DynParam::DynParam(const Rule * rule, csize_t sz_, csize_t stride_) : Rule(rule), sz(sz_), stride(stride_)
 {
+    prm.f = NULL;
+    prm.i = NULL;
+    prm.s = NULL;
+    prm.t = NULL;
+
     if (sz > 0)
     {
         prm.f = new geom_t[sz * numFloat];
@@ -159,10 +169,6 @@ DynParam::~DynParam(void)
         delete [] prm.f;
     if (prm.t != NULL)
         delete [] prm.t;
-    prm.f = NULL;
-    prm.i = NULL;
-    prm.s = NULL;
-    prm.t = NULL;
 }
 
 prmRet DynParam::getPrm(size_t i, Meta entry)
@@ -266,61 +272,5 @@ void DynParam::take(const uchar * buf)
             }
         }
     }
-}
-
-/*! Extract the trace parameters from a character array and copy
- *  them to a TraceParam structure
- *  \param[in] md A charachter array of raw trace header contents
- *  \param[out] prm An array of TraceParam structures
- */
-void extractDynTraceParam(size_t sz, const uchar * md, TraceParam * prm)
-{
-    DynParam dyn(true, true, sz, 0);
-    dyn.take(md);
-    for (size_t i = 0; i < sz; i++)
-    {
-        prm[i].src.x = dyn.getPrm(i, Meta::xSrc);
-        prm[i].src.y = dyn.getPrm(i, Meta::ySrc);
-        prm[i].rcv.x = dyn.getPrm(i, Meta::xRcv);
-        prm[i].rcv.y = dyn.getPrm(i, Meta::yRcv);
-        prm[i].cmp.x = dyn.getPrm(i, Meta::xCmp);
-        prm[i].cmp.y = dyn.getPrm(i, Meta::yCmp);
-        prm[i].line.il = dyn.getPrm(i, Meta::il);
-        prm[i].line.xl = dyn.getPrm(i, Meta::xl);
-
-        prm[i].tn = dyn.getPrm(i, Meta::tn);
-    }
-}
-
-/*! Insert the trace parameters from a TraceParam structure and
- *  copy them into a character array ready for writing to a segy file
- *  \param[in] prm An array of TraceParam structures
- *  \param[out] md A charachter array of raw trace header contents
- */
-void insertDynTraceParam(size_t sz, const TraceParam * prm, uchar * md)
-{
-    DynParam dyn(true, true, sz, 0);
-    for (size_t i = 0; i < sz; i++)
-    {
-        dyn.setPrm(i, Meta::xSrc, prm[i].src.x);
-        dyn.setPrm(i, Meta::ySrc, prm[i].src.y);
-        dyn.setPrm(i, Meta::xRcv, prm[i].rcv.x);
-        dyn.setPrm(i, Meta::yRcv, prm[i].rcv.y);
-        dyn.setPrm(i, Meta::xCmp, prm[i].cmp.x);
-        dyn.setPrm(i, Meta::yCmp, prm[i].cmp.y);
-        dyn.setPrm(i, Meta::il, prm[i].line.il);
-        dyn.setPrm(i, Meta::xl, prm[i].line.xl);
-        dyn.setPrm(i, Meta::tn, llint(prm[i].tn));
-    }
-    dyn.fill(md);
-}
-
-void extractTraceParam(const uchar * md, TraceParam * prm)
-{
-    extractDynTraceParam(1, md, prm);
-}
-void insertTraceParam(const TraceParam * prm, uchar * md)
-{
-    insertDynTraceParam(1, prm, md);
 }
 }}
