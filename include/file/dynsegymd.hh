@@ -59,26 +59,32 @@ struct prmRet
         geom_t f;
         short s;
     } val;
+
     operator long int ()
     {
         return val.i;
     }
+
     operator int ()
     {
         return val.i;
     }
+
     operator size_t ()
     {
         return val.i;
     }
+
     operator float ()
     {
         return val.f;
     }
+
     operator double ()
     {
         return val.f;
     }
+
     operator short ()
     {
         return val.s;
@@ -89,7 +95,6 @@ class DynParam : public Param
 {
     Rule * rules;
     Param prm;
-    std::vector<uchar> buf;
 
     size_t sz;
     size_t stride;
@@ -103,7 +108,9 @@ class DynParam : public Param
     void setPrm(size_t i, Meta entry, geom_t val);
     void setPrm(size_t i, Meta entry, llint val);
     void setPrm(size_t i, Meta entry, short val);
-    void setData(uchar * buf);
-    void getData(const uchar * buf);
+    //Put to buf
+    void fill(uchar * buf);
+    //Take from buf
+    void take(const uchar * buf);
 };
 }}

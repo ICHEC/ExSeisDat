@@ -108,7 +108,6 @@ class MockObj : public Obj::Interface
 struct FileSEGYTest : public Test
 {
     std::shared_ptr<ExSeisPIOL> piol;
-    std::shared_ptr<MockObj> mock;
     Comm::MPI::Opt opt;
     bool testEBCDIC;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
@@ -119,6 +118,7 @@ struct FileSEGYTest : public Test
     int inc = 10;
     csize_t format = 5;
     std::vector<uchar> ho;
+    std::shared_ptr<MockObj> mock;
 
     FileSEGYTest()
     {
@@ -338,10 +338,10 @@ struct FileSEGYTest : public Test
     void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val,
                              int16_t scal, size_t offset, std::vector<uchar> * tr)
     {
-        getBigEndian(scal,              tr->data()+ScaleCoord);
-        getBigEndian(val.first,         tr->data()+item.first);
-        getBigEndian(val.second,        tr->data()+item.second);
-        getBigEndian(int32_t(offset),   tr->data()+SeqFNum);
+        getBigEndian(scal,              &tr->at(ScaleCoord));
+        getBigEndian(val.first,         &tr->at(item.first));
+        getBigEndian(val.second,        &tr->at(item.second));
+        getBigEndian(int32_t(offset),   &tr->at(SeqFNum));
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
                                                         .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
     }
@@ -455,7 +455,7 @@ struct FileSEGYTest : public Test
         }
     }
 
-    void initWriteHeaders( size_t filePos, uchar * md ) {
+    void initWriteHeaders(size_t filePos, uchar * md) {
         coord_t src = coord_t(xNum(filePos), yNum(filePos));
         coord_t rcv = coord_t(xNum(filePos), yNum(filePos));
         coord_t cmp = coord_t(xNum(filePos), yNum(filePos));
@@ -527,9 +527,9 @@ struct FileSEGYTest : public Test
         }
         else
         {
-        for (size_t i = 0U; i < tn; i++)
-            for (size_t j = 0U; j < ns; j++)
-                bufnew[i*ns + j] = float(offset + i + j);
+            for (size_t i = 0U; i < tn; i++)
+                for (size_t j = 0U; j < ns; j++)
+                    bufnew[i*ns + j] = float(offset + i + j);
 
             file->writeTrace(offset, tn, bufnew.data());
         }

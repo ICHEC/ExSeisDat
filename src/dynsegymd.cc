@@ -16,12 +16,6 @@
 #include <iostream>
 
 namespace PIOL { namespace File {
-//New SEG-Y functions
-void setScale(size_t loc, const int16_t scale, uchar * md, size_t start)
-{
-    getBigEndian(scale, &md[loc-start-1U]);
-}
-
 //////
 struct EnumHash
 {
@@ -43,35 +37,22 @@ struct RuleEntry
 {
     Tr loc;
     RuleEntry(Tr loc_) : loc(loc_) { }
-    virtual MDType type(void) const = 0;
 };
 
 struct LongRuleEntry : public RuleEntry
 {
     LongRuleEntry(Tr loc_) : RuleEntry(loc_) { }
-    MDType type(void) const
-    {
-        return MDType::Long;
-    }
 };
 
 struct ShortRuleEntry : public RuleEntry
 {
     ShortRuleEntry(Tr loc_) : RuleEntry(loc_) { }
-    MDType type(void) const
-    {
-        return MDType::Short;
-    }
 };
 
 struct FloatRuleEntry : public RuleEntry
 {
     Tr scalLoc;
-    FloatRuleEntry(Tr scalLoc_, Tr loc_) : RuleEntry(loc_), scalLoc(scalLoc_) { }
-    MDType type(void) const
-    {
-        return MDType::Float;
-    }
+    FloatRuleEntry(Tr loc_, Tr scalLoc_) : RuleEntry(loc_), scalLoc(scalLoc_) { }
 };
 
 //A mechanism to store new rules
@@ -80,7 +61,7 @@ struct Rule
     std::vector<LongRuleEntry> longrules;
     std::vector<ShortRuleEntry> shortrules;
     std::vector<FloatRuleEntry> floatrules;
-    std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
+    std::unordered_map<Meta, std::pair<MDType, size_t>, EnumHash> translate;
     Rule(void)
     {
         translate[Meta::xSrc] = addFloat(Tr::xSrc, Tr::ScaleCoord);
@@ -96,39 +77,41 @@ struct Rule
 
 //TODO: Don't allow duplicates?
 
-    RuleEntry * addLong(Tr loc)
+    std::pair<MDType, size_t> addLong(Tr loc)
     {
-#if __cplusplus > 201402L
-        return longrules.emplace_back(loc);
-#else
         longrules.emplace_back(loc);
-        return &longrules.back();
-#endif
+        return std::make_pair(MDType::Long, longrules.size() - 1);
     }
 
-    RuleEntry * addShort(Tr loc)
+    std::pair<MDType, size_t> addShort(Tr loc)
     {
-#if __cplusplus > 201402L
-        return shortrules.emplace_back(loc);
-#else
         shortrules.emplace_back(loc);
-        return &shortrules.back();
-#endif
+        return std::make_pair(MDType::Short, shortrules.size() - 1);
     }
 
-    RuleEntry * addFloat(Tr scalLoc, Tr loc)
+    std::pair<MDType, size_t> addFloat(Tr loc, Tr scalLoc)
     {
-#if __cplusplus > 201402L
-        return floatrules.emplace_back(loc);
-#else
-        floatrules.emplace_back(scalLoc, loc);
-        return &floatrules.back();
-#endif
+        floatrules.emplace_back(loc, scalLoc);
+        return std::make_pair(MDType::Float, floatrules.size() - 1);
     }
 };
 
 DynParam::DynParam(Rule * rules_, csize_t sz_, csize_t stride_) : rules(rules_), sz(sz_), stride(stride_)
 {
+    bool full = true;
+    prm.f = NULL;
+    prm.i = NULL;
+    prm.s = NULL;
+    prm.t = NULL;
+
+#warning use SEGSz
+    if (full)
+    {
+        start = 0U;
+        end = 240U;
+    }
+    else
+    {
     start = 240U;
     end = 0U;
     for (size_t i = 0; i < rules->longrules.size(); i++)
@@ -148,39 +131,52 @@ DynParam::DynParam(Rule * rules_, csize_t sz_, csize_t stride_) : rules(rules_),
         start = std::min(start, std::min(size_t(rules->floatrules[i].loc), size_t(rules->floatrules[i].scalLoc)));
         end = std::max(start, std::max(size_t(rules->floatrules[i].loc), size_t(rules->floatrules[i].scalLoc)));
     }
-
+    }
     if (sz > 0)
     {
-        buf.resize(sz * (end-start));
-        prm.i = new llint[sz];
-        prm.s = new short[sz];
-        prm.f = new geom_t[sz];
+        if (sz * rules->floatrules.size())
+            prm.f = new geom_t[sz * rules->floatrules.size()];
+
+        if (sz * rules->longrules.size())
+            prm.i = new llint[sz * rules->longrules.size()];
+
+        if (sz * rules->shortrules.size())
+            prm.s = new short[sz * rules->shortrules.size()];
+
         prm.t = new size_t[sz];
     }
 }
 
 DynParam::~DynParam(void)
 {
-    delete prm.i;
-    delete prm.s;
-    delete prm.f;
-    delete prm.t;
+    if (prm.i != NULL)
+        delete [] prm.i;
+    if (prm.s != NULL)
+        delete [] prm.s;
+    if (prm.f != NULL)
+        delete [] prm.f;
+    if (prm.t != NULL)
+        delete [] prm.t;
+    prm.f = NULL;
+    prm.i = NULL;
+    prm.s = NULL;
+    prm.t = NULL;
 }
 
 prmRet DynParam::getPrm(size_t i, Meta entry)
 {
     prmRet ret;
-    RuleEntry * id = rules->translate[entry];
-    switch (id->type())
+    std::pair<MDType, size_t> id = rules->translate[entry];
+    switch (id.first)
     {
         case MDType::Long :
-        ret.val.i = prm.i[i * rules->longrules.size() + std::distance(&rules->longrules[0], static_cast<LongRuleEntry*>(id))];
+        ret.val.i = prm.i[i * rules->longrules.size() + id.second];
         break;
         case MDType::Short :
-        ret.val.s = prm.s[i * rules->shortrules.size() + std::distance(&rules->shortrules[0], static_cast<ShortRuleEntry*>(id))];
+        ret.val.s = prm.s[i * rules->shortrules.size() + id.second];
         break;
         case MDType::Float :
-        ret.val.f = prm.f[i * rules->floatrules.size() + std::distance(&rules->floatrules[0], static_cast<FloatRuleEntry*>(id))];
+        ret.val.f = prm.f[i * rules->floatrules.size() + id.second];
         break;
     }
     return ret;
@@ -188,58 +184,75 @@ prmRet DynParam::getPrm(size_t i, Meta entry)
 
 void DynParam::setPrm(size_t i, Meta entry, geom_t val)
 {
-    auto id = static_cast<FloatRuleEntry *>(rules->translate[entry]);
-    if (!id)
-        std::cerr << "Non-existent rule / bad cast.\n";
-    prm.f[i * rules->floatrules.size() + std::distance(&rules->floatrules[0], id)] = val;
+    auto id = rules->translate[entry];
+#warning todo: Do type checks
+    prm.f[i * rules->floatrules.size() + id.second] = val;
 }
 
 void DynParam::setPrm(size_t i, Meta entry, llint val)
 {
-    auto id = static_cast<LongRuleEntry *>(rules->translate[entry]);
-    if (!id)
-        std::cerr << "Non-existent rule / bad cast.\n";
-    prm.f[i * rules->longrules.size() + std::distance(&rules->longrules[0], id)] = val;
+    auto id = rules->translate[entry];
+    prm.i[i * rules->longrules.size() + id.second] = val;
 }
 
 void DynParam::setPrm(size_t i, Meta entry, short val)
 {
-    auto id = static_cast<ShortRuleEntry *>(rules->translate[entry]);
-    if (!id)
-        std::cerr << "Non-existent rule / bad cast.\n";
-    prm.s[i * rules->shortrules.size() + std::distance(&rules->shortrules[0], id)] = val;
+    auto id = rules->translate[entry];
+    prm.s[i * rules->shortrules.size() + id.second] = val;
 }
 
-void DynParam::setData(uchar * buf)
+void DynParam::fill(uchar * buf)
 {
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = &buf[(end-start + stride)*i];
+//Longs
         for (size_t len = rules->longrules.size(), j = 0; j < len; j++)
-            getBigEndian(int32_t(prm.s[i * len + j]), &md[size_t(rules->longrules[j].loc) - start]);
+            getBigEndian(int32_t(prm.i[i * len + j]), &md[size_t(rules->longrules[j].loc)-start-1U]);
 
+//Shorts
         for (size_t len = rules->shortrules.size(), j = 0; j < len; j++)
-            getBigEndian(prm.s[i * len + j], &md[size_t(rules->shortrules[j].loc) - start-1U]);
+            getBigEndian(prm.s[i * len + j], &md[size_t(rules->shortrules[j].loc)-start-1U]);
 
+//Floats
         std::unordered_map<Tr, int16_t, EnumHash> scal;
         for (size_t len = rules->floatrules.size(), j = 0; j < len; j++)
         {
             Tr sLoc = rules->floatrules[j].scalLoc;
-            scal[sLoc] = scalComp((scal.find(sLoc) == scal.end() ? 1 : scal[sLoc]), deScale(prm.f[i * len + j]));
+            int16_t val1 = (scal.find(sLoc) != scal.end() ? scal[sLoc] : 1);
+            int16_t val2 = deScale(prm.f[i * len + j]);
+            scal[sLoc] = scalComp(val1, val2);
         }
         for (const auto & s : scal)
-            setScale(size_t(s.first)-1, s.second - start, md, start);
+            getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
 
         for (size_t len = rules->floatrules.size(), j = 0; j < len; j++)
         {
             geom_t gscale = scaleConv(scal[rules->floatrules[j].scalLoc]);
-            getBigEndian(int32_t(std::lround(prm.f[i * len + j] / gscale)), &buf[size_t(rules->floatrules[j].loc) - start - 1U]);
+            getBigEndian(int32_t(std::lround(prm.f[i * len + j] / gscale)), &md[size_t(rules->floatrules[j].loc)-start-1U]);
         }
     }
 }
 
-void DynParam::getData(const uchar * buf)
+void DynParam::take(const uchar * buf)
 {
+    for (size_t i = 0; i < sz; i++)
+    {
+        const uchar * md = &buf[(end-start + stride)*i];
+        //Loop through each rule and extract data
+//Floats
+        for (size_t len = rules->floatrules.size(), j = 0; j < len; j++)
+            prm.f[i * len + j] = scaleConv(getHost<int16_t>(&md[size_t(rules->floatrules[j].scalLoc)-start-1U]))
+                                  * geom_t(getHost<int32_t>(&md[size_t(rules->floatrules[j].loc)-start-1U]));
+
+//Longs
+        for (size_t len = rules->longrules.size(), j = 0; j < len; j++)
+            prm.i[i * len + j] = getHost<int32_t>(&md[size_t(rules->longrules[j].loc)-start-1U]);
+
+//Shorts
+        for (size_t len = rules->shortrules.size(), j = 0; j < len; j++)
+            prm.s[i * len + j] = getHost<int16_t>(&md[size_t(rules->shortrules[j].loc)-start-1U]);
+    }
 }
 
 /*struct RuleStore
@@ -256,7 +269,7 @@ void extractDynTraceParam(size_t sz, const uchar * md, TraceParam * prm)
 {
     Rule r;
     DynParam dyn(&r, sz, 0);
-    dyn.getData(md);
+    dyn.take(md);
     for (size_t i = 0; i < sz; i++)
     {
         prm[i].src.x = dyn.getPrm(i, Meta::xSrc);
@@ -265,7 +278,10 @@ void extractDynTraceParam(size_t sz, const uchar * md, TraceParam * prm)
         prm[i].rcv.y = dyn.getPrm(i, Meta::yRcv);
         prm[i].cmp.x = dyn.getPrm(i, Meta::xCmp);
         prm[i].cmp.y = dyn.getPrm(i, Meta::yCmp);
-        prm[i].tn = dyn.getPrm(i, Meta::yCmp);
+        prm[i].line.il = dyn.getPrm(i, Meta::il);
+        prm[i].line.xl = dyn.getPrm(i, Meta::xl);
+
+        prm[i].tn = dyn.getPrm(i, Meta::tn);
     }
 }
 
@@ -286,9 +302,19 @@ void insertDynTraceParam(size_t sz, const TraceParam * prm, uchar * md)
         dyn.setPrm(i, Meta::yRcv, prm[i].rcv.y);
         dyn.setPrm(i, Meta::xCmp, prm[i].cmp.x);
         dyn.setPrm(i, Meta::yCmp, prm[i].cmp.y);
-        dyn.setPrm(i, Meta::yCmp, llint(prm[i].tn));
+        dyn.setPrm(i, Meta::il, prm[i].line.il);
+        dyn.setPrm(i, Meta::xl, prm[i].line.xl);
+        dyn.setPrm(i, Meta::tn, llint(prm[i].tn));
     }
-    dyn.setData(md);
+    dyn.fill(md);
 }
 
+void extractTraceParam(const uchar * md, TraceParam * prm)
+{
+    extractDynTraceParam(1, md, prm);
+}
+void insertTraceParam(const TraceParam * prm, uchar * md)
+{
+    insertDynTraceParam(1, prm, md);
+}
 }}
