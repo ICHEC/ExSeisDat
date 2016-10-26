@@ -1,13 +1,34 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date October 2016
+ *   \brief The state of this file is temporarily SEG-Y specific, when new formats are
+ *          investigated this file should be split into a  format-agnostic component and a
+ *          SEG-Y specific component.
+ *   \details
+ *//*******************************************************************************************/
 #ifndef PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 #define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
-
 #include "global.hh"
 #include <unordered_map>
-
+#include "file/file.hh"
+#include "file/segymd.hh"
 namespace PIOL { namespace File {
-struct Rule;
+enum class Meta : size_t
+{
+    xSrc,
+    ySrc,
+    xRcv,
+    yRcv,
+    xCmp,
+    yCmp,
+    il,
+    xl,
+    tn
+};
 
-/*! Misc Trace Header offsets
+/*! Trace Header offsets
  */
 enum class Tr : size_t
 {
@@ -32,32 +53,6 @@ enum class Tr : size_t
     yCmp        = 185U, //!< int32_t. The Y coordinate for the CMP
     il          = 189U, //!< int32_t. The Inline grid point.
     xl          = 193U  //!< int32_t. The Crossline grid point.
-};
-
-enum class Meta : size_t
-{
-    xSrc,
-    ySrc,
-    xRcv,
-    yRcv,
-    xCmp,
-    yCmp,
-    il,
-    xl,
-    tn
-};
-
-class Rule;
-//C compatible structure
-struct Param
-{
-    geom_t * f;
-    llint *  i;
-    short *  s;
-    size_t * t;
-
-    Param(const Rule * r, size_t sz);
-    ~Param(void);
 };
 
 struct prmRet
@@ -100,6 +95,7 @@ struct prmRet
     }
 };
 
+#warning Intel specific hack?
 struct EnumHash
 {
     template <typename T>
@@ -120,12 +116,13 @@ struct RuleEntry
 {
     size_t num;
     size_t loc;
-    RuleEntry(size_t num_, Tr loc_) : num(num_), loc(size_t(loc_)) { }
+    RuleEntry(size_t num_, size_t loc_) : num(num_), loc(loc_) { }
     virtual size_t min(void) = 0;
     virtual size_t max(void) = 0;
     virtual MdType type(void) = 0;
 };
 
+//TODO: When implementing alternative file formats, this Rule structure must be generalised
 struct Rule
 {
     size_t numLong;     //Number of long rules
@@ -152,13 +149,12 @@ struct Rule
     size_t extent(void);
     RuleEntry * getEntry(Meta entry);
 };
+
 //Access
 prmRet getPrm(Rule * r, size_t i, Meta entry, const Param * prm);
 void setPrm(Rule * r, size_t i, Meta entry, geom_t val, Param * prm);
 void setPrm(Rule * r, size_t i, Meta entry, llint val, Param * prm);
 void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm);
-void take(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride = 0);
-void fill(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride = 0);
 }}
 #endif
 

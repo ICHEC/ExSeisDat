@@ -6,17 +6,16 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include "file/dynsegymd.hh"
-#include "file/segymd.hh"
 #include <algorithm>
+#include "file/dynsegymd.hh"
 
 #warning temp
 #include <iostream>
 
 namespace PIOL { namespace File {
-struct LongRuleEntry : public RuleEntry
+struct SEGYLongRuleEntry : public RuleEntry
 {
-    LongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, loc_) { }
+    SEGYLongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
     size_t min(void)
     {
         return loc;
@@ -31,9 +30,9 @@ struct LongRuleEntry : public RuleEntry
     }
 };
 
-struct ShortRuleEntry : public RuleEntry
+struct SEGYShortRuleEntry : public RuleEntry
 {
-    ShortRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, loc_) { }
+    SEGYShortRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
     size_t min(void)
     {
         return loc;
@@ -48,10 +47,10 @@ struct ShortRuleEntry : public RuleEntry
     }
 };
 
-struct FloatRuleEntry : public RuleEntry
+struct SEGYFloatRuleEntry : public RuleEntry
 {
     size_t scalLoc;
-    FloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_) : RuleEntry(num_, loc_), scalLoc(size_t(scalLoc_)) { }
+    SEGYFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_) : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
     size_t min(void)
     {
         return std::min(scalLoc, loc);
@@ -104,15 +103,15 @@ Rule::Rule(bool full, bool defaults)
 
     if (defaults)
     {
-        translate[Meta::xSrc] = new FloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
-        translate[Meta::ySrc] = new FloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
-        translate[Meta::xRcv] = new FloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
-        translate[Meta::yRcv] = new FloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
-        translate[Meta::xCmp] = new FloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
-        translate[Meta::yCmp] = new FloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
-        translate[Meta::il] = new LongRuleEntry(numLong++, Tr::il);
-        translate[Meta::xl] = new LongRuleEntry(numLong++, Tr::xl);
-        translate[Meta::tn] = new LongRuleEntry(numLong++, Tr::SeqFNum);
+        translate[Meta::xSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
+        translate[Meta::ySrc] = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
+        translate[Meta::xRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
+        translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
+        translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
+        translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
+        translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
+        translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
+        translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
     }
     if (full)
     {
@@ -131,7 +130,6 @@ Rule::Rule(const Rule * rule)
 {
     *this = *rule;
 }
-
 
 size_t Rule::extent(void)
 {
@@ -153,24 +151,36 @@ size_t Rule::extent(void)
 
 void Rule::addLong(Meta m, Tr loc)
 {
-    translate[m] = new LongRuleEntry(numLong++, loc);
+    translate[m] = new SEGYLongRuleEntry(numLong++, loc);
     flag.badextent = (!flag.fullextent);
 }
 
 void Rule::addShort(Meta m, Tr loc)
 {
-    translate[m] = new ShortRuleEntry(numShort++, loc);
+    translate[m] = new SEGYShortRuleEntry(numShort++, loc);
     flag.badextent = (!flag.fullextent);
 }
 
 void Rule::addFloat(Meta m, Tr loc, Tr scalLoc)
 {
-    translate[m] = new FloatRuleEntry(numFloat++, loc, scalLoc);
+    translate[m] = new SEGYFloatRuleEntry(numFloat++, loc, scalLoc);
     flag.badextent = (!flag.fullextent);
 }
 
 void Rule::rmRule(Meta m)
 {
+    switch (translate[m]->type())
+    {
+        case MdType::Long :
+        numLong--;
+        break;
+        case MdType::Short :
+        numShort--;
+        break;
+        case MdType::Float :
+        numFloat--;
+        break;
+    }
     translate.erase(m);
     flag.badextent = (!flag.fullextent);
 }
@@ -215,129 +225,6 @@ void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm)
     prm->s[i * r->numShort + r->getEntry(entry)->num] = val;
 }
 
-void fill(Rule * r, size_t sz, const Param * prm, uchar * buf, size_t stride)
-{
-    size_t start = r->start;
-    for (size_t i = 0; i < sz; i++)
-    {
-        uchar * md = &buf[(r->extent() + stride)*i];
-        std::unordered_map<Tr, int16_t, EnumHash> scal;
-        std::vector<const FloatRuleEntry *> rule;
-        for (const auto v : r->translate)
-        {
-            const auto t = v.second;
-            size_t loc = t->loc - start-1U;
-            switch (t->type())
-            {
-                case MdType::Float :
-                {
-                    rule.push_back(dynamic_cast<FloatRuleEntry *>(t));
-                    auto tr = static_cast<Tr>(rule.back()->scalLoc);
-                    int16_t val1 = (scal.find(tr) != scal.end() ? scal[tr] : 1);
-                    int16_t val2 = deScale(prm->f[i * r->numFloat + t->num]);
-                    scal[tr] = scalComp(val1, val2);
-                }
-                break;
-                case MdType::Short :
-                getBigEndian(prm->s[i * r->numShort + t->num], &md[loc]);
-                break;
-                case MdType::Long :
-                getBigEndian(int32_t(prm->i[i * r->numLong + t->num]), &md[loc]);
-                break;
-            }
-        }
-
-        //Finish off the floats. Floats are inherently annoying in SEG-Y
-        for (const auto & s : scal)
-            getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
-
-        for (size_t j = 0; j < rule.size(); j++)
-        {
-            geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
-            getBigEndian(int32_t(std::lround(prm->f[i * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
-        }
-    }
-}
-
-void take(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride)
-{
-    for (size_t i = 0; i < sz; i++)
-    {
-        const uchar * md = &buf[(r->extent() + stride)*i];
-        //Loop through each rule and extract data
-        for (const auto v : r->translate)
-        {
-            const auto t = v.second;
-            size_t loc = t->loc - r->start - 1U;
-            switch (t->type())
-            {
-                case MdType::Float :
-                prm->f[i * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<FloatRuleEntry *>(t)->scalLoc - r->start-1U]))
-                                                    * geom_t(getHost<int32_t>(&md[loc]));
-                break;
-                case MdType::Short :
-                prm->s[i * r->numShort + t->num] = getHost<int16_t>(&md[loc]);
-                break;
-                case MdType::Long :
-                prm->i[i * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
-                break;
-            }
-        }
-    }
-}
-
-/*! Extract the trace parameters from a character array and copy
- *  them to a TraceParam structure
- *  \param[in] md A charachter array of raw trace header contents
- *  \param[out] prm An array of TraceParam structures
- */
-void extractTraceParam(Rule * r, size_t sz, const uchar * md, TraceParam * prm, size_t stride)
-{
-    if (!sz)
-        return;
-
-    Param p(r, sz);
-    take(r, sz, md, &p, stride);
-
-    for (size_t i = 0; i < sz; i++)
-    {
-        prm[i].src.x = getPrm(r, i, Meta::xSrc, &p);
-        prm[i].src.y = getPrm(r, i, Meta::ySrc, &p);
-        prm[i].rcv.x = getPrm(r, i, Meta::xRcv, &p);
-        prm[i].rcv.y = getPrm(r, i, Meta::yRcv, &p);
-        prm[i].cmp.x = getPrm(r, i, Meta::xCmp, &p);
-        prm[i].cmp.y = getPrm(r, i, Meta::yCmp, &p);
-        prm[i].line.il = getPrm(r, i, Meta::il, &p);
-        prm[i].line.xl = getPrm(r, i, Meta::xl, &p);
-        prm[i].tn = getPrm(r, i, Meta::tn, &p);
-    }
-}
-
-/*! Insert the trace parameters from a TraceParam structure and
- *  copy them into a character array ready for writing to a segy file
- *  \param[in] prm An array of TraceParam structures
- *  \param[out] md A charachter array of raw trace header contents
- */
-void insertTraceParam(Rule * r, size_t sz, const TraceParam * prm, uchar * md, size_t stride)
-{
-    if (!sz)
-        return;
-    Param p(r, sz);
-    for (size_t i = 0; i < sz; i++)
-    {
-        setPrm(r, i, Meta::xSrc, prm[i].src.x, &p);
-        setPrm(r, i, Meta::ySrc, prm[i].src.y, &p);
-        setPrm(r, i, Meta::xRcv, prm[i].rcv.x, &p);
-        setPrm(r, i, Meta::yRcv, prm[i].rcv.y, &p);
-        setPrm(r, i, Meta::xCmp, prm[i].cmp.x, &p);
-        setPrm(r, i, Meta::yCmp, prm[i].cmp.y, &p);
-        setPrm(r, i, Meta::il, prm[i].line.il, &p);
-        setPrm(r, i, Meta::xl, prm[i].line.xl, &p);
-        setPrm(r, i, Meta::tn, llint(prm[i].tn), &p);
-    }
-    fill(r, sz, &p, md, stride);
-}
-
 Param::Param(const Rule * rule, csize_t sz)
 {
     f = NULL;
@@ -364,5 +251,81 @@ Param::~Param(void)
         delete [] s;
     if (t != NULL)
         delete [] t;
+}
+
+void insertParam(Rule * r, size_t sz, const Param * prm, uchar * buf, size_t stride)
+{
+    size_t start = r->start;
+    for (size_t i = 0; i < sz; i++)
+    {
+        uchar * md = &buf[(r->extent() + stride)*i];
+        std::unordered_map<Tr, int16_t, EnumHash> scal;
+        std::vector<const SEGYFloatRuleEntry *> rule;
+        for (const auto v : r->translate)
+        {
+            const auto t = v.second;
+            size_t loc = t->loc - start-1U;
+            switch (t->type())
+            {
+                case MdType::Float :
+                {
+                    rule.push_back(dynamic_cast<SEGYFloatRuleEntry *>(t));
+                    auto tr = static_cast<Tr>(rule.back()->scalLoc);
+                    int16_t scal1 = (scal.find(tr) != scal.end() ? scal[tr] : 1);
+                    int16_t scal2 = deScale(prm->f[i * r->numFloat + t->num]);
+
+                    //if the scale is bigger than 1 that means we need to use the largest
+                    //to ensure conservation of the most significant digit
+                    //otherwise we choose the scale that preserves the most digits
+                    //after the decimal place.
+                    scal[tr] = ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) : std::min(scal1, scal2));
+                }
+                break;
+                case MdType::Short :
+                getBigEndian(prm->s[i * r->numShort + t->num], &md[loc]);
+                break;
+                case MdType::Long :
+                getBigEndian(int32_t(prm->i[i * r->numLong + t->num]), &md[loc]);
+                break;
+            }
+        }
+
+        //Finish off the floats. Floats are inherently annoying in SEG-Y
+        for (const auto & s : scal)
+            getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
+
+        for (size_t j = 0; j < rule.size(); j++)
+        {
+            geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
+            getBigEndian(int32_t(std::lround(prm->f[i * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
+        }
+    }
+}
+
+void extractParam(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride)
+{
+    for (size_t i = 0; i < sz; i++)
+    {
+        const uchar * md = &buf[(r->extent() + stride)*i];
+        //Loop through each rule and extract data
+        for (const auto v : r->translate)
+        {
+            const auto t = v.second;
+            size_t loc = t->loc - r->start - 1U;
+            switch (t->type())
+            {
+                case MdType::Float :
+                prm->f[i * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
+                                                    * geom_t(getHost<int32_t>(&md[loc]));
+                break;
+                case MdType::Short :
+                prm->s[i * r->numShort + t->num] = getHost<int16_t>(&md[loc]);
+                break;
+                case MdType::Long :
+                prm->i[i * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
+                break;
+            }
+        }
+    }
 }
 }}

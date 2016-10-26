@@ -11,7 +11,7 @@
 #include <memory>
 #include "global.hh"
 #include "file/file.hh"
-//#include "file/segymd.hh"
+#include "file/segymd.hh"
 #include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
@@ -33,7 +33,6 @@ class SEGY : public Interface
 
     private :
     Format format;  //<! Type formats
-    std::shared_ptr<Rule> rule;
 
     /*! State flags structure for File::SEGY
      */
@@ -113,76 +112,76 @@ class SEGY : public Interface
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
-     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      */
-   void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm = const_cast<TraceParam *>(PRM_NULL)) const;
+   void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
 
     /*! \brief Read the trace's from offset to offset+sz.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
-     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \warning This function is not thread safe.
      */
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm = PRM_NULL);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL);
 
     /*! \brief Read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
-     *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[out] prm An array of the parameter structures (size sizeof(Param)*sz)
      */
-    void readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const;
+    void readParam(csize_t offset, csize_t sz, Param * prm) const;
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
-     *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
      *
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm);
+    void writeParam(csize_t offset, csize_t sz, const Param * prm);
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to read.
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
-     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *
      *  \details When prm==PRM_NULL only the trace DF is read.
      */
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm = const_cast<TraceParam *>(PRM_NULL)) const;
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to write.
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
-     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *
      *  \details When prm==PRM_NULL only the trace DF is written.
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm = PRM_NULL);
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL);
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to read.
-     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      */
-    void readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const;
+    void readParam(csize_t sz, csize_t * offset, Param * prm) const;
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to write.
-     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm);
+    void writeParam(csize_t sz, csize_t * offset, const Param * prm);
 };
 }}
 #endif

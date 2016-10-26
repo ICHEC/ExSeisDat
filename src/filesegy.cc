@@ -26,7 +26,7 @@ namespace PIOL { namespace File {
 SEGY::Opt::Opt(void)
 {
     incFactor = SI::Micro;
-    rule = NULL;
+    rule = std::make_shared<Rule>(true, true);
 }
 
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode_)
@@ -101,9 +101,6 @@ void SEGY::Init(const File::SEGY::Opt & segyOpt, const FileMode mode_)
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz = obj->getFileSz();
     rule = segyOpt.rule;
-    if (rule.get() == NULL)
-        rule = std::make_shared<Rule>(true, true);
-
     if (fsz >= hoSz && mode != FileMode::Write)
     {
         auto buf = std::vector<uchar>(hoSz);
@@ -195,7 +192,7 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
+void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
 {
     if (offset > nt && sz && !state.stalent)   //Nothing to be read
     {
@@ -207,14 +204,15 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * p
     size_t ntz = (state.stalent || !sz ? sz : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
-    if (prm == PRM_NULL)
+    if (prm == PARAM_NULL)
         obj->readDODF(offset, ns, ntz, buf);
     else
     {
         std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
         obj->readDO(offset, ns, ntz, dobuf.data());
 
-        extractTraceParam(rule.get(), ntz, dobuf.data(), prm, SEGSz::getDFSz(ns));
+        extractParam(rule.get(), ntz, dobuf.data(), prm, SEGSz::getDFSz(ns));
+
         for (size_t i = 0; i < ntz; i++)
             std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
                       buf + i * SEGSz::getDFSz(ns));
@@ -227,7 +225,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * p
             reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
-void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm)
+void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -245,13 +243,13 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
 
-    if (prm == PRM_NULL)
+    if (prm == PARAM_NULL)
         obj->writeDODF(offset, ns, sz, buf);
     else
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
 
-        insertTraceParam(rule.get(), sz, prm, &dobuf[0], SEGSz::getDFSz(ns));
+        insertParam(rule.get(), sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
                       dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
@@ -265,12 +263,12 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TracePa
 }
 
 //TODO: Unit test
-void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
+void SEGY::readParam(csize_t offset, csize_t sz, Param * prm) const
 {
     if (offset >= nt && sz && !state.stalent)   //Nothing to be read.
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readTraceParam() was called for a zero byte read", Log::Verb::None);
+            "readParam() was called for a zero byte read", Log::Verb::None);
         return;
     }
 
@@ -280,16 +278,16 @@ void SEGY::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
     obj->readDOMD(offset, ns, ntz, buf.data());
 
-    extractTraceParam(rule.get(), ntz, &buf[0], prm);
+    extractParam(rule.get(), ntz, buf.data(), prm, 0);
 }
 
-void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
+void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeTraceParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
+            "writeParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
         return;
     }
     #endif
@@ -300,25 +298,24 @@ void SEGY::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    insertTraceParam(rule.get(), sz, prm, &buf[0]);
+    insertParam(rule.get(), sz, prm, buf.data(), 0U);
 
     obj->writeDOMD(offset, ns, sz, buf.data());
 
     state.stalent = true;
 }
 
-void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
+void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
 {
     uchar * buf = reinterpret_cast<uchar *>(trace);
-    if (prm == PRM_NULL)
+    if (prm == PARAM_NULL)
         obj->readDODF(ns, sz, offset, buf);
     else
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
         obj->readDO(ns, sz, offset, dobuf.data());
 
-        extractTraceParam(rule.get(), sz, &dobuf[0], prm, SEGSz::getDFSz(ns));
-
+        extractParam(rule.get(), sz, dobuf.data(), prm, SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
                       buf + i * SEGSz::getDFSz(ns));
@@ -332,7 +329,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam *
             reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
-void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm)
+void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
 {
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
@@ -341,13 +338,13 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
     for (size_t i = 0; i < ns * sz; i++)
         reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
 
-    if (prm == PRM_NULL)
+    if (prm == PARAM_NULL)
         obj->writeDODF(ns, sz, offset, buf);
     else
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
 
-        insertTraceParam(rule.get(), sz, prm, &dobuf[0], SEGSz::getDFSz(ns));
+        insertParam(rule.get(), sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
                       dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
@@ -360,7 +357,21 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Trace
     state.stalent = true;
 }
 
-void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
+void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
+{
+//TODO: Is it useful to check if all the offsets are greater than nt?
+    if (!sz)   //Nothing to be written.
+    {
+        obj->readDOMD(0, 0, nullptr, nullptr);
+        return;
+    }
+
+    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+    obj->readDOMD(ns, sz, offset, buf.data());
+    extractParam(rule.get(), sz, buf.data(), prm, 0U);
+}
+
+void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
 {
     #ifdef NT_LIMITS
     size_t max = 0;
@@ -370,7 +381,7 @@ void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
     if (sz+max > NT_LIMITS)
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeTraceParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
+            "writeParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
         return;
     }
     #endif
@@ -382,24 +393,10 @@ void SEGY::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    insertTraceParam(rule.get(), sz, prm, &buf[0]);
+    insertParam(rule.get(), sz, prm, buf.data(), 0U);
 
     obj->writeDOMD(ns, sz, offset, buf.data());
 
     state.stalent = true;
-}
-
-void SEGY::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
-{
-//TODO: Is it useful to check if all the offsets are greater than nt?
-    if (!sz)   //Nothing to be written.
-    {
-        obj->readDOMD(0, 0, nullptr, nullptr);
-        return;
-    }
-
-    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
-    obj->readDOMD(ns, sz, offset, buf.data());
-    extractTraceParam(rule.get(), sz, &buf[0], prm);
 }
 }}

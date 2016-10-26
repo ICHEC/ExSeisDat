@@ -32,7 +32,7 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadTraceParam)
     makeSEGY<true>(tempFile);
 
     piol->isErr();
-    file->ns = ns;
+    file->file->ns = ns;
     file->writeNt(nt);
     piol->isErr();
 

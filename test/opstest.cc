@@ -38,22 +38,34 @@ TEST_F(OpsTest, getMinMaxSimple)
     }
 }
 
-TEST_F(OpsTest, getMinMaxFail)  //These fails won't surive a multi-processor example
+TEST_F(OpsTest, getMinMaxFail1)  //These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++)
         coord[i] = { 1500. + i, 1300. - i };
 
     std::vector<CoordElem> minmax(4);
-
     getMinMax(piol, 10, coord.size(), coord.data(), NULL);
-    piol.isErr();
-    getMinMax(piol, 10, coord.size(), NULL, minmax.data());
-    piol.isErr();
-    getMinMax(piol, 10, 0, coord.data(), minmax.data());
     piol.isErr();
 }
 
+TEST_F(OpsTest, getMinMaxFail2)  //These fails won't surive a multi-processor example
+{
+    std::vector<CoordElem> minmax(4);
+    getMinMax(piol, 10, 0, NULL, minmax.data());
+    piol.isErr();
+}
+
+TEST_F(OpsTest, getMinMaxFail3)  //These fails won't surive a multi-processor example
+{
+    std::vector<coord_t> coord(1000);
+    for (int i = 0; i < 1000; i++)
+        coord[i] = { 1500. + i, 1300. - i };
+
+    std::vector<CoordElem> minmax(4);
+    getMinMax(piol, 10, 0, coord.data(), minmax.data());
+    piol.isErr();
+}
 
 template <bool Y, bool Min>
 void testMinMax(const std::vector<coord_t> & coord, const std::vector<CoordElem> & minmax)

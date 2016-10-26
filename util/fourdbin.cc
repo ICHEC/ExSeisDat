@@ -13,11 +13,11 @@ geom_t dsr(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
-void getCoords(File::Interface * file, size_t offset, std::vector<geom_t> & coords)
+void getCoords(File::Direct & file, size_t offset, std::vector<geom_t> & coords)
 {
     size_t sz = coords.size()/4U;
     std::vector<File::TraceParam> prm(sz);
-    file->readTraceParam(offset, sz, prm.data());
+    file.readTraceParam(offset, sz, prm.data());
     for (size_t i = 0; i < sz; i++)
     {
         coords[4U*i+0] = prm[i].src.x;
@@ -64,25 +64,25 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
 }
 
 //Non-Contiguous read, contiguous write
-void select(ExSeisPIOL * piol, File::Interface * dst, File::Interface * src, vec<size_t> & list)
+void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list)
 {
     const size_t sz = list.size();
-    dst->writeText("ExSeisDat 4d-bin file.\n");
-    dst->writeNt(sz);
-    dst->writeInc(src->readInc());
-    dst->writeNs(src->readNs());
+    dst.writeText("ExSeisDat 4d-bin file.\n");
+    dst.writeNt(sz);
+    dst.writeInc(src.readInc());
+    dst.writeNs(src.readNs());
 
     vec<File::TraceParam> prm(sz);
-    vec<trace_t> trc(sz * src->readNs());
+    vec<trace_t> trc(sz * src.readNs());
 
-    src->readTrace(sz, list.data(), trc.data(), prm.data());
+    src.readTrace(sz, list.data(), trc.data(), prm.data());
 
     auto offsets = piol->comm->gather(vec<size_t>{list.size()});
     size_t offset = 0;
     for (size_t i = 0; i < piol->comm->getRank(); i++)
         offset += offsets[i];
 
-    dst->writeTrace(offset, sz, trc.data(), prm.data());
+    dst.writeTrace(offset, sz, trc.data(), prm.data());
 }
 
 int main(void)

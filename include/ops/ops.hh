@@ -1,6 +1,9 @@
 #include "global.hh"
 #include <memory>
 #include "file/file.hh"
+
+#warning Make redundant
+#include "cppfileapi.hh"
 namespace PIOL { namespace File {
 
 /*! A structure to hold a reference to a single coordinate and

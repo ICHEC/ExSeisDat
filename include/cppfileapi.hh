@@ -1,3 +1,5 @@
+#ifndef PIOLCPPFILEAPI_INCLUDE_GUARD
+#define PIOLCPPFILEAPI_INCLUDE_GUARD
 #include "global.hh"
 #include "file/file.hh"
 namespace PIOL {
@@ -65,11 +67,26 @@ class ExSeis
 };
 
 namespace File {
+/*! \brief This structure holds all relevant trace parameters for describing a single trace
+ *  excluding what is contained in the header.
+ */
+struct TraceParam
+{
+    coord_t src;    //!< The Source coordinate
+    coord_t rcv;    //!< The Receiver coordinate
+    coord_t cmp;    //!< The common midpoint
+    grid_t line;    //!< The line coordinates (il, xl)
+    size_t tn;      //!< TODO: Add unit test
+};
+extern const TraceParam * PRM_NULL;
+
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
-class Direct : public Interface
+class Direct
 {
-    std::shared_ptr<Interface> file;    //!< The pointer to the base class (polymorphic)
+    private :
+    std::shared_ptr<Interface> file;      //!< The pointer to the base class (polymorphic)
+    std::shared_ptr<Rule> rule;
 
     public :
     /*! Constructor with options.
@@ -84,12 +101,12 @@ class Direct : public Interface
      *  \param[in] mode The mode of file access.
      */
     template <class F, class O, class D>
-    Direct(const Piol piol_, const std::string name_, const F & f, const O & o, const D & d, const FileMode mode)
-                                                                 : Interface(piol_, name_, nullptr)
+    Direct(const Piol piol, const std::string name, const F & f, const O & o, const D & d, const FileMode mode)
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, mode);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, mode);
         file = std::make_shared<typename F::Type>(piol, name, f, obj, mode);
+        rule = f.rule;
     }
 
     /*! Constructor without options.
@@ -97,7 +114,9 @@ class Direct : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] mode  The mode of file access.
      */
-    Direct(const Piol piol_, const std::string name_, const FileMode mode = FileMode::Read);
+    Direct(const Piol piol, const std::string name, const FileMode mode = FileMode::Read);
+
+    Direct(void) { }
 
     /*! Empty destructor
      */
@@ -232,3 +251,4 @@ class Direct : public Interface
     void writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm);
 };
 }}
+#endif

@@ -111,7 +111,7 @@ struct FileSEGYTest : public Test
     Comm::MPI::Opt opt;
     bool testEBCDIC;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    std::unique_ptr<File::Interface> file;
+    std::unique_ptr<File::Direct> file;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
@@ -176,7 +176,10 @@ struct FileSEGYTest : public Test
         else
             EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
 
-        file = std::make_unique<File::SEGY>(piol, notFile, mock, (WRITE ? FileMode::Test : FileMode::Read));
+        auto sfile = std::make_shared<File::SEGY>(piol, notFile, mock, (WRITE ? FileMode::Test : FileMode::Read));
+        file = std::make_unique<File::Direct>();
+        file->file = std::move(sfile);
+        file->rule = file->file->rule;
 
         if (WRITE)
         {
@@ -187,8 +190,8 @@ struct FileSEGYTest : public Test
             }
             else
             {
-                file->nt = nt;
-                file->ns = ns;
+                file->file->nt = nt;
+                file->file->ns = ns;
             }
         }
     }

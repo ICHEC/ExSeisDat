@@ -7,7 +7,7 @@
  *   as an alternative implementation for test purposes
  *   \details
  *//*******************************************************************************************/
-#include <cstring>
+/*#include <cstring>
 #include <vector>
 #include <memory>
 #include <cmath>
@@ -20,6 +20,9 @@
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include "file/segymd.hh"
+*/
+#include "cppfileapi.hh"
+#include "segymdextra.hh"
 
 namespace PIOL { namespace File {
 /*! \brief Get the specified scale multipler from the Trace header.
@@ -122,6 +125,24 @@ void setGrid(const Grid item, const grid_t grid, uchar * buf)
     auto pair = getPair(item);
     getBigEndian(int32_t(grid.il), &buf[size_t(pair.first) - 1U]);
     getBigEndian(int32_t(grid.xl), &buf[size_t(pair.second) - 1U]);
+}
+
+/*! Compare two scales and return the appropriate one which maximises precision
+ *  while preventing overflow of the int32_t type.
+ *  \param[in] scal1 The first scale value
+ *  \param[in] scal2 The second scale value
+ *  \return The scal value which meets the precision criteria.
+ */
+int16_t scalComp(int16_t scal1, int16_t scal2)
+{
+    //if the scale is bigger than 1 that means we need to use the largest
+    //to ensure conservation of the most significant digit
+    //otherwise we choose the scale that preserves the most digits
+    //after the decimal place.
+    if (scal1 > 1 || scal2 > 1)
+        return std::max(scal1, scal2);
+    else
+        return std::min(scal1, scal2);
 }
 
 /*! Extract the scale value from each coordinate from a coordinate point

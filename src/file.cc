@@ -8,7 +8,7 @@
  *//*******************************************************************************************/
 #include "file/file.hh"
 namespace PIOL { namespace File {
-const TraceParam * PRM_NULL = (TraceParam *)1;
+const Param * PARAM_NULL = (Param *)1;
 const std::string & Interface::readText(void) const
 {
     return text;

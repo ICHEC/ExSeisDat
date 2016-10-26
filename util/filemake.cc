@@ -8,7 +8,7 @@
 #include "share/segy.hh"
 using namespace PIOL;
 
-void writeContig(ExSeis piol, File::Interface * file, size_t offset, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+void writeContig(ExSeis piol, File::Direct * file, size_t offset, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
 {
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
@@ -39,7 +39,7 @@ void writeContig(ExSeis piol, File::Interface * file, size_t offset, size_t nt, 
     }
 }
 
-void writeRandom(ExSeisPIOL * piol, File::Interface * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+void writeRandom(ExSeisPIOL * piol, File::Direct * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
 {
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;

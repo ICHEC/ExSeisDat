@@ -4,7 +4,11 @@
 #include <functional>
 #include "ops/ops.hh"
 #include "file/file.hh"
+
 #include <cstring>
+
+#warning CHANGE THESE TESTS TO PARAM
+
 namespace PIOL { namespace File {
 
 template <typename T>
@@ -24,7 +28,7 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
     };
 
     T temp;
-    if (!sz)
+    if (!sz || !coord)
     {
         memset(&temp, 0, sizeof(T));
         coord = &temp;

@@ -109,22 +109,4 @@ int16_t deScale(const geom_t val)
         return 1;
     }
 }
-
-/*! Compare two scales and return the appropriate one which maximises precision
- *  while preventing overflow of the int32_t type.
- *  \param[in] scal1 The first scale value
- *  \param[in] scal2 The second scale value
- *  \return The scal value which meets the precision criteria.
- */
-int16_t scalComp(int16_t scal1, int16_t scal2)
-{
-    //if the scale is bigger than 1 that means we need to use the largest
-    //to ensure conservation of the most significant digit
-    //otherwise we choose the scale that preserves the most digits
-    //after the decimal place.
-    if (scal1 > 1 || scal2 > 1)
-        return std::max(scal1, scal2);
-    else
-        return std::min(scal1, scal2);
-}
 }}
