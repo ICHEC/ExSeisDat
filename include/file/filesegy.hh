@@ -25,6 +25,7 @@ class SEGY : public Interface
     {
         typedef SEGY Type;  //!< The Type of the class this structure is nested in
         unit_t incFactor;   //!< The increment factor to multiply inc by.
+        std::shared_ptr<Rule> rule;
         /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
          */
         Opt(void);
@@ -32,8 +33,7 @@ class SEGY : public Interface
 
     private :
     Format format;  //<! Type formats
-    Rule mdRule;
-
+    std::shared_ptr<Rule> rule;
 
     /*! State flags structure for File::SEGY
      */

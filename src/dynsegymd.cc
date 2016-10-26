@@ -66,6 +66,33 @@ struct FloatRuleEntry : public RuleEntry
     }
 };
 
+Rule::Rule(std::unordered_map<Meta, RuleEntry *, EnumHash> translate_, bool full)
+{
+    numLong = 0;
+    numShort = 0;
+    numFloat = 0;
+    translate = translate_;
+    for (const auto & t : translate)
+        switch (t.second->type())
+        {
+            case MdType::Long :
+            numLong++;
+            break;
+            case MdType::Short :
+            numShort++;
+            break;
+            case MdType::Float :
+            numFloat++;
+            break;
+        }
+
+    flag.fullextent = full;
+    if (full)
+    {
+        flag.badextent = true;
+        extent();
+    }
+}
 
 Rule::Rule(bool full, bool defaults)
 {
@@ -74,12 +101,6 @@ Rule::Rule(bool full, bool defaults)
     numFloat = 0;
 
     flag.fullextent = full;
-
-    if (full)
-    {
-        start = 0;
-        end = 240;
-    }
 
     if (defaults)
     {
@@ -92,6 +113,17 @@ Rule::Rule(bool full, bool defaults)
         translate[Meta::il] = new LongRuleEntry(numLong++, Tr::il);
         translate[Meta::xl] = new LongRuleEntry(numLong++, Tr::xl);
         translate[Meta::tn] = new LongRuleEntry(numLong++, Tr::SeqFNum);
+    }
+    if (full)
+    {
+        start = 0;
+        end = 240;
+        flag.badextent = false;
+    }
+    else
+    {
+        flag.badextent = true;
+        extent();
     }
 }
 
@@ -143,79 +175,58 @@ void Rule::rmRule(Meta m)
     flag.badextent = (!flag.fullextent);
 }
 
-DynParam::DynParam(const Rule * rule, csize_t sz_, csize_t stride_) : Rule(rule), sz(sz_), stride(stride_)
+RuleEntry * Rule::getEntry(Meta entry)
 {
-    prm.f = NULL;
-    prm.i = NULL;
-    prm.s = NULL;
-    prm.t = NULL;
-
-    if (sz > 0)
-    {
-        prm.f = new geom_t[sz * numFloat];
-        prm.i = new llint[sz * numLong];
-        prm.s = new short[sz * numShort];
-        prm.t = new size_t[sz];
-    }
+    return translate[entry];
 }
 
-DynParam::~DynParam(void)
-{
-    if (prm.i != NULL)
-        delete [] prm.i;
-    if (prm.s != NULL)
-        delete [] prm.s;
-    if (prm.f != NULL)
-        delete [] prm.f;
-    if (prm.t != NULL)
-        delete [] prm.t;
-}
-
-prmRet DynParam::getPrm(size_t i, Meta entry)
+prmRet getPrm(Rule * r, size_t i, Meta entry, const Param * prm)
 {
     prmRet ret;
-    RuleEntry * id = translate[entry];
+    RuleEntry * id = r->getEntry(entry);
     switch (id->type())
     {
         case MdType::Long :
-        ret.val.i = prm.i[i * numLong + id->num];
+        ret.val.i = prm->i[i * r->numLong + id->num];
         break;
         case MdType::Short :
-        ret.val.s = prm.s[i * numShort + id->num];
+        ret.val.s = prm->s[i * r->numShort + id->num];
         break;
         case MdType::Float :
-        ret.val.f = prm.f[i * numFloat + id->num];
+        ret.val.f = prm->f[i * r->numFloat + id->num];
         break;
     }
     return ret;
 }
 
 #warning todo: Do type checks
-void DynParam::setPrm(size_t i, Meta entry, geom_t val)
+void setPrm(Rule * r, size_t i, Meta entry, geom_t val, Param * prm)
 {
-    prm.f[i * numFloat + translate[entry]->num] = val;
+    prm->f[i * r->numFloat + r->getEntry(entry)->num] = val;
 }
 
-void DynParam::setPrm(size_t i, Meta entry, llint val)
+void setPrm(Rule * r, size_t i, Meta entry, llint val, Param * prm)
 {
-    prm.i[i * numLong + translate[entry]->num] = val;
+    prm->i[i * r->numLong + r->getEntry(entry)->num] = val;
 }
 
-void DynParam::setPrm(size_t i, Meta entry, short val)
+void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm)
 {
-    prm.s[i * numShort + translate[entry]->num] = val;
+    prm->s[i * r->numShort + r->getEntry(entry)->num] = val;
 }
 
-void DynParam::fill(uchar * buf)
+void fill(Rule * r, size_t sz, const Param * prm, uchar * buf, size_t stride)
 {
+    size_t start = r->start;
     for (size_t i = 0; i < sz; i++)
     {
-        uchar * md = &buf[(extent() + stride)*i];
+        uchar * md = &buf[(r->extent() + stride)*i];
         std::unordered_map<Tr, int16_t, EnumHash> scal;
         std::vector<const FloatRuleEntry *> rule;
-        for (const auto v : translate)
+        for (const auto v : r->translate)
         {
             const auto t = v.second;
+            size_t loc = t->loc - start-1U;
             switch (t->type())
             {
                 case MdType::Float :
@@ -223,54 +234,135 @@ void DynParam::fill(uchar * buf)
                     rule.push_back(dynamic_cast<FloatRuleEntry *>(t));
                     auto tr = static_cast<Tr>(rule.back()->scalLoc);
                     int16_t val1 = (scal.find(tr) != scal.end() ? scal[tr] : 1);
-                    int16_t val2 = deScale(prm.f[i * numFloat + t->num]);
+                    int16_t val2 = deScale(prm->f[i * r->numFloat + t->num]);
                     scal[tr] = scalComp(val1, val2);
                 }
                 break;
                 case MdType::Short :
-                getBigEndian(prm.s[i * numShort + t->num], &md[t->loc-start-1U]);
+                getBigEndian(prm->s[i * r->numShort + t->num], &md[loc]);
                 break;
                 case MdType::Long :
-                getBigEndian(int32_t(prm.i[i * numLong + t->num]), &md[t->loc-start-1U]);
+                getBigEndian(int32_t(prm->i[i * r->numLong + t->num]), &md[loc]);
                 break;
             }
         }
 
-        //Finish off the floats
+        //Finish off the floats. Floats are inherently annoying in SEG-Y
         for (const auto & s : scal)
             getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
 
         for (size_t j = 0; j < rule.size(); j++)
         {
             geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
-            getBigEndian(int32_t(std::lround(prm.f[i * numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
+            getBigEndian(int32_t(std::lround(prm->f[i * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
         }
     }
 }
 
-void DynParam::take(const uchar * buf)
+void take(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride)
 {
     for (size_t i = 0; i < sz; i++)
     {
-        const uchar * md = &buf[(extent() + stride)*i];
+        const uchar * md = &buf[(r->extent() + stride)*i];
         //Loop through each rule and extract data
-        for (const auto v : translate)
+        for (const auto v : r->translate)
         {
             const auto t = v.second;
+            size_t loc = t->loc - r->start - 1U;
             switch (t->type())
             {
                 case MdType::Float :
-                prm.f[i * numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<FloatRuleEntry *>(t)->scalLoc - start-1U]))
-                                                       * geom_t(getHost<int32_t>(&md[t->loc - start-1U]));
+                prm->f[i * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<FloatRuleEntry *>(t)->scalLoc - r->start-1U]))
+                                                    * geom_t(getHost<int32_t>(&md[loc]));
                 break;
                 case MdType::Short :
-                prm.s[i * numShort + t->num] = getHost<int16_t>(&md[t->loc - start-1U]);
+                prm->s[i * r->numShort + t->num] = getHost<int16_t>(&md[loc]);
                 break;
                 case MdType::Long :
-                prm.i[i * numLong + t->num] = getHost<int32_t>(&md[t->loc - start-1U]);
+                prm->i[i * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
                 break;
             }
         }
     }
+}
+
+/*! Extract the trace parameters from a character array and copy
+ *  them to a TraceParam structure
+ *  \param[in] md A charachter array of raw trace header contents
+ *  \param[out] prm An array of TraceParam structures
+ */
+void extractTraceParam(Rule * r, size_t sz, const uchar * md, TraceParam * prm, size_t stride)
+{
+    if (!sz)
+        return;
+
+    Param p(r, sz);
+    take(r, sz, md, &p, stride);
+
+    for (size_t i = 0; i < sz; i++)
+    {
+        prm[i].src.x = getPrm(r, i, Meta::xSrc, &p);
+        prm[i].src.y = getPrm(r, i, Meta::ySrc, &p);
+        prm[i].rcv.x = getPrm(r, i, Meta::xRcv, &p);
+        prm[i].rcv.y = getPrm(r, i, Meta::yRcv, &p);
+        prm[i].cmp.x = getPrm(r, i, Meta::xCmp, &p);
+        prm[i].cmp.y = getPrm(r, i, Meta::yCmp, &p);
+        prm[i].line.il = getPrm(r, i, Meta::il, &p);
+        prm[i].line.xl = getPrm(r, i, Meta::xl, &p);
+        prm[i].tn = getPrm(r, i, Meta::tn, &p);
+    }
+}
+
+/*! Insert the trace parameters from a TraceParam structure and
+ *  copy them into a character array ready for writing to a segy file
+ *  \param[in] prm An array of TraceParam structures
+ *  \param[out] md A charachter array of raw trace header contents
+ */
+void insertTraceParam(Rule * r, size_t sz, const TraceParam * prm, uchar * md, size_t stride)
+{
+    if (!sz)
+        return;
+    Param p(r, sz);
+    for (size_t i = 0; i < sz; i++)
+    {
+        setPrm(r, i, Meta::xSrc, prm[i].src.x, &p);
+        setPrm(r, i, Meta::ySrc, prm[i].src.y, &p);
+        setPrm(r, i, Meta::xRcv, prm[i].rcv.x, &p);
+        setPrm(r, i, Meta::yRcv, prm[i].rcv.y, &p);
+        setPrm(r, i, Meta::xCmp, prm[i].cmp.x, &p);
+        setPrm(r, i, Meta::yCmp, prm[i].cmp.y, &p);
+        setPrm(r, i, Meta::il, prm[i].line.il, &p);
+        setPrm(r, i, Meta::xl, prm[i].line.xl, &p);
+        setPrm(r, i, Meta::tn, llint(prm[i].tn), &p);
+    }
+    fill(r, sz, &p, md, stride);
+}
+
+Param::Param(const Rule * rule, csize_t sz)
+{
+    f = NULL;
+    i = NULL;
+    s = NULL;
+    t = NULL;
+
+    if (sz > 0)
+    {
+        f = new geom_t[sz * rule->numFloat];
+        i = new llint[sz * rule->numLong];
+        s = new short[sz * rule->numShort];
+        t = new size_t[sz];
+    }
+}
+
+Param::~Param(void)
+{
+    if (f != NULL)
+        delete [] f;
+    if (i != NULL)
+        delete [] i;
+    if (s != NULL)
+        delete [] s;
+    if (t != NULL)
+        delete [] t;
 }
 }}

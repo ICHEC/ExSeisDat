@@ -200,7 +200,7 @@ void setMd(const Hdr item, const T src, uchar * dst)
 }
 
 #warning temp
-extern void extractTraceParam(const Rule * rule, size_t sz, const uchar * md, TraceParam * prm, size_t stride = 0);
-extern void insertTraceParam(const Rule * rule, size_t sz, const TraceParam * prm, uchar * md, size_t stride = 0);
+extern void extractTraceParam(Rule * rule, size_t sz, const uchar * md, TraceParam * prm, size_t stride = 0);
+extern void insertTraceParam(Rule * rule, size_t sz, const TraceParam * prm, uchar * md, size_t stride = 0);
 }}
 #endif

@@ -46,6 +46,8 @@ enum class Meta : size_t
     xl,
     tn
 };
+
+class Rule;
 //C compatible structure
 struct Param
 {
@@ -53,6 +55,9 @@ struct Param
     llint *  i;
     short *  s;
     size_t * t;
+
+    Param(const Rule * r, size_t sz);
+    ~Param(void);
 };
 
 struct prmRet
@@ -121,9 +126,8 @@ struct RuleEntry
     virtual MdType type(void) = 0;
 };
 
-class Rule
+struct Rule
 {
-    protected :
     size_t numLong;     //Number of long rules
     size_t numFloat;    //Number of float rules
     size_t numShort;    //Number of short rules
@@ -136,36 +140,25 @@ class Rule
     } flag;
 
     std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
-    public :
     Rule(bool full, bool defaults);
     Rule(const Rule * rule);
+    Rule(std::unordered_map<Meta, RuleEntry *, EnumHash> translate_, bool full = true);
 
+    //Rule setting
     void addLong(Meta m, Tr loc);
     void addFloat(Meta m, Tr loc, Tr scalLoc);
     void addShort(Meta m, Tr loc);
     void rmRule(Meta);
     size_t extent(void);
+    RuleEntry * getEntry(Meta entry);
 };
-
-class DynParam : public Rule
-{
-    Param prm;
-
-    size_t sz;
-    size_t stride;
-    public :
-    DynParam(const Rule * rule, csize_t sz_ = 0, csize_t stride_ = 0);
-    ~DynParam(void);
-
-    prmRet getPrm(size_t i, Meta entry);
-    void setPrm(size_t i, Meta entry, geom_t val);
-    void setPrm(size_t i, Meta entry, llint val);
-    void setPrm(size_t i, Meta entry, short val);
-    //Put to buf
-    void fill(uchar * buf);
-    //Take from buf
-    void take(const uchar * buf);
-};
+//Access
+prmRet getPrm(Rule * r, size_t i, Meta entry, const Param * prm);
+void setPrm(Rule * r, size_t i, Meta entry, geom_t val, Param * prm);
+void setPrm(Rule * r, size_t i, Meta entry, llint val, Param * prm);
+void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm);
+void take(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride = 0);
+void fill(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride = 0);
 }}
 #endif
 
