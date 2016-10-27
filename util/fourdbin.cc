@@ -1,10 +1,18 @@
-#include <cmath>
 #include <assert.h>
+#include <cmath>
+#include <iostream>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
 #include "share/smpi.hh"
 using namespace PIOL;
 using File::Meta;
+using File::Tr;
+
+template <class T>
+using cvec = const std::vector<T>;
+
+template <class T>
+using vec = std::vector<T>;
 
 geom_t dsr(const geom_t * prm1, const geom_t * prm2)
 {
@@ -14,7 +22,7 @@ geom_t dsr(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
-void getCoords(File::Interface * file, size_t offset, std::vector<geom_t> & coords)
+void getCoords(File::Interface * file, size_t offset, vec<geom_t> & coords)
 {
     size_t sz = coords.size()/4U;
     File::Param prm(file->getRule(), sz);
@@ -27,12 +35,6 @@ void getCoords(File::Interface * file, size_t offset, std::vector<geom_t> & coor
         coords[4U*i+3] = getPrm(file->getRule(), i, Meta::yRcv, &prm);
     }
 }
-
-template <class T>
-using cvec = const std::vector<T>;
-
-template <class T>
-using vec = std::vector<T>;
 
 template <bool Init>
 void update(cvec<size_t> & szall, cvec<geom_t> & local,
@@ -78,6 +80,10 @@ void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_
 
     src.readTrace(sz, list.data(), trc.data(), &prm);
 
+#warning Have a mechanism to change from one representation to another
+//    for (size_t i = 0; i < sz; i++)
+//        setPrm(dst.getRule(), i, Meta::dsdr, val) 
+
 //TODO: Replace with MPI call
     auto offsets = piol->comm->gather(vec<size_t>{list.size()});
     size_t offset = 0;
@@ -87,23 +93,48 @@ void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_
     dst.writeTrace(offset, sz, trc.data(), &prm);
 }
 
-int main(void)
+int main(int argc, char ** argv)
 {
     ExSeis piol;
     ExSeisPIOL * ppiol = piol;
-    std::string name1 = "s1.segy";
-    std::string name2 = "s2.segy";
-    std::string name3 = "s3.segy";
-    std::string name4 = "s4.segy";
+    geom_t dsrmax = 0.5;
 
+    std::string opt = "a:b:c:d:t:";  //TODO: uses a GNU extension
+    std::string name1 = "";
+    std::string name2 = "";
+    std::string name3 = "";
+    std::string name4 = "";
+    for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
+        switch (c)
+        {
+            case 'a' :
+                name1 = optarg;
+            break;
+            case 'b' :
+                name2 = optarg;
+            break;
+            case 'c' :
+                name3 = optarg;
+            break;
+            case 'd' :
+                name4 = optarg;
+            break;
+            case 't' :
+                dsrmax = std::stod(optarg);
+            break;
+            default :
+                fprintf(stderr, "One of the command line arguments is invalid\n");
+            break;
+        }
+    assert(name1.size() && name2.size() && name3.size() && name4.size());
+    
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
     std::vector<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
     auto rule = std::make_shared<File::Rule>(true, m);
 #warning continue here
-//    rule->addFloat(Tr:);
-
+    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
     File::Direct file1(piol, name1, FileMode::Read, rule);
     File::Direct file2(piol, name2, FileMode::Read, rule);
 
@@ -131,16 +162,21 @@ int main(void)
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
 
     //Perform a local update of min and minrs
+    if (!rank)
+        std::cout << "Round " << 1 << " of " << numRank << std::endl;
     update<true>(szall, coords1, rank, coords2, min, minrs);
+    if (!rank)
+        std::cout << "updated " << 1 << " of " << numRank << std::endl;
 
     //Perform the updates of min and minrs using data from other processes.
     for (size_t i = 1U; i < numRank; i ++)
     {
+        if (!rank)
+            std::cout << "Round " << i+1 << " of " << numRank << std::endl;
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
 
         //TODO: Check if the other process has data of interest.
-
         vec<geom_t> proc(4U*szall[lrank]);
         MPI_Request msg[2];
         //Receive data from the process on the left
@@ -153,11 +189,24 @@ int main(void)
         assert(msg[0] != MPI_REQUEST_NULL);
         assert(msg[1] != MPI_REQUEST_NULL);
         assert(MPI_Wait(&msg[0], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
+
+        if (!rank)
+            std::cout << "update " << i+1 << " of " << numRank << std::endl;
+
         update<false>(szall, coords1, lrank, proc, min, minrs);
+        if (!rank)
+            std::cout << "updated " << i+1 << " of " << numRank << std::endl;
+
         assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
+
+#warning HACK
+        if (i == 2)
+        {
+            piol.barrier();
+            return 0;
+        }
     }
 
-    const geom_t dsrmax = 0.5;
     size_t cnt = 0U;
     vec<size_t> list1(sz[0]);
     vec<size_t> list2(sz[0]);
@@ -179,4 +228,3 @@ int main(void)
     select(piol, file4, file2, list2);
     return 0;
 }
-

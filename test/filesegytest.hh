@@ -389,7 +389,7 @@ struct FileSEGYTest : public Test
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? prm.data() : const_cast<TraceParam *>(File::PRM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
-            if ( readPrm && tnRead * ns )
+            if (readPrm && tnRead * ns)
             {
                 ASSERT_EQ(ilNum(i+offset), prm[i].line.il) << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xlNum(i+offset), prm[i].line.xl) << "Trace Number " << i << " offset " << offset;

@@ -25,7 +25,9 @@ enum class Meta : size_t
     yCmp,
     il,
     xl,
-    tn
+    tn,
+//Non-standard
+    dsdr
 };
 
 /*! Trace Header offsets
@@ -49,10 +51,14 @@ enum class Tr : size_t
     ySrc        = 77U,  //!< int32_t. The Y coordinate for the source
     xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
     yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
-    xCmp        = 181U, //!< int32_t  The X coordinate for the CMP
+    UpSrc       = 91U,  //!< int16_t. The uphole time at the source. (ms)
+    UpRcv       = 97U,  //!< int16_t. The uphole time at the receive group. (ms)
+    xCmp        = 181U, //!< int32_t. The X coordinate for the CMP
     yCmp        = 185U, //!< int32_t. The Y coordinate for the CMP
     il          = 189U, //!< int32_t. The Inline grid point.
-    xl          = 193U  //!< int32_t. The Crossline grid point.
+    xl          = 193U, //!< int32_t. The Crossline grid point.
+    SrcMeas     = 225U, //!< int32_t. Source measurement
+    SrcMeasExp  = 229U, //!< int32_t. Source measurement exponent
 };
 
 struct prmRet
