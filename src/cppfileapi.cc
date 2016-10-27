@@ -4,7 +4,6 @@
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
-#include "file/dynsegymd.hh"
 namespace PIOL {
 ExSeis::ExSeis(const Log::Verb maxLevel)
 {
@@ -56,9 +55,9 @@ void fromTraceParam(Rule * r, size_t sz, const TraceParam * prm, Param * p)
 }
 
 
-Direct::Direct(const Piol piol, const std::string name, FileMode mode)
+Direct::Direct(const Piol piol, const std::string name, FileMode mode, std::shared_ptr<Rule> rule_)
 {
-    const File::SEGY::Opt f;
+    const File::SEGY::Opt f(rule_);
     const Obj::SEGY::Opt o;
     const Data::MPIIO::Opt d;
     auto data = std::make_shared<Data::MPIIO>(piol, name, d, mode);
@@ -94,11 +93,21 @@ void Direct::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
     toTraceParam(rule.get(), sz, &p, prm);
 }
 
+void Direct::readTraceParam(csize_t offset, csize_t sz, Param * prm) const
+{
+    file->readParam(offset, sz, prm);
+}
+
 void Direct::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 {
     Param p(rule.get(), sz);
     fromTraceParam(rule.get(), sz, prm, &p);
     file->writeParam(offset, sz, &p);
+}
+
+void Direct::writeTraceParam(csize_t offset, csize_t sz, const Param * prm)
+{
+    file->writeParam(offset, sz, prm);
 }
 
 void Direct::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const
@@ -113,6 +122,11 @@ void Direct::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam *
         file->readTrace(offset, sz, trace, const_cast<Param *>(PARAM_NULL));
 }
 
+void Direct::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
+{
+    file->readTrace(offset, sz, trace, prm);
+}
+
 void Direct::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm)
 {
     if (prm != PRM_NULL)
@@ -123,6 +137,11 @@ void Direct::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Trace
     }
     else
         file->writeTrace(offset, sz, trace, PARAM_NULL);
+}
+
+void Direct::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm)
+{
+    file->writeTrace(offset, sz, trace, prm);
 }
 
 void Direct::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam * prm) const
@@ -137,6 +156,11 @@ void Direct::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam
         file->readTrace(sz, offset, trace, const_cast<Param *>(PARAM_NULL));
 }
 
+void Direct::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+{
+    file->readTrace(sz, offset, trace, prm);
+}
+
 void Direct::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const TraceParam * prm)
 {
     if (prm != PRM_NULL)
@@ -149,6 +173,11 @@ void Direct::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Tra
         file->writeTrace(sz, offset, trace, PARAM_NULL);
 }
 
+void Direct::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
+{
+    file->writeTrace(sz, offset, trace, prm);
+}
+
 void Direct::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
 {
     Param p(rule.get(), sz);
@@ -156,11 +185,21 @@ void Direct::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) cons
     toTraceParam(rule.get(), sz, &p, prm);
 }
 
+void Direct::readTraceParam(csize_t sz, csize_t * offset, Param * prm) const
+{
+    file->readParam(sz, offset, prm);
+}
+
 void Direct::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 {
     Param p(rule.get(), sz);
     fromTraceParam(rule.get(), sz, prm, &p);
     file->writeParam(sz, offset, &p);
+}
+
+void Direct::writeTraceParam(csize_t sz, csize_t * offset, const Param * prm)
+{
+    file->writeParam(sz, offset, prm);
 }
 
 void Direct::writeText(const std::string text_)

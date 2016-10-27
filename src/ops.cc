@@ -1,14 +1,14 @@
-#include "global.hh"
 #include <algorithm>
 #include <iterator>
 #include <functional>
+
+#include "global.hh"
 #include "ops/ops.hh"
 #include "file/file.hh"
 
 #include <cstring>
 
 #warning CHANGE THESE TESTS TO PARAM
-
 namespace PIOL { namespace File {
 
 template <typename T>
@@ -77,7 +77,6 @@ void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const coord_t * coor
     auto ylam = [](const coord_t & a) -> geom_t { return a.y; };
     getMinMax<coord_t>(piol, offset, sz, coord, xlam, ylam, minmax);
 }
-
 void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, File::Coord item, const TraceParam * prm, CoordElem * minmax)
 {
     switch (item)

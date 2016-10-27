@@ -29,6 +29,12 @@ SEGY::Opt::Opt(void)
     rule = std::make_shared<Rule>(true, true);
 }
 
+SEGY::Opt::Opt(std::shared_ptr<Rule> rule_)
+{
+    incFactor = SI::Micro;
+    rule = rule_;
+}
+
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode_)
     : Interface(piol_, name_, obj_)
 {

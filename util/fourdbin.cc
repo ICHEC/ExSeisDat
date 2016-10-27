@@ -4,6 +4,7 @@
 #include "sglobal.hh"
 #include "share/smpi.hh"
 using namespace PIOL;
+using File::Meta;
 
 geom_t dsr(const geom_t * prm1, const geom_t * prm2)
 {
@@ -13,17 +14,17 @@ geom_t dsr(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
-void getCoords(File::Direct & file, size_t offset, std::vector<geom_t> & coords)
+void getCoords(File::Interface * file, size_t offset, std::vector<geom_t> & coords)
 {
     size_t sz = coords.size()/4U;
-    std::vector<File::TraceParam> prm(sz);
-    file.readTraceParam(offset, sz, prm.data());
+    File::Param prm(file->getRule(), sz);
+    file->readParam(offset, sz, &prm);
     for (size_t i = 0; i < sz; i++)
     {
-        coords[4U*i+0] = prm[i].src.x;
-        coords[4U*i+1] = prm[i].src.y;
-        coords[4U*i+2] = prm[i].rcv.x;
-        coords[4U*i+3] = prm[i].rcv.y;
+        coords[4U*i+0] = getPrm(file->getRule(), i, Meta::xSrc, &prm);
+        coords[4U*i+1] = getPrm(file->getRule(), i, Meta::ySrc, &prm);
+        coords[4U*i+2] = getPrm(file->getRule(), i, Meta::xRcv, &prm);
+        coords[4U*i+3] = getPrm(file->getRule(), i, Meta::yRcv, &prm);
     }
 }
 
@@ -72,17 +73,18 @@ void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_
     dst.writeInc(src.readInc());
     dst.writeNs(src.readNs());
 
-    vec<File::TraceParam> prm(sz);
+    File::Param prm(src.getRule(), sz);
     vec<trace_t> trc(sz * src.readNs());
 
-    src.readTrace(sz, list.data(), trc.data(), prm.data());
+    src.readTrace(sz, list.data(), trc.data(), &prm);
 
+//TODO: Replace with MPI call
     auto offsets = piol->comm->gather(vec<size_t>{list.size()});
     size_t offset = 0;
     for (size_t i = 0; i < piol->comm->getRank(); i++)
         offset += offsets[i];
 
-    dst.writeTrace(offset, sz, trc.data(), prm.data());
+    dst.writeTrace(offset, sz, trc.data(), &prm);
 }
 
 int main(void)
@@ -97,8 +99,13 @@ int main(void)
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
-    File::Direct file1(piol, name1, FileMode::Read);
-    File::Direct file2(piol, name2, FileMode::Read);
+    std::vector<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
+    auto rule = std::make_shared<File::Rule>(true, m);
+#warning continue here
+//    rule->addFloat(Tr:);
+
+    File::Direct file1(piol, name1, FileMode::Read, rule);
+    File::Direct file2(piol, name2, FileMode::Read, rule);
 
     vec<geom_t> coords1;
     vec<geom_t> coords2;
@@ -122,7 +129,6 @@ int main(void)
     vec<geom_t> minrs(sz[0]);
 
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
-
 
     //Perform a local update of min and minrs
     update<true>(szall, coords1, rank, coords2, min, minrs);

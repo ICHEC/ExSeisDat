@@ -107,6 +107,14 @@ class Interface
      */
     virtual ~Interface(void) { }
 
+    /*! \brief Return the trace header rules
+     *  \return The trace header rules structure
+     */
+    Rule * getRule(void) const
+    {
+        return rule.get();
+    }
+
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
      */

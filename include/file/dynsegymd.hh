@@ -117,6 +117,7 @@ struct RuleEntry
     size_t num;
     size_t loc;
     RuleEntry(size_t num_, size_t loc_) : num(num_), loc(loc_) { }
+    virtual ~RuleEntry() { };
     virtual size_t min(void) = 0;
     virtual size_t max(void) = 0;
     virtual MdType type(void) = 0;
@@ -138,14 +139,15 @@ struct Rule
 
     std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
     Rule(bool full, bool defaults);
-    Rule(const Rule * rule);
+    Rule(bool full, std::vector<Meta> & m);
     Rule(std::unordered_map<Meta, RuleEntry *, EnumHash> translate_, bool full = true);
+    ~Rule(void);
 
     //Rule setting
     void addLong(Meta m, Tr loc);
     void addFloat(Meta m, Tr loc, Tr scalLoc);
     void addShort(Meta m, Tr loc);
-    void rmRule(Meta);
+    void rmRule(Meta m);
     size_t extent(void);
     RuleEntry * getEntry(Meta entry);
 };
@@ -157,4 +159,3 @@ void setPrm(Rule * r, size_t i, Meta entry, llint val, Param * prm);
 void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm);
 }}
 #endif
-

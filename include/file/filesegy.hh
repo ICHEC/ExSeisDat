@@ -29,6 +29,7 @@ class SEGY : public Interface
         /*! The constructor sets the incFactor to the SEG-Y rev 1 standard definition.
          */
         Opt(void);
+        Opt(std::shared_ptr<Rule> rule_);
     };
 
     private :

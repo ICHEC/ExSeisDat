@@ -50,7 +50,8 @@ struct SEGYShortRuleEntry : public RuleEntry
 struct SEGYFloatRuleEntry : public RuleEntry
 {
     size_t scalLoc;
-    SEGYFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_) : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
+    SEGYFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_)
+                            : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
     size_t min(void)
     {
         return std::min(scalLoc, loc);
@@ -86,7 +87,64 @@ Rule::Rule(std::unordered_map<Meta, RuleEntry *, EnumHash> translate_, bool full
         }
 
     flag.fullextent = full;
+    if (!full)
+    {
+        flag.badextent = true;
+        extent();
+    }
+}
+
+Rule::Rule(bool full, std::vector<Meta> & m)
+{
+    numLong = 0;
+    numShort = 0;
+    numFloat = 0;
+
+    flag.fullextent = full;
+
+    for (size_t i = 0; i < m.size(); i++)
+    {
+        RuleEntry * r = NULL;
+        switch (m[i])
+        {
+            case Meta::xSrc :
+                translate[Meta::xSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
+            break;
+            case Meta::ySrc :
+                translate[Meta::ySrc] = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
+            break;
+            case Meta::xRcv :
+                translate[Meta::xRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
+            break;
+            case Meta::yRcv :
+                translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
+            break;
+            case Meta::xCmp :
+                translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
+            break;
+            case Meta::yCmp :
+                translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
+            break;
+            case Meta::il :
+                translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
+            break;
+            case Meta::xl :
+                translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
+            break;
+            case Meta::tn :
+                translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
+            break;
+        }
+        if (r)
+            translate[m[i]] = r;
+    }
     if (full)
+    {
+        start = 0U;
+        end = SEGSz::getMDSz();
+        flag.badextent = false;
+    }
+    else
     {
         flag.badextent = true;
         extent();
@@ -115,8 +173,8 @@ Rule::Rule(bool full, bool defaults)
     }
     if (full)
     {
-        start = 0;
-        end = 240;
+        start = 0U;
+        end = SEGSz::getMDSz();
         flag.badextent = false;
     }
     else
@@ -126,18 +184,19 @@ Rule::Rule(bool full, bool defaults)
     }
 }
 
-Rule::Rule(const Rule * rule)
+Rule::~Rule(void)
 {
-    *this = *rule;
+    for (const auto t : translate)
+        delete t.second;
 }
 
 size_t Rule::extent(void)
 {
     if (flag.fullextent)
-        return size_t(SEGSz::Size::DOMd);
+        return SEGSz::getMDSz();
     if (flag.badextent)
     {
-        start = size_t(SEGSz::Size::DOMd);
+        start = SEGSz::getMDSz();
         end = 0U;
         for (const auto r : translate)
         {
@@ -181,6 +240,7 @@ void Rule::rmRule(Meta m)
         numFloat--;
         break;
     }
+    delete translate[m];
     translate.erase(m);
     flag.badextent = (!flag.fullextent);
 }
@@ -197,13 +257,13 @@ prmRet getPrm(Rule * r, size_t i, Meta entry, const Param * prm)
     switch (id->type())
     {
         case MdType::Long :
-        ret.val.i = prm->i[i * r->numLong + id->num];
+        ret.val.i = prm->i[r->numLong*i + id->num];
         break;
         case MdType::Short :
-        ret.val.s = prm->s[i * r->numShort + id->num];
+        ret.val.s = prm->s[r->numShort*i + id->num];
         break;
         case MdType::Float :
-        ret.val.f = prm->f[i * r->numFloat + id->num];
+        ret.val.f = prm->f[r->numFloat*i + id->num];
         break;
     }
     return ret;
@@ -227,18 +287,10 @@ void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm)
 
 Param::Param(const Rule * rule, csize_t sz)
 {
-    f = NULL;
-    i = NULL;
-    s = NULL;
-    t = NULL;
-
-    if (sz > 0)
-    {
-        f = new geom_t[sz * rule->numFloat];
-        i = new llint[sz * rule->numLong];
-        s = new short[sz * rule->numShort];
-        t = new size_t[sz];
-    }
+    f = new geom_t[sz * rule->numFloat];
+    i = new llint[sz * rule->numLong];
+    s = new short[sz * rule->numShort];
+    t = new size_t[sz];
 }
 
 Param::~Param(void)
