@@ -45,7 +45,6 @@ class MPIIOTest : public Test
             data.reset();
         FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
         data = std::make_shared<Data::MPIIO>(piol, name, mode);
-        piol->isErr();
     }
 
     void makeTestSz(csize_t sz)

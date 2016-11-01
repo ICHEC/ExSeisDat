@@ -84,8 +84,8 @@ typedef FileTest FileDeathTest;
 //In this test we pass the MPI-IO Data Options class within an invalid name
 TEST_F(FileDeathTest, BadNameConstructor)
 {
-    File::Direct file(piol, tempFile, FileMode::Read);
+    File::Direct file(piol, notFile, FileMode::Read);
     EXPECT_EQ(piol, file->piol);
-    EXPECT_EQ(tempFile, file->name);
+    EXPECT_EQ(notFile, file->name);
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }

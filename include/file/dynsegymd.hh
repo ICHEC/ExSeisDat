@@ -101,7 +101,7 @@ struct prmRet
     }
 };
 
-#warning Intel specific hack?
+#if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
 struct EnumHash
 {
     template <typename T>
@@ -110,6 +110,7 @@ struct EnumHash
         return static_cast<size_t>(t);
     }
 };
+#endif
 
 enum class MdType : size_t
 {
@@ -129,7 +130,66 @@ struct RuleEntry
     virtual MdType type(void) = 0;
 };
 
+struct SEGYLongRuleEntry : public RuleEntry
+{
+    SEGYLongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
+    size_t min(void)
+    {
+        return loc;
+    }
+    size_t max(void)
+    {
+        return loc+4U;
+    }
+    MdType type(void)
+    {
+        return MdType::Long;
+    }
+};
+
+struct SEGYShortRuleEntry : public RuleEntry
+{
+    SEGYShortRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
+    size_t min(void)
+    {
+        return loc;
+    }
+    size_t max(void)
+    {
+        return loc+2U;
+    }
+    MdType type(void)
+    {
+        return MdType::Short;
+    }
+};
+
+struct SEGYFloatRuleEntry : public RuleEntry
+{
+    size_t scalLoc;
+    SEGYFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_)
+                            : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
+    size_t min(void)
+    {
+        return std::min(scalLoc, loc);
+    }
+    size_t max(void)
+    {
+        return std::max(scalLoc+2U, loc+4U);
+    }
+    MdType type(void)
+    {
+        return MdType::Float;
+    }
+};
+
 //TODO: When implementing alternative file formats, this Rule structure must be generalised
+#if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
+typedef std::unordered_map<Meta, RuleEntry *, EnumHash> RuleMap;
+#else
+typedef std::unordered_map<Meta, RuleEntry *> RuleMap;
+#endif
+
 struct Rule
 {
     size_t numLong;     //Number of long rules
@@ -143,10 +203,10 @@ struct Rule
         uint32_t fullextent;
     } flag;
 
-    std::unordered_map<Meta, RuleEntry *, EnumHash> translate;
+    RuleMap translate;
     Rule(bool full, bool defaults);
     Rule(bool full, std::vector<Meta> & m);
-    Rule(std::unordered_map<Meta, RuleEntry *, EnumHash> translate_, bool full = true);
+    Rule(RuleMap translate_, bool full = true);
     ~Rule(void);
 
     //Rule setting

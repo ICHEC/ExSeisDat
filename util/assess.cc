@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
         {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
 
-            File::Direct file(piol, globs.gl_pathv[i]);
+            File::Direct file(piol, globs.gl_pathv[i], FileMode::Read);
             piol.isErr();
             std::cout << "-\tNs: " << file.readNs() << "\n";
             std::cout << "-\tNt: " << file.readNt() << "\n";

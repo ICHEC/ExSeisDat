@@ -14,7 +14,7 @@ using cvec = const std::vector<T>;
 template <class T>
 using vec = std::vector<T>;
 
-geom_t dsr(const geom_t * prm1, const geom_t * prm2)
+inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
 {
     return std::abs(prm1[0] - prm2[0]) +
            std::abs(prm1[1] - prm2[1]) +
@@ -53,12 +53,11 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
             minrs[i] = dval;
             min[i] = offset;
         }
-
-    for (size_t i = 0; i < sz; i++)
-        for (size_t j = (Init ? 1U : 0U); j < szall[orank]; j++)
+    for (size_t j = (Init ? 1U : 0U); j < szall[orank]; j++)
+        for (size_t i = 0; i < sz; i++)
         {
             geom_t dval = dsr(&local[4U*i], &other[4U*j]);
-            if ((dval < minrs[i]) || (dval == minrs[i] && min[i] > offset + j))
+            if (dval < minrs[i])
             {
                 minrs[i] = dval;
                 min[i] = offset + j;
@@ -67,7 +66,7 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
 }
 
 //Non-Contiguous read, contiguous write
-void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list)
+void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
     const size_t sz = list.size();
     dst.writeText("ExSeisDat 4d-bin file.\n");
@@ -80,9 +79,9 @@ void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_
 
     src.readTrace(sz, list.data(), trc.data(), &prm);
 
-#warning Have a mechanism to change from one representation to another
-//    for (size_t i = 0; i < sz; i++)
-//        setPrm(dst.getRule(), i, Meta::dsdr, val) 
+//TODO: Have a mechanism to change from one representation to another?
+    for (size_t i = 0; i < sz; i++)
+        setPrm(dst.getRule(), i, Meta::dsdr, minrs[i], &prm);
 
 //TODO: Replace with MPI call
     auto offsets = piol->comm->gather(vec<size_t>{list.size()});
@@ -127,13 +126,12 @@ int main(int argc, char ** argv)
             break;
         }
     assert(name1.size() && name2.size() && name3.size() && name4.size());
-    
+
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
     std::vector<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
     auto rule = std::make_shared<File::Rule>(true, m);
-#warning continue here
     rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
     File::Direct file1(piol, name1, FileMode::Read, rule);
     File::Direct file2(piol, name2, FileMode::Read, rule);
@@ -165,8 +163,6 @@ int main(int argc, char ** argv)
     if (!rank)
         std::cout << "Round " << 1 << " of " << numRank << std::endl;
     update<true>(szall, coords1, rank, coords2, min, minrs);
-    if (!rank)
-        std::cout << "updated " << 1 << " of " << numRank << std::endl;
 
     //Perform the updates of min and minrs using data from other processes.
     for (size_t i = 1U; i < numRank; i ++)
@@ -177,6 +173,7 @@ int main(int argc, char ** argv)
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
 
         //TODO: Check if the other process has data of interest.
+
         vec<geom_t> proc(4U*szall[lrank]);
         MPI_Request msg[2];
         //Receive data from the process on the left
@@ -190,21 +187,8 @@ int main(int argc, char ** argv)
         assert(msg[1] != MPI_REQUEST_NULL);
         assert(MPI_Wait(&msg[0], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
 
-        if (!rank)
-            std::cout << "update " << i+1 << " of " << numRank << std::endl;
-
         update<false>(szall, coords1, lrank, proc, min, minrs);
-        if (!rank)
-            std::cout << "updated " << i+1 << " of " << numRank << std::endl;
-
         assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
-
-#warning HACK
-        if (i == 2)
-        {
-            piol.barrier();
-            return 0;
-        }
     }
 
     size_t cnt = 0U;
@@ -221,10 +205,10 @@ int main(int argc, char ** argv)
     list1.resize(cnt);
     list2.resize(cnt);
 
-    File::Direct file3(piol, name3, FileMode::Write);
-    File::Direct file4(piol, name4, FileMode::Write);
+    File::Direct file3(piol, name3, FileMode::Write, rule);
+    select(piol, file3, file1, list1, minrs);
 
-    select(piol, file3, file1, list1);
-    select(piol, file4, file2, list2);
+    File::Direct file4(piol, name4, FileMode::Write, rule);
+    select(piol, file4, file2, list2, minrs);
     return 0;
 }

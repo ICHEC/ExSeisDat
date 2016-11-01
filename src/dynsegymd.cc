@@ -13,60 +13,7 @@
 #include <iostream>
 
 namespace PIOL { namespace File {
-struct SEGYLongRuleEntry : public RuleEntry
-{
-    SEGYLongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
-    size_t min(void)
-    {
-        return loc;
-    }
-    size_t max(void)
-    {
-        return loc;
-    }
-    MdType type(void)
-    {
-        return MdType::Long;
-    }
-};
-
-struct SEGYShortRuleEntry : public RuleEntry
-{
-    SEGYShortRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
-    size_t min(void)
-    {
-        return loc;
-    }
-    size_t max(void)
-    {
-        return loc;
-    }
-    MdType type(void)
-    {
-        return MdType::Short;
-    }
-};
-
-struct SEGYFloatRuleEntry : public RuleEntry
-{
-    size_t scalLoc;
-    SEGYFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_)
-                            : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
-    size_t min(void)
-    {
-        return std::min(scalLoc, loc);
-    }
-    size_t max(void)
-    {
-        return std::max(scalLoc, loc);
-    }
-    MdType type(void)
-    {
-        return MdType::Float;
-    }
-};
-
-Rule::Rule(std::unordered_map<Meta, RuleEntry *, EnumHash> translate_, bool full)
+Rule::Rule(RuleMap translate_, bool full)
 {
     numLong = 0;
     numShort = 0;
@@ -134,6 +81,7 @@ Rule::Rule(bool full, std::vector<Meta> & m)
             case Meta::tn :
                 translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
             break;
+            default : break;    //Non-default
         }
         if (r)
             translate[m[i]] = r;
@@ -311,7 +259,11 @@ void insertParam(Rule * r, size_t sz, const Param * prm, uchar * buf, size_t str
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = &buf[(r->extent() + stride)*i];
+#if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
         std::unordered_map<Tr, int16_t, EnumHash> scal;
+#else
+        std::unordered_map<Tr, int16_t> scal;
+#endif
         std::vector<const SEGYFloatRuleEntry *> rule;
         for (const auto v : r->translate)
         {

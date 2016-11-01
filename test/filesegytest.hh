@@ -131,6 +131,7 @@ struct FileSEGYTest : public Test
 
     ~FileSEGYTest()
     {
+        Mock::VerifyAndClearExpectations(&mock);
     }
 
     template <bool WRITE = true, bool OPTS = false>
