@@ -217,7 +217,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) c
         std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
         obj->readDO(offset, ns, ntz, dobuf.data());
 
-        extractParam(ntz, dobuf.data(), prm, SEGSz::getDFSz(ns));
+        extractParam(rule.get(), ntz, dobuf.data(), prm, SEGSz::getDFSz(ns));
 
         for (size_t i = 0; i < ntz; i++)
             std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
@@ -255,7 +255,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param *
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
 
-        insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
+        insertParam(rule.get(), sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
                       dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
@@ -284,7 +284,7 @@ void SEGY::readParam(csize_t offset, csize_t sz, Param * prm) const
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
     obj->readDOMD(offset, ns, ntz, buf.data());
 
-    extractParam(ntz, buf.data(), prm, 0);
+    extractParam(rule.get(), ntz, buf.data(), prm, 0);
 }
 
 void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
@@ -304,7 +304,7 @@ void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    insertParam(sz, prm, buf.data(), 0U);
+    insertParam(rule.get(), sz, prm, buf.data(), 0U);
 
     obj->writeDOMD(offset, ns, sz, buf.data());
 
@@ -321,7 +321,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm)
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
         obj->readDO(ns, sz, offset, dobuf.data());
 
-        extractParam(sz, dobuf.data(), prm, SEGSz::getDFSz(ns));
+        extractParam(rule.get(), sz, dobuf.data(), prm, SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
                       buf + i * SEGSz::getDFSz(ns));
@@ -350,7 +350,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
 
-        insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
+        insertParam(rule.get(), sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
                       dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
@@ -374,7 +374,7 @@ void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
 
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
     obj->readDOMD(ns, sz, offset, buf.data());
-    extractParam(sz, buf.data(), prm, 0U);
+    extractParam(rule.get(), sz, buf.data(), prm, 0U);
 }
 
 void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
@@ -399,7 +399,7 @@ void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    insertParam(sz, prm, buf.data(), 0U);
+    insertParam(rule.get(), sz, prm, buf.data(), 0U);
 
     obj->writeDOMD(ns, sz, offset, buf.data());
 

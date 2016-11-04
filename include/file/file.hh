@@ -17,13 +17,12 @@ struct Rule;
 //C compatible structure
 struct Param
 {
-    std::shared_ptr<Rule> r;
     geom_t * f;
     llint *  i;
     short *  s;
     size_t * t;
 
-    Param(std::shared_ptr<Rule> r, size_t sz);
+    Param(const Rule * r, size_t sz);
     ~Param(void);
 };
 
@@ -78,7 +77,7 @@ enum class Grid : size_t
     Line    //!< Inline/Crossline grid points
 };
 
-extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
+extern const Param * PARAM_NULL;
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
  */
@@ -111,9 +110,9 @@ class Interface
     /*! \brief Return the trace header rules
      *  \return The trace header rules structure
      */
-    std::shared_ptr<Rule> getRule(void) const
+    Rule * getRule(void) const
     {
-        return rule;
+        return rule.get();
     }
 
     /*! \brief Read the human readable text from the file

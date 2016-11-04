@@ -53,8 +53,6 @@ void writeRandom(ExSeisPIOL * piol, File::Direct * file, size_t nt, size_t ns, s
 
     size_t offcount = 0;
     size_t t = 0;
-
-    //Work out offsets
     while (num[rank] > 0 && offcount < nt)
     {
         for (size_t j = 0; j < numRank; j++)

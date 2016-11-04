@@ -3,6 +3,7 @@ include ../compiler.cfg
 BIN=$(LIB_DIR)/libpiol.so
 CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CXXINC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
+#IMELD_FLAG=-Wl,--dynamic-linker=/ichec/home/staff/cathal/env/extract/lib64/ld-linux-x86-64.so.2 
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)

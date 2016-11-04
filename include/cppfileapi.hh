@@ -79,10 +79,7 @@ struct TraceParam
     grid_t line;    //!< The line coordinates (il, xl)
     size_t tn;      //!< TODO: Add unit test
 };
-
 extern const TraceParam * PRM_NULL;
-extern void toTraceParam(Rule * r, size_t sz, const Param * p, TraceParam * prm);
-extern void fromTraceParam(Rule * r, size_t sz, const TraceParam * prm, Param * p);
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
@@ -139,9 +136,9 @@ class Direct
         return file.get();
     }
 
-    std::shared_ptr<Rule> getRule(void) const
+    Rule * getRule(void) const
     {
-        return rule;
+        return rule.get();
     }
 
     /*! \brief Read the human readable text from the file

@@ -22,37 +22,38 @@ void ExSeis::isErr(std::string msg) const
 
 namespace File {
 const TraceParam * PRM_NULL = (TraceParam *)1;
-void toTraceParam(size_t sz, const Param * p, TraceParam * prm)
+void toTraceParam(Rule * r, size_t sz, const Param * p, TraceParam * prm)
 {
     for (size_t i = 0; i < sz; i++)
     {
-        prm[i].src.x = getPrm(i, Meta::xSrc, p);
-        prm[i].src.y = getPrm(i, Meta::ySrc, p);
-        prm[i].rcv.x = getPrm(i, Meta::xRcv, p);
-        prm[i].rcv.y = getPrm(i, Meta::yRcv, p);
-        prm[i].cmp.x = getPrm(i, Meta::xCmp, p);
-        prm[i].cmp.y = getPrm(i, Meta::yCmp, p);
-        prm[i].line.il = getPrm(i, Meta::il, p);
-        prm[i].line.xl = getPrm(i, Meta::xl, p);
-        prm[i].tn = getPrm(i, Meta::tn, p);
+        prm[i].src.x = getPrm(r, i, Meta::xSrc, p);
+        prm[i].src.y = getPrm(r, i, Meta::ySrc, p);
+        prm[i].rcv.x = getPrm(r, i, Meta::xRcv, p);
+        prm[i].rcv.y = getPrm(r, i, Meta::yRcv, p);
+        prm[i].cmp.x = getPrm(r, i, Meta::xCmp, p);
+        prm[i].cmp.y = getPrm(r, i, Meta::yCmp, p);
+        prm[i].line.il = getPrm(r, i, Meta::il, p);
+        prm[i].line.xl = getPrm(r, i, Meta::xl, p);
+        prm[i].tn = getPrm(r, i, Meta::tn, p);
     }
 }
 
-void fromTraceParam(size_t sz, const TraceParam * prm, Param * p)
+void fromTraceParam(Rule * r, size_t sz, const TraceParam * prm, Param * p)
 {
     for (size_t i = 0; i < sz; i++)
     {
-        setPrm(i, Meta::xSrc, prm[i].src.x, p);
-        setPrm(i, Meta::ySrc, prm[i].src.y, p);
-        setPrm(i, Meta::xRcv, prm[i].rcv.x, p);
-        setPrm(i, Meta::yRcv, prm[i].rcv.y, p);
-        setPrm(i, Meta::xCmp, prm[i].cmp.x, p);
-        setPrm(i, Meta::yCmp, prm[i].cmp.y, p);
-        setPrm(i, Meta::il, prm[i].line.il, p);
-        setPrm(i, Meta::xl, prm[i].line.xl, p);
-        setPrm(i, Meta::tn, llint(prm[i].tn), p);
+        setPrm(r, i, Meta::xSrc, prm[i].src.x, p);
+        setPrm(r, i, Meta::ySrc, prm[i].src.y, p);
+        setPrm(r, i, Meta::xRcv, prm[i].rcv.x, p);
+        setPrm(r, i, Meta::yRcv, prm[i].rcv.y, p);
+        setPrm(r, i, Meta::xCmp, prm[i].cmp.x, p);
+        setPrm(r, i, Meta::yCmp, prm[i].cmp.y, p);
+        setPrm(r, i, Meta::il, prm[i].line.il, p);
+        setPrm(r, i, Meta::xl, prm[i].line.xl, p);
+        setPrm(r, i, Meta::tn, llint(prm[i].tn), p);
     }
 }
+
 
 Direct::Direct(const Piol piol, const std::string name, FileMode mode, std::shared_ptr<Rule> rule_)
 {
@@ -87,9 +88,9 @@ geom_t Direct::readInc(void) const
 
 void Direct::readTraceParam(csize_t offset, csize_t sz, TraceParam * prm) const
 {
-    Param p(rule, sz);
+    Param p(rule.get(), sz);
     file->readParam(offset, sz, &p);
-    toTraceParam(sz, &p, prm);
+    toTraceParam(rule.get(), sz, &p, prm);
 }
 
 void Direct::readTraceParam(csize_t offset, csize_t sz, Param * prm) const
@@ -99,8 +100,8 @@ void Direct::readTraceParam(csize_t offset, csize_t sz, Param * prm) const
 
 void Direct::writeTraceParam(csize_t offset, csize_t sz, const TraceParam * prm)
 {
-    Param p(rule, sz);
-    fromTraceParam(sz, prm, &p);
+    Param p(rule.get(), sz);
+    fromTraceParam(rule.get(), sz, prm, &p);
     file->writeParam(offset, sz, &p);
 }
 
@@ -113,9 +114,9 @@ void Direct::readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam *
 {
     if (prm != PRM_NULL)
     {
-        Param p(rule, sz);
+        Param p(rule.get(), sz);
         file->readTrace(offset, sz, trace, &p);
-        toTraceParam(sz, &p, prm);
+        toTraceParam(rule.get(), sz, &p, prm);
     }
     else
         file->readTrace(offset, sz, trace, const_cast<Param *>(PARAM_NULL));
@@ -130,8 +131,8 @@ void Direct::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Trace
 {
     if (prm != PRM_NULL)
     {
-        Param p(rule, sz);
-        fromTraceParam(sz, prm, &p);
+        Param p(rule.get(), sz);
+        fromTraceParam(rule.get(), sz, prm, &p);
         file->writeTrace(offset, sz, trace, &p);
     }
     else
@@ -147,9 +148,9 @@ void Direct::readTrace(csize_t sz, csize_t * offset, trace_t * trace, TraceParam
 {
     if (prm != PRM_NULL)
     {
-        Param p(rule, sz);
+        Param p(rule.get(), sz);
         file->readTrace(sz, offset, trace, &p);
-        toTraceParam(sz, &p, prm);
+        toTraceParam(rule.get(), sz, &p, prm);
     }
     else
         file->readTrace(sz, offset, trace, const_cast<Param *>(PARAM_NULL));
@@ -164,8 +165,8 @@ void Direct::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Tra
 {
     if (prm != PRM_NULL)
     {
-        Param p(rule, sz);
-        fromTraceParam(sz, prm, &p);
+        Param p(rule.get(), sz);
+        fromTraceParam(rule.get(), sz, prm, &p);
         file->writeTrace(sz, offset, trace, &p);
     }
     else
@@ -179,9 +180,9 @@ void Direct::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Par
 
 void Direct::readTraceParam(csize_t sz, csize_t * offset, TraceParam * prm) const
 {
-    Param p(rule, sz);
+    Param p(rule.get(), sz);
     file->readParam(sz, offset, &p);
-    toTraceParam(sz, &p, prm);
+    toTraceParam(rule.get(), sz, &p, prm);
 }
 
 void Direct::readTraceParam(csize_t sz, csize_t * offset, Param * prm) const
@@ -191,8 +192,8 @@ void Direct::readTraceParam(csize_t sz, csize_t * offset, Param * prm) const
 
 void Direct::writeTraceParam(csize_t sz, csize_t * offset, const TraceParam * prm)
 {
-    Param p(rule, sz);
-    fromTraceParam(sz, prm, &p);
+    Param p(rule.get(), sz);
+    fromTraceParam(rule.get(), sz, prm, &p);
     file->writeParam(sz, offset, &p);
 }
 

@@ -1,8 +1,6 @@
 #include <assert.h>
 #include <cmath>
 #include <iostream>
-#include <algorithm>
-#include <numeric>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
 #include "share/smpi.hh"
@@ -31,10 +29,10 @@ void getCoords(File::Interface * file, size_t offset, vec<geom_t> & coords)
     file->readParam(offset, sz, &prm);
     for (size_t i = 0; i < sz; i++)
     {
-        coords[4U*i+0] = getPrm(i, Meta::xSrc, &prm);
-        coords[4U*i+1] = getPrm(i, Meta::ySrc, &prm);
-        coords[4U*i+2] = getPrm(i, Meta::xRcv, &prm);
-        coords[4U*i+3] = getPrm(i, Meta::yRcv, &prm);
+        coords[4U*i+0] = getPrm(file->getRule(), i, Meta::xSrc, &prm);
+        coords[4U*i+1] = getPrm(file->getRule(), i, Meta::ySrc, &prm);
+        coords[4U*i+2] = getPrm(file->getRule(), i, Meta::xRcv, &prm);
+        coords[4U*i+3] = getPrm(file->getRule(), i, Meta::yRcv, &prm);
     }
 }
 
@@ -55,12 +53,10 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
             minrs[i] = dval;
             min[i] = offset;
         }
-
     for (size_t j = (Init ? 1U : 0U); j < szall[orank]; j++)
         for (size_t i = 0; i < sz; i++)
         {
             geom_t dval = dsr(&local[4U*i], &other[4U*j]);
-//TODO BENCHMARK CONDITIONAL vs TERNARY?
             if (dval < minrs[i])
             {
                 minrs[i] = dval;
@@ -69,156 +65,32 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
         }
 }
 
-//This trick is discussed here:
-//http://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
-vec<size_t> getSortIndex(size_t sz, size_t * list)
-{
-    vec<size_t> index(sz);
-    std::iota(index.begin(), index.end(), 0);
-    std::sort(index.begin(), index.end(), [list] (size_t s1, size_t s2) { return list[s1] < list[s2]; });
-    return index;
-}
-
-//TODO: Have a mechanism to change from one Param representation to another?
-
-void selectDupe(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
-{
-    size_t ns = src.readNs();
-    size_t lnt = list.size();
-    size_t offset = 0;
-    size_t biggest = 0;
-    size_t sz = 0;
-    {
-        auto nts = piol->comm->gather(vec<size_t>{lnt});
-        for (size_t i = 0; i < nts.size(); i++)
-        {
-            if (i == piol->comm->getRank())
-                offset = sz;
-            sz += nts[i];
-            biggest = std::max(biggest, nts[i]);
-        }
-    }
-
-    size_t memused = lnt * (sizeof(size_t) + sizeof(geom_t));
-    size_t memlim = 2U*1024U*1024U*1024U;
-    assert(memlim > memused);
-    size_t max = (memlim - memused) / (4U*SEGSz::getDOSz(ns) + 4U*src.getRule()->extent());
-    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-
-    dst.writeText("ExSeisDat 4d-bin file.\n");
-    dst.writeNt(sz);
-    dst.writeInc(src.readInc());
-    dst.writeNs(ns);
-
-    File::Param prm(src.getRule(), std::min(lnt, max));
-    vec<trace_t> trc(ns * std::min(lnt, max));
-
-    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-
-        auto idx = getSortIndex(rblock, &list[i]);
-        std::vector<size_t> nodups;
-        for (size_t j = 0; j < rblock; j++)
-            if (!j || list[idx[j-1]] != list[idx[j]])
-                nodups.push_back(list[idx[j]]);
-
-        File::Param sprm(src.getRule(), nodups.size());
-        vec<trace_t> strc(ns * nodups.size());
-
-        if (!piol->comm->getRank())
-            std::cout << "read " << nodups.size() << std::endl;
-
-        src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
-
-        if (!piol->comm->getRank())
-            std::cout << "process\n";
-
-        size_t n = 0;
-        for (size_t j = 0; j < rblock; j++)
-        {
-            if (!j || list[idx[j-1]] != list[idx[j]])
-                n = j;
-            cpyPrm(n, &sprm, idx[n], &prm);
-
-            setPrm(j, Meta::dsdr, minrs[j], &prm);
-            for (size_t k = 0; k < ns; k++)
-                trc[j*ns + k] = strc[idx[n]*ns + k];
-        }
-        if (!piol->comm->getRank())
-            std::cout << "write\n";
-
-        dst.writeTrace(offset+i, rblock, trc.data(), &prm);
-    }
-
-    for (size_t i = 0; i < extra; i++)
-    {
-        src.readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-        dst.writeTrace(0, size_t(0), nullptr, File::PARAM_NULL);
-    }
-}
-
-
+//Non-Contiguous read, contiguous write
 void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
-    const size_t ns = src.readNs();
-    const size_t lnt = list.size();
+    const size_t sz = list.size();
     dst.writeText("ExSeisDat 4d-bin file.\n");
-    size_t offset = 0;
-    size_t biggest = 0;
-    size_t sz = 0;
-    {
-        auto offsets = piol->comm->gather(vec<size_t>{lnt});
-        for (size_t i = 0; i < offsets.size(); i++)
-        {
-            if (i == piol->comm->getRank())
-                offset = sz;
-            sz += offsets[i];
-            biggest = std::max(biggest, offsets[i]);
-        }
-    }
-
-    size_t memused = lnt * (sizeof(size_t) + sizeof(geom_t));
-    size_t memlim = 2U*1024U*1024U*1024U;
-    assert(memlim > memused);
-    size_t max = (memlim - memused) / (4U*SEGSz::getDOSz(ns) + 4U*src.getRule()->extent());
-    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-
     dst.writeNt(sz);
     dst.writeInc(src.readInc());
     dst.writeNs(src.readNs());
 
-/*    for (size_t i = 0; i < piol->comm->getNumRank(); i++)
-    {
-        piol->comm->barrier();
-        if (i == piol->comm->getRank())
-            std::cout << i << " " << biggest << " " << lnt << "  " << max << " " << extra << std::endl;
-        piol->comm->barrier();
-    }*/
+    File::Param prm(src.getRule(), sz);
+    vec<trace_t> trc(sz * src.readNs());
 
-    File::Param prm(src.getRule(), std::min(lnt, max));
-    vec<trace_t> trc(src.readNs() * std::min(lnt, max));
+    src.readTrace(sz, list.data(), trc.data(), &prm);
 
-    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
+//TODO: Have a mechanism to change from one representation to another?
+    for (size_t i = 0; i < sz; i++)
+        setPrm(dst.getRule(), i, Meta::dsdr, minrs[i], &prm);
 
-        if (!piol->comm->getRank())
-            std::cout << "R Block = " << rblock << std::endl;
+//TODO: Replace with MPI call
+    auto offsets = piol->comm->gather(vec<size_t>{list.size()});
+    size_t offset = 0;
+    for (size_t i = 0; i < piol->comm->getRank(); i++)
+        offset += offsets[i];
 
-        src.readTrace(rblock, &list[i], trc.data(), &prm);
-        for (size_t j = 0; j < rblock; j++)
-            setPrm(j, Meta::dsdr, minrs[j], &prm);
-        dst.writeTrace(offset+i, rblock, trc.data(), &prm);
-    }
-
-    for (size_t i = 0; i < extra; i++)
-    {
-        src.readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-        dst.writeTrace(0, size_t(0), nullptr, File::PARAM_NULL);
-    }
+    dst.writeTrace(offset, sz, trc.data(), &prm);
 }
-
 
 int main(int argc, char ** argv)
 {
@@ -284,12 +156,7 @@ int main(int argc, char ** argv)
 
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
-#define RANDOM_WRITE
-#ifdef RANDOM_WRITE
-    srand(1337);
-    for (size_t nt = file2.readNt(), i = 0; i < sz[0]; i++)
-        min[i] = ((llint(rand()) << 8) & llint(rand())) % nt;
-#else
+
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
 
     //Perform a local update of min and minrs
@@ -323,18 +190,10 @@ int main(int argc, char ** argv)
         update<false>(szall, coords1, lrank, proc, min, minrs);
         assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
     }
-#endif
-
-    coords1.resize(0);
-    coords2.resize(0);
-    coords1.shrink_to_fit();
-    coords2.shrink_to_fit();
 
     size_t cnt = 0U;
     vec<size_t> list1(sz[0]);
     vec<size_t> list2(sz[0]);
-    if (!rank)
-        std::cout << "Final list pass\n";
     for (size_t i = 0U; i < sz[0]; i++)
     {
         if (minrs[i] <= dsrmax)
@@ -346,20 +205,10 @@ int main(int argc, char ** argv)
     list1.resize(cnt);
     list2.resize(cnt);
 
-    if (!rank)
-        std::cout << "Select s3\n";
-
     File::Direct file3(piol, name3, FileMode::Write, rule);
     select(piol, file3, file1, list1, minrs);
 
-    if (!rank)
-        std::cout << "Select s4\n";
-
     File::Direct file4(piol, name4, FileMode::Write, rule);
-    selectDupe(piol, file4, file2, list2, minrs);
-
-    if (!rank)
-        std::cout << "Done\n";
-
+    select(piol, file4, file2, list2, minrs);
     return 0;
 }

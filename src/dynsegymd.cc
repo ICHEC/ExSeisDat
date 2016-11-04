@@ -158,28 +158,19 @@ size_t Rule::extent(void)
 
 void Rule::addLong(Meta m, Tr loc)
 {
-    auto ent = translate.find(m);
-    if (ent != translate.end())
-        delete ent->second;
-    ent->second = new SEGYLongRuleEntry(numLong++, loc);
+    translate[m] = new SEGYLongRuleEntry(numLong++, loc);
     flag.badextent = (!flag.fullextent);
 }
 
 void Rule::addShort(Meta m, Tr loc)
 {
-    auto ent = translate.find(m);
-    if (ent != translate.end())
-        delete ent->second;
-    ent->second = new SEGYShortRuleEntry(numShort++, loc);
+    translate[m] = new SEGYShortRuleEntry(numShort++, loc);
     flag.badextent = (!flag.fullextent);
 }
 
 void Rule::addFloat(Meta m, Tr loc, Tr scalLoc)
 {
-    auto ent = translate.find(m);
-    if (ent != translate.end())
-        delete ent->second;
-    ent->second = new SEGYFloatRuleEntry(numFloat++, loc, scalLoc);
+    translate[m] = new SEGYFloatRuleEntry(numFloat++, loc, scalLoc);
     flag.badextent = (!flag.fullextent);
 }
 
@@ -207,103 +198,42 @@ RuleEntry * Rule::getEntry(Meta entry)
     return translate[entry];
 }
 
-prmRet getPrm(size_t i, Meta entry, const Param * prm)
+prmRet getPrm(Rule * r, size_t i, Meta entry, const Param * prm)
 {
-    Rule * r = prm->r.get();
+    prmRet ret;
     RuleEntry * id = r->getEntry(entry);
     switch (id->type())
     {
         case MdType::Long :
-        return prmRet(prm->i[r->numLong*i + id->num]);
+        ret.val.i = prm->i[r->numLong*i + id->num];
         break;
         case MdType::Short :
-        return prmRet(prm->s[r->numShort*i + id->num]);
+        ret.val.s = prm->s[r->numShort*i + id->num];
         break;
         case MdType::Float :
-        return prmRet(prm->f[r->numFloat*i + id->num]);
-        break;
-        default :
-            return llint(0);
+        ret.val.f = prm->f[r->numFloat*i + id->num];
         break;
     }
+    return ret;
 }
 
 #warning todo: Do type checks
-void setPrm(size_t i, Meta entry, geom_t val, Param * prm)
+void setPrm(Rule * r, size_t i, Meta entry, geom_t val, Param * prm)
 {
-    Rule * r = prm->r.get();
     prm->f[i * r->numFloat + r->getEntry(entry)->num] = val;
 }
 
-void setPrm(csize_t i, const Meta entry, const llint val, Param * prm)
+void setPrm(Rule * r, size_t i, Meta entry, llint val, Param * prm)
 {
-    Rule * r = prm->r.get();
     prm->i[i * r->numLong + r->getEntry(entry)->num] = val;
 }
 
-void setPrm(csize_t i, const Meta entry, const short val, Param * prm)
+void setPrm(Rule * r, size_t i, Meta entry, short val, Param * prm)
 {
-    Rule * r = prm->r.get();
     prm->s[i * r->numShort + r->getEntry(entry)->num] = val;
 }
 
-
-void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm)
-{
-    switch (prm->r->translate[entry]->type())
-    {
-        case MdType::Long :
-        setPrm(i, entry, llint(ret), prm);
-        break;
-        case MdType::Short :
-        setPrm(i, entry, short(ret), prm);
-        break;
-        case MdType::Float :
-        setPrm(i, entry, geom_t(ret), prm);
-        break;
-    }
-}
-
-void cpyPrm(csize_t j, const Param * src, size_t k, Param * dst)
-{
-    Rule * srule = src->r.get();
-    Rule * drule = dst->r.get();
-    if (srule == drule)
-    {
-        Rule * r = srule;
-        for (size_t i = 0; i < r->numFloat; i++)
-            dst->f[k * r->numFloat + i] = src->f[j * r->numFloat + i];
-        for (size_t i = 0; i < r->numLong; i++)
-            dst->i[k * r->numLong + i] = src->i[j * r->numLong + i];
-        for (size_t i = 0; i < r->numShort; i++)
-            dst->s[k * r->numShort + i] = src->s[j * r->numShort + i];
-    }
-    else
-        //For each rule in source
-        for (auto & m : srule->translate)
-        {
-            //Check for a rule in destination
-            auto valit = drule->translate.find(m.first);
-            RuleEntry * dent = valit->second;
-            RuleEntry * sent = m.second;
-            //if the rule is in the destination and the types match
-            if (valit != drule->translate.end() && dent->type() == sent->type())
-                switch (m.second->type())
-                {
-                    case MdType::Long :
-                    dst->i[drule->numLong*k + dent->num] = src->i[srule->numLong*j + sent->num];
-                    break;
-                    case MdType::Short :
-                    dst->s[drule->numShort*k + dent->num] = src->s[srule->numShort*j + sent->num];
-                    break;
-                    case MdType::Float :
-                    dst->f[drule->numFloat*k + dent->num] = src->f[srule->numFloat*j + sent->num];
-                    break;
-                }
-        }
-}
-
-Param::Param(std::shared_ptr<Rule> rule, csize_t sz)
+Param::Param(const Rule * rule, csize_t sz)
 {
     f = new geom_t[sz * rule->numFloat];
     i = new llint[sz * rule->numLong];
@@ -323,9 +253,8 @@ Param::~Param(void)
         delete [] t;
 }
 
-void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
+void insertParam(Rule * r, size_t sz, const Param * prm, uchar * buf, size_t stride)
 {
-    Rule * r = prm->r.get();
     size_t start = r->start;
     for (size_t i = 0; i < sz; i++)
     {
@@ -377,9 +306,8 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
     }
 }
 
-void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride)
+void extractParam(Rule * r, size_t sz, const uchar * buf, Param * prm, size_t stride)
 {
-    Rule * r = prm->r.get();
     for (size_t i = 0; i < sz; i++)
     {
         const uchar * md = &buf[(r->extent() + stride)*i];
