@@ -99,9 +99,20 @@ void setMd(const Hdr item, const T src, uchar * dst)
     }
 }
 
-#warning temp
-struct rule;
-extern void extractParam(Rule * rule, size_t sz, const uchar * md, Param * prm, size_t stride = 0);
-extern void insertParam(Rule * rule, size_t sz, const Param * prm, uchar * md, size_t stride = 0);
+/*! \brief Extract parameters from an unsigned char array into the parameter structure
+ *  \param[in] sz The number of sets of parameters
+ *  \param[in] md The buffer in the SEG-Y trace header format
+ *  \param[out] prm The parameter structure
+ *  \param[in] stride The stride to use between adjacent blocks in the input buffer.
+ */
+extern void extractParam(size_t sz, const uchar * md, Param * prm, size_t stride = 0);
+
+/*! \brief Extract parameters from an unsigned char array into the parameter structure
+ *  \param[in] sz The number of sets of parameters
+ *  \param[in] prm The parameter structure
+ *  \param[out] md The buffer in the SEG-Y trace header format
+ *  \param[in] stride The stride to use between adjacent blocks in the input buffer.
+ */
+extern void insertParam(size_t sz, const Param * prm, uchar * md, size_t stride = 0);
 }}
 #endif
