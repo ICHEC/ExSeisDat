@@ -107,21 +107,21 @@ TEST_F(RuleFixList, setPrm)
     Param prm(rule, 100);
     for (size_t i = 0; i < 100; i++)
     {
-        setPrm(rule, i, Meta::xSrc, geom_t(i) + 1., &prm);
-        setPrm(rule, i, Meta::ySrc, geom_t(i) + 2., &prm);
-        setPrm(rule, i, Meta::xRcv, geom_t(i) + 3., &prm);
-        setPrm(rule, i, Meta::yRcv, geom_t(i) + 4., &prm);
-        setPrm(rule, i, Meta::dsdr, llint(i + 1), &prm);
-        setPrm(rule, i, Meta::il, short(i + 2), &prm);
+        setPrm(i, Meta::xSrc, geom_t(i) + 1., &prm);
+        setPrm(i, Meta::ySrc, geom_t(i) + 2., &prm);
+        setPrm(i, Meta::xRcv, geom_t(i) + 3., &prm);
+        setPrm(i, Meta::yRcv, geom_t(i) + 4., &prm);
+        setPrm(i, Meta::dsdr, llint(i + 1), &prm);
+        setPrm(i, Meta::il, short(i + 2), &prm);
     }
     for (size_t i = 0; i < 100; i++)
     {
-        ASSERT_DOUBLE_EQ(getPrm(rule, i, Meta::xSrc, &prm), geom_t(i) + 1.);
-        ASSERT_DOUBLE_EQ(getPrm(rule, i, Meta::ySrc, &prm), geom_t(i) + 2.);
-        ASSERT_DOUBLE_EQ(getPrm(rule, i, Meta::xRcv, &prm), geom_t(i) + 3.);
-        ASSERT_DOUBLE_EQ(getPrm(rule, i, Meta::yRcv, &prm), geom_t(i) + 4.);
-        ASSERT_EQ(llint(getPrm(rule, i, Meta::dsdr, &prm)), llint(i + 1));
-        ASSERT_EQ(short(getPrm(rule, i, Meta::il, &prm)), short(i + 2));
+        ASSERT_DOUBLE_EQ(getPrm(i, Meta::xSrc, &prm), geom_t(i) + 1.);
+        ASSERT_DOUBLE_EQ(getPrm(i, Meta::ySrc, &prm), geom_t(i) + 2.);
+        ASSERT_DOUBLE_EQ(getPrm(i, Meta::xRcv, &prm), geom_t(i) + 3.);
+        ASSERT_DOUBLE_EQ(getPrm(i, Meta::yRcv, &prm), geom_t(i) + 4.);
+        ASSERT_EQ(llint(getPrm(i, Meta::dsdr, &prm)), llint(i + 1));
+        ASSERT_EQ(short(getPrm(i, Meta::il, &prm)), short(i + 2));
     }
 }
 

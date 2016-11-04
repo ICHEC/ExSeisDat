@@ -12,6 +12,7 @@
 #include "anc/piol.hh"
 #include "anc/cmpi.hh"
 #include "share/smpi.hh"
+
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -134,7 +135,13 @@ int iol(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chu
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 Data::MPIIO::Opt::Opt(void)
 {
+#ifdef IME_ENABLED
+    coll = false;
+    fcomm = MPI_COMM_SELF;
+#else
     coll = true;
+    fcomm = MPI_COMM_WORLD;
+#endif
     info = MPI_INFO_NULL;
     MPI_Info_create(&info);
 //    MPI_Info_set(info, "access_style", "read_once");
@@ -153,7 +160,6 @@ Data::MPIIO::Opt::Opt(void)
 //    MPI_Info_set(info, "striping_unit", "2097152");
 
 //    MPI_Info_set(info, "panfs_concurrent_write", "false");    //No idea why ROMIO has this on by default. Annoying.
-    fcomm = MPI_COMM_WORLD;
     maxSize = getLim<int32_t>();
 }
 
@@ -173,11 +179,23 @@ int getMPIMode(FileMode mode)
     {
         default :
         case FileMode::Read :
+#ifdef IME_ENABLED
+            return MPI_MODE_RDONLY;
+#else
             return MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
+#endif
         case FileMode::Write :
+#ifdef IME_ENABLED
+            return MPI_MODE_CREATE | MPI_MODE_WRONLY;
+#else
             return MPI_MODE_CREATE | MPI_MODE_WRONLY | MPI_MODE_UNIQUE_OPEN;
+#endif
         case FileMode::ReadWrite :
+#ifdef IME_ENABLED
+            return MPI_MODE_CREATE | MPI_MODE_RDWR;
+#else
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
+#endif
         case FileMode::Test :
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
             //return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_UNIQUE_OPEN;

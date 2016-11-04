@@ -76,14 +76,13 @@ void barrier(ExSeisHandle piol)
     piol->piol->barrier();
 }
 
-//TODO: Inconsistent naming of ExSeisFile file/fh/f variable
-void closeFile(ExSeisFile file)
+void closeFile(ExSeisFile f)
 {
-    if (file != NULL)
+    if (f != NULL)
     {
-        if (file->file != NULL)
-            delete file->file;
-        delete file;
+        if (f->file != NULL)
+            delete f->file;
+        delete f;
     }
     else
         std::cerr << "Invalid free of ExSeisFile NULL.\n";

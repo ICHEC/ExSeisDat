@@ -44,6 +44,8 @@ assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 example1: obj/example1.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+segsort: obj/sort.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
 fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 filemake: obj/filemake.cpo obj/sglobal.cpo
