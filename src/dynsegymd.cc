@@ -228,6 +228,26 @@ prmRet getPrm(size_t i, Meta entry, const Param * prm)
     }
 }
 
+Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
+{
+    f = new geom_t[sz * r->numFloat];
+    i = new llint[sz * r->numLong];
+    s = new short[sz * r->numShort];
+    t = new size_t[sz];
+}
+
+Param::~Param(void)
+{
+    if (f != NULL)
+        delete [] f;
+    if (i != NULL)
+        delete [] i;
+    if (s != NULL)
+        delete [] s;
+    if (t != NULL)
+        delete [] t;
+}
+
 #warning todo: Do type checks
 void setPrm(size_t i, Meta entry, geom_t val, Param * prm)
 {
@@ -301,26 +321,6 @@ void cpyPrm(csize_t j, const Param * src, size_t k, Param * dst)
                     break;
                 }
         }
-}
-
-Param::Param(std::shared_ptr<Rule> rule, csize_t sz)
-{
-    f = new geom_t[sz * rule->numFloat];
-    i = new llint[sz * rule->numLong];
-    s = new short[sz * rule->numShort];
-    t = new size_t[sz];
-}
-
-Param::~Param(void)
-{
-    if (f != NULL)
-        delete [] f;
-    if (i != NULL)
-        delete [] i;
-    if (s != NULL)
-        delete [] s;
-    if (t != NULL)
-        delete [] t;
 }
 
 void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)

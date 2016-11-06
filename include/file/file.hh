@@ -23,7 +23,7 @@ struct Param
     short *  s;
     size_t * t;
 
-    Param(std::shared_ptr<Rule> r, size_t sz);
+    Param(std::shared_ptr<Rule> r_, size_t sz);
     ~Param(void);
 };
 

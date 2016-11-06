@@ -9,6 +9,7 @@
 #include "file/file.hh"
 namespace PIOL { namespace File {
 const Param * PARAM_NULL = (Param *)1;
+
 const std::string & Interface::readText(void) const
 {
     return text;
