@@ -156,12 +156,13 @@ size_t Rule::extent(void)
     return end-start;
 }
 
+//TODO: These can be optimised to stop the double lookup if required.
 void Rule::addLong(Meta m, Tr loc)
 {
     auto ent = translate.find(m);
     if (ent != translate.end())
         delete ent->second;
-    ent->second = new SEGYLongRuleEntry(numLong++, loc);
+    translate[m] = new SEGYLongRuleEntry(numLong++, loc);
     flag.badextent = (!flag.fullextent);
 }
 
@@ -170,7 +171,7 @@ void Rule::addShort(Meta m, Tr loc)
     auto ent = translate.find(m);
     if (ent != translate.end())
         delete ent->second;
-    ent->second = new SEGYShortRuleEntry(numShort++, loc);
+    translate[m] = new SEGYShortRuleEntry(numShort++, loc);
     flag.badextent = (!flag.fullextent);
 }
 
@@ -179,7 +180,7 @@ void Rule::addFloat(Meta m, Tr loc, Tr scalLoc)
     auto ent = translate.find(m);
     if (ent != translate.end())
         delete ent->second;
-    ent->second = new SEGYFloatRuleEntry(numFloat++, loc, scalLoc);
+    translate[m] = new SEGYFloatRuleEntry(numFloat++, loc, scalLoc);
     flag.badextent = (!flag.fullextent);
 }
 

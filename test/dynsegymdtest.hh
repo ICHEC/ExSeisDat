@@ -15,8 +15,6 @@ struct RuleFix : public Test
     }
     ~RuleFix(void)
     {
-        if (rule)
-            delete rule;
     }
 };
 

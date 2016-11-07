@@ -116,10 +116,10 @@ TEST_F(RuleFixList, setPrm)
     }
     for (size_t i = 0; i < 100; i++)
     {
-        ASSERT_DOUBLE_EQ(getPrm(i, Meta::xSrc, &prm), geom_t(i) + 1.);
-        ASSERT_DOUBLE_EQ(getPrm(i, Meta::ySrc, &prm), geom_t(i) + 2.);
-        ASSERT_DOUBLE_EQ(getPrm(i, Meta::xRcv, &prm), geom_t(i) + 3.);
-        ASSERT_DOUBLE_EQ(getPrm(i, Meta::yRcv, &prm), geom_t(i) + 4.);
+        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::xSrc, &prm)), geom_t(i) + 1.);
+        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::ySrc, &prm)), geom_t(i) + 2.);
+        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::xRcv, &prm)), geom_t(i) + 3.);
+        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::yRcv, &prm)), geom_t(i) + 4.);
         ASSERT_EQ(llint(getPrm(i, Meta::dsdr, &prm)), llint(i + 1));
         ASSERT_EQ(short(getPrm(i, Meta::il, &prm)), short(i + 2));
     }
