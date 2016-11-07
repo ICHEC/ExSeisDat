@@ -17,7 +17,7 @@ void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size
 
     writeTraceParam(ofh, off, tcnt, trhdr);
     isErr(piol);
-    free(trhdr);
+    freeParam(trhdr);
 }
 
 void readWriteTrace(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModTrc ftrc)

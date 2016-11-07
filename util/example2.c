@@ -63,7 +63,7 @@ int main(int argc, char ** argv)
     writeTrace(ofh, offset, lnt, trace);
 
     free(trace);
-    free(trhdr);
+    freeParam(trhdr);
 
     //Close the file handles and close the piol
     closeFile(ifh);

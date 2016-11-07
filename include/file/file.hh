@@ -13,22 +13,17 @@
 
 namespace PIOL { namespace File {
 
-/*! A C compatible structure for dynamically storing trace parameters.
+struct Rule;
+/*! Derived class for initialising the trace parameter structure
+ *  and storing a structure with the necessary rules.
  */
-struct CompatParam
+struct Param
 {
     geom_t * f;     //!< Floating point array.
     llint *  i;     //!< Integer array.
     short *  s;     //!< Short array.
     size_t * t;     //!< trace number array.
-};
 
-struct Rule;
-/*! Derived class for initialising the trace parameter structure
- *  and storing a structure with the necessary rules.
- */
-struct Param : public CompatParam
-{
     std::shared_ptr<Rule> r;    //!< The rules which describe the indexing of the arrays.
 
     /*! Allocate the basic space required to store the arrays and store the rules.
@@ -36,6 +31,7 @@ struct Param : public CompatParam
      *  \param[in] sz The number of sets of trace parameters.
      */
     Param(std::shared_ptr<Rule> r_, size_t sz);
+
     /*! The destructor which deallocates the arrays.
      */
     ~Param(void);

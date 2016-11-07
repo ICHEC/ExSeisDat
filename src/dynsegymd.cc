@@ -8,10 +8,6 @@
  *//*******************************************************************************************/
 #include <algorithm>
 #include "file/dynsegymd.hh"
-
-#warning temp
-#include <iostream>
-
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)
 {
@@ -34,7 +30,14 @@ Rule::Rule(RuleMap translate_, bool full)
         }
 
     flag.fullextent = full;
-    if (!full)
+
+    if (full)
+    {
+        start = 0U;
+        end = SEGSz::getMDSz();
+        flag.badextent = false;
+    }
+    else
     {
         flag.badextent = true;
         extent();
@@ -307,7 +310,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 
 void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
 {
-    Rule * r = prm->r.get();
+    auto r = prm->r;
     size_t start = r->start;
     for (size_t i = 0; i < sz; i++)
     {

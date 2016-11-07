@@ -48,12 +48,12 @@ int main(int argc, char ** argv)
         setFloatPrm(j, yRcv, 3000000.0 + k, prm);
         setFloatPrm(j, xCmp, 10000.0 + k, prm);
         setFloatPrm(j, yCmp, 4000.0 + k, prm);
-        setLongPrm(j, il, 2400.0 + k, prm);
-        setLongPrm(j, xl, 1600.0 + k, prm);
+        setLongPrm(j, il, 2400 + offset + j, prm);
+        setLongPrm(j, xl, 1600 + offset + j, prm);
         setLongPrm(j, tn, offset + j, prm);
     }
     writeTraceParam(fh, offset, lnt, prm);
-    free(prm);
+    freeParam(prm);
 
     //Set and write some traces
     float * trc = calloc(lnt*ns, sizeof(float));
