@@ -71,8 +71,27 @@ class MPIIO : public Interface
      */
     void Init(const MPIIO::Opt & opt, FileMode mode);
 
+    /*! \brief Perform I/O on contiguous or monotonically increasing blocked data
+     *  \param[in] fn The MPI-IO style function to perform the I/O with
+     *  \param[in] offset The offset in bytes from the current internal shared pointer
+     *  \param[in] sz The amount of data to read from disk. d must be an array with
+     *             sz elements.
+     *  \param[in, out] d The array to get the input from or store the output in.
+     *  \param[in] msg The message to be written if there is an error
+     *  \param[in] bsz The block size in bytes (if not contiguous)
+     *  \param[in] osz The stride size in bytes (block start to block start)
+     */
     void contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz, uchar * d, std::string msg,
-                                                           csize_t bsz = 1U, csize_t osz = 1U) const;
+                                                            csize_t bsz = 1U, csize_t osz = 1U) const;
+
+    /*! \brief Perform I/O on blocks of data where each block starts at the location specified by an array of offsets.
+     *  \param[in] fn The MPI-IO style function to perform the I/O with
+     *  \param[in] bsz The block size in bytes.
+     *  \param[in] sz The amount of blocks to read
+     *  \param[in] offset An array of offsets in bytes from the current internal shared pointer
+     *  \param[in, out] d The array to get the input from or store the output in.
+     *  \param[in] msg The message to be written if there is an error
+     */
     void listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const;
 
     public :
@@ -94,58 +113,20 @@ class MPIIO : public Interface
 
     ~MPIIO(void);
 
-    /*! \brief Find out the file size.
-     *  \return The file size in bytes.
-     */
     size_t getFileSz() const;
 
-    /*! \brief Set the file size (preallocates).
-     *  \param[in] sz The size in bytes
-     */
     void setFileSz(csize_t sz) const;
 
-    /*! \brief Read from storage using MPI-IO. If \c offset + \c sz is greater than the file size then
-     *  only up to the file size is read. The rest of \c d is in an undefined state.
-     *  \param[in] offset The offset in bytes from the current internal shared pointer
-     *  \param[in] sz     The amount of data to read from disk. d must be an array with
-     *  sz elements.
-     *  \param[out] d     The array to store the output in.
-     */
     void read(csize_t offset, csize_t sz, uchar * d) const;
 
-    /*! \brief Read data from storage in blocks.
-     *  \param[in] offset The offset in bytes from the current internal shared pointer
-     *  \param[in] bsz    The size of a block in bytes
-     *  \param[in] osz    The number of bytes between the \c start of blocks
-     *  \param[in] sz     The number of blocks
-     *  \param[out] d     The array to store the output in
-     */
     void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
 
-    /*! Read a file where each block is determined from the list of offset
-     *  \param[in] bsz    The size of a block in bytes
-     *  \param[in] sz     The number of blocks to read and so the size of the offset array
-     *  \param[in] offset The list of offsets. In bytes from the current internal shared pointer
-     *  \param[out] d     The array to store the output in
-     */
     void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const;
-//TODO: Document
+
     void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const;
 
-    /*! \brief Write to storage.
-     *  \param[in] offset The offset in bytes from the current internal shared pointer
-     *  \param[in] sz     The amount of data to write to disk
-     *  \param[in] d      The array to read data output from
-     */
     void write(csize_t offset, csize_t sz, const uchar * d) const;
 
-    /*! \brief Write data to storage in blocks.
-     *  \param[in] offset The offset in bytes from the current internal shared pointer
-     *  \param[in] bsz    The size of a block in bytes
-     *  \param[in] osz    The number of bytes between the \c start of blocks
-     *  \param[in] nb     The number of blocks
-     *  \param[in] d      The array to read data output from
-     */
     void write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const;
 };
 }}

@@ -35,24 +35,24 @@ class Interface
      */
     virtual ~Interface(void) { }
 
-    /*! \brief Pure virtual function to find out the file size.
+    /*! \brief find out the file size.
      *  \return The file size in bytes.
      */
     virtual size_t getFileSz() const = 0;
 
-    /*! \brief Pure virtual function to set the file size.
+    /*! \brief set the file size.
      *  \param[in] sz The size in bytes
      */
     virtual void setFileSz(csize_t sz) const = 0;
 
-    /*! \brief Pure virtual function to read from storage.
+    /*! \brief Read from storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to read from disk
      *  \param[out] d     The array to store the output in
      */
     virtual void read(csize_t offset, csize_t sz, uchar * d) const = 0;
 
-    /*! \brief Pure virtual function to read data from storage in blocks.
+    /*! \brief Read data from storage in blocks.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] bsz    The size of a block in bytes
      *  \param[in] osz    The number of bytes between the \c start of blocks
@@ -61,24 +61,30 @@ class Interface
      */
     virtual void read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const = 0;
 
-    /*! Pure virtual function to read a file where each block is determined from the list of offset
+    /*! read a file where each block is determined from the list of offset
      *  \param[in] bsz    The size of a block in bytes
      *  \param[in] sz     The number of blocks to read and so the size of the offset array
-     *  \param[in] offset The list of offsets. In bytes from the current internal shared pointer
+     *  \param[in] offset The list of offsets (in bytes from the current internal shared pointer)
      *  \param[out] d     The array to store the output in
      */
     virtual void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const = 0;
-//TODO: Document
+
+    /*! write a file where each block is determined from the list of offset
+     *  \param[in] bsz    The size of a block in bytes
+     *  \param[in] sz     The number of blocks to write and so the size of the offset array
+     *  \param[in] offset The list of offsets (in bytes from the current internal shared pointer)
+     *  \param[in] d     The array to get the input from
+     */
     virtual void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const = 0;
 
-    /*! \brief Pure virtual function to write to storage.
+    /*! \brief Write to storage.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] sz     The amount of data to write to disk
      *  \param[in] d      The array to read data output from
      */
     virtual void write(csize_t offset, csize_t sz, const uchar * d) const = 0;
 
-    /*! \brief Pure virtual function to write data to storage in blocks.
+    /*! \brief Write data to storage in blocks.
      *  \param[in] offset The offset in bytes from the current internal shared pointer
      *  \param[in] bsz    The size of a block in bytes
      *  \param[in] osz    The number of bytes between the \c start of blocks

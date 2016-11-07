@@ -249,43 +249,25 @@ Param::~Param(void)
         delete [] t;
 }
 
-#warning todo: Do type checks
-void setPrm(size_t i, Meta entry, geom_t val, Param * prm)
-{
-    Rule * r = prm->r.get();
-    prm->f[i * r->numFloat + r->getEntry(entry)->num] = val;
-}
-
-void setPrm(csize_t i, const Meta entry, const llint val, Param * prm)
-{
-    Rule * r = prm->r.get();
-    prm->i[i * r->numLong + r->getEntry(entry)->num] = val;
-}
-
-void setPrm(csize_t i, const Meta entry, const short val, Param * prm)
-{
-    Rule * r = prm->r.get();
-    prm->s[i * r->numShort + r->getEntry(entry)->num] = val;
-}
-
-
 void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm)
 {
-    switch (prm->r->translate[entry]->type())
+    Rule * r = prm->r.get();
+    switch (r->translate[entry]->type())
     {
         case MdType::Long :
+        prm->i[i * r->numLong + r->getEntry(entry)->num] = ret;
         setPrm(i, entry, llint(ret), prm);
         break;
         case MdType::Short :
-        setPrm(i, entry, short(ret), prm);
+        prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;
         break;
         case MdType::Float :
-        setPrm(i, entry, geom_t(ret), prm);
+        prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
         break;
     }
 }
 
-void cpyPrm(csize_t j, const Param * src, size_t k, Param * dst)
+void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 {
     Rule * srule = src->r.get();
     Rule * drule = dst->r.get();

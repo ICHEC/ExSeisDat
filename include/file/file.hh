@@ -14,16 +14,30 @@
 namespace PIOL { namespace File {
 
 struct Rule;
-//C compatible structure
-struct Param
+/*! A C compatible structure for dynamically storing trace parameters.
+ */
+struct CompatParam
 {
-    std::shared_ptr<Rule> r;
-    geom_t * f;
-    llint *  i;
-    short *  s;
-    size_t * t;
+    geom_t * f;     //!< Floating point array.
+    llint *  i;     //!< Integer array.
+    short *  s;     //!< Short array.
+    size_t * t;     //!< trace number array.
+};
 
+/*! Derived class for initialising the trace parameter structure
+ *  and storing a structure with the necessary rules.
+ */
+struct Param : public CompatParam
+{
+    std::shared_ptr<Rule> r;    //!< The rules which describe the indexing of the arrays.
+
+    /*! Allocate the basic space required to store the arrays and store the rules.
+     *  \param[in] r_ The rules which describe the layout of the arrays.
+     *  \param[in] sz The number of sets of trace parameters.
+     */
     Param(std::shared_ptr<Rule> r_, size_t sz);
+    /*! The destructor which deallocates the arrays.
+     */
     ~Param(void);
 };
 
@@ -92,7 +106,7 @@ class Interface
     size_t nt;                            //!< The number of traces.
     std::string text;                     //!< Human readable text extracted from the file
     geom_t inc;                           //!< The increment between samples in a trace
-    std::shared_ptr<Rule> rule;
+    std::shared_ptr<Rule> rule;           //!< The trace parameter rules associated with the file.
 
     public :
     /*! \brief The constructor.
@@ -126,7 +140,7 @@ class Interface
      */
     virtual size_t readNs(void) const;
 
-    /*! \brief Pure virtual function to read the number of traces in the file
+    /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
     virtual size_t readNt(void) = 0;
@@ -136,7 +150,28 @@ class Interface
      */
     virtual geom_t readInc(void) const;
 
-    /*! \brief Pure virtual function to write the trace parameters from offset to offset+sz to the respective
+    /*! \brief Write the human readable text from the file.
+     *  \param[in] text_ The new string containing the text (in ASCII format).
+     */
+    virtual void writeText(const std::string text_) = 0;
+
+    /*! \brief Write the number of samples per trace
+     *  \param[in] ns_ The new number of samples per trace.
+     */
+    virtual void writeNs(csize_t ns_) = 0;
+
+    /*! \brief Write the number of traces in the file
+     *  \param[in] nt_ The new number of traces.
+     */
+    virtual void writeNt(csize_t nt_) = 0;
+
+    /*! \brief Write the number of increment between trace samples.
+     *  \param[in] inc_ The new increment between trace samples.
+     */
+    virtual void writeInc(const geom_t inc_) = 0;
+
+
+    /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
@@ -155,7 +190,7 @@ class Interface
      */
     virtual void readParam(csize_t offset, csize_t sz, Param * prm  = const_cast<Param *>(PARAM_NULL)) const = 0;
 
-    /*! \brief Pure virtual function to read the traces from offset to offset+sz
+    /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[out] trace The array of traces to fill from the file
@@ -163,7 +198,7 @@ class Interface
      */
     virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const = 0;
 
-    /*! \brief Pure virtual function to write the traces from offset to offset+sz
+    /*! \brief Write the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[in] trace The array of traces to write to the file
@@ -181,7 +216,7 @@ class Interface
      */
     virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const = 0;
 
-    /*! \brief write the traces specified by the offsets in the passed offset array.
+    /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to write.
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
@@ -200,7 +235,7 @@ class Interface
      */
     virtual void readParam(csize_t sz, csize_t * offset, Param * prm) const = 0;
 
-    /*! \brief write the traces specified by the offsets in the passed offset array.
+    /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to write.
      *  \param[in] prm A parameter structure
@@ -209,26 +244,6 @@ class Interface
      *  contents of the trace header will be overwritten.
      */
     virtual void writeParam(csize_t sz, csize_t * offset, const Param * prm) = 0;
-
-    /*! \brief Pure virtual function to write the human readable text from the file.
-     *  \param[in] text_ The new string containing the text (in ASCII format).
-     */
-    virtual void writeText(const std::string text_) = 0;
-
-    /*! \brief Pure virtual function to write the number of samples per trace
-     *  \param[in] ns_ The new number of samples per trace.
-     */
-    virtual void writeNs(const size_t ns_) = 0;
-
-    /*! \brief Pure virtual function to write the number of traces in the file
-     *  \param[in] nt_ The new number of traces.
-     */
-    virtual void writeNt(const size_t nt_) = 0;
-
-    /*! \brief Pure virtual function to write the number of increment between trace samples.
-     *  \param[in] inc_ The new increment between trace samples.
-     */
-    virtual void writeInc(const geom_t inc_) = 0;
 };
 }}
 #endif

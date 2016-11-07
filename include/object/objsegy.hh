@@ -47,61 +47,32 @@ class SEGY : public Interface
      */
     SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
 
-    /*! \brief Read the header object.
-     *  \param[out] ho An array which the caller guarantees is long enough
-     *  to hold the header object.
-     */
     void readHO(uchar * ho) const;
 
-    /*! \brief Write the header object.
-     *  \param[in] ho An array which the caller guarantees is long enough to hold the header object.
-     */
     void writeHO(const uchar * ho) const;
 
-    /*! \brief Read a sequence of DOMDs.
-     *  \param[in] offset The starting data-object we are interested in.
-     *  \param[in] ns The number of elements per data field.
-     *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[out] md An array which the caller guarantees is long enough for
-     *  the DO metadata.
-     */
     void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const;
 
-    /*! \brief Write the data-object metadata.
-     *  \param[in] offset The starting data-object we are interested in.
-     *  \param[in] ns The number of elements per data field.
-     *  \param[in] sz The number of DOMDs to be written in a row.
-     *  \param[in] md An array which the caller guarantees is long enough for
-     *  the data-field.
-     */
     void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const;
 
-    /*! \brief Read a sequence of data-fields.
-     *  \param[in] offset The starting data-object we are interested in.
-     *  \param[in] ns The number of elements per data field.
-     *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[out] df An array which the caller guarantees is long enough for
-     *  the data-field.
-     */
     void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const;
 
-    /*! \brief Write a sequence of data-fields.
-     *  \param[in] offset The starting data-object we are interested in.
-     *  \param[in] ns The number of elements per data field.
-     *  \param[in] sz The number of DOMDs to be read in a row.
-     *  \param[in] df An array which the caller guarantees is long enough for
-     *  the data-field.
-     */
     void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const;
 
     void readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const;
+
     void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const;
 
     void readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const;
+
     void writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const;
+
     void readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const;
+
     void writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const;
+
     void readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const;
+
     void writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const;
 };
 }}

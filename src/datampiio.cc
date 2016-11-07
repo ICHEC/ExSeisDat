@@ -107,7 +107,17 @@ int mpiio_write_at_all(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype d
     return MPI_File_write_at_all(f, o, d, s, da, st);
 }
 
-//list I/O
+/*! Perform list-based I/O by setting a view then performing the I/O
+ *  \param[in] fn A contiguous I/O function
+ *  \param[in] file The MPI file handle
+ *  \param[in] info The MPI info object
+ *  \param[in] bsz The block size
+ *  \param[in] chunk The number of blocks to read
+ *  \param[in] offset The list of offsets in the file
+ *  \param[in, out] d The I/O buffer
+ *  \param[in] stat The MPI status object
+ *  \return Return the MPI error status
+ */
 int iol(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chunk, const MPI_Aint * offset, uchar * d, MPI_Status * stat)
 {
     //Set a view so that MPI_File_read... functions only see contiguous data.
@@ -330,21 +340,6 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
 }
 
 
-/*! \brief The MPI-IO template function for dealing with
- *  integer limits for reading and writing in MPI-IO.
- *  \param[in] fn Function pointer to the MPI function.
- *  \param[in] offset The offset from the current shared ptr
- *  \param[in] sz The number of elements to read or write
- *  \param[in] msg A message to be printed in the case of an error
- *  \param[in] bsz    The size of a block in bytes (default 1U)
- *  \param[in] osz    The number of bytes between the \c start of blocks (default 1U)
- *  \param[out] d The array to read into or from
- *  \return Returns the MPI error code. MPI_SUCCESS for success,
- *  MPI_ERR_IN_STATUS means the status structure should be checked.
- *
- * This function does not currently take into account collective MPI calls
- * which would have issues with the number of operations being the same for each process
- */
 void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
                      uchar * d, std::string msg, csize_t bsz, csize_t osz) const
 {

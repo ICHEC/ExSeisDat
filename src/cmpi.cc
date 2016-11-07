@@ -59,6 +59,14 @@ std::vector<T> MPIGather(Log::Logger * log, const MPI * mpi, const std::vector<T
     return arr;
 }
 
+/*! Perform a reduction with the specified operation.
+ *  \tparam T The type of the values
+ *  \param[in,out] log The logging layer
+ *  \param[in] mpi The MPI communicator
+ *  \param[in] val The value to be reduced
+ *  \param[in] op The operation
+ *  \return Return the result of the reduce operation
+ */
 template <typename T>
 T getMPIOp(Log::Logger * log, const MPI * mpi, T val, MPI_Op op)
 {

@@ -84,39 +84,44 @@ struct prmRet
 
     prmRet(void) { }
 
-    /*! Implicit conversion to long int, returning int data
-     *  \return Return the long data.
+    /*! Constructor for conversion to long int
+     *  \param[in] i the value to store in the structure
      */
     prmRet(long int i)
     {
         val.i = i;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     prmRet(int i)
     {
         val.i = i;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     prmRet(size_t i)
     {
         val.i = i;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     prmRet(float f)
     {
         val.f = f;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     prmRet(double f)
     {
         val.f = f;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     prmRet(short s)
     {
         val.s = s;
@@ -130,31 +135,36 @@ struct prmRet
         return val.i;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     operator int ()
     {
         return val.i;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     operator size_t ()
     {
         return val.i;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     operator float ()
     {
         return val.f;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     operator double ()
     {
         return val.f;
     }
 
-    /*! \overload */
+    /*! \overload
+     */
     operator short ()
     {
         return val.s;
@@ -167,6 +177,10 @@ struct prmRet
  */
 struct EnumHash
 {
+    /*! This overload describes how to convert from the enum to a size_t
+     * \tparam T The enum type
+     * \param[in] t The enum value
+     */
     template <typename T>
     size_t operator()(T t) const
     {
@@ -339,6 +353,9 @@ typedef std::unordered_map<Meta, RuleEntry *, EnumHash> RuleMap;    //!< Typedef
 typedef std::unordered_map<Meta, RuleEntry *> RuleMap;              //!< Typedef for the map holding the rules
 #endif
 
+/*! The structure which holds the rules associated with the trace parameters in a file.
+ *  These rules describe how to interpret the metadata and also how to index the parameter structure of arrays.
+ */
 struct Rule
 {
     size_t numLong;         //!< Number of long rules.
@@ -431,10 +448,7 @@ prmRet getPrm(const size_t i, const Meta entry, const Param * prm);
  *  \param[in] ret The parameter return structure which is initialised by passing a geom_t, llint or short.
  *  \param[in] prm The parameter structure
  */
-void setPrm(const size_t i, const Meta entry, prmRet ret, Param * prm);
-//void setPrm(size_t i, Meta entry, geom_t val, Param * prm);
-//void setPrm(size_t i, Meta entry, llint val, Param * prm);
-//void setPrm(size_t i, Meta entry, short val, Param * prm);
+void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm);
 
 /*! Copy params from one parameter structure to another.
  * \param[in] i The trace number of the source.

@@ -47,18 +47,18 @@ class Interface
      */
     virtual void setFileSz(csize_t sz) const;
 
-    /*! \brief Pure virtual function to read the header object.
+    /*! \brief Read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough
      *  to hold the header object.
      */
     virtual void readHO(uchar * ho) const = 0;
 
-    /*! \brief Pure virtual function to write the header object.
+    /*! \brief Write the header object.
      *  \param[in] ho An array which the caller guarantees is long enough to hold the header object.
      */
     virtual void writeHO(const uchar * ho) const = 0;
 
-    /*! \brief Pure virtual function to read a sequence of DOMDs.
+    /*! \brief Read a sequence of DOMDs.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be read in a row.
@@ -67,7 +67,7 @@ class Interface
      */
     virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const = 0;
 
-    /*! \brief Pure virtual function to write the data-object metadata.
+    /*! \brief Write the data-object metadata.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of DOMDs to be written in a row.
@@ -76,7 +76,7 @@ class Interface
      */
     virtual void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
 
-    /*! \brief Pure virtual function to read a sequence of data-fields.
+    /*! \brief Read a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of data-fields to be read in a row.
@@ -85,7 +85,7 @@ class Interface
      */
     virtual void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const = 0;
 
-    /*! \brief Pure virtual function to write a sequence of data-fields.
+    /*! \brief Write a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
      *  \param[in] ns The number of elements per data field.
      *  \param[in] sz The number of data-fields to be written in a row.
@@ -93,14 +93,77 @@ class Interface
      *  the data-field.
      */
     virtual void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const = 0;
+
+    /*! \brief Read a sequence of data-objects.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of data-objects to be read in a row.
+     *  \param[out] d An array which the caller guarantees is long enough for
+     *  the data-objects.
+     */
     virtual void readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const = 0;
+
+    /*! \brief Write a sequence of data-objects.
+     *  \param[in] offset The starting data-object we are interested in.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of data-objects to be written in a row.
+     *  \param[in] d An array which the caller guarantees is long enough for
+     *  the data-objects.
+     */
     virtual void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const = 0;
 
+    /*! \brief Read a list of data-objects.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of data-objects to be read
+     *  \param[in] offset An array of the starting data-objects we are interested in
+     *  \param[out] d An array which the caller guarantees is long enough for
+     *  the data-objects.
+     */
     virtual void readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const = 0;
+
+    /*! \brief Write a list of data-objects.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of data-objects to be written.
+     *  \param[in] offset An array of the starting data-object we are interested in.
+     *  \param[in] d An array which the caller guarantees is long enough for
+     *  the data-objects.
+     */
     virtual void writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const = 0;
+
+    /*! \brief read a list of data-object metadata blocks.
+     *  \param[in] ns the number of elements per data field.
+     *  \param[in] sz the number of DOMD objects to be read
+     *  \param[in] offset an array of the starting data-objects we are interested in
+     *  \param[out] md an array which the caller guarantees is long enough for
+     *  the metadata blocks.
+     */
     virtual void readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const = 0;
+
+    /*! \brief Write a list of data-object metadata blocks.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of DOMD objects to be written.
+     *  \param[in] offset An array of the starting data-object we are interested in.
+     *  \param[in] md An array which the caller guarantees is long enough for
+     *  the metadata blocks.
+     */
     virtual void writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const = 0;
+
+    /*! \brief Read a list of data-fields.
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of data-fields to be read
+     *  \param[in] offset An array of the starting data-objects we are interested in
+     *  \param[out] df An array which the caller guarantees is long enough for
+     *  the data-fields.
+     */
     virtual void readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const = 0;
+
+    /*! \brief Write a list of data-fields
+     *  \param[in] ns The number of elements per data field.
+     *  \param[in] sz The number of data-fields to be written.
+     *  \param[in] offset An array of the starting data-object we are interested in.
+     *  \param[in] df An array which the caller guarantees is long enough for
+     *  the data-fields.
+     */
     virtual void writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const = 0;
 };
 }}
