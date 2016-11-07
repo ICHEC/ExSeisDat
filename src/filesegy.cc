@@ -26,14 +26,8 @@ namespace PIOL { namespace File {
 SEGY::Opt::Opt(void)
 {
     incFactor = SI::Micro;
-    rule = std::make_shared<Rule>(true, true);
 }
 
-SEGY::Opt::Opt(std::shared_ptr<Rule> rule_)
-{
-    incFactor = SI::Micro;
-    rule = rule_;
-}
 
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode_)
     : Interface(piol_, name_, obj_)
@@ -106,7 +100,7 @@ void SEGY::Init(const File::SEGY::Opt & segyOpt, const FileMode mode_)
     memset(&state, 0, sizeof(Flags));
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz = obj->getFileSz();
-    rule = segyOpt.rule;
+
     if (fsz >= hoSz && mode != FileMode::Write)
     {
         auto buf = std::vector<uchar>(hoSz);

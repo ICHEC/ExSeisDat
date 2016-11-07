@@ -38,19 +38,19 @@ int main(int argc, char ** argv)
     writeText(fh, "Test file\n");
 
     //Set and write some trace parameters
-    TraceParam * prm = calloc(lnt, sizeof(TraceParam));
+    Param prm = newDefParam(lnt);
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
-        prm[j].src.x = 1600.0 + k;
-        prm[j].src.y = 2400.0 + k;
-        prm[j].rcv.x = 100000.0 + k;
-        prm[j].rcv.y = 3000000.0 + k;
-        prm[j].cmp.x = 10000.0 + k;
-        prm[j].cmp.y = 4000.0 + k;
-        prm[j].line.il = 2400 + k;
-        prm[j].line.xl = 1600 + k;
-        prm[j].tn = offset+j;
+        setFloatPrm(j, xSrc, 1600.0 + k, prm);
+        setFloatPrm(j, ySrc, 2400.0 + k, prm);
+        setFloatPrm(j, xRcv, 100000.0 + k, prm);
+        setFloatPrm(j, yRcv, 3000000.0 + k, prm);
+        setFloatPrm(j, xCmp, 10000.0 + k, prm);
+        setFloatPrm(j, yCmp, 4000.0 + k, prm);
+        setLongPrm(j, il, 2400.0 + k, prm);
+        setLongPrm(j, xl, 1600.0 + k, prm);
+        setLongPrm(j, tn, offset + j, prm);
     }
     writeTraceParam(fh, offset, lnt, prm);
     free(prm);
@@ -64,7 +64,7 @@ int main(int argc, char ** argv)
 
     //Close the file handle and close the piol
     closeFile(fh);
-    closePIOL(piol);
+    freePIOL(piol);
 
     return 0;
 }

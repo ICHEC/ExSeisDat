@@ -11,7 +11,7 @@ typedef struct
 } Extent;
 
 Extent decompose(size_t, size_t, size_t);
-typedef void (* ModPrm)(size_t, TraceParam *);
+typedef void (* ModPrm)(size_t, size_t, Param);
 typedef void (* ModTrc)(size_t, size_t, float *);
 
 extern char * copyString(char *);

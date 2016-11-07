@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
 
     //Alloc the required memory for the data we want.
     float * trace = malloc(lnt * getSEGYTraceLen(ns));
-    TraceParam * trhdr = malloc(lnt * sizeof(TraceParam));
+    Param trhdr = newDefParam(lnt);
 
     //Create a SEGY file object for output
     ExSeisFile ofh = openWriteFile(piol, oname);
@@ -68,6 +68,6 @@ int main(int argc, char ** argv)
     //Close the file handles and close the piol
     closeFile(ifh);
     closeFile(ofh);
-    closePIOL(piol);
+    freePIOL(piol);
     return 0;
 }

@@ -7,13 +7,13 @@
 
 void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
-    TraceParam * trhdr = malloc(tcnt * sizeof(TraceParam));
+    Param trhdr = newDefParam(tcnt);
     assert(trhdr);
     readTraceParam(ifh, off, tcnt, trhdr);
 
     if (fprm != NULL)
         for (size_t i = 0; i < tcnt; i++)
-            fprm(off, &trhdr[i]);
+            fprm(off, i, trhdr);
 
     writeTraceParam(ofh, off, tcnt, trhdr);
     isErr(piol);
@@ -91,10 +91,10 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
     return 0;
 }
 
-void SourceX1600Y2400(size_t offset, TraceParam * prm)
+void SourceX1600Y2400(size_t offset, size_t i, Param prm)
 {
-    prm->src.x = offset + 1600.0;
-    prm->src.y = offset + 2400.0;
+    setFloatPrm(i, xSrc, offset + 1600.0, prm);
+    setFloatPrm(i, ySrc, offset + 2400.0, prm);
 }
 
 void TraceLinearInc(size_t offset, size_t ns, float * trc)
@@ -154,7 +154,7 @@ int main(int argc, char ** argv)
 
     ReadWriteFile(piol, iname, oname, memmax, modPrm, modTrc);
 
-    closePIOL(piol);
+    freePIOL(piol);
 
     if (iname != NULL)
         free(iname);

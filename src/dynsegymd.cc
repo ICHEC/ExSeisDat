@@ -256,7 +256,6 @@ void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm)
     {
         case MdType::Long :
         prm->i[i * r->numLong + r->getEntry(entry)->num] = ret;
-        setPrm(i, entry, llint(ret), prm);
         break;
         case MdType::Short :
         prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;

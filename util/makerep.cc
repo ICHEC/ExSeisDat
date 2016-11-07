@@ -136,7 +136,7 @@ void mpiMakeSEGYCopy(ExSeis piol, Interface * in, Interface * out, size_t repRat
 
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
-    size_t memlim = 1280U * bsz;
+    size_t memlim = 512U * bsz;
     size_t step = numRank * memlim;
 
     for (size_t i = 0; i < fsz; i += step)
@@ -175,7 +175,7 @@ void mpiMakeSEGYCopyNaive(ExSeis piol, Interface * in, Interface * out, size_t r
     csize_t fsz = in->getFileSz();
     csize_t bsz = 2097152LU;
     csize_t hosz = SEGSz::getHOSz();
-    size_t memlim = 1280U * bsz;
+    size_t memlim = 512U * bsz;
     size_t step = numRank * memlim;
 
     for (size_t i = 0; i < fsz; i += step)

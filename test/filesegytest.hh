@@ -180,7 +180,7 @@ struct FileSEGYTest : public Test
         auto sfile = std::make_shared<File::SEGY>(piol, notFile, mock, (WRITE ? FileMode::Test : FileMode::Read));
         file = std::make_unique<File::Direct>();
         file->file = std::move(sfile);
-        file->rule = file->file->rule;
+        file->rule = std::make_shared<File::Rule>(true, true);
 
         if (WRITE)
         {

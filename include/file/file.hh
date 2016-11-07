@@ -13,7 +13,6 @@
 
 namespace PIOL { namespace File {
 
-struct Rule;
 /*! A C compatible structure for dynamically storing trace parameters.
  */
 struct CompatParam
@@ -24,6 +23,7 @@ struct CompatParam
     size_t * t;     //!< trace number array.
 };
 
+struct Rule;
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
@@ -106,7 +106,6 @@ class Interface
     size_t nt;                            //!< The number of traces.
     std::string text;                     //!< Human readable text extracted from the file
     geom_t inc;                           //!< The increment between samples in a trace
-    std::shared_ptr<Rule> rule;           //!< The trace parameter rules associated with the file.
 
     public :
     /*! \brief The constructor.
@@ -121,14 +120,6 @@ class Interface
     /*! \brief A virtual destructor to allow deletion, unique_pr polymorphism.
      */
     virtual ~Interface(void) { }
-
-    /*! \brief Return the trace header rules
-     *  \return The trace header rules structure
-     */
-    std::shared_ptr<Rule> getRule(void) const
-    {
-        return rule;
-    }
 
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)

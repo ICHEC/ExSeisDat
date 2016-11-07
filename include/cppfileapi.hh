@@ -103,12 +103,13 @@ class Direct
      *  \param[in] mode The mode of file access.
      */
     template <class F, class O, class D>
-    Direct(const Piol piol, const std::string name, const F & f, const O & o, const D & d, const FileMode mode)
+    Direct(const Piol piol, const std::string name, const F & f, const O & o, const D & d, const FileMode mode,
+           std::shared_ptr<Rule> rule_ = std::make_shared<Rule>(true, true))
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, mode);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, mode);
         file = std::make_shared<typename F::Type>(piol, name, f, obj, mode);
-        rule = f.rule;
+        rule = rule_;
     }
 
     /*! Constructor without options.
@@ -116,7 +117,7 @@ class Direct
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] mode  The mode of file access.
      */
-    Direct(const Piol piol, const std::string name, const FileMode mode, std::shared_ptr<Rule> rule = std::make_shared<Rule>(true, true));
+    Direct(const Piol piol, const std::string name, const FileMode mode, std::shared_ptr<Rule> rule_ = std::make_shared<Rule>(true, true));
 
     Direct(void) { }
 

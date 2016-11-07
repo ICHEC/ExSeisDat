@@ -34,7 +34,7 @@ void toTraceParam(size_t sz, const Param * p, TraceParam * prm)
         prm[i].cmp.y = getPrm(i, Meta::yCmp, p);
         prm[i].line.il = getPrm(i, Meta::il, p);
         prm[i].line.xl = getPrm(i, Meta::xl, p);
-        prm[i].tn = getPrm(i, Meta::tn, p);
+        prm[i].tn = llint(getPrm(i, Meta::tn, p));
     }
 }
 
@@ -56,13 +56,13 @@ void fromTraceParam(size_t sz, const TraceParam * prm, Param * p)
 
 Direct::Direct(const Piol piol, const std::string name, FileMode mode, std::shared_ptr<Rule> rule_)
 {
-    const File::SEGY::Opt f(rule_);
+    const File::SEGY::Opt f;
     const Obj::SEGY::Opt o;
     const Data::MPIIO::Opt d;
     auto data = std::make_shared<Data::MPIIO>(piol, name, d, mode);
     auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, mode);
     file = std::make_shared<File::SEGY>(piol, name, f, obj, mode);
-    rule = f.rule;
+    rule = rule_;
 }
 
 const std::string & Direct::readText(void) const

@@ -28,16 +28,10 @@ class SEGY : public Interface
     {
         typedef SEGY Type;          //!< The Type of the class this structure is nested in
         unit_t incFactor;           //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
-        std::shared_ptr<Rule> rule; //!< The rule for describing trace parameter structures
 
         /*! Constructor which provides the default Rules
          */
         Opt(void);
-
-        /*! Constructor allows new rules to be supplied
-         * \param[in] rule_ shared rule pointer to be used for new file layer calls
-         */
-        Opt(std::shared_ptr<Rule> rule_);
     };
 
     private :
