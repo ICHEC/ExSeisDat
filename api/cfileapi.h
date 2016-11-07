@@ -4,13 +4,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-//TODO: size_t -> csize_t
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct PIOLWrapper * ExSeisHandle;      //!< A wrapper around a shared PIOL Object
 typedef struct ExSeisFileWrapper * ExSeisFile;  //!< A wrapper around a File Layer pointer
+typedef struct RuleWrapper * RuleHdl;  //!< A wrapper around a File Layer pointer
+typedef struct ParamWrapper * Param;  //!< A wrapper around a File Layer pointer
 
 /*
  * Relevant structures containing data
@@ -64,13 +65,35 @@ typedef struct
     size_t num;
 } CoordElem;
 
+/*! The available trace parameters
+ */
+typedef enum
+{
+    xSrc,       //!< The source x coordiante
+    ySrc,       //!< The source y coordinate
+    xRcv,       //!< The receiver x coordinate
+    yRcv,       //!< The receiver y coordinate
+    xCmp,       //!< The CMP x coordinate
+    yCmp,       //!< The CMP y coordinate
+    il,         //!< The inline number
+    xl,         //!< The crossline number
+    tn,         //!< The trace number
+//Non-standard
+    dsdr        //!< The sum of the differences between sources and receivers of this trace and another
+} CMeta;
+
+
 /*
  * PIOL calls. Non-file specific
  */
+/*! Initialise the PIOL and MPI.
+ *  \return A handle to the PIOL.
+ */
+extern ExSeisHandle initMPIOL();
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
  */
-extern void closePIOL(ExSeisHandle piol);
+extern void freePIOL(ExSeisHandle piol);
 
 /*! Get the rank of the process (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
@@ -116,6 +139,34 @@ extern size_t getSEGYTraceLen(size_t ns);
  */
 extern size_t getSEGYParamSz(void);
 
+/*
+ * Rule calls
+ */
+RuleHdl initRules(bool def);
+
+void freeRules(RuleHdl rule);
+
+void addLongRule(RuleHdl rule, CMeta m, size_t loc);
+
+void addShortRule(RuleHdl rule, CMeta m, size_t loc);
+
+void addFloatRule(RuleHdl rule, CMeta m, size_t loc, size_t scalLoc);
+
+void rmRule(RuleHdl rule, CMeta m);
+
+/*!
+ * Param calls
+ */
+Param newParam(RuleHdl rule, size_t sz);
+Param newDefParam(size_t sz);
+void freeParam(Param prm);
+short getShortPrm(size_t i, CMeta entry, Param prm);
+int64_t getLongPrm(size_t i, CMeta entry, Param prm);
+double getFloatPrm(size_t i, CMeta entry, Param prm);
+void setShortPrm(size_t i, CMeta entry, short ret, Param prm);
+void setLongPrm(size_t i, CMeta entry, int64_t ret, Param prm);
+void setFloatPrm(size_t i, CMeta entry, double ret, Param prm);
+void cpyPrm(size_t i, const Param src, size_t j, Param dst);
 /*
  * Operations
  */
@@ -218,7 +269,8 @@ extern void writeInc(ExSeisFile f, double inc);
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm);
+extern void deprecated_writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm);
+extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param prm);
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
@@ -230,7 +282,8 @@ extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceP
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm);
+extern void deprecated_readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm);
+extern void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm);
 
 /*
  *    Reading the traces themselves
@@ -250,7 +303,8 @@ extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, TraceParam * prm);
+extern void deprecated_readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, TraceParam * prm);
+extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, Param prm);
 
 /*! \brief Read the traces from offset to offset+sz.
  *  \param[in] f A handle for the file.
@@ -269,7 +323,8 @@ extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  *  \warning This function is not thread safe.
  */
-extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const TraceParam * prm);
+extern void deprecated_writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const TraceParam * prm);
+extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const Param prm);
 
 //Lists
 
@@ -297,7 +352,8 @@ extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * tra
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, TraceParam * prm);
+extern void deprecated_readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, TraceParam * prm);
+extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, Param prm);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -306,7 +362,8 @@ extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * 
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const TraceParam * prm);
+extern void deprecated_writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const TraceParam * prm);
+extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const Param prm);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -314,7 +371,8 @@ extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float *
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm);
+extern void deprecated_writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm);
+extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const Param prm);
 
 /*! \brief Read the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -322,8 +380,10 @@ extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const 
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm);
+extern void deprecated_readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm);
+extern void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm);
 
+#ifdef DISABLED_OPTIONS
 /*
  *     Extended parameters
  */
@@ -360,11 +420,8 @@ typedef struct
 {
     double incFactor;   //!< The increment factor which should be used with inc.
 } SEGYOptions;
+#endif
 
-/*! Initialise the PIOL and MPI.
- *  \return A handle to the PIOL.
- */
-extern ExSeisHandle initMPIOL();
 #ifdef __cplusplus
 }
 #endif

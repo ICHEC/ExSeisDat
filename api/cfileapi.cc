@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <assert.h>
 #include "cppfileapi.hh"
+#include "file/dynsegymd.hh"
 #include "share/segy.hh"
 #include "ops/ops.hh"
 
@@ -11,16 +12,118 @@ using namespace PIOL;
 
 extern "C"
 {
-struct ExSeisFileWrapper
-{
-    PIOL::File::Direct * file;
-};
-
 struct PIOLWrapper
 {
     std::shared_ptr<ExSeis> piol;
 };
 
+struct RuleWrapper
+{
+    std::shared_ptr<File::Rule> rule;
+};
+
+struct ParamWrapper
+{
+    File::Param * param;
+};
+
+struct ExSeisFileWrapper
+{
+    PIOL::File::Direct * file;
+};
+
+RuleHdl newRules(bool def)
+{
+    auto wrap = new RuleWrapper;
+    wrap->rule = std::make_shared<File::Rule>(true, def);
+    return wrap;
+}
+
+void freeRules(RuleHdl rule)
+{
+    if (rule != NULL)
+        delete rule;
+    else
+        std::cerr << "Invalid free of NULL rule.\n";
+}
+
+void addLongRule(RuleHdl rule, CMeta m, size_t loc)
+{
+    rule->rule->addLong(static_cast<File::Meta>(m), static_cast<File::Tr>(loc));
+}
+
+void addShortRule(RuleHdl rule, CMeta m, size_t loc)
+{
+    rule->rule->addShort(static_cast<File::Meta>(m), static_cast<File::Tr>(loc));
+}
+
+void addFloat(RuleHdl rule, CMeta m, size_t loc, size_t scalLoc)
+{
+    rule->rule->addFloat(static_cast<File::Meta>(m), static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
+}
+
+void rmRule(RuleHdl rule, CMeta m)
+{
+    rule->rule->rmRule(static_cast<File::Meta>(m));
+}
+
+Param newDefParam(size_t sz)
+{
+    auto rule = std::make_shared<File::Rule>(true, true);
+    auto wrap = new ParamWrapper;
+    wrap->param = new File::Param(rule, sz);
+    return wrap;
+}
+
+Param newParam(RuleHdl rule, size_t sz)
+{
+    auto wrap = new ParamWrapper;
+    wrap->param = new File::Param(rule->rule, sz);
+    return wrap;
+}
+
+void freeParam(Param prm)
+{
+    if (prm != NULL)
+    {
+        if (prm->param)
+            delete prm->param;
+        delete prm;
+    }
+    else
+        std::cerr << "Invalid free of NULL prm.\n";
+}
+
+short getShortPrm(size_t i, CMeta entry, const Param prm)
+{
+    return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
+}
+int64_t getLongPrm(size_t i, CMeta entry, const Param prm)
+{
+    return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
+}
+double getFloatPrm(size_t i, CMeta entry, const Param prm)
+{
+    return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
+}
+void setShortPrm(size_t i, CMeta entry, short ret, Param prm)
+{
+    File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
+}
+void setLongPrm(size_t i, CMeta entry, int64_t ret, Param prm)
+{
+    File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
+}
+void setFloatPrm(size_t i, CMeta entry, double ret, Param prm)
+{
+    File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
+}
+void cpyPrm(size_t i, const Param src, size_t j, Param dst)
+{
+    File::cpyPrm(i, src->param, j, dst->param);
+}
+
+//////////////////PIOL////////////////////////////
 ExSeisHandle initMPIOL(void)
 {
 //TODO: Test the cast of C structures to C++ types here.
@@ -32,6 +135,19 @@ ExSeisHandle initMPIOL(void)
     auto wrap = new PIOLWrapper;
     wrap->piol = std::make_shared<ExSeis>();
     return wrap;
+}
+
+void freePIOL(ExSeisHandle piol)
+{
+    if (piol != NULL)
+        delete piol;
+    else
+        std::cerr << "Invalid free of ExSeisPIOL NULL.\n";
+}
+
+void barrier(ExSeisHandle piol)
+{
+    piol->piol->barrier();
 }
 
 void isErr(ExSeisHandle piol)
@@ -49,32 +165,22 @@ size_t getNumRank(ExSeisHandle piol)
     return piol->piol->getNumRank();
 }
 
+////////////////// File Layer ////////////////////////////
+
 ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
 {
-    auto filewrap = new ExSeisFileWrapper;
-    filewrap->file = new File::Direct(*piol->piol, name, FileMode::Write);
-    return filewrap;
+    auto wrap = new ExSeisFileWrapper;
+    wrap->file = new File::Direct(*piol->piol, name, FileMode::Write);
+    return wrap;
 }
 
 ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
 {
-    auto filewrap = new ExSeisFileWrapper;
-    filewrap->file = new File::Direct(*piol->piol, name, FileMode::Read);
-    return filewrap;
+    auto wrap = new ExSeisFileWrapper;
+    wrap->file = new File::Direct(*piol->piol, name, FileMode::Read);
+    return wrap;
 }
 
-void closePIOL(ExSeisHandle piol)
-{
-    if (piol != NULL)
-        delete piol;
-    else
-        std::cerr << "Invalid free of ExSeisPIOL NULL.\n";
-}
-
-void barrier(ExSeisHandle piol)
-{
-    piol->piol->barrier();
-}
 
 void closeFile(ExSeisFile f)
 {
@@ -135,9 +241,14 @@ void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->readTrace(offset, sz, trace);
 }
 
-void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, TraceParam * prm)
+void deprecated_readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, TraceParam * prm)
 {
     f->file->readTrace(offset, sz, trace, reinterpret_cast<File::TraceParam *>(prm));
+}
+
+void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, Param prm)
+{
+    f->file->readTrace(offset, sz, trace, reinterpret_cast<File::Param *>(prm));
 }
 
 void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
@@ -145,19 +256,31 @@ void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->writeTrace(offset, sz, trace);
 }
 
-void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const TraceParam * prm)
+void deprecated_writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const TraceParam * prm)
 {
     f->file->writeTrace(offset, sz, trace, reinterpret_cast<const File::TraceParam *>(prm));
 }
+void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const Param prm)
+{
+    f->file->writeTrace(offset, sz, trace, reinterpret_cast<const File::Param *>(prm));
+}
 
-void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
+void deprecated_writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
 {
     f->file->writeTraceParam(offset, sz, reinterpret_cast<const File::TraceParam *>(prm));
 }
+void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param prm)
+{
+    f->file->writeTraceParam(offset, sz, reinterpret_cast<const File::Param *>(prm));
+}
 
-void readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
+void deprecated_readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
 {
     f->file->readTraceParam(offset, sz, reinterpret_cast<File::TraceParam *>(prm));
+}
+void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm)
+{
+    f->file->readTraceParam(offset, sz, reinterpret_cast<File::Param *>(prm));
 }
 
 //List traces
@@ -171,24 +294,44 @@ void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
     f->file->writeTrace(sz, offset, trace);
 }
 
-void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, TraceParam * prm)
+void deprecated_readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, TraceParam * prm)
 {
     f->file->readTrace(sz, offset, trace, reinterpret_cast<File::TraceParam *>(prm));
 }
 
-void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const TraceParam * prm)
+void deprecated_writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const TraceParam * prm)
 {
     f->file->writeTrace(sz, offset, trace, reinterpret_cast<const File::TraceParam *>(prm));
 }
 
-void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm)
+void deprecated_writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm)
 {
     f->file->writeTraceParam(sz, offset, reinterpret_cast<const File::TraceParam *>(prm));
 }
 
-void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm)
+void deprecated_readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm)
 {
     f->file->readTraceParam(sz, offset, reinterpret_cast<File::TraceParam *>(prm));
+}
+//
+void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, Param prm)
+{
+    f->file->readTrace(sz, offset, trace, reinterpret_cast<File::Param *>(prm));
+}
+
+void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const Param prm)
+{
+    f->file->writeTrace(sz, offset, trace, reinterpret_cast<const File::Param *>(prm));
+}
+
+void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const Param prm)
+{
+    f->file->writeTraceParam(sz, offset, reinterpret_cast<const File::Param *>(prm));
+}
+
+void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm)
+{
+    f->file->readTraceParam(sz, offset, reinterpret_cast<File::Param *>(prm));
 }
 
 /////////////////////////////////////Operations///////////////////////////////

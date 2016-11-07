@@ -81,8 +81,6 @@ struct TraceParam
 };
 
 extern const TraceParam * PRM_NULL;
-extern void toTraceParam(Rule * r, size_t sz, const Param * p, TraceParam * prm);
-extern void fromTraceParam(Rule * r, size_t sz, const TraceParam * prm, Param * p);
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
