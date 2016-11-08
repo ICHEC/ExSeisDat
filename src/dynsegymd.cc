@@ -234,32 +234,25 @@ prmRet getPrm(size_t i, Meta entry, const Param * prm)
 
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
 {
-    f = new geom_t[sz * r->numFloat];
-    i = new llint[sz * r->numLong];
-    s = new short[sz * r->numShort];
-    t = new size_t[sz];
+    f.resize(sz * r->numFloat);
+    i.resize(sz * r->numLong);
+    s.resize(sz * r->numShort);
+    t.resize(sz);
 }
 
 Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
 {
-    f = new geom_t[sz * r->numFloat];
-    i = new llint[sz * r->numLong];
-    s = new short[sz * r->numShort];
-    t = new size_t[sz];
+    f.resize(sz * r->numFloat);
+    i.resize(sz * r->numLong);
+    s.resize(sz * r->numShort);
+    t.resize(sz);
 }
 
-
-Param::~Param(void)
+bool Param::operator==(struct Param & p) const
 {
-    if (f != NULL)
-        delete [] f;
-    if (i != NULL)
-        delete [] i;
-    if (s != NULL)
-        delete [] s;
-    if (t != NULL)
-        delete [] t;
+    return f == p.f && i == p.i && s == p.s && t == p.t;
 }
+
 
 void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm)
 {

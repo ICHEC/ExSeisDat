@@ -19,10 +19,10 @@ struct Rule;
  */
 struct Param
 {
-    geom_t * f;     //!< Floating point array.
-    llint *  i;     //!< Integer array.
-    short *  s;     //!< Short array.
-    size_t * t;     //!< trace number array.
+    std::vector<geom_t> f;     //!< Floating point array.
+    std::vector<llint> i;     //!< Integer array.
+    std::vector<short> s;     //!< Short array.
+    std::vector<size_t> t;     //!< trace number array.
 
     std::shared_ptr<Rule> r;    //!< The rules which describe the indexing of the arrays.
 
@@ -33,9 +33,7 @@ struct Param
     Param(std::shared_ptr<Rule> r_, size_t sz);
     Param(size_t sz);
 
-    /*! The destructor which deallocates the arrays.
-     */
-    ~Param(void);
+    bool operator==(struct Param & p) const;
 };
 
 /*! A structure composed of two coordinates to form a single coordinate point
