@@ -31,6 +31,7 @@ struct Param
      *  \param[in] sz The number of sets of trace parameters.
      */
     Param(std::shared_ptr<Rule> r_, size_t sz);
+    Param(size_t sz);
 
     /*! The destructor which deallocates the arrays.
      */

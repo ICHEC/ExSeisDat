@@ -240,6 +240,15 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
     t = new size_t[sz];
 }
 
+Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
+{
+    f = new geom_t[sz * r->numFloat];
+    i = new llint[sz * r->numLong];
+    s = new short[sz * r->numShort];
+    t = new size_t[sz];
+}
+
+
 Param::~Param(void)
 {
     if (f != NULL)
