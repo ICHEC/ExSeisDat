@@ -98,26 +98,32 @@ short getShortPrm(size_t i, CMeta entry, const Param prm)
 {
     return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
 }
+
 int64_t getLongPrm(size_t i, CMeta entry, const Param prm)
 {
     return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
 }
+
 double getFloatPrm(size_t i, CMeta entry, const Param prm)
 {
     return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
 }
+
 void setShortPrm(size_t i, CMeta entry, short ret, Param prm)
 {
     File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
 }
+
 void setLongPrm(size_t i, CMeta entry, int64_t ret, Param prm)
 {
     File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
 }
+
 void setFloatPrm(size_t i, CMeta entry, double ret, Param prm)
 {
     File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
 }
+
 void cpyPrm(size_t i, const Param src, size_t j, Param dst)
 {
     File::cpyPrm(i, src->param, j, dst->param);
@@ -241,14 +247,9 @@ void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->readTrace(offset, sz, trace);
 }
 
-void deprecated_readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, TraceParam * prm)
-{
-    f->file->readTrace(offset, sz, trace, reinterpret_cast<File::TraceParam *>(prm));
-}
-
 void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, Param prm)
 {
-    f->file->readTrace(offset, sz, trace, reinterpret_cast<File::Param *>(prm));
+    f->file->readTrace(offset, sz, trace, static_cast<File::Param *>(prm->param));
 }
 
 void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
@@ -256,31 +257,19 @@ void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->writeTrace(offset, sz, trace);
 }
 
-void deprecated_writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const TraceParam * prm)
-{
-    f->file->writeTrace(offset, sz, trace, reinterpret_cast<const File::TraceParam *>(prm));
-}
 void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const Param prm)
 {
-    f->file->writeTrace(offset, sz, trace, reinterpret_cast<const File::Param *>(prm));
+    f->file->writeTrace(offset, sz, trace, static_cast<const File::Param *>(prm->param));
 }
 
-void deprecated_writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm)
-{
-    f->file->writeTraceParam(offset, sz, reinterpret_cast<const File::TraceParam *>(prm));
-}
 void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param prm)
 {
-    f->file->writeTraceParam(offset, sz, reinterpret_cast<const File::Param *>(prm));
+    f->file->writeTraceParam(offset, sz, static_cast<const File::Param *>(prm->param));
 }
 
-void deprecated_readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm)
-{
-    f->file->readTraceParam(offset, sz, reinterpret_cast<File::TraceParam *>(prm));
-}
 void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm)
 {
-    f->file->readTraceParam(offset, sz, reinterpret_cast<File::Param *>(prm));
+    f->file->readTraceParam(offset, sz, static_cast<File::Param *>(prm->param));
 }
 
 //List traces
@@ -294,44 +283,25 @@ void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
     f->file->writeTrace(sz, offset, trace);
 }
 
-void deprecated_readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, TraceParam * prm)
-{
-    f->file->readTrace(sz, offset, trace, reinterpret_cast<File::TraceParam *>(prm));
-}
-
-void deprecated_writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const TraceParam * prm)
-{
-    f->file->writeTrace(sz, offset, trace, reinterpret_cast<const File::TraceParam *>(prm));
-}
-
-void deprecated_writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm)
-{
-    f->file->writeTraceParam(sz, offset, reinterpret_cast<const File::TraceParam *>(prm));
-}
-
-void deprecated_readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm)
-{
-    f->file->readTraceParam(sz, offset, reinterpret_cast<File::TraceParam *>(prm));
-}
 //
 void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, Param prm)
 {
-    f->file->readTrace(sz, offset, trace, reinterpret_cast<File::Param *>(prm));
+    f->file->readTrace(sz, offset, trace, static_cast<File::Param *>(prm->param));
 }
 
 void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const Param prm)
 {
-    f->file->writeTrace(sz, offset, trace, reinterpret_cast<const File::Param *>(prm));
+    f->file->writeTrace(sz, offset, trace, static_cast<const File::Param *>(prm->param));
 }
 
 void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const Param prm)
 {
-    f->file->writeTraceParam(sz, offset, reinterpret_cast<const File::Param *>(prm));
+    f->file->writeTraceParam(sz, offset, static_cast<const File::Param *>(prm->param));
 }
 
 void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm)
 {
-    f->file->readTraceParam(sz, offset, reinterpret_cast<File::Param *>(prm));
+    f->file->readTraceParam(sz, offset, static_cast<File::Param *>(prm->param));
 }
 
 /////////////////////////////////////Operations///////////////////////////////

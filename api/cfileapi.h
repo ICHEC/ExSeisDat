@@ -269,7 +269,6 @@ extern void writeInc(ExSeisFile f, double inc);
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void deprecated_writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const TraceParam * prm);
 extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param prm);
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
@@ -282,7 +281,6 @@ extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param 
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void deprecated_readTraceParam(ExSeisFile f, size_t offset, size_t sz, TraceParam * prm);
 extern void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm);
 
 /*
@@ -303,7 +301,6 @@ extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void deprecated_readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, TraceParam * prm);
 extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, Param prm);
 
 /*! \brief Read the traces from offset to offset+sz.
@@ -323,7 +320,6 @@ extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  *  \warning This function is not thread safe.
  */
-extern void deprecated_writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const TraceParam * prm);
 extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const Param prm);
 
 //Lists
@@ -352,7 +348,6 @@ extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * tra
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void deprecated_readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, TraceParam * prm);
 extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, Param prm);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
@@ -362,7 +357,6 @@ extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * 
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void deprecated_writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const TraceParam * prm);
 extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const Param prm);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.
@@ -371,7 +365,6 @@ extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float *
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void deprecated_writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const TraceParam * prm);
 extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const Param prm);
 
 /*! \brief Read the trace parameters corresponding to the list of trace numbers.
@@ -380,7 +373,6 @@ extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const 
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
  */
-extern void deprecated_readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, TraceParam * prm);
 extern void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm);
 
 #ifdef DISABLED_OPTIONS
