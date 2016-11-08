@@ -7,8 +7,6 @@
 #include "file/file.hh"
 
 #include <cstring>
-
-#warning CHANGE THESE TESTS TO PARAM
 namespace PIOL { namespace File {
 
 template <typename T>
@@ -41,13 +39,16 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
 
     auto tminmax = piol->comm->gather(lminmax);
     auto ttrace = piol->comm->gather(ltrace);
-
     auto tsz = piol->comm->gather(std::vector<size_t>{sz});
-    for (size_t i = 0; i < tsz.size(); i++)
+
+    //Remove non-participants
+    for (llint i = tsz.size()-1U; i >= 0; i--)
         if (!tsz[i])
         {
-            tminmax.erase(tminmax.begin() + i);
-            ttrace.erase(ttrace.begin() + i);
+            tminmax.erase(tminmax.begin() + 2U*i + 1U);
+            tminmax.erase(tminmax.begin() + 2U*i);
+            ttrace.erase(ttrace.begin() + 2U*i + 1U);
+            ttrace.erase(ttrace.begin() + 2U*i);
         }
 
     //Global

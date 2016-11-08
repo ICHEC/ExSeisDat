@@ -129,7 +129,7 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
         offset = dec.first;
         lnt = dec.second;
         ExSeisPIOL * tpiol = piol;
-        biggest = tpiol->comm->gather(std::vector<size_t>{lnt})[0];
+        biggest = tpiol->comm->max(lnt);
     }
 
     max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns) + sizeof(File::TraceParam) + sizeof(size_t));

@@ -8,7 +8,6 @@
 void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
     Param trhdr = newDefParam(tcnt);
-    assert(trhdr);
     readTraceParam(ifh, off, tcnt, trhdr);
 
     if (fprm != NULL)
@@ -49,22 +48,23 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
                   size_t goff, size_t lnt, size_t tcnt,
                   ModPrm fprm, ModTrc ftrc)
 {
-    if (lnt == 0)   //No work to do
-        return;
+    size_t biggest = lnt;
+    int err = MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
+    size_t extra = biggest/tcnt - lnt/tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
-    size_t q = lnt / tcnt;
-    size_t r = lnt % tcnt;
-
-//    printf("rank %zu goff %zu lnt %zu tcnt %zu q %zu r %zu\n", getRank(piol), goff, lnt, tcnt, q, r);
-    for (size_t i = 0U; i < q; i++)
+    for (size_t i = 0U; i < lnt; i += tcnt)
     {
-        size_t off = goff + i * tcnt;
-        readWriteTraceParam(piol, ifh, ofh, off, tcnt, fprm);
-        readWriteTrace(piol, ifh, ofh, off, tcnt, ftrc);
+        size_t rblock = (i + tcnt < lnt ? tcnt : lnt - i);
+        readWriteTraceParam(piol, ifh, ofh, goff+i, rblock, fprm);
+        readWriteTrace(piol, ifh, ofh, goff+i, rblock, ftrc);
     }
 
-    readWriteTraceParam(piol, ifh, ofh, goff + lnt-r, r, fprm);
-    readWriteTrace(piol, ifh, ofh, goff + lnt-r, r, ftrc);
+    for (size_t i = 0U; i < extra; i++)
+    {
+        readWriteTraceParam(piol, ifh, ofh, goff, 0, fprm);
+        readWriteTrace(piol, ifh, ofh, goff, 0, ftrc);
+    }
+
 }
 
 int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax, ModPrm fprm, ModTrc ftrc)

@@ -14,13 +14,6 @@ int calcMin(std::string iname, std::string oname)
     size_t offset = dec.first;
     size_t num = dec.second;
 
-/*    for (size_t i = 0; i < piol.getNumRank(); i++)
-    {
-        if (i == piol.getRank())
-            std::cout << piol.getRank() << " " << offset << " "  << num << std::endl;
-        piol.barrier();
-    }*/
-
     std::vector<TraceParam> prm;
     try
     {
@@ -40,17 +33,21 @@ int calcMin(std::string iname, std::string oname)
     getMinMax(piol, offset, num, Coord::CMP, prm.data(), minmax.data()+8U);
 
     size_t sz = (!piol.getRank() ? minmax.size() : 0U);
+    size_t usz = 0;
     std::vector<size_t> list(sz);
     std::vector<size_t> uniqlist(sz);
 
-    for (size_t i = 0U; i < sz; i++)
-        uniqlist[i] = list[i] = minmax[i].num;
+    if (sz)
+    {
+        for (size_t i = 0U; i < sz; i++)
+            uniqlist[i] = list[i] = minmax[i].num;
 
-    std::sort(uniqlist.begin(), uniqlist.end());
-    auto end = std::unique(uniqlist.begin(), uniqlist.end());
-    uniqlist.resize(std::distance(uniqlist.begin(), end));
+        std::sort(uniqlist.begin(), uniqlist.end());
+        auto end = std::unique(uniqlist.begin(), uniqlist.end());
+        uniqlist.resize(std::distance(uniqlist.begin(), end));
 
-    size_t usz = uniqlist.size();
+        usz = uniqlist.size();
+    }
 
     std::vector<TraceParam> tprm(usz);
     in.readTraceParam(usz, uniqlist.data(), tprm.data());
