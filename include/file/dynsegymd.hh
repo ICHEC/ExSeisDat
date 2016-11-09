@@ -4,7 +4,7 @@
  *   \copyright TBD. Do not distribute
  *   \date October 2016
  *   \brief The state of this file is temporarily SEG-Y specific, when new formats are
- *          investigated this file should be split into a  format-agnostic component and a
+ *          investigated this file should be split into a format-agnostic component and a
  *          SEG-Y specific component.
  *   \details The SEG-Y implementation of metadata is dynamic to reflect the actual usage
  *   by geophysicists where SEG-Y metadata fields are routinely used for other purposes.
@@ -408,6 +408,7 @@ struct Rule
      *  \param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
      */
     void addFloat(Meta m, Tr loc, Tr scalLoc);
+
     /*! Add a rule for floats.
      *  \param[in] m The Meta entry.
      *  \param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (2 bytes).
@@ -418,10 +419,12 @@ struct Rule
      *  \param[in] m The meta entry.
      */
     void rmRule(Meta m);
+
     /*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
      *  \return Return the size.
      */
     size_t extent(void);
+
     /*! Get the rule entry associated with a particular meta entry.
      *  \param[in] entry The meta entry.
      *  \return The associated rule entry.
