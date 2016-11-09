@@ -58,31 +58,31 @@ Rule::Rule(bool full, std::vector<Meta> & m)
         switch (m[i])
         {
             case Meta::xSrc :
-                translate[Meta::xSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
             break;
             case Meta::ySrc :
-                translate[Meta::ySrc] = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
             break;
             case Meta::xRcv :
-                translate[Meta::xRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
             break;
             case Meta::yRcv :
-                translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
             break;
             case Meta::xCmp :
-                translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
             break;
             case Meta::yCmp :
-                translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
             break;
             case Meta::il :
-                translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
+                r = new SEGYLongRuleEntry(numLong++, Tr::il);
             break;
             case Meta::xl :
-                translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
+                r = new SEGYLongRuleEntry(numLong++, Tr::xl);
             break;
             case Meta::tn :
-                translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
+                r = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
             break;
             default : break;    //Non-default
         }
@@ -297,14 +297,14 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             if (valit != drule->translate.end() && dent->type() == sent->type())
                 switch (m.second->type())
                 {
+                    case MdType::Float :
+                    dst->f[drule->numFloat*k + dent->num] = src->f[srule->numFloat*j + sent->num];
+                    break;
                     case MdType::Long :
                     dst->i[drule->numLong*k + dent->num] = src->i[srule->numLong*j + sent->num];
                     break;
                     case MdType::Short :
                     dst->s[drule->numShort*k + dent->num] = src->s[srule->numShort*j + sent->num];
-                    break;
-                    case MdType::Float :
-                    dst->f[drule->numFloat*k + dent->num] = src->f[srule->numFloat*j + sent->num];
                     break;
                 }
         }

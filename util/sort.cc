@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <fstream>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
 #include "share/smpi.hh"
@@ -35,6 +36,7 @@ void getCoords(File::Interface * file, size_t offset, vec<entry> & coords)
 {
     size_t sz = coords.size();
     File::Param prm(sz);
+
     file->readParam(offset, sz, &prm);
     for (size_t i = 0; i < sz; i++)
     {
@@ -73,10 +75,9 @@ void sendLeft(ExSeis * piol, size_t regionSz, std::vector<T> & rcv)
 
 bool evencomp(const entry & e1, const entry & e2)
 {
-    geom_t thresh = 1e-5;
-//    auto isEqual = [thresh] (geom_t x, geom_t y) -> bool { return (x > y - thresh) && (x < y + thresh); };
-
-    return (e1.src.x > e2.src.x - thresh && e1.src.x < e2.src.x + thresh && e1.tn < e2.tn) || e1.src.x < e2.src.x;
+    //geom_t thresh = 1e-5;
+    //return (e1.src.x > e2.src.x - thresh && e1.src.x < e2.src.x + thresh && e1.tn < e2.tn) || e1.src.x < e2.src.x;
+    return (e1.src.x == e2.src.x && e1.tn < e2.tn) || e1.src.x < e2.src.x;
 }
 
 bool paircomp(const std::pair<size_t, size_t> & e1, const std::pair<size_t, size_t> & e2)
@@ -121,12 +122,8 @@ void Sort(ExSeis * piol, size_t nt, std::vector<T> & thead, bool (*comp)(const T
             break;
     }
 
-//    std::vector<size_t> traceNum(thead.size());
     for (size_t i = 0; i < thead.size(); i++)
-    {
-//        traceNum[i] = tSort1[i].tn;
         thead[i] = tSort1[i];
-    }
 }
 
 vec<size_t> getSortIndex(size_t sz, size_t * list)
@@ -188,20 +185,23 @@ int main(int argc, char ** argv)
     }
 
     Sort(&piol, src.readNt(), plist, paircomp);
+
     std::vector<size_t> list(lnt);
     for (size_t i = 0; i < lnt; i++)
         list[i] = plist[i].second;
+    plist.resize(0);
 
-
-/*    for (size_t r = 0; r < numRank; r++)
+    std::ofstream fout("OUT" + std::to_string(rank));
+    for (size_t r = 0; r < numRank; r++)
     {
         piol.barrier();
         if (r == rank)
             for (size_t i = 0; i < list.size(); i++)
-                std::cout << r << " " << list[i] <<  " " << coords[i].src.x << std::endl;
-        std::cout << std::flush;
+                fout << r << " " << list[i] <<  " " << coords[i].src.x << std::endl;
+        fout << std::flush;
         piol.barrier();
-    }*/
+    }
+
     size_t ns = src.readNs();
     File::Direct dst(piol, name2, FileMode::Write);
     dst->writeNt(src.readNt());
@@ -209,36 +209,22 @@ int main(int argc, char ** argv)
     dst->writeText(src.readText());
     dst->writeNs(ns);
 
-    size_t max = (1024U*1024U*1024U) / (2U*(SEGSz::getDOSz(ns) + sizeof(size_t)));
+    size_t max = (2U*1024U*1024U*1024U) / (2U*(SEGSz::getDOSz(ns) + sizeof(size_t)));
     size_t biggest = ppiol->comm->max(lnt);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
     max = std::min(lnt, max);
     vec<trace_t> trc(max * ns);
-    vec<trace_t> otrc(max * ns);
     Param prm(max);
+    vec<trace_t> otrc(max * ns);
     Param oprm(max);
-
-
-/*    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-        vec<size_t> sortlist = getSortIndex(rblock, list.data() + i);
-        src->readTrace(rblock, list.data(), trc.data(), &prm);
-        dst->writeTrace(offset+i, rblock, trc.data(), &prm);
-    }
-    for (size_t i = 0; i < extra; i++)
-    {
-        src->readTrace(0, nullptr, nullptr, const_cast<Param *>(PARAM_NULL));
-        dst->writeTrace(0, size_t(0), nullptr, PARAM_NULL);
-    }*/
 
     for (size_t i = 0; i < lnt; i += max)
     {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-        vec<size_t> sortlist = getSortIndex(rblock, list.data() + i);
-
+        size_t rblock = std::min(max, lnt - i);
         src->readTrace(offset + i, rblock, trc.data(), &prm);
+
+        vec<size_t> sortlist = getSortIndex(rblock, list.data() + i);
 
         for (size_t j = 0U; j < rblock; j++)
         {
@@ -248,13 +234,12 @@ int main(int argc, char ** argv)
                 otrc[sortlist[j]*ns + k] = trc[j*ns + k];
 
             sortlist[j] = list[i+sortlist[j]];
-//            std::cout << rank << " " << list[i+j] << " to " << sortlist[j] << std::endl;
         }
         dst->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
     }
     for (size_t i = 0; i < extra; i++)
     {
-        src->readTrace(0, size_t(0), nullptr, const_cast<Param *>(PARAM_NULL));
+        src->readTrace(1000, size_t(0), nullptr, const_cast<Param *>(PARAM_NULL));
         dst->writeTrace(0, nullptr, nullptr, PARAM_NULL);
     }
     return 0;

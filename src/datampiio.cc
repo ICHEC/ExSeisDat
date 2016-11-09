@@ -6,6 +6,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <assert.h>
 #include <functional>
 #include <algorithm>
 #include "data/datampiio.hh"
@@ -56,6 +57,8 @@ int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_
     std::vector<int> bl(count);
     for (int i = 0; i < count; i++)
         bl[i] = block;
+    assert(count < std::numeric_limits<int>::max() / (sizeof(int) + sizeof(MPI_Aint)));
+
     int err = MPI_Type_create_hindexed(count, bl.data(), offset, MPI_CHAR, type);
     #else
     int err = MPI_Type_create_hindexed_block(count, block, offset, MPI_CHAR, type);
@@ -208,7 +211,6 @@ int getMPIMode(FileMode mode)
 #endif
         case FileMode::Test :
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
-            //return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_UNIQUE_OPEN;
     }
 }
 
@@ -373,6 +375,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
     size_t max = maxSize / (bsz ? bsz : 1U);
+
     size_t remCall = 0;
     {
         auto vec = piol->comm->gather(std::vector<size_t>{sz});
@@ -411,6 +414,7 @@ void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) co
     if (bsz > getFabricPacketSz())
         for (size_t i = 0; i < sz; i++)
             write(offset[i], bsz, d);
+
 
     listIO((coll ? mpiio_write_at_all : mpiio_write_at), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
 }
