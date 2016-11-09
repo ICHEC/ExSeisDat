@@ -191,7 +191,7 @@ int main(int argc, char ** argv)
         list[i] = plist[i].second;
     plist.resize(0);
 
-    std::ofstream fout("OUT" + std::to_string(rank));
+/*    std::ofstream fout("OUT" + std::to_string(rank));
     for (size_t r = 0; r < numRank; r++)
     {
         piol.barrier();
@@ -201,7 +201,7 @@ int main(int argc, char ** argv)
         fout << std::flush;
         piol.barrier();
     }
-
+*/
     size_t ns = src.readNs();
     File::Direct dst(piol, name2, FileMode::Write);
     dst->writeNt(src.readNt());
@@ -215,8 +215,8 @@ int main(int argc, char ** argv)
 
     max = std::min(lnt, max);
     vec<trace_t> trc(max * ns);
-    Param prm(max);
     vec<trace_t> otrc(max * ns);
+    Param prm(max);
     Param oprm(max);
 
     for (size_t i = 0; i < lnt; i += max)
@@ -228,10 +228,10 @@ int main(int argc, char ** argv)
 
         for (size_t j = 0U; j < rblock; j++)
         {
-            cpyPrm(j, &prm, sortlist[j], &oprm);
+            cpyPrm(sortlist[j], &prm, j, &oprm);
 
             for (size_t k = 0; k < ns; k++)
-                otrc[sortlist[j]*ns + k] = trc[j*ns + k];
+                otrc[j*ns + k] = trc[sortlist[j]*ns + k];
 
             sortlist[j] = list[i+sortlist[j]];
         }
@@ -239,7 +239,7 @@ int main(int argc, char ** argv)
     }
     for (size_t i = 0; i < extra; i++)
     {
-        src->readTrace(1000, size_t(0), nullptr, const_cast<Param *>(PARAM_NULL));
+        src->readTrace(0, size_t(0), nullptr, const_cast<Param *>(PARAM_NULL));
         dst->writeTrace(0, nullptr, nullptr, PARAM_NULL);
     }
     return 0;
