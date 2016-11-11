@@ -38,4 +38,6 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_
  *  and their respective trace numbers.
  */
 extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
+
+extern std::vector<size_t> Sort(ExSeisPIOL * piol, File::Interface * src, size_t offset, size_t lnt);
 }}

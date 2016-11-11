@@ -60,6 +60,11 @@ class ExSeis
         piol->comm->barrier();
     }
 
+    size_t max(size_t n) const
+    {
+        return piol->comm->max(n);
+    }
+
     /*! \brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
      *  and the code aborts.
      * \param[in] msg A message to be printed to the log.
