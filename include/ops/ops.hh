@@ -39,5 +39,14 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_
  */
 extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
 
+enum class SortType : size_t
+{
+    SrcRcv,
+    Line,
+    OffsetLine,
+    CmpSrc
+};
+
 extern std::vector<size_t> Sort(ExSeisPIOL * piol, File::Interface * src, size_t offset, size_t lnt);
+extern std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, File::Interface * src, size_t offset, size_t lnt);
 }}

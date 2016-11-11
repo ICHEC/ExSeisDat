@@ -67,10 +67,10 @@ int main(int argc, char ** argv)
 {
     ExSeis piol;
 
-    std::string opt = "i:o:d";  //TODO: uses a GNU extension
+    std::string opt = "i:o:t:d";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
-
+    auto type = SortType::SrcRcv;
     bool debug = false;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
@@ -83,6 +83,9 @@ int main(int argc, char ** argv)
             break;
             case 'd' :
                 debug = true;
+            break;
+            case 't' :
+                type = static_cast<SortType>(std::stoul(optarg));
             break;
             default :
                 fprintf(stderr, "One of the command line arguments is invalid\n");
@@ -98,7 +101,8 @@ int main(int argc, char ** argv)
 
     //Perform the decomposition and read coordinates of interest.
     auto dec = decompose(src.readNt(), numRank, rank);
-    auto list = Sort(piol, src, dec.first, dec.second);
+
+    auto list = Sort(piol, type, src, dec.first, dec.second);
 
     if (debug)
     {
