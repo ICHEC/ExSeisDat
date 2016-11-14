@@ -98,11 +98,17 @@ int main(int argc, char ** argv)
     size_t numRank = piol.getNumRank();
 
     File::Direct src(piol, name1, FileMode::Read);
-
+    size_t nt = src.readNt();
     //Perform the decomposition and read coordinates of interest.
-    auto dec = decompose(src.readNt(), numRank, rank);
+    auto dec = decompose(nt, numRank, rank);
 
-    auto list = Sort(piol, type, src, dec.first, dec.second);
+    //TODO: Assumes the decomposition is small enough to allow this allocation
+    File::Param prm(dec.second);
+    src->readParam(dec.first, dec.second, &prm);
+    for (size_t i = 0; i < prm.size(); i++)
+        setPrm(i, Meta::tn, dec.first + i, &prm);
+
+    auto list = Sort(piol, type, nt, dec.first, &prm);
 
     if (debug)
     {

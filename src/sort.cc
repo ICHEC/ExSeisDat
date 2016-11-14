@@ -8,44 +8,45 @@
 #include "global.hh"
 #include "ops/ops.hh"
 #include "file/file.hh"
+#include "share/smpi.hh"
 
 namespace PIOL { namespace File {
-
-struct PrmEntry
+void Wait(ExSeisPIOL * piol, MPI_Request rcv, MPI_Request snd)
 {
-    coord_t src;
-    coord_t rcv;
-    grid_t line;
-    size_t tn;
+    MPI_Status stat;
+    int err;
+    if (piol->comm->getRank() != piol->comm->getNumRank()-1)
+    {
+        err = MPI_Wait(&rcv, &stat);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, &stat, "Sort Rcv error");
+    }
+    if (piol->comm->getRank())
+    {
+        err = MPI_Wait(&snd, &stat);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, &stat, "Sort Snd error");
+    }
+}
 
-    bool operator==(const PrmEntry & e) const
-    {
-        return tn == e.tn;
-    }
-    bool operator!=(const PrmEntry & e) const
-    {
-        return tn != e.tn;
-    }
-    bool operator<(const PrmEntry & e) const
-    {
-        std::cerr << "Critical error\n";
-        return src.x < e.src.x && src.y < e.src.y &&
-               rcv.x < e.rcv.x && rcv.y < e.rcv.y;
-    }
-};
-
-#warning Do error handling
 template <class T>
 void sendRight(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & rcv)
 {
     size_t rank = piol->comm->getRank();
     size_t cnt = regionSz * sizeof(T);
 
-    MPI_Status stat;
+    MPI_Request rsnd;
+    MPI_Request rrcv;
+
     if (rank)
-        MPI_Recv(rcv.data(), cnt, MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &stat);
+    {
+        int err = MPI_Irecv(rcv.data(), cnt, MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rrcv);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, NULL, "Sort MPI_Recv error");
+    }
     if (rank != piol->comm->getNumRank()-1)
-        MPI_Send(&rcv[rcv.size()-regionSz], cnt, MPI_CHAR, rank+1, 1, MPI_COMM_WORLD);
+    {
+        int err = MPI_Isend(&rcv[rcv.size()-regionSz], cnt, MPI_CHAR, rank+1, 1, MPI_COMM_WORLD, &rsnd);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, NULL, "Sort MPI_Send error");
+    }
+    Wait(piol, rsnd, rrcv);
 }
 
 template <class T>
@@ -53,15 +54,21 @@ void sendLeft(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & rcv)
 {
     size_t rank = piol->comm->getRank();
     size_t cnt = regionSz * sizeof(T);
-    MPI_Status stat;
-    if (rank)
-        MPI_Send(rcv.data(), cnt, MPI_CHAR, rank-1, 0, MPI_COMM_WORLD);
-    if (rank != piol->comm->getNumRank()-1)
-        MPI_Recv(&rcv[rcv.size()-regionSz], cnt, MPI_CHAR, rank+1, 0, MPI_COMM_WORLD, &stat);
-}
+    MPI_Request rsnd;
+    MPI_Request rrcv;
 
-template <class T>
-using Compare = std::function<bool(const T &, const T &)>;
+    if (rank)
+    {
+        int err = MPI_Isend(rcv.data(), cnt, MPI_CHAR, rank-1, 0, MPI_COMM_WORLD, &rsnd);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, NULL, "Sort MPI_Send error");
+    }
+    if (rank != piol->comm->getNumRank()-1)
+    {
+        int err = MPI_Irecv(&rcv[rcv.size()-regionSz], cnt, MPI_CHAR, rank+1, 0, MPI_COMM_WORLD, &rrcv);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, NULL, "Sort MPI_Recv error");
+    }
+    Wait(piol, rrcv, rsnd);
+}
 
 template <class T>
 void Sort(ExSeisPIOL * piol, size_t nt, std::vector<T> & thead, Compare<T> comp = nullptr)
@@ -103,6 +110,7 @@ void Sort(ExSeisPIOL * piol, size_t nt, std::vector<T> & thead, Compare<T> comp 
         int greduced = 1;
 
         int err = MPI_Allreduce(&reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        printErr(piol->log.get(), "", Log::Layer::Ops, err, NULL, "Sort MPI_Allreduce error");
 
         if (!greduced)
             break;
@@ -112,33 +120,21 @@ void Sort(ExSeisPIOL * piol, size_t nt, std::vector<T> & thead, Compare<T> comp 
         thead[i] = tSort1[i];
 }
 
-std::vector<size_t> Sort(ExSeisPIOL * piol, File::Interface * src, size_t offset, size_t lnt, Compare<PrmEntry> comp)
+std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * prm, Compare<AOSParam> comp)
 {
-    //TODO: Assumes the decomposition is small enough to allow this allocation
-    File::Param prm(lnt);
-    std::vector<PrmEntry> coords(lnt);
+    size_t lnt = prm->size();
+    auto coords = prm->getAOS();
 
-    src->readParam(offset, lnt, &prm);
-    for (size_t i = 0; i < lnt; i++)
-    {
-        coords[i].src.x = getPrm(i, Meta::xSrc, &prm);
-        coords[i].src.y = getPrm(i, Meta::ySrc, &prm);
-        coords[i].rcv.x = getPrm(i, Meta::xRcv, &prm);
-        coords[i].rcv.y = getPrm(i, Meta::yRcv, &prm);
-        coords[i].line.il = getPrm(i, Meta::il, &prm);
-        coords[i].line.xl = getPrm(i, Meta::xl, &prm);
-        coords[i].tn = offset + i;
-    }
+    Sort(piol, nt, coords, comp);
 
-    Sort(piol, src->readNt(), coords, comp);
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)
     {
-        plist[i].first = coords[i].tn;
+        plist[i].first = getPrm(coords[i].j, Meta::tn, coords[i].prm);
         plist[i].second = offset + i;
     }
 
-    Sort(piol, src->readNt(), plist);
+    Sort(piol, nt, plist);
 
     std::vector<size_t> list(lnt);
     for (size_t i = 0; i < lnt; i++)
@@ -146,64 +142,89 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, File::Interface * src, size_t offset
     return list;
 }
 
+
 inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
 {
-    return (sx-rx)*(sx-rx) + (sx-rx)*(sx-rx);
+    return (sx-rx)*(sx-rx) + (sy-ry)*(sy-ry);
 }
 
-inline geom_t off(const PrmEntry & e)
+bool lessSrcRcv(const AOSParam & e1, const AOSParam & e2)
 {
-    return off(e.src.x, e.src.y, e.rcv.x, e.rcv.y);
+    size_t j1 = e1.j;
+    auto p1 = e1.prm;
+    geom_t e1sx = getPrm(j1, Meta::xSrc, p1);
+    geom_t e1sy = getPrm(j1, Meta::ySrc, p1);
+    geom_t e1rx = getPrm(j1, Meta::xRcv, p1);
+    geom_t e1ry = getPrm(j1, Meta::yRcv, p1);
+    size_t e1t = getPrm(j1, Meta::tn, p1);
+
+    size_t j2 = e2.j;
+    auto p2 = e2.prm;
+    geom_t e2sx = getPrm(j2, Meta::xSrc, p2);
+    geom_t e2sy = getPrm(j2, Meta::ySrc, p2);
+    geom_t e2rx = getPrm(j2, Meta::xRcv, p2);
+    geom_t e2ry = getPrm(j2, Meta::yRcv, p2);
+    size_t e2t = getPrm(j2, Meta::tn, p2);
+
+    if (e1sx < e2sx)
+        return true;
+    else if (e1sx == e2sx)
+    {
+        if (e1sy < e2sy)
+            return true;
+        else if (e1sy == e2sy)
+        {
+            if (e1rx < e2rx)
+                return true;
+            else if (e1rx == e2rx)
+            {
+                if (e1ry < e2ry)
+                    return true;
+                else if (e1ry == e2ry)
+                    return (e1t < e2t);
+            }
+        }
+    }
+    return false;
 }
 
-std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, File::Interface * src, size_t offset, size_t lnt)
+std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
 {
-    Compare<PrmEntry> comp = nullptr;
+    Compare<AOSParam> comp = nullptr;
     switch (type)
     {
         default :
         case SortType::SrcRcv :
         std::cout << "sort src rcv\n";
-        comp = [] (const PrmEntry & e1, const PrmEntry & e2) -> bool
-            {
-                return (e1.src.x == e2.src.x && e1.tn < e2.tn) || e1.src.x < e2.src.x;
-
-/*            if (e1.src.x < e2.src.x)
-                return true;
-            else if (e1.src.x == e2.src.x)
-            {
-                if (e1.src.y < e2.src.y)
-                    return true;
-                else if (e1.src.y == e2.src.y)
-                {
-                    if (e1.rcv.x < e2.rcv.x)
-                        return true;
-                    else if (e1.rcv.x == e2.rcv.x)
-                    {
-                        if (e1.rcv.y < e2.rcv.y)
-                            return true;
-                        else if (e1.rcv.y == e2.rcv.y)
-                            return (e1.tn < e2.tn);
-                    }
-                }
-            }
-            return false;*/
-            };
+        comp = lessSrcRcv;
         break;
         case SortType::OffsetLine :
-        comp = [] (const PrmEntry & e1, const PrmEntry & e2) -> bool
-        {
-            return false;
-        };
+#warning To be done during the next visit
         break;
         case SortType::CmpSrc :
-        comp = [] (const PrmEntry & e1, const PrmEntry & e2) -> bool
-        {
-            return false;
-        };
+#warning To be done during the next visit
         break;
     }
-    return Sort(piol, src, offset, lnt, comp);
+    return Sort(piol, nt, offset, prm, comp);
+}
+
+//TODO: Make this work with SortType type;
+bool checkOrder(Interface * src, std::pair<size_t , size_t> dec)
+{
+    Param prm(dec.second);
+    src->readParam(dec.first, dec.second, &prm);
+    AOSParam prev;
+    for (size_t i = 0; i < dec.second; i++)
+    {
+        AOSParam ent;
+        ent.prm = &prm;
+        ent.j = i;
+
+        if (i && !lessSrcRcv(prev, ent))
+            return false;
+        prev = ent;
+    }
+    return true;
 }
 }}
 

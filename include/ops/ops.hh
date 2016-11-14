@@ -1,8 +1,9 @@
-#include "global.hh"
+#include <assert.h>
 #include <memory>
+#include "global.hh"
 #include "file/file.hh"
 
-#warning Make redundant
+//#warning Make redundant
 #include "cppfileapi.hh"
 namespace PIOL { namespace File {
 
@@ -47,6 +48,9 @@ enum class SortType : size_t
     CmpSrc
 };
 
-extern std::vector<size_t> Sort(ExSeisPIOL * piol, File::Interface * src, size_t offset, size_t lnt);
-extern std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, File::Interface * src, size_t offset, size_t lnt);
+template <class T>
+using Compare = std::function<bool(const T &, const T &)>;
+
+extern std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * coords);
+extern bool checkOrder(File::Interface * src, std::pair<size_t, size_t> dec);
 }}

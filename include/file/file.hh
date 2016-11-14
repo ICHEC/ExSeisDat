@@ -14,6 +14,22 @@
 namespace PIOL { namespace File {
 
 struct Rule;
+struct Param;
+
+struct AOSParam
+{
+    Param * prm;
+    size_t j;
+    bool operator<(AOSParam & a)
+    {
+        return j < a.j;
+    }
+    bool operator!=(AOSParam & a)
+    {
+        return prm != a.prm || j != j;
+    }
+};
+
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
@@ -23,7 +39,6 @@ struct Param
     std::vector<llint> i;     //!< Integer array.
     std::vector<short> s;     //!< Short array.
     std::vector<size_t> t;     //!< trace number array.
-
     std::shared_ptr<Rule> r;    //!< The rules which describe the indexing of the arrays.
 
     /*! Allocate the basic space required to store the arrays and store the rules.
@@ -32,8 +47,22 @@ struct Param
      */
     Param(std::shared_ptr<Rule> r_, size_t sz);
     Param(size_t sz);
-
+    size_t size(void)
+    {
+        return t.size();
+    }
     bool operator==(struct Param & p) const;
+
+    std::vector<AOSParam> getAOS(void)
+    {
+        std::vector<AOSParam> aos(this->size());
+        for (size_t j = 0; j < aos.size(); j++)
+        {
+            aos[j].prm = this;
+            aos[j].j = j;
+        }
+        return aos;
+    }
 };
 
 /*! A structure composed of two coordinates to form a single coordinate point
