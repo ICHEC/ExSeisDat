@@ -108,16 +108,16 @@ TEST_F(OpsTest, getMinMaxRand)
 //extern std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, std::vector<PrmEntry> & coords, Compare<PrmEntry> comp);
 TEST_F(OpsTest, SortSrcRcvBackwards)
 {
-    std::vector<PrmEntry> coords(200);
-    for (size_t i = 0; i < coords.size(); i++)
+    Param prm(200);
+    for (size_t i = 0; i < prm.size(); i++)
     {
-        coords[i].tn = i;
-        coords[i].src.x = 1000.0 - i / 20;
-        coords[i].src.y = 1000.0 - i % 20 ;
-        coords[i].rcv.x = 1000.0 - i / 10;
-        coords[i].rcv.y = 1000.0 - i % 10;
+        setPrm(i, Meta::xSrc, 1000.0 - i / 20, &prm);
+        setPrm(i, Meta::ySrc, 1000.0 - i % 20, &prm);
+        setPrm(i, Meta::xRcv, 1000.0 - i / 10, &prm);
+        setPrm(i, Meta::yRcv, 1000.0 - i % 10, &prm);
+        setPrm(i, Meta::tn, i, &prm);
     }
-    auto list = Sort(piol, SortType::SrcRcv, coords.size(), 0, coords);
+    auto list = Sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(list.size() - i-1, list[i]);
@@ -125,16 +125,16 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
 
 TEST_F(OpsTest, SortSrcRcvForwards)
 {
-    std::vector<PrmEntry> coords(200);
-    for (size_t i = 0; i < coords.size(); i++)
+    Param prm(200);
+    for (size_t i = 0; i < prm.size(); i++)
     {
-        coords[i].tn = i;
-        coords[i].src.x = 1000.0 + i / 20;
-        coords[i].src.y = 1000.0 + i % 20 ;
-        coords[i].rcv.x = 1000.0 + i / 10;
-        coords[i].rcv.y = 1000.0 + i % 10;
+        setPrm(i, Meta::xSrc, 1000.0 + i / 20, &prm);
+        setPrm(i, Meta::ySrc, 1000.0 + i % 20, &prm);
+        setPrm(i, Meta::xRcv, 1000.0 + i / 10, &prm);
+        setPrm(i, Meta::yRcv, 1000.0 + i % 10, &prm);
+        setPrm(i, Meta::tn, i, &prm);
     }
-    auto list = Sort(piol, SortType::SrcRcv, coords.size(), 0, coords);
+    auto list = Sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(i, list[i]);
@@ -143,25 +143,25 @@ TEST_F(OpsTest, SortSrcRcvForwards)
 
 TEST_F(OpsTest, SortSrcRcvRand)
 {
-    std::vector<PrmEntry> coords(10);
-    for (size_t i = 0; i < coords.size(); i++)
+    Param prm(10);
+    for (size_t i = 0; i < prm.size(); i++)
     {
-        coords[i].tn = i;
-        coords[i].src.y = 1000.0;
-        coords[i].rcv.x = 1000.0;
-        coords[i].rcv.y = 1000.0;
+        setPrm(i, Meta::ySrc, 1000.0, &prm);
+        setPrm(i, Meta::xRcv, 1000.0, &prm);
+        setPrm(i, Meta::yRcv, 1000.0, &prm);
+        setPrm(i, Meta::tn, i, &prm);
     }
-    coords[0].src.x = 5.;
-    coords[1].src.x = 3.;
-    coords[2].src.x = 1.;
-    coords[3].src.x = 4.;
-    coords[4].src.x = 2.;
-    coords[5].src.x = 9.;
-    coords[6].src.x = 6.;
-    coords[7].src.x = 8.;
-    coords[8].src.x = 7.;
-    coords[9].src.x = 0.;
-    auto list = Sort(piol, SortType::SrcRcv, coords.size(), 0, coords);
+    setPrm(0, Meta::xSrc, 5.0, &prm);
+    setPrm(1, Meta::xSrc, 3.0, &prm);
+    setPrm(2, Meta::xSrc, 1.0, &prm);
+    setPrm(3, Meta::xSrc, 4.0, &prm);
+    setPrm(4, Meta::xSrc, 2.0, &prm);
+    setPrm(5, Meta::xSrc, 9.0, &prm);
+    setPrm(6, Meta::xSrc, 6.0, &prm);
+    setPrm(7, Meta::xSrc, 8.0, &prm);
+    setPrm(8, Meta::xSrc, 7.0, &prm);
+    setPrm(9, Meta::xSrc, 0.0, &prm);
+    auto list = Sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
     ASSERT_EQ(5, list[0]);
     ASSERT_EQ(3, list[1]);
     ASSERT_EQ(1, list[2]);
