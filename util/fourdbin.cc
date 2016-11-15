@@ -35,10 +35,10 @@ void getCoords(File::Interface * file, size_t offset, vec<geom_t> & coords)
     file->readParam(offset, sz, &prm);
     for (size_t i = 0; i < sz; i++)
     {
-        coords[4U*i+0] = getPrm(i, m[0], &prm);
-        coords[4U*i+1] = getPrm(i, m[1], &prm);
-        coords[4U*i+2] = getPrm(i, m[2], &prm);
-        coords[4U*i+3] = getPrm(i, m[3], &prm);
+        coords[4U*i+0] = File::getPrm<geom_t>(i, m[0], &prm);
+        coords[4U*i+1] = File::getPrm<geom_t>(i, m[1], &prm);
+        coords[4U*i+2] = File::getPrm<geom_t>(i, m[2], &prm);
+        coords[4U*i+3] = File::getPrm<geom_t>(i, m[3], &prm);
     }
 }
 

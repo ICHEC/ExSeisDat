@@ -26,15 +26,15 @@ void toTraceParam(size_t sz, const Param * p, TraceParam * prm)
 {
     for (size_t i = 0; i < sz; i++)
     {
-        prm[i].src.x = getPrm(i, Meta::xSrc, p);
-        prm[i].src.y = getPrm(i, Meta::ySrc, p);
-        prm[i].rcv.x = getPrm(i, Meta::xRcv, p);
-        prm[i].rcv.y = getPrm(i, Meta::yRcv, p);
-        prm[i].cmp.x = getPrm(i, Meta::xCmp, p);
-        prm[i].cmp.y = getPrm(i, Meta::yCmp, p);
-        prm[i].line.il = getPrm(i, Meta::il, p);
-        prm[i].line.xl = getPrm(i, Meta::xl, p);
-        prm[i].tn = llint(getPrm(i, Meta::tn, p));
+        prm[i].src.x = getPrm<geom_t>(i, Meta::xSrc, p);
+        prm[i].src.y = getPrm<geom_t>(i, Meta::ySrc, p);
+        prm[i].rcv.x = getPrm<geom_t>(i, Meta::xRcv, p);
+        prm[i].rcv.y = getPrm<geom_t>(i, Meta::yRcv, p);
+        prm[i].cmp.x = getPrm<geom_t>(i, Meta::xCmp, p);
+        prm[i].cmp.y = getPrm<geom_t>(i, Meta::yCmp, p);
+        prm[i].line.il = getPrm<llint>(i, Meta::il, p);
+        prm[i].line.xl = getPrm<llint>(i, Meta::xl, p);
+        prm[i].tn = getPrm<llint>(i, Meta::tn, p);
     }
 }
 

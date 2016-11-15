@@ -69,108 +69,6 @@ enum class Tr : size_t
     SrcMeasExp  = 229U, //!< int32_t. Source measurement exponent
 };
 
-/*! A temporary structure to allow a single function to return
- *  variably-typed data.
- */
-struct prmRet
-{
-    union
-    {
-        llint i;        //!< Long data
-        geom_t f;       //!< Floating point data
-        short s;        //!< Short data
-    } val;              //!< A union holding the data
-
-
-    prmRet(void) { }
-
-    /*! Constructor for conversion to long int
-     *  \param[in] i the value to store in the structure
-     */
-    prmRet(long int i)
-    {
-        val.i = i;
-    }
-
-    /*! \overload
-     */
-    prmRet(int i)
-    {
-        val.i = i;
-    }
-
-    /*! \overload
-     */
-    prmRet(size_t i)
-    {
-        val.i = i;
-    }
-
-    /*! \overload
-     */
-    prmRet(float f)
-    {
-        val.f = f;
-    }
-
-    /*! \overload
-     */
-    prmRet(double f)
-    {
-        val.f = f;
-    }
-
-    /*! \overload
-     */
-    prmRet(short s)
-    {
-        val.s = s;
-    }
-
-    /*! Implicit conversion to long int, returning int data
-     *  \return Return the long data.
-     */
-    operator long int ()
-    {
-        return val.i;
-    }
-
-    /*! \overload
-     */
-    operator int ()
-    {
-        return val.i;
-    }
-
-    /*! \overload
-     */
-    operator size_t ()
-    {
-        return val.i;
-    }
-
-    /*! \overload
-     */
-    operator float ()
-    {
-        return val.f;
-    }
-
-    /*! \overload
-     */
-    operator double ()
-    {
-        return val.f;
-    }
-
-    /*! \overload
-     */
-    operator short ()
-    {
-        return val.s;
-    }
-};
-
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
 /*! This function exists to address a defect in enum usage in a map
  *  that is present in the intel and older GNU compilers.
@@ -180,6 +78,7 @@ struct EnumHash
     /*! This overload describes how to convert from the enum to a size_t
      * \tparam T The enum type
      * \param[in] t The enum value
+     * \return Return a cast to size_t
      */
     template <typename T>
     size_t operator()(T t) const
@@ -431,6 +330,7 @@ struct Rule
 
 //Access
 /*! Get the value associated with the particular entry.
+ *  \tparam T The type of the value
  *  \param[in] i The trace number
  *  \param[in] entry The meta entry to retrieve.
  *  \param[in] prm The parameter structure
@@ -440,15 +340,64 @@ struct Rule
  *          Short: int16_t val = getPrm(i, entry, prm);
  *          Float: geom_t val = getPrm(i, entry, prm);
  */
-prmRet getPrm(const size_t i, const Meta entry, const Param * prm);
+//prmRet getPrm(const size_t i, const Meta entry, const Param * prm);
+template <typename T>
+T getPrm(size_t i, Meta entry, const Param * prm)
+{
+    Rule * r = prm->r.get();
+    RuleEntry * id = r->getEntry(entry);
+    switch (id->type())
+    {
+        case MdType::Long :
+        return T(prm->i[r->numLong*i + id->num]);
+        break;
+        case MdType::Short :
+        return T(prm->s[r->numShort*i + id->num]);
+        break;
+        case MdType::Float :
+        return T(prm->f[r->numFloat*i + id->num]);
+        break;
+        default :
+            return T(0);
+        break;
+    }
+}
+/*! Get the value associated with the particular entry. (overload)
+ *  \tparam T The type of the value
+ *  \param[in] aos The array of structures form of Param indexing.
+ *  \param[in] entry The meta entry to retrieve.
+ *  \return Return the value
+ */
+template <typename T>
+T getPrm(AOSParam aos, Meta entry)
+{
+    return getPrm<T>(aos.j, entry, aos.prm);
+}
 
 /*! Set the value associated with the particular entry.
+ *  \tparam T The type of the value
  *  \param[in] i The trace number
  *  \param[in] entry The meta entry to retrieve.
  *  \param[in] ret The parameter return structure which is initialised by passing a geom_t, llint or short.
  *  \param[in] prm The parameter structure
  */
-void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm);
+template <typename T>
+void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
+{
+    Rule * r = prm->r.get();
+    switch (r->translate[entry]->type())
+    {
+        case MdType::Long :
+        prm->i[i * r->numLong + r->getEntry(entry)->num] = ret;
+        break;
+        case MdType::Short :
+        prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;
+        break;
+        case MdType::Float :
+        prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
+        break;
+    }
+}
 
 /*! Copy params from one parameter structure to another.
  * \param[in] i The trace number of the source.

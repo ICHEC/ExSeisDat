@@ -16,14 +16,28 @@ namespace PIOL { namespace File {
 struct Rule;
 struct Param;
 
+/*! A form of the Param structure which is suitable for use in arrays of structures
+ */
 struct AOSParam
 {
-    Param * prm;
-    size_t j;
+    Param * prm;    //!< The underlying Param structure
+    size_t j;       //!< The jth element
+
+    /*! Less-than operator. An operator overload required for template subsitution
+     *  \param[in] a The AOSParam object to compare with
+     *  \return Return true if the index of the current object is less than
+     *  the right operand.
+     */
     bool operator<(AOSParam & a)
     {
         return j < a.j;
     }
+
+    /*! Not-equal-to operator. Required in the sort.
+     *  \param[in] a The AOSParam object to compare with
+     *  \return Return true if the index of the current object is less than
+     *  the right operand.
+     */
     bool operator!=(AOSParam & a)
     {
         return prm != a.prm || j != j;
@@ -46,13 +60,30 @@ struct Param
      *  \param[in] sz The number of sets of trace parameters.
      */
     Param(std::shared_ptr<Rule> r_, size_t sz);
+    /*! Allocate the basic space required to store the arrays and store the rules. Default rules
+     *  \param[in] sz The number of sets of trace parameters.
+     */
     Param(size_t sz);
+
+    /*! Return the number of sets of trace parameters.
+     *  \return Number of sets
+     */
     size_t size(void)
     {
         return t.size();
     }
-    bool operator==(struct Param & p) const;
 
+    /*! Equality operator
+     * \param[in] p Param Structure to compare with.
+     * \return Return true if the structures are equivalent.
+     */
+    bool operator==(Param & p) const;
+
+    /*! Create an array-of-structures form of the parameter structure.
+     *  Members of this vector should not be used if the underlying structure
+     *  is deallocated.
+     *  \return Return a vector in array-of-structures form.
+     */
     std::vector<AOSParam> getAOS(void)
     {
         std::vector<AOSParam> aos(this->size());

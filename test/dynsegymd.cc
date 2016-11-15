@@ -1,33 +1,4 @@
 #include "dynsegymdtest.hh"
-TEST(PrmReturn, Integer)
-{
-    prmRet ret;
-    ret.val.i = 100;
-    ASSERT_EQ(100, int(ret));
-    ASSERT_EQ(100, llint(ret));
-    ASSERT_EQ(100U, size_t(ret));
-    ret.val.i = 1337*10000;
-    ASSERT_EQ(13370000, int(ret));
-    ASSERT_EQ(13370000, llint(ret));
-    ASSERT_EQ(13370000U, size_t(ret));
-}
-
-TEST(PrmReturn, Short)
-{
-    prmRet ret;
-    ret.val.i = 100;
-    ASSERT_EQ(100, short(ret));
-}
-
-TEST(PrmReturn, Float)
-{
-    prmRet ret;
-    geom_t f = 1337000.;
-    ret.val.f = f;
-    ASSERT_DOUBLE_EQ(f, double(ret));
-    ASSERT_DOUBLE_EQ(float(f), float(ret));
-}
-
 TEST(RuleEntry, SEGYFloat)
 {
     SEGYFloatRuleEntry entry(2U, Tr::xSrc, Tr::ScaleCoord);
@@ -116,12 +87,12 @@ TEST_F(RuleFixList, setPrm)
     }
     for (size_t i = 0; i < 100; i++)
     {
-        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::xSrc, &prm)), geom_t(i) + 1.);
-        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::ySrc, &prm)), geom_t(i) + 2.);
-        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::xRcv, &prm)), geom_t(i) + 3.);
-        ASSERT_DOUBLE_EQ(geom_t(getPrm(i, Meta::yRcv, &prm)), geom_t(i) + 4.);
-        ASSERT_EQ(llint(getPrm(i, Meta::dsdr, &prm)), llint(i + 1));
-        ASSERT_EQ(short(getPrm(i, Meta::il, &prm)), short(i + 2));
+        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i) + 1.);
+        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i) + 2.);
+        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i) + 3.);
+        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i) + 4.);
+        ASSERT_EQ(getPrm<llint>(i, Meta::dsdr, &prm), llint(i + 1));
+        ASSERT_EQ(getPrm<short>(i, Meta::il, &prm), short(i + 2));
     }
 }
 

@@ -40,17 +40,36 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_
  */
 extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
 
+/*! An enum class of the different types of sorting operaton.
+ */
 enum class SortType : size_t
 {
-    SrcRcv,
+    SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
     Line,
     OffsetLine,
     CmpSrc
 };
 
+/*! A template for the Compare less-than function
+ */
 template <class T>
 using Compare = std::function<bool(const T &, const T &)>;
 
-extern std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * coords);
+/*! Perform a sort on the given parameter structure.
+ *  \param[in] piol The PIOL object
+ *  \param[in] type The sort type
+ *  \param[in] nt The number of traces to process (across all processes).
+ *  \param[in] offset The starting trace number (local).
+ *  \param[in,out] prm The trace parameter structure.
+ *  \return Return a vector which is a list of the ordered trace numbers. i.e the 0th member
+ *          is the position of the 0th trace post-sort.
+ */
+extern std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm);
+
+/*! Check that the file obeys the expected ordering.
+ *  \param[in] src The input file.
+ *  \param[in] dec The decomposition: a pair which contains the offset (first) and the number of traces for the local process.
+ *  \return Return true if the local ordering is correct.
+ */
 extern bool checkOrder(File::Interface * src, std::pair<size_t, size_t> dec);
 }}

@@ -211,27 +211,6 @@ RuleEntry * Rule::getEntry(Meta entry)
     return translate[entry];
 }
 
-prmRet getPrm(size_t i, Meta entry, const Param * prm)
-{
-    Rule * r = prm->r.get();
-    RuleEntry * id = r->getEntry(entry);
-    switch (id->type())
-    {
-        case MdType::Long :
-        return prmRet(prm->i[r->numLong*i + id->num]);
-        break;
-        case MdType::Short :
-        return prmRet(prm->s[r->numShort*i + id->num]);
-        break;
-        case MdType::Float :
-        return prmRet(prm->f[r->numFloat*i + id->num]);
-        break;
-        default :
-            return llint(0);
-        break;
-    }
-}
-
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
 {
     f.resize(sz * r->numFloat);
@@ -251,24 +230,6 @@ Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
 bool Param::operator==(struct Param & p) const
 {
     return f == p.f && i == p.i && s == p.s && t == p.t;
-}
-
-
-void setPrm(csize_t i, const Meta entry, prmRet ret, Param * prm)
-{
-    Rule * r = prm->r.get();
-    switch (r->translate[entry]->type())
-    {
-        case MdType::Long :
-        prm->i[i * r->numLong + r->getEntry(entry)->num] = ret;
-        break;
-        case MdType::Short :
-        prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;
-        break;
-        case MdType::Float :
-        prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
-        break;
-    }
 }
 
 void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)

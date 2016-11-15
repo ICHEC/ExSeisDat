@@ -96,17 +96,17 @@ void freeParam(Param prm)
 
 short getShortPrm(size_t i, CMeta entry, const Param prm)
 {
-    return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
+    return File::getPrm<short>(i, static_cast<File::Meta>(entry), prm->param);
 }
 
 int64_t getLongPrm(size_t i, CMeta entry, const Param prm)
 {
-    return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
+    return File::getPrm<llint>(i, static_cast<File::Meta>(entry), prm->param);
 }
 
 double getFloatPrm(size_t i, CMeta entry, const Param prm)
 {
-    return File::getPrm(i, static_cast<File::Meta>(entry), prm->param);
+    return File::getPrm<geom_t>(i, static_cast<File::Meta>(entry), prm->param);
 }
 
 void setShortPrm(size_t i, CMeta entry, short ret, Param prm)
