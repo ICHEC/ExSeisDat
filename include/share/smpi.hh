@@ -58,5 +58,13 @@ constexpr size_t getLim()
     //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
     return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
 }
+
+inline size_t getLimSz(size_t sz)
+{
+    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
+    //Probably something to do with pages.
+    //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
+    return (std::numeric_limits<int>::max() - (4096U - sz)) / sz;
+}
 }
 #endif

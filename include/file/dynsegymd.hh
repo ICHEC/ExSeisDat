@@ -362,17 +362,6 @@ T getPrm(size_t i, Meta entry, const Param * prm)
         break;
     }
 }
-/*! Get the value associated with the particular entry. (overload)
- *  \tparam T The type of the value
- *  \param[in] aos The array of structures form of Param indexing.
- *  \param[in] entry The meta entry to retrieve.
- *  \return Return the value
- */
-template <typename T>
-T getPrm(AOSParam aos, Meta entry)
-{
-    return getPrm<T>(aos.j, entry, aos.prm);
-}
 
 /*! Set the value associated with the particular entry.
  *  \tparam T The type of the value

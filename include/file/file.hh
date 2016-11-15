@@ -14,36 +14,6 @@
 namespace PIOL { namespace File {
 
 struct Rule;
-struct Param;
-
-/*! A form of the Param structure which is suitable for use in arrays of structures
- */
-struct AOSParam
-{
-    Param * prm;    //!< The underlying Param structure
-    size_t j;       //!< The jth element
-
-    /*! Less-than operator. An operator overload required for template subsitution
-     *  \param[in] a The AOSParam object to compare with
-     *  \return Return true if the index of the current object is less than
-     *  the right operand.
-     */
-    bool operator<(AOSParam & a)
-    {
-        return j < a.j;
-    }
-
-    /*! Not-equal-to operator. Required in the sort.
-     *  \param[in] a The AOSParam object to compare with
-     *  \return Return true if the index of the current object is less than
-     *  the right operand.
-     */
-    bool operator!=(AOSParam & a)
-    {
-        return prm != a.prm || j != j;
-    }
-};
-
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
@@ -73,26 +43,29 @@ struct Param
         return t.size();
     }
 
+    /*! Less-than operator. An operator overload required for template subsitution
+     *  \param[in] a The Param object to compare with
+     *  \return Return true if the index of the current object is less than
+     *  the right operand.
+     */
+    bool operator<(Param & a)
+    {
+        return f.size() < a.f.size();   //Arbitrary function
+    }
+
     /*! Equality operator
      * \param[in] p Param Structure to compare with.
      * \return Return true if the structures are equivalent.
      */
     bool operator==(Param & p) const;
 
-    /*! Create an array-of-structures form of the parameter structure.
-     *  Members of this vector should not be used if the underlying structure
-     *  is deallocated.
-     *  \return Return a vector in array-of-structures form.
+    /*! Not-Equal operator
+     * \param[in] p Param Structure to compare with.
+     * \return Return true if the structures are equivalent.
      */
-    std::vector<AOSParam> getAOS(void)
+    bool operator!=(Param & p) const
     {
-        std::vector<AOSParam> aos(this->size());
-        for (size_t j = 0; j < aos.size(); j++)
-        {
-            aos[j].prm = this;
-            aos[j].j = j;
-        }
-        return aos;
+        return !this->operator==(p);
     }
 };
 
