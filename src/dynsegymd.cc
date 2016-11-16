@@ -236,6 +236,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 {
     Rule * srule = src->r.get();
     Rule * drule = dst->r.get();
+    dst->t[k] = src->t[j];
     if (srule == drule)
     {
         Rule * r = srule;

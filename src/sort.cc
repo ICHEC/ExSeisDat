@@ -14,9 +14,6 @@
 #include <iterator>
 #include <functional>
 
-#warning temp
-#include <iostream>
-
 #include "global.hh"
 #include "ops/ops.hh"
 #include "file/file.hh"
@@ -301,7 +298,17 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
 
     {
         std::vector<std::pair<size_t, size_t>> temp1(lnt+edge2);
-        Sort(piol, regionSz, temp1, plist);
+
+        //Work-around for bug in the intel compiler (intel/2016-u3) on Fionn with std::pair less-than operator
+        #if defined(__INTEL_COMPILER)
+        Compare<std::pair<size_t, size_t>> check = [](const std::pair<size_t, size_t> & e1, const std::pair<size_t, size_t> & e2) -> bool
+            {
+                return (e1.first < e2.first || (e1.first == e2.first && e1.second < e2.second));
+            };
+        Sort(piol, regionSz, temp1, plist, check);
+        #else
+        Sort(piol, regionSz, temp1, plist, check);
+        #endif
     }
 
     std::vector<size_t> list(lnt);
@@ -370,7 +377,6 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t off
     {
         default :
         case SortType::SrcRcv :
-        std::cout << "sort src rcv\n";
         comp = lessSrcRcv;
         break;
         case SortType::OffsetLine :

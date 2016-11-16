@@ -278,12 +278,14 @@ struct Rule
      *  \param[in] defaults Whether the default SEG-Y rules should be set.
      */
     Rule(bool full, bool defaults);
+
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
      */
     Rule(bool full, std::vector<Meta> & m);
+
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
      *  \param[in] translate_ An unordered map to initialise the internal translate object with.
@@ -348,14 +350,14 @@ T getPrm(size_t i, Meta entry, const Param * prm)
     RuleEntry * id = r->getEntry(entry);
     switch (id->type())
     {
+        case MdType::Float :
+            return T(prm->f[r->numFloat*i + id->num]);
+        break;
         case MdType::Long :
-        return T(prm->i[r->numLong*i + id->num]);
+            return T(prm->i[r->numLong*i + id->num]);
         break;
         case MdType::Short :
-        return T(prm->s[r->numShort*i + id->num]);
-        break;
-        case MdType::Float :
-        return T(prm->f[r->numFloat*i + id->num]);
+            return T(prm->s[r->numShort*i + id->num]);
         break;
         default :
             return T(0);

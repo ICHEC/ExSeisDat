@@ -28,6 +28,7 @@ void reorderTraces(ExSeis piol, File::Interface * dst, File::Interface * src, si
     size_t ns = src->readNs();
     dst->writeNs(ns);
 
+    assert(memlim > sizeof(size_t)*lnt);
     size_t max = (memlim - sizeof(size_t)*lnt) / (4U*SEGSz::getDOSz(ns) + sizeof(size_t));
     size_t biggest = piol.max(lnt);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
@@ -126,6 +127,5 @@ int main(int argc, char ** argv)
 
     File::Direct dst(piol, name2, FileMode::Write);
     reorderTraces(piol, dst, src, dec.first, list, 2U*1024U*1024U*1024U);
-
     return 0;
 }
