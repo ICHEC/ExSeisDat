@@ -307,7 +307,7 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
             };
         Sort(piol, regionSz, temp1, plist, check);
         #else
-        Sort(piol, regionSz, temp1, plist, check);
+        Sort(piol, regionSz, temp1, plist);
         #endif
     }
 

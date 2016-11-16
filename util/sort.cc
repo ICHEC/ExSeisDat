@@ -100,6 +100,17 @@ int main(int argc, char ** argv)
 
     File::Direct src(piol, name1, FileMode::Read);
     size_t nt = src.readNt();
+
+    if (!nt)
+    {
+        File::Direct dst(piol, name2, FileMode::Write);
+        dst.writeNt(src.readNt());
+        dst.writeInc(src.readInc());
+        dst.writeText(src.readText());
+        dst.writeNs(src.readNs());
+        return EXIT_SUCCESS;
+    }
+
     //Perform the decomposition and read coordinates of interest.
     auto dec = decompose(nt, numRank, rank);
 
