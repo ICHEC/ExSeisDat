@@ -19,11 +19,11 @@ struct Rule;
  */
 struct Param
 {
-    std::vector<geom_t> f;     //!< Floating point array.
+    std::vector<geom_t> f;    //!< Floating point array.
     std::vector<llint> i;     //!< Integer array.
     std::vector<short> s;     //!< Short array.
-    std::vector<size_t> t;     //!< trace number array.
-    std::shared_ptr<Rule> r;    //!< The rules which describe the indexing of the arrays.
+    std::vector<size_t> t;    //!< trace number array.
+    std::shared_ptr<Rule> r;  //!< The rules which describe the indexing of the arrays.
 
     /*! Allocate the basic space required to store the arrays and store the rules.
      *  \param[in] r_ The rules which describe the layout of the arrays.

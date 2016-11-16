@@ -234,7 +234,7 @@ void Sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
         if (comp != nullptr)
             std::sort(temp1.begin() + edge1, temp1.end(), comp);
         else
-            std::sort(temp1.begin() + edge1, temp1.end());
+            std::sort(temp1.begin() + edge1, temp1.end()); // default pair sorting is first then second
 
         sendRight(piol, regionSz, temp1);
 
@@ -261,11 +261,13 @@ void Sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
 /*! Function to sort the metadata in a Param struct. The Param vector is used internally
  *  to allow random-access iterator support.
  *  \param[in] piol The PIOL object.
+ *  \param[in] nt The number of traces to process (across all processes).
  *  \param[in] offset The offset for the local process
  *  \param[in,out] prm The parameter structure to sort
  *  \param[in] comp The Param function to use for less-than comparisons between objects in the
  *                  vector. It assumes each Param structure has exactly one entry.
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
+ *          i.e. returns global offset positions of traces in sorted order
  */
 std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * prm, Compare<Param> comp)
 {
@@ -282,7 +284,7 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
     }
 
     {
-        std::vector<Param> temp1;
+        std::vector<Param> temp1; //The extra vector temp1 is needed to be larger than vprm for passing values to neighbours
         for (size_t i = 0; i < lnt+edge2; i++)
             temp1.emplace_back(prm->r, 1U);
 
