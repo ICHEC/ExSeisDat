@@ -9,7 +9,7 @@ DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = segsort versort fourdbin cropen cexample1 cexample2 creadwrite assess example1 filemake makerep makerepn1 makerepn2 minmax
+BIN = concatenate segsort versort fourdbin cropen cexample1 cexample2 creadwrite assess example1 filemake makerep makerepn1 makerepn2 minmax
 CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
@@ -26,7 +26,6 @@ $(OBJDIR)/%.co: %.c
 
 .PHONY: all
 all: $(BIN)
-# 
 
 .PHONY: clean
 clean:

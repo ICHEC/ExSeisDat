@@ -102,7 +102,7 @@ Rule::Rule(bool full, std::vector<Meta> & m)
     }
 }
 
-Rule::Rule(bool full, bool defaults)
+Rule::Rule(bool full, bool defaults, bool extra)
 {
     numLong = 0;
     numShort = 0;
@@ -122,6 +122,27 @@ Rule::Rule(bool full, bool defaults)
         translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
         translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
     }
+
+    if (extra)
+    {
+        translate[Meta::tnl] = new SEGYLongRuleEntry(numLong++, Tr::SeqNum);
+        translate[Meta::tnr] = new SEGYLongRuleEntry(numLong++, Tr::TORF);
+        translate[Meta::tne] = new SEGYLongRuleEntry(numLong++, Tr::SeqNumEns);
+        translate[Meta::SrcNum] = new SEGYLongRuleEntry(numLong++, Tr::ENSrcNum);
+        translate[Meta::Tic] = new SEGYShortRuleEntry(numShort++, Tr::TIC);
+        translate[Meta::VStack] = new SEGYShortRuleEntry(numShort++, Tr::VStackCnt);
+        translate[Meta::HStack] = new SEGYShortRuleEntry(numShort++, Tr::HStackCnt);
+        translate[Meta::CDist] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
+        translate[Meta::RGElev] = new SEGYFloatRuleEntry(numFloat++, Tr::RcvElv, Tr::ScaleElev);
+        translate[Meta::SSElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SurfElvSrc, Tr::ScaleElev);
+        translate[Meta::SDElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SrcDpthSurf, Tr::ScaleElev);
+        translate[Meta::ns] = new SEGYShortRuleEntry(numShort++, Tr::Ns);
+        translate[Meta::inc] = new SEGYShortRuleEntry(numShort++, Tr::Inc);
+        translate[Meta::ShotNum] = new SEGYFloatRuleEntry(numFloat++, Tr::ShotNum, Tr::ShotScal);
+        translate[Meta::TraceUnit] = new SEGYShortRuleEntry(numShort++, Tr::ValMeas);
+        translate[Meta::TransUnit] = new SEGYShortRuleEntry(numShort++, Tr::TransUnit);
+    }
+
     if (full)
     {
         start = 0U;
@@ -276,6 +297,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             if (valit != drule->translate.end() && dent->type() == sent->type())
                 switch (m.second->type())
                 {
+                    case MdType::BigFloat :
                     case MdType::Float :
                     dst->f[drule->numFloat*k + dent->num] = src->f[srule->numFloat*j + sent->num];
                     break;
@@ -308,6 +330,9 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
             size_t loc = t->loc - start-1U;
             switch (t->type())
             {
+                case MdType::BigFloat :
+#warning Continue here
+                break;
                 case MdType::Float :
                 {
                     rule.push_back(dynamic_cast<SEGYFloatRuleEntry *>(t));
@@ -356,6 +381,10 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride)
             size_t loc = t->loc - r->start - 1U;
             switch (t->type())
             {
+                case MdType::BigFloat :
+                prm->f[i * r->numFloat + t->num] = std::pow(geom_t(10), geom_t(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U])))
+                                                    * geom_t(getHost<int32_t>(&md[loc]));
+                break;
                 case MdType::Float :
                 prm->f[i * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
                                                     * geom_t(getHost<int32_t>(&md[loc]));

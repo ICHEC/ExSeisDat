@@ -25,6 +25,21 @@ namespace PIOL { namespace File {
  */
 enum class Meta : size_t
 {
+    tnl,        //!< The trace number (line)
+    tnr,        //!< The Trace number (record)
+    tn,         //!< The trace number (file)
+    tne,        //!< The trace number (ensemble)
+    ns,         //!< Number of samples in this trace
+    inc,        //!< The increment of this trace.
+    Tic,        //!< Trace identification code
+    SrcNum,     //!< Source Number
+    ShotNum,    //!< Shot number
+    VStack,     //!< Number of traces stacked for this trace (vertical)
+    HStack,     //!< Number of traces stacked for this trace (horizontal)
+    CDist,      //!< Distance from source centre to receiver centre.
+    RGElev,     //!< Receiver group elevation
+    SSElev,     //!< Source surface elevation
+    SDElev,     //!< Source depth
     xSrc,       //!< The source x coordiante
     ySrc,       //!< The source y coordinate
     xRcv,       //!< The receiver x coordinate
@@ -33,40 +48,60 @@ enum class Meta : size_t
     yCmp,       //!< The CMP y coordinate
     il,         //!< The inline number
     xl,         //!< The crossline number
-    tn,         //!< The trace number
+    TransUnit,  //!< Unit system for transduction constant
+    TraceUnit,  //!< Unit system for traces
 //Non-standard
-    dsdr        //!< The sum of the differences between sources and receivers of this trace and another
+    dsdr,       //!< The sum of the differences between sources and receivers of this trace and another
+    Misc1,      //!< Miscellaneous
+    Misc2,      //!< Miscellaneous
+    Misc3       //!< Miscellaneous
 };
 
 /*! SEG-Y Trace Header offsets
  */
 enum class Tr : size_t
 {
-    SeqNum      = 1U,   //!< int32_t. The trace sequence number within the Line
-    SeqFNum     = 5U,   //!< int32_t. The trace sequence number within SEG-Y File
+    SeqNum      = 1U,   //!< int32_t. The trace sequence number in the Line.
+    SeqFNum     = 5U,   //!< int32_t. The trace sequence number in SEG-Y File.
     ORF         = 9U,   //!< int32_t. The original field record number.
-    TORF        = 13U,  //!< int32_t. The trace number within the ORF.
-    RcvElv      = 41U,  //!< int32_t. The Receiver group elevation
+    TORF        = 13U,  //!< int32_t. The trace number in the ORF.
+    ENSrcNum    = 17U,  //!< int32_t. The source energy number.
+    SeqNumEns   = 25U,  //!< int32_t. The trace number in the ensemble.
+    TIC         = 29U,  //!< int16_t. The trace identification number.
+    VStackCnt   = 31U,  //!< int16_t. The number of traces vertically stacked.
+    HStackCnt   = 33U,  //!< int16_t. The number of traces horizontally stacked.
+    CDist       = 37U,  //!< int32_t. The distance from source center to receiver centre.
+    RcvElv      = 41U,  //!< int32_t. The receiver group elevation.
     SurfElvSrc  = 45U,  //!< int32_t. The surface elevation at the source.
     SrcDpthSurf = 49U,  //!< int32_t. The source depth below surface (opposite of above?).
     DtmElvRcv   = 53U,  //!< int32_t. The datum elevation for the receiver group.
     DtmElvSrc   = 57U,  //!< int32_t. The datum elevation for the source.
     WtrDepSrc   = 61U,  //!< int32_t. The water depth for the source.
     WtrDepRcv   = 65U,  //!< int32_t. The water depth for the receive group.
-    ScaleElev   = 69U,  //!< int16_t. The scale coordinate for 41-68 (elevations + depths)
+    ScaleElev   = 69U,  //!< int16_t. The scale coordinate for 41-68 (elevations + depths).
     ScaleCoord  = 71U,  //!< int16_t. The scale coordinate for 73-88 + 181-188
     xSrc        = 73U,  //!< int32_t. The X coordinate for the source
     ySrc        = 77U,  //!< int32_t. The Y coordinate for the source
     xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
     yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
-    UpSrc       = 91U,  //!< int16_t. The uphole time at the source. (ms)
-    UpRcv       = 97U,  //!< int16_t. The uphole time at the receive group. (ms)
+    UpSrc       = 95U,  //!< int16_t. The uphole time at the source (ms).
+    UpRcv       = 97U,  //!< int16_t. The uphole time at the receive group (ms).
+#warning TODO: Consistency check
+    Ns          = 115U, //!< int16_t. The number of samples in the trace.
+    Inc         = 117U, //!< int16_t. The sample interval (us).
     xCmp        = 181U, //!< int32_t. The X coordinate for the CMP
     yCmp        = 185U, //!< int32_t. The Y coordinate for the CMP
     il          = 189U, //!< int32_t. The Inline grid point.
     xl          = 193U, //!< int32_t. The Crossline grid point.
-    SrcMeas     = 225U, //!< int32_t. Source measurement
-    SrcMeasExp  = 229U, //!< int32_t. Source measurement exponent
+    ShotNum     = 197U, //!< int32_t. The source nearest to the CDP.
+    ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
+#warning Story for unit conversion?
+    ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
+    TransConst  = 205U, //!< int32_t. The transduction constant.
+    TransExp    = 209U, //!< int32_t. The transduction exponent.
+    TransUnit   = 211U, //!< int32_t. The transduction units
+    SrcMeas     = 225U, //!< int32_t. Source measurement.
+    SrcMeasExp  = 229U, //!< int32_t. Source measurement exponent.
 };
 
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
@@ -94,7 +129,8 @@ enum class MdType : size_t
 {
     Long,   //!< Long int data
     Short,  //!< Short int data
-    Float   //!< Floating point data
+    Float,  //!< Floating point data
+    BigFloat//!< Possible to be a huge number
 };
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -245,6 +281,48 @@ struct SEGYFloatRuleEntry : public RuleEntry
     }
 };
 
+/*! The Float rule entry structure for the SEG-Y format.
+ */
+struct SEGYBigFloatRuleEntry : public RuleEntry
+{
+    size_t scalLoc;     //!< The location of the scaler field.
+
+    /*! The constructor.
+     *  \param[in] num_ The numth entry for indexing purposes
+     *  \param[in] loc_  The location of the primary data
+     *  \param[in] scalLoc_ The location of the scaler field.
+     */
+    SEGYBigFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_)
+                            : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
+
+    /*! Return the minimum location stored
+     *  \return the minimum location
+     */
+    size_t min(void)
+    {
+        return std::min(scalLoc, loc);
+    }
+
+    /*! Return the maximum location stored up to, including the size of the data stored
+     *  \return the maximum location. If the scaler is in a location higher than the
+     *  the primary data store then the location + 2U is returned, otherwise the primary
+     *  location + 4U is returned.
+     */
+    size_t max(void)
+    {
+        return std::max(scalLoc+2U, loc+4U);
+    }
+
+    /*! Return the datatype associated with the entry.
+     *  \return \c MdType::Float
+     */
+    MdType type(void)
+    {
+        return MdType::BigFloat;
+    }
+};
+
+
 //TODO: When implementing alternative file formats, this Rule structure must be generalised
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
 typedef std::unordered_map<Meta, RuleEntry *, EnumHash> RuleMap;    //!< Typedef for RuleMap accounting for a compiler defect
@@ -276,8 +354,10 @@ struct Rule
      *  default rules in place or no rules in place.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] defaults Whether the default SEG-Y rules should be set.
+     *  \param[in] defaults Whether maximum amount of rules should be set. Useful when copying files
+     *              through the library.
      */
-    Rule(bool full, bool defaults);
+    Rule(bool full, bool defaults, bool extra = false);
 
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
@@ -356,6 +436,7 @@ T getPrm(size_t i, Meta entry, const Param * prm)
     RuleEntry * id = r->getEntry(entry);
     switch (id->type())
     {
+        case MdType::BigFloat :
         case MdType::Float :
             return T(prm->f[r->numFloat*i + id->num]);
         break;
@@ -390,6 +471,7 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
         case MdType::Short :
         prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;
         break;
+        case MdType::BigFloat :
         case MdType::Float :
         prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
         break;
