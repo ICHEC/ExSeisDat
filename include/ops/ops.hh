@@ -45,9 +45,10 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord 
 enum class SortType : size_t
 {
     SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
-    Line,
-    OffsetLine,
-    CmpSrc
+    SrcOff,
+    RcvOff,
+    LineOff,
+    OffLine
 };
 
 /*! A template for the Compare less-than function
