@@ -52,9 +52,11 @@ enum class Meta : size_t
     TraceUnit,  //!< Unit system for traces
 //Non-standard
     dsdr,       //!< The sum of the differences between sources and receivers of this trace and another
+    //TODO: Don't add more of these, find out what they do and replace them with real names
     Misc1,      //!< Miscellaneous
     Misc2,      //!< Miscellaneous
-    Misc3       //!< Miscellaneous
+    Misc3,      //!< Miscellaneous
+    Misc4,      //!< Miscellaneous
 };
 
 /*! SEG-Y Trace Header offsets
@@ -130,7 +132,6 @@ enum class MdType : size_t
     Long,   //!< Long int data
     Short,  //!< Short int data
     Float,  //!< Floating point data
-    BigFloat//!< Possible to be a huge number
 };
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -281,48 +282,6 @@ struct SEGYFloatRuleEntry : public RuleEntry
     }
 };
 
-/*! The Float rule entry structure for the SEG-Y format.
- */
-struct SEGYBigFloatRuleEntry : public RuleEntry
-{
-    size_t scalLoc;     //!< The location of the scaler field.
-
-    /*! The constructor.
-     *  \param[in] num_ The numth entry for indexing purposes
-     *  \param[in] loc_  The location of the primary data
-     *  \param[in] scalLoc_ The location of the scaler field.
-     */
-    SEGYBigFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_)
-                            : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
-
-    /*! Return the minimum location stored
-     *  \return the minimum location
-     */
-    size_t min(void)
-    {
-        return std::min(scalLoc, loc);
-    }
-
-    /*! Return the maximum location stored up to, including the size of the data stored
-     *  \return the maximum location. If the scaler is in a location higher than the
-     *  the primary data store then the location + 2U is returned, otherwise the primary
-     *  location + 4U is returned.
-     */
-    size_t max(void)
-    {
-        return std::max(scalLoc+2U, loc+4U);
-    }
-
-    /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Float
-     */
-    MdType type(void)
-    {
-        return MdType::BigFloat;
-    }
-};
-
-
 //TODO: When implementing alternative file formats, this Rule structure must be generalised
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
 typedef std::unordered_map<Meta, RuleEntry *, EnumHash> RuleMap;    //!< Typedef for RuleMap accounting for a compiler defect
@@ -436,7 +395,6 @@ T getPrm(size_t i, Meta entry, const Param * prm)
     RuleEntry * id = r->getEntry(entry);
     switch (id->type())
     {
-        case MdType::BigFloat :
         case MdType::Float :
             return T(prm->f[r->numFloat*i + id->num]);
         break;
@@ -471,7 +429,6 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
         case MdType::Short :
         prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;
         break;
-        case MdType::BigFloat :
         case MdType::Float :
         prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
         break;

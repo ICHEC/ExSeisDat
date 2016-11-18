@@ -87,6 +87,10 @@ int main(int argc, char ** argv)
     rule->addLong(File::Meta::Misc1, File::Tr::TransConst);
     rule->addShort(File::Meta::Misc2, File::Tr::TransExp);
 
+    //Override the default behaviour of ShotNum
+    rule->addLong(File::Meta::ShotNum, File::Tr::ShotNum);
+    rule->addShort(File::Meta::Misc3, File::Tr::ShotScal);
+
     //auto rule = std::make_shared<File::Rule>(true, true, true);
     for (auto & l : list)
     {

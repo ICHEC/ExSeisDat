@@ -297,7 +297,6 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             if (valit != drule->translate.end() && dent->type() == sent->type())
                 switch (m.second->type())
                 {
-                    case MdType::BigFloat :
                     case MdType::Float :
                     dst->f[drule->numFloat*k + dent->num] = src->f[srule->numFloat*j + sent->num];
                     break;
@@ -330,9 +329,6 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
             size_t loc = t->loc - start-1U;
             switch (t->type())
             {
-                case MdType::BigFloat :
-#warning Continue here
-                break;
                 case MdType::Float :
                 {
                     rule.push_back(dynamic_cast<SEGYFloatRuleEntry *>(t));
@@ -381,10 +377,6 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride)
             size_t loc = t->loc - r->start - 1U;
             switch (t->type())
             {
-                case MdType::BigFloat :
-                prm->f[i * r->numFloat + t->num] = std::pow(geom_t(10), geom_t(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U])))
-                                                    * geom_t(getHost<int32_t>(&md[loc]));
-                break;
                 case MdType::Float :
                 prm->f[i * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
                                                     * geom_t(getHost<int32_t>(&md[loc]));
