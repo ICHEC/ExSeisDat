@@ -17,18 +17,11 @@ export MPI_BASE=$(echo $MPI | cut -d \/ -f 1)
 
 if [ $MPI_BASE == "openmpi" ]; then
     PPN_COMMAND="-npernode"
-
-    if [ $MODULE == intel ]; then
-        export OMPI_CXX=icpc
-        export OMPI_CC=icc
-    fi
 fi
 
-if [ $MPI_BASE == "mpich2" ]; then
-    if [ $MODULE == "intel" -o $MODULE == "tullow" ]; then
-        export MPICH_CXX=icpc
-        export MPICH_CC=icc
-    fi
+if [ $MODULE == "intel" -o $MODULE == "tullow" ]; then
+    export MPICH_CXX=icpc
+    export MPICH_CC=icc
 fi
 
 #########SETTINGS#########
@@ -73,7 +66,7 @@ fi
 
 #    checksum
 #    record pass/fail
-md5sum dat/$OUTPUT | cut -d ' ' -f 1  > newChecksum
+md5sum dat/* | cut -d ' ' -f 1  > newChecksum
 if [ ! -f $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME ]; then
 RET=4
 else
