@@ -1,7 +1,7 @@
 NODE_COUNT: 1, 5
 NODE_PPN: 1, 23, 24
 MPI: openmpi, mvapich, intelmpi
-TEST_NAMES: cexample2, creadwrite, minmax, makerepn1, makerepn2, makerep
+TEST_NAMES: cexample2, creadwrite, minmax, makerepn1, makerepn2, makerep, concatenate
 INPUT: /ichec/work/exseisdat/dat/10/zero.segy, /ichec/work/exseisdat/dat/10/one.segy, /ichec/work/exseisdat/dat/10/bigns.segy, /ichec/work/exseisdat/dat/10/small.segy, /ichec/work/exseisdat/dat/10/medium.segy, /ichec/work/exseisdat/dat/10/large.segy
 STRIPE_COUNT: 10
 COMPILER: intel, gnu

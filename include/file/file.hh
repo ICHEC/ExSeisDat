@@ -149,7 +149,11 @@ class Interface
     Interface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
     {
     }
+
+    /*! Empty constructor
+     */
     Interface(void) { }
+
     /*! \brief A virtual destructor to allow deletion, unique_pr polymorphism.
      */
     virtual ~Interface(void) { }

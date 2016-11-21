@@ -259,7 +259,7 @@ int main(int argc, char ** argv)
                 dsrmax = std::stod(optarg);
             break;
             default :
-                fprintf(stderr, "One of the command line arguments is invalid\n");
+                std::cerr<< "One of the command line arguments is invalid\n";
             break;
         }
     assert(name1.size() && name2.size() && name3.size() && name4.size());

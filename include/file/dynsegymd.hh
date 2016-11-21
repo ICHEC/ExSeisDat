@@ -88,7 +88,6 @@ enum class Tr : size_t
     yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
     UpSrc       = 95U,  //!< int16_t. The uphole time at the source (ms).
     UpRcv       = 97U,  //!< int16_t. The uphole time at the receive group (ms).
-#warning TODO: Consistency check
     Ns          = 115U, //!< int16_t. The number of samples in the trace.
     Inc         = 117U, //!< int16_t. The sample interval (us).
     xCmp        = 181U, //!< int32_t. The X coordinate for the CMP
@@ -97,7 +96,6 @@ enum class Tr : size_t
     xl          = 193U, //!< int32_t. The Crossline grid point.
     ShotNum     = 197U, //!< int32_t. The source nearest to the CDP.
     ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
-#warning Story for unit conversion?
     ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
     TransConst  = 205U, //!< int32_t. The transduction constant.
     TransExp    = 209U, //!< int32_t. The transduction exponent.

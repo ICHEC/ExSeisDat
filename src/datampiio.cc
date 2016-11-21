@@ -57,7 +57,7 @@ int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_
     std::vector<int> bl(count);
     for (int i = 0; i < count; i++)
         bl[i] = block;
-    assert(count < std::numeric_limits<int>::max() / (sizeof(int) + sizeof(MPI_Aint)));
+    assert(size_t(count) < std::numeric_limits<int>::max() / (sizeof(int) + sizeof(MPI_Aint)));
 
     int err = MPI_Type_create_hindexed(count, bl.data(), offset, MPI_CHAR, type);
     #else
