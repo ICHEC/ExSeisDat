@@ -277,9 +277,6 @@ extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param 
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process.
  *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
- *
- *  \details It is assumed that this operation is not an update. Any previous
- *  contents of the trace header will be overwritten.
  */
 extern void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm);
 
@@ -330,7 +327,7 @@ extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace
  *  \param[in] offset A list of trace numbers.
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  */
-extern void ReadListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
+extern void readListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.

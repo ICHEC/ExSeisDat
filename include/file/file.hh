@@ -14,6 +14,7 @@
 namespace PIOL { namespace File {
 
 struct Rule;
+
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
