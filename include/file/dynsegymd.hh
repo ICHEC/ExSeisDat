@@ -98,10 +98,10 @@ enum class Tr : size_t
     ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
     ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
     TransConst  = 205U, //!< int32_t. The transduction constant.
-    TransExp    = 209U, //!< int32_t. The transduction exponent.
-    TransUnit   = 211U, //!< int32_t. The transduction units
+    TransExp    = 209U, //!< int16_t. The transduction exponent.
+    TransUnit   = 211U, //!< int16_t. The transduction units
     SrcMeas     = 225U, //!< int32_t. Source measurement.
-    SrcMeasExp  = 229U, //!< int32_t. Source measurement exponent.
+    SrcMeasExp  = 229U, //!< int16_t. Source measurement exponent.
 };
 
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
