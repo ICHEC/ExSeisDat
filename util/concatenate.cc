@@ -4,6 +4,7 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
+#include "set/set.hh"
 #include "sglobal.hh"
 #include <iostream>
 #include <regex>
@@ -136,7 +137,8 @@ int main(int argc, char ** argv)
     std::string outprefix = "";
     std::string msg = "Concatenated with ExSeisPIOL";
     bool prompt = true;
-    std::string opt = "i:o:m:s";  //TODO: uses a GNU extension
+    bool setlayer = false;
+    std::string opt = "i:o:m:sl";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -156,11 +158,21 @@ int main(int argc, char ** argv)
             case 's' :
                 prompt = false;
             break;
+            case 'l' :
+            setlayer = true;
+            break;
             default :
                 std::cerr<< "One of the command line arguments is invalid\n";
             break;
 
         }
+
+    if (setlayer)
+    {
+        std::cout << "set layer\n";
+        Set(piol, pattern, outprefix);
+        return 0;
+    }
 
     auto map = getFileMap(piol, pattern);
 

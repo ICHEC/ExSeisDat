@@ -194,13 +194,6 @@ void SEGY::writeInc(const geom_t inc_)
 
 void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
 {
-    if (offset > nt && sz && !state.stalent)   //Nothing to be read
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readTrace() was called for a zero byte read.", Log::Verb::None);
-        return;
-    }
-
     size_t ntz = (state.stalent || !sz ? sz : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
@@ -260,6 +253,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param *
         reverse4Bytes(&buf[i*sizeof(float)]);
 
     state.stalent = true;
+    nt = std::max(offset + sz, nt);
 }
 
 //TODO: Unit test
@@ -303,6 +297,7 @@ void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
     obj->writeDOMD(offset, ns, sz, buf.data());
 
     state.stalent = true;
+    nt = std::max(offset + sz, nt);
 }
 
 void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
@@ -355,6 +350,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         reverse4Bytes(&buf[i*sizeof(float)]);
 
     state.stalent = true;
+    nt = std::max(offset[sz-1], nt);
 }
 
 void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
@@ -398,5 +394,6 @@ void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
     obj->writeDOMD(ns, sz, offset, buf.data());
 
     state.stalent = true;
+    nt = std::max(offset[sz-1], nt);
 }
 }}

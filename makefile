@@ -1,9 +1,9 @@
 all:
 	(cd test; $(MAKE) libgmock.a)
 	(cd src; $(MAKE))
-	(cd test; $(MAKE))
 	(cd api; $(MAKE))
-	(cd util; $(MAKE))
+	(cd test; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
+	(cd util; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
 
 clean:
 	(cd src; $(MAKE) clean)
