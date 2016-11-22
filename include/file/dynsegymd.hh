@@ -323,6 +323,12 @@ struct Rule
      *  \return Return the size.
      */
     size_t extent(void);
+
+    /*! Estimate of the total memory used
+     *  \return Return estimate in bytes.
+     */
+    size_t memusage(void) const;
+
     /*! Get the rule entry associated with a particular meta entry.
      *  \param[in] entry The meta entry.
      *  \return The associated rule entry.

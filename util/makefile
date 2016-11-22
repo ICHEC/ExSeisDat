@@ -46,6 +46,8 @@ example1: obj/example1.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
 versort: obj/verifysort.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
+concatenate: obj/concatenate.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
 segsort: obj/sort.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
 fourdbin: obj/fourdbin.cpo obj/sglobal.cpo

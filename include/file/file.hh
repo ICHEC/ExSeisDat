@@ -21,7 +21,7 @@ struct Param
 {
     std::vector<geom_t> f;    //!< Floating point array.
     std::vector<llint> i;     //!< Integer array.
-    std::vector<short> s;     //!< Short array.
+    std::vector<int16_t> s;   //!< Short array.
     std::vector<size_t> t;    //!< trace number array.
     std::shared_ptr<Rule> r;  //!< The rules which describe the indexing of the arrays.
 
@@ -38,10 +38,15 @@ struct Param
     /*! Return the number of sets of trace parameters.
      *  \return Number of sets
      */
-    size_t size(void)
+    size_t size(void) const
     {
         return t.size();
     }
+
+    /*! Estimate of the total memory used
+     *  \return Return estimate in bytes.
+     */
+    size_t memusage(void) const;
 
     /*! Less-than operator. An operator overload required for template subsitution
      *  \param[in] a The Param object to compare with

@@ -211,6 +211,13 @@ RuleEntry * Rule::getEntry(Meta entry)
     return translate[entry];
 }
 
+size_t Rule::memusage(void) const
+{
+    return numLong * sizeof(SEGYLongRuleEntry) + numShort * sizeof(SEGYShortRuleEntry)
+         + numFloat * sizeof(SEGYFloatRuleEntry) + sizeof(Rule);
+}
+
+
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
 {
     f.resize(sz * r->numFloat);
@@ -230,6 +237,16 @@ Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
 bool Param::operator==(struct Param & p) const
 {
     return f == p.f && i == p.i && s == p.s && t == p.t;
+}
+
+size_t Param::memusage(void) const
+{
+    return f.capacity() * sizeof(geom_t)
+         + i.capacity() * sizeof(llint)
+         + s.capacity() * sizeof(int16_t)
+         + t.capacity() * sizeof(size_t)
+                        + sizeof(Param)
+                        + r->memusage();
 }
 
 void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
