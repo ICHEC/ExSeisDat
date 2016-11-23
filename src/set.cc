@@ -80,6 +80,22 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
     return src->readNt();
 }
 
+//////////////////////////////////////////////CLASSS MEMBERS///////////////////////////////////////////////////////////
+
+Set::Set(Piol piol_, std::string pattern, std::string outfix_) : piol(piol_), outfix(outfix_)
+{
+    fillDesc(piol, pattern);
+}
+
+Set::~Set(void)
+{
+    if (outfix != "")
+        output(outfix);
+    for (auto * f : file)
+        delete f;
+}
+
+
 void Set::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
     glob_t globs;
@@ -102,24 +118,25 @@ void Set::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
     piol->isErr();
 }
 
-Set::Set(Piol piol_, std::string pattern, std::string outfix_) : piol(piol_), outfix(outfix_)
-{
-    fillDesc(piol, pattern);
-}
-
-Set::~Set(void)
-{
-    output(outfix);
-    for (auto * f : file)
-        delete f;
-}
-
 size_t Set::getNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
         nt += f->readNt();
     return nt;
+}
+
+
+void Set::summary(void) const
+{
+    std::map<std::pair<size_t, geom_t>, size_t> fcnts;
+    for (auto * f : file)
+        fcnts[std::make_pair<size_t, geom_t>(f->readNs(), f->readInc())]++;
+
+    for (auto & m : fcnts)
+        piol->log->record("", Log::Layer::Set, Log::Status::Request,
+            "File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
+                + " inc) = " + std::to_string(m.second), Log::Verb::None);
 }
 
 void Set::output(std::string oname)
@@ -137,7 +154,7 @@ void Set::output(std::string oname)
             std::cout << "ns " << o.first.first << std::endl;
             out.writeNs(o.first.first);
             out.writeInc(o.first.second);
-            out.writeText("Test file\n");
+            out.writeText("ExSeisPIOL: Set layer output\n");
 
             size_t offset = 0U;
             for (auto & f : o.second)

@@ -34,14 +34,15 @@ enum class Status : size_t
     Note,       //!< A general note item.
     Debug,      //!< A debug item
     Warning,    //!< A PIOL warning item
-    Error       //!< A serious error which should lead to program termination
+    Error,      //!< A serious error which should lead to program termination
+    Request     //!< A message the end-user has specifically requested.
 };
 
 /*! \brief The enumeration for the verbosity level of records
  */
 enum class Verb : size_t
 {
-    None,       //!< Record no information beyond fatal errors
+    None,       //!< Record no information beyond fatal errors and explicit requests
     Minimal,    //!< Record essential information including other errors and warnings
     Extended,   //!< Record some non-warnings
     Verbose,    //!< Record a high level of information

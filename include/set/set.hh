@@ -35,10 +35,11 @@ class Set
 
     void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);
     public :
-    Set(Piol piol_, std::string pattern, std::string outfix);
+    Set(Piol piol_, std::string pattern, std::string outfix_ = "");
     ~Set(void);
     size_t getNt(void);
     void output(std::string oname);
+    void summary(void) const;
 };
 }
 #endif
