@@ -12,6 +12,8 @@
 #include "file/dynsegymd.hh"
 #include "share/mpi.hh"
 namespace PIOL { namespace File {
+/*! A template for the Compare less-than function
+ */
 template <class T>
 using Compare = std::function<bool(const T &, const T &)>;
 

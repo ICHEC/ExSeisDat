@@ -32,7 +32,7 @@ struct ExSeisFileWrapper
     PIOL::File::Direct * file;
 };
 
-RuleHdl newRules(bool def)
+RuleHdl intiRules(bool def)
 {
     auto wrap = new RuleWrapper;
     wrap->rule = std::make_shared<File::Rule>(true, def);

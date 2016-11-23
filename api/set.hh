@@ -7,11 +7,16 @@
 *//*******************************************************************************************/
 #ifndef APIPIOLSET_INCLUDE_GUARD
 #define APIPIOLSET_INCLUDE_GUARD
+#include "set/set.hh"
+//TODO: Do away with
+#include "fileops.hh"
+namespace PIOL
+{
 class Set : public InternalSet
 {
 
     public :
-    void sort(SortType type);
+    void sort(File::SortType type);
 };
-
+}
 #endif

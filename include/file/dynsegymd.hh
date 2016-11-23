@@ -4,7 +4,7 @@
  *   \copyright TBD. Do not distribute
  *   \date October 2016
  *   \brief The state of this file is temporarily SEG-Y specific, when new formats are
- *          investigated this file should be split into a  format-agnostic component and a
+ *          investigated this file should be split into a format-agnostic component and a
  *          SEG-Y specific component.
  *   \details The SEG-Y implementation of metadata is dynamic to reflect the actual usage
  *   by geophysicists where SEG-Y metadata fields are routinely used for other purposes.
@@ -98,10 +98,10 @@ enum class Tr : size_t
     ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
     ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
     TransConst  = 205U, //!< int32_t. The transduction constant.
-    TransExp    = 209U, //!< int32_t. The transduction exponent.
-    TransUnit   = 211U, //!< int32_t. The transduction units
+    TransExp    = 209U, //!< int16_t. The transduction exponent.
+    TransUnit   = 211U, //!< int16_t. The transduction units
     SrcMeas     = 225U, //!< int32_t. Source measurement.
-    SrcMeasExp  = 229U, //!< int32_t. Source measurement exponent.
+    SrcMeasExp  = 229U, //!< int16_t. Source measurement exponent.
 };
 
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
@@ -346,6 +346,7 @@ struct Rule
      *  \param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
      */
     void addFloat(Meta m, Tr loc, Tr scalLoc);
+
     /*! Add a rule for floats.
      *  \param[in] m The Meta entry.
      *  \param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (2 bytes).
@@ -356,6 +357,7 @@ struct Rule
      *  \param[in] m The meta entry.
      */
     void rmRule(Meta m);
+
     /*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
      *  \return Return the size.
      */

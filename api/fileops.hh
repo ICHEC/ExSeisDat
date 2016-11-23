@@ -21,9 +21,10 @@ struct CoordElem
 enum class SortType : size_t
 {
     SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
-    Line,
-    OffsetLine,
-    CmpSrc
+    SrcOff,
+    RcvOff,
+    LineOff,
+    OffLine
 };
 
 /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
@@ -59,7 +60,7 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord 
  *  \return Return a vector which is a list of the ordered trace numbers. i.e the 0th member
  *          is the position of the 0th trace post-sort.
  */
-extern std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm);
+extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm);
 
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.

@@ -14,16 +14,17 @@
 namespace PIOL { namespace File {
 
 struct Rule;
+
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
 struct Param
 {
-    std::vector<geom_t> f;     //!< Floating point array.
+    std::vector<geom_t> f;    //!< Floating point array.
     std::vector<llint> i;     //!< Integer array.
-    std::vector<int16_t> s;     //!< Short array.
-    std::vector<size_t> t;     //!< trace number array.
-    std::shared_ptr<Rule> r;    //!< The rules which describe the indexing of the arrays.
+    std::vector<int16_t> s;   //!< Short array.
+    std::vector<size_t> t;    //!< trace number array.
+    std::shared_ptr<Rule> r;  //!< The rules which describe the indexing of the arrays.
 
     /*! Allocate the basic space required to store the arrays and store the rules.
      *  \param[in] r_ The rules which describe the layout of the arrays.

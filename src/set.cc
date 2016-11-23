@@ -11,6 +11,7 @@
 #include <regex>
 #include <iostream>
 #include <map>
+#include <numeric>
 #include "set/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"

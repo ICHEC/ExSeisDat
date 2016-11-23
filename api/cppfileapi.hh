@@ -206,6 +206,8 @@ class Direct
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[out] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
+     *
+     *  \details When prm==PRM_NULL only the trace DF is read.
      */
     void readTrace(csize_t offset, csize_t sz, trace_t * trace, TraceParam * prm) const;
 
@@ -214,6 +216,8 @@ class Direct
      *  \param[in] sz The number of traces to process
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[out] prm The parameter structure
+     *
+     *  \details When prm==PRM_NULL only the trace DF is read.
      */
     void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
 
@@ -223,6 +227,8 @@ class Direct
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[in] prm A contiguous array of the parameter structures (size sizeof(TraceParam)*sz)
      *  \warning This function is not thread safe.
+     *
+     *  \details When prm==PRM_NULL only the trace DF is written.
      */
     void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const TraceParam * prm);
 
@@ -232,6 +238,8 @@ class Direct
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[in] prm The parameter structure
      *  \warning This function is not thread safe.
+     *
+     *  \details When prm==PRM_NULL only the trace DF is written.
      */
     void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL);
 

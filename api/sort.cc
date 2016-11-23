@@ -15,6 +15,7 @@
 #include <functional>
 
 #include "global.hh"
+#include "fileops.hh"
 #include "ops/sort.hh"
 #include "file/file.hh"
 #include "share/mpi.hh"
@@ -39,29 +40,29 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
  */
 bool lessSrcRcv(const Param & e1, const Param & e2)
 {
-    geom_t e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-    geom_t e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+    auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
+    auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
 
     if (e1sx < e2sx)
         return true;
     else if (e1sx == e2sx)
     {
-        geom_t e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-        geom_t e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+        auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
+        auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
 
         if (e1sy < e2sy)
             return true;
         else if (e1sy == e2sy)
         {
-            geom_t e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-            geom_t e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+            auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
+            auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
 
             if (e1rx < e2rx)
                 return true;
             else if (e1rx == e2rx)
             {
-                geom_t e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-                geom_t e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+                auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
+                auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
 
                 if (e1ry < e2ry)
                     return true;
@@ -73,7 +74,133 @@ bool lessSrcRcv(const Param & e1, const Param & e2)
     return false;
 }
 
-std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
+bool lessSrcOff(const Param & e1, const Param & e2)
+{
+    auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
+    auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+
+    if (e1sx < e2sx)
+        return true;
+    else if (e1sx == e2sx)
+    {
+        auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
+        auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+
+        if (e1sy < e2sy)
+            return true;
+        else if (e1sy == e2sy)
+        {
+            auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
+            auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
+            auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+
+            auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+            auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+            auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+        }
+    }
+    return false;
+}
+
+bool lessRcvOff(const Param & e1, const Param & e2)
+{
+    auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
+    auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+
+    if (e1rx < e2rx)
+        return true;
+    else if (e1rx == e2rx)
+    {
+        auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
+        auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+
+        if (e1ry < e2ry)
+            return true;
+        else if (e1ry == e2ry)
+        {
+            auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
+            auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
+            auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+
+            auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+            auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+            auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+        }
+    }
+    return false;
+}
+
+bool lessLineOff(const Param & e1, const Param & e2)
+{
+    auto e1il = getPrm<llint>(0U, Meta::il, &e1);
+    auto e2il = getPrm<llint>(0U, Meta::il, &e2);
+
+    if (e1il < e2il)
+        return true;
+    else if (e1il == e2il)
+    {
+        auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
+        auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
+        if (e1xl < e2xl)
+            return true;
+        else if (e1xl == e2xl)
+        {
+            auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
+            auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
+            auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
+            auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
+
+            auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+            auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+            auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+            auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+
+            auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+            auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+        }
+    }
+    return false;
+}
+
+bool lessOffLine(const Param & e1, const Param & e2)
+{
+    auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
+    auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
+    auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
+    auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
+    auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+
+    auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+    auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+    auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+    auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+    auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+
+    if (off1 < off2)
+        return true;
+    else if (off1 == off2)
+    {
+        auto e1il = getPrm<llint>(0U, Meta::il, &e1);
+        auto e2il = getPrm<llint>(0U, Meta::il, &e2);
+        if (e1il < e2il)
+            return true;
+        else if (e1il == e2il)
+        {
+            auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
+            auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
+            return (e1xl < e2xl || (e1xl == e2xl && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+        }
+    }
+    return false;
+}
+
+std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
 {
     Compare<Param> comp = nullptr;
     switch (type)
@@ -82,14 +209,20 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t off
         case SortType::SrcRcv :
         comp = lessSrcRcv;
         break;
-        case SortType::OffsetLine :
-#warning To be done during the next visit
+        case SortType::SrcOff :
+        comp = lessSrcOff;
         break;
-        case SortType::CmpSrc :
-#warning To be done during the next visit
+        case SortType::RcvOff :
+        comp = lessRcvOff;
+        break;
+        case SortType::LineOff :
+        comp = lessLineOff;
+        break;
+        case SortType::OffLine :
+        comp = lessOffLine;
         break;
     }
-    return Sort(piol, nt, offset, prm, comp);
+    return sort(piol, nt, offset, prm, comp);
 }
 
 //TODO: Make this work with SortType type;
