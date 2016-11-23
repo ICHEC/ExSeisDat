@@ -7,8 +7,8 @@
  *   \details
  *//*******************************************************************************************/
 #include "global.hh"
-#include "anc/cmpi.hh"
-#include "share/smpi.hh"
+#include "anc/mpi.hh"
+#include "share/mpi.hh"
 namespace PIOL { namespace Comm {
 MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), init(opt.initMPI), log(log_)
 {

@@ -15,9 +15,9 @@
 #include <functional>
 
 #include "global.hh"
-#include "ops/ops.hh"
+#include "ops/sort.hh"
 #include "file/file.hh"
-#include "share/smpi.hh"
+#include "share/mpi.hh"
 
 namespace PIOL { namespace File {
 /*! Wait on two requests to finish. The largest and smallest rank only wait on one request.
@@ -201,6 +201,8 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
             cpyPrm(i, &rprm, 0U, &dat[i+dat.size()-regionSz]);
 }
 
+
+
 /*! Function to sort a given vector by a nearest neighbour approach.
  *  \tparam T Type of vector
  *  \param[in] piol The PIOL object.
@@ -211,7 +213,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
  *                  vector.
  */
 template <class T>
-void Sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vector<T> & dat, Compare<T> comp = nullptr)
+void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vector<T> & dat, Compare<T> comp = nullptr)
 {
     size_t lnt = dat.size();
     size_t numRank = piol->comm->getNumRank();
@@ -258,16 +260,7 @@ void Sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
         dat[i] = temp1[i];
 }
 
-/*! Function to sort the metadata in a Param struct. The Param vector is used internally
- *  to allow random-access iterator support.
- *  \param[in] piol The PIOL object.
- *  \param[in] offset The offset for the local process
- *  \param[in,out] prm The parameter structure to sort
- *  \param[in] comp The Param function to use for less-than comparisons between objects in the
- *                  vector. It assumes each Param structure has exactly one entry.
- *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
- */
-std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * prm, Compare<Param> comp)
+std::vector<size_t> sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * prm, Compare<Param> comp)
 {
     size_t lnt = prm->size();
     size_t memSz = (prm->f.size() + prm->i.size() + prm->s.size() + prm->t.size() + sizeof(Param) + sizeof(std::pair<size_t, size_t>)) / prm->size();
@@ -286,7 +279,7 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
         for (size_t i = 0; i < lnt+edge2; i++)
             temp1.emplace_back(prm->r, 1U);
 
-        Sort(piol, regionSz, temp1, vprm, comp);
+        sort(piol, regionSz, temp1, vprm, comp);
     }
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
@@ -305,9 +298,9 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
             {
                 return (e1.first < e2.first || (e1.first == e2.first && e1.second < e2.second));
             };
-        Sort(piol, regionSz, temp1, plist, check);
+        sort(piol, regionSz, temp1, plist, check);
         #else
-        Sort(piol, regionSz, temp1, plist);
+        sort(piol, regionSz, temp1, plist);
         #endif
     }
 
@@ -317,94 +310,4 @@ std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
     return list;
 }
 
-/*! Calculate the square of the hypotenuse
- *  \param[in] sx The source x coordinate
- *  \param[in] sy The source y coordinate
- *  \param[in] rx The receiver x coordinate
- *  \param[in] ry The receiver y coordinate
- *  \return square of the hypotenuse
- */
-inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
-{
-    return (sx-rx)*(sx-rx) + (sy-ry)*(sy-ry);
-}
-
-/*! For sorting by Src X, Src Y, Rcv X, Rcv Y.
- *  \param[in] e1 Structure to access jth parameter of associated Param struct.
- *  \param[in] e2 Structure to access jth parameter of associated Param struct.
- *  \return Return true if e1 is less than e2 in terms of the sort.
- */
-bool lessSrcRcv(const Param & e1, const Param & e2)
-{
-    geom_t e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-    geom_t e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
-
-    if (e1sx < e2sx)
-        return true;
-    else if (e1sx == e2sx)
-    {
-        geom_t e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-        geom_t e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
-
-        if (e1sy < e2sy)
-            return true;
-        else if (e1sy == e2sy)
-        {
-            geom_t e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-            geom_t e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
-
-            if (e1rx < e2rx)
-                return true;
-            else if (e1rx == e2rx)
-            {
-                geom_t e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-                geom_t e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
-
-                if (e1ry < e2ry)
-                    return true;
-                else if (e1ry == e2ry)
-                    return (getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2));
-            }
-        }
-    }
-    return false;
-}
-
-std::vector<size_t> Sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
-{
-    Compare<Param> comp = nullptr;
-    switch (type)
-    {
-        default :
-        case SortType::SrcRcv :
-        comp = lessSrcRcv;
-        break;
-        case SortType::OffsetLine :
-#warning To be done during the next visit
-        break;
-        case SortType::CmpSrc :
-#warning To be done during the next visit
-        break;
-    }
-    return Sort(piol, nt, offset, prm, comp);
-}
-
-//TODO: Make this work with SortType type;
-bool checkOrder(Interface * src, std::pair<size_t , size_t> dec)
-{
-    Param prm(dec.second);
-    src->readParam(dec.first, dec.second, &prm);
-    Param prev(prm.r, 1);
-    Param next(prm.r, 1);
-    for (size_t i = 0; i < dec.second; i++)
-    {
-        cpyPrm(i, &prm, 0U, &next);
-
-        if (i && !lessSrcRcv(prev, next))
-            return false;
-        std::swap(prev, next);
-    }
-    return true;
-}
 }}
-

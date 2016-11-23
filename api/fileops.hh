@@ -16,6 +16,16 @@ struct CoordElem
     size_t num;     //!< The trace number
 };
 
+/*! An enum class of the different types of sorting operaton.
+ */
+enum class SortType : size_t
+{
+    SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
+    Line,
+    OffsetLine,
+    CmpSrc
+};
+
 /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
  *  the collective min and max across all processes (which also must all call this file).
  *  \param[in, out] piol The PIOL object
@@ -39,21 +49,6 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_
  *  and their respective trace numbers.
  */
 extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Coord item, const TraceParam * prm, CoordElem * minmax);
-
-/*! An enum class of the different types of sorting operaton.
- */
-enum class SortType : size_t
-{
-    SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
-    Line,
-    OffsetLine,
-    CmpSrc
-};
-
-/*! A template for the Compare less-than function
- */
-template <class T>
-using Compare = std::function<bool(const T &, const T &)>;
 
 /*! Perform a sort on the given parameter structure.
  *  \param[in] piol The PIOL object

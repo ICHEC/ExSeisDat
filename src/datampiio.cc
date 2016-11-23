@@ -11,8 +11,8 @@
 #include <algorithm>
 #include "data/datampiio.hh"
 #include "anc/piol.hh"
-#include "anc/cmpi.hh"
-#include "share/smpi.hh"
+#include "anc/mpi.hh"
+#include "share/mpi.hh"
 
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -10,7 +10,7 @@
 #include <memory>
 #include "anc/log.hh"
 #include "anc/comm.hh"
-#include "anc/cmpi.hh"
+#include "anc/mpi.hh"
 namespace PIOL {
 /*! \brief The ExSeisPIOL structure. A single instance of this structure should be created and
  *         passed to each subsequent PIOL object which is created.

@@ -1,6 +1,5 @@
 #include "cppfileapi.hh"
 #include "global.hh"
-#include "anc/cmpi.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"

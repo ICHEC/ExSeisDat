@@ -12,7 +12,7 @@
 #include <memory>
 #include <typeinfo>
 #include "global.hh"
-#include "anc/cmpi.hh"
+//#include "anc/cmpi.hh"
 #include "data/data.hh"
 
 namespace PIOL { namespace Data {

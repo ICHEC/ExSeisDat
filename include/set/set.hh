@@ -8,12 +8,24 @@
 #ifndef PIOLSET_INCLUDE_GUARD
 #define PIOLSET_INCLUDE_GUARD
 #include "global.hh"
-#include "cppfileapi.hh"
+#include "file/file.hh"
+#include "ops/sort.hh"
 #include <functional>
+#include <memory>
 #include <deque>
 namespace PIOL {
-struct FileDesc;
-class Set
+
+struct FileDesc
+{
+    std::unique_ptr<File::Interface> ifc;
+
+    size_t offset;  //Local offset into the file
+
+    std::vector<size_t> lst;    //The size of this corresponds to the local decomposition
+    //TODO: Temporary approach. This approach will NEED to be optimised since it keeps pointless traces
+};
+
+class InternalSet
 {
     /*! State flags structure for Set
      */
@@ -26,20 +38,25 @@ class Set
     } state;                    //!< State flags are stored in this structure
     Piol piol;
     std::string outfix;
-    std::deque<File::Interface *> file; //!< The internal list of input files and related data.
-    //std::deque<FileDesc> file; //!< The internal list of input files and related data.
-    std::deque<std::deque<size_t>> traceList;
-
-#warning Look at this
+    std::deque<FileDesc> file;
     std::deque<std::function<void(std::vector<size_t> &)>> func;
 
     void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);
     public :
-    Set(Piol piol_, std::string pattern, std::string outfix_ = "");
-    ~Set(void);
-    size_t getNt(void);
+    InternalSet(Piol piol_, std::string pattern, std::string outfix_ = "");
+    ~InternalSet(void);
+
+    void sort(File::Compare<File::Param> func);
+    size_t getInNt(void);
+    size_t getSetNt(void);
+    size_t getLNt(void);
+
     void output(std::string oname);
     void summary(void) const;
+#warning TODO:
+    void add()
+    {
+    }
 };
 }
 #endif

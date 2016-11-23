@@ -28,7 +28,6 @@ SEGY::Opt::Opt(void)
     incFactor = SI::Micro;
 }
 
-
 SEGY::SEGY(const Piol piol_, const std::string name_, const File::SEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_, const FileMode mode_)
     : Interface(piol_, name_, obj_)
 {

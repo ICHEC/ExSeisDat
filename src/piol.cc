@@ -7,8 +7,8 @@
  *   \details
  *//*******************************************************************************************/
 #include "anc/piol.hh"
-#include "anc/cmpi.hh"
-#include <string>
+#include "anc/mpi.hh"
+//#include <string>
 namespace PIOL {
 void ExSeisPIOL::Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel)
 {

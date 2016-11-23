@@ -6,7 +6,7 @@
 #include "cppfileapi.hh"
 #include "file/dynsegymd.hh"
 #include "share/segy.hh"
-#include "ops/ops.hh"
+#include "fileops.hh"
 
 using namespace PIOL;
 
