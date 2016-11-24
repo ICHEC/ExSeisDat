@@ -13,16 +13,16 @@ BIN = concatenate segsort versort fourdbin cropen cexample1 cexample2 creadwrite
 CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
-	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(CINC_FOLDER) -o $@ 
+	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(API_FOLDER) -o $@ 
 
 %.dep: %.cc
 	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(CXXINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.cpo: %.cc
-	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) $(API_FOLDER) -c $< -o $@
 
 $(OBJDIR)/%.co: %.c
-	$(CC) $(CFLAGS) $(CINC_FOLDER) -c $< -o $@
+	$(CC) $(CFLAGS) $(API_FOLDER) -c $< -o $@
 
 .PHONY: all
 all: $(BIN)

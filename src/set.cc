@@ -82,6 +82,7 @@ InternalSet::~InternalSet(void)
 
 void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
+    outmsg = "ExSeisPIOL: Set layer output\n";
     glob_t globs;
     int err = glob(pattern.c_str(), GLOB_TILDE | GLOB_MARK, NULL, &globs);
     if (err)
@@ -161,8 +162,8 @@ void InternalSet::sort(File::Compare<File::Param> func)
     for (auto & f : file)
     {
         std::vector<size_t> loff;
-        for (size_t i = 0; i < f.list.size(); i++)
-            if (f.list[i] != NOT_IN_OUTPUT)
+        for (size_t i = 0; i < f.lst.size(); i++)
+            if (f.lst[i] != NOT_IN_OUTPUT)
                 loff.push_back(i);
         File::Param fprm(loff.size());
         f.ifc->readParam(loff.size(), loff.data(), &fprm);
@@ -173,47 +174,29 @@ void InternalSet::sort(File::Compare<File::Param> func)
     }
 
     auto trlist = File::sort(piol.get(), snt, off, &prm, func);
-    auto offsets = gather(std::vector<size_t>(off));
+    auto offsets = piol->comm->gather(std::vector<size_t>(off));
     size_t j = 0;
     for (auto & f : file)
         for (auto & l : f.lst)
             if (l != NOT_IN_OUTPUT)
-                l.lst = trlist[j++];
+                l = trlist[j++];
+}
+
+
+std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
+{
+    std::vector<size_t> index(sz);
+    std::iota(index.begin(), index.end(), 0);
+    std::sort(index.begin(), index.end(), [list] (size_t s1, size_t s2) { return list[s1] < list[s2]; });
+    return index;
 }
 
 void InternalSet::output(std::string oname)
 {
-/*    if (!func.size())   //No functions to evaluate
-    {
-        auto rule = getMaxRules();
-        std::map<std::pair<size_t, geom_t>, std::vector<File::Interface *>> map;
-        for (auto & f : file)
-            map[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())].emplace_back(f.ifc.get());
-        for (auto & o : map)
-        {
-            std::string name = oname + std::to_string(o.first.first) + "_" + std::to_string(o.first.second) + ".segy";
-
-#warning TODO: Replace with a single call
-            std::unique_ptr<File::SEGY> out;
-            auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);
-            auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Write);
-            out = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Write);
-
-            std::cout << "ns " << o.first.first << std::endl;
-            out->writeNs(o.first.first);
-            out->writeInc(o.first.second);
-            out->writeText("ExSeisPIOL: Set layer output\n");
-
-            size_t offset = 0U;
-            for (auto & f : o.second)
-                offset += readwriteAll(piol.get(), offset, rule, out.get(), f);
-        }
-    }*/
-
     auto rule = getMaxRules();
-    std::map<std::pair<size_t, geom_t>, std::vector<File::Interface *>> map;
+    std::map<std::pair<size_t, geom_t>, std::vector<FileDesc *>> map;
     for (auto & f : file)
-        map[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())].emplace_back(f.ifc.get());
+        map[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())].emplace_back(&f);
     for (auto & o : map)
     {
         size_t ns = o.first.first;
@@ -227,19 +210,60 @@ void InternalSet::output(std::string oname)
         std::cout << "ns " << ns << std::endl;
         out->writeNs(o.first.first);
         out->writeInc(o.first.second);
-        out->writeText("ExSeisPIOL: Set layer output\n");
+        out->writeText(outmsg);
 
+        //Assume the process can hold the list
+        const size_t memlim = 2U*1024U*1024U*1024U;
+        size_t max = memlim / (2U * (sizeof(size_t) + SEGSz::getDOSz(ns) + rule->parammem()));
 
-        size_t total = getLNt();
-        size_t fmax = std::min(max, total);
-        File::Param prm(fmax);
-        std::vector<trace_t> trc(fmax * o.first.first);
-
-/*        size_t offset = 0U;
+//TODO: This is not the ideal for small files. per input file read/write
+// The ideal is to have a buffer for each which is emptied when full or EOF. This is a little tricky
+// because the write buffer would interleave with the read a bit.
         for (auto & f : o.second)
         {
-            offset += readwriteAll(piol.get(), offset, rule, out.get(), f);
-        }*/
+            std::vector<size_t> ilist;
+            std::vector<size_t> olist;              //TODO: Factor in that olist can be bigger than expected
+            size_t cnt = 0;
+            for (auto & l : f->lst)
+            {
+                if (l != NOT_IN_OUTPUT)
+                {
+                    ilist.push_back(cnt);
+                    olist.push_back(l);
+                }
+                cnt++;
+            }
+            size_t lnt = ilist.size();
+            size_t fmax = std::min(lnt, max);
+
+            File::Param iprm(rule, fmax);
+            File::Param oprm(rule, fmax);
+            std::vector<trace_t> itrc(fmax * ns);
+            std::vector<trace_t> otrc(fmax * ns);
+            auto biggest = piol->comm->max(lnt);
+            size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
+            for (size_t i = 0; i < lnt; i += max)
+            {
+                size_t rblock = (i + max < lnt ? max : lnt - i);
+                f->ifc->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
+
+                std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
+                for (size_t j = 0U; j < rblock; j++)
+                {
+                    cpyPrm(sortlist[j], &iprm, j, &oprm);
+
+                    for (size_t k = 0U; k < ns; k++)
+                        otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
+                    sortlist[j] = olist[i+sortlist[j]];
+                }
+                out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
+            }
+            for (size_t i = 0; i < extra; i++)
+            {
+                f->ifc->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
+                out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
+            }
+        }
     }
 }
 }

@@ -5,7 +5,7 @@
 #include <numeric>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
-#include "share/smpi.hh"
+#include "share/mpi.hh"
 using namespace PIOL;
 using File::Meta;
 using File::Tr;

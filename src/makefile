@@ -1,6 +1,6 @@
 
 include ../compiler.cfg
-BIN=$(LIB_DIR)/libpiol.so
+BIN=$(LIB_DIR)/libipiol.so
 CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CXXINC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
 

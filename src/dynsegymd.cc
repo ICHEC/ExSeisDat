@@ -238,6 +238,11 @@ size_t Rule::memusage(void) const
          + numFloat * sizeof(SEGYFloatRuleEntry) + sizeof(Rule);
 }
 
+size_t Rule::parammem(void) const
+{
+    return numLong * sizeof(llint) + numShort * sizeof(int16_t)
+         + numFloat * sizeof(geom_t);
+}
 
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
 {

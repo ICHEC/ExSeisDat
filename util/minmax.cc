@@ -1,6 +1,6 @@
 #include "sglobal.hh"
-#include "ops/ops.hh"
 #include "cppfileapi.hh"
+#include "fileops.hh"
 #include <iostream>
 #include <algorithm>
 using namespace PIOL;

@@ -6,7 +6,7 @@
 #include <fstream>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
-#include "ops/ops.hh"
+#include "fileops.hh"
 
 using namespace PIOL;
 using namespace File;
@@ -120,7 +120,7 @@ int main(int argc, char ** argv)
     for (size_t i = 0; i < prm.size(); i++)
         setPrm(i, Meta::tn, dec.first + i, &prm);
 
-    auto list = Sort(piol, type, nt, dec.first, &prm);
+    auto list = sort(piol, type, nt, dec.first, &prm);
 
     if (debug)
     {

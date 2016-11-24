@@ -5,8 +5,8 @@ include ../compiler.cfg
 CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
 
-CXXBIN=piol
-BIN=$(LIB_DIR)/libcpiol.so
+PIOLBIN=ipiol
+CBIN=$(LIB_DIR)/libpiol.so
 
 DEP=depend
 SOURCES:=$(wildcard *.cc)
@@ -25,13 +25,13 @@ $(OBJDIR)/%.o: %.cc
 	$(CXX) $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: all
-all: $(DEP) $(OBJECTS) $(BIN)
+all: $(DEP) $(OBJECTS) $(CBIN)
 
-$(LIB_DIR)/lib$(CXXBIN).so:
+$(LIB_DIR)/lib$(PIOLBIN).so:
 	cd ../src ; $(MAKE)
 
-$(BIN): $(OBJECTS) $(LIB_DIR)/lib$(CXXBIN).so
-	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(CXXBIN) $(LDFLAGS) $(OBJECTS)
+$(CBIN): $(OBJECTS) $(LIB_DIR)/lib$(PIOLBIN).so
+	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
@@ -42,5 +42,5 @@ endif
 
 .PHONY: clean
 clean:
-	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP) $(BIN)
+	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP) $(CBIN)
 

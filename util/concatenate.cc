@@ -4,7 +4,7 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
-#include "set/set.hh"
+#include "set.hh"
 #include "sglobal.hh"
 #include <iostream>
 #include <regex>
@@ -78,7 +78,7 @@ int main(int argc, char ** argv)
     {
         Set set(piol, pattern);
         set.summary();
-
+        set.text(msg);
         if (prompt)
             doPrompt(piol);
 

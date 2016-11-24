@@ -6,7 +6,7 @@
 #include <fstream>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
-#include "ops/ops.hh"
+#include "fileops.hh"
 
 using namespace PIOL;
 using namespace File;

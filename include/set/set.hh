@@ -38,6 +38,7 @@ class InternalSet
     } state;                    //!< State flags are stored in this structure
     Piol piol;
     std::string outfix;
+    std::string outmsg;
     std::deque<FileDesc> file;
     std::deque<std::function<void(std::vector<size_t> &)>> func;
 
@@ -52,6 +53,11 @@ class InternalSet
     size_t getLNt(void);
 
     void output(std::string oname);
+
+    void text(std::string outmsg_)
+    {
+        outmsg = outmsg_;
+    }
     void summary(void) const;
 #warning TODO:
     void add()

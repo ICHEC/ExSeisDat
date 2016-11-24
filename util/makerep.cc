@@ -5,7 +5,7 @@
 #include "cppfileapi.hh"
 #include "data/datampiio.hh"
 #include "share/segy.hh"
-#include "share/smpi.hh"
+#include "share/mpi.hh"
 using namespace PIOL;
 using namespace Data;
 

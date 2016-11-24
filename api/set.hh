@@ -14,8 +14,10 @@ namespace PIOL
 {
 class Set : public InternalSet
 {
-
     public :
+    Set(Piol piol_, std::string pattern, std::string outfix_ = "") : InternalSet(piol_, pattern, outfix_)
+    {
+    }
     void sort(File::SortType type);
 };
 }
