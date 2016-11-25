@@ -11,6 +11,7 @@
 #include <regex>
 #include <map>
 #include <numeric>
+#include <iostream>
 #include "set/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
@@ -165,7 +166,11 @@ void InternalSet::sort(File::Compare<File::Param> func)
 {
     for (auto & o : fmap)
     {
-        size_t snt = getLNt();
+        size_t snt = 0U;
+        for (auto & f : o.second)
+            for (auto & l : f->lst)
+                snt += (l != NOT_IN_OUTPUT);
+
         File::Param prm(snt);
         size_t loff = 0;
         for (auto & f : o.second)
@@ -182,14 +187,16 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 cpyPrm(i, &fprm, loff+i, &prm);
             loff += list.size();
         }
-
+#error Find out whats wrong with segsort on monday
         auto sizes = piol->comm->gather(std::vector<size_t>{snt});
-        size_t off = 0;
+        size_t off = 0U;
         for (size_t i = 0; i < piol->comm->getRank(); i++)
             off += sizes[i];
+        size_t nt = off;
+        for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
+            nt += sizes[i];
 
-        //TODO: need to do a sort per separate output file.
-        auto trlist = File::sort(piol.get(), snt, off, &prm, func);
+        auto trlist = File::sort(piol.get(), nt, off, &prm, func);
         size_t j = 0;
         for (auto & f : o.second)
         {
