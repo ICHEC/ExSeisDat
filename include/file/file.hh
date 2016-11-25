@@ -163,6 +163,13 @@ class Interface
      *  \return A string containing the text (in ASCII format)
      */
     virtual const std::string & readText(void) const;
+    /*! \brief Read the name of the file
+     *  \return A string containing the name (in ASCII format)
+     */
+    const std::string & readName(void) const
+    {
+        return name;
+    }
 
     /*! \brief Read the number of samples per trace
      *  \return The number of samples per trace

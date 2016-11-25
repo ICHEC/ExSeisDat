@@ -44,10 +44,11 @@ class InternalSet
     std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;
 
     std::deque<std::function<void(std::vector<size_t> &)>> func;
+    std::shared_ptr<File::Rule> rule;
 
     void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);
     public :
-    InternalSet(Piol piol_, std::string pattern, std::string outfix_ = "");
+    InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_);
     ~InternalSet(void);
 
     void sort(File::Compare<File::Param> func);

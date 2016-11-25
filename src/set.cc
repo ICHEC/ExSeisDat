@@ -9,7 +9,6 @@
 #include <glob.h>
 #include "global.hh"
 #include <regex>
-#include <iostream>
 #include <map>
 #include <numeric>
 #include "set/set.hh"
@@ -18,18 +17,6 @@
 #include "object/objsegy.hh"
 namespace PIOL {
 constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
-
-std::shared_ptr<File::Rule> getMaxRules(void)
-{
-    auto rule = std::make_shared<File::Rule>(true, true, true);
-    rule->addLong(File::Meta::Misc1, File::Tr::TransConst);
-    rule->addShort(File::Meta::Misc2, File::Tr::TransExp);
-    //Override the default behaviour of ShotNum
-    rule->addLong(File::Meta::ShotNum, File::Tr::ShotNum);
-    rule->addShort(File::Meta::Misc3, File::Tr::ShotScal);
-    return rule;
-}
-
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
     size_t q = sz/numRank;
@@ -38,6 +25,7 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
     return std::make_pair(start, std::min(sz - start, q + (rank < r)));
 }
 
+//TODO: Re-use this
 size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::Interface * dst, File::Interface * src)
 {
     const size_t memlim = 2U*1024U*1024U*1024U;
@@ -69,7 +57,7 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
 
 //////////////////////////////////////////////CLASSS MEMBERS///////////////////////////////////////////////////////////
 
-InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_) : piol(piol_), outfix(outfix_)
+InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) : piol(piol_), outfix(outfix_), rule(rule_)
 {
     fillDesc(piol, pattern);
 }
@@ -106,12 +94,23 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             f.lst.resize(dec.second);
 
             auto key = std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc());
-            auto & off = offmap[key];
             fmap[key].emplace_back(&f);
-
-            std::iota(f.lst.begin(), f.lst.end(), off + dec.first);
-            off += f.ifc->readNt();
+            offmap[key] = 0U;
         }
+
+    for (auto & f : file)
+    {
+        auto sizes = piol->comm->gather(std::vector<size_t>{f.lst.size()});
+        size_t loff = 0;    //The local process's offset into the file.
+        for (size_t i = 0; i < piol->comm->getRank(); i++)
+            loff += sizes[i];
+
+        auto key = std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc());
+        auto & off = offmap[key];
+        std::iota(f.lst.begin(), f.lst.end(), off + loff);
+        f.offset = off + loff;
+        off += f.ifc->readNt();
+    }
 
     globfree(&globs);
     piol->isErr();
@@ -145,14 +144,20 @@ size_t InternalSet::getSetNt(void)
 
 void InternalSet::summary(void) const
 {
-    std::map<std::pair<size_t, geom_t>, size_t> fcnts;
     for (auto & f : file)
-        fcnts[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())]++;
+    {
+        std::string msg =  "name: " + f.ifc->readName() + "\n" +
+                          "-\tNs: " + std::to_string(f.ifc->readNs())   + "\n" +
+                          "-\tNt: " + std::to_string(f.ifc->readNt())   + "\n" +
+                         "-\tInc: " + std::to_string(f.ifc->readInc())  + "\n";
 
-    for (auto & m : fcnts)
+        piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , Log::Verb::None);
+    }
+
+    for (auto & m : fmap)
         piol->log->record("", Log::Layer::Set, Log::Status::Request,
-            "File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
-                + " inc) = " + std::to_string(m.second), Log::Verb::None);
+            "Local File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
+                + " inc) = " + std::to_string(m.second.size()), Log::Verb::None);
     piol->log->procLog();
 }
 
@@ -178,7 +183,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
             loff += list.size();
         }
 
-        auto sizes = piol->comm->gather(std::vector<size_t>(snt));
+        auto sizes = piol->comm->gather(std::vector<size_t>{snt});
         size_t off = 0;
         for (size_t i = 0; i < piol->comm->getRank(); i++)
             off += sizes[i];
@@ -205,10 +210,6 @@ std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
 
 void InternalSet::output(std::string oname)
 {
-    auto rule = getMaxRules();
-//    std::map<std::pair<size_t, geom_t>, std::vector<FileDesc *>> map;
-//    for (auto & f : file)
-//        map[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())].emplace_back(&f);
     for (auto & o : fmap)
     {
         size_t ns = o.first.first;
@@ -223,7 +224,6 @@ void InternalSet::output(std::string oname)
         auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Write);
         out = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Write);
 
-        std::cout << "ns " << ns << std::endl;
         out->writeNs(o.first.first);
         out->writeInc(o.first.second);
         out->writeText(outmsg);
@@ -244,7 +244,7 @@ void InternalSet::output(std::string oname)
             {
                 if (l != NOT_IN_OUTPUT)
                 {
-                    ilist.push_back(cnt);
+                    ilist.push_back(f->offset + cnt);
                     olist.push_back(l);
                 }
                 cnt++;
@@ -261,11 +261,9 @@ void InternalSet::output(std::string oname)
             for (size_t i = 0; i < lnt; i += max)
             {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
-                std::cout << "rblock " << rblock << " " << ilist[i] << std::endl;
                 f->ifc->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
 
                 std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
-                std::cout << "pre " << sortlist.size() << " " << sortlist[0] << std::endl;
                 for (size_t j = 0U; j < rblock; j++)
                 {
                     cpyPrm(sortlist[j], &iprm, j, &oprm);
@@ -274,7 +272,6 @@ void InternalSet::output(std::string oname)
                         otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
                     sortlist[j] = olist[i+sortlist[j]];
                 }
-                std::cout << "sorted " << sortlist.size() << " " << sortlist[0] << std::endl;
                 out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
             }
             for (size_t i = 0; i < extra; i++)

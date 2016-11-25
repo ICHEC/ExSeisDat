@@ -68,16 +68,15 @@ int main(int argc, char ** argv)
 
     if (prompt)
     {
-        Set set(piol, pattern);
+        Set set(piol, pattern, std::make_shared<File::Rule>(true, true));
         set.summary();
         set.text(msg);
         if (prompt)
             doPrompt(piol);
-
         set.output(outprefix);
     }
     else
-        Set(piol, pattern, outprefix);
+        Set(piol, pattern, outprefix, std::make_shared<File::Rule>(true, true));
 
     return 0;
 }

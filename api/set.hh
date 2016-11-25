@@ -11,12 +11,18 @@
 #include "fileops.hh"
 namespace PIOL
 {
+extern std::shared_ptr<File::Rule> getMaxRules(void);
+
 class Set : public InternalSet
 {
     public :
-    Set(Piol piol_, std::string pattern, std::string outfix_ = "") : InternalSet(piol_, pattern, outfix_)
-    {
-    }
+//    Set(Piol piol_, std::string pattern, std::string outfix_ = "") : InternalSet(piol_, pattern, outfix_)
+    Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_ = getMaxRules()) :
+             InternalSet(piol_, pattern, outfix_, rule_)  {  }
+    Set(Piol piol_, std::string pattern, std::shared_ptr<File::Rule> rule_ = getMaxRules()) :
+             InternalSet(piol_, pattern, "", rule_)  {  }
+
+
     void sort(File::SortType type);
 };
 }
