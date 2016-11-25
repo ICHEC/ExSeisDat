@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-#include "anc/cmpi.hh"
+#include "anc/mpi.hh"
 #define private public
 #define protected public
 #include "data/data.hh"

@@ -105,11 +105,12 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             auto dec = decompose(f.ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
             f.lst.resize(dec.second);
 
-            auto & off = offmap[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())];
+            auto key = std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc());
+            auto & off = offmap[key];
+            fmap[key].emplace_back(&f);
+
             std::iota(f.lst.begin(), f.lst.end(), off + dec.first);
             off += f.ifc->readNt();
-//            for (size_t i = 0; i < f.lst.size(); i++)
-//                std::cout << f.lst[i] << std::endl;
         }
 
     globfree(&globs);
@@ -157,38 +158,42 @@ void InternalSet::summary(void) const
 
 void InternalSet::sort(File::Compare<File::Param> func)
 {
-    size_t snt = getLNt();
-    File::Param prm(snt);
-    size_t off = 0U;
-    std::vector<size_t> foff;
-    for (auto & f : file)
+    for (auto & o : fmap)
     {
-        std::vector<size_t> loff;
-        for (size_t i = 0; i < f.lst.size(); i++)
-            if (f.lst[i] != NOT_IN_OUTPUT)
-                loff.push_back(i);
-        File::Param fprm(loff.size());
-        f.ifc->readParam(loff.size(), loff.data(), &fprm);
-        for (size_t i = 0; i < loff.size(); i++)
-            cpyPrm(i, &fprm, off+i, &prm);
-        off += loff.size();
-        foff.push_back(loff.size());
+        size_t snt = getLNt();
+        File::Param prm(snt);
+        size_t loff = 0;
+        for (auto & f : o.second)
+        {
+            std::vector<size_t> list;
+            for (size_t i = 0; i < f->lst.size(); i++)
+                if (f->lst[i] != NOT_IN_OUTPUT)
+                    list.push_back(i);
+
+            //TODO: Makes assumptions about Parameter sizes.
+            File::Param fprm(list.size());
+            f->ifc->readParam(list.size(), list.data(), &fprm);
+            for (size_t i = 0; i < list.size(); i++)
+                cpyPrm(i, &fprm, loff+i, &prm);
+            loff += list.size();
+        }
+
+        auto sizes = piol->comm->gather(std::vector<size_t>(snt));
+        size_t off = 0;
+        for (size_t i = 0; i < piol->comm->getRank(); i++)
+            off += sizes[i];
+
+        //TODO: need to do a sort per separate output file.
+        auto trlist = File::sort(piol.get(), snt, off, &prm, func);
+        size_t j = 0;
+        for (auto & f : o.second)
+        {
+            for (auto & l : f->lst)
+                if (l != NOT_IN_OUTPUT)
+                    l = trlist[j++];
+        }
     }
-
-    auto offsets = piol->comm->gather(std::vector<size_t>(off));
-    off = 0;
-    for (size_t i = 0; i < piol->comm->getRank(); i++)
-        off += offsets[i];
-
-//TODO: need to do a sort per separate output file.
-    auto trlist = File::sort(piol.get(), snt, off, &prm, func);
-    size_t j = 0;
-    for (auto & f : file)
-        for (auto & l : f.lst)
-            if (l != NOT_IN_OUTPUT)
-                l = trlist[j++];
 }
-
 
 std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
 {
@@ -201,14 +206,14 @@ std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
 void InternalSet::output(std::string oname)
 {
     auto rule = getMaxRules();
-    std::map<std::pair<size_t, geom_t>, std::vector<FileDesc *>> map;
-    for (auto & f : file)
-        map[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())].emplace_back(&f);
-    for (auto & o : map)
+//    std::map<std::pair<size_t, geom_t>, std::vector<FileDesc *>> map;
+//    for (auto & f : file)
+//        map[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())].emplace_back(&f);
+    for (auto & o : fmap)
     {
         size_t ns = o.first.first;
         std::string name;
-        if (map.size() == 1)
+        if (fmap.size() == 1)
             name = oname + ".segy";
         else
             name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";

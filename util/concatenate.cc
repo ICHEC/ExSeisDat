@@ -1,14 +1,7 @@
-#include <glob.h>
 #include <assert.h>
-#include "cppfileapi.hh"
-#include "data/datampiio.hh"
-#include "file/filesegy.hh"
-#include "object/objsegy.hh"
 #include "set.hh"
 #include "sglobal.hh"
 #include <iostream>
-#include <regex>
-#include <unordered_map>
 using namespace PIOL;
 
 void doPrompt(ExSeisPIOL * piol)
@@ -37,18 +30,17 @@ void doPrompt(ExSeisPIOL * piol)
 
 int main(int argc, char ** argv)
 {
+    ExSeis piol;
     if (argc < 2)
     {
         std::cout << "Too few arguments\n";
         return -1;
     }
-    ExSeis piol;
 
     std::string pattern = "";
     std::string outprefix = "";
     std::string msg = "Concatenated with ExSeisPIOL";
     bool prompt = false;
-    bool setlayer = false;
     std::string opt = "i:o:m:p";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
@@ -86,6 +78,7 @@ int main(int argc, char ** argv)
     }
     else
         Set(piol, pattern, outprefix);
+
     return 0;
 }
 

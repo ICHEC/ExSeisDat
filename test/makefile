@@ -5,12 +5,13 @@ LDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS)
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
+LIB_IPIOL=ipiol
 LIB_PIOL=piol
 GCOMP=g++
 
 include ../compiler.cfg
 
-INC_FOLDER=-I../include $(LOCAL_INC_FOLDER)
+INC_FOLDER=-I../include -I../api $(LOCAL_INC_FOLDER)
 CXXFLAGS=$(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
 
 DEP=depend
@@ -27,8 +28,11 @@ BIN=spectests
 .PHONY: all
 all: extract genfiles libgmock.a $(BIN) $(DEP) $(OBJECTS)
 
-$(LIB_DIR)/$(LIB_PIOL):
+$(LIB_DIR)/$(LIB_IPIOL):
 	(cd ../src/; $(MAKE))
+
+$(LIB_DIR)/$(LIB_PIOL):
+	(cd ../api/; $(MAKE))
 
 libgmock.a:
 	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
@@ -40,7 +44,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS) -l$(LIB_PIOL)
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS) -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles

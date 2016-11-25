@@ -333,12 +333,11 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         obj->writeDODF(ns, sz, offset, buf);
     else
     {
-        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
-
+        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns));          //FIXME: Potentially a big allocation
         insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
-                      dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
+                  dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
         obj->writeDO(ns, sz, offset, dobuf.data());
     }
 
@@ -346,7 +345,8 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         reverse4Bytes(&buf[i*sizeof(float)]);
 
     state.stalent = true;
-    nt = std::max(offset[sz-1]+1U, nt);
+    if (sz)
+        nt = std::max(offset[sz-1]+1U, nt);
 }
 
 void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
@@ -390,6 +390,7 @@ void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
     obj->writeDOMD(ns, sz, offset, buf.data());
 
     state.stalent = true;
-    nt = std::max(offset[sz-1]+1U, nt);
+    if (sz)
+        nt = std::max(offset[sz-1]+1U, nt);
 }
 }}

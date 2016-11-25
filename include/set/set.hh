@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 #include <deque>
+#include <map>
 namespace PIOL {
 
 struct FileDesc
@@ -40,6 +41,8 @@ class InternalSet
     std::string outfix;
     std::string outmsg;
     std::deque<FileDesc> file;
+    std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;
+
     std::deque<std::function<void(std::vector<size_t> &)>> func;
 
     void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);

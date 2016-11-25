@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-#include "anc/cmpi.hh"
+#include "anc/mpi.hh"
 #include "data/datampiio.hh"
 #include "object/objsegy.hh"
 #define private public

@@ -6,7 +6,7 @@
 #include "tglobal.hh"
 #include "share/segy.hh"
 #include "share/datatype.hh"
-#include "anc/cmpi.hh"
+#include "anc/mpi.hh"
 #include "data/datampiio.hh"
 #define private public
 #define protected public
