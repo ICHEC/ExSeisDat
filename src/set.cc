@@ -200,7 +200,11 @@ void InternalSet::output(std::string oname)
     for (auto & o : map)
     {
         size_t ns = o.first.first;
-        std::string name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
+        std::string name;
+        if (map.size() == 1)
+            name = oname + ".segy";
+        else
+            name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
 
         std::unique_ptr<File::SEGY> out;
         auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);

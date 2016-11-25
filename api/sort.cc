@@ -200,29 +200,32 @@ bool lessOffLine(const Param & e1, const Param & e2)
     return false;
 }
 
-std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
+Compare<Param> getComp(SortType type)
 {
-    Compare<Param> comp = nullptr;
     switch (type)
     {
         default :
         case SortType::SrcRcv :
-        comp = lessSrcRcv;
+            return lessSrcRcv;
         break;
         case SortType::SrcOff :
-        comp = lessSrcOff;
+            return lessSrcOff;
         break;
         case SortType::RcvOff :
-        comp = lessRcvOff;
+            return lessRcvOff;
         break;
         case SortType::LineOff :
-        comp = lessLineOff;
+            return lessLineOff;
         break;
         case SortType::OffLine :
-        comp = lessOffLine;
+            return lessOffLine;
         break;
     }
-    return sort(piol, nt, offset, prm, comp);
+}
+
+std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
+{
+    return sort(piol, nt, offset, prm, getComp(type));
 }
 
 //TODO: Make this work with SortType type;

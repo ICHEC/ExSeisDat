@@ -5,6 +5,7 @@
 #include <numeric>
 #include <fstream>
 #include "cppfileapi.hh"
+#include "set.hh"
 #include "sglobal.hh"
 #include "fileops.hh"
 
@@ -94,6 +95,13 @@ int main(int argc, char ** argv)
         }
 
     assert(name1.size() && name2.size());
+
+    if (1)
+    {
+        Set set(piol, name1, name2);
+        set.sort(SortType::SrcRcv);
+        return 0;
+    }
 
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();

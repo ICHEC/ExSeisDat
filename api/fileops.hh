@@ -1,7 +1,10 @@
+#ifndef PIOLAPIFILEOPS_INCLUDE_GUARD
+#define PIOLAPIFILEOPS_INCLUDE_GUARD
 #include <assert.h>
 #include <memory>
 #include "global.hh"
 #include "file/file.hh"
+#include "ops/sort.hh"
 
 //#warning Make redundant
 #include "cppfileapi.hh"
@@ -26,6 +29,7 @@ enum class SortType : size_t
     LineOff,
     OffLine
 };
+extern Compare<Param> getComp(SortType type);
 
 /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
  *  the collective min and max across all processes (which also must all call this file).
@@ -69,3 +73,4 @@ extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, siz
  */
 extern bool checkOrder(File::Interface * src, std::pair<size_t, size_t> dec);
 }}
+#endif
