@@ -8,7 +8,6 @@
 #ifndef APIPIOLSET_INCLUDE_GUARD
 #define APIPIOLSET_INCLUDE_GUARD
 #include "set/set.hh"
-//TODO: Do away with
 #include "fileops.hh"
 namespace PIOL
 {

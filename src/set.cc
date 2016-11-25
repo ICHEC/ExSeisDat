@@ -90,7 +90,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
 
     std::regex reg(".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize | std::regex::extended);
 
-    size_t off = 0;
+    std::map<std::pair<size_t, geom_t>, size_t> offmap;
     for (size_t i = 0; i < globs.gl_pathc; i++)
         if (std::regex_match(globs.gl_pathv[i], reg))
         {
@@ -103,11 +103,13 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             f.ifc = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
 
             auto dec = decompose(f.ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
-
             f.lst.resize(dec.second);
-            std::iota(f.lst.begin(), f.lst.end(), off + dec.first);
 
+            auto & off = offmap[std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc())];
+            std::iota(f.lst.begin(), f.lst.end(), off + dec.first);
             off += f.ifc->readNt();
+//            for (size_t i = 0; i < f.lst.size(); i++)
+//                std::cout << f.lst[i] << std::endl;
         }
 
     globfree(&globs);
@@ -173,8 +175,13 @@ void InternalSet::sort(File::Compare<File::Param> func)
         foff.push_back(loff.size());
     }
 
-    auto trlist = File::sort(piol.get(), snt, off, &prm, func);
     auto offsets = piol->comm->gather(std::vector<size_t>(off));
+    off = 0;
+    for (size_t i = 0; i < piol->comm->getRank(); i++)
+        off += offsets[i];
+
+//TODO: need to do a sort per separate output file.
+    auto trlist = File::sort(piol.get(), snt, off, &prm, func);
     size_t j = 0;
     for (auto & f : file)
         for (auto & l : f.lst)
@@ -249,9 +256,11 @@ void InternalSet::output(std::string oname)
             for (size_t i = 0; i < lnt; i += max)
             {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
+                std::cout << "rblock " << rblock << " " << ilist[i] << std::endl;
                 f->ifc->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
 
                 std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
+                std::cout << "pre " << sortlist.size() << " " << sortlist[0] << std::endl;
                 for (size_t j = 0U; j < rblock; j++)
                 {
                     cpyPrm(sortlist[j], &iprm, j, &oprm);
@@ -260,6 +269,7 @@ void InternalSet::output(std::string oname)
                         otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
                     sortlist[j] = olist[i+sortlist[j]];
                 }
+                std::cout << "sorted " << sortlist.size() << " " << sortlist[0] << std::endl;
                 out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
             }
             for (size_t i = 0; i < extra; i++)

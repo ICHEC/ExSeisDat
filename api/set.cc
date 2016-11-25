@@ -10,6 +10,6 @@
 namespace PIOL {
 void Set::sort(File::SortType type)
 {
-    sort(getComp(SortType type));
+    InternalSet::sort(File::getComp(type));
 }
 }

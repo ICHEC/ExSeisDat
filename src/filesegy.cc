@@ -20,7 +20,6 @@
 #include "share/units.hh"
 #include "share/datatype.hh"
 #include "file/segymd.hh"
-
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 SEGY::Opt::Opt(void)
@@ -124,9 +123,7 @@ size_t SEGY::readNt(void)
     {
         nt = piol->comm->max(nt);
         state.stalent = false;
-
-        if (nt != oldnt)
-            state.resize = true;
+        state.resize = true;
     }
     return nt;
 }
@@ -349,7 +346,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         reverse4Bytes(&buf[i*sizeof(float)]);
 
     state.stalent = true;
-    nt = std::max(offset[sz-1], nt);
+    nt = std::max(offset[sz-1]+1U, nt);
 }
 
 void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
@@ -393,6 +390,6 @@ void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
     obj->writeDOMD(ns, sz, offset, buf.data());
 
     state.stalent = true;
-    nt = std::max(offset[sz-1], nt);
+    nt = std::max(offset[sz-1]+1U, nt);
 }
 }}
