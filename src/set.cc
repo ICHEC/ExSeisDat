@@ -166,19 +166,19 @@ void InternalSet::sort(File::Compare<File::Param> func)
 {
     for (auto & o : fmap)
     {
-        size_t snt = 0U;
+        size_t lsnt = 0U;
         for (auto & f : o.second)
             for (auto & l : f->lst)
-                snt += (l != NOT_IN_OUTPUT);
+                lsnt += (l != NOT_IN_OUTPUT);
 
-        File::Param prm(snt);
+        File::Param prm(lsnt);
         size_t loff = 0;
         for (auto & f : o.second)
         {
             std::vector<size_t> list;
             for (size_t i = 0; i < f->lst.size(); i++)
                 if (f->lst[i] != NOT_IN_OUTPUT)
-                    list.push_back(i);
+                    list.push_back(f->offset + i);
 
             //TODO: Makes assumptions about Parameter sizes.
             File::Param fprm(list.size());
@@ -187,8 +187,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 cpyPrm(i, &fprm, loff+i, &prm);
             loff += list.size();
         }
-#error Find out whats wrong with segsort on monday
-        auto sizes = piol->comm->gather(std::vector<size_t>{snt});
+        auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
         size_t off = 0U;
         for (size_t i = 0; i < piol->comm->getRank(); i++)
             off += sizes[i];
@@ -196,6 +195,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
         for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
             nt += sizes[i];
 
+        std::cout << "sort " << nt << " " << off << std::endl;
         auto trlist = File::sort(piol.get(), nt, off, &prm, func);
         size_t j = 0;
         for (auto & f : o.second)
@@ -217,6 +217,7 @@ std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
 
 void InternalSet::output(std::string oname)
 {
+    std::cout << "output" << std::endl;
     for (auto & o : fmap)
     {
         size_t ns = o.first.first;

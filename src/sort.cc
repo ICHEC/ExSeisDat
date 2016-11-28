@@ -201,8 +201,6 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
             cpyPrm(i, &rprm, 0U, &dat[i+dat.size()-regionSz]);
 }
 
-
-
 /*! Function to sort a given vector by a nearest neighbour approach.
  *  \tparam T Type of vector
  *  \param[in] piol The PIOL object.
