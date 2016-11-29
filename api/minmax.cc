@@ -15,45 +15,23 @@
 #include <functional>
 
 #include "global.hh"
+#include "file/dynsegymd.hh"
 #include "fileops.hh"
 #include "ops/minmax.hh"
 
 #include <cstring>
 namespace PIOL { namespace File {
-void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const coord_t * coord, CoordElem * minmax)
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Meta m1, File::Meta m2, const Param * prm, CoordElem * minmax)
 {
-    auto xlam = [](const coord_t & a) -> geom_t { return a.x; };
-    auto ylam = [](const coord_t & a) -> geom_t { return a.y; };
-    getMinMax<coord_t>(piol, offset, sz, coord, xlam, ylam, minmax);
-}
+    std::vector<Param> vprm;
 
-void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, File::Coord item, const TraceParam * prm, CoordElem * minmax)
-{
-    switch (item)
+    for (size_t i = 0; i < lnt; i++)
     {
-        case File::Coord::Src :
-        getMinMax<TraceParam>(piol, offset, sz, prm,
-                          [](const TraceParam & a) -> geom_t { return a.src.x; },
-                          [](const TraceParam & a) -> geom_t { return a.src.y; },
-                          minmax);
-        break;
-        case File::Coord::Rcv :
-        getMinMax<TraceParam>(piol, offset, sz, prm,
-                          [](const TraceParam & a) -> geom_t { return a.rcv.x; },
-                          [](const TraceParam & a) -> geom_t { return a.rcv.y; },
-                          minmax);
-        break;
-        case File::Coord::CMP :
-        getMinMax<TraceParam>(piol, offset, sz, prm,
-                          [](const TraceParam & a) -> geom_t { return a.cmp.x; },
-                          [](const TraceParam & a) -> geom_t { return a.cmp.y; },
-                          minmax);
-        break;
-        default :
-            piol->log->record("", Log::Layer::Ops, Log::Status::Warning,
-                         "getCoordMinMax() was called for an unknown coordinate.",
-                          Log::Verb::Extended);
-        break;
+        vprm.emplace_back(prm->r, 1U);
+        cpyPrm(i, prm, 0, &vprm.back());
     }
+
+    getMinMax<Param>(piol, offset, lnt, vprm.data(), [m1](const Param & a) -> geom_t { return getPrm<geom_t>(0U, m1, &a); },
+                                                     [m2](const Param & a) -> geom_t { return getPrm<geom_t>(0U, m2, &a); }, minmax);
 }
 }}

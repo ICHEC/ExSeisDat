@@ -34,7 +34,7 @@ struct Param
     /*! Allocate the basic space required to store the arrays and store the rules. Default rules
      *  \param[in] sz The number of sets of trace parameters.
      */
-    Param(size_t sz);
+    Param(size_t sz = 1);
 
     /*! Return the number of sets of trace parameters.
      *  \return Number of sets

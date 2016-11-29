@@ -133,9 +133,10 @@ void cpyPrm(size_t i, const Param src, size_t j, Param dst)
 ExSeisHandle initMPIOL(void)
 {
 //TODO: Test the cast of C structures to C++ types here.
-    assert(sizeof(File::TraceParam) == sizeof(TraceParam));
-    assert(sizeof(File::coord_t) == sizeof(ccoord_t));
-    assert(sizeof(File::grid_t) == sizeof(cgrid_t));
+//    assert(sizeof(File::TraceParam) == sizeof(TraceParam));
+
+//    assert(sizeof(File::coord_t) == sizeof(ccoord_t));
+//    assert(sizeof(File::grid_t) == sizeof(cgrid_t));
     assert(sizeof(File::CoordElem) == sizeof(CoordElem));
 
     auto wrap = new PIOLWrapper;
@@ -306,10 +307,11 @@ void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm)
 
 /////////////////////////////////////Operations///////////////////////////////
 
-void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax)
+#warning Re-introduce minmax to the C API
+/*void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax)
 {
     getMinMax(*piol->piol, offset, sz, reinterpret_cast<const File::coord_t *>(coord), reinterpret_cast<File::CoordElem * >(minmax));
-}
+}*/
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
 size_t getSEGYTextSz()
@@ -327,8 +329,10 @@ size_t getSEGYFileSz(size_t nt, size_t ns)
     return SEGSz::getFileSz<float>(nt, ns);
 }
 
+#warning UPDATE
 size_t getSEGYParamSz(void)
 {
-    return sizeof(TraceParam) + SEGSz::getMDSz();
+    return SEGSz::getMDSz();
+    //return sizeof(TraceParam) + SEGSz::getMDSz();
 }
 }

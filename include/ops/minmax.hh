@@ -15,6 +15,15 @@
 #include <cstring>
 namespace PIOL { namespace File {
 
+/*! A structure to hold a reference to a single coordinate and
+ * the corresponding trace number
+ */
+struct CoordElem
+{
+    geom_t val;     //!< The value
+    size_t num;     //!< The trace number
+};
+
 template <typename T>
 using Func = std::function<geom_t(const T &)>;
 
@@ -33,10 +42,7 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
 
     T temp;
     if (!sz || !coord)
-    {
-        memset(&temp, 0, sizeof(T));
         coord = &temp;
-    }
 
     auto p = std::minmax_element(coord, coord + sz, min);
     std::vector<geom_t> lminmax = { elem1(*p.first), elem1(*p.second) };

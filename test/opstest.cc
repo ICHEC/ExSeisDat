@@ -4,6 +4,7 @@
 #include "cppfileapi.hh"
 #include "fileops.hh"
 #include "anc/mpi.hh"
+#include "file/file.hh"
 using namespace testing;
 using namespace PIOL;
 using namespace File;
@@ -15,7 +16,21 @@ struct OpsTest : public Test
     {
     }
 };
-
+/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+ *  the collective min and max across all processes (which also must all call this file).
+ *  \param[in, out] piol The PIOL object
+ *  \param[in] offset The starting trace number (local).
+ *  \param[in] lnt The local number of traces to process.
+ *  \param[in] coord
+ *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+ *  and their respective trace numbers.
+*/
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax)
+{
+    auto xlam = [](const coord_t & a) -> geom_t { return a.x; };
+    auto ylam = [](const coord_t & a) -> geom_t { return a.y; };
+    getMinMax<coord_t>(piol, offset, lnt, coord, xlam, ylam, minmax);
+}
 TEST_F(OpsTest, getMinMaxSimple)
 {
     std::vector<coord_t> coord(1000);

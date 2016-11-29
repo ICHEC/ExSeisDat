@@ -118,7 +118,6 @@ void SEGY::Init(const File::SEGY::Opt & segyOpt, const FileMode mode_)
 
 size_t SEGY::readNt(void)
 {
-    size_t oldnt = nt;
     if (state.stalent)
     {
         nt = piol->comm->max(nt);

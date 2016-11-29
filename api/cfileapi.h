@@ -18,28 +18,30 @@ typedef struct ParamWrapper * Param;  //!< A wrapper around a File Layer pointer
  */
 /*! The structure for a coordinate point.
  */
-typedef struct
+//give alternative
+/*typedef struct
 {
     double x;   //!< The first coordinate.
     double y;   //!< The second coordinate.
-} ccoord_t;
+} ccoord_t;*/
 
 /*! The structure for a grid point.
  */
+/*
 typedef struct
 {
     int64_t il;     //!< The first grid value
     int64_t xl;     //!< The second grid value.
-} cgrid_t;
+} cgrid_t;*/
 
 /*! The options for various coordinate points associated with a trace.
  */
-typedef enum
+/*typedef enum
 {
     Src,            //!< The source coordinate point.
     Rcv,            //!< The receiver coordinate point.
     CMP             //!< The common-midpoint.
-} CCoord;
+} CCoord;*/
 
 /*! The options for grid points associated with a trace.
  */
@@ -50,6 +52,7 @@ typedef enum
 
 /*! A structure containing all known parameters
  */
+/*
 typedef struct
 {
     ccoord_t src;    //!< The Source coordinate point.
@@ -57,7 +60,7 @@ typedef struct
     ccoord_t cmp;    //!< The common midpoint.
     cgrid_t line;    //!< The line grid (il, xl).
     size_t tn;       //!< The trace number.
-} TraceParam;
+} TraceParam;*/
 
 typedef struct
 {
@@ -67,6 +70,7 @@ typedef struct
 
 /*! The available trace parameters
  */
+#warning update
 typedef enum
 {
     xSrc,       //!< The source x coordiante
@@ -177,7 +181,8 @@ void cpyPrm(size_t i, const Param src, size_t j, Param dst);
  *  \param[in] coord The array of local coordinates which one wants to process
  *  \param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
  */
-extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax);
+#warning update
+//extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax);
 
 /*
  * Opening and closing files

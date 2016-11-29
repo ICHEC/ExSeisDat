@@ -171,6 +171,24 @@ void InternalSet::sort(File::Compare<File::Param> func)
             for (auto & l : f->lst)
                 lsnt += (l != NOT_IN_OUTPUT);
 
+
+        auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
+        size_t off = 0U;
+        for (size_t i = 0; i < piol->comm->getRank(); i++)
+            off += sizes[i];
+        size_t nt = off;
+        for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
+            nt += sizes[i];
+
+        if (nt < 3U * piol->comm->getNumRank())
+        {
+            piol->log->record("", Log::Layer::Set, Log::Status::Error,
+                "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
+            return;
+        }
+        else
+        {
+
         File::Param prm(lsnt);
         size_t loff = 0;
         for (auto & f : o.second)
@@ -187,13 +205,6 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 cpyPrm(i, &fprm, loff+i, &prm);
             loff += list.size();
         }
-        auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
-        size_t off = 0U;
-        for (size_t i = 0; i < piol->comm->getRank(); i++)
-            off += sizes[i];
-        size_t nt = off;
-        for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
-            nt += sizes[i];
 
         std::cout << "sort " << nt << " " << off << std::endl;
         auto trlist = File::sort(piol.get(), nt, off, &prm, func);
@@ -203,6 +214,8 @@ void InternalSet::sort(File::Compare<File::Param> func)
             for (auto & l : f->lst)
                 if (l != NOT_IN_OUTPUT)
                     l = trlist[j++];
+        }
+
         }
     }
 }

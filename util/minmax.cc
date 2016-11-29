@@ -12,25 +12,15 @@ int calcMin(std::string iname, std::string oname)
 
     auto dec = decompose(in.readNt(), piol.getNumRank(), piol.getRank());
     size_t offset = dec.first;
-    size_t num = dec.second;
+    size_t lnt = dec.second;
 
-    std::vector<TraceParam> prm;
-    try
-    {
-        prm.resize(num);
-    }
-    catch (std::bad_alloc e)
-    {
-        std::cout << "Could not allocate vector" << std::endl;
-        return -1;
-    }
-
+    Param prm(lnt);
     std::vector<CoordElem> minmax(12U);
-    in.readTraceParam(offset, num, prm.data());
+    in.readTraceParam(offset, lnt, &prm);
 
-    getMinMax(piol, offset, num, Coord::Src, prm.data(), minmax.data());
-    getMinMax(piol, offset, num, Coord::Rcv, prm.data(), minmax.data()+4U);
-    getMinMax(piol, offset, num, Coord::CMP, prm.data(), minmax.data()+8U);
+    getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
+    getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
+    getMinMax(piol, offset, lnt, Meta::xCmp, Meta::yCmp, &prm, minmax.data()+8U);
 
     size_t sz = (!piol.getRank() ? minmax.size() : 0U);
     size_t usz = 0;
@@ -49,18 +39,18 @@ int calcMin(std::string iname, std::string oname)
         usz = uniqlist.size();
     }
 
-    std::vector<TraceParam> tprm(usz);
-    in.readTraceParam(usz, uniqlist.data(), tprm.data());
+    Param tprm(usz);
+    in.readTraceParam(usz, uniqlist.data(), &tprm);
 
-    std::vector<TraceParam> oprm(sz);
+    std::vector<Param> oprm(sz);
     std::vector<trace_t> trace(sz);
     for (size_t i = 0U; i < sz; i++)
         for (size_t j = 0U; j < usz; j++)
         {
             if (list[i] == uniqlist[j])
             {
-                oprm[i] = tprm[j];
-                oprm[i].tn = minmax[i].num;
+                cpyPrm(j, &tprm, 0U, &oprm[i]);
+                setPrm(0U, Meta::tn,  minmax[i].num, &oprm[i]);
                 trace[i] = trace_t(1);
                 j = usz;
             }
