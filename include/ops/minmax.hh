@@ -65,7 +65,6 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
 
     //Global
     auto s = std::minmax_element(tminmax.begin(), tminmax.end());
-
     std::vector<CoordElem> minmax = {{*s.first, ttrace[std::distance(tminmax.begin(), s.first)]},
                                      {*s.second, ttrace[std::distance(tminmax.begin(), s.second)]}};
     return minmax;

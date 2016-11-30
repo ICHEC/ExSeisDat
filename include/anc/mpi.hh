@@ -55,39 +55,12 @@ class MPI : public Comm::Interface
      */
     MPI_Comm getComm() const;
 
-    /*! Perform an allgather and return an array of values (geom_t)
-     *  \param[in] val A vector of the processes' values
-     *  \return A vector containing each processes' value on each processor
-     */
-    std::vector<geom_t> gather(const std::vector<geom_t> & val) const;
-
-    /*! Perform an allgather and return an array of values (llint)
-     *  \param[in] val A vector of the processes' values
-     *  \return A vector containing each processes' value on each processor
-     */
-    std::vector<llint> gather(const std::vector<llint> & val) const;
-
-    /*! Perform an allgather and return an array of values (size_t)
-     *  \param[in] val A vector of the processes' values
-     *  \return A vector containing each processes' value on each processor
-     */
-    std::vector<size_t> gather(const std::vector<size_t> & val) const;
-
-    /*! Perform a reduce across all process to get the sum of the passed values
-     * \param[in] val variable to be used in the operation from thie process
-     * \return the global sum (same value on all processes)
-     */
+    std::vector<geom_t> gather(const std::vector<geom_t> & in) const;
+    std::vector<llint> gather(const std::vector<llint> & in) const;
+    std::vector<size_t> gather(const std::vector<size_t> & in) const;
+//    std::vector<size_t> gather(const std::vector<size_t> & val, size_t i) const;
     size_t sum(size_t val);
-
-    /*! Perform a reduce across all process to get the max of the passed values
-     * \param[in] val variable to be used in the operation from thie process
-     * \return the global max (same value on all processes)
-     */
     size_t max(size_t val);
-
-    /*! \brief All processors will wait at the barrier until everyone arrives.
-     *  The MPI implementation of the pure virtual base member simply calls MPI_Barrier
-     */
     void barrier(void) const;
 };
 }}

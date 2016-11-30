@@ -17,6 +17,8 @@
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
 namespace PIOL {
+typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;
+
 constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
@@ -228,9 +230,65 @@ std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
     return index;
 }
 
-void InternalSet::output(std::string oname)
+void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list,
+                                File::Interface * in, File::Interface * out, size_t max)
+{
+    std::vector<size_t> & ilist = list.first;
+    std::vector<size_t> & olist = list.second;
+    size_t lnt = ilist.size();
+    size_t fmax = std::min(lnt, max);
+    size_t ns = in->readNs();
+
+    File::Param iprm(rule, fmax);
+    File::Param oprm(rule, fmax);
+    std::vector<trace_t> itrc(fmax * ns);
+    std::vector<trace_t> otrc(fmax * ns);
+    auto biggest = piol->comm->max(lnt);
+    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
+    for (size_t i = 0; i < lnt; i += max)
+    {
+        size_t rblock = (i + max < lnt ? max : lnt - i);
+        in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
+
+        std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
+        for (size_t j = 0U; j < rblock; j++)
+        {
+            cpyPrm(sortlist[j], &iprm, j, &oprm);
+
+            for (size_t k = 0U; k < ns; k++)
+                otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
+            sortlist[j] = olist[i+sortlist[j]];
+        }
+        out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
+    }
+    for (size_t i = 0; i < extra; i++)
+    {
+        in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
+        out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
+    }
+}
+
+
+iolst getList(FileDesc * f)
+{
+    iolst list;
+    size_t cnt = 0;
+    for (auto & l : f->lst)
+    {
+        if (l != NOT_IN_OUTPUT)
+        {
+            list.first.push_back(l);
+            list.second.push_back(f->offset + cnt);
+        }
+        cnt++;
+    }
+    return list;
+}
+
+std::vector<std::string> InternalSet::output(std::string oname)
 {
     std::cout << "output" << std::endl;
+    std::vector<std::string> names;
     for (auto & o : fmap)
     {
         size_t ns = o.first.first;
@@ -239,6 +297,7 @@ void InternalSet::output(std::string oname)
             name = oname + ".segy";
         else
             name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
+        names.push_back(name);
 
         std::unique_ptr<File::SEGY> out;
         auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);
@@ -256,51 +315,87 @@ void InternalSet::output(std::string oname)
 //TODO: This is not the ideal for small files. per input file read/write
 // The ideal is to have a buffer for each which is emptied when full or EOF. This is a little tricky
 // because the write buffer would interleave with the read a bit.
+
         for (auto & f : o.second)
         {
-            std::vector<size_t> ilist;
-            std::vector<size_t> olist;              //TODO: Factor in that olist can be bigger than expected
-            size_t cnt = 0;
-            for (auto & l : f->lst)
-            {
-                if (l != NOT_IN_OUTPUT)
-                {
-                    ilist.push_back(f->offset + cnt);
-                    olist.push_back(l);
-                }
-                cnt++;
-            }
-            size_t lnt = ilist.size();
-            size_t fmax = std::min(lnt, max);
+            auto l = getList(f);
+            readwriteTraces(piol.get(), rule, l, f->ifc.get(), out.get(), max);
+        }
+    }
+    return names;
+}
 
-            File::Param iprm(rule, fmax);
-            File::Param oprm(rule, fmax);
-            std::vector<trace_t> itrc(fmax * ns);
-            std::vector<trace_t> otrc(fmax * ns);
-            auto biggest = piol->comm->max(lnt);
-            size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-            for (size_t i = 0; i < lnt; i += max)
-            {
-                size_t rblock = (i + max < lnt ? max : lnt - i);
-                f->ifc->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
 
-                std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
-                for (size_t j = 0U; j < rblock; j++)
-                {
-                    cpyPrm(sortlist[j], &iprm, j, &oprm);
+void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, File::CoordElem * minmax)
+{
+    minmax[0].val = std::numeric_limits<geom_t>::max();
+    minmax[1].val = std::numeric_limits<geom_t>::min();
+    minmax[2].val = std::numeric_limits<geom_t>::max();
+    minmax[3].val = std::numeric_limits<geom_t>::min();
+    for (auto & f : file)
+    {
+        auto l = getList(&f).first;
+        File::Param prm(l.size());
+        f.ifc->readParam(f.offset, l.size(), &prm);
+        std::vector<File::CoordElem> tminmax(4U);
 
-                    for (size_t k = 0U; k < ns; k++)
-                        otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
-                    sortlist[j] = olist[i+sortlist[j]];
-                }
-                out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
-            }
-            for (size_t i = 0; i < extra; i++)
-            {
-                f->ifc->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-                out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
-            }
+        std::vector<File::Param> vprm;
+        for (size_t i = 0; i < l.size(); i++)
+        {
+            vprm.emplace_back(prm.r, 1U);
+            cpyPrm(i, &prm, 0, &vprm.back());
+        }
+
+        File::getMinMax(piol.get(), f.offset, l.size(), vprm.data(), xlam, ylam, tminmax.data());
+        for (size_t i = 0U; i < 2U; i++)
+        {
+            if (tminmax[2U*i].val == minmax[2U*i].val)
+                minmax[2U*i].num = std::min(tminmax[2U*i].num, tminmax[2U*i].num);
+            else if (tminmax[2U*i].val < minmax[2U*i].val)
+                minmax[2U*i].val = tminmax[2U*i].val;
+
+            if (tminmax[2U*i+1U].val == minmax[2U*i+1U].val)
+                minmax[2U*i+1U].num = std::min(tminmax[2U*i+1U].num, tminmax[2U*i+1U].num);
+            else if (tminmax[2U*i+1U].val > minmax[2U*i+1U].val)
+                minmax[2U*i+1U].val = tminmax[2U*i+1U].val;
         }
     }
 }
+
+
+/*void InternalSet::readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm) const
+{
+    auto offset = piol->comm->gather(std::vector<size_t>{off});
+    auto szs = piol->comm->gather(std::vector<size_t>{sz});
+
+    //TODO: S-01552 - IME burst buffer target - Temporary file containing a list would make this easier.
+
+    std::vector<size_t> filemat;
+    std::vector<size_t> itrcmat;
+    std::vector<size_t> otrcmat;
+    for (size_t i = 0; i < szs.size(); i++)
+    {
+        std::vector<size_t> fmat;
+        std::vector<size_t> imat;
+        std::vector<size_t> omat;
+
+        for (size_t i = 0; i < file.size(); i++)
+        {
+            for (size_t j = 0; j < file[i].lst.size(); j++)
+                if (file[i].lst[j] >= offset[i] && file[i].lst[j] < offset[i] + szs[i])
+                {
+                    fmat.push_back(i);
+                    imat.push_back(j);
+                    omat.push_back(file[i].lst[j]);
+                }
+            filemat = gather(fmat, i);
+            itrcmat = gather(imat, i);
+            otrcmat = gather(omat, i);
+        }
+    }
+
+//    std::map<std::pair<size_t, si
+    readTraces(piol, ilist, olist, in,
+    readwriteTraces(piol, ilist, olist, in, out, max);
+}*/
 }

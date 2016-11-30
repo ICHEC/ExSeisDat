@@ -44,23 +44,24 @@ class Interface
         return numRank;
     }
 
-    /*! \brief Pass a geom_t value and return the corresponding value on each process
+    /*! \brief Pass a vector of geom_te and return the corresponding values to each process
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
     virtual std::vector<geom_t> gather(const std::vector<geom_t> & val) const = 0;
 
-    /*! \brief Pass a llint value and return the corresponding value on each process
+    /*! \brief Pass a vector of llint and return the corresponding values to each process
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
     virtual std::vector<llint> gather(const std::vector<llint> & val) const = 0;
 
-    /*! \brief Pass a size_t value and return the corresponding value on each process
+    /*! \brief Pass a vector of size_t and return the corresponding values to each process
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
     virtual std::vector<size_t> gather(const std::vector<size_t> & val) const = 0;
+//    virtual std::vector<size_t> gather(const std::vector<size_t> & val, size_t i) const = 0;
 
     /*! Perform a reduce across all process to get the sum of the passed values
      * \param[in] val variable to be used in the operation from thie process

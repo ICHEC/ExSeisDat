@@ -9,6 +9,7 @@
 #define PIOLSET_INCLUDE_GUARD
 #include "global.hh"
 #include "file/file.hh"
+#include "ops/minmax.hh"
 #include "ops/sort.hh"
 #include <functional>
 #include <memory>
@@ -56,17 +57,15 @@ class InternalSet
     size_t getSetNt(void);
     size_t getLNt(void);
 
-    void output(std::string oname);
+    std::vector<std::string> output(std::string oname);
+
+    void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, File::CoordElem * minmax);
 
     void text(std::string outmsg_)
     {
         outmsg = outmsg_;
     }
     void summary(void) const;
-#warning TODO:
-    void add()
-    {
-    }
 };
 }
 #endif

@@ -6,6 +6,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <assert.h>
 #include "global.hh"
 #include "anc/mpi.hh"
 #include "share/mpi.hh"
@@ -100,6 +101,41 @@ std::vector<geom_t> MPI::gather(const std::vector<geom_t> & in) const
 {
     return MPIGather(log, this, in);
 }
+
+/*std::vector<size_t> MPI::gather(const std::vector<size_t> & in, size_t i) const
+{
+    std::vector<int32_t> lsz;
+    {
+        auto tsz = gather(std::vector<size_t>{in.size()});
+        lsz.resize(tsz.size());
+        for (size_t i = 0; i < tsz.size(); i++)
+            lsz[i] = tsz[i];
+    }
+    size_t tots = lsz[0];
+
+    std::vector<int32_t> displ(lsz.size());
+    displ[0U] = 0U;
+    for (size_t i = 1U; i < displ.size(); i++)
+    {
+        displ[i] = lsz[i-1];
+        tots += lsz[i-1];
+    }
+    assert(tots < getLim<int32_t>()); //This gather can not handle MPI memory limits correctly.
+
+    std::vector<size_t> out;
+    int err;
+    if (i != rank)
+        err = MPI_Gatherv(in.data(), in.size(), MPIType<size_t>(), NULL, lsz.data(),
+                                  displ.data(), MPIType<size_t>(), i, comm);
+    else
+    {
+        out.resize(tots);
+        err = MPI_Gatherv(in.data(), in.size(), MPIType<size_t>(), out.data(), lsz.data(),
+                                  displ.data(), MPIType<size_t>(), i, comm);
+    }
+    printErr(log, "", Log::Layer::Set, err, NULL, "MPI_Allgatherv rcv failed");
+    return out;
+}*/
 
 void MPI::barrier(void) const
 {
