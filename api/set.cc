@@ -6,7 +6,7 @@
  *   \brief The Set layer interface
 *//*******************************************************************************************/
 #include "set.hh"
-
+#include "file/dynsegymd.hh"
 namespace PIOL {
 std::shared_ptr<File::Rule> getMaxRules(void)
 {
@@ -23,5 +23,13 @@ std::shared_ptr<File::Rule> getMaxRules(void)
 void Set::sort(File::SortType type)
 {
     InternalSet::sort(File::getComp(type));
+}
+
+
+void Set::getMinMax(File::Meta m1, File::Meta m2, File::CoordElem * minmax)
+{
+    InternalSet::getMinMax([m1](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m1, &a); },
+                           [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
+
 }
 }

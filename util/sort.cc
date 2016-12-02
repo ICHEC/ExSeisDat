@@ -32,8 +32,16 @@ int main(int argc, char ** argv)
         }
 
     assert(name1.size() && name2.size());
+
+    if (!piol.getRank())
+        std::cout << "Set\n";
     Set set(piol, name1, name2);
+    if (!piol.getRank())
+        std::cout << "Sort\n";
     set.sort(type);
     piol.isErr();
+    if (!piol.getRank())
+        std::cout << "Output\n";
+
     return 0;
 }

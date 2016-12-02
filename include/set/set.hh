@@ -29,6 +29,7 @@ struct FileDesc
 
 class InternalSet
 {
+    private :
     /*! State flags structure for Set
      */
 #warning None of these flags are supported yet
@@ -41,8 +42,9 @@ class InternalSet
     Piol piol;
     std::string outfix;
     std::string outmsg;
-    std::deque<FileDesc> file;
+    std::deque<std::unique_ptr<FileDesc>> file;
     std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;
+    std::map<std::pair<size_t, geom_t>, size_t> offmap;
 
     std::deque<std::function<void(std::vector<size_t> &)>> func;
     std::shared_ptr<File::Rule> rule;
@@ -50,6 +52,7 @@ class InternalSet
     void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);
     public :
     InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_);
+    InternalSet(Piol piol_, std::shared_ptr<File::Rule> rule_) : piol(piol_), rule(rule_) { }
     ~InternalSet(void);
 
     void sort(File::Compare<File::Param> func);
@@ -58,14 +61,13 @@ class InternalSet
     size_t getLNt(void);
 
     std::vector<std::string> output(std::string oname);
-
     void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, File::CoordElem * minmax);
-
     void text(std::string outmsg_)
     {
         outmsg = outmsg_;
     }
     void summary(void) const;
+    void add(std::unique_ptr<File::Interface> in);
 };
 }
 #endif

@@ -71,6 +71,29 @@ InternalSet::~InternalSet(void)
         output(outfix);
 }
 
+void InternalSet::add(std::unique_ptr<File::Interface> in)
+{
+    file.emplace_back(std::make_unique<FileDesc>());
+    auto & f = file.back();
+    f->ifc = std::move(in);
+
+    auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+    f->lst.resize(dec.second);
+
+    auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
+    fmap[key].emplace_back(f.get());
+
+    auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
+    size_t loff = 0U;    //The local process's offset into the file.
+    for (size_t i = 0U; i < piol->comm->getRank(); i++)
+        loff += sizes[i];
+
+    auto & off = offmap[key];
+    std::iota(f->lst.begin(), f->lst.end(), off + loff);
+    f->offset = off + loff;
+    off += f->ifc->readNt();
+}
+
 void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
     outmsg = "ExSeisPIOL: Set layer output\n";
@@ -81,7 +104,6 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
 
     std::regex reg(".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize | std::regex::extended);
 
-    std::map<std::pair<size_t, geom_t>, size_t> offmap;
     for (size_t i = 0; i < globs.gl_pathc; i++)
         if (std::regex_match(globs.gl_pathv[i], reg))
         {
@@ -89,30 +111,31 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
             auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
             //TODO: There could be a problem with excessive amounts of open files
-            file.resize(file.size() + 1);
+//            file.emplace_back();
+            file.emplace_back(std::make_unique<FileDesc>());
             auto & f = file.back();
-            f.ifc = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
+            f->ifc = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
 
-            auto dec = decompose(f.ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
-            f.lst.resize(dec.second);
+            auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+            f->lst.resize(dec.second);
 
-            auto key = std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc());
-            fmap[key].emplace_back(&f);
+            auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
+            fmap[key].emplace_back(f.get());
             offmap[key] = 0U;
         }
 
     for (auto & f : file)
     {
-        auto sizes = piol->comm->gather(std::vector<size_t>{f.lst.size()});
+        auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
         size_t loff = 0;    //The local process's offset into the file.
         for (size_t i = 0; i < piol->comm->getRank(); i++)
             loff += sizes[i];
 
-        auto key = std::make_pair<size_t, geom_t>(f.ifc->readNs(), f.ifc->readInc());
+        auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
         auto & off = offmap[key];
-        std::iota(f.lst.begin(), f.lst.end(), off + loff);
-        f.offset = off + loff;
-        off += f.ifc->readNt();
+        std::iota(f->lst.begin(), f->lst.end(), off + loff);
+        f->offset = off + loff;
+        off += f->ifc->readNt();
     }
 
     globfree(&globs);
@@ -124,7 +147,7 @@ size_t InternalSet::getInNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-        nt += f.ifc->readNt();
+        nt += f->ifc->readNt();
     return nt;
 }
 
@@ -132,7 +155,7 @@ size_t InternalSet::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-        for (auto & l : f.lst)
+        for (auto & l : f->lst)
             nt += (l != NOT_IN_OUTPUT);
     return nt;
 }
@@ -149,10 +172,10 @@ void InternalSet::summary(void) const
 {
     for (auto & f : file)
     {
-        std::string msg =  "name: " + f.ifc->readName() + "\n" +
-                          "-\tNs: " + std::to_string(f.ifc->readNs())   + "\n" +
-                          "-\tNt: " + std::to_string(f.ifc->readNt())   + "\n" +
-                         "-\tInc: " + std::to_string(f.ifc->readInc())  + "\n";
+        std::string msg =  "name: " + f->ifc->readName() + "\n" +
+                          "-\tNs: " + std::to_string(f->ifc->readNs())   + "\n" +
+                          "-\tNt: " + std::to_string(f->ifc->readNt())   + "\n" +
+                         "-\tInc: " + std::to_string(f->ifc->readInc())  + "\n";
 
         piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , Log::Verb::None);
     }
@@ -190,34 +213,40 @@ void InternalSet::sort(File::Compare<File::Param> func)
         }
         else
         {
+            File::Param prm(lsnt);
+            size_t loff = 0;
+            for (auto & f : o.second)
+            {
+                std::vector<size_t> list;
+                for (size_t i = 0; i < f->lst.size(); i++)
+                    if (f->lst[i] != NOT_IN_OUTPUT)
+                        list.push_back(f->offset + i);
 
-        File::Param prm(lsnt);
-        size_t loff = 0;
-        for (auto & f : o.second)
-        {
-            std::vector<size_t> list;
-            for (size_t i = 0; i < f->lst.size(); i++)
-                if (f->lst[i] != NOT_IN_OUTPUT)
-                    list.push_back(f->offset + i);
+                //TODO: Makes assumptions about Parameter sizes.
+                File::Param fprm(list.size());
+                f->ifc->readParam(list.size(), list.data(), &fprm);
+                for (size_t i = 0; i < list.size(); i++)
+                    cpyPrm(i, &fprm, loff+i, &prm);
+                loff += list.size();
+            }
 
-            //TODO: Makes assumptions about Parameter sizes.
-            File::Param fprm(list.size());
-            f->ifc->readParam(list.size(), list.data(), &fprm);
-            for (size_t i = 0; i < list.size(); i++)
-                cpyPrm(i, &fprm, loff+i, &prm);
-            loff += list.size();
-        }
+//            for (size_t i = 0; i < lsnt; i++)
+//                std::cout << File::getPrm<geom_t>(i, File::Meta::xSrc, &prm) << std::endl;
 
-        std::cout << "sort " << nt << " " << off << std::endl;
-        auto trlist = File::sort(piol.get(), nt, off, &prm, func);
-        size_t j = 0;
-        for (auto & f : o.second)
-        {
-            for (auto & l : f->lst)
-                if (l != NOT_IN_OUTPUT)
-                    l = trlist[j++];
-        }
+//            std::cout << std::endl << std::endl;
+            auto trlist = File::sort(piol.get(), nt, off, &prm, func);
 
+//            for (size_t i = 0; i < trlist.size(); i++)
+//                std::cout << trlist[i] << std::endl;
+//            std::cout << std::endl << std::endl;
+
+            size_t j = 0;
+            for (auto & f : o.second)
+            {
+                for (auto & l : f->lst)
+                    if (l != NOT_IN_OUTPUT)
+                        l = trlist[j++];
+            }
         }
     }
 }
@@ -277,8 +306,8 @@ iolst getList(FileDesc * f)
     {
         if (l != NOT_IN_OUTPUT)
         {
-            list.first.push_back(l);
-            list.second.push_back(f->offset + cnt);
+            list.first.push_back(f->offset + cnt);
+            list.second.push_back(l);
         }
         cnt++;
     }
@@ -287,7 +316,6 @@ iolst getList(FileDesc * f)
 
 std::vector<std::string> InternalSet::output(std::string oname)
 {
-    std::cout << "output" << std::endl;
     std::vector<std::string> names;
     for (auto & o : fmap)
     {
@@ -334,9 +362,9 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     minmax[3].val = std::numeric_limits<geom_t>::min();
     for (auto & f : file)
     {
-        auto l = getList(&f).first;
+        auto l = getList(f.get()).first;
         File::Param prm(l.size());
-        f.ifc->readParam(f.offset, l.size(), &prm);
+        f->ifc->readParam(f->offset, l.size(), &prm);
         std::vector<File::CoordElem> tminmax(4U);
 
         std::vector<File::Param> vprm;
@@ -346,7 +374,7 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
             cpyPrm(i, &prm, 0, &vprm.back());
         }
 
-        File::getMinMax(piol.get(), f.offset, l.size(), vprm.data(), xlam, ylam, tminmax.data());
+        File::getMinMax(piol.get(), f->offset, l.size(), vprm.data(), xlam, ylam, tminmax.data());
         for (size_t i = 0U; i < 2U; i++)
         {
             if (tminmax[2U*i].val == minmax[2U*i].val)

@@ -21,9 +21,13 @@ class Set : public InternalSet
              InternalSet(piol_, pattern, outfix_, rule_)  {  }
     Set(Piol piol_, std::string pattern, std::shared_ptr<File::Rule> rule_ = getMaxRules()) :
              InternalSet(piol_, pattern, "", rule_)  {  }
+    //For tests:
+    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = getMaxRules()) :
+             InternalSet(piol_, rule_)  {  }
 
 
     void sort(File::SortType type);
+    void getMinMax(File::Meta m1, File::Meta m2, File::CoordElem * minmax);
 };
 }
 #endif
