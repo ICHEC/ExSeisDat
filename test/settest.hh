@@ -67,7 +67,7 @@ struct SetTest : public Test
                 for (size_t i = 0; i < numFile; i++)
                 {
                     auto mock = std::make_unique<MockFile>();
-                    size_t nt = 1000LU + i;
+                    size_t nt = 1000U + i;
                     EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
                     EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(1000U + i));
                     EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(1000. + geom_t(i)));
@@ -75,7 +75,6 @@ struct SetTest : public Test
                     auto dec = decompose(nt, piol->comm->getNumRank(), piol->comm->getRank());
                     prm.emplace_back(dec.second);
 
-                    size_t numFloat = prm.back().r->numFloat;
                     File::Param * tprm = &prm.back();
 
                     if (linear)
@@ -95,13 +94,13 @@ struct SetTest : public Test
                         for (size_t l = 0; l < dec.second; l++)
                         {
                             setPrm(l, File::Meta::xSrc, 2000. - geom_t((dec.first + l) % (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::ySrc, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::xRcv, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::yRcv, 2000. - geom_t((dec.first + l) / (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::ySrc, 2000., tprm);
+                            setPrm(l, File::Meta::xRcv, 2000., tprm);
+                            setPrm(l, File::Meta::yRcv, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
                             setPrm(l, File::Meta::xCmp, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
                             setPrm(l, File::Meta::yCmp, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
                             setPrm(l, File::Meta::il, 2000U + (dec.first + l) % (nt / 10U), tprm);
-                            setPrm(l, File::Meta::xl, 2000U + (dec.first + l) % (nt / 10U), tprm);
+                            setPrm(l, File::Meta::xl, 2000U + (dec.first + l) / (nt / 10U), tprm);
                             setPrm(l, File::Meta::tn, l+dec.first, tprm);
                         }
                     EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _))
