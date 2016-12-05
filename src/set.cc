@@ -229,24 +229,12 @@ void InternalSet::sort(File::Compare<File::Param> func)
                     cpyPrm(i, &fprm, loff+i, &prm);
                 loff += list.size();
             }
-
-//            for (size_t i = 0; i < lsnt; i++)
-//                std::cout << File::getPrm<geom_t>(i, File::Meta::xSrc, &prm) << std::endl;
-
-//            std::cout << std::endl << std::endl;
             auto trlist = File::sort(piol.get(), nt, off, &prm, func);
-
-//            for (size_t i = 0; i < trlist.size(); i++)
-//                std::cout << trlist[i] << std::endl;
-//            std::cout << std::endl << std::endl;
-
             size_t j = 0;
             for (auto & f : o.second)
-            {
                 for (auto & l : f->lst)
                     if (l != NOT_IN_OUTPUT)
                         l = trlist[j++];
-            }
         }
     }
 }

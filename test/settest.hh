@@ -57,7 +57,7 @@ struct SetTest : public Test
         piol = std::make_shared<ExSeisPIOL>(opt);
         set = nullptr;
     }
-    void init(size_t numFile, size_t numNs, size_t numInc)
+    void init(size_t numFile, size_t numNs, size_t numInc, size_t srtCnt, bool linear)
     {
         if (set.get() != nullptr)
             set.release();
@@ -67,27 +67,46 @@ struct SetTest : public Test
                 for (size_t i = 0; i < numFile; i++)
                 {
                     auto mock = std::make_unique<MockFile>();
-                    EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(1000U + i));
+                    size_t nt = 1000LU + i;
+                    EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
                     EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(1000U + i));
                     EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(1000. + geom_t(i)));
 
-                    auto dec = decompose(1000U + i, piol->comm->getNumRank(), piol->comm->getRank());
+                    auto dec = decompose(nt, piol->comm->getNumRank(), piol->comm->getRank());
                     prm.emplace_back(dec.second);
 
                     size_t numFloat = prm.back().r->numFloat;
                     File::Param * tprm = &prm.back();
-                    for (size_t l = 0; l < dec.second; l++)
-                    {
-                        setPrm(l, File::Meta::xSrc, 2. - geom_t(dec.first + l), tprm);
-                        setPrm(l, File::Meta::ySrc, 2. - geom_t(dec.first + l), tprm);
-                        setPrm(l, File::Meta::xRcv, 2. - geom_t(dec.first + l), tprm);
-                        setPrm(l, File::Meta::yRcv, 2. - geom_t(dec.first + l), tprm);
-                        setPrm(l, File::Meta::xCmp, 2. - geom_t(dec.first + l), tprm);
-                        setPrm(l, File::Meta::yCmp, 2. - geom_t(dec.first + l), tprm);
-                    }
+
+                    if (linear)
+                        for (size_t l = 0; l < dec.second; l++)
+                        {
+                            setPrm(l, File::Meta::xSrc, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, File::Meta::ySrc, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, File::Meta::xRcv, 2000. + geom_t(dec.first + l), tprm);
+                            setPrm(l, File::Meta::yRcv, 2000. + geom_t(dec.first + l), tprm);
+                            setPrm(l, File::Meta::xCmp, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, File::Meta::yCmp, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, File::Meta::il, 2000U + dec.first + l, tprm);
+                            setPrm(l, File::Meta::xl, 2000U + dec.first + l, tprm);
+                            setPrm(l, File::Meta::tn, l+dec.first, tprm);
+                        }
+                    else
+                        for (size_t l = 0; l < dec.second; l++)
+                        {
+                            setPrm(l, File::Meta::xSrc, 2000. - geom_t((dec.first + l) % (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::ySrc, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::xRcv, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::yRcv, 2000. - geom_t((dec.first + l) / (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::xCmp, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::yCmp, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
+                            setPrm(l, File::Meta::il, 2000U + (dec.first + l) % (nt / 10U), tprm);
+                            setPrm(l, File::Meta::xl, 2000U + (dec.first + l) % (nt / 10U), tprm);
+                            setPrm(l, File::Meta::tn, l+dec.first, tprm);
+                        }
                     EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _))
-                                    .Times(Exactly(1))
-                                    .WillOnce(cpyprm(&prm.back()));
+                                    .Times(Exactly(srtCnt))
+                                    .WillRepeatedly(cpyprm(&prm.back()));
 
                     set->add(std::move(mock));
                 }
