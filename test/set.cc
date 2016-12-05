@@ -175,5 +175,28 @@ TEST_F(SetTest, getMinMax)
     EXPECT_EQ(minmax[1].num, 0);
     EXPECT_EQ(minmax[2].num, 999);
     EXPECT_EQ(minmax[3].num, 0);
+}
 
+TEST_F(SetTest, getActive)
+{
+    init(1, 1000U, 10);
+
+    EXPECT_EQ(set->getInNt(), 1000U);
+    EXPECT_EQ(set->getLNt(), 1000U - 10U);
+}
+
+TEST_F(SetTest, getActive2)
+{
+    init(1, 3333, 1111);
+
+    EXPECT_EQ(set->getInNt(), 3333U);
+    EXPECT_EQ(set->getLNt(), 2222U);
+}
+
+TEST_F(SetTest, getActive3)
+{
+    init(2, 3333, 1111);
+
+    EXPECT_EQ(set->getInNt(), 2U*3333U);
+    EXPECT_EQ(set->getLNt(), 2U*2222U);
 }

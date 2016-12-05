@@ -110,5 +110,33 @@ struct SetTest : public Test
                     set->add(std::move(mock));
                 }
     }
+
+
+    void init(size_t numFile, size_t nt, size_t inactive)
+    {
+        constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
+        srand(1337);
+        if (set.get() != nullptr)
+            set.release();
+        set = std::make_unique<Set>(piol);
+        for (size_t i = 0; i < numFile; i++)
+        {
+            auto mock = std::make_unique<MockFile>();
+            EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
+            EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(1000U));
+            EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(1000.));
+
+            set->add(std::move(mock));
+
+            llint range = (nt / inactive);
+            for (size_t j = 0; j < inactive; j++)
+            {
+                size_t randj = range*j + (rand() % range);
+                set->file[i]->lst[randj] = NOT_IN_OUTPUT;
+            }
+        }
+    }
+
+
 };
 

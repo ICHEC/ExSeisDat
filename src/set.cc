@@ -113,7 +113,6 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
             auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
             //TODO: There could be a problem with excessive amounts of open files
-//            file.emplace_back();
             file.emplace_back(std::make_unique<FileDesc>());
             auto & f = file.back();
             f->ifc = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
@@ -163,12 +162,12 @@ size_t InternalSet::getLNt(void)
 }
 
 //Find the total set size
-size_t InternalSet::getSetNt(void)
+/*size_t InternalSet::getSetNt(void)
 {
     auto lnt = getLNt();
     //TODO: Perform a reduction here to add all the totals
     return lnt;
-}
+}*/
 
 void InternalSet::summary(void) const
 {
@@ -387,41 +386,4 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
         }
     }
 }
-
-
-/*void InternalSet::readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm) const
-{
-    auto offset = piol->comm->gather(std::vector<size_t>{off});
-    auto szs = piol->comm->gather(std::vector<size_t>{sz});
-
-    //TODO: S-01552 - IME burst buffer target - Temporary file containing a list would make this easier.
-
-    std::vector<size_t> filemat;
-    std::vector<size_t> itrcmat;
-    std::vector<size_t> otrcmat;
-    for (size_t i = 0; i < szs.size(); i++)
-    {
-        std::vector<size_t> fmat;
-        std::vector<size_t> imat;
-        std::vector<size_t> omat;
-
-        for (size_t i = 0; i < file.size(); i++)
-        {
-            for (size_t j = 0; j < file[i].lst.size(); j++)
-                if (file[i].lst[j] >= offset[i] && file[i].lst[j] < offset[i] + szs[i])
-                {
-                    fmat.push_back(i);
-                    imat.push_back(j);
-                    omat.push_back(file[i].lst[j]);
-                }
-            filemat = gather(fmat, i);
-            itrcmat = gather(imat, i);
-            otrcmat = gather(omat, i);
-        }
-    }
-
-//    std::map<std::pair<size_t, si
-    readTraces(piol, ilist, olist, in,
-    readwriteTraces(piol, ilist, olist, in, out, max);
-}*/
 }
