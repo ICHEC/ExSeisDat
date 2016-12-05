@@ -11,6 +11,8 @@
 #include <regex>
 #include <map>
 #include <numeric>
+#include <functional>
+#warning temp
 #include <iostream>
 #include "set/set.hh"
 #include "data/datampiio.hh"
@@ -341,6 +343,18 @@ std::vector<std::string> InternalSet::output(std::string oname)
     return names;
 }
 
+template <typename Op>
+void updateElem(File::CoordElem * src, File::CoordElem * dst)
+{
+    Op op;
+    if (src->val == dst->val)
+        dst->num = std::min(dst->num, src->num);
+    else if (op(src->val, dst->val))
+    {
+        dst->val = src->val;
+        dst->num = src->num;
+    }
+}
 
 void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, File::CoordElem * minmax)
 {
@@ -348,32 +362,28 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     minmax[1].val = std::numeric_limits<geom_t>::min();
     minmax[2].val = std::numeric_limits<geom_t>::max();
     minmax[3].val = std::numeric_limits<geom_t>::min();
+    for (size_t i = 0 ; i < 4; i++)
+        minmax[i].num = std::numeric_limits<size_t>::max();
+
     for (auto & f : file)
     {
         auto l = getList(f.get()).first;
-        File::Param prm(l.size());
-        f->ifc->readParam(f->offset, l.size(), &prm);
+        File::Param prm(rule, l.size());
+        f->ifc->readParam(l.size(), l.data(), &prm);
         std::vector<File::CoordElem> tminmax(4U);
 
         std::vector<File::Param> vprm;
         for (size_t i = 0; i < l.size(); i++)
         {
-            vprm.emplace_back(prm.r, 1U);
+            vprm.emplace_back(rule, 1U);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
 
         File::getMinMax(piol.get(), f->offset, l.size(), vprm.data(), xlam, ylam, tminmax.data());
         for (size_t i = 0U; i < 2U; i++)
         {
-            if (tminmax[2U*i].val == minmax[2U*i].val)
-                minmax[2U*i].num = std::min(tminmax[2U*i].num, tminmax[2U*i].num);
-            else if (tminmax[2U*i].val < minmax[2U*i].val)
-                minmax[2U*i].val = tminmax[2U*i].val;
-
-            if (tminmax[2U*i+1U].val == minmax[2U*i+1U].val)
-                minmax[2U*i+1U].num = std::min(tminmax[2U*i+1U].num, tminmax[2U*i+1U].num);
-            else if (tminmax[2U*i+1U].val > minmax[2U*i+1U].val)
-                minmax[2U*i+1U].val = tminmax[2U*i+1U].val;
+            updateElem<std::less<geom_t>>(&tminmax[2U*i], &minmax[2U*i]);
+            updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
         }
     }
 }

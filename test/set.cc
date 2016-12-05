@@ -1,5 +1,8 @@
+/* These unit tests might be fairly redundant since they are basically the same as the system tests.
+ */
 #include "settest.hh"
 
+//Sort
 TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
@@ -152,10 +155,25 @@ TEST_F(SetTest, SortSrcXRcvY)
     {
         size_t total = set->file[i]->lst.size();
         size_t l = 0;
-
         for (llint j = 0; j < 10U; j++)
             for (llint k = total / 10U - 1; k >= 0; k--, l++)
                 EXPECT_EQ(set->file[i]->lst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
         EXPECT_EQ(l, 1000+i);
     }
+}
+
+TEST_F(SetTest, getMinMax)
+{
+    init(1, 1, 1, 1, true);
+    std::vector<File::CoordElem> minmax(4);
+    set->getMinMax(File::Meta::xSrc, File::Meta::ySrc, minmax.data());
+    EXPECT_EQ(minmax[0].val, 1001.);
+    EXPECT_EQ(minmax[1].val, 2000.);
+    EXPECT_EQ(minmax[2].val, 1001.);
+    EXPECT_EQ(minmax[3].val, 2000.);
+    EXPECT_EQ(minmax[0].num, 999);
+    EXPECT_EQ(minmax[1].num, 0);
+    EXPECT_EQ(minmax[2].num, 999);
+    EXPECT_EQ(minmax[3].num, 0);
+
 }
