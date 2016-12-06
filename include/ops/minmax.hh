@@ -11,19 +11,10 @@
 #include <iterator>
 #include <functional>
 #include "global.hh"
+#include "share/api.hh"
 
-#include <cstring>
+//#include <cstring>
 namespace PIOL { namespace File {
-
-/*! A structure to hold a reference to a single coordinate and
- * the corresponding trace number
- */
-struct CoordElem
-{
-    geom_t val;     //!< The value
-    size_t num;     //!< The trace number
-};
-
 template <typename T>
 using Func = std::function<geom_t(const T &)>;
 

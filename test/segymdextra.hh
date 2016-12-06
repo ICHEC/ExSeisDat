@@ -74,6 +74,55 @@ enum class TrGrd : size_t
     xl        = 193U  //!< int32_t. The Crossline grid point.
 };
 
+struct coord_t
+{
+    geom_t x;   //!< The x coordinate
+    geom_t y;   //!< The y coordinate
+
+    /*! Constructor for initialising coordinates
+     *  \param[in] x_ intialisation value for x
+     *  \param[in] y_ intialisation value for x
+     */
+    coord_t(const geom_t x_, const geom_t y_) : x(x_), y(y_) { }
+    /*! Default constructor (set both coordinates to 0)
+     */
+    coord_t() : x(geom_t(0)), y(geom_t(0)) { }
+};
+
+/*! A structure composed of two grid values to form a single grid point
+ */
+struct grid_t
+{
+    llint il;   //!< The inline value
+    llint xl;   //!< The crossline value
+
+    /*! Constructor for initialising a grid point
+     *  \param[in] i_ intialisation value for il
+     *  \param[in] x_ intialisation value for xl
+     */
+    grid_t(const geom_t i_, const geom_t x_) : il(i_), xl(x_) { }
+
+    /*! Default constructor (set both grid values to 0)
+     */
+    grid_t() : il(llint(0)), xl(llint(0)) { }
+};
+
+/*! \brief Possible coordinate sets
+ */
+enum class Coord : size_t
+{
+    Src,    //!< Source Coordinates
+    Rcv,    //!< Receiver Coordinates
+    CMP     //!< Common Midpoint Coordinates
+};
+
+/*! \brief Possible Grids
+ */
+enum class Grid : size_t
+{
+    Line    //!< Inline/Crossline grid points
+};
+
 /*! \brief Return a pair of coordinate offsets
  *  \param[in] pair The coordinate point type to return
  *  \return The pair of offset enums
@@ -130,8 +179,8 @@ extern void setGrid(const Grid item, const grid_t grid, uchar * buf);
 extern int16_t deScale(const geom_t val);
 extern int16_t scalComp(int16_t scal1, int16_t scal2);
 extern int16_t calcScale(const coord_t coord);
-extern void extractTraceParam(const uchar * md, TraceParam * prm);
-extern void insertTraceParam(const TraceParam * prm, uchar * md);
+//extern void extractTraceParam(const uchar * md, TraceParam * prm);
+//extern void insertTraceParam(const TraceParam * prm, uchar * md);
 extern void setScale(const TrScal item, const int16_t scale, uchar * buf, size_t start = 0);
 }}
 #endif

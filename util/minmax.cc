@@ -16,7 +16,7 @@ int calcMin(std::string iname, std::string oname)
 
     Param prm(lnt);
     std::vector<CoordElem> minmax(12U);
-    in.readTraceParam(offset, lnt, &prm);
+    in.readParam(offset, lnt, &prm);
 
     getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
     getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
@@ -40,7 +40,7 @@ int calcMin(std::string iname, std::string oname)
     }
 
     Param tprm(usz);
-    in.readTraceParam(usz, uniqlist.data(), &tprm);
+    in.readParam(usz, uniqlist.data(), &tprm);
 
     std::vector<Param> oprm(sz);
     std::vector<trace_t> trace(sz);

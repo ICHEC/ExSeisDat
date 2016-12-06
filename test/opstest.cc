@@ -5,6 +5,7 @@
 #include "fileops.hh"
 #include "anc/mpi.hh"
 #include "file/file.hh"
+#include "segymdextra.hh"
 using namespace testing;
 using namespace PIOL;
 using namespace File;

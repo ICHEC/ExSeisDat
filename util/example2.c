@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
 
     //Alloc the required memory for the data we want.
     float * trace = malloc(lnt * getSEGYTraceLen(ns));
-    Param trhdr = newDefParam(lnt);
+    CParam trhdr = newDefParam(lnt);
 
     //Create a SEGY file object for output
     ExSeisFile ofh = openWriteFile(piol, oname);
@@ -55,8 +55,8 @@ int main(int argc, char ** argv)
     writeInc(ofh, readInc(ifh));
 
     //Read the trace parameters from the input file and to the output
-    readTraceParam(ifh, offset, lnt, trhdr);
-    writeTraceParam(ofh, offset, lnt, trhdr);
+    readParam(ifh, offset, lnt, trhdr);
+    writeParam(ofh, offset, lnt, trhdr);
 
     //Read the traces from the input file and to the output
     readTrace(ifh, offset, lnt, trace);

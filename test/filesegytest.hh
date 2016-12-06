@@ -16,23 +16,23 @@
 #define protected public
 #include "cppfileapi.hh"
 #include "file/filesegy.hh"
+#include "segymdextra.hh"
 #undef private
 #undef protected
 
-namespace PIOL { namespace File {
+/*namespace PIOL { namespace File {
 extern int16_t calcScale(const coord_t coord);
 extern int16_t scalComp(int16_t scal1, int16_t scal2);
 extern void setCoord(const File::Coord item, const coord_t coord, const int16_t scale, uchar * buf);
 extern void setGrid(const File::Grid item, const grid_t grid, uchar * buf);
 extern int16_t deScale(const geom_t val);
-}}
+}}*/
 
 using namespace testing;
 using namespace PIOL;
 using PIOL::File::deScale;
-using PIOL::File::grid_t;
-using PIOL::File::coord_t;
-using PIOL::File::TraceParam;
+using File::coord_t;
+using File::grid_t;
 using File::calcScale;
 using File::scalComp;
 using File::setCoord;
@@ -257,13 +257,13 @@ struct FileSEGYTest : public Test
                     .Times(Exactly(1))
                     .WillRepeatedly(SetArrayArgument<3>(iter, iter + SEGSz::getMDSz()));
 
-        TraceParam prm;
-        file->readTraceParam(offset, 1U, &prm);
-        ASSERT_EQ(ilNum(offset), prm.line.il);
-        ASSERT_EQ(xlNum(offset), prm.line.xl);
+        File::Param prm(1U);
+        file->readParam(offset, 1U, &prm);
+        ASSERT_EQ(ilNum(offset), File::getPrm<llint>(0U, File::Meta::il, &prm));
+        ASSERT_EQ(xlNum(offset), File::getPrm<llint>(0U, File::Meta::xl, &prm));
 
-        ASSERT_DOUBLE_EQ(xNum(offset), prm.src.x);
-        ASSERT_DOUBLE_EQ(yNum(offset), prm.src.y);
+        ASSERT_DOUBLE_EQ(xNum(offset), File::getPrm<geom_t>(0U, File::Meta::xSrc, &prm));
+        ASSERT_DOUBLE_EQ(yNum(offset), File::getPrm<geom_t>(0U, File::Meta::ySrc, &prm));
     }
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
@@ -272,16 +272,16 @@ struct FileSEGYTest : public Test
                     .Times(Exactly(1))
                     .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        std::vector<File::TraceParam> prm(tn);
-        file->readTraceParam(0, tn, prm.data());
+        File::Param prm(tn);
+        file->readParam(0, tn, &prm);
 
         for (size_t i = 0; i < tn; i++)
         {
-            ASSERT_EQ(ilNum(i), prm[i].line.il);
-            ASSERT_EQ(xlNum(i), prm[i].line.xl);
+            ASSERT_EQ(ilNum(i), File::getPrm<llint>(i, File::Meta::il, &prm));
+            ASSERT_EQ(xlNum(i), File::getPrm<llint>(i, File::Meta::xl, &prm));
 
-            ASSERT_DOUBLE_EQ(xNum(i), prm[i].src.x);
-            ASSERT_DOUBLE_EQ(yNum(i), prm[i].src.y);
+            ASSERT_DOUBLE_EQ(xNum(i), File::getPrm<geom_t>(i, File::Meta::xSrc, &prm));
+            ASSERT_DOUBLE_EQ(yNum(i), File::getPrm<geom_t>(i, File::Meta::ySrc, &prm));
         }
     }
 
@@ -333,10 +333,11 @@ struct FileSEGYTest : public Test
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
                                                         .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
 
-        TraceParam prm;
-        prm.line = {ilNum(offset), xlNum(offset)};
-        prm.tn = offset;
-        file->writeTraceParam(offset, 1U, &prm);
+        File::Param prm(1U);
+        File::setPrm(0, File::Meta::il, ilNum(offset), &prm);
+        File::setPrm(0, File::Meta::xl, xlNum(offset), &prm);
+        File::setPrm(0, File::Meta::tn, offset, &prm);
+        file->writeParam(offset, 1U, &prm);
     }
 
     void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val,
@@ -386,17 +387,17 @@ struct FileSEGYTest : public Test
         }
 
         std::vector<float> bufnew(tn * ns);
-        std::vector<File::TraceParam> prm(tn);
-        file->readTrace(offset, tn, bufnew.data(), (readPrm ? prm.data() : const_cast<TraceParam *>(File::PRM_NULL)));
+        File::Param prm(tn);
+        file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
             if (readPrm && tnRead * ns)
             {
-                ASSERT_EQ(ilNum(i+offset), prm[i].line.il) << "Trace Number " << i << " offset " << offset;
-                ASSERT_EQ(xlNum(i+offset), prm[i].line.xl) << "Trace Number " << i << " offset " << offset;
+                ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, File::Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
+                ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, File::Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
 
-                ASSERT_DOUBLE_EQ(xNum(i+offset), prm[i].src.x);
-                ASSERT_DOUBLE_EQ(yNum(i+offset), prm[i].src.y);
+                ASSERT_DOUBLE_EQ(xNum(i+offset), File::getPrm<geom_t>(i, File::Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(i+offset), File::getPrm<geom_t>(i, File::Meta::ySrc, &prm));
             }
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset + i + j)) << "Trace Number: " << i << " " << j;
@@ -439,20 +440,20 @@ struct FileSEGYTest : public Test
         }
 
         std::vector<float> bufnew(tn * ns);
-        std::vector<File::TraceParam> prm(tn);
+        File::Param prm(tn);
         if (readPrm)
-            file->readTrace(tn, offset.data(), bufnew.data(), prm.data());
+            file->readTrace(tn, offset.data(), bufnew.data(), &prm);
         else
             file->readTrace(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
             if (readPrm && tn * ns)
             {
-                ASSERT_EQ(ilNum(offset[i]), prm[i].line.il) << "Trace Number " << i << " offset " << offset[i];
-                ASSERT_EQ(xlNum(offset[i]), prm[i].line.xl) << "Trace Number " << i << " offset " << offset[i];
+                ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, File::Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
+                ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, File::Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
 
-                ASSERT_DOUBLE_EQ(xNum(offset[i]), prm[i].src.x);
-                ASSERT_DOUBLE_EQ(yNum(offset[i]), prm[i].src.y);
+                ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, File::Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, File::Meta::ySrc, &prm));
             }
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + j)) << "Trace Number: " << offset[i] << " " << j;
@@ -512,22 +513,26 @@ struct FileSEGYTest : public Test
                 EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
-        std::vector<TraceParam> prm(tn);
+        File::Param prm(tn);
         std::vector<float> bufnew(tn * ns);
         if (writePrm)
         {
             for (size_t i = 0U; i < tn; i++)
             {
-                prm[i].src = coord_t(xNum(offset+i), yNum(offset+i));
-                prm[i].rcv = coord_t(xNum(offset+i), yNum(offset+i));
-                prm[i].cmp = coord_t(xNum(offset+i), yNum(offset+i));
-                prm[i].line = grid_t(ilNum(offset+i), xlNum(offset+i));
-                prm[i].tn = offset + i;
+                File::setPrm(i, File::Meta::xSrc, xNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::xRcv, xNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::xCmp, xNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::ySrc, yNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::yRcv, yNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::yCmp, yNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::il, ilNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::xl, xlNum(offset+i), &prm);
+                File::setPrm(i, File::Meta::tn, offset+i, &prm);
                 for (size_t j = 0U; j < ns; j++)
                     bufnew[i*ns + j] = float(offset + i + j);
             }
 
-            file->writeTrace(offset, tn, bufnew.data(), prm.data());
+            file->writeTrace(offset, tn, bufnew.data(), &prm);
         }
         else
         {
@@ -577,24 +582,28 @@ struct FileSEGYTest : public Test
                 EXPECT_CALL(*mock, writeDODF(ns, tn, offset.data(), _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
-        std::vector<TraceParam> prm(tn);
+        File::Param prm(tn);
         std::vector<float> bufnew(tn * ns);
         for (size_t i = 0U; i < tn; i++)
         {
             if (writePrm)
             {
-                prm[i].src = coord_t(xNum(offset[i]), yNum(offset[i]));
-                prm[i].rcv = coord_t(xNum(offset[i]), yNum(offset[i]));
-                prm[i].cmp = coord_t(xNum(offset[i]), yNum(offset[i]));
-                prm[i].line = grid_t(ilNum(offset[i]), xlNum(offset[i]));
-                prm[i].tn = offset[i];
+                File::setPrm(i, File::Meta::xSrc, xNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::xRcv, xNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::xCmp, xNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::ySrc, yNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::yRcv, yNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::yCmp, yNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::il, ilNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::xl, xlNum(offset[i]), &prm);
+                File::setPrm(i, File::Meta::tn, offset[i], &prm);
             }
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset[i] + j);
         }
 
         if (writePrm)
-            file->writeTrace(tn, offset.data(), bufnew.data(), prm.data());
+            file->writeTrace(tn, offset.data(), bufnew.data(), &prm);
         else
             file->writeTrace(tn, offset.data(), bufnew.data());
 
@@ -633,16 +642,20 @@ struct FileSEGYTest : public Test
                         .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
 
-        std::vector<TraceParam> prm(tn);
+        File::Param prm(tn);
         for (size_t i = 0; i < tn; i++)
         {
-            prm[i].src = coord_t(ilNum(i+1), xlNum(i+5));
-            prm[i].rcv = coord_t(ilNum(i+2), xlNum(i+6));
-            prm[i].cmp = coord_t(ilNum(i+3), xlNum(i+7));
-            prm[i].line = grid_t(ilNum(i+4), xlNum(i+8));
-            prm[i].tn = offset + i;
+            File::setPrm(i, File::Meta::xSrc, ilNum(i+1), &prm);
+            File::setPrm(i, File::Meta::xRcv, ilNum(i+2), &prm);
+            File::setPrm(i, File::Meta::xCmp, ilNum(i+3), &prm);
+            File::setPrm(i, File::Meta::il, ilNum(i+4), &prm);
+            File::setPrm(i, File::Meta::ySrc, xlNum(i+5), &prm);
+            File::setPrm(i, File::Meta::yRcv, xlNum(i+6), &prm);
+            File::setPrm(i, File::Meta::yCmp, xlNum(i+7), &prm);
+            File::setPrm(i, File::Meta::xl, xlNum(i+8), &prm);
+            File::setPrm(i, File::Meta::tn, offset + i, &prm);
         }
-        file->writeTraceParam(offset, prm.size(), prm.data());
+        file->writeParam(offset, prm.size(), &prm);
     }
 };
 typedef FileSEGYTest FileSEGYWrite;

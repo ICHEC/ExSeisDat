@@ -6,6 +6,7 @@
 #include "cppfileapi.hh"
 #include "file/dynsegymd.hh"
 #include "share/segy.hh"
+#include "share/api.hh"
 #include "fileops.hh"
 
 using namespace PIOL;
@@ -67,7 +68,7 @@ void rmRule(RuleHdl rule, CMeta m)
     rule->rule->rmRule(static_cast<File::Meta>(m));
 }
 
-Param newDefParam(size_t sz)
+CParam newDefParam(size_t sz)
 {
     auto rule = std::make_shared<File::Rule>(true, true);
     auto wrap = new ParamWrapper;
@@ -75,14 +76,14 @@ Param newDefParam(size_t sz)
     return wrap;
 }
 
-Param newParam(RuleHdl rule, size_t sz)
+CParam newParam(RuleHdl rule, size_t sz)
 {
     auto wrap = new ParamWrapper;
     wrap->param = new File::Param(rule->rule, sz);
     return wrap;
 }
 
-void freeParam(Param prm)
+void freeParam(CParam prm)
 {
     if (prm != NULL)
     {
@@ -94,37 +95,37 @@ void freeParam(Param prm)
         std::cerr << "Invalid free of NULL prm.\n";
 }
 
-short getShortPrm(size_t i, CMeta entry, const Param prm)
+short getShortPrm(size_t i, CMeta entry, const CParam prm)
 {
     return File::getPrm<short>(i, static_cast<File::Meta>(entry), prm->param);
 }
 
-int64_t getLongPrm(size_t i, CMeta entry, const Param prm)
+int64_t getLongPrm(size_t i, CMeta entry, const CParam prm)
 {
     return File::getPrm<llint>(i, static_cast<File::Meta>(entry), prm->param);
 }
 
-double getFloatPrm(size_t i, CMeta entry, const Param prm)
+double getFloatPrm(size_t i, CMeta entry, const CParam prm)
 {
     return File::getPrm<geom_t>(i, static_cast<File::Meta>(entry), prm->param);
 }
 
-void setShortPrm(size_t i, CMeta entry, short ret, Param prm)
+void setShortPrm(size_t i, CMeta entry, short ret, CParam prm)
 {
     File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
 }
 
-void setLongPrm(size_t i, CMeta entry, int64_t ret, Param prm)
+void setLongPrm(size_t i, CMeta entry, int64_t ret, CParam prm)
 {
     File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
 }
 
-void setFloatPrm(size_t i, CMeta entry, double ret, Param prm)
+void setFloatPrm(size_t i, CMeta entry, double ret, CParam prm)
 {
     File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
 }
 
-void cpyPrm(size_t i, const Param src, size_t j, Param dst)
+void cpyPrm(size_t i, const CParam src, size_t j, CParam dst)
 {
     File::cpyPrm(i, src->param, j, dst->param);
 }
@@ -132,9 +133,6 @@ void cpyPrm(size_t i, const Param src, size_t j, Param dst)
 //////////////////PIOL////////////////////////////
 ExSeisHandle initMPIOL(void)
 {
-//TODO: Test the cast of C structures to C++ types here.
-    assert(sizeof(File::CoordElem) == sizeof(CoordElem));
-
     auto wrap = new PIOLWrapper;
     wrap->piol = std::make_shared<ExSeis>();
     return wrap;
@@ -243,9 +241,9 @@ void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->readTrace(offset, sz, trace);
 }
 
-void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, Param prm)
+void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, CParam prm)
 {
-    f->file->readTrace(offset, sz, trace, static_cast<File::Param *>(prm->param));
+    f->file->readTrace(offset, sz, trace, prm->param);
 }
 
 void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
@@ -253,19 +251,19 @@ void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
     f->file->writeTrace(offset, sz, trace);
 }
 
-void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const Param prm)
+void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const CParam prm)
 {
     f->file->writeTrace(offset, sz, trace, static_cast<const File::Param *>(prm->param));
 }
 
-void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param prm)
+void writeParam(ExSeisFile f, size_t offset, size_t sz, const CParam prm)
 {
-    f->file->writeTraceParam(offset, sz, static_cast<const File::Param *>(prm->param));
+    f->file->writeParam(offset, sz, static_cast<const File::Param *>(prm->param));
 }
 
-void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm)
+void readParam(ExSeisFile f, size_t offset, size_t sz, CParam prm)
 {
-    f->file->readTraceParam(offset, sz, static_cast<File::Param *>(prm->param));
+    f->file->readParam(offset, sz, prm->param);
 }
 
 //List traces
@@ -280,24 +278,24 @@ void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
 }
 
 //
-void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, Param prm)
+void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, CParam prm)
 {
-    f->file->readTrace(sz, offset, trace, static_cast<File::Param *>(prm->param));
+    f->file->readTrace(sz, offset, trace, prm->param);
 }
 
-void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const Param prm)
+void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const CParam prm)
 {
     f->file->writeTrace(sz, offset, trace, static_cast<const File::Param *>(prm->param));
 }
 
-void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const Param prm)
+void writeListParam(ExSeisFile f, size_t sz, size_t * offset, const CParam prm)
 {
-    f->file->writeTraceParam(sz, offset, static_cast<const File::Param *>(prm->param));
+    f->file->writeParam(sz, offset, static_cast<const File::Param *>(prm->param));
 }
 
-void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm)
+void readListParam(ExSeisFile f, size_t sz, size_t * offset, CParam prm)
 {
-    f->file->readTraceParam(sz, offset, static_cast<File::Param *>(prm->param));
+    f->file->readParam(sz, offset, prm->param);
 }
 
 /////////////////////////////////////Operations///////////////////////////////
@@ -328,6 +326,6 @@ size_t getSEGYFileSz(size_t nt, size_t ns)
 size_t getSEGYParamSz(void)
 {
     return SEGSz::getMDSz();
-    //return sizeof(TraceParam) + SEGSz::getMDSz();
+    //return sizeof(Param) + SEGSz::getMDSz();
 }
 }

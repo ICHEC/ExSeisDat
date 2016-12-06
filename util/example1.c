@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
     writeText(fh, "Test file\n");
 
     //Set and write some trace parameters
-    Param prm = newDefParam(lnt);
+    CParam prm = newDefParam(lnt);
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
         setLongPrm(j, xl, 1600 + offset + j, prm);
         setLongPrm(j, tn, offset + j, prm);
     }
-    writeTraceParam(fh, offset, lnt, prm);
+    writeParam(fh, offset, lnt, prm);
     freeParam(prm);
 
     //Set and write some traces

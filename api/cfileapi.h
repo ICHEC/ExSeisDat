@@ -6,67 +6,13 @@
 #include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
+#include "share/api.hh"
 #endif
 
 typedef struct PIOLWrapper * ExSeisHandle;      //!< A wrapper around a shared PIOL Object
 typedef struct ExSeisFileWrapper * ExSeisFile;  //!< A wrapper around a File Layer pointer
 typedef struct RuleWrapper * RuleHdl;  //!< A wrapper around a File Layer pointer
-typedef struct ParamWrapper * Param;  //!< A wrapper around a File Layer pointer
-
-/*
- * Relevant structures containing data
- */
-/*! The structure for a coordinate point.
- */
-//give alternative
-/*typedef struct
-{
-    double x;   //!< The first coordinate.
-    double y;   //!< The second coordinate.
-} ccoord_t;*/
-
-/*! The structure for a grid point.
- */
-/*
-typedef struct
-{
-    int64_t il;     //!< The first grid value
-    int64_t xl;     //!< The second grid value.
-} cgrid_t;*/
-
-/*! The options for various coordinate points associated with a trace.
- */
-/*typedef enum
-{
-    Src,            //!< The source coordinate point.
-    Rcv,            //!< The receiver coordinate point.
-    CMP             //!< The common-midpoint.
-} CCoord;*/
-
-/*! The options for grid points associated with a trace.
- */
-typedef enum
-{
-    Line            //!< The only current option for a grid. The inline/crossline pair.
-} CGrid;
-
-/*! A structure containing all known parameters
- */
-/*
-typedef struct
-{
-    ccoord_t src;    //!< The Source coordinate point.
-    ccoord_t rcv;    //!< The Receiver coordinate point.
-    ccoord_t cmp;    //!< The common midpoint.
-    cgrid_t line;    //!< The line grid (il, xl).
-    size_t tn;       //!< The trace number.
-} TraceParam;*/
-
-typedef struct
-{
-    double val;
-    size_t num;
-} CoordElem;
+typedef struct ParamWrapper * CParam;  //!< A wrapper around a File Layer pointer
 
 /*! The available trace parameters
  */
@@ -113,6 +59,7 @@ typedef enum
 #else
 } CMeta;
 #endif
+
 /*
  * PIOL calls. Non-file specific
  */
@@ -187,16 +134,16 @@ void rmRule(RuleHdl rule, CMeta m);
 /*!
  * Param calls
  */
-Param newParam(RuleHdl rule, size_t sz);
-Param newDefParam(size_t sz);
-void freeParam(Param prm);
-short getShortPrm(size_t i, CMeta entry, Param prm);
-int64_t getLongPrm(size_t i, CMeta entry, Param prm);
-double getFloatPrm(size_t i, CMeta entry, Param prm);
-void setShortPrm(size_t i, CMeta entry, short ret, Param prm);
-void setLongPrm(size_t i, CMeta entry, int64_t ret, Param prm);
-void setFloatPrm(size_t i, CMeta entry, double ret, Param prm);
-void cpyPrm(size_t i, const Param src, size_t j, Param dst);
+CParam newParam(RuleHdl rule, size_t sz);
+CParam newDefParam(size_t sz);
+void freeParam(CParam prm);
+short getShortPrm(size_t i, CMeta entry, CParam prm);
+int64_t getLongPrm(size_t i, CMeta entry, CParam prm);
+double getFloatPrm(size_t i, CMeta entry, CParam prm);
+void setShortPrm(size_t i, CMeta entry, short ret, CParam prm);
+void setLongPrm(size_t i, CMeta entry, int64_t ret, CParam prm);
+void setFloatPrm(size_t i, CMeta entry, double ret, CParam prm);
+void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
 /*
  * Operations
  */
@@ -295,21 +242,21 @@ extern void writeInc(ExSeisFile f, double inc);
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process.
- *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  *
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void writeTraceParam(ExSeisFile f, size_t offset, size_t sz, const Param prm);
+extern void writeParam(ExSeisFile f, size_t offset, size_t sz, const CParam prm);
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process.
- *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readTraceParam(ExSeisFile f, size_t offset, size_t sz, Param prm);
+extern void readParam(ExSeisFile f, size_t offset, size_t sz, CParam prm);
 
 /*
  *    Reading the traces themselves
@@ -327,9 +274,9 @@ extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[out] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, Param prm);
+extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, CParam prm);
 
 /*! \brief Read the traces from offset to offset+sz.
  *  \param[in] f A handle for the file.
@@ -345,10 +292,10 @@ extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  *  \warning This function is not thread safe.
  */
-extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const Param prm);
+extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const CParam prm);
 
 //Lists
 
@@ -374,34 +321,34 @@ extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * tra
  *  \param[in] sz The number of traces to process
  *  \param[in] offset A list of trace numbers.
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[out] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[out] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, Param prm);
+extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, CParam prm);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
  *  \param[in] sz The number of traces to process
  *  \param[in] offset A list of trace numbers.
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const Param prm);
+extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const CParam prm);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
  *  \param[in] sz The number of traces to process
  *  \param[in] offset A list of trace numbers.
- *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void writeListTraceParam(ExSeisFile f, size_t sz, size_t * offset, const Param prm);
+extern void writeListParam(ExSeisFile f, size_t sz, size_t * offset, const CParam prm);
 
 /*! \brief Read the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
  *  \param[in] sz The number of traces to process
  *  \param[in] offset A list of trace numbers.
- *  \param[in] prm An array of the parameter structures (size sizeof(TraceParam)*sz)
+ *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readListTraceParam(ExSeisFile f, size_t sz, size_t * offset, Param prm);
+extern void readListParam(ExSeisFile f, size_t sz, size_t * offset, CParam prm);
 
 #ifdef DISABLED_OPTIONS
 /*

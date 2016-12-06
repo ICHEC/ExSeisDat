@@ -5,16 +5,16 @@
 #include "ctest.h"
 #include "cfileapi.h"
 
-void readWriteTraceParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
+void readWriteParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
-    Param trhdr = newDefParam(tcnt);
-    readTraceParam(ifh, off, tcnt, trhdr);
+    CParam trhdr = newDefParam(tcnt);
+    readParam(ifh, off, tcnt, trhdr);
 
     if (fprm != NULL)
         for (size_t i = 0; i < tcnt; i++)
             fprm(off, i, trhdr);
 
-    writeTraceParam(ofh, off, tcnt, trhdr);
+    writeParam(ofh, off, tcnt, trhdr);
     isErr(piol);
     freeParam(trhdr);
 }
@@ -55,13 +55,13 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
     for (size_t i = 0U; i < lnt; i += tcnt)
     {
         size_t rblock = (i + tcnt < lnt ? tcnt : lnt - i);
-        readWriteTraceParam(piol, ifh, ofh, goff+i, rblock, fprm);
+        readWriteParam(piol, ifh, ofh, goff+i, rblock, fprm);
         readWriteTrace(piol, ifh, ofh, goff+i, rblock, ftrc);
     }
 
     for (size_t i = 0U; i < extra; i++)
     {
-        readWriteTraceParam(piol, ifh, ofh, goff, 0, fprm);
+        readWriteParam(piol, ifh, ofh, goff, 0, fprm);
         readWriteTrace(piol, ifh, ofh, goff, 0, ftrc);
     }
 
@@ -91,7 +91,7 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
     return 0;
 }
 
-void SourceX1600Y2400(size_t offset, size_t i, Param prm)
+void SourceX1600Y2400(size_t offset, size_t i, CParam prm)
 {
     setFloatPrm(i, xSrc, offset + 1600.0, prm);
     setFloatPrm(i, ySrc, offset + 2400.0, prm);

@@ -41,17 +41,21 @@ int main(int argc, char ** argv)
     file.writeText("Test file\n");
 
     //Set and write some trace parameters
-    std::vector<File::TraceParam> prm(lnt);
+    File::Param prm(lnt);
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
-        prm[j].src = {1600.0 + k, 2400.0 + k};
-        prm[j].rcv = {100000.0 + k, 3000000.0 + k};
-        prm[j].cmp = {10000.0 + k, 4000.0 + k};
-        prm[j].line = {2400 + k, 1600 + k};
-        prm[j].tn = offset+j;
+        setPrm(j, File::Meta::xSrc, 1600.0 + k, &prm);
+        setPrm(j, File::Meta::ySrc, 2400.0 + k, &prm);
+        setPrm(j, File::Meta::xRcv, 100000.0 + k, &prm);
+        setPrm(j, File::Meta::yRcv, 3000000.0 + k, &prm);
+        setPrm(j, File::Meta::xCmp, 10000.0 + k, &prm);
+        setPrm(j, File::Meta::yCmp, 4000.0 + k, &prm);
+        setPrm(j, File::Meta::il, 2400 + k, &prm);
+        setPrm(j, File::Meta::xl, 1600 + k, &prm);
+        setPrm(j, File::Meta::tn, offset+j, &prm);
     }
-    file.writeTraceParam(offset, lnt, prm.data());
+    file.writeParam(offset, lnt, &prm);
 
     //Set and write some traces
     std::vector<float> trc(lnt*ns);

@@ -13,7 +13,7 @@ void writeContig(ExSeis piol, File::Direct * file, size_t offset, size_t nt, siz
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
     long nhalf = nt/2;
-    std::vector<File::TraceParam> prm(max);
+    File::Param prm(max);
     std::vector<float> trc(max*ns);
     for (size_t i = 0; i < lnt; i += max)
     {
@@ -21,20 +21,24 @@ void writeContig(ExSeis piol, File::Direct * file, size_t offset, size_t nt, siz
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset+i+j));
-            prm[j].src = {1600.0 + k, 2400.0 + k};
-            prm[j].rcv = {100000.0 + k, 3000000.0 + k};
-            prm[j].cmp = {10000.0 + k, 4000.0 + k};
-            prm[j].line = {2400 + k, 1600 + k};
-            prm[j].tn = offset+i+j;
+            setPrm(j, File::Meta::xSrc, 1600.0 + k, &prm);
+            setPrm(j, File::Meta::ySrc, 2400.0 + k, &prm);
+            setPrm(j, File::Meta::xRcv, 100000.0 + k, &prm);
+            setPrm(j, File::Meta::yRcv, 3000000.0 + k, &prm);
+            setPrm(j, File::Meta::xCmp, 10000.0 + k, &prm);
+            setPrm(j, File::Meta::yCmp, 4000.0 + k, &prm);
+            setPrm(j, File::Meta::il, 2400 + k, &prm);
+            setPrm(j, File::Meta::xl, 1600 + k, &prm);
+            setPrm(j, File::Meta::tn, offset+i+j, &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset+i)*ns+j)) - off;
-        file->writeTrace(offset + i, rblock, trc.data(), prm.data());
+        file->writeTrace(offset + i, rblock, trc.data(), &prm);
         piol.isErr();
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, size_t(0), nullptr, File::PRM_NULL);
+        file->writeTrace(0U, size_t(0), nullptr, File::PARAM_NULL);
         piol.isErr();
     }
 }
@@ -76,26 +80,30 @@ void writeRandom(ExSeisPIOL * piol, File::Direct * file, size_t nt, size_t ns, s
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        std::vector<File::TraceParam> prm(rblock);
+        File::Param prm(rblock);
         std::vector<float> trc(rblock*ns);
 
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset[i+j]));
-            prm[j].src = {1600.0 + k, 2400.0 + k};
-            prm[j].rcv = {100000.0 + k, 3000000.0 + k};
-            prm[j].cmp = {10000.0 + k, 4000.0 + k};
-            prm[j].line = {2400 + k, 1600 + k};
-            prm[j].tn = offset[i+j];
+            setPrm(j, File::Meta::xSrc, 1600.0 + k, &prm);
+            setPrm(j, File::Meta::ySrc, 2400.0 + k, &prm);
+            setPrm(j, File::Meta::xRcv, 100000.0 + k, &prm);
+            setPrm(j, File::Meta::yRcv, 3000000.0 + k, &prm);
+            setPrm(j, File::Meta::xCmp, 10000.0 + k, &prm);
+            setPrm(j, File::Meta::yCmp, 4000.0 + k, &prm);
+            setPrm(j, File::Meta::il, 2400 + k, &prm);
+            setPrm(j, File::Meta::xl, 1600 + k, &prm);
+            setPrm(j, File::Meta::tn, offset[i+j], &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset[i])*ns+j)) - off;
-        file->writeTrace(rblock, &offset[i], trc.data(), prm.data());
+        file->writeTrace(rblock, &offset[i], trc.data(), &prm);
         piol->isErr();
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, (size_t *)NULL, nullptr, File::PRM_NULL);
+        file->writeTrace(0U, (size_t *)NULL, nullptr, File::PARAM_NULL);
         piol->isErr();
     }
 }
@@ -132,7 +140,8 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
         biggest = tpiol->comm->max(lnt);
     }
 
-    max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns) + sizeof(File::TraceParam) + sizeof(size_t));
+    //TODO: Add memusage for Param
+    max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns)  + sizeof(size_t));
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
     if (random)
         writeRandom(piol, &file, nt, ns, lnt, extra, max);
