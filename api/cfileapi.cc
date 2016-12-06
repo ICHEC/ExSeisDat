@@ -133,10 +133,6 @@ void cpyPrm(size_t i, const Param src, size_t j, Param dst)
 ExSeisHandle initMPIOL(void)
 {
 //TODO: Test the cast of C structures to C++ types here.
-//    assert(sizeof(File::TraceParam) == sizeof(TraceParam));
-
-//    assert(sizeof(File::coord_t) == sizeof(ccoord_t));
-//    assert(sizeof(File::grid_t) == sizeof(cgrid_t));
     assert(sizeof(File::CoordElem) == sizeof(CoordElem));
 
     auto wrap = new PIOLWrapper;
@@ -187,7 +183,6 @@ ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
     wrap->file = new File::Direct(*piol->piol, name, FileMode::Read);
     return wrap;
 }
-
 
 void closeFile(ExSeisFile f)
 {

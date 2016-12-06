@@ -57,7 +57,6 @@ class InternalSet
 
     void sort(File::Compare<File::Param> func);
     size_t getInNt(void);
-//    size_t getSetNt(void);
     size_t getLNt(void);
 
     std::vector<std::string> output(std::string oname);

@@ -12,8 +12,9 @@ cp $PIOL_DIR/util/*.cc util/
 cp $PIOL_DIR/util/*.hh util/
 cp $PIOL_DIR/util/makefile util/
 
-cp $PIOL_DIR/api/cfileapi.cc api/
-cp $PIOL_DIR/api/cfileapi.h api/
+cp $PIOL_DIR/api/*.cc api/
+cp $PIOL_DIR/api/*.hh api/
+cp $PIOL_DIR/api/*.h api/
 cp $PIOL_DIR/api/makefile api/
 if [ $PIOL_SYSTEM == "Tullow" ]; then
 cp $PIOL_DIR/systest/hosts.txt .
