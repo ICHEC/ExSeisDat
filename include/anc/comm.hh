@@ -44,7 +44,7 @@ class Interface
         return numRank;
     }
 
-    /*! \brief Pass a vector of geom_te and return the corresponding values to each process
+    /*! \brief Pass a vector of geom_t and return the corresponding values to each process
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */

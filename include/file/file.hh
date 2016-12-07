@@ -47,7 +47,7 @@ struct Param
     /*! Estimate of the total memory used
      *  \return Return estimate in bytes.
      */
-    size_t memusage(void) const;
+    size_t memUsage(void) const;
 
     /*! Less-than operator. An operator overload required for template subsitution
      *  \param[in] a The Param object to compare with
@@ -163,6 +163,7 @@ class Interface
      *  \return A string containing the text (in ASCII format)
      */
     virtual const std::string & readText(void) const;
+
     /*! \brief Read the name of the file
      *  \return A string containing the name (in ASCII format)
      */
