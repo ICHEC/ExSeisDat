@@ -42,15 +42,15 @@ int calcMin(std::string iname, std::string oname)
     Param tprm(usz);
     in.readParam(usz, uniqlist.data(), &tprm);
 
-    std::vector<Param> oprm(sz);
+    Param oprm(sz);
     std::vector<trace_t> trace(sz);
     for (size_t i = 0U; i < sz; i++)
         for (size_t j = 0U; j < usz; j++)
         {
             if (list[i] == uniqlist[j])
             {
-                cpyPrm(j, &tprm, 0U, &oprm[i]);
-                setPrm(0U, Meta::tn,  minmax[i].num, &oprm[i]);
+                cpyPrm(j, &tprm, i, &oprm);
+                setPrm(i, Meta::tn,  minmax[i].num, &oprm);
                 trace[i] = trace_t(1);
                 j = usz;
             }
@@ -60,7 +60,7 @@ int calcMin(std::string iname, std::string oname)
     out.writeNt(sz);
     out.writeNs(1U);
     out.writeInc(in.readInc());
-    out.writeTrace(0, sz, trace.data(), oprm.data());
+    out.writeTrace(0, sz, trace.data(), &oprm);
     return 0;
 }
 

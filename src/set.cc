@@ -135,7 +135,6 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
         auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
         auto & off = offmap[key];
         std::iota(f->lst.begin(), f->lst.end(), off + loff);
-        f->offset = off + loff;
         off += f->ifc->readNt();
     }
 
@@ -192,12 +191,13 @@ void InternalSet::sort(File::Compare<File::Param> func)
 {
     for (auto & o : fmap)
     {
+        #warning replace these 4 lines with a function call
         size_t lsnt = 0U;
         for (auto & f : o.second)
             for (auto & l : f->lst)
                 lsnt += (l != NOT_IN_OUTPUT);
 
-
+        #warning function call?
         auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
         size_t off = 0U;
         for (size_t i = 0; i < piol->comm->getRank(); i++)
@@ -267,7 +267,6 @@ void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst 
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
-
         std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
         for (size_t j = 0U; j < rblock; j++)
         {
@@ -277,6 +276,7 @@ void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst 
                 otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
             sortlist[j] = olist[i+sortlist[j]];
         }
+
         out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
     }
     for (size_t i = 0; i < extra; i++)
@@ -285,7 +285,6 @@ void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst 
         out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
     }
 }
-
 
 iolst getList(FileDesc * f)
 {
