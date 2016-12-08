@@ -12,8 +12,6 @@
 #include <map>
 #include <numeric>
 #include <functional>
-#warning temp
-#include <iostream>
 #include "set/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
@@ -38,7 +36,7 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
     size_t offset = dec.first;
     size_t lnt = dec.second;
     size_t ns = src->readNs();
-    size_t max = memlim / (2U*SEGSz::getDOSz(ns) + rule->memusage());
+    size_t max = memlim / (2U*SEGSz::getDOSz(ns) + rule->memUsage());
     size_t fmax = std::min(max, lnt);
 
     auto biggest = piol->comm->max(lnt);
@@ -60,7 +58,7 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
     return src->readNt();
 }
 
-//////////////////////////////////////////////CLASSS MEMBERS///////////////////////////////////////////////////////////
+//////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
 
 InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) : piol(piol_), outfix(outfix_), rule(rule_)
 {
@@ -326,7 +324,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
 
         //Assume the process can hold the list
         const size_t memlim = 2U*1024U*1024U*1024U;
-        size_t max = memlim / (2U * (sizeof(size_t) + SEGSz::getDOSz(ns) + rule->parammem()));
+        size_t max = memlim / (2U * (sizeof(size_t) + SEGSz::getDOSz(ns) + rule->paramMem()));
 
 //TODO: This is not the ideal for small files. per input file read/write
 // The ideal is to have a buffer for each which is emptied when full or EOF. This is a little tricky

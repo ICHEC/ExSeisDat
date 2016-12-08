@@ -30,6 +30,7 @@ struct Param
      *  \param[in] sz The number of sets of trace parameters.
      */
     Param(std::shared_ptr<Rule> r_, size_t sz);
+
     /*! Allocate the basic space required to store the arrays and store the rules. Default rules
      *  \param[in] sz The number of sets of trace parameters.
      */
@@ -46,7 +47,7 @@ struct Param
     /*! Estimate of the total memory used
      *  \return Return estimate in bytes.
      */
-    size_t memusage(void) const;
+    size_t memUsage(void) const;
 
     /*! Less-than operator. An operator overload required for template subsitution
      *  \param[in] a The Param object to compare with

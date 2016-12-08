@@ -232,13 +232,13 @@ RuleEntry * Rule::getEntry(Meta entry)
     return translate[entry];
 }
 
-size_t Rule::memusage(void) const
+size_t Rule::memUsage(void) const
 {
     return numLong * sizeof(SEGYLongRuleEntry) + numShort * sizeof(SEGYShortRuleEntry)
          + numFloat * sizeof(SEGYFloatRuleEntry) + sizeof(Rule);
 }
 
-size_t Rule::parammem(void) const
+size_t Rule::paramMem(void) const
 {
     return numLong * sizeof(llint) + numShort * sizeof(int16_t)
          + numFloat * sizeof(geom_t);
@@ -265,14 +265,14 @@ bool Param::operator==(struct Param & p) const
     return f == p.f && i == p.i && s == p.s && t == p.t;
 }
 
-size_t Param::memusage(void) const
+size_t Param::memUsage(void) const
 {
     return f.capacity() * sizeof(geom_t)
          + i.capacity() * sizeof(llint)
          + s.capacity() * sizeof(int16_t)
          + t.capacity() * sizeof(size_t)
                         + sizeof(Param)
-                        + r->memusage();
+                        + r->memUsage();
 }
 
 void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)

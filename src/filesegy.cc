@@ -336,7 +336,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
-                  dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
+                      dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
         obj->writeDO(ns, sz, offset, dobuf.data());
     }
 

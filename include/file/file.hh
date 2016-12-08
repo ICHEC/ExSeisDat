@@ -50,6 +50,7 @@ class Interface
      *  \return A string containing the text (in ASCII format)
      */
     virtual const std::string & readText(void) const;
+
     /*! \brief Read the name of the file
      *  \return A string containing the name (in ASCII format)
      */

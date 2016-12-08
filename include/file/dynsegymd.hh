@@ -329,12 +329,12 @@ struct Rule
     /*! Estimate of the total memory used
      *  \return Return estimate in bytes.
      */
-    size_t memusage(void) const;
+    size_t memUsage(void) const;
 
     /*! How much memory will each set of parameters require?
      *  \return Amount of memory in bytes.
      */
-    size_t parammem() const;
+    size_t paramMem() const;
 
     /*! Get the rule entry associated with a particular meta entry.
      *  \param[in] entry The meta entry.
