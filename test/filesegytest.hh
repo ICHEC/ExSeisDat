@@ -486,6 +486,7 @@ struct FileSEGYTest : public Test
         if (MOCK)
         {
             EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
+            EXPECT_CALL(*mock, setFileSz(_)).Times(Exactly(1));
             if (mock == nullptr)
             {
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
@@ -555,6 +556,7 @@ struct FileSEGYTest : public Test
         if (MOCK)
         {
             EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
+            EXPECT_CALL(*mock, setFileSz(_)).Times(Exactly(1));
             if (mock == nullptr)
             {
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;

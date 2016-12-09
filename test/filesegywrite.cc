@@ -308,7 +308,7 @@ TEST_F(FileSEGYWrite, FileWriteParamOne)
 TEST_F(FileSEGYWrite, FileWriteParamBigOffset)
 {
     nt = NT_LIMITS-1;
-    makeMockSEGY<true, false>();
+    makeMockSEGY<true>();
     writeTraceHeaderTest(NT_LIMITS-2, 1);
 }
 

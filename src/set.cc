@@ -16,6 +16,7 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
+
 namespace PIOL {
 typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;
 
@@ -117,7 +118,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
 
             auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
             f->lst.resize(dec.second);
-
+            f->offset = dec.first;
             auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
             fmap[key].emplace_back(f.get());
             offmap[key] = 0U;
@@ -225,9 +226,13 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 File::Param fprm(list.size());
                 f->ifc->readParam(list.size(), list.data(), &fprm);
                 for (size_t i = 0; i < list.size(); i++)
+                {
                     cpyPrm(i, &fprm, loff+i, &prm);
+                    setPrm(loff+i, File::Meta::tn, off+loff + i, &prm);
+                }
                 loff += list.size();
             }
+
             auto trlist = File::sort(piol.get(), nt, off, &prm, func);
             size_t j = 0;
             for (auto & f : o.second)
