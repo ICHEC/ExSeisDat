@@ -15,9 +15,20 @@
 
 //#include <cstring>
 namespace PIOL { namespace File {
-template <typename T>
-using Func = std::function<geom_t(const T &)>;
 
+template <typename T>
+using Func = std::function<geom_t(const T &)>;  //!< Return the value associated with a particular parameter
+
+/*! Get the min and max for a parameter. Use a second parameter to decide between equal cases.
+ * \tparam T The type of the input array
+ * \param[in] piol The PIOL object
+ * \param[in] offset The offset for the local process
+ * \param[in] sz The number of sets of parameters for the local process
+ * \param[in] coord The array of parameters for the local process
+ * \param[in] elem1 The function for extracting the first parameter from \c coord
+ * \param[in] elem2 The function for extracting the second parameter from \c coord
+ * \return Return a vector of length 2 with the Coordinates as elements
+ */
 template <typename T>
 std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord,
                                       Func<T> elem1, Func<T> elem2)
@@ -61,6 +72,17 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
     return minmax;
 }
 
+/*! Get the min and max for both parameters.
+ * \tparam T The type of the input array
+ * \param[in] piol The PIOL object
+ * \param[in] offset The offset for the local process
+ * \param[in] sz The number of sets of parameters for the local process
+ * \param[in] coord The array of parameters for the local process
+ * \param[in] xlam The function for extracting the first parameter from \c coord
+ * \param[in] xlam The function for extracting the second parameter from \c coord
+ * \param[in] minmax An array of length 4 with the CoordElem structure as elements.
+ *            min for xlam, max for xlam, min for ylam, max for ylam.
+ */
 template <typename T>
 void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Func<T> xlam, Func<T> ylam, CoordElem * minmax)
 {
