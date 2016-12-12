@@ -30,15 +30,6 @@ struct FileDesc
 class InternalSet
 {
     private :
-    /*! State flags structure for Set
-     */
-#warning None of these flags are supported yet
-    struct Flags
-    {
-        uint64_t fidelity : 1;  //!< When copying data perform it at the object layer to ensure byte-for-byte copying
-        uint64_t varNs : 1;     //!< The number of samples per trace is variable.
-        uint64_t varInc : 1;    //!< The increment between traces is variable.
-    } state;                    //!< State flags are stored in this structure
     Piol piol;
     std::string outfix;
     std::string outmsg;
@@ -60,7 +51,7 @@ class InternalSet
     size_t getLNt(void);
 
     std::vector<std::string> output(std::string oname);
-    void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, File::CoordElem * minmax);
+    void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax);
     void text(std::string outmsg_)
     {
         outmsg = outmsg_;

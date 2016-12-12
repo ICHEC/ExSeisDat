@@ -45,15 +45,15 @@ int main(int argc, char ** argv)
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
-        setPrm(j, File::Meta::xSrc, 1600.0 + k, &prm);
-        setPrm(j, File::Meta::ySrc, 2400.0 + k, &prm);
-        setPrm(j, File::Meta::xRcv, 100000.0 + k, &prm);
-        setPrm(j, File::Meta::yRcv, 3000000.0 + k, &prm);
-        setPrm(j, File::Meta::xCmp, 10000.0 + k, &prm);
-        setPrm(j, File::Meta::yCmp, 4000.0 + k, &prm);
-        setPrm(j, File::Meta::il, 2400 + k, &prm);
-        setPrm(j, File::Meta::xl, 1600 + k, &prm);
-        setPrm(j, File::Meta::tn, offset+j, &prm);
+        setPrm(j, Meta::xSrc, 1600.0 + k, &prm);
+        setPrm(j, Meta::ySrc, 2400.0 + k, &prm);
+        setPrm(j, Meta::xRcv, 100000.0 + k, &prm);
+        setPrm(j, Meta::yRcv, 3000000.0 + k, &prm);
+        setPrm(j, Meta::xCmp, 10000.0 + k, &prm);
+        setPrm(j, Meta::yCmp, 4000.0 + k, &prm);
+        setPrm(j, Meta::il, 2400 + k, &prm);
+        setPrm(j, Meta::xl, 1600 + k, &prm);
+        setPrm(j, Meta::tn, offset+j, &prm);
     }
     file.writeParam(offset, lnt, &prm);
 

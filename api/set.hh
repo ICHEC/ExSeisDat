@@ -25,9 +25,8 @@ class Set : public InternalSet
     Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = getMaxRules()) :
              InternalSet(piol_, rule_)  {  }
 
-
-    void sort(File::SortType type);
-    void getMinMax(File::Meta m1, File::Meta m2, File::CoordElem * minmax);
+    void sort(SortType type);
+    void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
 };
 }
 #endif

@@ -18,7 +18,6 @@ int main(int argc, char ** argv)
     std::string opt = "i:o:t:d";  //TODO: uses a GNU extension
     std::string name1 = "";
     auto type = SortType::SrcRcv;
-    bool debug = false;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -43,7 +42,7 @@ int main(int argc, char ** argv)
     //Perform the decomposition and read coordinates of interest.
     auto dec = decompose(src.readNt(), numRank, rank);
 
-    if (checkOrder(src, dec))
+    if (checkOrder(src, dec, type))
         std::cout << "Success\n";
     else
         std::cerr << "Failure\n";

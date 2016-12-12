@@ -6,21 +6,11 @@
 #include "file/file.hh"
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
+#include "share/api.hh"
 
 //#warning Make redundant
 #include "cppfileapi.hh"
 namespace PIOL { namespace File {
-/*! An enum class of the different types of sorting operaton.
- */
-enum class SortType : size_t
-{
-    SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
-    SrcOff,
-    RcvOff,
-    LineOff,
-    OffLine
-};
-
 extern Compare<Param> getComp(SortType type);
 
 //extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax);
@@ -37,7 +27,7 @@ extern Compare<Param> getComp(SortType type);
  *  and their respective trace numbers.
  */
 //extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, Meta m, const Param * prm, CoordElem * minmax);
-extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, File::Meta m1, File::Meta m2, const Param * prm, CoordElem * minmax);
+extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, Meta m1, Meta m2, const Param * prm, CoordElem * minmax);
 
 /*! Perform a sort on the given parameter structure.
  *  \param[in] piol The PIOL object
@@ -55,6 +45,6 @@ extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, siz
  *  \param[in] dec The decomposition: a pair which contains the offset (first) and the number of traces for the local process.
  *  \return Return true if the local ordering is correct.
  */
-extern bool checkOrder(File::Interface * src, std::pair<size_t, size_t> dec);
+extern bool checkOrder(File::Interface * src, std::pair<size_t, size_t> dec, SortType type);
 }}
 #endif

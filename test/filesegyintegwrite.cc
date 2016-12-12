@@ -39,18 +39,18 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
 //    prm.line = grid;
 //    prm.cmp = coord;
 
-    File::setPrm(0, File::Meta::il, grid.il, &prm);
-    File::setPrm(0, File::Meta::xl, grid.xl, &prm);
-    File::setPrm(0, File::Meta::xCmp, coord.x, &prm);
-    File::setPrm(0, File::Meta::yCmp, coord.y, &prm);
+    File::setPrm(0, Meta::il, grid.il, &prm);
+    File::setPrm(0, Meta::xl, grid.xl, &prm);
+    File::setPrm(0, Meta::xCmp, coord.x, &prm);
+    File::setPrm(0, Meta::yCmp, coord.y, &prm);
 
     file->writeParam(201U, 1U, &prm);
     file->readParam(201U, 1U, &prm2);
 
-    ASSERT_EQ(grid.il, File::getPrm<llint>(0U, File::Meta::il, &prm2));
-    ASSERT_EQ(grid.xl, File::getPrm<llint>(0U, File::Meta::xl, &prm2));
-    ASSERT_DOUBLE_EQ(coord.x, File::getPrm<geom_t>(0U, File::Meta::xCmp, &prm2));
-    ASSERT_DOUBLE_EQ(coord.y, File::getPrm<geom_t>(0U, File::Meta::yCmp, &prm2));
+    ASSERT_EQ(grid.il, File::getPrm<llint>(0U, Meta::il, &prm2));
+    ASSERT_EQ(grid.xl, File::getPrm<llint>(0U, Meta::xl, &prm2));
+    ASSERT_DOUBLE_EQ(coord.x, File::getPrm<geom_t>(0U, Meta::xCmp, &prm2));
+    ASSERT_DOUBLE_EQ(coord.y, File::getPrm<geom_t>(0U, Meta::yCmp, &prm2));
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)

@@ -8,6 +8,8 @@
 #include "share/segy.hh"
 #include "share/api.hh"
 #include "fileops.hh"
+#include "set.hh"
+#include "set.h"
 
 using namespace PIOL;
 
@@ -48,24 +50,24 @@ void freeRules(RuleHdl rule)
         std::cerr << "Invalid free of NULL rule.\n";
 }
 
-void addLongRule(RuleHdl rule, CMeta m, size_t loc)
+void addLongRule(RuleHdl rule, Meta m, size_t loc)
 {
-    rule->rule->addLong(static_cast<File::Meta>(m), static_cast<File::Tr>(loc));
+    rule->rule->addLong(m, static_cast<File::Tr>(loc));
 }
 
-void addShortRule(RuleHdl rule, CMeta m, size_t loc)
+void addShortRule(RuleHdl rule, Meta m, size_t loc)
 {
-    rule->rule->addShort(static_cast<File::Meta>(m), static_cast<File::Tr>(loc));
+    rule->rule->addShort(m, static_cast<File::Tr>(loc));
 }
 
-void addFloat(RuleHdl rule, CMeta m, size_t loc, size_t scalLoc)
+void addFloat(RuleHdl rule, Meta m, size_t loc, size_t scalLoc)
 {
-    rule->rule->addFloat(static_cast<File::Meta>(m), static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
+    rule->rule->addFloat(m, static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
 }
 
-void rmRule(RuleHdl rule, CMeta m)
+void rmRule(RuleHdl rule, Meta m)
 {
-    rule->rule->rmRule(static_cast<File::Meta>(m));
+    rule->rule->rmRule(m);
 }
 
 CParam newDefParam(size_t sz)
@@ -95,34 +97,34 @@ void freeParam(CParam prm)
         std::cerr << "Invalid free of NULL prm.\n";
 }
 
-short getShortPrm(size_t i, CMeta entry, const CParam prm)
+short getShortPrm(size_t i, Meta entry, const CParam prm)
 {
-    return File::getPrm<short>(i, static_cast<File::Meta>(entry), prm->param);
+    return File::getPrm<short>(i, entry, prm->param);
 }
 
-int64_t getLongPrm(size_t i, CMeta entry, const CParam prm)
+int64_t getLongPrm(size_t i, Meta entry, const CParam prm)
 {
-    return File::getPrm<llint>(i, static_cast<File::Meta>(entry), prm->param);
+    return File::getPrm<llint>(i, entry, prm->param);
 }
 
-double getFloatPrm(size_t i, CMeta entry, const CParam prm)
+double getFloatPrm(size_t i, Meta entry, const CParam prm)
 {
-    return File::getPrm<geom_t>(i, static_cast<File::Meta>(entry), prm->param);
+    return File::getPrm<geom_t>(i, entry, prm->param);
 }
 
-void setShortPrm(size_t i, CMeta entry, short ret, CParam prm)
+void setShortPrm(size_t i, Meta entry, short ret, CParam prm)
 {
-    File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
+    File::setPrm(i, entry, ret, prm->param);
 }
 
-void setLongPrm(size_t i, CMeta entry, int64_t ret, CParam prm)
+void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm)
 {
-    File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
+    File::setPrm(i, entry, ret, prm->param);
 }
 
-void setFloatPrm(size_t i, CMeta entry, double ret, CParam prm)
+void setFloatPrm(size_t i, Meta entry, double ret, CParam prm)
 {
-    File::setPrm(i, static_cast<File::Meta>(entry), ret, prm->param);
+    File::setPrm(i, entry, ret, prm->param);
 }
 
 void cpyPrm(size_t i, const CParam src, size_t j, CParam dst)
@@ -300,11 +302,12 @@ void readListParam(ExSeisFile f, size_t sz, size_t * offset, CParam prm)
 
 /////////////////////////////////////Operations///////////////////////////////
 
-#warning Re-introduce minmax to the C API
-/*void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax)
+void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, const CParam prm, CoordElem * minmax)
 {
-    getMinMax(*piol->piol, offset, sz, reinterpret_cast<const File::coord_t *>(coord), reinterpret_cast<File::CoordElem * >(minmax));
-}*/
+    getMinMax(*piol->piol, offset, sz, m1, m2, static_cast<const File::Param *>(prm->param), minmax);
+}
+
+
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
 size_t getSEGYTextSz()
@@ -328,4 +331,78 @@ size_t getSEGYParamSz(void)
     return SEGSz::getMDSz();
     //return sizeof(Param) + SEGSz::getMDSz();
 }
+
+////////////////////////////////////SET/////////////////////////////////////////
+struct ExSeisSetWrapper
+{
+    PIOL::Set * set;
+};
+
+ExSeisSet makeSet(ExSeisHandle piol, const char * ptrn)
+{
+    auto wrap = new ExSeisSetWrapper;
+    wrap->set = new Set(*piol->piol, ptrn);
+    return wrap;
+}
+
+void dropSet(ExSeisSet s)
+{
+    if (s != NULL)
+    {
+        if (s->set != NULL)
+            delete s->set;
+        delete s;
+    }
+    else
+        std::cerr << "Invalid free of ExSeisSet NULL.\n";
+}
+
+void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax)
+{
+    s->set->getMinMax(m1, m2, minmax);
+}
+
+/*void sortSet(ExSeisSet s, bool (* func)(const Param *, const Param *))
+{
+    s->set->sort([func] (const Param & a, const Param & b) -> bool { return func(&a, &b); });
+}*/
+
+void defsortSet(ExSeisSet s, SortType type)
+{
+    s->set->sort(type);
+}
+
+size_t getInNt(ExSeisSet s)
+{
+    return s->set->getInNt();
+}
+
+size_t getLNtSet(ExSeisSet s)
+{
+    return s->set->getLNt();
+}
+
+void outputSet(ExSeisSet s, const char * oname)
+{
+    s->set->output(oname);
+}
+
+void textSet(ExSeisSet s, const char * outmsg)
+{
+    s->set->text(outmsg);
+}
+
+void summarySet(ExSeisSet s)
+{
+    s->set->summary();
+}
+
+void addSet(ExSeisSet s, const char * name)
+{
+
+}
+
+
+
+
 }

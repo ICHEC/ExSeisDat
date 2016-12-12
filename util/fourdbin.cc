@@ -7,7 +7,6 @@
 #include "sglobal.hh"
 #include "share/mpi.hh"
 using namespace PIOL;
-using File::Meta;
 using File::Tr;
 using File::Rule;
 

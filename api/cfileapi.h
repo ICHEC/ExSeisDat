@@ -4,61 +4,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#ifdef __cplusplus
-extern "C" {
 #include "share/api.hh"
+#ifdef __cplusplus
+using namespace PIOL;
+extern "C" {
 #endif
 
 typedef struct PIOLWrapper * ExSeisHandle;      //!< A wrapper around a shared PIOL Object
 typedef struct ExSeisFileWrapper * ExSeisFile;  //!< A wrapper around a File Layer pointer
 typedef struct RuleWrapper * RuleHdl;  //!< A wrapper around a File Layer pointer
 typedef struct ParamWrapper * CParam;  //!< A wrapper around a File Layer pointer
-
-/*! The available trace parameters
- */
-#ifdef __cplusplus
-enum class CMeta : size_t
-#else
-typedef enum
-#endif
-{
-    tnl,        //!< The trace number (line)
-    tnr,        //!< The Trace number (record)
-    tn,         //!< The trace number (file)
-    tne,        //!< The trace number (ensemble)
-    ns,         //!< Number of samples in this trace
-    inc,        //!< The increment of this trace.
-    Tic,        //!< Trace identification code
-    SrcNum,     //!< Source Number
-    ShotNum,    //!< Shot number
-    VStack,     //!< Number of traces stacked for this trace (vertical)
-    HStack,     //!< Number of traces stacked for this trace (horizontal)
-    CDist,      //!< Distance from source centre to receiver centre.
-    RGElev,     //!< Receiver group elevation
-    SSElev,     //!< Source surface elevation
-    SDElev,     //!< Source depth
-    xSrc,       //!< The source x coordiante
-    ySrc,       //!< The source y coordinate
-    xRcv,       //!< The receiver x coordinate
-    yRcv,       //!< The receiver y coordinate
-    xCmp,       //!< The CMP x coordinate
-    yCmp,       //!< The CMP y coordinate
-    il,         //!< The inline number
-    xl,         //!< The crossline number
-    TransUnit,  //!< Unit system for transduction constant
-    TraceUnit,  //!< Unit system for traces
-//Non-standard
-    dsdr,       //!< The sum of the differences between sources and receivers of this trace and another
-    //TODO: Don't add more of these, find out what they do and replace them with real names
-    Misc1,      //!< Miscellaneous
-    Misc2,      //!< Miscellaneous
-    Misc3,      //!< Miscellaneous
-    Misc4,      //!< Miscellaneous
-#ifdef __cplusplus
-};
-#else
-} CMeta;
-#endif
 
 /*
  * PIOL calls. Non-file specific
@@ -123,13 +78,13 @@ RuleHdl initRules(bool def);
 
 void freeRules(RuleHdl rule);
 
-void addLongRule(RuleHdl rule, CMeta m, size_t loc);
+void addLongRule(RuleHdl rule, Meta m, size_t loc);
 
-void addShortRule(RuleHdl rule, CMeta m, size_t loc);
+void addShortRule(RuleHdl rule, Meta m, size_t loc);
 
-void addFloatRule(RuleHdl rule, CMeta m, size_t loc, size_t scalLoc);
+void addFloatRule(RuleHdl rule, Meta m, size_t loc, size_t scalLoc);
 
-void rmRule(RuleHdl rule, CMeta m);
+void rmRule(RuleHdl rule, Meta m);
 
 /*!
  * Param calls
@@ -137,13 +92,14 @@ void rmRule(RuleHdl rule, CMeta m);
 CParam newParam(RuleHdl rule, size_t sz);
 CParam newDefParam(size_t sz);
 void freeParam(CParam prm);
-short getShortPrm(size_t i, CMeta entry, CParam prm);
-int64_t getLongPrm(size_t i, CMeta entry, CParam prm);
-double getFloatPrm(size_t i, CMeta entry, CParam prm);
-void setShortPrm(size_t i, CMeta entry, short ret, CParam prm);
-void setLongPrm(size_t i, CMeta entry, int64_t ret, CParam prm);
-void setFloatPrm(size_t i, CMeta entry, double ret, CParam prm);
+short getShortPrm(size_t i, Meta entry, CParam prm);
+int64_t getLongPrm(size_t i, Meta entry, CParam prm);
+double getFloatPrm(size_t i, Meta entry, CParam prm);
+void setShortPrm(size_t i, Meta entry, short ret, CParam prm);
+void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm);
+void setFloatPrm(size_t i, Meta entry, double ret, CParam prm);
 void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
+
 /*
  * Operations
  */
@@ -154,9 +110,7 @@ void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
  *  \param[in] coord The array of local coordinates which one wants to process
  *  \param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
  */
-#warning update
-//extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, const ccoord_t * coord, CoordElem * minmax);
-
+extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, const CParam prm, CoordElem * minmax);
 /*
  * Opening and closing files
  */

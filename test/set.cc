@@ -7,7 +7,7 @@ TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
 
-    set->sort(File::SortType::SrcRcv);
+    set->sort(SortType::SrcRcv);
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
@@ -22,7 +22,7 @@ TEST_F(SetTest, SortRcvX)
 {
     init(1, 1, 1, 1, true);
 
-    set->sort(File::SortType::RcvOff);
+    set->sort(SortType::RcvOff);
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
@@ -37,7 +37,7 @@ TEST_F(SetTest, SortLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(File::SortType::LineOff);
+    set->sort(SortType::LineOff);
     for (size_t i = 0; i < set->file.size(); i++)
     {
         size_t total = set->file[i]->lst.size();
@@ -118,7 +118,7 @@ TEST_F(SetTest, SortOffLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(File::SortType::OffLine);
+    set->sort(SortType::OffLine);
     for (size_t i = 0; i < set->file.size(); i++)
     {
         size_t l = 0;
@@ -133,8 +133,8 @@ TEST_F(SetTest, SortSortRcv)
 {
     init(1, 1, 1, 2, true);
 
-    set->sort(File::SortType::SrcRcv);
-    set->sort(File::SortType::RcvOff);
+    set->sort(SortType::SrcRcv);
+    set->sort(SortType::RcvOff);
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
@@ -149,7 +149,7 @@ TEST_F(SetTest, SortSrcXRcvY)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(File::SortType::SrcRcv);
+    set->sort(SortType::SrcRcv);
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
@@ -165,8 +165,8 @@ TEST_F(SetTest, SortSrcXRcvY)
 TEST_F(SetTest, getMinMax)
 {
     init(1, 1, 1, 1, true);
-    std::vector<File::CoordElem> minmax(4);
-    set->getMinMax(File::Meta::xSrc, File::Meta::ySrc, minmax.data());
+    std::vector<CoordElem> minmax(4);
+    set->getMinMax(Meta::xSrc, Meta::ySrc, minmax.data());
     EXPECT_EQ(minmax[0].val, 1001.);
     EXPECT_EQ(minmax[1].val, 2000.);
     EXPECT_EQ(minmax[2].val, 1001.);

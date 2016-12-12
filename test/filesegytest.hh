@@ -259,11 +259,11 @@ struct FileSEGYTest : public Test
 
         File::Param prm(1U);
         file->readParam(offset, 1U, &prm);
-        ASSERT_EQ(ilNum(offset), File::getPrm<llint>(0U, File::Meta::il, &prm));
-        ASSERT_EQ(xlNum(offset), File::getPrm<llint>(0U, File::Meta::xl, &prm));
+        ASSERT_EQ(ilNum(offset), File::getPrm<llint>(0U, Meta::il, &prm));
+        ASSERT_EQ(xlNum(offset), File::getPrm<llint>(0U, Meta::xl, &prm));
 
-        ASSERT_DOUBLE_EQ(xNum(offset), File::getPrm<geom_t>(0U, File::Meta::xSrc, &prm));
-        ASSERT_DOUBLE_EQ(yNum(offset), File::getPrm<geom_t>(0U, File::Meta::ySrc, &prm));
+        ASSERT_DOUBLE_EQ(xNum(offset), File::getPrm<geom_t>(0U, Meta::xSrc, &prm));
+        ASSERT_DOUBLE_EQ(yNum(offset), File::getPrm<geom_t>(0U, Meta::ySrc, &prm));
     }
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
@@ -277,11 +277,11 @@ struct FileSEGYTest : public Test
 
         for (size_t i = 0; i < tn; i++)
         {
-            ASSERT_EQ(ilNum(i), File::getPrm<llint>(i, File::Meta::il, &prm));
-            ASSERT_EQ(xlNum(i), File::getPrm<llint>(i, File::Meta::xl, &prm));
+            ASSERT_EQ(ilNum(i), File::getPrm<llint>(i, Meta::il, &prm));
+            ASSERT_EQ(xlNum(i), File::getPrm<llint>(i, Meta::xl, &prm));
 
-            ASSERT_DOUBLE_EQ(xNum(i), File::getPrm<geom_t>(i, File::Meta::xSrc, &prm));
-            ASSERT_DOUBLE_EQ(yNum(i), File::getPrm<geom_t>(i, File::Meta::ySrc, &prm));
+            ASSERT_DOUBLE_EQ(xNum(i), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+            ASSERT_DOUBLE_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
         }
     }
 
@@ -334,9 +334,9 @@ struct FileSEGYTest : public Test
                                                         .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
 
         File::Param prm(1U);
-        File::setPrm(0, File::Meta::il, ilNum(offset), &prm);
-        File::setPrm(0, File::Meta::xl, xlNum(offset), &prm);
-        File::setPrm(0, File::Meta::tn, offset, &prm);
+        File::setPrm(0, Meta::il, ilNum(offset), &prm);
+        File::setPrm(0, Meta::xl, xlNum(offset), &prm);
+        File::setPrm(0, Meta::tn, offset, &prm);
         file->writeParam(offset, 1U, &prm);
     }
 
@@ -393,11 +393,11 @@ struct FileSEGYTest : public Test
         {
             if (readPrm && tnRead * ns)
             {
-                ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, File::Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
-                ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, File::Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
+                ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
+                ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
 
-                ASSERT_DOUBLE_EQ(xNum(i+offset), File::getPrm<geom_t>(i, File::Meta::xSrc, &prm));
-                ASSERT_DOUBLE_EQ(yNum(i+offset), File::getPrm<geom_t>(i, File::Meta::ySrc, &prm));
+                ASSERT_DOUBLE_EQ(xNum(i+offset), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(i+offset), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
             }
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset + i + j)) << "Trace Number: " << i << " " << j;
@@ -449,11 +449,11 @@ struct FileSEGYTest : public Test
         {
             if (readPrm && tn * ns)
             {
-                ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, File::Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
-                ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, File::Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
+                ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
+                ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
 
-                ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, File::Meta::xSrc, &prm));
-                ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, File::Meta::ySrc, &prm));
+                ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
             }
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + j)) << "Trace Number: " << offset[i] << " " << j;
@@ -520,15 +520,15 @@ struct FileSEGYTest : public Test
         {
             for (size_t i = 0U; i < tn; i++)
             {
-                File::setPrm(i, File::Meta::xSrc, xNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::xRcv, xNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::xCmp, xNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::ySrc, yNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::yRcv, yNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::yCmp, yNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::il, ilNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::xl, xlNum(offset+i), &prm);
-                File::setPrm(i, File::Meta::tn, offset+i, &prm);
+                File::setPrm(i, Meta::xSrc, xNum(offset+i), &prm);
+                File::setPrm(i, Meta::xRcv, xNum(offset+i), &prm);
+                File::setPrm(i, Meta::xCmp, xNum(offset+i), &prm);
+                File::setPrm(i, Meta::ySrc, yNum(offset+i), &prm);
+                File::setPrm(i, Meta::yRcv, yNum(offset+i), &prm);
+                File::setPrm(i, Meta::yCmp, yNum(offset+i), &prm);
+                File::setPrm(i, Meta::il, ilNum(offset+i), &prm);
+                File::setPrm(i, Meta::xl, xlNum(offset+i), &prm);
+                File::setPrm(i, Meta::tn, offset+i, &prm);
                 for (size_t j = 0U; j < ns; j++)
                     bufnew[i*ns + j] = float(offset + i + j);
             }
@@ -590,15 +590,15 @@ struct FileSEGYTest : public Test
         {
             if (writePrm)
             {
-                File::setPrm(i, File::Meta::xSrc, xNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::xRcv, xNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::xCmp, xNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::ySrc, yNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::yRcv, yNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::yCmp, yNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::il, ilNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::xl, xlNum(offset[i]), &prm);
-                File::setPrm(i, File::Meta::tn, offset[i], &prm);
+                File::setPrm(i, Meta::xSrc, xNum(offset[i]), &prm);
+                File::setPrm(i, Meta::xRcv, xNum(offset[i]), &prm);
+                File::setPrm(i, Meta::xCmp, xNum(offset[i]), &prm);
+                File::setPrm(i, Meta::ySrc, yNum(offset[i]), &prm);
+                File::setPrm(i, Meta::yRcv, yNum(offset[i]), &prm);
+                File::setPrm(i, Meta::yCmp, yNum(offset[i]), &prm);
+                File::setPrm(i, Meta::il, ilNum(offset[i]), &prm);
+                File::setPrm(i, Meta::xl, xlNum(offset[i]), &prm);
+                File::setPrm(i, Meta::tn, offset[i], &prm);
             }
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i*ns + j] = float(offset[i] + j);
@@ -647,15 +647,15 @@ struct FileSEGYTest : public Test
         File::Param prm(tn);
         for (size_t i = 0; i < tn; i++)
         {
-            File::setPrm(i, File::Meta::xSrc, ilNum(i+1), &prm);
-            File::setPrm(i, File::Meta::xRcv, ilNum(i+2), &prm);
-            File::setPrm(i, File::Meta::xCmp, ilNum(i+3), &prm);
-            File::setPrm(i, File::Meta::il, ilNum(i+4), &prm);
-            File::setPrm(i, File::Meta::ySrc, xlNum(i+5), &prm);
-            File::setPrm(i, File::Meta::yRcv, xlNum(i+6), &prm);
-            File::setPrm(i, File::Meta::yCmp, xlNum(i+7), &prm);
-            File::setPrm(i, File::Meta::xl, xlNum(i+8), &prm);
-            File::setPrm(i, File::Meta::tn, offset + i, &prm);
+            File::setPrm(i, Meta::xSrc, ilNum(i+1), &prm);
+            File::setPrm(i, Meta::xRcv, ilNum(i+2), &prm);
+            File::setPrm(i, Meta::xCmp, ilNum(i+3), &prm);
+            File::setPrm(i, Meta::il, ilNum(i+4), &prm);
+            File::setPrm(i, Meta::ySrc, xlNum(i+5), &prm);
+            File::setPrm(i, Meta::yRcv, xlNum(i+6), &prm);
+            File::setPrm(i, Meta::yCmp, xlNum(i+7), &prm);
+            File::setPrm(i, Meta::xl, xlNum(i+8), &prm);
+            File::setPrm(i, Meta::tn, offset + i, &prm);
         }
         file->writeParam(offset, prm.size(), &prm);
     }

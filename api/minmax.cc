@@ -21,7 +21,7 @@
 
 #include <cstring>
 namespace PIOL { namespace File {
-void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, File::Meta m1, File::Meta m2, const Param * prm, CoordElem * minmax)
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, Meta m1, Meta m2, const Param * prm, CoordElem * minmax)
 {
     std::vector<Param> vprm;
 

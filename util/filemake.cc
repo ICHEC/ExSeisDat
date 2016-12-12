@@ -21,15 +21,15 @@ void writeContig(ExSeis piol, File::Direct * file, size_t offset, size_t nt, siz
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset+i+j));
-            setPrm(j, File::Meta::xSrc, 1600.0 + k, &prm);
-            setPrm(j, File::Meta::ySrc, 2400.0 + k, &prm);
-            setPrm(j, File::Meta::xRcv, 100000.0 + k, &prm);
-            setPrm(j, File::Meta::yRcv, 3000000.0 + k, &prm);
-            setPrm(j, File::Meta::xCmp, 10000.0 + k, &prm);
-            setPrm(j, File::Meta::yCmp, 4000.0 + k, &prm);
-            setPrm(j, File::Meta::il, 2400 + k, &prm);
-            setPrm(j, File::Meta::xl, 1600 + k, &prm);
-            setPrm(j, File::Meta::tn, offset+i+j, &prm);
+            setPrm(j, Meta::xSrc, 1600.0 + k, &prm);
+            setPrm(j, Meta::ySrc, 2400.0 + k, &prm);
+            setPrm(j, Meta::xRcv, 100000.0 + k, &prm);
+            setPrm(j, Meta::yRcv, 3000000.0 + k, &prm);
+            setPrm(j, Meta::xCmp, 10000.0 + k, &prm);
+            setPrm(j, Meta::yCmp, 4000.0 + k, &prm);
+            setPrm(j, Meta::il, 2400 + k, &prm);
+            setPrm(j, Meta::xl, 1600 + k, &prm);
+            setPrm(j, Meta::tn, offset+i+j, &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset+i)*ns+j)) - off;
@@ -86,15 +86,15 @@ void writeRandom(ExSeisPIOL * piol, File::Direct * file, size_t nt, size_t ns, s
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset[i+j]));
-            setPrm(j, File::Meta::xSrc, 1600.0 + k, &prm);
-            setPrm(j, File::Meta::ySrc, 2400.0 + k, &prm);
-            setPrm(j, File::Meta::xRcv, 100000.0 + k, &prm);
-            setPrm(j, File::Meta::yRcv, 3000000.0 + k, &prm);
-            setPrm(j, File::Meta::xCmp, 10000.0 + k, &prm);
-            setPrm(j, File::Meta::yCmp, 4000.0 + k, &prm);
-            setPrm(j, File::Meta::il, 2400 + k, &prm);
-            setPrm(j, File::Meta::xl, 1600 + k, &prm);
-            setPrm(j, File::Meta::tn, offset[i+j], &prm);
+            setPrm(j, Meta::xSrc, 1600.0 + k, &prm);
+            setPrm(j, Meta::ySrc, 2400.0 + k, &prm);
+            setPrm(j, Meta::xRcv, 100000.0 + k, &prm);
+            setPrm(j, Meta::yRcv, 3000000.0 + k, &prm);
+            setPrm(j, Meta::xCmp, 10000.0 + k, &prm);
+            setPrm(j, Meta::yCmp, 4000.0 + k, &prm);
+            setPrm(j, Meta::il, 2400 + k, &prm);
+            setPrm(j, Meta::xl, 1600 + k, &prm);
+            setPrm(j, Meta::tn, offset[i+j], &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset[i])*ns+j)) - off;

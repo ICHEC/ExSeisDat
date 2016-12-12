@@ -179,24 +179,27 @@ void InternalSet::summary(void) const
         piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , Log::Verb::None);
     }
 
-    for (auto & m : fmap)
-        piol->log->record("", Log::Layer::Set, Log::Status::Request,
-            "Local File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
-                + " inc) = " + std::to_string(m.second.size()), Log::Verb::None);
-    piol->log->procLog();
+    if (!piol->comm->getRank())
+    {
+        for (auto & m : fmap)
+            piol->log->record("", Log::Layer::Set, Log::Status::Request,
+                "Local File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
+                    + " inc) = " + std::to_string(m.second.size()), Log::Verb::None);
+        piol->log->procLog();
+    }
 }
 
 void InternalSet::sort(File::Compare<File::Param> func)
 {
     for (auto & o : fmap)
     {
-        #warning replace these 4 lines with a function call
+        //TODO: replace these 4 lines with a function call
         size_t lsnt = 0U;
         for (auto & f : o.second)
             for (auto & l : f->lst)
                 lsnt += (l != NOT_IN_OUTPUT);
 
-        #warning function call?
+        //TODO: Replace with function call(s)
         auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
         size_t off = 0U;
         for (size_t i = 0; i < piol->comm->getRank(); i++)
@@ -228,7 +231,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 for (size_t i = 0; i < list.size(); i++)
                 {
                     cpyPrm(i, &fprm, loff+i, &prm);
-                    setPrm(loff+i, File::Meta::tn, off+loff + i, &prm);
+                    setPrm(loff+i, Meta::tn, off+loff + i, &prm);
                 }
                 loff += list.size();
             }
@@ -345,7 +348,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
 }
 
 template <typename Op>
-void updateElem(File::CoordElem * src, File::CoordElem * dst)
+void updateElem(CoordElem * src, CoordElem * dst)
 {
     Op op;
     if (src->val == dst->val)
@@ -357,7 +360,7 @@ void updateElem(File::CoordElem * src, File::CoordElem * dst)
     }
 }
 
-void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, File::CoordElem * minmax)
+void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
 {
     minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
@@ -371,7 +374,7 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
         auto l = getList(f.get()).first;
         File::Param prm(rule, l.size());
         f->ifc->readParam(l.size(), l.data(), &prm);
-        std::vector<File::CoordElem> tminmax(4U);
+        std::vector<CoordElem> tminmax(4U);
 
         std::vector<File::Param> vprm;
         for (size_t i = 0; i < l.size(); i++)

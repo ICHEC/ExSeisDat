@@ -80,28 +80,28 @@ struct SetTest : public Test
                     if (linear)
                         for (size_t l = 0; l < dec.second; l++)
                         {
-                            setPrm(l, File::Meta::xSrc, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, File::Meta::ySrc, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, File::Meta::xRcv, 2000. + geom_t(dec.first + l), tprm);
-                            setPrm(l, File::Meta::yRcv, 2000. + geom_t(dec.first + l), tprm);
-                            setPrm(l, File::Meta::xCmp, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, File::Meta::yCmp, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, File::Meta::il, 2000U + dec.first + l, tprm);
-                            setPrm(l, File::Meta::xl, 2000U + dec.first + l, tprm);
-                            setPrm(l, File::Meta::tn, l+dec.first, tprm);
+                            setPrm(l, Meta::xSrc, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, Meta::ySrc, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, Meta::xRcv, 2000. + geom_t(dec.first + l), tprm);
+                            setPrm(l, Meta::yRcv, 2000. + geom_t(dec.first + l), tprm);
+                            setPrm(l, Meta::xCmp, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, Meta::yCmp, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, Meta::il, 2000U + dec.first + l, tprm);
+                            setPrm(l, Meta::xl, 2000U + dec.first + l, tprm);
+                            setPrm(l, Meta::tn, l+dec.first, tprm);
                         }
                     else
                         for (size_t l = 0; l < dec.second; l++)
                         {
-                            setPrm(l, File::Meta::xSrc, 2000. - geom_t((dec.first + l) % (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::ySrc, 2000., tprm);
-                            setPrm(l, File::Meta::xRcv, 2000., tprm);
-                            setPrm(l, File::Meta::yRcv, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::xCmp, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::yCmp, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
-                            setPrm(l, File::Meta::il, 2000U + (dec.first + l) % (nt / 10U), tprm);
-                            setPrm(l, File::Meta::xl, 2000U + (dec.first + l) / (nt / 10U), tprm);
-                            setPrm(l, File::Meta::tn, l+dec.first, tprm);
+                            setPrm(l, Meta::xSrc, 2000. - geom_t((dec.first + l) % (nt / 10U)), tprm);
+                            setPrm(l, Meta::ySrc, 2000., tprm);
+                            setPrm(l, Meta::xRcv, 2000., tprm);
+                            setPrm(l, Meta::yRcv, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
+                            setPrm(l, Meta::xCmp, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
+                            setPrm(l, Meta::yCmp, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
+                            setPrm(l, Meta::il, 2000U + (dec.first + l) % (nt / 10U), tprm);
+                            setPrm(l, Meta::xl, 2000U + (dec.first + l) / (nt / 10U), tprm);
+                            setPrm(l, Meta::tn, l+dec.first, tprm);
                         }
                     EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _))
                                     .Times(Exactly(srtCnt))

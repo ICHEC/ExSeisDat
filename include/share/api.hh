@@ -7,11 +7,15 @@
 #ifndef PIOLSHAREAPI_INCLUDE_GUARD
 #define PIOLSHAREAPI_INCLUDE_GUARD
 
+#ifndef __cplusplus
+typedef double geom_t;
+#endif
+
 #ifdef __cplusplus
-namespace PIOL { namespace File {
+namespace PIOL {
 /*! The available trace parameters
  */
-enum class Meta : size_t
+enum class Meta : int
 #else
 typedef enum
 #endif
@@ -51,7 +55,26 @@ typedef enum
 #ifdef __cplusplus
 };
 #else
-} CMeta;
+} Meta;
+#endif
+
+/*! An enum class of the different types of sorting operaton.
+ */
+#ifdef __cplusplus
+enum class SortType : int
+#else
+typedef enum
+#endif
+{
+    SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
+    SrcOff,
+    RcvOff,
+    LineOff,
+    OffLine
+#ifdef __cplusplus
+};
+#else
+} SortType;
 #endif
 
 /*! A structure to hold a reference to a single coordinate and
@@ -68,10 +91,9 @@ typedef struct
 #ifdef __cplusplus
 };
 #else
-} CCoordElem;
+} CoordElem;
 #endif
-
 #ifdef __cplusplus
-}}
+}
 #endif
 #endif
