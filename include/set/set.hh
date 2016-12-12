@@ -58,6 +58,7 @@ class InternalSet
     }
     void summary(void) const;
     void add(std::unique_ptr<File::Interface> in);
+    void add(std::string name);
 };
 }
 #endif

@@ -72,6 +72,15 @@ InternalSet::~InternalSet(void)
         output(outfix);
 }
 
+
+void InternalSet::add(std::string name)
+{
+    auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
+    auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
+    auto in = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
+    add(std::move(in));
+}
+
 void InternalSet::add(std::unique_ptr<File::Interface> in)
 {
     file.emplace_back(std::make_unique<FileDesc>());

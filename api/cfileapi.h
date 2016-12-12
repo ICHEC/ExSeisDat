@@ -12,8 +12,8 @@ extern "C" {
 
 typedef struct PIOLWrapper * ExSeisHandle;      //!< A wrapper around a shared PIOL Object
 typedef struct ExSeisFileWrapper * ExSeisFile;  //!< A wrapper around a File Layer pointer
-typedef struct RuleWrapper * RuleHdl;  //!< A wrapper around a File Layer pointer
-typedef struct ParamWrapper * CParam;  //!< A wrapper around a File Layer pointer
+typedef struct RuleWrapper * RuleHdl;           //!< A wrapper around a File Layer pointer
+typedef struct ParamWrapper * CParam;           //!< A wrapper around a File Layer pointer
 
 /*
  * PIOL calls. Non-file specific
@@ -22,6 +22,7 @@ typedef struct ParamWrapper * CParam;  //!< A wrapper around a File Layer pointe
  *  \return A handle to the PIOL.
  */
 extern ExSeisHandle initMPIOL();
+
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
  */
@@ -74,30 +75,118 @@ extern size_t getSEGYParamSz(void);
 /*
  * Rule calls
  */
+/*! Initialise a Rule structure
+ *  \param[in] def Set default rules if true
+ *  \return Return a handle for the Rule structure
+ */
 RuleHdl initRules(bool def);
 
+/*! Free a Rule structure.
+ *  \param[in] rule The Rule handle associated with the structure to free
+ */
 void freeRules(RuleHdl rule);
 
+/*! Add a Rule for longs (int64_t)
+ *  \param[in] rule The Rule handle
+ *  \param[in] m The parameter which one is providing a rule for
+ *  \param[in] loc The location in the trace header for the rule.
+ */
 void addLongRule(RuleHdl rule, Meta m, size_t loc);
 
+/*! Add a Rule for shorts (int16_t)
+ *  \param[in] rule The Rule handle
+ *  \param[in] m The parameter which one is providing a rule for
+ *  \param[in] loc The location in the trace header for the rule.
+ */
 void addShortRule(RuleHdl rule, Meta m, size_t loc);
 
+/*! Add a Rule for floats
+ *  \param[in] rule The Rule handle
+ *  \param[in] m The parameter which one is providing a rule for
+ *  \param[in] loc The location in the trace header for the rule.
+ *  \param[in] scalLoc The location in the trace header for the shared scaler;
+ */
 void addFloatRule(RuleHdl rule, Meta m, size_t loc, size_t scalLoc);
 
+/*! remove a rule for a parameter
+ *  \param[in] rule The Rule handle associated with the structure to free
+ *  \param[in] m The parameter which one is removing a rule for
+ */
 void rmRule(RuleHdl rule, Meta m);
 
 /*!
  * Param calls
  */
+/*! Define a new parameter structure
+ *  \param[in] rule The Rule handle associated with the structure
+ *  \param[in] sz The number of sets of parameters stored by the structure
+ *  \return Return a handle for the parameter structure
+ */
 CParam newParam(RuleHdl rule, size_t sz);
+/*! Define a new parameter structure using default rules
+ *  \param[in] sz The number of sets of parameters stored by the structure
+ *  \return Return a handle for the parameter structure
+ */
 CParam newDefParam(size_t sz);
+/*! Free the given parameter structure
+ *  \param[in] prm The parameter structure
+ */
 void freeParam(CParam prm);
+
+/*! Get a short parameter which is in a particular set in a parameter structure.
+ *  \param[in] i The parameter set number
+ *  \param[in] entry The parameter entry
+ *  \param[in] prm The parameter structure
+ *  \return The associated parameter
+ */
 short getShortPrm(size_t i, Meta entry, CParam prm);
+
+/*! Get a long parameter which is in a particular set in a parameter structure.
+ *  \param[in] i The parameter set number
+ *  \param[in] entry The parameter entry
+ *  \param[in] prm The parameter structure
+ *  \return The associated parameter
+ */
 int64_t getLongPrm(size_t i, Meta entry, CParam prm);
+
+/*! Get a double parameter which is in a particular set in a parameter structure.
+ *  \param[in] i The parameter set number
+ *  \param[in] entry The parameter entry
+ *  \param[in] prm The parameter structure
+ *  \return The associated parameter
+ */
 double getFloatPrm(size_t i, Meta entry, CParam prm);
+
+/*! Set a short parameter within the parameter structure.
+ *  \param[in] i The parameter set number
+ *  \param[in] entry The parameter entry
+ *  \param[in] ret The value to set the parameter to
+ *  \param[in] prm The parameter structure
+ */
 void setShortPrm(size_t i, Meta entry, short ret, CParam prm);
+
+/*! Set a long parameter within the parameter structure.
+ *  \param[in] i The parameter set number
+ *  \param[in] entry The parameter entry
+ *  \param[in] ret The value to set the parameter to
+ *  \param[in] prm The parameter structure
+ */
 void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm);
+
+/*! Set a double parameter within the parameter structure.
+ *  \param[in] i The parameter set number
+ *  \param[in] entry The parameter entry
+ *  \param[in] ret The value to set the parameter to
+ *  \param[in] prm The parameter structure
+ */
 void setFloatPrm(size_t i, Meta entry, double ret, CParam prm);
+
+/*! Copy a short parameter within the parameter structure.
+ *  \param[in] i The parameter set number of the source
+ *  \param[in] src The parameter structure of the source
+ *  \param[in] j The parameter set number of the destination
+ *  \param[in] dst The parameter structure of the destination
+ */
 void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
 
 /*

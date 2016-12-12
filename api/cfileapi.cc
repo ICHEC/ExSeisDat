@@ -35,6 +35,11 @@ struct ExSeisFileWrapper
     PIOL::File::Direct * file;
 };
 
+struct ExSeisSetWrapper
+{
+    PIOL::Set * set;
+};
+
 RuleHdl intiRules(bool def)
 {
     auto wrap = new RuleWrapper;
@@ -333,11 +338,6 @@ size_t getSEGYParamSz(void)
 }
 
 ////////////////////////////////////SET/////////////////////////////////////////
-struct ExSeisSetWrapper
-{
-    PIOL::Set * set;
-};
-
 ExSeisSet makeSet(ExSeisHandle piol, const char * ptrn)
 {
     auto wrap = new ExSeisSetWrapper;
@@ -399,10 +399,6 @@ void summarySet(ExSeisSet s)
 
 void addSet(ExSeisSet s, const char * name)
 {
-
+    s->set->add(name);
 }
-
-
-
-
 }
