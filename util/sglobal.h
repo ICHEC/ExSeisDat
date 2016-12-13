@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "cfileapi.h"
 
 #define MIN(x, y) (x < y ? x : y)

@@ -18,9 +18,17 @@
 #include "object/objsegy.hh"
 
 namespace PIOL {
-typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;
+typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
 
-constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
+constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();    //!< Constant to use to represent a trace not in the set
+
+/*! Perform a 1d decomposition so that the load is optimally balanced.
+ *  \param[in] sz The sz of the 1d domain
+ *  \param[in] numRank The number of ranks to perform the decomposition over
+ *  \param[in] rank The rank of the local process
+ *  \return Return a pair, the first element is the offset for the local process,
+ *          the second is the size for the local process.
+ */
 std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 {
     size_t q = sz/numRank;
@@ -29,8 +37,16 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
     return std::make_pair(start, std::min(sz - start, q + (rank < r)));
 }
 
-//TODO: Re-use this
-//This function should be used if all traces in a file are active
+/*! Read and write all traces in a given input file to output.
+ *  This function should be used if all traces in a file are active.
+ *  \param[in] piol A pointer to the PIOL object
+ *  \param[in] doff The offset into the output file
+ *  \param[in] rule The rule to use for the trace parameters.
+ *  \param[out] dst The output file interface
+ *  \param[in] src The input file interface
+ *  \todo Re-use this
+ *  \return Return the number of traces read and written across all processes.
+ */
 size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::Interface * dst, File::Interface * src)
 {
     const size_t memlim = 2U*1024U*1024U*1024U;
@@ -58,6 +74,107 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
         dst->writeTrace(size_t(0), size_t(0), nullptr, (File::Param *)nullptr);
     }
     return src->readNt();
+}
+
+
+/*! Get the sorted index associated with a given list
+ *  \param[in] sz The length of the list
+ *  \param[in] list The array of numbers
+ *  \return A vector containing the numbering of list in a sorted order
+ */
+std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
+{
+    std::vector<size_t> index(sz);
+    std::iota(index.begin(), index.end(), 0);
+    std::sort(index.begin(), index.end(), [list] (size_t s1, size_t s2) { return list[s1] < list[s2]; });
+    return index;
+}
+
+/*! Read a list of traces from the input and write it to the output.
+ *  \param[in] piol A pointer to the PIOL object.
+ *  \param[in] rule The rule to use for the trace parameters.
+ *  \param[in] list A pair of vectors. The first vector is every input trace. The
+ *             second is where the input trace should go in the output.
+ *  \param[in] in The input file interface
+ *  \param[out] out The output file interface
+ *  \param[in] max The maximum number of traces to read/write at a time
+ */
+void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list,
+                                File::Interface * in, File::Interface * out, size_t max)
+{
+    std::vector<size_t> & ilist = list.first;
+    std::vector<size_t> & olist = list.second;
+    size_t lnt = ilist.size();
+    size_t fmax = std::min(lnt, max);
+    size_t ns = in->readNs();
+
+    File::Param iprm(rule, fmax);
+    File::Param oprm(rule, fmax);
+    std::vector<trace_t> itrc(fmax * ns);
+    std::vector<trace_t> otrc(fmax * ns);
+    auto biggest = piol->comm->max(lnt);
+    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
+    for (size_t i = 0; i < lnt; i += max)
+    {
+        size_t rblock = (i + max < lnt ? max : lnt - i);
+        in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
+        std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
+        for (size_t j = 0U; j < rblock; j++)
+        {
+            cpyPrm(sortlist[j], &iprm, j, &oprm);
+
+            for (size_t k = 0U; k < ns; k++)
+                otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
+            sortlist[j] = olist[i+sortlist[j]];
+        }
+
+        out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
+    }
+    for (size_t i = 0; i < extra; i++)
+    {
+        in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
+        out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
+    }
+}
+
+/*! Return a pair of input-output vectors
+ *  \param[in] f The file descriptor
+ *  \return A pair of vectors. First is input trace number, second is output trace number.
+ */
+iolst getList(FileDesc * f)
+{
+    iolst list;
+    size_t cnt = 0;
+    for (auto & l : f->lst)
+    {
+        if (l != NOT_IN_OUTPUT)
+        {
+            list.first.push_back(f->offset + cnt);
+            list.second.push_back(l);
+        }
+        cnt++;
+    }
+    return list;
+}
+
+/*! For CoordElem. Update the dst element based on if the operation gives true.
+ *  If the elements have the same value, set the trace number to the
+ *  smallest trace number.
+ *  \tparam Op The true/false operation to use for comparison
+ *  \param[in] src The source one will be using for updating
+ *  \param[in, out] dst The destination which will be updated.
+ */
+template <typename Op>
+void updateElem(CoordElem * src, CoordElem * dst)
+{
+    Op op;
+    if (src->val == dst->val)
+        dst->num = std::min(dst->num, src->num);
+    else if (op(src->val, dst->val))
+    {
+        dst->val = src->val;
+        dst->num = src->num;
+    }
 }
 
 //////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
@@ -262,73 +379,6 @@ void InternalSet::sort(File::Compare<File::Param> func)
     }
 }
 
-/*! Get the sorted index associated with a given list
- *  \param[in] sz The length of the list
- *  \param[in] list The array of numbers
- *  \return A vector containing the numbering of list in a sorted order
- */
-std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
-{
-    std::vector<size_t> index(sz);
-    std::iota(index.begin(), index.end(), 0);
-    std::sort(index.begin(), index.end(), [list] (size_t s1, size_t s2) { return list[s1] < list[s2]; });
-    return index;
-}
-
-void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list,
-                                File::Interface * in, File::Interface * out, size_t max)
-{
-    std::vector<size_t> & ilist = list.first;
-    std::vector<size_t> & olist = list.second;
-    size_t lnt = ilist.size();
-    size_t fmax = std::min(lnt, max);
-    size_t ns = in->readNs();
-
-    File::Param iprm(rule, fmax);
-    File::Param oprm(rule, fmax);
-    std::vector<trace_t> itrc(fmax * ns);
-    std::vector<trace_t> otrc(fmax * ns);
-    auto biggest = piol->comm->max(lnt);
-    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-        in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
-        std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
-        for (size_t j = 0U; j < rblock; j++)
-        {
-            cpyPrm(sortlist[j], &iprm, j, &oprm);
-
-            for (size_t k = 0U; k < ns; k++)
-                otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
-            sortlist[j] = olist[i+sortlist[j]];
-        }
-
-        out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
-    }
-    for (size_t i = 0; i < extra; i++)
-    {
-        in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-        out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
-    }
-}
-
-iolst getList(FileDesc * f)
-{
-    iolst list;
-    size_t cnt = 0;
-    for (auto & l : f->lst)
-    {
-        if (l != NOT_IN_OUTPUT)
-        {
-            list.first.push_back(f->offset + cnt);
-            list.second.push_back(l);
-        }
-        cnt++;
-    }
-    return list;
-}
-
 std::vector<std::string> InternalSet::output(std::string oname)
 {
     std::vector<std::string> names;
@@ -368,19 +418,6 @@ std::vector<std::string> InternalSet::output(std::string oname)
     return names;
 }
 
-template <typename Op>
-void updateElem(CoordElem * src, CoordElem * dst)
-{
-    Op op;
-    if (src->val == dst->val)
-        dst->num = std::min(dst->num, src->num);
-    else if (op(src->val, dst->val))
-    {
-        dst->val = src->val;
-        dst->num = src->num;
-    }
-}
-
 void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
 {
     minmax[0].val = std::numeric_limits<geom_t>::max();
@@ -390,21 +427,21 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     for (size_t i = 0 ; i < 4; i++)
         minmax[i].num = std::numeric_limits<size_t>::max();
 
+    CoordElem tminmax[4U];
+
     for (auto & f : file)
     {
         auto l = getList(f.get()).first;
+        std::vector<File::Param> vprm;
         File::Param prm(rule, l.size());
         f->ifc->readParam(l.size(), l.data(), &prm);
-        std::vector<CoordElem> tminmax(4U);
 
-        std::vector<File::Param> vprm;
         for (size_t i = 0; i < l.size(); i++)
         {
             vprm.emplace_back(rule, 1U);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
-
-        File::getMinMax(piol.get(), f->offset, l.size(), vprm.data(), xlam, ylam, tminmax.data());
+        File::getMinMax(piol.get(), f->offset, l.size(), vprm.data(), xlam, ylam, tminmax);
         for (size_t i = 0U; i < 2U; i++)
         {
             updateElem<std::less<geom_t>>(&tminmax[2U*i], &minmax[2U*i]);

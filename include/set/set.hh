@@ -51,7 +51,7 @@ class InternalSet
     public :
 
     /*! Constructor
-     *  \param[in] piol The PIOL object.
+     *  \param[in] piol_ The PIOL object.
      *  \param[in] pattern The file-matching pattern
      *  \param[in] outfix_ The output file-name prefix
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
@@ -59,7 +59,7 @@ class InternalSet
     InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_);
 
     /*! Constructor overload
-     *  \param[in] piol The PIOL object.
+     *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     InternalSet(Piol piol_, std::shared_ptr<File::Rule> rule_) : piol(piol_), rule(rule_) { }

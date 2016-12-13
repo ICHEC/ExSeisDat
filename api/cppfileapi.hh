@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date Autumn 2016
+ *   \brief
+ *   \details Primary C++ API header
+ *//*******************************************************************************************/
 #ifndef PIOLCPPFILEAPI_INCLUDE_GUARD
 #define PIOLCPPFILEAPI_INCLUDE_GUARD
 #include "global.hh"

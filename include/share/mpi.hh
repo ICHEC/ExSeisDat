@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date Summer 2016
+ *   \brief
+ *   \details MPI Functions etc which are shared between communication and MPI-IO
+ *//*******************************************************************************************/
 #ifndef PIOLSHAREDMPI_INCLUDE_GUARD
 #define PIOLSHAREDMPI_INCLUDE_GUARD
 #include <limits>
@@ -49,6 +57,7 @@ MPI_Datatype MPIType(void)
 
 /*! \brief Return the known limit for Intel MPI on Fionn
  *  \tparam T The type one wishes to find the limit for
+ *  \return The size in counts
  */
 template <typename T>
 constexpr size_t getLim()
@@ -59,11 +68,14 @@ constexpr size_t getLim()
     return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
 }
 
+/*! \brief Return the known limit for Intel MPI on Fionn for a type of the given size
+ *  \param[in] sz The datatype size one wishes to find the limit for
+ *  \return The size in counts
+ */
 inline size_t getLimSz(size_t sz)
 {
     //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
     //Probably something to do with pages.
-    //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
     return (std::numeric_limits<int>::max() - (4096U - sz)) / sz;
 }
 }

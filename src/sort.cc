@@ -205,7 +205,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
  *  \tparam T Type of vector
  *  \param[in] piol The PIOL object.
  *  \param[in] regionSz The size of the region which will be shared
- *  \param[in] nt The total number of objects in all of the vectors across the processes
+ *  \param[in] temp1 Temporary vector which is the dat.size()+regionSz.
  *  \param[in,out] dat The vector to sort
  *  \param[in] comp The function to use for less-than comparisons between objects in the
  *                  vector.

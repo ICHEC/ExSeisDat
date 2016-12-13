@@ -79,7 +79,7 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
  * \param[in] sz The number of sets of parameters for the local process
  * \param[in] coord The array of parameters for the local process
  * \param[in] xlam The function for extracting the first parameter from \c coord
- * \param[in] xlam The function for extracting the second parameter from \c coord
+ * \param[in] ylam The function for extracting the second parameter from \c coord
  * \param[in] minmax An array of length 4 with the CoordElem structure as elements.
  *            min for xlam, max for xlam, min for ylam, max for ylam.
  */

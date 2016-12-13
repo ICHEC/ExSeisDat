@@ -33,5 +33,5 @@ endif
 
 .PHONY: clean
 clean:
-	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP)
+	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP) $(BIN)
 

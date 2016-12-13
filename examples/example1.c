@@ -1,9 +1,11 @@
 #include "sglobal.h"
-#include <unistd.h>
-#include <assert.h>
 #include "cfileapi.h"
+#include <assert.h>
 int main(int argc, char ** argv)
 {
+    //Initialise the PIOL by creating an ExSeisPIOL object
+    ExSeisHandle piol = initMPIOL();
+
     char * opt = "o:";  //TODO: uses a GNU extension
     char * name = NULL;
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
@@ -12,9 +14,6 @@ int main(int argc, char ** argv)
         else
             fprintf(stderr, "One of the command line arguments is invalid\n");
     assert(name);
-
-    //Initialise the PIOL by creating an ExSeisPIOL object
-    ExSeisHandle piol = initMPIOL();
 
     //Create a SEGY file object
     ExSeisFile fh = openWriteFile(piol, name);

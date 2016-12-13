@@ -24,7 +24,7 @@ namespace PIOL { namespace File {
 void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, Meta m1, Meta m2, const Param * prm, CoordElem * minmax)
 {
     std::vector<Param> vprm;
-
+    //TODO: Just add the two meta options to the rules with defaults?
     for (size_t i = 0; i < lnt; i++)
     {
         vprm.emplace_back(prm->r, 1U);
