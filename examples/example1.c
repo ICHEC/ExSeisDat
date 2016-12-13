@@ -1,7 +1,6 @@
 #include "sglobal.h"
 #include <unistd.h>
 #include <assert.h>
-#include <stdlib.h>
 #include "cfileapi.h"
 int main(int argc, char ** argv)
 {
@@ -11,10 +10,7 @@ int main(int argc, char ** argv)
         if (c == 'o')
             name = copyString(optarg);
         else
-        {
             fprintf(stderr, "One of the command line arguments is invalid\n");
-            return -1;
-        }
     assert(name);
 
     //Initialise the PIOL by creating an ExSeisPIOL object
@@ -23,13 +19,18 @@ int main(int argc, char ** argv)
     //Create a SEGY file object
     ExSeisFile fh = openWriteFile(piol, name);
 
-    //lnt is the number of traces and sets of trace parameters we will write per process
-    size_t nt = 40000, ns = 300;
-    double inc = 0.04;
+    //nt is the number of traces, ns the number of samples per trace
+    size_t nt = 400000, ns = 1000;
+    //inc is the increment step between traces (microseconds)
+    double inc = 4.0;
 
+    //Perform some decomposition (user decides how they will decompose)
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
+
+    //The offset for the local process
     size_t offset = dec.start;
-    size_t lnt = dec.end;
+    //The number of traces for the local process to handle
+    size_t lnt = dec.sz;
 
     //Write some header parameters
     writeNs(fh, ns);
@@ -37,8 +38,8 @@ int main(int argc, char ** argv)
     writeInc(fh, inc);
     writeText(fh, "Test file\n");
 
-    //Set and write some trace parameters
-    CParam prm = newDefParam(lnt);
+    //Set some trace parameters
+    CParam prm = initDefParam(lnt);
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
@@ -52,17 +53,20 @@ int main(int argc, char ** argv)
         setLongPrm(j, xl, 1600 + offset + j, prm);
         setLongPrm(j, tn, offset + j, prm);
     }
-    writeParam(fh, offset, lnt, prm);
-    freeParam(prm);
 
-    //Set and write some traces
+    //Set some traces
     float * trc = calloc(lnt*ns, sizeof(float));
     for (size_t j = 0; j < lnt*ns; j++)
         trc[j] = (float)(offset*ns+j);
-    writeTrace(fh, offset, lnt, trc);
+
+    //Write the traces and trace parameters
+    writeFullTrace(fh, offset, lnt, trc, prm);
+
+    //Free the data
+    freeParam(prm);
     free(trc);
 
-    //Close the file handle and close the piol
+    //Close the file handle and free the piol
     closeFile(fh);
     freePIOL(piol);
 

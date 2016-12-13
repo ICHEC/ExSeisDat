@@ -20,7 +20,7 @@ int main(int argc, char ** argv)
                 oname = copyString(optarg);
             break;
             default :
-                fprintf(stderr, "One of the command line arguments is invalid\n");
+                fprintf(stderr, "Invalid command line arguments\n");
             break;
         }
     assert(iname && oname);
@@ -38,29 +38,25 @@ int main(int argc, char ** argv)
 
     Extent dec = decompose(nt, getNumRank(piol), rank);
     size_t offset = dec.start;
-    size_t lnt = dec.end;
+    size_t lnt = dec.sz;
 
     //Alloc the required memory for the data we want.
     float * trace = malloc(lnt * getSEGYTraceLen(ns));
-    CParam trhdr = newDefParam(lnt);
+    CParam trhdr = initDefParam(lnt);
 
     //Create a SEGY file object for output
     ExSeisFile ofh = openWriteFile(piol, oname);
     isErr(piol);
 
     //Write the headers based on the input file.
+    writeNs(ofh, nt);
+    writeNt(ofh, ns);
     writeText(ofh, readText(ifh));
-    writeNs(ofh, readNs(ifh));
-    writeNt(ofh, readNt(ifh));
     writeInc(ofh, readInc(ifh));
 
-    //Read the trace parameters from the input file and to the output
-    readParam(ifh, offset, lnt, trhdr);
-    writeParam(ofh, offset, lnt, trhdr);
-
     //Read the traces from the input file and to the output
-    readTrace(ifh, offset, lnt, trace);
-    writeTrace(ofh, offset, lnt, trace);
+    readFullTrace(ifh, offset, lnt, trace, trhdr);
+    writeFullTrace(ofh, offset, lnt, trace, trhdr);
 
     free(trace);
     freeParam(trhdr);

@@ -6,7 +6,7 @@ Extent decompose(size_t sz, size_t nrank, size_t rank)
     size_t r = sz%nrank;
     size_t q = sz/nrank;
     size_t start = q * rank + MIN(rank, r);
-    Extent extent = {.start = start, .end = MIN(sz - start, q + (rank < r))};
+    Extent extent = {.start = start, .sz = MIN(sz - start, q + (rank < r))};
     return extent;
 }
 

@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stddef.h>
 #include <assert.h>
+#include "ctest.h"
 #include "cfileapi.h"
 
 int testManyFiles(ExSeisHandle piol, const char * name)

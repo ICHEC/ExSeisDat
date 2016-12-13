@@ -7,7 +7,7 @@
 
 void readWriteParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
-    CParam trhdr = newDefParam(tcnt);
+    CParam trhdr = initDefParam(tcnt);
     readParam(ifh, off, tcnt, trhdr);
 
     if (fprm != NULL)
@@ -83,7 +83,7 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
     size_t tcnt = memmax / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
 
-    writePayload(piol, ifh, ofh, dec.start, dec.end, tcnt, fprm, ftrc);
+    writePayload(piol, ifh, ofh, dec.start, dec.sz, tcnt, fprm, ftrc);
 
     isErr(piol);
     closeFile(ofh);

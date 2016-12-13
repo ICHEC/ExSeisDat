@@ -35,6 +35,11 @@ struct ExSeisFileWrapper
     PIOL::File::Direct * file;
 };
 
+struct ExSeisSetWrapper
+{
+    PIOL::Set * set;
+};
+
 RuleHdl intiRules(bool def)
 {
     auto wrap = new RuleWrapper;
@@ -333,11 +338,6 @@ size_t getSEGYParamSz(void)
 }
 
 ////////////////////////////////////SET/////////////////////////////////////////
-struct ExSeisSetWrapper
-{
-    PIOL::Set * set;
-};
-
 ExSeisSet initSet(ExSeisHandle piol, const char * ptrn)
 {
     auto wrap = new ExSeisSetWrapper;
@@ -367,7 +367,7 @@ void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax)
     s->set->sort([func] (const Param & a, const Param & b) -> bool { return func(&a, &b); });
 }*/
 
-void defsortSet(ExSeisSet s, SortType type)
+void sortSet(ExSeisSet s, SortType type)
 {
     s->set->sort(type);
 }
@@ -399,10 +399,6 @@ void summarySet(ExSeisSet s)
 
 void addSet(ExSeisSet s, const char * name)
 {
-
+    s->set->add(name);
 }
-
-
-
-
 }
