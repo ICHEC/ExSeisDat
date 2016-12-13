@@ -89,8 +89,8 @@ void rmRule(RuleHdl rule, Meta m);
 /*!
  * Param calls
  */
-CParam newParam(RuleHdl rule, size_t sz);
-CParam newDefParam(size_t sz);
+CParam initParam(RuleHdl rule, size_t sz);
+CParam initDefParam(size_t sz);
 void freeParam(CParam prm);
 short getShortPrm(size_t i, Meta entry, CParam prm);
 int64_t getLongPrm(size_t i, Meta entry, CParam prm);

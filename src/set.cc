@@ -30,6 +30,7 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 }
 
 //TODO: Re-use this
+//This function should be used if all traces in a file are active
 size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::Interface * dst, File::Interface * src)
 {
     const size_t memlim = 2U*1024U*1024U*1024U;
@@ -98,6 +99,7 @@ void InternalSet::add(std::unique_ptr<File::Interface> in)
 void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
     outmsg = "ExSeisPIOL: Set layer output\n";
+    //TODO: Regexes might be more useful for pattern matching instead of globbing
     glob_t globs;
     int err = glob(pattern.c_str(), GLOB_TILDE | GLOB_MARK, NULL, &globs);
     if (err)
@@ -106,9 +108,11 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
     std::regex reg(".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize | std::regex::extended);
 
     for (size_t i = 0; i < globs.gl_pathc; i++)
-        if (std::regex_match(globs.gl_pathv[i], reg))
+        if (std::regex_match(globs.gl_pathv[i], reg))   //For each input file which matches the regex
         {
             std::string name = globs.gl_pathv[i];
+
+            //Open the file and create the associated layers
             auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
             auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
             //TODO: There could be a problem with excessive amounts of open files
@@ -116,6 +120,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             auto & f = file.back();
             f->ifc = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
 
+            //Perform and store the decomposition
             auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
             f->lst.resize(dec.second);
             f->offset = dec.first;
@@ -126,6 +131,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
 
     for (auto & f : file)
     {
+        //TODO: This could be replaced with a function
         auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
         size_t loff = 0;    //The local process's offset into the file.
         for (size_t i = 0; i < piol->comm->getRank(); i++)
@@ -191,7 +197,7 @@ void InternalSet::summary(void) const
 
 void InternalSet::sort(File::Compare<File::Param> func)
 {
-    for (auto & o : fmap)
+    for (auto & o : fmap)   //Per target output file
     {
         //TODO: replace these 4 lines with a function call
         size_t lsnt = 0U;
@@ -208,7 +214,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
         for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
             nt += sizes[i];
 
-        if (nt < 3U * piol->comm->getNumRank())
+        if (nt < 3U * piol->comm->getNumRank()) //TODO: It will eventually be necessary to support his use case.
         {
             piol->log->record("", Log::Layer::Set, Log::Status::Error,
                 "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
@@ -225,7 +231,8 @@ void InternalSet::sort(File::Compare<File::Param> func)
                     if (f->lst[i] != NOT_IN_OUTPUT)
                         list.push_back(f->offset + i);
 
-                //TODO: Makes assumptions about Parameter sizes.
+                //TODO: Do not make assumptions about Parameter sizes fitting in memory.
+                //Replace this with an extra loop over the readParam calls
                 File::Param fprm(list.size());
                 f->ifc->readParam(list.size(), list.data(), &fprm);
                 for (size_t i = 0; i < list.size(); i++)
@@ -246,6 +253,11 @@ void InternalSet::sort(File::Compare<File::Param> func)
     }
 }
 
+/*! Get the sorted index associated with a given list
+ *  \param[in] sz The length of the list
+ *  \param[in] list The array of numbers
+ *  \return A vector containing the numbering of list in a sorted order
+ */
 std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
 {
     std::vector<size_t> index(sz);

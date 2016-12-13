@@ -70,7 +70,7 @@ void rmRule(RuleHdl rule, Meta m)
     rule->rule->rmRule(m);
 }
 
-CParam newDefParam(size_t sz)
+CParam initDefParam(size_t sz)
 {
     auto rule = std::make_shared<File::Rule>(true, true);
     auto wrap = new ParamWrapper;
@@ -78,7 +78,7 @@ CParam newDefParam(size_t sz)
     return wrap;
 }
 
-CParam newParam(RuleHdl rule, size_t sz)
+CParam initParam(RuleHdl rule, size_t sz)
 {
     auto wrap = new ParamWrapper;
     wrap->param = new File::Param(rule->rule, sz);
@@ -338,14 +338,14 @@ struct ExSeisSetWrapper
     PIOL::Set * set;
 };
 
-ExSeisSet makeSet(ExSeisHandle piol, const char * ptrn)
+ExSeisSet initSet(ExSeisHandle piol, const char * ptrn)
 {
     auto wrap = new ExSeisSetWrapper;
     wrap->set = new Set(*piol->piol, ptrn);
     return wrap;
 }
 
-void dropSet(ExSeisSet s)
+void freeSet(ExSeisSet s)
 {
     if (s != NULL)
     {

@@ -1,7 +1,5 @@
 OBJDIR=obj
 
-GCOMP=g++
-
 #IMELD_FLAG=-Wl,--dynamic-linker=/ichec/home/staff/cathal/env/extract/lib64/ld-linux-x86-64.so.2 
 include ../compiler.cfg
 
@@ -47,7 +45,7 @@ versort: obj/verifysort.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
 concatenate: obj/concatenate.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
-segsort: obj/sort.cpo obj/sglobal.cpo
+segsort: obj/sort.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
 fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
