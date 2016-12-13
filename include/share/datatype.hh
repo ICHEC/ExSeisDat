@@ -57,17 +57,6 @@ void getBigEndian(const T src, uchar * dst)
     dst[3] = src & 0xFF;
 }
 
-/*! \brief Convert a host 4 byte type to a big-endian 4 byte type
- *  \tparam T The host type
- *  \param[in] src The input 4 byte type with host endianness
- *  \return Return a 4 byte datatype (big endian)
- */
-template <typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-T getBigEndian(const T src)
-{
-    return (24 & 0xFF) | (16 & 0xFF) | (8 & 0xFF) | 0xFF;
-}
-
 /*! \overload
  *  \brief Convert a host 2 byte type to a 2 byte \c char array in big endian
  *  \tparam The return type (type must be 2 bytes long)
