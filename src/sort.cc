@@ -220,7 +220,7 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
     size_t edge2 = (rank != numRank-1 ? regionSz : 0U);
 
     if (comp != nullptr)
-        std::sort(dat.begin(), dat.begin() + lnt, comp);
+        std::sort(dat.begin(), dat.begin() + lnt, [comp](auto & a, auto & b) -> bool { return comp(a, b); });
     else
         std::sort(dat.begin(), dat.begin() + lnt);
 
@@ -232,14 +232,14 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
         sendLeft(piol, regionSz, temp1);
 
         if (comp != nullptr)
-            std::sort(temp1.begin() + edge1, temp1.end(), comp);
+            std::sort(temp1.begin() + edge1, temp1.end(), [comp](auto & a, auto & b) -> bool { return comp(a, b); });
         else
             std::sort(temp1.begin() + edge1, temp1.end()); // default pair sorting is first then second
 
         sendRight(piol, regionSz, temp1);
 
         if (comp != nullptr)
-            std::sort(temp1.begin(), temp1.end() - edge2, comp);
+            std::sort(temp1.begin(), temp1.end() - edge2, [comp](auto & a, auto & b) -> bool { return comp(a, b); });
         else
             std::sort(temp1.begin(), temp1.end() - edge2);
 

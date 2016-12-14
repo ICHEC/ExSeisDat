@@ -62,9 +62,9 @@ int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_
     int err = MPI_Type_create_hindexed(count, bl.data(), offset, MPI_CHAR, type);
     #else
     int err = MPI_Type_create_hindexed_block(count, block, offset, MPI_CHAR, type);
+    #endif
     if (err != MPI_SUCCESS)
         return err;
-    #endif
 
     err = MPI_Type_commit(type);
     if (err != MPI_SUCCESS)
