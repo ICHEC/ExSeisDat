@@ -149,7 +149,7 @@ void freeParam(CParam prm);
  *  \param[in] prm The parameter structure
  *  \return The associated parameter
  */
-short getShortPrm(size_t i, Meta entry, CParam prm);
+int16_t getShortPrm(size_t i, Meta entry, CParam prm);
 
 /*! Get a long parameter which is in a particular set in a parameter structure.
  *  \param[in] i The parameter set number
@@ -173,7 +173,7 @@ double getFloatPrm(size_t i, Meta entry, CParam prm);
  *  \param[in] ret The value to set the parameter to
  *  \param[in] prm The parameter structure
  */
-void setShortPrm(size_t i, Meta entry, short ret, CParam prm);
+void setShortPrm(size_t i, Meta entry, int16_t ret, CParam prm);
 
 /*! Set a long parameter within the parameter structure.
  *  \param[in] i The parameter set number
@@ -191,7 +191,7 @@ void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm);
  */
 void setFloatPrm(size_t i, Meta entry, double ret, CParam prm);
 
-/*! Copy a short parameter within the parameter structure.
+/*! Copy parameter within the parameter structure.
  *  \param[in] i The parameter set number of the source
  *  \param[in] src The parameter structure of the source
  *  \param[in] j The parameter set number of the destination

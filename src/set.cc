@@ -42,12 +42,12 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
  *  \param[in] piol A pointer to the PIOL object
  *  \param[in] doff The offset into the output file
  *  \param[in] rule The rule to use for the trace parameters.
- *  \param[out] dst The output file interface
  *  \param[in] src The input file interface
+ *  \param[out] dst The output file interface
  *  \todo Re-use this
  *  \return Return the number of traces read and written across all processes.
  */
-size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::Interface * dst, File::Interface * src)
+size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::Interface * src, File::Interface * dst)
 {
     const size_t memlim = 2U*1024U*1024U*1024U;
     auto dec = decompose(src->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
@@ -95,12 +95,12 @@ std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
  *  \param[in] rule The rule to use for the trace parameters.
  *  \param[in] list A pair of vectors. The first vector is every input trace. The
  *             second is where the input trace should go in the output.
+ *  \param[in] max The maximum number of traces to read/write at a time
  *  \param[in] in The input file interface
  *  \param[out] out The output file interface
- *  \param[in] max The maximum number of traces to read/write at a time
  */
 void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list,
-                                File::Interface * in, File::Interface * out, size_t max)
+                                size_t max, File::Interface * in, File::Interface * out)
 {
     std::vector<size_t> & ilist = list.first;
     std::vector<size_t> & olist = list.second;
@@ -189,7 +189,6 @@ InternalSet::~InternalSet(void)
     if (outfix != "")
         output(outfix);
 }
-
 
 void InternalSet::add(std::string name)
 {
@@ -340,7 +339,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
         for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
             nt += sizes[i];
 
-        if (nt < 3U * piol->comm->getNumRank()) //TODO: It will eventually be necessary to support his use case.
+        if (nt < 3U * piol->comm->getNumRank()) //TODO: It will eventually be necessary to support this use case.
         {
             piol->log->record("", Log::Layer::Set, Log::Status::Error,
                 "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
@@ -412,7 +411,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
         for (auto & f : o.second)
         {
             auto l = getList(f);
-            readwriteTraces(piol.get(), rule, l, f->ifc.get(), out.get(), max);
+            readwriteTraces(piol.get(), rule, l, max, f->ifc.get(), out.get());
         }
     }
     return names;

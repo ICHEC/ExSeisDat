@@ -115,7 +115,7 @@ class InternalSet
     void add(std::unique_ptr<File::Interface> in);
 
     /*! Add a file to the set based on the pattern/name given
-     *  \param[in] name The input name or pattern
+     *  \param[in] name The input name
      */
     void add(std::string name);
 };

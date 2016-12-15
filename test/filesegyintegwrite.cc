@@ -27,7 +27,7 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
     nt = 400U;
     File::coord_t coord(1600, 2000);
     File::grid_t grid(ilNum(201), xlNum(201));
-    File::Param prm(1), prm2(1);
+    File::Param prm(1U), prm2(1U);
 
     makeSEGY<true>(tempFile);
 

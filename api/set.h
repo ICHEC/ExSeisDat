@@ -71,9 +71,9 @@ extern void textSet(ExSeisSet s, const char * outmsg);
  */
 extern void summarySet(ExSeisSet s);
 
-/*! Add a file to the set based on the pattern/name given
+/*! Add a file to the set based on the name given
  *  \param[in] s The set handle
- *  \param[in] name The input name or pattern
+ *  \param[in] name The input name
  */
 extern void addSet(ExSeisSet s, const char * name);
 
