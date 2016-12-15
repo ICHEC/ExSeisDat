@@ -30,29 +30,29 @@ clean:
 	rm -f obj/*.co obj/*.cpo $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
 
 cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 creadwrite: obj/creadwrite.co obj/sglobal.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 assess: obj/assess.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 versort: obj/verifysort.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 concatenate: obj/concatenate.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 segsort: obj/sort.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
+	$(CXX) $(CXXFLAGS) $+ -o $@$(CXXLDFLAGS)
 fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 filemake: obj/filemake.cpo obj/sglobal.cpo
-	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 makerep: obj/makerep.cpo obj/sglobal.cpo
-	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(IMELD_FLAG) $(CXXFLAGS)  $+ -o $@ $(CXXLDFLAGS)
 makerepn1: obj/makerep.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 makerepn2: obj/makerep.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 minmax: obj/minmax.cpo obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 
 ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)

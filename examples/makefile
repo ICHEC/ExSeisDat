@@ -30,23 +30,23 @@ clean:
 	rm -f obj/*.co obj/*.cpo $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
 
 csort: obj/sort.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 minmax: obj/minmax.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 sort: obj/sort.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 cmodprm: obj/modprm.co ../util/obj/sglobal.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 hellow: obj/hello.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 cminmax: obj/minmax.co ../util/obj/sglobal.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 cexample1: obj/example1.co ../util/obj/sglobal.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 cexample2: obj/example2.co ../util/obj/sglobal.co
-	$(CC) $(CFLAGS) $(CLDFLAGS) $+ -o $@ 
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 example1: obj/example1.cpo ../util/obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $(CXXLDFLAGS) $+ -o $@ 
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 
 ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)

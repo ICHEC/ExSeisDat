@@ -338,7 +338,7 @@ size_t getSEGYFileSz(size_t nt, size_t ns)
     return SEGSz::getFileSz<float>(nt, ns);
 }
 
-#warning UPDATE
+//TODO UPDATE
 size_t getSEGYParamSz(void)
 {
     return SEGSz::getMDSz();
