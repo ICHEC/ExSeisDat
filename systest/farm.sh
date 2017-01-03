@@ -7,8 +7,6 @@ source /etc/profile.d/modules.sh #So we can use the module command
 
 source ../mod_$MODULE
 
-PPN_COMMAND="-ppn"
-
 if [ $MPI != "intel" ]; then
     module load $MPI
 fi
@@ -16,7 +14,9 @@ fi
 export MPI_BASE=$(echo $MPI | cut -d \/ -f 1)
 
 if [ $MPI_BASE == "openmpi" ]; then
-    PPN_COMMAND="-npernode"
+    PPN_COMMAND="--map-by ppr:$NODE_PPN:node"
+else
+    PPN_COMMAND="-ppn $NODE_PPN"
 fi
 
 if [ $MODULE == "intel" -o $MODULE == "tullow" ]; then
@@ -53,14 +53,20 @@ bash make.sh $NAME
 #    run the test
 mv util/$NAME .
 
-echo $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS > ARGUMENTS
+set -f
+echo $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NAME $ARGUMENTS > ARGUMENTS
+set +f
 
 if [ -f $NAME ]; then
     if [ $PIOL_SYSTEM == "Tullow" ]; then
-        head -n $NODES hosts.txt > hostsfinal.txt
-        $(which time) -f "%e %I %O %M %W" mpirun -f hostsfinal.txt $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME > MSG
+      head -n $NODES hosts.txt > hostsfinal.txt
+      set -f
+      $(which time) -f "%e %I %O %M %W" mpirun -f hostsfinal.txt $PPN_COMMAND $NAME $ARGUMENTS 2> TIME > MSG
+      set +f
     else
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/lib $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME > MSG
+      set -f
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/lib $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NAME $ARGUMENTS 2> TIME > MSG
+      set +f
     fi
 else
     echo FILE DID NOT COMPILE
@@ -78,7 +84,7 @@ fi
 
 cat $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME > CMP_CHECKSUM
 if [ -z $PBS_NODEFILE ]; then
-    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
+    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
 else
-    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
+    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
 fi

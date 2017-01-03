@@ -43,6 +43,6 @@ fi
 
 module purge
 
-echo WarningsTest SRC $RET 0 0 > ../CHECK
+echo WarningsTest SRC 0 0 $RET > ../CHECK
 echo 0 0 0 0 0 0 0 0 > ../TIME
 

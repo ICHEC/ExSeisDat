@@ -1,1 +1,1 @@
-1   24  mvapich2/intel/2.1a concatenate /ichec/work/exseisdat/dat/10/one.segy   10  gnu
+1   23  openmpi/intel/1.8.1 concatenate /ichec/work/exseisdat/dat/10/bigns.segy 10  intel

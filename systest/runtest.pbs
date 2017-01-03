@@ -29,7 +29,10 @@ if [ -f $PBS_O_WORKDIR/temp/util_1_$NODES.sh ]; then
             echo script test_f_$4.sh does not exist >> TEST$PBS_JOBID
             exit -1
         fi
+
+        set -f
         source test_f_$4.sh $5 $OUTPUT
+        set +f
         bash farm.sh "$@" >> TEST$PBS_JOBID 2>&1
     } < /dev/null
     done < $PBS_O_WORKDIR/temp/util_1_$NODES.sh
