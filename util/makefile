@@ -46,7 +46,7 @@ fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
 filemake: obj/filemake.cpo obj/sglobal.cpo
 	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 makerep: obj/makerep.cpo obj/sglobal.cpo
-	$(CXX) $(IMELD_FLAG) $(CXXFLAGS)  $+ -o $@ $(CXXLDFLAGS)
+	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 makerepn1: obj/makerep.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 makerepn2: obj/makerep.cpo obj/sglobal.cpo

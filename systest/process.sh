@@ -8,7 +8,7 @@ fi
 if [ $PIOL_SYSTEM == Tullow ]; then
     TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test
 else
-    TEST_DIR=/ichec/work/exseisdat/test
+    TEST_DIR=/ichec/work/exseisdat/test/$USER
 fi
 cat > tests.cc << EOL
 #include "gtest/gtest.h"
@@ -20,7 +20,7 @@ do
     export NAME
 
     if [ -f $dir/CHECK ]; then
-        read -r NAME FILE SUCCESS PPN PPNN < <(head -n 1 $dir/CHECK)
+        read -r NAME FILE PPN PPNN SUCCESS < <(head -n 1 $dir/CHECK)
     else
         NAME=FAIL$j
         FILE=FAIL

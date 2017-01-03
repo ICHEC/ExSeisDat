@@ -10,7 +10,7 @@ source ../mod_$MODULE
 PPN_COMMAND="-ppn"
 
 if [ $MPI != "intel" ]; then
-module load $MPI
+    module load $MPI
 fi
 
 export MPI_BASE=$(echo $MPI | cut -d \/ -f 1)
@@ -28,6 +28,8 @@ fi
 DIR_NAME=$TEST_DIR/$(date +%s)$$
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR_NAME/lib
 export LIBRARY_PATH=$LIBRARY_PATH:$DIR_NAME/lib
+export C_INCLUDE_PATH=$C_INCLUDE_PATH:$PWD/api:$PIOL_DIR/include
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$PWD/api:$PIOL_DIR/include
 #########END SETTINGS#########
 
 #    Make test directory
@@ -56,9 +58,9 @@ echo $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGU
 if [ -f $NAME ]; then
     if [ $PIOL_SYSTEM == "Tullow" ]; then
         head -n $NODES hosts.txt > hostsfinal.txt
-        $(which time) -f "%e %I %O %M %W" mpirun -f hostsfinal.txt $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME
+        $(which time) -f "%e %I %O %M %W" mpirun -f hostsfinal.txt $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME > MSG
     else
-        $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/lib $(which time) -f "%e %I %O %M %W" mpirun $PPN_COMMAND $NODE_PPN $NAME $ARGUMENTS 2> TIME > MSG
     fi
 else
     echo FILE DID NOT COMPILE
@@ -66,15 +68,17 @@ fi
 
 #    checksum
 #    record pass/fail
-md5sum dat/* | cut -d ' ' -f 1  > newChecksum
-if [ ! -f $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME ]; then
-RET=4
-else
-cmp newChecksum $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME
-RET=$?
-fi
+#md5sum dat/* | cut -d ' ' -f 1  > newChecksum
+#if [ ! -f $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME ]; then
+#RET=4
+#else
+#cmp newChecksum $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME
+#RET=$?
+#fi
+
+cat $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME > CMP_CHECKSUM
 if [ -z $PBS_NODEFILE ]; then
-    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $RET $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
+    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
 else
-    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $RET $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
+    echo $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
 fi

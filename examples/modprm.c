@@ -5,7 +5,16 @@
 #include "ctest.h"
 #include "cfileapi.h"
 
-void readwriteParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt)
+/*! Read nt parameters from the input file ifh and write it to
+ *  the output file ofh. Parameters are read and written from
+ *  the offset off.
+ *  \param[in] piol The PIOL handle
+ *  \param[in] off The offset in number of traces.
+ *  \param[in] nt The number of traces.
+ *  \param[in] ifh The input file handle
+ *  \param[out] ofh The output file handle
+ */
+void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisFile ifh, ExSeisFile ofh)
 {
     CParam prm = initDefParam(tcnt);
     readParam(ifh, off, tcnt, prm);
@@ -41,7 +50,7 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
     for (size_t i = 0U; i < lnt; i += tcnt)
     {
         size_t rblock = (i + tcnt < lnt ? tcnt : lnt - i);
-        readwriteParam(piol, ifh, ofh, goff+i, rblock);
+        readwriteParam(piol, goff+i, rblock, ifh, ofh);
     }
 
     for (size_t i = 0U; i < extra; i++)

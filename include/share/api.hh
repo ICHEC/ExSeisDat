@@ -62,7 +62,7 @@ typedef enum
 } Meta;
 #endif
 
-/*! An enum class of the different types of sorting operaton.
+/*! An enum class of the different types of sorting operation.
  */
 #ifdef __cplusplus
 enum class SortType : int

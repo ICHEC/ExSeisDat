@@ -190,6 +190,7 @@ InternalSet::~InternalSet(void)
         output(outfix);
 }
 
+//TODO: Make multi-file
 void InternalSet::add(std::string name)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);

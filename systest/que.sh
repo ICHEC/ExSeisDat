@@ -12,9 +12,9 @@ while read -r NODES ; do
     if [ $PIOL_SYSTEM == "Tullow" ]; then
         NODES=$NODES bash runtest.pbs
     else
-        qsub -v NODES=$NODES -l nodes=$NODES:ppn=24,walltime=0:02:00:00 runtest.pbs
+        qsub -v NODES=$NODES -l nodes=$NODES:ppn=24,walltime=0:00:30:00 runtest.pbs
     fi
-} < /dev/null
+} # < /dev/null
 done < <(ls temp/* | cut -d "_" -f 3 | cut -d "." -f 1 | sort -u)
 
 if [ $PIOL_SYSTEM == "Tullow" ]; then
@@ -22,5 +22,5 @@ if [ $PIOL_SYSTEM == "Tullow" ]; then
 fi
 
 export PIOL_DIR=$PWD/..
-export TEST_DIR=/ichec/work/exseisdat/test
+export TEST_DIR=/ichec/work/exseisdat/test/$USER
 bash warncheck.sh

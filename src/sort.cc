@@ -59,6 +59,7 @@ void sendRight(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & dat)
     std::vector<MPI_Request> rsnd(1);
     std::vector<MPI_Request> rrcv(1);
 
+    //TODO: Move to the communication layer?
     if (rank)
     {
         int err = MPI_Irecv(dat.data(), cnt, MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rrcv[0]);
