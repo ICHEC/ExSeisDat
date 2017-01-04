@@ -93,6 +93,7 @@ enum class MdType : size_t
     Long,   //!< Long int data
     Short,  //!< Short int data
     Float,  //!< Floating point data
+    Index,  //!< For indexing purposes
 };
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -164,6 +165,39 @@ struct SEGYLongRuleEntry : public RuleEntry
     MdType type(void)
     {
         return MdType::Long;
+    }
+};
+
+/*! The Index rule entry structure. For indexing without modifying what
+ *  will be stored.
+ */
+struct SEGYIndexRuleEntry : public RuleEntry
+{
+    /*! The constructor.
+     *  \param[in] num_ The numth entry for indexing purposes
+     */
+    SEGYIndexRuleEntry(size_t num_) : RuleEntry(num_, 0U) { }
+
+    /*! Return 0. nothing stored
+     */
+    size_t min(void)
+    {
+        return 0;
+    }
+
+    /*! Return 0. nothing stored
+     */
+    size_t max(void)
+    {
+        return 0;
+    }
+
+    /*! Return the datatype associated with the entry.
+     *  \return \c MdType::Index
+     */
+    MdType type(void)
+    {
+        return MdType::Index;
     }
 };
 
@@ -258,6 +292,7 @@ struct Rule
     size_t numLong;         //!< Number of long rules.
     size_t numFloat;        //!< Number of float rules.
     size_t numShort;        //!< Number of short rules.
+    size_t numIndex;        //!< Number of index rules.
     size_t start;           //!< The starting byte position in the SEG-Y header.
     size_t end;             //!< The end byte position (+ 1) in the SEG-Y header.
     struct
@@ -316,6 +351,11 @@ struct Rule
      */
     void addShort(Meta m, Tr loc);
 
+    /*! Add a rule for an index.
+     *  \param[in] m The Meta entry.
+     */
+    void addIndex(Meta m);
+
     /*! Remove a rule based on the meta entry.
      *  \param[in] m The meta entry.
      */
@@ -349,11 +389,7 @@ struct Rule
  *  \param[in] i The trace number
  *  \param[in] entry The meta entry to retrieve.
  *  \param[in] prm The parameter structure
- *  \return Return the value associated with the entry. The value is stored in a structure which can be
- *          implicitly cast to the correct format. i.e
- *          Long: llint val = getPrm(i, entry, prm);
- *          Short: int16_t val = getPrm(i, entry, prm);
- *          Float: geom_t val = getPrm(i, entry, prm);
+ *  \return Return the value associated with the entry
  */
 //prmRet getPrm(const size_t i, const Meta entry, const Param * prm);
 template <typename T>
@@ -371,6 +407,9 @@ T getPrm(size_t i, Meta entry, const Param * prm)
         break;
         case MdType::Short :
             return T(prm->s[r->numShort*i + id->num]);
+        break;
+        case MdType::Index :
+            return T(prm->t[r->numIndex*i + id->num]);
         break;
         default :
             return T(0);
@@ -399,6 +438,9 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
         break;
         case MdType::Float :
         prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
+        break;
+        case MdType::Index :
+        prm->t[i * r->numIndex + r->getEntry(entry)->num] = ret;
         break;
     }
 }

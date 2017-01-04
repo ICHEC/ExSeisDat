@@ -67,7 +67,7 @@ bool lessSrcRcv(const Param & e1, const Param & e2)
                 if (e1ry < e2ry)
                     return true;
                 else if (e1ry == e2ry)
-                    return (getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2));
+                    return (getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2));
             }
         }
     }
@@ -98,7 +98,7 @@ bool lessSrcOff(const Param & e1, const Param & e2)
             auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
             auto off2 = off(e2sx, e2sy, e2rx, e2ry);
 
-            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -128,7 +128,7 @@ bool lessRcvOff(const Param & e1, const Param & e2)
             auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
             auto off2 = off(e2sx, e2sy, e2rx, e2ry);
 
-            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -162,7 +162,7 @@ bool lessLineOff(const Param & e1, const Param & e2)
             auto off1 = off(e1sx, e1sy, e1rx, e1ry);
             auto off2 = off(e2sx, e2sy, e2rx, e2ry);
 
-            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -194,7 +194,7 @@ bool lessOffLine(const Param & e1, const Param & e2)
         {
             auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
             auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
-            return (e1xl < e2xl || (e1xl == e2xl && getPrm<llint>(0U, Meta::tn, &e1) < getPrm<llint>(0U, Meta::tn, &e2)));
+            return (e1xl < e2xl || (e1xl == e2xl && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;

@@ -295,7 +295,7 @@ std::vector<size_t> sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)
     {
-        plist[i].first = getPrm<llint>(0U, Meta::tn, &vprm[i]);
+        plist[i].first = getPrm<llint>(0U, Meta::gtn, &vprm[i]);
         plist[i].second = offset + i;
     }
 

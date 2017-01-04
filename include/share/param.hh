@@ -12,7 +12,7 @@
 #include "global.hh"
 namespace PIOL {
 namespace File {
- struct Rule;
+struct Rule;
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
@@ -38,10 +38,7 @@ struct Param
     /*! Return the number of sets of trace parameters.
      *  \return Number of sets
      */
-    size_t size(void) const
-    {
-        return t.size();
-    }
+    size_t size(void) const;
 
     /*! Estimate of the total memory used
      *  \return Return estimate in bytes.

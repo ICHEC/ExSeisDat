@@ -350,6 +350,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
         {
             File::Param prm(lsnt);
             size_t loff = 0;
+            size_t c = 0;
             for (auto & f : o.second)
             {
                 std::vector<size_t> list;
@@ -364,8 +365,10 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 for (size_t i = 0; i < list.size(); i++)
                 {
                     cpyPrm(i, &fprm, loff+i, &prm);
-                    setPrm(loff+i, Meta::tn, off+loff + i, &prm);
+                    setPrm(loff+i, Meta::gtn, off + loff + i, &prm);
+                    setPrm(loff+i, Meta::ltn, (f->offset + i) * o.second.size() + c, &prm);
                 }
+                c++;
                 loff += list.size();
             }
 

@@ -14,6 +14,7 @@ Rule::Rule(RuleMap translate_, bool full)
     numLong = 0;
     numShort = 0;
     numFloat = 0;
+    numIndex = 0;
     translate = translate_;
     for (const auto & t : translate)
         switch (t.second->type())
@@ -26,6 +27,9 @@ Rule::Rule(RuleMap translate_, bool full)
             break;
             case MdType::Float :
             numFloat++;
+            break;
+            case MdType::Index :
+            numIndex++;
             break;
         }
 
@@ -49,6 +53,7 @@ Rule::Rule(bool full, std::vector<Meta> & m)
     numLong = 0;
     numShort = 0;
     numFloat = 0;
+    numIndex = 0;
 
     flag.fullextent = full;
 
@@ -107,6 +112,7 @@ Rule::Rule(bool full, bool defaults, bool extra)
     numLong = 0;
     numShort = 0;
     numFloat = 0;
+    numIndex = 0;
 
     flag.fullextent = full;
 
@@ -118,9 +124,13 @@ Rule::Rule(bool full, bool defaults, bool extra)
         translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
         translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
         translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
+
         translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
         translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
         translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
+
+        translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
+        translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
     }
 
     if (extra)
@@ -185,7 +195,7 @@ void Rule::addLong(Meta m, Tr loc)
 {
     auto ent = translate.find(m);
     if (ent != translate.end())
-        delete ent->second;
+        rmRule(m);
     translate[m] = new SEGYLongRuleEntry(numLong++, loc);
     flag.badextent = (!flag.fullextent);
 }
@@ -194,7 +204,7 @@ void Rule::addShort(Meta m, Tr loc)
 {
     auto ent = translate.find(m);
     if (ent != translate.end())
-        delete ent->second;
+        rmRule(m);
     translate[m] = new SEGYShortRuleEntry(numShort++, loc);
     flag.badextent = (!flag.fullextent);
 }
@@ -203,9 +213,17 @@ void Rule::addFloat(Meta m, Tr loc, Tr scalLoc)
 {
     auto ent = translate.find(m);
     if (ent != translate.end())
-        delete ent->second;
+        rmRule(m);
     translate[m] = new SEGYFloatRuleEntry(numFloat++, loc, scalLoc);
     flag.badextent = (!flag.fullextent);
+}
+
+void Rule::addIndex(Meta m)
+{
+    auto ent = translate.find(m);
+    if (ent != translate.end())
+        rmRule(m);
+    translate[m] = new SEGYIndexRuleEntry(numIndex++);
 }
 
 void Rule::rmRule(Meta m)
@@ -221,6 +239,9 @@ void Rule::rmRule(Meta m)
         case MdType::Float :
         numFloat--;
         break;
+        case MdType::Index :
+        numIndex--;
+        break;
     }
     delete translate[m];
     translate.erase(m);
@@ -235,13 +256,13 @@ RuleEntry * Rule::getEntry(Meta entry)
 size_t Rule::memUsage(void) const
 {
     return numLong * sizeof(SEGYLongRuleEntry) + numShort * sizeof(SEGYShortRuleEntry)
-         + numFloat * sizeof(SEGYFloatRuleEntry) + sizeof(Rule);
+         + numFloat * sizeof(SEGYFloatRuleEntry) + numIndex * sizeof(SEGYIndexRuleEntry) +  sizeof(Rule);
 }
 
 size_t Rule::paramMem(void) const
 {
     return numLong * sizeof(llint) + numShort * sizeof(int16_t)
-         + numFloat * sizeof(geom_t);
+         + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t);
 }
 
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
@@ -249,7 +270,7 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
     f.resize(sz * r->numFloat);
     i.resize(sz * r->numLong);
     s.resize(sz * r->numShort);
-    t.resize(sz);
+    t.resize(sz * r->numIndex);
 }
 
 Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
@@ -257,7 +278,12 @@ Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
     f.resize(sz * r->numFloat);
     i.resize(sz * r->numLong);
     s.resize(sz * r->numShort);
-    t.resize(sz);
+    t.resize(sz * r->numIndex);
+}
+
+size_t Param::size(void) const
+{
+    return t.size() / r->numIndex;
 }
 
 bool Param::operator==(struct Param & p) const
@@ -279,16 +305,18 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 {
     Rule * srule = src->r.get();
     Rule * drule = dst->r.get();
-    dst->t[k] = src->t[j];
     if (srule == drule)
     {
         Rule * r = srule;
+
         for (size_t i = 0; i < r->numFloat; i++)
             dst->f[k * r->numFloat + i] = src->f[j * r->numFloat + i];
         for (size_t i = 0; i < r->numLong; i++)
             dst->i[k * r->numLong + i] = src->i[j * r->numLong + i];
         for (size_t i = 0; i < r->numShort; i++)
             dst->s[k * r->numShort + i] = src->s[j * r->numShort + i];
+        for (size_t i = 0; i < r->numIndex; i++)
+            dst->t[k * r->numIndex + i] = src->t[j * r->numIndex + i];
     }
     else
         //For each rule in source
@@ -310,6 +338,9 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
                     break;
                     case MdType::Short :
                     dst->s[drule->numShort*k + dent->num] = src->s[srule->numShort*j + sent->num];
+                    break;
+                    case MdType::Index :
+                    dst->t[drule->numIndex*k + dent->num] = src->t[srule->numIndex*j + sent->num];
                     break;
                 }
         }
@@ -354,6 +385,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
                 case MdType::Long :
                 getBigEndian(int32_t(prm->i[i * r->numLong + t->num]), &md[loc]);
                 break;
+                case MdType::Index : break;
             }
         }
 
@@ -392,6 +424,7 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride)
                 case MdType::Long :
                 prm->i[i * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
                 break;
+                case MdType::Index : break;
             }
         }
     }

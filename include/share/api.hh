@@ -24,6 +24,8 @@ enum class Meta : int
 typedef enum
 #endif
 {
+    ltn,        //!< Local trace number.
+    gtn,        //!< Global trace number.
     tnl,        //!< The trace number (line)
     tnr,        //!< The Trace number (record)
     tn,         //!< The trace number (file)
