@@ -54,7 +54,7 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
     }
 
     for (size_t i = 0U; i < extra; i++)
-        readwriteParam(piol, ifh, ofh, goff, 0);
+        readwriteParam(piol, goff, 0, ifh, ofh);
 }
 
 int main(int argc, char ** argv)

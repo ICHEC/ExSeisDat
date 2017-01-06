@@ -374,7 +374,8 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
 void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
-    size_t max = maxSize / (bsz ? bsz : 1U);
+#warning More accurately determine a real limit for setting a view.
+    size_t max = maxSize / (bsz ? bsz * 2U : 1U);
 
     size_t remCall = 0;
     {

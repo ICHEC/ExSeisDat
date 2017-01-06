@@ -40,7 +40,7 @@ versort: obj/verifysort.cpo obj/sglobal.cpo
 concatenate: obj/concatenate.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 segsort: obj/sort.cpo
-	$(CXX) $(CXXFLAGS) $+ -o $@$(CXXLDFLAGS)
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 filemake: obj/filemake.cpo obj/sglobal.cpo

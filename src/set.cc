@@ -406,7 +406,8 @@ std::vector<std::string> InternalSet::output(std::string oname)
 
         //Assume the process can hold the list
         const size_t memlim = 2U*1024U*1024U*1024U;
-        size_t max = memlim / (2U * (sizeof(size_t) + SEGSz::getDOSz(ns) + rule->paramMem()));
+        //size_t max = memlim / (2U * (sizeof(size_t) + SEGSz::getDOSz(ns) + rule->paramMem()));
+        size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
 
 //TODO: This is not the ideal for small files. per input file read/write
 // The ideal is to have a buffer for each which is emptied when full or EOF. This is a little tricky
