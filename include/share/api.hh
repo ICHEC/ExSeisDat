@@ -41,7 +41,9 @@ typedef enum
     RGElev,     //!< Receiver group elevation
     SSElev,     //!< Source surface elevation
     SDElev,     //!< Source depth
-    xSrc,       //!< The source x coordiante
+    WtrDepSrc,  //!< The Water depth at source
+    WtrDepRcv,  //!< The Water depth at receiver
+    xSrc,       //!< The source x coordinate
     ySrc,       //!< The source y coordinate
     xRcv,       //!< The receiver x coordinate
     yRcv,       //!< The receiver y coordinate

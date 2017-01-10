@@ -32,6 +32,13 @@ class ExSeis
      */
     ExSeis(bool initComm, const Log::Verb maxLevel = Log::Verb::None);
 
+    // TODO Abstract the communicator to MPI::Comm
+    /*! Don't initialise MPI. Use the supplied communicator
+     *  \param[in] comm The MPI communicator
+     *  \param[in] maxLevel The maximum log level to be recorded.
+     */
+    ExSeis(MPI_Comm comm, const Log::Verb maxLevel = Log::Verb::None);
+
     /*! Cast to ExSeisPIOL *
      */
     operator ExSeisPIOL * ()
@@ -53,6 +60,7 @@ class ExSeis
     {
         return piol->comm->getRank();
     }
+
     /*! Shortcut to get the number of ranks.
      *  \return The comm number of ranks.
      */

@@ -62,6 +62,12 @@ Rule::Rule(bool full, std::vector<Meta> & m)
         RuleEntry * r = NULL;
         switch (m[i])
         {
+            case Meta::WtrDepSrc :
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
+            break;
+            case Meta::WtrDepRcv :
+                r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
+            break;
             case Meta::xSrc :
                 r = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
             break;
@@ -124,6 +130,9 @@ Rule::Rule(bool full, bool defaults, bool extra)
         translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
         translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
         translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
+
+        translate[Meta::WtrDepSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
+        translate[Meta::WtrDepRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
 
         translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
         translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);

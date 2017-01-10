@@ -22,6 +22,14 @@ ExSeis::ExSeis(bool initComm, const Log::Verb maxLevel)
     piol = std::make_shared<ExSeisPIOL>(initComm, maxLevel);
 }
 
+ExSeis::ExSeis(MPI_Comm comm, const Log::Verb maxLevel)
+{
+    Comm::MPI::Opt copt;
+    copt.initMPI = false;
+    copt.comm = comm;
+    piol = std::make_shared<ExSeisPIOL>(copt, maxLevel);
+}
+
 void ExSeis::isErr(std::string msg) const
 {
     piol->isErr(msg);
