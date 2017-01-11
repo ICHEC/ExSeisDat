@@ -37,7 +37,7 @@ typedef enum
     ShotNum,    //!< Shot number
     VStack,     //!< Number of traces stacked for this trace (vertical)
     HStack,     //!< Number of traces stacked for this trace (horizontal)
-    CDist,      //!< Distance from source centre to receiver centre.
+    Offset,      //!< Distance from source to receiver
     RGElev,     //!< Receiver group elevation
     SSElev,     //!< Source surface elevation
     SDElev,     //!< Source depth

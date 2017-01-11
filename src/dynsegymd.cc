@@ -133,6 +133,7 @@ Rule::Rule(bool full, bool defaults, bool extra)
 
         translate[Meta::WtrDepSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
         translate[Meta::WtrDepRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
+        translate[Meta::Offset] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
 
         translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
         translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
@@ -151,7 +152,6 @@ Rule::Rule(bool full, bool defaults, bool extra)
         translate[Meta::Tic] = new SEGYShortRuleEntry(numShort++, Tr::TIC);
         translate[Meta::VStack] = new SEGYShortRuleEntry(numShort++, Tr::VStackCnt);
         translate[Meta::HStack] = new SEGYShortRuleEntry(numShort++, Tr::HStackCnt);
-        translate[Meta::CDist] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
         translate[Meta::RGElev] = new SEGYFloatRuleEntry(numFloat++, Tr::RcvElv, Tr::ScaleElev);
         translate[Meta::SSElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SurfElvSrc, Tr::ScaleElev);
         translate[Meta::SDElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SrcDpthSurf, Tr::ScaleElev);
