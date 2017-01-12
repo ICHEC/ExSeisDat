@@ -48,19 +48,20 @@ Rule::Rule(RuleMap translate_, bool full)
     }
 }
 
-Rule::Rule(bool full, std::vector<Meta> & m)
+Rule::Rule(std::initializer_list<Meta> mlist)
 {
     numLong = 0;
     numShort = 0;
     numFloat = 0;
     numIndex = 0;
 
-    flag.fullextent = full;
+    //TODO: Change this when extents are flexible
+    flag.fullextent = true;
 
-    for (size_t i = 0; i < m.size(); i++)
+    for (auto m : mlist)
     {
         RuleEntry * r = NULL;
-        switch (m[i])
+        switch (m)
         {
             case Meta::WtrDepSrc :
                 r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
@@ -98,9 +99,9 @@ Rule::Rule(bool full, std::vector<Meta> & m)
             default : break;    //Non-default
         }
         if (r)
-            translate[m[i]] = r;
+            translate[m] = r;
     }
-    if (full)
+    if (flag.fullextent)
     {
         start = 0U;
         end = SEGSz::getMDSz();
