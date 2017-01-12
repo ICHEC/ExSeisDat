@@ -1,4 +1,12 @@
-for file in /ichec/work/exseisdat/test/cathal/*
+#!/bin/bash
+if [ $PIOL_SYSTEM == "Tullow" ]; then
+#    TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test/$USER
+    TEST_DIR=/panfs/gpt2/SEAM_DATA/temp/$USER
+else
+    TEST_DIR=/ichec/work/exseisdat/test/$USER
+fi
+
+for file in $TEST_DIR/*
 do
     cd $file
     pwd

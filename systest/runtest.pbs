@@ -14,7 +14,8 @@ cd $PBS_O_WORKDIR
 export PIOL_DIR=$PBS_O_WORKDIR/..
 
 if [ $PIOL_SYSTEM == "Tullow" ]; then
-    export TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test/
+#    export TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test/$USER
+    export TEST_DIR=/panfs/gpt2/SEAM_DATA/temp/$USER
 else
     export TEST_DIR=/ichec/work/exseisdat/test/$USER
 fi

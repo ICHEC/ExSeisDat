@@ -1,0 +1,16 @@
+1   23  intel concatenate /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/bigns.segy 10  tullow
+5   24  intel minmax  /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/small.segy 10  tullow
+5   23  intel makerep /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/bigns.segy 10  tullow
+1   24  intel makerep /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/one.segy   10  tullow
+1   24  intel creadwrite  /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/bigns.segy 10  tullow
+1   23  intel creadwrite  /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/zero.segy  10  tullow
+1   23  intel concatenate /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/one.segy   10  tullow
+1   24  intel makerep /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/small.segy 10  tullow
+1   24  intel segsort /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/bigns.segy 10  tullow
+1   24  intel creadwrite /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/small.segy 10  tullow
+5   23  intel segsort /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/small.segy 10  tullow
+1   24  intel concatenate /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/small.segy 10  tullow
+1   24  intel creadwrite  /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/one.segy   10  tullow
+5   23  intel makerep /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/zero.segy  10  tullow
+5   24  intel minmax  /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/one.segy   10  tullow
+5   23  intel minmax  /panfs/gpt2/MODELLING/DEVELOP/piotest/dat/10/bigns.segy 10  tullow

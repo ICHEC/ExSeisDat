@@ -18,6 +18,7 @@ while read -r NODES ; do
 done < <(ls temp/* | cut -d "_" -f 3 | cut -d "." -f 1 | sort -u)
 
 if [ $PIOL_SYSTEM == "Tullow" ]; then
+    echo Skip makefile check
     exit
 fi
 
