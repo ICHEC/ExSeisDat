@@ -10,7 +10,7 @@
  *  the offset off.
  *  \param[in] piol The PIOL handle
  *  \param[in] off The offset in number of traces.
- *  \param[in] nt The number of traces.
+ *  \param[in] tcnt The number of traces.
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
@@ -31,6 +31,11 @@ void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisFile ifh, 
     freeParam(prm);
 }
 
+/*! Write the output header details.
+ *  \param[in] piol The PIOL handle
+ *  \param[in] ifh The input file handle
+ *  \param[out] ofh The output file handle
+ */
 void writeHeader(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh)
 {
     writeText(ofh, readText(ifh));
@@ -40,8 +45,16 @@ void writeHeader(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh)
     isErr(piol);
 }
 
-void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
-                  size_t goff, size_t lnt, size_t tcnt)
+/*! Write the data from the input file to the output file
+ *  \param[in] piol The PIOL handle
+ *  \param[in] goff The global offset in number of traces.
+ *  \param[in] lnt The lengthof each trace.
+ *  \param[in] tcnt The number of traces.
+ *  \param[in] ifh The input file handle
+ *  \param[out] ofh The output file handle
+ */
+void writePayload(ExSeisHandle piol, size_t goff, size_t lnt, size_t tcnt,
+                  ExSeisFile ifh, ExSeisFile ofh)
 {
     size_t biggest = lnt;
     int err = MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
@@ -100,7 +113,7 @@ int main(int argc, char ** argv)
     Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
     size_t tcnt = memmax / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
 
-    writePayload(piol, ifh, ofh, dec.start, dec.sz, tcnt);
+    writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
 
     isErr(piol);
     closeFile(ofh);
