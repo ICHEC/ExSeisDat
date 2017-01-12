@@ -130,15 +130,10 @@ Rule::Rule(bool full, bool defaults, bool extra)
         translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
         translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
         translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
-
-        translate[Meta::WtrDepSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
-        translate[Meta::WtrDepRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
         translate[Meta::Offset] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
-
         translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
         translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
         translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
-
         translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
         translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
     }
