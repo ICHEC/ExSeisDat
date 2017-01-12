@@ -7,6 +7,7 @@
  *   \details
  *//*******************************************************************************************/
 #include <algorithm>
+#include <iostream>
 #include "file/dynsegymd.hh"
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)
@@ -93,10 +94,16 @@ Rule::Rule(std::initializer_list<Meta> mlist)
             case Meta::xl :
                 r = new SEGYLongRuleEntry(numLong++, Tr::xl);
             break;
+            case Meta::Offset :
+                r = new SEGYLongRuleEntry(numLong++, Tr::CDist);
+            break;
             case Meta::tn :
                 r = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
             break;
-            default : break;    //Non-default
+            default :
+                //TODO: More systematic approach required
+                std::cerr << "Metadata not supported for switch yet." << std::endl;
+            break;    //Non-default
         }
         if (r)
             translate[m] = r;
@@ -270,7 +277,7 @@ size_t Rule::paramMem(void) const
          + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t);
 }
 
-Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
+Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
 {
     f.resize(sz * r->numFloat);
     i.resize(sz * r->numLong);
@@ -278,7 +285,7 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz) : r(r_)
     t.resize(sz * r->numIndex);
 }
 
-Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
+Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
 {
     f.resize(sz * r->numFloat);
     i.resize(sz * r->numLong);
@@ -288,7 +295,7 @@ Param::Param(csize_t sz) : r(std::make_shared<Rule>(true, true))
 
 size_t Param::size(void) const
 {
-    return t.size() / r->numIndex;
+    return sz;
 }
 
 bool Param::operator==(struct Param & p) const

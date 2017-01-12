@@ -34,6 +34,7 @@ int main(int argc, char ** argv)
             std::cout << "-\tNs: " << file.readNs() << "\n";
             std::cout << "-\tNt: " << file.readNt() << "\n";
             std::cout << "-\tInc: " << file.readInc() << "\n";
+            std::cerr << "-\tText: " << file.readText() << "\n";
         }
     globfree(&globs);
     return 0;

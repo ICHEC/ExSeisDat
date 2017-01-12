@@ -24,20 +24,18 @@ inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
-void getCoords(File::Interface * file, size_t offset, vec<geom_t> & coords)
+void getCoords(File::Interface * file, std::shared_ptr<Rule> rule, size_t offset, vec<geom_t> & coords)
 {
     size_t sz = coords.size()/4U;
-    vec<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
-    auto rule = std::make_shared<Rule>(true, m);
 
     File::Param prm(rule, sz);
     file->readParam(offset, sz, &prm);
     for (size_t i = 0; i < sz; i++)
     {
-        coords[4U*i+0] = File::getPrm<geom_t>(i, m[0], &prm);
-        coords[4U*i+1] = File::getPrm<geom_t>(i, m[1], &prm);
-        coords[4U*i+2] = File::getPrm<geom_t>(i, m[2], &prm);
-        coords[4U*i+3] = File::getPrm<geom_t>(i, m[3], &prm);
+        coords[4U*i+0] = File::getPrm<geom_t>(i, Meta::xSrc, &prm);
+        coords[4U*i+1] = File::getPrm<geom_t>(i, Meta::ySrc, &prm);
+        coords[4U*i+2] = File::getPrm<geom_t>(i, Meta::xRcv, &prm);
+        coords[4U*i+3] = File::getPrm<geom_t>(i, Meta::yRcv, &prm);
     }
 }
 
@@ -84,7 +82,7 @@ vec<size_t> getSortIndex(size_t sz, size_t * list)
 
 //TODO: Have a mechanism to change from one Param representation to another?
 
-void selectDupe(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
+void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
     size_t ns = src.readNs();
     size_t lnt = list.size();
@@ -101,8 +99,6 @@ void selectDupe(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<s
             biggest = std::max(biggest, nts[i]);
         }
     }
-    vec<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
-    auto rule = std::make_shared<Rule>(true, m);
 
     size_t memused = lnt * (sizeof(size_t) + sizeof(geom_t));
     size_t memlim = 2U*1024U*1024U*1024U;
@@ -164,7 +160,7 @@ void selectDupe(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<s
 }
 
 
-void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
+void select(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
     const size_t ns = src.readNs();
     const size_t lnt = list.size();
@@ -182,9 +178,6 @@ void select(ExSeisPIOL * piol, File::Direct & dst, File::Direct & src, vec<size_
             biggest = std::max(biggest, offsets[i]);
         }
     }
-    vec<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
-    auto rule = std::make_shared<Rule>(true, m);
-
     size_t memused = lnt * (sizeof(size_t) + sizeof(geom_t));
     size_t memlim = 2U*1024U*1024U*1024U;
     assert(memlim > memused);
@@ -266,8 +259,7 @@ int main(int argc, char ** argv)
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
-    std::vector<Meta> m = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
-    auto rule = std::make_shared<File::Rule>(true, m);
+    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
     rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
     File::Direct file1(piol, name1, FileMode::Read, rule);
     File::Direct file2(piol, name2, FileMode::Read, rule);
@@ -283,11 +275,11 @@ int main(int argc, char ** argv)
 
         sz[0] = dec1.second;
         coords1.resize(4U*sz[0]);
-        getCoords(file1, dec1.first, coords1);
+        getCoords(file1, rule, dec1.first, coords1);
 
         sz[1] = dec2.second;
         coords2.resize(4U*sz[1]);
-        getCoords(file2, dec2.first, coords2);
+        getCoords(file2, rule, dec2.first, coords2);
     }
 
     vec<size_t> min(sz[0]);
@@ -358,13 +350,13 @@ int main(int argc, char ** argv)
         std::cout << "Select s3\n";
 
     File::Direct file3(piol, name3, FileMode::Write, rule);
-    select(piol, file3, file1, list1, minrs);
+    select(piol, rule, file3, file1, list1, minrs);
 
     if (!rank)
         std::cout << "Select s4\n";
 
     File::Direct file4(piol, name4, FileMode::Write, rule);
-    selectDupe(piol, file4, file2, list2, minrs);
+    selectDupe(piol, rule, file4, file2, list2, minrs);
 
     if (!rank)
         std::cout << "Done\n";
