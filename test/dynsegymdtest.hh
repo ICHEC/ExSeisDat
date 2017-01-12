@@ -21,11 +21,12 @@ struct RuleFix : public Test
 struct RuleFixList : public RuleFix
 {
     std::vector<Meta> meta;
-    std::vector<size_t> locs = {size_t(Tr::xSrc), size_t(Tr::ySrc), size_t(Tr::xRcv), size_t(Tr::yRcv)};
-    RuleFixList(void) : meta(std::vector<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv}),
-                        locs(std::vector<size_t>{size_t(Tr::xSrc), size_t(Tr::ySrc), size_t(Tr::xRcv), size_t(Tr::yRcv)})
+    std::vector<size_t> locs;
+    RuleFixList(void)
     {
-        rule = std::make_shared<Rule>(false, meta);
+        locs = {size_t(Tr::xSrc), size_t(Tr::ySrc), size_t(Tr::xRcv), size_t(Tr::yRcv)};
+        rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+//        rule = std::make_shared<Rule>(false, meta);
     }
 };
 

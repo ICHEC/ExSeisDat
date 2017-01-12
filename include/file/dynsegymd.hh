@@ -17,6 +17,7 @@
 #define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 #include "global.hh"
 #include <unordered_map>
+#include <initializer_list>
 #include "file/file.hh"
 #include "file/segymd.hh"
 #include "share/param.hh"
@@ -316,10 +317,9 @@ struct Rule
 
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
-     *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
      */
-    Rule(bool full, std::vector<Meta> & m);
+    Rule(std::initializer_list<Meta> m);
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
