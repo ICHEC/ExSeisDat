@@ -24,19 +24,31 @@ inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
-void getCoords(File::Interface * file, std::shared_ptr<Rule> rule, size_t offset, vec<geom_t> & coords)
+void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, vec<geom_t> & coords)
 {
-    size_t sz = coords.size()/4U;
+    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
 
-    File::Param prm(rule, sz);
-    file->readParam(offset, sz, &prm);
-    for (size_t i = 0; i < sz; i++)
+    size_t lnt = coords.size()/4U;
+    size_t memlim = 2U*1024U*1024U*1024U - coords.size() * sizeof(geom_t);
+    size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
+    size_t biggest = piol->comm->max(max);
+    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
+
+    for (size_t i = 0; i < lnt; i += max)
     {
-        coords[4U*i+0] = File::getPrm<geom_t>(i, Meta::xSrc, &prm);
-        coords[4U*i+1] = File::getPrm<geom_t>(i, Meta::ySrc, &prm);
-        coords[4U*i+2] = File::getPrm<geom_t>(i, Meta::xRcv, &prm);
-        coords[4U*i+3] = File::getPrm<geom_t>(i, Meta::yRcv, &prm);
+        size_t rblock = (i + max < lnt ? max : lnt - i);
+        File::Param prm(rule, rblock);
+        file->readParam(offset, rblock, &prm);
+        for (size_t j = 0; j < rblock; j++)
+        {
+            coords[4U*(i+j)+0] = File::getPrm<geom_t>(i+j, Meta::xSrc, &prm);
+            coords[4U*(i+j)+1] = File::getPrm<geom_t>(i+j, Meta::ySrc, &prm);
+            coords[4U*(i+j)+2] = File::getPrm<geom_t>(i+j, Meta::xRcv, &prm);
+            coords[4U*(i+j)+3] = File::getPrm<geom_t>(i+j, Meta::yRcv, &prm);
+        }
     }
+    for (size_t i = 0; i < extra; i++)
+        file->readParam(0U, size_t(0), nullptr);
 }
 
 template <bool Init>
@@ -204,9 +216,6 @@ void select(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, F
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
-        if (!piol->comm->getRank())
-            std::cout << "R Block = " << rblock << std::endl;
-
         src.readTrace(rblock, &list[i], trc.data(), &prm);
         for (size_t j = 0; j < rblock; j++)
             setPrm(j, Meta::dsdr, minrs[j], &prm);
@@ -259,10 +268,8 @@ int main(int argc, char ** argv)
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
-    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
-    File::Direct file1(piol, name1, FileMode::Read, rule);
-    File::Direct file2(piol, name2, FileMode::Read, rule);
+    File::Direct file1(piol, name1, FileMode::Read);
+    File::Direct file2(piol, name2, FileMode::Read);
 
     vec<geom_t> coords1;
     vec<geom_t> coords2;
@@ -275,11 +282,11 @@ int main(int argc, char ** argv)
 
         sz[0] = dec1.second;
         coords1.resize(4U*sz[0]);
-        getCoords(file1, rule, dec1.first, coords1);
+        getCoords(ppiol, file1, dec1.first, coords1);
 
         sz[1] = dec2.second;
         coords2.resize(4U*sz[1]);
-        getCoords(file2, rule, dec2.first, coords2);
+        getCoords(ppiol, file2, dec2.first, coords2);
     }
 
     vec<size_t> min(sz[0]);
@@ -349,13 +356,17 @@ int main(int argc, char ** argv)
     if (!rank)
         std::cout << "Select s3\n";
 
-    File::Direct file3(piol, name3, FileMode::Write, rule);
+    //auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+    auto rule = std::make_shared<Rule>(true, true, true);
+    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
+
+    File::Direct file3(piol, name3, FileMode::Write);
     select(piol, rule, file3, file1, list1, minrs);
 
     if (!rank)
         std::cout << "Select s4\n";
 
-    File::Direct file4(piol, name4, FileMode::Write, rule);
+    File::Direct file4(piol, name4, FileMode::Write);
     selectDupe(piol, rule, file4, file2, list2, minrs);
 
     if (!rank)
