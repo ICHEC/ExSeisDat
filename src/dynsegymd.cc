@@ -49,7 +49,7 @@ Rule::Rule(RuleMap translate_, bool full)
     }
 }
 
-Rule::Rule(std::initializer_list<Meta> mlist)
+Rule::Rule(std::initializer_list<Meta> mlist, bool full)
 {
     numLong = 0;
     numShort = 0;
@@ -57,7 +57,7 @@ Rule::Rule(std::initializer_list<Meta> mlist)
     numIndex = 0;
 
     //TODO: Change this when extents are flexible
-    flag.fullextent = true;
+    flag.fullextent = full;
 
     for (auto m : mlist)
     {
@@ -193,10 +193,11 @@ size_t Rule::extent(void)
         start = SEGSz::getMDSz();
         end = 0U;
         for (const auto r : translate)
-        {
-            start = std::min(start, r.second->min());
-            end = std::max(end, r.second->max());
-        }
+            if (r.second->type() != MdType::Index)
+            {
+                start = std::min(start, r.second->min());
+                end = std::max(end, r.second->max());
+            }
         flag.badextent = false;
     }
     return end-start;
