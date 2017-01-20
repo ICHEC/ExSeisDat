@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
 #include "share/mpi.hh"
@@ -16,7 +17,16 @@ using cvec = const std::vector<T>;
 template <class T>
 using vec = std::vector<T>;
 
-inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
+void cmsg(ExSeisPIOL * piol, std::string msg)
+{
+    piol->comm->barrier();
+    if (!piol->comm->getRank())
+        std::cout << msg << std::endl;
+} 
+
+
+//This is a lighter check for test purposes. Just the absolute values
+inline geom_t dsrLight(const geom_t * prm1, const geom_t * prm2)
 {
     return std::abs(prm1[0] - prm2[0]) +
            std::abs(prm1[1] - prm2[1]) +
@@ -24,13 +34,56 @@ inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
+//TODO: Compute load just jumped up.
+// No Branching. Acceleration opportunity!
+inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
+{
+    //Calculate sqrt((s_x^1 - s_x^2)^2 + (s_y^1 - s_y^2)^2)
+    geom_t fds = std::sqrt(pow((prm1[0] - prm2[0]), 2) + pow((prm1[1] - prm2[1]), 2));
+
+    //Calculate sqrt((r_x^1 - r_x^2)^2 + (r_y^1 - r_y^2)^2)
+    geom_t fdr = std::sqrt(pow((prm1[2] - prm2[2]), 2) + pow((prm1[3] - prm2[3]), 2));
+
+    //Reverse-Boat cases. The boat may be going in the opposite direction
+    //than the original data collection. We interchange the second set of coordinates
+    //in that case (prm2).
+
+    //Calculate sqrt((s_x^1 - r_x^2)^2 + (s_y^1 - r_y^2)^2)
+    geom_t rds = std::sqrt(pow((prm1[0] - prm2[2]), 2) + pow((prm1[1] - prm2[3]), 2));
+    //Calculate sqrt((r_x^1 - s_x^2)^2 + (r_y^1 - s_y^2)^2)
+    geom_t rdr = std::sqrt(pow((prm1[2] - prm2[0]), 2) + pow((prm1[3] - prm2[1]), 2));
+
+    geom_t ds = std::min(fds, rds);
+    geom_t dr = std::min(fdr, rdr);
+
+    //Use ds^2 + dr^2 + 2dsdr
+    //This gives some preference to a value that minimises
+    //both ds and dr rather than a single one. 
+    return pow(ds + dr, 2);
+}
+
+/*! This function extracts the relevant parameters from the file and inserts them into a vector (coords)
+ *  \param[in] piol The piol handle, used for MPI collectives.
+ *  \param[in] file The input file to access parameters from.
+ *  \param[in] offset The offset for the local process to access from
+ *  \param[in] coords The vector for storing the parameters. Number of parameters is coords.size()/4
+ */
 void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, vec<geom_t> & coords)
 {
+    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
+    //Unfortunately shared pointers make things ugly in C++.
+    //without shared pointers it would be Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
     auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
-
     size_t lnt = coords.size()/4U;
+
+    /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
+      handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
+      parameters in batches because of this memory limit.*/
     size_t memlim = 2U*1024U*1024U*1024U - coords.size() * sizeof(geom_t);
     size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
+
+    //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
+    //If not, the code will deadlock. Communication is done to ensure we balance out the correct number of redundant calls
     size_t biggest = piol->comm->max(max);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
@@ -47,10 +100,22 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, vec<geo
             coords[4U*(i+j)+3] = File::getPrm<geom_t>(i+j, Meta::yRcv, &prm);
         }
     }
+    //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file->readParam(0U, size_t(0), nullptr);
 }
 
+/*! Perform a minimisation check with the current two vectors of parameters.
+ *  \tparam Init If true, perform the initialisation sequence.
+ *  \param[in] szall A vector containing the amount of data each process has from the second input file.
+ *  \param[in] local A vector containing the process's parameter data from the first input file. This data
+ *             is never sent to any other process.
+ *  \param[in] other A vector containing the parameter data from another process.
+ *  \param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
+ *                 This vector is updated by the loop.
+ *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
+ *                 This vector is updated by the loop.
+ */
 template <bool Init>
 void update(cvec<size_t> & szall, cvec<geom_t> & local,
             size_t orank, cvec<geom_t> & other, vec<size_t> & min, vec<geom_t> & minrs)
@@ -69,16 +134,13 @@ void update(cvec<size_t> & szall, cvec<geom_t> & local,
             min[i] = offset;
         }
 
-    for (size_t j = (Init ? 1U : 0U); j < szall[orank]; j++)
-        for (size_t i = 0; i < sz; i++)
+    //TODO:: Implement reduction on an accelerator
+    for (size_t j = (Init ? 1U : 0U); j < szall[orank]; j++)    //Loop through every file2 trace
+        for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
         {
-            geom_t dval = dsr(&local[4U*i], &other[4U*j]);
-//TODO BENCHMARK CONDITIONAL vs TERNARY?
-            if (dval < minrs[i])
-            {
-                minrs[i] = dval;
-                min[i] = offset + j;
-            }
+            geom_t dval = dsr(&local[4U*i], &other[4U*j]);      //Get dsdr
+            min[i] = (dval < minrs[i] ? offset + j : min[i]);   //Update min if applicable
+            minrs[i] = std::min(dval, minrs[i]);                //Update minrs if applicable
         }
 }
 
@@ -93,7 +155,7 @@ vec<size_t> getSortIndex(size_t sz, size_t * list)
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?
-
+// This is an output related function and doesn't change the core algorithm.
 void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
     size_t ns = src.readNs();
@@ -138,14 +200,7 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & ds
 
         File::Param sprm(rule, nodups.size());
         vec<trace_t> strc(ns * nodups.size());
-
-        if (!piol->comm->getRank())
-            std::cout << "read " << nodups.size() << std::endl;
-
         src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
-
-        if (!piol->comm->getRank())
-            std::cout << "process\n";
 
         size_t n = 0;
         for (size_t j = 0; j < rblock; j++)
@@ -158,8 +213,6 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & ds
             for (size_t k = 0; k < ns; k++)
                 trc[j*ns + k] = strc[idx[n]*ns + k];
         }
-        if (!piol->comm->getRank())
-            std::cout << "write\n";
 
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }
@@ -171,7 +224,7 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & ds
     }
 }
 
-
+// This is an output related function and doesn't change the core algorithm.
 void select(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
     const size_t ns = src.readNs();
@@ -234,8 +287,12 @@ int main(int argc, char ** argv)
 {
     ExSeis piol;
     ExSeisPIOL * ppiol = piol;
-    geom_t dsrmax = 0.5;
+    geom_t dsrmax = 0.5;            //Default dsdr criteria
 
+
+/**********************************************************************************************************
+ *******************  Reading options from the command line *********************************************** 
+ **********************************************************************************************************/
     std::string opt = "a:b:c:d:t:";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
@@ -264,10 +321,13 @@ int main(int argc, char ** argv)
             break;
         }
     assert(name1.size() && name2.size() && name3.size() && name4.size());
+/**********************************************************************************************************
+ **********************************************************************************************************/
 
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
+    //Open the two input files
     File::Direct file1(piol, name1, FileMode::Read);
     File::Direct file2(piol, name2, FileMode::Read);
 
@@ -275,7 +335,7 @@ int main(int argc, char ** argv)
     vec<geom_t> coords2;
     size_t sz[2];
 
-    //Perform the decomposition and read coordinates of interest.
+    //Perform the decomposition and read the coordinates of interest.
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
         auto dec2 = decompose(file2.readNt(), numRank, rank);
@@ -291,24 +351,18 @@ int main(int argc, char ** argv)
 
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
-#define RANDOM_WRITE
-#ifdef RANDOM_WRITE
-    srand(1337);
-    for (size_t nt = file2.readNt(), i = 0; i < sz[0]; i++)
-        min[i] = ((llint(rand()) << 8) & llint(rand())) % nt;
-#else
+
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
 
+    cmsg(piol, "Compute phase");
+    cmsg(piol, "Round 1  of " + std::to_string(numRank));
     //Perform a local update of min and minrs
-    if (!rank)
-        std::cout << "Round " << 1 << " of " << numRank << std::endl;
     update<true>(szall, coords1, rank, coords2, min, minrs);
 
     //Perform the updates of min and minrs using data from other processes.
     for (size_t i = 1U; i < numRank; i ++)
     {
-        if (!rank)
-            std::cout << "Round " << i+1 << " of " << numRank << std::endl;
+        cmsg(piol, "Round " + std::to_string(i + 1) +  " of " + std::to_string(numRank));
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
 
@@ -330,8 +384,8 @@ int main(int argc, char ** argv)
         update<false>(szall, coords1, lrank, proc, min, minrs);
         assert(MPI_Wait(&msg[1], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
     }
-#endif
 
+    //free up some memory
     coords1.resize(0);
     coords2.resize(0);
     coords1.shrink_to_fit();
@@ -340,8 +394,8 @@ int main(int argc, char ** argv)
     size_t cnt = 0U;
     vec<size_t> list1(sz[0]);
     vec<size_t> list2(sz[0]);
-    if (!rank)
-        std::cout << "Final list pass\n";
+    cmsg(piol, "Final list pass");
+//Weed out traces that have a match thatt is too far away
     for (size_t i = 0U; i < sz[0]; i++)
     {
         if (minrs[i] <= dsrmax)
@@ -353,24 +407,21 @@ int main(int argc, char ** argv)
     list1.resize(cnt);
     list2.resize(cnt);
 
-    if (!rank)
-        std::cout << "Select s3\n";
-
-    //auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+        //Enable as many of the parameters as possible
     auto rule = std::make_shared<Rule>(true, true, true);
     rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
 
+    cmsg(piol, "Output phase");
+
+    //Open and write out file1 --> file3
     File::Direct file3(piol, name3, FileMode::Write);
     select(piol, rule, file3, file1, list1, minrs);
 
-    if (!rank)
-        std::cout << "Select s4\n";
-
+    //Open and write out file2 --> file4
+    //This case is more complicated because the list is unordered and there  can be duplicate entries
+    //in the list.
     File::Direct file4(piol, name4, FileMode::Write);
     selectDupe(piol, rule, file4, file2, list2, minrs);
-
-    if (!rank)
-        std::cout << "Done\n";
 
     return 0;
 }
