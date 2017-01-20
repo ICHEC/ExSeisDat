@@ -34,32 +34,50 @@ inline geom_t dsrLight(const geom_t * prm1, const geom_t * prm2)
            std::abs(prm1[3] - prm2[3]);
 }
 
-//TODO: Compute load just jumped up.
-// No Branching. Acceleration opportunity!
+/*! Calcuate the difference criteria between source/receiver pairs between traces. For each trace in
+ *  file1 the fourdbin utility finds the trace from file2 which is the minimum distance away.
+ *  \param[in] prm1 A pointer to an array of size 4 which has sx, sy, rx, ry in that order. (file1
+ *  \param[in] prm2 A pointer to an array of size 4 which has sx, sy, rx, ry in that order. (file2)
+ *  \return Return the dsr value.
+ *
+ * The definitions of ds and dr are:
+ * ds = \sqrt((sx1-sx2)^2+(sy1-sy2)^2)
+ * dr = \sqrt((rx1-rx2)^2+(ry1-ry2)^2)
+ * The boat may be going in the opposite direction for the data in file2 so that the source from file1
+ * is closer to the receiver in file2 and vice-versa. We interchange _sx->rx, _sy->ry _rx->sx _ry->sy
+ * for prm2 in that case (prm2).
+ * rds = \sqrt((sx1-rx2)^2+(sy1-ry2)^2)
+ * rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)
+ * dsr = (min(ds, rds) + min(dr, rdr))^2
+ * \todo Compute load just jumped up. No Branching. Acceleration opportunity! */
 inline geom_t dsr(const geom_t * prm1, const geom_t * prm2)
 {
-    //Calculate sqrt((s_x^1 - s_x^2)^2 + (s_y^1 - s_y^2)^2)
+    //Calculate ds = sqrt((s_x^1 - s_x^2)^2 + (s_y^1 - s_y^2)^2)
     geom_t fds = std::sqrt(pow((prm1[0] - prm2[0]), 2) + pow((prm1[1] - prm2[1]), 2));
 
-    //Calculate sqrt((r_x^1 - r_x^2)^2 + (r_y^1 - r_y^2)^2)
+    //Calculate dr = sqrt((r_x^1 - r_x^2)^2 + (r_y^1 - r_y^2)^2)
     geom_t fdr = std::sqrt(pow((prm1[2] - prm2[2]), 2) + pow((prm1[3] - prm2[3]), 2));
 
-    //Reverse-Boat cases. The boat may be going in the opposite direction
-    //than the original data collection. We interchange the second set of coordinates
-    //in that case (prm2).
-
+    //Reverse-Boat cases. 
     //Calculate sqrt((s_x^1 - r_x^2)^2 + (s_y^1 - r_y^2)^2)
     geom_t rds = std::sqrt(pow((prm1[0] - prm2[2]), 2) + pow((prm1[1] - prm2[3]), 2));
     //Calculate sqrt((r_x^1 - s_x^2)^2 + (r_y^1 - s_y^2)^2)
+    //TODO: This might now be avoidable with a ternary
     geom_t rdr = std::sqrt(pow((prm1[2] - prm2[0]), 2) + pow((prm1[3] - prm2[1]), 2));
 
     geom_t ds = std::min(fds, rds);
     geom_t dr = std::min(fdr, rdr);
 
-    //Use ds^2 + dr^2 + 2dsdr
-    //This gives some preference to a value that minimises
-    //both ds and dr rather than a single one. 
-    return pow(ds + dr, 2);
+    //The sum of ds and dr will be minimised.
+    //ds=0, dr=10 will be preferred over
+    //ds=4.55 dr=5.5
+    return ds + dr;
+
+    //This gives preference to a value that minimises
+    //both ds and dr to some extent. 
+    //ds=4.55 dr=5.5 will be preferred over
+    //ds=0, dr=10
+//    return ds + dr + std::abs(ds-dr);
 }
 
 /*! This function extracts the relevant parameters from the file and inserts them into a vector (coords)
@@ -91,7 +109,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, vec<geo
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         File::Param prm(rule, rblock);
-        file->readParam(offset, rblock, &prm);
+        file->readParam(offset+i, rblock, &prm);
         for (size_t j = 0; j < rblock; j++)
         {
             coords[4U*(i+j)+0] = File::getPrm<geom_t>(i+j, Meta::xSrc, &prm);
@@ -335,6 +353,7 @@ int main(int argc, char ** argv)
     vec<geom_t> coords2;
     size_t sz[2];
 
+    cmsg(piol, "Parameter-read phase");
     //Perform the decomposition and read the coordinates of interest.
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
