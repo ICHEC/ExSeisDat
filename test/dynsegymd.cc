@@ -98,29 +98,32 @@ TEST_F(RuleFixList, setPrm)
 
 TEST_F(RuleFixDefault, Constructor)
 {
-        ASSERT_EQ(rule->translate.size(), 9);
+        ASSERT_EQ(rule->translate.size(), 12);
         ASSERT_EQ(rule->numFloat, 6);
-        ASSERT_EQ(rule->numLong, 3);
+        ASSERT_EQ(rule->numLong, 4);
         ASSERT_EQ(rule->numShort, 0);
+        ASSERT_EQ(rule->numIndex, 2);
         ASSERT_EQ(rule->extent(), 240U);
 }
 
 TEST_F(RuleFixDefault, MakeCopy)
 {
     auto r = new Rule(rule->translate, false);
-    ASSERT_EQ(r->translate.size(), 9);
+    ASSERT_EQ(r->translate.size(), 12);
     ASSERT_EQ(r->numFloat, 6);
-    ASSERT_EQ(r->numLong, 3);
+    ASSERT_EQ(r->numLong, 4);
     ASSERT_EQ(r->numShort, 0);
+    ASSERT_EQ(r->numIndex, 2);
     ASSERT_EQ(r->extent(), 192);
 }
 
 TEST_F(RuleFixDefault, MakeCopyFull)
 {
     auto r = new Rule(rule->translate, true);
-    ASSERT_EQ(r->translate.size(), 9);
+    ASSERT_EQ(r->translate.size(), 12);
     ASSERT_EQ(r->numFloat, 6);
-    ASSERT_EQ(r->numLong, 3);
+    ASSERT_EQ(r->numLong, 4);
     ASSERT_EQ(r->numShort, 0);
+    ASSERT_EQ(r->numIndex, 2);
     ASSERT_EQ(r->extent(), 240);
 }
