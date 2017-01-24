@@ -199,46 +199,44 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-template <bool Init, bool OpenCL = false>
+template <bool Init>
 void update(cvec<size_t> & szall, Coords * local,
             size_t orank, Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
 {
     size_t sz = local->sz;
+    geom_t * lxS = local->xSrc;
+    geom_t * lyS = local->ySrc;
+    geom_t * lxR = local->xRcv;
+    geom_t * lyR = local->yRcv;
+
+    geom_t * rxS = other->xSrc;
+    geom_t * ryS = other->ySrc;
+    geom_t * rxR = other->xRcv;
+    geom_t * ryR = other->yRcv;
 
     size_t offset = 0;
     for (size_t i = 0; i < orank; i++)
         offset += szall[i];
 
     if (Init)
+        #pragma omp simd aligned(lxS:32) aligned(lyS:32) aligned(lxR:32) aligned(lyR:32) \
+                         aligned(rxS:32) aligned(ryS:32) aligned(rxR:32) aligned(ryR:32)
         for (size_t i = 0; i < sz; i++)
         {
-            //geom_t dval = dsr(&local[4U*i], &other[0U]);
-            geom_t dval = dsr(local->xSrc[i], local->ySrc[i], local->xRcv[i], local->yRcv[i],
-                              other->xSrc[0], other->ySrc[0], other->xRcv[0], other->yRcv[0]);
-            minrs[i] = dval;
+            minrs[i] = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
+                           rxS[0], ryS[0], rxR[0], ryR[0]);
             min[i] = offset;
         }
 
-//    size_t sz2 = szall[orank];
-    float * lxS = local->xSrc;
-    float * lyS = local->ySrc;
-    float * lxR = local->xRcv;
-    float * lyR = local->yRcv;
-
-    float * xS = other->xSrc;
-    float * yS = other->ySrc;
-    float * xR = other->xRcv;
-    float * yR = other->yRcv;
 
     for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
-        #pragma omp simd aligned(xS:32) aligned(yS:32) aligned(xR:32) aligned(yR:32) \
-                         aligned(lxS:32) aligned(lyS:32) aligned(lxR:32) aligned(lyR:32)
-        for (size_t j = (Init ? 1U : 0U); j < other->allocSz; j++)     //Loop through every file2 trace
-        //for (size_t j = (Init ? 1U : 0U); j < sz2; j++)     //Loop through every file2 trace
+        #pragma omp simd aligned(lxS:32) aligned(lyS:32) aligned(lxR:32) aligned(lyR:32) \
+                         aligned(rxS:32) aligned(ryS:32) aligned(rxR:32) aligned(ryR:32)
+        for (size_t j = 0U; j < other->allocSz; j++)        //Loop through every file2 trace
             {
                 geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
-                                  xS[j], yS[j], xR[j], yR[j]);
-    
+                                  rxS[j], ryS[j], rxR[j], ryR[j]);
+
                 min[i] = (dval < minrs[i] ? offset + j : min[i]);   //Update min if applicable
                 minrs[i] = std::min(dval, minrs[i]);                //Update minrs if applicable
             }
