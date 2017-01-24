@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <cmath>
 #include <iostream>
 #include <algorithm>
@@ -22,15 +23,6 @@ void cmsg(ExSeisPIOL * piol, std::string msg)
     piol->comm->barrier();
     if (!piol->comm->getRank())
         std::cout << msg << std::endl;
-}
-
-//This is a lighter check for test purposes. Just the absolute values
-inline geom_t dsrLight(const geom_t * prm1, const geom_t * prm2)
-{
-    return std::abs(prm1[0] - prm2[0]) +
-           std::abs(prm1[1] - prm2[1]) +
-           std::abs(prm1[2] - prm2[2]) +
-           std::abs(prm1[3] - prm2[3]);
 }
 
 /*! Calcuate the difference criteria between source/receiver pairs between traces. For each trace in
@@ -111,7 +103,7 @@ inline geom_t dsr(geom_t xs1, geom_t ys1, geom_t xr1, geom_t yr1,
 struct Coords
 {
     size_t sz;
-    std::vector<geom_t> xSrc;
+/*    std::vector<geom_t> xSrc;
     std::vector<geom_t> ySrc;
     std::vector<geom_t> xRcv;
     std::vector<geom_t> yRcv;
@@ -121,6 +113,35 @@ struct Coords
         ySrc.resize(sz);
         xRcv.resize(sz);
         yRcv.resize(sz);
+    }*/
+
+    geom_t * xSrc;
+    geom_t * ySrc;
+    geom_t * xRcv;
+    geom_t * yRcv;
+    const size_t align = 32U;
+    size_t allocSz;
+    Coords(size_t sz_) : sz(sz_)
+    {
+        allocSz = ((sz + align) / align) * align;
+        posix_memalign(reinterpret_cast<void **>(&xSrc), align, allocSz * sizeof(geom_t));
+        posix_memalign(reinterpret_cast<void **>(&ySrc), align, allocSz * sizeof(geom_t));
+        posix_memalign(reinterpret_cast<void **>(&xRcv), align, allocSz * sizeof(geom_t));
+        posix_memalign(reinterpret_cast<void **>(&yRcv), align, allocSz * sizeof(geom_t));
+        for (size_t i = 0; i < allocSz; i++)
+            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<float>::max();
+    }
+
+    ~Coords(void)
+    {
+        if (xSrc)
+            free(xSrc);
+        if (ySrc)
+            free(ySrc);
+        if (xRcv)
+            free(xRcv);
+        if (yRcv)
+            free(yRcv);
     }
 };
 
@@ -141,7 +162,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
       handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
       parameters in batches because of this memory limit.*/
-    size_t memlim = 2U*1024U*1024U*1024U - coords->sz * sizeof(geom_t);
+    size_t memlim = 2U*1024U*1024U*1024U - 4U * coords->sz * sizeof(geom_t);
     size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
 
     //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
@@ -156,10 +177,10 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
         file->readParam(offset+i, rblock, &prm);
         for (size_t j = 0; j < rblock; j++)
         {
-            coords->xSrc[(i+j)+0] = File::getPrm<geom_t>(i+j, Meta::xSrc, &prm);
-            coords->ySrc[(i+j)+1] = File::getPrm<geom_t>(i+j, Meta::ySrc, &prm);
-            coords->xRcv[(i+j)+2] = File::getPrm<geom_t>(i+j, Meta::xRcv, &prm);
-            coords->yRcv[(i+j)+3] = File::getPrm<geom_t>(i+j, Meta::yRcv, &prm);
+            coords->xSrc[i+j] = File::getPrm<geom_t>(i+j, Meta::xSrc, &prm);
+            coords->ySrc[i+j] = File::getPrm<geom_t>(i+j, Meta::ySrc, &prm);
+            coords->xRcv[i+j] = File::getPrm<geom_t>(i+j, Meta::xRcv, &prm);
+            coords->yRcv[i+j] = File::getPrm<geom_t>(i+j, Meta::yRcv, &prm);
         }
     }
     //Any extra readParam calls the particular process needs
@@ -182,7 +203,6 @@ template <bool Init, bool OpenCL = false>
 void update(cvec<size_t> & szall, Coords * local,
             size_t orank, Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
 {
-    printf("Accidentally here\n");
     size_t sz = local->sz;
 
     size_t offset = 0;
@@ -199,19 +219,29 @@ void update(cvec<size_t> & szall, Coords * local,
             min[i] = offset;
         }
 
-    size_t sz2 = szall[orank];
-//#pragma acc kernels copyin(local, other, sz, sz2, offset) copy(min, minrs)
+//    size_t sz2 = szall[orank];
+    float * lxS = local->xSrc;
+    float * lyS = local->ySrc;
+    float * lxR = local->xRcv;
+    float * lyR = local->yRcv;
+
+    float * xS = other->xSrc;
+    float * yS = other->ySrc;
+    float * xR = other->xRcv;
+    float * yR = other->yRcv;
 
     for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
-    #pragma omp simd
-    for (size_t j = (Init ? 1U : 0U); j < sz2; j++)    //Loop through every file2 trace
-        {
-            geom_t dval = dsr(local->xSrc[i], local->ySrc[i], local->xRcv[i], local->yRcv[i],
-                              other->xSrc[j], other->ySrc[j], other->xRcv[j], other->yRcv[j]);
-
-            min[i] = (dval < minrs[i] ? offset + j : min[i]);   //Update min if applicable
-            minrs[i] = std::min(dval, minrs[i]);                //Update minrs if applicable
-        }
+        #pragma omp simd aligned(xS:32) aligned(yS:32) aligned(xR:32) aligned(yR:32) \
+                         aligned(lxS:32) aligned(lyS:32) aligned(lxR:32) aligned(lyR:32)
+        for (size_t j = (Init ? 1U : 0U); j < other->allocSz; j++)     //Loop through every file2 trace
+        //for (size_t j = (Init ? 1U : 0U); j < sz2; j++)     //Loop through every file2 trace
+            {
+                geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
+                                  xS[j], yS[j], xR[j], yR[j]);
+    
+                min[i] = (dval < minrs[i] ? offset + j : min[i]);   //Update min if applicable
+                minrs[i] = std::min(dval, minrs[i]);                //Update minrs if applicable
+            }
 }
 
 //This trick is discussed here:
@@ -289,8 +319,8 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & ds
 
     for (size_t i = 0; i < extra; i++)
     {
-        src.readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-        dst.writeTrace(0, size_t(0), nullptr, File::PARAM_NULL);
+        src.readTrace(0, nullptr, nullptr, nullptr);
+        dst.writeTrace(0, size_t(0), nullptr, nullptr);
     }
 }
 
@@ -324,14 +354,6 @@ void select(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, F
     dst.writeInc(src.readInc());
     dst.writeNs(src.readNs());
 
-/*    for (size_t i = 0; i < piol->comm->getNumRank(); i++)
-    {
-        piol->comm->barrier();
-        if (i == piol->comm->getRank())
-            std::cout << i << " " << biggest << " " << lnt << "  " << max << " " << extra << std::endl;
-        piol->comm->barrier();
-    }*/
-
     File::Param prm(rule, std::min(lnt, max));
     vec<trace_t> trc(src.readNs() * std::min(lnt, max));
 
@@ -347,8 +369,8 @@ void select(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & dst, F
 
     for (size_t i = 0; i < extra; i++)
     {
-        src.readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-        dst.writeTrace(0, size_t(0), nullptr, File::PARAM_NULL);
+        src.readTrace(0, nullptr, nullptr, nullptr);
+        dst.writeTrace(0, size_t(0), nullptr, nullptr);
     }
 }
 
@@ -411,13 +433,16 @@ int main(int argc, char ** argv)
         auto dec2 = decompose(file2.readNt(), numRank, rank);
 
         sz[0] = dec1.second;
+        cmsg(piol, "getCoords1");
         coords1 = std::make_unique<Coords>(sz[0]);
         getCoords(ppiol, file1, dec1.first, coords1.get());
 
         sz[1] = dec2.second;
+        cmsg(piol, "getCoords2");
         coords2 = std::make_unique<Coords>(sz[1]);
         getCoords(ppiol, file2, dec2.first, coords2.get());
     }
+    cmsg(piol, "post-Read");
 
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
@@ -425,7 +450,7 @@ int main(int argc, char ** argv)
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
 
     cmsg(piol, "Compute phase");
-    cmsg(piol, "Round 1  of " + std::to_string(numRank));
+    cmsg(piol, "Round 1 of " + std::to_string(numRank));
     //Perform a local update of min and minrs
     update<true>(szall, coords1.get(), rank, coords2.get(), min, minrs);
 
@@ -440,21 +465,23 @@ int main(int argc, char ** argv)
         auto proc = std::make_unique<Coords>(szall[lrank]);
         std::vector<MPI_Request> rmsg(4);
         std::vector<MPI_Request> smsg(4);
+
         //Receive data from the process on the left
-        MPI_Irecv(proc->xSrc.data(), szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[0]);
-        MPI_Irecv(proc->ySrc.data(), szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[1]);
-        MPI_Irecv(proc->xRcv.data(), szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[2]);
-        MPI_Irecv(proc->yRcv.data(), szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[3]);
+        MPI_Irecv(proc->xSrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[0]);
+        MPI_Irecv(proc->ySrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[1]);
+        MPI_Irecv(proc->xRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[2]);
+        MPI_Irecv(proc->yRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[3]);
 
         //Send data to the process on the right
-        MPI_Isend(coords2->xSrc.data(), szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[0]);
-        MPI_Isend(coords2->ySrc.data(), szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[1]);
-        MPI_Isend(coords2->xRcv.data(), szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[2]);
-        MPI_Isend(coords2->yRcv.data(), szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[3]);
+        MPI_Isend(coords2->xSrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[0]);
+        MPI_Isend(coords2->ySrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[1]);
+        MPI_Isend(coords2->xRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[2]);
+        MPI_Isend(coords2->yRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[3]);
 
         MPI_Status stat;
         for (size_t j = 0; j < rmsg.size(); j++)
             assert(rmsg[0] != MPI_REQUEST_NULL);
+
         for (size_t j = 0; j < smsg.size(); j++)
             assert(smsg[0] != MPI_REQUEST_NULL);
 
@@ -469,7 +496,6 @@ int main(int argc, char ** argv)
     //free up some memory
     coords1.release();
     coords2.release();
-
 
     size_t cnt = 0U;
     vec<size_t> list1(sz[0]);
