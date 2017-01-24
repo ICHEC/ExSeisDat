@@ -8,6 +8,7 @@
 #include "cppfileapi.hh"
 #include "sglobal.hh"
 #include "share/mpi.hh"
+#define ALIGN 32U
 using namespace PIOL;
 using File::Tr;
 using File::Rule;
@@ -44,12 +45,12 @@ void cmsg(ExSeisPIOL * piol, std::string msg)
 inline geom_t dsr(geom_t xs1, geom_t ys1, geom_t xr1, geom_t yr1,
            geom_t xs2, geom_t ys2, geom_t xr2, geom_t yr2)
 {
-    geom_t fds = sqrtf((xs1 - xs2)*(xs1 - xs2) + (ys1 - ys2)*(ys1 - ys2));
-    geom_t fdr = sqrtf((xr1 - xr2)*(xr1 - xr2) + (yr1 - yr2)*(yr1 - yr2));
+    geom_t fds = std::hypot(xs1 - xs2, ys1 - ys2);
+    geom_t fdr = std::hypot(xr1 - xr2, yr1 - yr2);
 
     //Reverse-Boat cases.
-    geom_t rds = sqrtf((xs1 - xr2)*(xs1 - xr2) + (ys1 - yr2)*(ys1 - yr2));
-    geom_t rdr = sqrtf((xr1 - xs2)*(xr1 - xs2) + (yr1 - ys2)*(yr1 - ys2));
+    geom_t rds = std::hypot(xs1 - xr2, ys1 - yr2);
+    geom_t rdr = std::hypot(xr1 - xs2, yr1 - ys2);
 
     geom_t ds = std::min(fds, rds);
     geom_t dr = std::min(fdr, rdr);
@@ -66,68 +67,28 @@ inline geom_t dsr(geom_t xs1, geom_t ys1, geom_t xr1, geom_t yr1,
 //    return ds + dr + std::abs(ds-dr);
 }
 
-/*geom_t dsr(const geom_t * prm1, const geom_t * prm2)
-{
-    //Calculate ds = sqrt((s_x^1 - s_x^2)^2 + (s_y^1 - s_y^2)^2)
-    geom_t fds = std::sqrt((prm1[0] - prm2[0])*(prm1[0] - prm2[0]) + (prm1[1] - prm2[1])*(prm1[1] - prm2[1]));
-
-    //Calculate dr = sqrt((r_x^1 - r_x^2)^2 + (r_y^1 - r_y^2)^2)
-    geom_t fdr = std::sqrt((prm1[2] - prm2[2])*(prm1[2] - prm2[2]) + (prm1[3] - prm2[3])*(prm1[3] - prm2[3]));
-    //geom_t fdr = std::sqrt(pow((prm1[2] - prm2[2]), 2) + pow((prm1[3] - prm2[3]), 2));
-
-    //Reverse-Boat cases.
-    //Calculate sqrt((s_x^1 - r_x^2)^2 + (s_y^1 - r_y^2)^2)
-    geom_t rds = std::sqrt((prm1[0] - prm2[2])*(prm1[0] - prm2[2]) + (prm1[1] - prm2[3])*(prm1[1] - prm2[3]));
-    //geom_t rds = std::sqrt(pow((prm1[0] - prm2[2]), 2) + pow((prm1[1] - prm2[3]), 2));
-    //Calculate sqrt((r_x^1 - s_x^2)^2 + (r_y^1 - s_y^2)^2)
-    //TODO: This might now be avoidable with a ternary
-    geom_t rdr = std::sqrt((prm1[2] - prm2[0])*(prm1[2] - prm2[0]) + (prm1[3] - prm2[1])*(prm1[3] - prm2[1]));
-    //geom_t rdr = std::sqrt(pow((prm1[2] - prm2[0]), 2) + pow((prm1[3] - prm2[1]), 2));
-
-    geom_t ds = std::min(fds, rds);
-    geom_t dr = std::min(fdr, rdr);
-
-    //The sum of ds and dr will be minimised.
-    //ds=0, dr=10 will be preferred over
-    //ds=4.55 dr=5.5
-    return ds + dr;
-
-    //This gives preference to a value that minimises
-    //both ds and dr to some extent.
-    //ds=4.55 dr=5.5 will be preferred over
-    //ds=0, dr=10
-//    return ds + dr + std::abs(ds-dr);
-}
-*/
-
+/*! This structure is for holding ALIGN aligned memory containing the coordinates.
+ */
 struct Coords
 {
     size_t sz;
-/*    std::vector<geom_t> xSrc;
-    std::vector<geom_t> ySrc;
-    std::vector<geom_t> xRcv;
-    std::vector<geom_t> yRcv;
-    Coords(size_t sz_) : sz(sz_)
-    {
-        xSrc.resize(sz);
-        ySrc.resize(sz);
-        xRcv.resize(sz);
-        yRcv.resize(sz);
-    }*/
-
     geom_t * xSrc;
     geom_t * ySrc;
     geom_t * xRcv;
     geom_t * yRcv;
-    const size_t align = 32U;
+    const size_t align = ALIGN;
     size_t allocSz;
     Coords(size_t sz_) : sz(sz_)
     {
         allocSz = ((sz + align) / align) * align;
+
+        //posix_memalign() guarantees the memory allocated is alligned according to the alignment
+        //value
         posix_memalign(reinterpret_cast<void **>(&xSrc), align, allocSz * sizeof(geom_t));
         posix_memalign(reinterpret_cast<void **>(&ySrc), align, allocSz * sizeof(geom_t));
         posix_memalign(reinterpret_cast<void **>(&xRcv), align, allocSz * sizeof(geom_t));
         posix_memalign(reinterpret_cast<void **>(&yRcv), align, allocSz * sizeof(geom_t));
+
         for (size_t i = 0; i < allocSz; i++)
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<float>::max();
     }
@@ -200,10 +161,10 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
  *                 This vector is updated by the loop.
  */
 template <bool Init>
-void update(cvec<size_t> & szall, Coords * local,
-            size_t orank, Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
+void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
 {
     size_t sz = local->sz;
+    //For the vectorisation
     geom_t * lxS = local->xSrc;
     geom_t * lyS = local->ySrc;
     geom_t * lxR = local->xRcv;
@@ -214,13 +175,9 @@ void update(cvec<size_t> & szall, Coords * local,
     geom_t * rxR = other->xRcv;
     geom_t * ryR = other->yRcv;
 
-    size_t offset = 0;
-    for (size_t i = 0; i < orank; i++)
-        offset += szall[i];
-
     if (Init)
-        #pragma omp simd aligned(lxS:32) aligned(lyS:32) aligned(lxR:32) aligned(lyR:32) \
-                         aligned(rxS:32) aligned(ryS:32) aligned(rxR:32) aligned(ryR:32)
+        #pragma omp simd aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
+                         aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN)
         for (size_t i = 0; i < sz; i++)
         {
             minrs[i] = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
@@ -230,9 +187,9 @@ void update(cvec<size_t> & szall, Coords * local,
 
 
     for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
-        #pragma omp simd aligned(lxS:32) aligned(lyS:32) aligned(lxR:32) aligned(lyR:32) \
-                         aligned(rxS:32) aligned(ryS:32) aligned(rxR:32) aligned(ryR:32)
-        for (size_t j = 0U; j < other->allocSz; j++)        //Loop through every file2 trace
+        #pragma omp simd aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
+                         aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN)
+        for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
             {
                 geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
                                   rxS[j], ryS[j], rxR[j], ryR[j]);
@@ -319,6 +276,27 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<Rule> rule, File::Direct & ds
     {
         src.readTrace(0, nullptr, nullptr, nullptr);
         dst.writeTrace(0, size_t(0), nullptr, nullptr);
+    }
+}
+
+template <bool AllProc = true>
+void recordTime(ExSeisPIOL * piol, std::string msg, double startTime)
+{
+    auto time = MPI_Wtime();
+
+    if (AllProc)
+    {
+        auto pTimeTot = piol->comm->gather(vec<float>{static_cast<float>(time - startTime)});
+        if (!piol->comm->getRank())
+            for (size_t i = 0; i < pTimeTot.size(); i++)
+                std::cout << msg << " time: " << i << " " << pTimeTot[i] << std::endl;
+        piol->comm->barrier();
+    }
+    else
+    {
+        auto pTimeTot = (time - startTime);
+        if (!piol->comm->getRank())
+            std::cout << msg << " time: " << pTimeTot << std::endl;
     }
 }
 
@@ -425,6 +403,7 @@ int main(int argc, char ** argv)
     size_t sz[2];
 
     cmsg(piol, "Parameter-read phase");
+    auto startTime = MPI_Wtime();
     //Perform the decomposition and read the coordinates of interest.
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
@@ -446,19 +425,35 @@ int main(int argc, char ** argv)
     vec<geom_t> minrs(sz[0]);
 
     auto szall = ppiol->comm->gather(vec<size_t>{sz[1]});
+    std::vector<size_t> offset(szall.size());
+    for (size_t i = 1; i < offset.size(); i++)
+        offset[i] = offset[i-1] + szall[i];
 
     cmsg(piol, "Compute phase");
-    cmsg(piol, "Round 1 of " + std::to_string(numRank));
+
+    recordTime(piol, "parameter", startTime);
+
+#ifdef RANDOM_WRITE
+    srand(1337);
+    size_t nt = file2.readNt();
+    for (size_t i = 0; i < sz[0]; i++)
+        min[i] = ((llint(rand()) << 8) & llint(rand())) % nt;
+#else
+    startTime = MPI_Wtime();
+    cmsg(piol, "Round 0 of " + std::to_string(numRank-1));
     //Perform a local update of min and minrs
-    update<true>(szall, coords1.get(), rank, coords2.get(), min, minrs);
+
+    update<true>(offset[rank], coords1.get(), coords2.get(), min, minrs);
+    recordTime(piol, "update 0", startTime);
 
     //Perform the updates of min and minrs using data from other processes.
     for (size_t i = 1U; i < numRank; i ++)
     {
-        cmsg(piol, "Round " + std::to_string(i + 1) +  " of " + std::to_string(numRank));
+        cmsg(piol, "Round " + std::to_string(i) +  " of " + std::to_string(numRank));
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
 
+        startTime = MPI_Wtime();
         //TODO: Check if the other process has data of interest.
         auto proc = std::make_unique<Coords>(szall[lrank]);
         std::vector<MPI_Request> rmsg(4);
@@ -486,11 +481,17 @@ int main(int argc, char ** argv)
         for (size_t j = 0; j < rmsg.size(); j++)
             assert(MPI_Wait(&rmsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
 
-        update<false>(szall, coords1.get(), lrank, proc.get(), min, minrs);
+        recordTime(piol, "snd/rcv " + std::to_string(i), startTime);
+        startTime = MPI_Wtime();
+
+        update<false>(offset[lrank], coords1.get(), proc.get(), min, minrs);
+        recordTime(piol, "compute " + std::to_string(i), startTime);
+
         for (size_t j = 0; j < smsg.size(); j++)
             assert(MPI_Wait(&smsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
-    }
 
+    }
+#endif
     //free up some memory
     coords1.release();
     coords2.release();
@@ -517,15 +518,22 @@ int main(int argc, char ** argv)
 
     cmsg(piol, "Output phase");
 
+    auto outTime = MPI_Wtime();
+
+    startTime = MPI_Wtime();
     //Open and write out file1 --> file3
     File::Direct file3(piol, name3, FileMode::Write);
+
     select(piol, rule, file3, file1, list1, minrs);
 
+    recordTime(piol, "First output", startTime);
+    startTime = MPI_Wtime();
     //Open and write out file2 --> file4
     //This case is more complicated because the list is unordered and there  can be duplicate entries
     //in the list.
     File::Direct file4(piol, name4, FileMode::Write);
     selectDupe(piol, rule, file4, file2, list2, minrs);
 
+    recordTime(piol, "Second output", startTime);
     return 0;
 }
