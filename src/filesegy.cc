@@ -187,7 +187,7 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
+void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, size_t skip) const
 {
     size_t ntz = (state.stalent || !sz ? sz : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
@@ -199,7 +199,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) c
         std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
         obj->readDO(offset, ns, ntz, dobuf.data());
 
-        extractParam(ntz, dobuf.data(), prm, SEGSz::getDFSz(ns));
+        extractParam(ntz, dobuf.data(), prm, SEGSz::getDFSz(ns), skip);
 
         for (size_t i = 0; i < ntz; i++)
             std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
@@ -213,7 +213,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) c
             reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
-void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm)
+void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, size_t skip)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -237,7 +237,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param *
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
 
-        insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
+        insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns), skip);
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
                       dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
@@ -252,7 +252,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param *
 }
 
 //TODO: Unit test
-void SEGY::readParam(csize_t offset, csize_t sz, Param * prm) const
+void SEGY::readParam(csize_t offset, csize_t sz, Param * prm, size_t skip) const
 {
     if (offset >= nt && sz && !state.stalent)   //Nothing to be read.
     {
@@ -267,10 +267,10 @@ void SEGY::readParam(csize_t offset, csize_t sz, Param * prm) const
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
     obj->readDOMD(offset, ns, ntz, buf.data());
 
-    extractParam(ntz, buf.data(), prm, 0);
+    extractParam(ntz, buf.data(), prm, 0, skip);
 }
 
-void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
+void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm, size_t skip)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -287,7 +287,7 @@ void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    insertParam(sz, prm, buf.data(), 0U);
+    insertParam(sz, prm, buf.data(), 0U, skip);
 
     obj->writeDOMD(offset, ns, sz, buf.data());
 
@@ -295,7 +295,7 @@ void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm)
     nt = std::max(offset + sz, nt);
 }
 
-void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, size_t skip) const
 {
     uchar * buf = reinterpret_cast<uchar *>(trace);
     if (prm == PARAM_NULL)
@@ -305,7 +305,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm)
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
         obj->readDO(ns, sz, offset, dobuf.data());
 
-        extractParam(sz, dobuf.data(), prm, SEGSz::getDFSz(ns));
+        extractParam(sz, dobuf.data(), prm, SEGSz::getDFSz(ns), skip);
         for (size_t i = 0; i < sz; i++)
             std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
                       buf + i * SEGSz::getDFSz(ns));
@@ -319,7 +319,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm)
             reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
-void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
+void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, size_t skip)
 {
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
@@ -333,7 +333,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
     else
     {
         std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns));          //FIXME: Potentially a big allocation
-        insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns));
+        insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns), skip);
         for (size_t i = 0; i < sz; i++)
             std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
                       dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
@@ -348,7 +348,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         nt = std::max(offset[sz-1]+1U, nt);
 }
 
-void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
+void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm, size_t skip) const
 {
 //TODO: Is it useful to check if all the offsets are greater than nt?
     if (!sz)   //Nothing to be written.
@@ -359,10 +359,10 @@ void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm) const
 
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
     obj->readDOMD(ns, sz, offset, buf.data());
-    extractParam(sz, buf.data(), prm, 0U);
+    extractParam(sz, buf.data(), prm, 0U, skip);
 }
 
-void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
+void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm, size_t skip)
 {
     #ifdef NT_LIMITS
     size_t max = 0;
@@ -384,7 +384,7 @@ void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    insertParam(sz, prm, buf.data(), 0U);
+    insertParam(sz, prm, buf.data(), 0U, skip);
 
     obj->writeDOMD(ns, sz, offset, buf.data());
 

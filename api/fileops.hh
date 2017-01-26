@@ -40,13 +40,12 @@ extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, Meta m1, Meta
 /*! Perform a sort on the given parameter structure.
  *  \param[in] piol The PIOL object
  *  \param[in] type The sort type
- *  \param[in] nt The number of traces to process (across all processes).
  *  \param[in] offset The starting trace number (local).
  *  \param[in,out] prm The trace parameter structure.
  *  \return Return a vector which is a list of the ordered trace numbers. i.e the 0th member
  *          is the position of the 0th trace post-sort.
  */
-extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm);
+extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t offset, Param * prm);
 
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.

@@ -87,6 +87,11 @@ size_t MPI::max(size_t val)
     return getMPIOp(log, this, val, MPI_MAX);
 }
 
+size_t MPI::min(size_t val)
+{
+    return getMPIOp(log, this, val, MPI_MIN);
+}
+
 std::vector<llint> MPI::gather(const std::vector<llint> & in) const
 {
     return MPIGather(log, this, in);

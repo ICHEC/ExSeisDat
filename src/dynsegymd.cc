@@ -100,6 +100,12 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
             case Meta::tn :
                 r = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
             break;
+            case Meta::gtn :
+                r = new SEGYIndexRuleEntry(numIndex++);
+            break;
+            case Meta::ltn :
+                r = new SEGYIndexRuleEntry(numIndex++);
+            break;
             default :
                 //TODO: More systematic approach required
                 std::cerr << "Metadata not supported for switch yet." << std::endl;
@@ -359,7 +365,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
         }
 }
 
-void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
+void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_t skip)
 {
     auto r = prm->r;
     size_t start = r->start;
@@ -383,7 +389,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
                     rule.push_back(dynamic_cast<SEGYFloatRuleEntry *>(t));
                     auto tr = static_cast<Tr>(rule.back()->scalLoc);
                     int16_t scal1 = (scal.find(tr) != scal.end() ? scal[tr] : 1);
-                    int16_t scal2 = deScale(prm->f[i * r->numFloat + t->num]);
+                    int16_t scal2 = deScale(prm->f[(i + skip) * r->numFloat + t->num]);
 
                     //if the scale is bigger than 1 that means we need to use the largest
                     //to ensure conservation of the most significant digit
@@ -393,10 +399,10 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
                 }
                 break;
                 case MdType::Short :
-                getBigEndian(prm->s[i * r->numShort + t->num], &md[loc]);
+                getBigEndian(prm->s[(i + skip) * r->numShort + t->num], &md[loc]);
                 break;
                 case MdType::Long :
-                getBigEndian(int32_t(prm->i[i * r->numLong + t->num]), &md[loc]);
+                getBigEndian(int32_t(prm->i[(i + skip) * r->numLong + t->num]), &md[loc]);
                 break;
                 case MdType::Index : break;
             }
@@ -409,12 +415,12 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride)
         for (size_t j = 0; j < rule.size(); j++)
         {
             geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
-            getBigEndian(int32_t(std::lround(prm->f[i * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
+            getBigEndian(int32_t(std::lround(prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
         }
     }
 }
 
-void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride)
+void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size_t skip)
 {
     Rule * r = prm->r.get();
     for (size_t i = 0; i < sz; i++)
@@ -428,14 +434,14 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride)
             switch (t->type())
             {
                 case MdType::Float :
-                prm->f[i * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
-                                                    * geom_t(getHost<int32_t>(&md[loc]));
+                prm->f[(i + skip) * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
+                                                   * geom_t(getHost<int32_t>(&md[loc]));
                 break;
                 case MdType::Short :
-                prm->s[i * r->numShort + t->num] = getHost<int16_t>(&md[loc]);
+                prm->s[(i + skip) * r->numShort + t->num] = getHost<int16_t>(&md[loc]);
                 break;
                 case MdType::Long :
-                prm->i[i * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
+                prm->i[(i + skip) * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
                 break;
                 case MdType::Index : break;
             }

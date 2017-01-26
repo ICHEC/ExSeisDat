@@ -223,9 +223,9 @@ Compare<Param> getComp(SortType type)
     }
 }
 
-std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
+std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t offset, Param * prm)
 {
-    return sort(piol, nt, offset, prm, getComp(type));
+    return sort(piol, offset, prm, getComp(type));
 }
 
 //TODO: Make this work with SortType type;

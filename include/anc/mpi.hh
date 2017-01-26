@@ -61,6 +61,7 @@ class MPI : public Comm::Interface
 //    std::vector<size_t> gather(const std::vector<size_t> & val, size_t i) const;
     size_t sum(size_t val);
     size_t max(size_t val);
+    size_t min(size_t val);
     void barrier(void) const;
 };
 }}

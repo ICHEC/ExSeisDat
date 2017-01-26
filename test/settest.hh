@@ -29,15 +29,15 @@ class MockFile : public File::Interface
     MOCK_METHOD1(writeNt, void(const csize_t));
     MOCK_METHOD1(writeInc, void(const geom_t));
 
-    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t, File::Param *));
-    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t *, File::Param *));
-    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t, trace_t *, File::Param *));
-    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *));
+    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t, File::Param *, csize_t));
+    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
 
-    MOCK_METHOD3(writeParam, void(csize_t, csize_t, const File::Param *));
-    MOCK_METHOD4(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *));
-    MOCK_METHOD4(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *));
-    MOCK_METHOD3(writeParam, void(csize_t, csize_t *, const File::Param *));
+    MOCK_METHOD3(writeParam, void(csize_t, csize_t, const File::Param *, csize_t));
+    MOCK_METHOD4(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *, csize_t));
+    MOCK_METHOD4(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *, csize_t));
+    MOCK_METHOD3(writeParam, void(csize_t, csize_t *, const File::Param *, csize_t));
 };
 
 ACTION_P(cpyprm, src)

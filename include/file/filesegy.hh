@@ -96,21 +96,21 @@ class SEGY : public Interface
 
     void writeInc(const geom_t inc_);
 
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, csize_t skip) const;
 
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, csize_t skip);
 
-    void readParam(csize_t offset, csize_t sz, Param * prm) const;
+    void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const;
 
-    void writeParam(csize_t offset, csize_t sz, const Param * prm);
+    void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip);
 
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const;
 
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL);
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, csize_t skip);
 
-    void readParam(csize_t sz, csize_t * offset, Param * prm) const;
+    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const;
 
-    void writeParam(csize_t sz, csize_t * offset, const Param * prm);
+    void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip);
 };
 }}
 #endif

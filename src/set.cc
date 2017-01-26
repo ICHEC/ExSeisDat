@@ -372,7 +372,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 loff += list.size();
             }
 
-            auto trlist = File::sort(piol.get(), nt, off, &prm, func);
+            auto trlist = File::sort(piol.get(), off, &prm, func);
             size_t j = 0;
             for (auto & f : o.second)
                 for (auto & l : f->lst)

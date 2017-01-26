@@ -75,6 +75,12 @@ class Interface
      */
     virtual size_t max(size_t val) = 0;
 
+    /*! Perform a reduce across all process to get the min of the passed values
+     * \param[in] val variable to be used in the operation from thie process
+     * \return the global min (same value on all processes)
+     */
+    virtual size_t min(size_t val) = 0;
+
     /*! \brief A barrier between all processes which are members of the communication collective.
      */
     virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.

@@ -49,15 +49,15 @@ struct FakeFile : public File::Interface
     void writeNs(csize_t ns_) {}
     void writeNt(csize_t nt_) {}
     void writeInc(const geom_t inc_) {}
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm) const {}
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const File::Param * prm) {}
-    void writeParam(csize_t offset, csize_t sz, const File::Param * prm) {}
-    void readParam(csize_t offset, csize_t sz, File::Param * prm) const {}
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const File::Param * prm, size_t skip) {}
+    void writeParam(csize_t offset, csize_t sz, const File::Param * prm, size_t skip) {}
+    void readParam(csize_t offset, csize_t sz, File::Param * prm, size_t skip) const {}
 
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm) const {}
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const File::Param * prm) {}
-    void readParam(csize_t sz, csize_t * offset, File::Param * prm) const {}
-    void writeParam(csize_t sz, csize_t * offset, const File::Param * prm) {}
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const File::Param * prm, size_t skip) {}
+    void readParam(csize_t sz, csize_t * offset, File::Param * prm, size_t skip) const {}
+    void writeParam(csize_t sz, csize_t * offset, const File::Param * prm, size_t skip) {}
 };
 #pragma GCC diagnostic pop
 

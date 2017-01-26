@@ -4,8 +4,8 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include <cmath>
 #include "cppfileapi.hh"
+#include "fileops.hh"   //For sort
 #include "sglobal.hh"
 #include "share/mpi.hh"
 #define ALIGN 32U
@@ -76,6 +76,7 @@ struct Coords
     geom_t * ySrc;
     geom_t * xRcv;
     geom_t * yRcv;
+    size_t * tn;
     const size_t align = ALIGN;
     size_t allocSz;
     Coords(size_t sz_) : sz(sz_)
@@ -88,6 +89,7 @@ struct Coords
         posix_memalign(reinterpret_cast<void **>(&ySrc), align, allocSz * sizeof(geom_t));
         posix_memalign(reinterpret_cast<void **>(&xRcv), align, allocSz * sizeof(geom_t));
         posix_memalign(reinterpret_cast<void **>(&yRcv), align, allocSz * sizeof(geom_t));
+        posix_memalign(reinterpret_cast<void **>(&tn), align, allocSz * sizeof(size_t));
 
         for (size_t i = 0; i < allocSz; i++)
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<float>::max();
@@ -114,10 +116,7 @@ struct Coords
  */
 void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords * coords)
 {
-    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
-    //Unfortunately shared pointers make things ugly in C++.
-    //without shared pointers it would be Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
-    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::ltn, Meta::xSrc});
     size_t lnt = coords->sz;
 
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
@@ -131,22 +130,50 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     size_t biggest = piol->comm->max(max);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
+    File::Param prm(rule, lnt);
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        File::Param prm(rule, rblock);
-        file->readParam(offset+i, rblock, &prm);
+        file->readParam(offset+i, rblock, &prm, i);
+
+        for (size_t j = 0; j < rblock; j++)
+            setPrm(i + j, Meta::ltn, offset + i + j, &prm);
+    }
+
+    //Any extra readParam calls the particular process needs
+    for (size_t i = 0; i < extra; i++)
+        file->readParam(0U, size_t(0), nullptr, 0U);
+
+//TODO: Replace with set layer call?
+
+    auto trlist = File::sort(piol, offset, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
+            {
+                return (File::getPrm<geom_t>(0U, Meta::xSrc, &e1) < File::getPrm<geom_t>(0U, Meta::xSrc, &e2) ? true :
+                        File::getPrm<llint>(0U, Meta::ltn, &e1) < File::getPrm<llint>(0U, Meta::ltn, &e2));
+            });
+
+    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
+    //Unfortunately shared pointers make things ugly in C++.
+    //without shared pointers it would be Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
+    auto crule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+
+    for (size_t i = 0; i < lnt; i += max)
+    {
+        size_t rblock = (i + max < lnt ? max : lnt - i);
+        File::Param prm(crule, rblock);
+        file->readParam(rblock, trlist.data() + i, &prm);
         for (size_t j = 0; j < rblock; j++)
         {
             coords->xSrc[i+j] = File::getPrm<geom_t>(i+j, Meta::xSrc, &prm);
             coords->ySrc[i+j] = File::getPrm<geom_t>(i+j, Meta::ySrc, &prm);
             coords->xRcv[i+j] = File::getPrm<geom_t>(i+j, Meta::xRcv, &prm);
             coords->yRcv[i+j] = File::getPrm<geom_t>(i+j, Meta::yRcv, &prm);
+            coords->tn[i+j] = trlist[i+j];
         }
     }
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
-        file->readParam(0U, size_t(0), nullptr);
+        file->readParam(0U, nullptr, nullptr, 0);
 }
 
 /*! Perform a minimisation check with the current two vectors of parameters.
@@ -175,28 +202,35 @@ void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, ve
     geom_t * rxR = other->xRcv;
     geom_t * ryR = other->yRcv;
 
+    size_t * tn = other->tn;
+
     if (Init)
+    {
         #pragma omp simd aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
-                         aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN)
+                         aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
+                         aligned(tn:ALIGN)
         for (size_t i = 0; i < sz; i++)
-        {
             minrs[i] = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
                            rxS[0], ryS[0], rxR[0], ryR[0]);
-            min[i] = offset;
-        }
-
+        std::copy(tn, tn + sz, min.begin());
+    }
 
     for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
-        #pragma omp simd aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
-                         aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN)
+    {
+        size_t lmin = min[i];   //temporary variables are improving optimisation potential
+        geom_t lminrs = minrs[i];
+        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
+                         aligned(tn:ALIGN)
         for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
             {
                 geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
                                   rxS[j], ryS[j], rxR[j], ryR[j]);
-
-                min[i] = (dval < minrs[i] ? offset + j : min[i]);   //Update min if applicable
-                minrs[i] = std::min(dval, minrs[i]);                //Update minrs if applicable
+                lmin = (dval < lminrs ? tn[j] : lmin);    //Update min if applicable
+                lminrs = std::min(dval, lminrs);            //Update minrs if applicable
             }
+        min[i] = lmin;
+        minrs[i] = lminrs;
+    }
 }
 
 //This trick is discussed here:
@@ -429,9 +463,8 @@ int main(int argc, char ** argv)
     for (size_t i = 1; i < offset.size(); i++)
         offset[i] = offset[i-1] + szall[i];
 
-    cmsg(piol, "Compute phase");
-
     recordTime(piol, "parameter", startTime);
+    cmsg(piol, "Compute phase");
 
 #ifdef RANDOM_WRITE
     srand(1337);
@@ -443,8 +476,17 @@ int main(int argc, char ** argv)
     cmsg(piol, "Round 0 of " + std::to_string(numRank-1));
     //Perform a local update of min and minrs
 
-    update<true>(offset[rank], coords1.get(), coords2.get(), min, minrs);
+
+#warning TEMPORARY!
+#warning TEMPORARY!
+#warning TEMPORARY!
+#warning TEMPORARY!
+#warning TEMPORARY!
+//    update<true>(offset[rank], coords1.get(), coords2.get(), min, minrs);
     recordTime(piol, "update 0", startTime);
+
+    auto xsmin = ppiol->comm->gather(vec<geom_t>{coords2->xSrc[0U]});
+    auto xsmax = ppiol->comm->gather(vec<geom_t>{coords2->xSrc[coords2->sz-1U]});
 
     //Perform the updates of min and minrs using data from other processes.
     for (size_t i = 1U; i < numRank; i ++)
@@ -453,42 +495,61 @@ int main(int argc, char ** argv)
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
         size_t rrank = (rank + i) % numRank;            //The rank of the right process
 
+        //Could the process on the left have data I want?
+        size_t IRcv = (xsmax[lrank] + dsrmax > xsmin[rank] && xsmin[lrank] + dsrmax < xsmax[rank]);
+        size_t ISnd = (xsmax[rank] + dsrmax > xsmin[rrank] && xsmin[rank] + dsrmax < xsmax[rrank]);
+
         startTime = MPI_Wtime();
+
         //TODO: Check if the other process has data of interest.
         auto proc = std::make_unique<Coords>(szall[lrank]);
         std::vector<MPI_Request> rmsg(4);
         std::vector<MPI_Request> smsg(4);
 
-        //Receive data from the process on the left
-        MPI_Irecv(proc->xSrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[0]);
-        MPI_Irecv(proc->ySrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[1]);
-        MPI_Irecv(proc->xRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[2]);
-        MPI_Irecv(proc->yRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[3]);
-
-        //Send data to the process on the right
-        MPI_Isend(coords2->xSrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[0]);
-        MPI_Isend(coords2->ySrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[1]);
-        MPI_Isend(coords2->xRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[2]);
-        MPI_Isend(coords2->yRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[3]);
+        if (IRcv)
+        {
+            //Receive data from the process on the left
+            MPI_Irecv(proc->xSrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[0]);
+            MPI_Irecv(proc->ySrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[1]);
+            MPI_Irecv(proc->xRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[2]);
+            MPI_Irecv(proc->yRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[3]);
+            for (size_t j = 0; j < rmsg.size(); j++)
+                assert(rmsg[0] != MPI_REQUEST_NULL);
+        }
+        if (ISnd)  //This could be done one sided in a tidier way?
+        {
+            //Send data to the process on the right
+            MPI_Isend(coords2->xSrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[0]);
+            MPI_Isend(coords2->ySrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[1]);
+            MPI_Isend(coords2->xRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[2]);
+            MPI_Isend(coords2->yRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[3]);
+            for (size_t j = 0; j < smsg.size(); j++)
+                assert(smsg[0] != MPI_REQUEST_NULL);
+        }
 
         MPI_Status stat;
-        for (size_t j = 0; j < rmsg.size(); j++)
-            assert(rmsg[0] != MPI_REQUEST_NULL);
-
-        for (size_t j = 0; j < smsg.size(); j++)
-            assert(smsg[0] != MPI_REQUEST_NULL);
-
-        for (size_t j = 0; j < rmsg.size(); j++)
-            assert(MPI_Wait(&rmsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
+        if (IRcv)
+        {
+            for (size_t j = 0; j < rmsg.size(); j++)
+                assert(MPI_Wait(&rmsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
+        }
 
         recordTime(piol, "snd/rcv " + std::to_string(i), startTime);
         startTime = MPI_Wtime();
 
-        update<false>(offset[lrank], coords1.get(), proc.get(), min, minrs);
+#warning TEMPORARY!
+#warning TEMPORARY!
+#warning TEMPORARY!
+#warning TEMPORARY!
+#warning TEMPORARY!
+//        if (IRcv)
+//            update<false>(offset[lrank], coords1.get(), proc.get(), min, minrs);
+
         recordTime(piol, "compute " + std::to_string(i), startTime);
 
-        for (size_t j = 0; j < smsg.size(); j++)
-            assert(MPI_Wait(&smsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
+        if (ISnd)
+            for (size_t j = 0; j < smsg.size(); j++)
+                assert(MPI_Wait(&smsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
 
     }
 #endif

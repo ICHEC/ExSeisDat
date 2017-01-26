@@ -94,7 +94,6 @@ class Interface
      */
     virtual void writeInc(const geom_t inc_) = 0;
 
-
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
@@ -104,7 +103,7 @@ class Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeParam(csize_t offset, csize_t sz, const Param * prm = PARAM_NULL) = 0;
+    virtual void writeParam(csize_t offset, csize_t sz, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
 
     /*! \brief Read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
@@ -112,7 +111,7 @@ class Interface
      *  \param[in] sz The number of traces to process.
      *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
      */
-    virtual void readParam(csize_t offset, csize_t sz, Param * prm  = const_cast<Param *>(PARAM_NULL)) const = 0;
+    virtual void readParam(csize_t offset, csize_t sz, Param * prm  = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -120,7 +119,7 @@ class Interface
      *  \param[out] trace The array of traces to fill from the file
      *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      */
-    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const = 0;
+    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
     /*! \brief Write the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -128,7 +127,7 @@ class Interface
      *  \param[in] trace The array of traces to write to the file
      *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL) = 0;
+    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -138,7 +137,7 @@ class Interface
      *
      *  \details When prm==PARAM_NULL only the trace DF is read.
      */
-    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const = 0;
+    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
     /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -150,14 +149,14 @@ class Interface
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL) = 0;
+    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to read.
      *  \param[out] prm A parameter structure
      */
-    virtual void readParam(csize_t sz, csize_t * offset, Param * prm) const = 0;
+    virtual void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const = 0;
 
     /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -167,7 +166,7 @@ class Interface
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeParam(csize_t sz, csize_t * offset, const Param * prm) = 0;
+    virtual void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip = 0) = 0;
 };
 }}
 #endif

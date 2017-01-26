@@ -26,7 +26,7 @@ using Compare = std::function<bool(const T &, const T &)>;
  *                  vector. It assumes each Param structure has exactly one entry.
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
  */
-std::vector<size_t> sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * prm, Compare<Param> comp);
+std::vector<size_t> sort(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp);
 
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.
