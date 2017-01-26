@@ -2,7 +2,7 @@
  *   \file
  *   \author Cathal O Broin - cathal@ichec.ie - first commit
  *   \copyright TBD. Do not distribute
- *   \date July 2016
+ *   \date January 2017
  *   \brief The File layer interface
  *   \details The File layer interface is a base class which specific File implementations
  *   work off

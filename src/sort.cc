@@ -274,10 +274,8 @@ std::vector<size_t> sort(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<
     size_t lnt = prm->size();
     size_t memSz = (prm->f.size() + prm->i.size() + prm->s.size() + prm->t.size() + sizeof(Param) + sizeof(std::pair<size_t, size_t>)) / prm->size();
     size_t regionSz = std::min(piol->comm->min(lnt) / 4U, getLimSz(memSz));
-
     size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
     std::vector<Param> vprm;
-
     for (size_t i = 0; i < lnt; i++)
     {
         vprm.emplace_back(prm->r, 1U);
@@ -295,7 +293,7 @@ std::vector<size_t> sort(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)
     {
-        plist[i].first = getPrm<llint>(0U, Meta::gtn, &vprm[i]);
+        plist[i].first = getPrm<size_t>(0U, Meta::gtn, &vprm[i]);
         plist[i].second = offset + i;
     }
 

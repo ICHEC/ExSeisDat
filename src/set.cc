@@ -358,6 +358,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                     if (f->lst[i] != NOT_IN_OUTPUT)
                         list.push_back(f->offset + i);
 
+#warning this can now be optimised with the new readParam skip parameter
                 //TODO: Do not make assumptions about Parameter sizes fitting in memory.
                 //Replace this with an extra loop over the readParam calls
                 File::Param fprm(list.size());

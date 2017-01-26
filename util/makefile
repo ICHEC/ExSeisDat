@@ -41,7 +41,7 @@ concatenate: obj/concatenate.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 segsort: obj/sort.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
-fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
+fourdbin: obj/fourdbin.cpo obj/4dio.cpo obj/4dcore.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 filemake: obj/filemake.cpo obj/sglobal.cpo
 	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)

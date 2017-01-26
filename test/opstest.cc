@@ -133,7 +133,7 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
         setPrm(i, Meta::yRcv, 1000.0 - i % 10, &prm);
         setPrm(i, Meta::gtn, i, &prm);
     }
-    auto list = sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
+    auto list = sort(piol, SortType::SrcRcv, 0, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(list.size() - i-1, list[i]) << " i " << i << " list.size()-i-1 " << list.size()-i-1  << " list[i] " << list[i];
@@ -150,7 +150,7 @@ TEST_F(OpsTest, SortSrcRcvForwards)
         setPrm(i, Meta::yRcv, 1000.0 + i % 10, &prm);
         setPrm(i, Meta::gtn, i, &prm);
     }
-    auto list = sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
+    auto list = sort(piol, SortType::SrcRcv, 0, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(i, list[i]);
@@ -177,7 +177,7 @@ TEST_F(OpsTest, SortSrcRcvRand)
     setPrm(7, Meta::xSrc, 8.0, &prm);
     setPrm(8, Meta::xSrc, 7.0, &prm);
     setPrm(9, Meta::xSrc, 0.0, &prm);
-    auto list = sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
+    auto list = sort(piol, SortType::SrcRcv, 0, &prm);
     ASSERT_EQ(5, list[0]);
     ASSERT_EQ(3, list[1]);
     ASSERT_EQ(1, list[2]);

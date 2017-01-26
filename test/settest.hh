@@ -29,15 +29,15 @@ class MockFile : public File::Interface
     MOCK_METHOD1(writeNt, void(const csize_t));
     MOCK_METHOD1(writeInc, void(const geom_t));
 
-    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t, File::Param *, csize_t));
-    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t *, File::Param *, csize_t));
-    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t, trace_t *, File::Param *, csize_t));
-    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t, File::Param *, csize_t));
+    MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
 
-    MOCK_METHOD3(writeParam, void(csize_t, csize_t, const File::Param *, csize_t));
-    MOCK_METHOD4(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *, csize_t));
-    MOCK_METHOD4(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *, csize_t));
-    MOCK_METHOD3(writeParam, void(csize_t, csize_t *, const File::Param *, csize_t));
+    MOCK_METHOD4(writeParam, void(csize_t, csize_t, const File::Param *, csize_t));
+    MOCK_METHOD5(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *, csize_t));
+    MOCK_METHOD5(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *, csize_t));
+    MOCK_METHOD4(writeParam, void(csize_t, csize_t *, const File::Param *, csize_t));
 };
 
 ACTION_P(cpyprm, src)
@@ -103,7 +103,7 @@ struct SetTest : public Test
                             setPrm(l, Meta::xl, 2000U + (dec.first + l) / (nt / 10U), tprm);
                             setPrm(l, Meta::tn, l+dec.first, tprm);
                         }
-                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _))
+                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
                                     .Times(Exactly(srtCnt))
                                     .WillRepeatedly(cpyprm(&prm.back()));
 
