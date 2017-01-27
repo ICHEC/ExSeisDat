@@ -5,7 +5,6 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-
 #include "4dio.hh"
 namespace PIOL { namespace FOURD {
 /*! Calcuate the difference criteria between source/receiver pairs between traces. For each trace in
@@ -45,6 +44,18 @@ inline geom_t dsr(geom_t xs1, geom_t ys1, geom_t xr1, geom_t yr1,
     //ds=0, dr=10
 //    return ds + dr + std::abs(ds-dr);
 }
+/*! Perform a minimisation check with the current two vectors of parameters.
+ *  \tparam Init If true, perform the initialisation sequence.
+ *  \param[in] szall A vector containing the amount of data each process has from the second input file.
+ *  \param[in] local A vector containing the process's parameter data from the first input file. This data
+ *             is never sent to any other process.
+ *  \param[in] other A vector containing the parameter data from another process.
+ *  \param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
+ *                 This vector is updated by the loop.
+ *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
+ *                 This vector is updated by the loop.
+ */
+extern void initUpdate(size_t offset, Coords * local, Coords * other, vec<size_t> & min, vec<geom_t> & minrs);
 
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  \tparam Init If true, perform the initialisation sequence.
@@ -57,49 +68,5 @@ inline geom_t dsr(geom_t xs1, geom_t ys1, geom_t xr1, geom_t yr1,
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-template <bool Init>
-void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
-{
-    size_t sz = local->sz;
-    //For the vectorisation
-    geom_t * lxS = local->xSrc;
-    geom_t * lyS = local->ySrc;
-    geom_t * lxR = local->xRcv;
-    geom_t * lyR = local->yRcv;
-
-    geom_t * rxS = other->xSrc;
-    geom_t * ryS = other->ySrc;
-    geom_t * rxR = other->xRcv;
-    geom_t * ryR = other->yRcv;
-
-    size_t * tn = other->tn;
-
-    if (Init)
-    {
-        #pragma omp simd aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
-                         aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                         aligned(tn:ALIGN)
-        for (size_t i = 0; i < sz; i++)
-            minrs[i] = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
-                           rxS[0], ryS[0], rxR[0], ryR[0]);
-        std::copy(tn, tn + sz, min.begin());
-    }
-
-    for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
-    {
-        size_t lmin = min[i];                               //temporary variables are improving optimisation potential
-        geom_t lminrs = minrs[i];
-        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                         aligned(tn:ALIGN)
-        for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
-            {
-                geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
-                                  rxS[j], ryS[j], rxR[j], ryR[j]);
-                lmin = (dval < lminrs ? tn[j] : lmin);      //Update min if applicable
-                lminrs = std::min(dval, lminrs);            //Update minrs if applicable
-            }
-        min[i] = lmin;
-        minrs[i] = lminrs;
-    }
-}
+extern void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, vec<geom_t> & minrs);
 }}

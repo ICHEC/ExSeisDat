@@ -31,6 +31,46 @@ void cmsg(ExSeisPIOL * piol, std::string msg)
 }
 }
 
+vec<MPI_Win> createCoordsWindow(Coords * coords)
+{
+    std::vector<MPI_Win> win(5);
+    //Look at MPI_Info
+    int err;
+    err = MPI_Win_create(coords->xSrc, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[0]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Win_create(coords->ySrc, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[1]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Win_create(coords->xRcv, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[2]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Win_create(coords->yRcv, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[3]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Win_create(coords->tn, coords->sz, sizeof(size_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[4]);
+    assert(err == MPI_SUCCESS);
+    return win;
+}
+
+std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win)
+{
+    auto proc = std::make_unique<Coords>(sz);
+    for (size_t i = 0; i < 5; i++)
+        MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
+    int err;
+    err = MPI_Get(proc->xSrc, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[0]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Get(proc->ySrc, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[1]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Get(proc->xRcv, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[2]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Get(proc->yRcv, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[3]);
+    assert(err == MPI_SUCCESS);
+    err = MPI_Get(proc->tn, proc->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]);
+    assert(err == MPI_SUCCESS);
+    for (size_t i = 0; i < 5; i++)
+        MPI_Win_unlock(lrank, win[i]);
+    return std::move(proc);
+}
+
+
 int main(int argc, char ** argv)
 {
     ExSeis piol;
@@ -112,89 +152,62 @@ int main(int argc, char ** argv)
 
     recordTime(piol, "parameter", startTime);
 
-#ifdef RANDOM_WRITE
-    srand(1337);
-    size_t nt = file2.readNt();
-    for (size_t i = 0; i < sz[0]; i++)
-        min[i] = ((llint(rand()) << 32) & llint(rand())) % nt;
-#else
     startTime = MPI_Wtime();
-    cmsg(piol, "Round 0 of " + std::to_string(numRank-1));
 
     auto xsmin = ppiol->comm->gather(vec<geom_t>{coords2->xSrc[0U]});
     auto xsmax = ppiol->comm->gather(vec<geom_t>{coords2->xSrc[coords2->sz-1U]});
+    auto xslmin = coords1->xSrc[0U];
+    auto xslmax = coords1->xSrc[coords1->sz-1U];
+
     //Perform a local update of min and minrs
 
-#warning It is possible that this is unnecessary
-    update<true>(offset[rank], coords1.get(), coords2.get(), min, minrs);
+    initUpdate(offset[rank], coords1.get(), coords2.get(), min, minrs);
     recordTime(piol, "update 0", startTime);
-#warning USE ONE SIDED COMMUNICATION!
+
+    auto win = createCoordsWindow(coords2.get());
+
+    std::vector<size_t> active;
+    for (size_t i = 0U; i < numRank; i++)
+    {
+        //Premature optimisation?
+        size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
+        if (xsmax[lrank] + dsrmax > xslmin && xsmin[lrank] + dsrmax < xslmax)
+            active.push_back(lrank);
+    }
+
+    ppiol->comm->barrier();
+    if (!rank)
+    {
+        for (size_t i = 0; i < numRank; i++)
+            std::cout << "c2 " << xsmin[i] << " " << xsmax[i] << std::endl;
+    }
+    for (size_t i = 0; i < numRank; i++)
+    {
+        ppiol->comm->barrier();
+        if (rank == i)
+        {
+            std::cout << "Count " << i << " " << active.size() << std::endl;
+            std::cout << "min,max " << i << " " << xslmin << " " << xslmax << std::endl;
+        }
+        ppiol->comm->barrier();
+    }
+
 
     //Perform the updates of min and minrs using data from other processes.
-    for (size_t i = 1U; i < numRank; i ++)
+    for (size_t i = 0; i < active.size(); i ++)
     {
-        cmsg(piol, "Round " + std::to_string(i) +  " of " + std::to_string(numRank));
-        size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
-        size_t rrank = (rank + i) % numRank;            //The rank of the right process
-
-        //Could the process on the left have data I want?
-        size_t IRcv = (xsmax[lrank] + dsrmax > xsmin[rank] && xsmin[lrank] + dsrmax < xsmax[rank]);
-        size_t ISnd = (xsmax[rank] + dsrmax > xsmin[rrank] && xsmin[rank] + dsrmax < xsmax[rrank]);
-
-        ppiol->comm->barrier();
-        for (size_t j = 0; j < numRank; j++)
-        {
-            if (j == rank)
-                std::cout << rank << " active: " << IRcv << " " << ISnd << std::endl;
-            ppiol->comm->barrier();
-        }
-        startTime = MPI_Wtime();
-
-        //TODO: Check if the other process has data of interest.
-        auto proc = std::make_unique<Coords>(szall[lrank]);
-        std::vector<MPI_Request> rmsg(4);
-        std::vector<MPI_Request> smsg(4);
-
-        if (IRcv)
-        {
-            //Receive data from the process on the left
-            MPI_Irecv(proc->xSrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[0]);
-            MPI_Irecv(proc->ySrc, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[1]);
-            MPI_Irecv(proc->xRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[2]);
-            MPI_Irecv(proc->yRcv, szall[lrank], MPIType<geom_t>(), lrank, lrank, MPI_COMM_WORLD, &rmsg[3]);
-            for (size_t j = 0; j < rmsg.size(); j++)
-                assert(rmsg[0] != MPI_REQUEST_NULL);
-        }
-        if (ISnd)  //This could be done one sided in a tidier way?
-        {
-            //Send data to the process on the right
-            MPI_Isend(coords2->xSrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[0]);
-            MPI_Isend(coords2->ySrc, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[1]);
-            MPI_Isend(coords2->xRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[2]);
-            MPI_Isend(coords2->yRcv, szall[rank], MPIType<geom_t>(), rrank, rank, MPI_COMM_WORLD, &smsg[3]);
-            for (size_t j = 0; j < smsg.size(); j++)
-                assert(smsg[0] != MPI_REQUEST_NULL);
-        }
-
-        MPI_Status stat;
-        if (IRcv)
-            for (size_t j = 0; j < rmsg.size(); j++)
-                assert(MPI_Wait(&rmsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
-
-        recordTime(piol, "snd/rcv " + std::to_string(i), startTime);
-        startTime = MPI_Wtime();
-
-        if (IRcv)
-            update<false>(offset[lrank], coords1.get(), proc.get(), min, minrs);
-
-        recordTime(piol, "compute " + std::to_string(i), startTime);
-
-        if (ISnd)
-            for (size_t j = 0; j < smsg.size(); j++)
-                assert(MPI_Wait(&smsg[j], &stat) == MPI_SUCCESS);         //TODO: Replace with standard approach to error handling
-
+        size_t lrank = active[i];
+        auto proc = getCoordsWin(lrank, szall[lrank], win);
+        update(offset[lrank], coords1.get(), proc.get(), min, minrs);
     }
-#endif
+
+    for (size_t i = 0; i < win.size(); i++)
+    {
+        int err = MPI_Win_free(&win[i]);
+        assert(err == MPI_SUCCESS);
+    }
+
+
     //free up some memory
     coords1.release();
     coords2.release();

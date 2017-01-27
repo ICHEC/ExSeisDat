@@ -65,8 +65,6 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
 
     cmsg(piol, "getCoords sort");
 
-#error CHANGE THIS TO RCVX
-
     auto trlist = File::sort(piol, offset, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
             {
                 return (File::getPrm<geom_t>(0U, Meta::xSrc, &e1) < File::getPrm<geom_t>(0U, Meta::xSrc, &e2) ? true :
@@ -75,7 +73,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
             });
 
     cmsg(piol, "getCoords post-sort");
-    std::cout << piol->comm->getRank() << " " << trlist.size() << " " << lnt << std::endl;
+//    std::cout << piol->comm->getRank() << " " << trlist.size() << " " << lnt << std::endl;
     piol->comm->barrier();
 
     File::Param prm2(crule, std::min(lnt, max));
@@ -87,13 +85,6 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
         auto orig = sortlist;
         for (size_t j = 0; j < sortlist.size(); j++)
             sortlist[j] = trlist[i + sortlist[j]];
-
-        if (!piol->comm->getRank())
-        {
-            std::cout << "newblock\n";
-            for (size_t j = 0; j < rblock; j++)
-                std::cout << sortlist[j] << " " << trlist[j] << " " << orig[j] << std::endl;
-        }
 
         file->readParam(rblock, sortlist.data(), &prm2);
 
