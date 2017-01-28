@@ -27,6 +27,8 @@ using Compare = std::function<bool(const T &, const T &)>;
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
  */
 std::vector<size_t> sort(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp);
+#warning TEMPORARY, this will be integrated into the above by the story end
+std::vector<size_t> sortOrder(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp);
 
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.

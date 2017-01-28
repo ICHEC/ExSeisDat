@@ -269,6 +269,42 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
  *          i.e. returns global offset positions of traces in sorted order
  */
+std::vector<size_t> sortOrder(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp)
+{
+    size_t lnt = prm->size();
+    size_t memSz = (prm->f.size() + prm->i.size() + prm->s.size() + prm->t.size() + sizeof(Param) + sizeof(std::pair<size_t, size_t>)) / prm->size();
+    size_t regionSz = std::min(piol->comm->min(lnt) / 4U, getLimSz(memSz));
+    size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
+    std::vector<Param> vprm;
+    for (size_t i = 0; i < lnt; i++)
+    {
+        vprm.emplace_back(prm->r, 1U);
+        cpyPrm(i, prm, 0, &vprm.back());
+    }
+
+    {
+        std::vector<Param> temp1; //The extra vector temp1 is needed to be larger than vprm for passing values to neighbours
+        for (size_t i = 0; i < lnt+edge2; i++)
+            temp1.emplace_back(prm->r, 1U);
+
+        sort(piol, regionSz, temp1, vprm, comp);
+    }
+
+    std::vector<size_t> list(lnt);
+    for (size_t i = 0; i < lnt; i++)
+        list[i] = getPrm<size_t>(0U, Meta::gtn, &vprm[i]);
+    return list;
+}
+
+/*! Function to sort the metadata in a Param struct. The Param vector is used internally
+ *  to allow random-access iterator support.
+ *  \param[in] piol The PIOL object.
+ *  \param[in] offset The offset for the local process
+ *  \param[in,out] prm The parameter structure to sort
+ *  \param[in] comp The Param function to use for less-than comparisons between objects in the
+ *                  vector. It assumes each Param structure has exactly one entry.
+ *  \return Return a vector which says where the nth local trace should go in the output
+ */
 std::vector<size_t> sort(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp)
 {
     size_t lnt = prm->size();

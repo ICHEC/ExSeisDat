@@ -47,7 +47,6 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     size_t biggest = piol->comm->max(max);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
-    cmsg(piol, "getCoords pre readParam");
     File::Param prm(rule, lnt);
 
     for (size_t i = 0; i < lnt; i += max)
@@ -65,7 +64,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
 
     cmsg(piol, "getCoords sort");
 
-    auto trlist = File::sort(piol, offset, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
+    auto trlist = File::sortOrder(piol, offset, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
             {
                 return (File::getPrm<geom_t>(0U, Meta::xSrc, &e1) < File::getPrm<geom_t>(0U, Meta::xSrc, &e2) ? true :
                         File::getPrm<geom_t>(0U, Meta::xSrc, &e1) == File::getPrm<geom_t>(0U, Meta::xSrc, &e2) &&
@@ -73,8 +72,6 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
             });
 
     cmsg(piol, "getCoords post-sort");
-//    std::cout << piol->comm->getRank() << " " << trlist.size() << " " << lnt << std::endl;
-    piol->comm->barrier();
 
     File::Param prm2(crule, std::min(lnt, max));
     for (size_t i = 0; i < lnt; i += max)
@@ -101,7 +98,16 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file->readParam(0U, nullptr, nullptr);
-    cmsg(piol, "getCoords done");
+
+/*    piol->comm->barrier();
+    for (size_t i = 0; i < piol->comm->getNumRank(); i++)
+    {
+        if (i == piol->comm->getRank())
+            for (size_t j = 0; j < lnt; j++)
+                std::cout << i << " " << coords->tn[j] << " " << coords->xSrc[j] << std::endl;
+        piol->comm->barrier();
+    }
+    piol->comm->barrier();*/
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?
@@ -150,6 +156,7 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
 
         File::Param sprm(rule, nodups.size());
         vec<trace_t> strc(ns * nodups.size());
+
         src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
 
         size_t n = 0;
@@ -170,7 +177,7 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
     for (size_t i = 0; i < extra; i++)
     {
         src.readTrace(0, nullptr, nullptr, nullptr);
-        dst.writeTrace(0, size_t(0), nullptr, nullptr);
+        dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 }
 

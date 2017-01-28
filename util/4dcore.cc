@@ -7,7 +7,7 @@ void initUpdate(size_t offset, Coords * local, Coords * other, vec<size_t> & min
     {
             minrs[i] = dsr(local->xSrc[i], local->ySrc[i], local->xRcv[i], local->yRcv[i],
                            other->xSrc[0], other->ySrc[0], other->xRcv[0], other->yRcv[0]);
-            other->tn[i] = offset;
+            min[i] = offset;
     }
 }
 
@@ -31,8 +31,8 @@ void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, ve
     {
         size_t lmin = min[i];                               //temporary variables are improving optimisation potential
         geom_t lminrs = minrs[i];
-        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                         aligned(tn:ALIGN)
+//        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
+                        aligned(tn:ALIGN)
         for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
             {
                 geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],

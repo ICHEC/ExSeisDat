@@ -31,6 +31,10 @@ void cmsg(ExSeisPIOL * piol, std::string msg)
 }
 }
 
+
+/*! Create windows for one-sided communication of coordinates
+ *  \param[in] coords The coordinate structure of arrays to open to RDMA.
+ */
 vec<MPI_Win> createCoordsWindow(Coords * coords)
 {
     std::vector<MPI_Win> win(5);
@@ -49,6 +53,11 @@ vec<MPI_Win> createCoordsWindow(Coords * coords)
     return win;
 }
 
+/*! One-sided retrieval from data in window on processor lrank. Processor lrank is passive.
+ *  \param[in] lrank The rank
+ *  \param[in] sz The number of coordinates
+ *  \param[in] win The vector of windows to access with.
+ */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win)
 {
     auto proc = std::make_unique<Coords>(sz);
@@ -69,7 +78,6 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
         MPI_Win_unlock(lrank, win[i]);
     return std::move(proc);
 }
-
 
 int main(int argc, char ** argv)
 {
@@ -122,8 +130,10 @@ int main(int argc, char ** argv)
     std::unique_ptr<Coords> coords2;
     size_t sz[2];
 
-    cmsg(piol, "Parameter-read phase");
-    auto startTime = MPI_Wtime();
+/*****************************************************************************/
+/***************/ cmsg(piol, "Parameter-read phase"); /***********************/
+/*****************************************************************************/
+
     //Perform the decomposition and read the coordinates of interest.
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
@@ -133,15 +143,17 @@ int main(int argc, char ** argv)
 
         coords1 = std::make_unique<Coords>(sz[0]);
         assert(coords1.get());
-        cmsg(piol, "getCoords1");
         getCoords(ppiol, file1, dec1.first, coords1.get());
 
         sz[1] = dec2.second;
-        cmsg(piol, "getCoords2");
         coords2 = std::make_unique<Coords>(sz[1]);
         getCoords(ppiol, file2, dec2.first, coords2.get());
     }
 
+
+/*****************************************************************************/
+/********************/ cmsg(piol, "Compute phase"); /*************************/
+/*****************************************************************************/
     vec<size_t> min(sz[0]);
     vec<geom_t> minrs(sz[0]);
 
@@ -150,19 +162,18 @@ int main(int argc, char ** argv)
     for (size_t i = 1; i < offset.size(); i++)
         offset[i] = offset[i-1] + szall[i];
 
-    recordTime(piol, "parameter", startTime);
-
-    startTime = MPI_Wtime();
-
+    //The File2 min/max from every process
     auto xsmin = ppiol->comm->gather(vec<geom_t>{coords2->xSrc[0U]});
     auto xsmax = ppiol->comm->gather(vec<geom_t>{coords2->xSrc[coords2->sz-1U]});
+
+    //The File1 local min and local maximum for the particular process
     auto xslmin = coords1->xSrc[0U];
     auto xslmax = coords1->xSrc[coords1->sz-1U];
 
     //Perform a local update of min and minrs
 
     initUpdate(offset[rank], coords1.get(), coords2.get(), min, minrs);
-    recordTime(piol, "update 0", startTime);
+    //recordTime(piol, "update 0", startTime);
 
     auto win = createCoordsWindow(coords2.get());
 
@@ -171,15 +182,16 @@ int main(int argc, char ** argv)
     {
         //Premature optimisation?
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
-        if (xsmax[lrank] + dsrmax > xslmin && xsmin[lrank] + dsrmax < xslmax)
+        if (xsmax[lrank] + dsrmax > xslmin || xsmin[lrank] + dsrmax < xslmax)
             active.push_back(lrank);
     }
 
+#warning This is for debug purposes only
     ppiol->comm->barrier();
     if (!rank)
     {
         for (size_t i = 0; i < numRank; i++)
-            std::cout << "c2 " << xsmin[i] << " " << xsmax[i] << std::endl;
+            std::cout << "minmax " << i << " " << xsmin[i] << " " << xsmax[i] << std::endl;
     }
     for (size_t i = 0; i < numRank; i++)
     {
@@ -187,13 +199,15 @@ int main(int argc, char ** argv)
         if (rank == i)
         {
             std::cout << "Count " << i << " " << active.size() << std::endl;
+            for (size_t j = 0; j < active.size(); j++)
+                std::cout << "\t active " << active[j] << std::endl;
             std::cout << "min,max " << i << " " << xslmin << " " << xslmax << std::endl;
         }
         ppiol->comm->barrier();
     }
 
-
     //Perform the updates of min and minrs using data from other processes.
+    //This is the main loop.
     for (size_t i = 0; i < active.size(); i ++)
     {
         size_t lrank = active[i];
@@ -207,50 +221,51 @@ int main(int argc, char ** argv)
         assert(err == MPI_SUCCESS);
     }
 
+    cmsg(piol, "Final list pass");
+//Weed out traces that have a match thatt is too far away
+
+    vec<size_t> list1(sz[0]);
+    vec<size_t> list2(sz[0]);
+    vec<geom_t> lminrs(sz[0]);
+    size_t cnt = 0U;
+    for (size_t i = 0U; i < sz[0]; i++)
+        if (minrs[i] <= dsrmax)
+        {
+            list2[cnt] = min[i];
+            lminrs[cnt] = minrs[i];
+            list1[cnt++] = coords1->tn[i];
+        }
+
+    list1.resize(cnt);
+    list2.resize(cnt);
+    lminrs.resize(cnt);
 
     //free up some memory
     coords1.release();
     coords2.release();
 
-    size_t cnt = 0U;
-    vec<size_t> list1(sz[0]);
-    vec<size_t> list2(sz[0]);
-    cmsg(piol, "Final list pass");
-
-//Weed out traces that have a match thatt is too far away
-    for (size_t i = 0U; i < sz[0]; i++)
-    {
-        if (minrs[i] <= dsrmax)
-        {
-            list2[cnt] = min[i];
-            list1[cnt++] = i;
-        }
-    }
-    list1.resize(cnt);
-    list2.resize(cnt);
-
     //Enable as many of the parameters as possible
     auto rule = std::make_shared<Rule>(true, true, true);
     rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
 
-    cmsg(piol, "Output phase");
+/*****************************************************************************/
+/********************/ cmsg(piol, "Output phase"); /**************************/
+/*****************************************************************************/
 
-    auto outTime = MPI_Wtime();
-
-    startTime = MPI_Wtime();
     //Open and write out file1 --> file3
     File::Direct file3(piol, name3, FileMode::Write);
 
-    select(piol, rule, file3, file1, list1, minrs);
+    cmsg(piol, "Output1");
+    //select(piol, rule, file3, file1, list1, minrs);
+    #warning the wrong but safer function
+    selectDupe(piol, rule, file3, file1, list1, lminrs);
 
-    recordTime(piol, "First output", startTime);
-    startTime = MPI_Wtime();
     //Open and write out file2 --> file4
     //This case is more complicated because the list is unordered and there  can be duplicate entries
     //in the list.
+    cmsg(piol, "Output2");
     File::Direct file4(piol, name4, FileMode::Write);
-    selectDupe(piol, rule, file4, file2, list2, minrs);
+    selectDupe(piol, rule, file4, file2, list2, lminrs);
 
-    recordTime(piol, "Second output", startTime);
     return 0;
 }

@@ -367,6 +367,8 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 
 void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_t skip)
 {
+    if (prm == nullptr)
+        return;
     auto r = prm->r;
     size_t start = r->start;
     for (size_t i = 0; i < sz; i++)
@@ -422,6 +424,8 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
 
 void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size_t skip)
 {
+    if (prm == nullptr)
+        return;
     Rule * r = prm->r.get();
     for (size_t i = 0; i < sz; i++)
     {
