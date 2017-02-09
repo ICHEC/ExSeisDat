@@ -34,7 +34,7 @@ struct Coords
         posix_memalign(reinterpret_cast<void **>(&yRcv), align, allocSz * sizeof(geom_t));
         posix_memalign(reinterpret_cast<void **>(&tn), align, allocSz * sizeof(size_t));
         for (size_t i = 0; i < allocSz; i++)
-            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<float>::max();
+            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<geom_t>::max();
     }
 
     ~Coords(void)
