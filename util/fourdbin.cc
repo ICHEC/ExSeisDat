@@ -200,17 +200,11 @@ int main(int argc, char ** argv)
 
     auto win = createCoordsWindow(coords2.get());
 
-
     //This for loop determines the processes the local process will need to be communicating with.
     std::vector<size_t> active;
     for (size_t i = 0U; i < numRank; i++)
-    {
-        //Premature optimisation?
-        size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
-        if ((xsmax[lrank] + dsrmax >= xslmax && xsmin[lrank] - dsrmax <= xslmax) ||
-            (xsmax[lrank] - dsrmax <= xslmax && xsmax[lrank] + dsrmax >= xslmin))
-            active.push_back(lrank);
-    }
+        if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
+            active.push_back(i);
 
     std::string name = "temp" + std::to_string(rank);
     FILE * fOut = fopen(name.c_str(), "w+");

@@ -157,6 +157,7 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
         File::Param sprm(rule, nodups.size());
         vec<trace_t> strc(ns * nodups.size());
 
+        cmsg(piol, "readTrace " + std::to_string(i));
         src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
 
         size_t n = 0;
@@ -171,12 +172,15 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
                 trc[j*ns + k] = strc[idx[n]*ns + k];
         }
 
+        cmsg(piol, "writeTrace " + std::to_string(i));
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }
 
     for (size_t i = 0; i < extra; i++)
     {
+        cmsg(piol, "readTrace " + std::to_string(i));
         src.readTrace(0, nullptr, nullptr, nullptr);
+        cmsg(piol, "writeTrace " + std::to_string(i));
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 }

@@ -33,7 +33,7 @@ void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, ve
         geom_t lminrs = minrs[i];
 
         #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                        aligned(tn:ALIGN) reduction(min:lmin, lminrs)
+                         aligned(tn:ALIGN) reduction(min:lmin, lminrs)
         for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
             {
                 geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],

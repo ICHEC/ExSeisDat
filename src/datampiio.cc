@@ -14,6 +14,9 @@
 #include "anc/mpi.hh"
 #include "share/mpi.hh"
 
+#warning include iostream
+#include <iostream>
+
 namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////       Non-Class       ///////////////////////////////////////////////
@@ -375,30 +378,62 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
 #warning More accurately determine a real limit for setting a view.
-    size_t max = maxSize / (bsz ? bsz * 2U : 1U);
-
-    size_t remCall = 0;
+#warning Is the problem strides that are too big?
+    if (offset[sz-1]+bsz-offset[0] < maxSize)
     {
-        auto vec = piol->comm->gather(std::vector<size_t>{sz});
-        remCall = *std::max_element(vec.begin(), vec.end());
-        remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
-    }
-
-    int err = MPI_SUCCESS;
-    MPI_Status stat;
-    for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += max)
-    {
-        size_t chunk = std::min(sz - i, max);
-        err = iol(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
-        printErr(log, name, Log::Layer::Data, err, &stat, msg);
-    }
-
-    if (remCall)
-        for (size_t i = 0; i < remCall; i++)
+        size_t max = maxSize / (bsz ? bsz * 2U : 1U);
+        size_t remCall = 0;
         {
-            err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
+            auto vec = piol->comm->gather(std::vector<size_t>{sz});
+            remCall = *std::max_element(vec.begin(), vec.end());
+            remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
+        }
+
+        int err = MPI_SUCCESS;
+        MPI_Status stat;
+        for (size_t i = 0; i < sz && err == MPI_SUCCESS; i += max)
+        {
+            size_t chunk = std::min(sz - i, max);
+            err = iol(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
             printErr(log, name, Log::Layer::Data, err, &stat, msg);
         }
+
+        if (remCall)
+            for (size_t i = 0; i < remCall; i++)
+            {
+                err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
+                printErr(log, name, Log::Layer::Data, err, &stat, msg);
+            }
+    }
+    else
+    {
+#warning For test purposes
+        std::vector<size_t> num;
+        if (sz)
+            num.push_back(0);
+        for (size_t i = 1; i < sz; i++)
+            if (offset[i] + bsz - offset[num.back()] >= maxSize)
+                num.push_back(i);
+
+        auto vec = piol->comm->gather(std::vector<size_t>{num.size()});
+        size_t remCall = *std::max_element(vec.begin(), vec.end()) - num.size();
+        std::cout << piol->comm->getRank() << " " << num.size() << " " << remCall << std::endl;
+
+        int err = MPI_SUCCESS;
+        MPI_Status stat;
+        for (size_t i = 0; i < num.size()-1 && err == MPI_SUCCESS; i++)
+        {
+            err = iol(fn, file, info, bsz, num[i+1] - num[i], reinterpret_cast<const MPI_Aint *>(&offset[num[i]]), &d[num[i]*bsz], &stat);
+            printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        }
+
+        if (remCall)
+            for (size_t i = 0; i < remCall; i++)
+            {
+                err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
+                printErr(log, name, Log::Layer::Data, err, &stat, msg);
+            }
+    }
 }
 
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
