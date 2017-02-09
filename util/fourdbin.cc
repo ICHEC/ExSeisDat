@@ -5,6 +5,9 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#warning temp
+#include <stdio.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <cmath>
@@ -89,29 +92,6 @@ void printxSrcMinMax(ExSeisPIOL * piol, vec<geom_t> & xsmin, vec<geom_t> & xsmax
     piol->comm->barrier();
 }
 
-void printActivePairs(ExSeisPIOL * piol, geom_t xslmin, geom_t xslmax, vec<size_t> & active)
-{
-    piol->comm->barrier();
-    size_t rank = piol->comm->getRank();
-    size_t numRank = piol->comm->getNumRank();
-    for (size_t i = 0; i < numRank; i++)
-    {
-        if (rank == i)
-            std::cout << i << " min,max = " << xslmin << " " << xslmax << std::endl;
-        piol->comm->barrier();
-    }
-    for (size_t i = 0; i < numRank; i++)
-    {
-        if (rank == i)
-        {
-            std::cout << i << " Count " << active.size() << std::endl;
-            for (size_t j = 0; j < active.size(); j++)
-                std::cout << "\t active " << active[j] << std::endl;
-        }
-        piol->comm->barrier();
-    }
-}
-
 int main(int argc, char ** argv)
 {
     ExSeis piol;
@@ -146,6 +126,7 @@ int main(int argc, char ** argv)
             break;
             case 'v' :
                 verbose = true;
+                cmsg(piol, "Verbose mode enabled");
             break;
             default :
                 std::cerr<< "One of the command line arguments is invalid\n";
@@ -171,6 +152,8 @@ int main(int argc, char ** argv)
 /*****************************************************************************/
 
     //Perform the decomposition and read the coordinates of interest.
+    auto time = MPI_Wtime();
+
     {
         auto dec1 = decompose(file1.readNt(), numRank, rank);
         auto dec2 = decompose(file2.readNt(), numRank, rank);
@@ -181,13 +164,14 @@ int main(int argc, char ** argv)
         assert(coords1.get());
         getCoords(ppiol, file1, dec1.first, coords1.get());
 
-        cmsg(piol, "Read " + std::to_string(sz[0]) + " sets of coordinates from file " + name1);
+        cmsg(piol, "Read sets of coordinates from file " + name1 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
+        time = MPI_Wtime();
 
         sz[1] = dec2.second;
         coords2 = std::make_unique<Coords>(sz[1]);
         getCoords(ppiol, file2, dec2.first, coords2.get());
 
-        cmsg(piol, "Read " + std::to_string(sz[1]) + " sets of coordinates from file " + name2);
+        cmsg(piol, "Read sets of coordinates from file " + name2 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
     }
 
 /*****************************************************************************/
@@ -216,67 +200,97 @@ int main(int argc, char ** argv)
 
     auto win = createCoordsWindow(coords2.get());
 
+
+    //This for loop determines the processes the local process will need to be communicating with.
     std::vector<size_t> active;
     for (size_t i = 0U; i < numRank; i++)
     {
         //Premature optimisation?
         size_t lrank = (rank + numRank - i) % numRank;  //The rank of the left process
-        if (xsmax[lrank] + dsrmax > xslmin || xsmin[lrank] + dsrmax < xslmax)
+        if ((xsmax[lrank] + dsrmax >= xslmax && xsmin[lrank] - dsrmax <= xslmax) ||
+            (xsmax[lrank] - dsrmax <= xslmax && xsmax[lrank] + dsrmax >= xslmin))
             active.push_back(lrank);
     }
 
+    std::string name = "temp" + std::to_string(rank);
+    FILE * fOut = fopen(name.c_str(), "w+");
+    fprintf(fOut, "1-xsmin/max %f %f\n", xslmin, xslmax);
+    fprintf(fOut, "2-xsmin/max %f %f\n", xsmin[rank], xsmax[rank]);
+    for (size_t i = 0; i < active.size(); i++)
+        fprintf(fOut, "%zu\n", active[i]);
+    fclose(fOut);
+
     if (verbose)
     {
+        auto lxsmin = ppiol->comm->gather(vec<geom_t>{xslmin});
+        auto lxsmax = ppiol->comm->gather(vec<geom_t>{xslmax});
+
+        printxSrcMinMax(piol, lxsmin, lxsmax);
+        if (!rank)
+            std::cout << "file2 min/max\n";
         printxSrcMinMax(piol, xsmin, xsmax);
-        printActivePairs(piol, xslmin, xslmax, active);
     }
+    time = MPI_Wtime();
 
     //Perform the updates of min and minrs using data from other processes.
     //This is the main loop.
     for (size_t i = 0; i < active.size(); i ++)
     {
+        auto ltime = MPI_Wtime();
         size_t lrank = active[i];
-
         if (verbose)
-            for (size_t j = 0; j < numRank; j++)
+        {
+            ppiol->comm->barrier();
+            auto gather = ppiol->comm->gather(vec<size_t>{lrank + 1});
+            if (!rank)
             {
-                ppiol->comm->barrier();
-                if (j == rank)
-                    std::cout << j << " active " << lrank << std::endl;
-                ppiol->comm->barrier();
+                std::cout << std::endl << std::endl;
+                for (size_t j = 0; j < gather.size(); j++)
+                {
+                    if (gather[j])
+                        std::cout << "rank " << j << " active " << gather[j]-1 << std::endl;
+                    else
+                        std::cout << "rank " << j << " inactive " << std::endl;
+                }
             }
+            ppiol->comm->barrier();
+        }
 
         auto proc = getCoordsWin(lrank, szall[lrank], win);
 
         if (verbose)
-            for (size_t j = 0; j < numRank; j++)
-            {
-                ppiol->comm->barrier();
-                if (j == rank)
-                    std::cout << j << " active update " << lrank << std::endl;
-                ppiol->comm->barrier();
-            }
+        {
+            ppiol->comm->barrier();
+            auto gather = ppiol->comm->gather(vec<size_t>{lrank + 1});
+            if (!rank)
+                for (size_t j = 0; j < gather.size(); j++)
+                {
+                    if (gather[j])
+                        std::cout << "rank " << j << " active update " << gather[j]-1 << std::endl;
+                    else
+                        std::cout << "rank " << j << " inactive update " << std::endl;
+                }
+            ppiol->comm->barrier();
+        }
 
         update(offset[lrank], coords1.get(), proc.get(), min, minrs);
+        cmsg(piol, std::to_string(i)  + " loop time " + std::to_string(MPI_Wtime()- ltime) + " seconds");
     }
 
     if (verbose)
     for (size_t i = active.size(); i < numRank; i++)
     {
-        for (size_t j = 0; j < numRank; j++)
+        auto ltime = MPI_Wtime();
+        if (verbose)
         {
             ppiol->comm->barrier();
-            if (j == rank)
-                std::cout << j << " inactive " << std::endl;
+            ppiol->comm->gather(vec<size_t>{0U});
+            ppiol->comm->barrier();
+            ppiol->comm->barrier();
+            ppiol->comm->gather(vec<size_t>{0U});
             ppiol->comm->barrier();
         }
-        for (size_t j = 0; j < numRank; j++)
-        {
-            ppiol->comm->barrier();
-            if (j == rank)
-                std::cout << j << " inactive update" << std::endl;
-            ppiol->comm->barrier();
-        }
+        cmsg(piol, std::to_string(i)  + " loop time " + std::to_string(MPI_Wtime()- ltime) + " seconds");
     }
 
     for (size_t i = 0; i < win.size(); i++)
@@ -285,6 +299,7 @@ int main(int argc, char ** argv)
         assert(err == MPI_SUCCESS);
     }
 
+    cmsg(piol, "Compute phase in " + std::to_string(MPI_Wtime()- time) + " seconds");
     cmsg(piol, "Final list pass");
 //Weed out traces that have a match that is too far away
 
@@ -316,20 +331,23 @@ int main(int argc, char ** argv)
 /********************/ cmsg(piol, "Output phase"); /**************************/
 /*****************************************************************************/
 
+    time = MPI_Wtime();
     //Open and write out file1 --> file3
     File::Direct file3(piol, name3, FileMode::Write);
 
-    cmsg(piol, "Output1");
+    cmsg(piol, "Output 3");
     //select(piol, rule, file3, file1, list1, minrs);
     #warning the wrong but safer function
     selectDupe(piol, rule, file3, file1, list1, lminrs);
 
+    cmsg(piol, "Output 3 in " + std::to_string(MPI_Wtime()- time) + " seconds");
+    time = MPI_Wtime();
     //Open and write out file2 --> file4
     //This case is more complicated because the list is unordered and there can be duplicate entries
     //in the list.
-    cmsg(piol, "Output2");
     File::Direct file4(piol, name4, FileMode::Write);
     selectDupe(piol, rule, file4, file2, list2, lminrs);
+    cmsg(piol, "Output 4 in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
     return 0;
 }

@@ -307,9 +307,13 @@ TEST_F(FileSEGYWrite, FileWriteParamOne)
 
 TEST_F(FileSEGYWrite, FileWriteParamBigOffset)
 {
+#ifdef NT_LIMITS
     nt = NT_LIMITS-1;
+#else
+    nt = 10000000U;
+#endif
     makeMockSEGY<true>();
-    writeTraceHeaderTest(NT_LIMITS-2, 1);
+    writeTraceHeaderTest(nt-1, 1);
 }
 
 //Akward to fit this into the current functions

@@ -217,7 +217,6 @@ void select(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & 
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-
         src.readTrace(rblock, &list[i], trc.data(), &prm);
         for (size_t j = 0; j < rblock; j++)
             setPrm(j, Meta::dsdr, minrs[j], &prm);
