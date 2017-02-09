@@ -79,16 +79,49 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
     return std::move(proc);
 }
 
+void printxSrcMinMax(ExSeisPIOL * piol, vec<geom_t> & xsmin, vec<geom_t> & xsmax)
+{
+    piol->comm->barrier();
+    assert(xsmin.size() == xsmax.size());
+    if (!piol->comm->getRank())
+        for (size_t i = 0; i < xsmin.size(); i++)
+            std::cout << "minmax " << i << " " << xsmin[i] << " " << xsmax[i] << std::endl;
+    piol->comm->barrier();
+}
+
+void printActivePairs(ExSeisPIOL * piol, geom_t xslmin, geom_t xslmax, vec<size_t> & active)
+{
+    piol->comm->barrier();
+    size_t rank = piol->comm->getRank();
+    size_t numRank = piol->comm->getNumRank();
+    for (size_t i = 0; i < numRank; i++)
+    {
+        if (rank == i)
+            std::cout << i << " min,max = " << xslmin << " " << xslmax << std::endl;
+        piol->comm->barrier();
+    }
+    for (size_t i = 0; i < numRank; i++)
+    {
+        if (rank == i)
+        {
+            std::cout << i << " Count " << active.size() << std::endl;
+            for (size_t j = 0; j < active.size(); j++)
+                std::cout << "\t active " << active[j] << std::endl;
+        }
+        piol->comm->barrier();
+    }
+}
+
 int main(int argc, char ** argv)
 {
     ExSeis piol;
     ExSeisPIOL * ppiol = piol;
     geom_t dsrmax = 0.5;            //Default dsdr criteria
-
+    bool verbose = false;
 /**********************************************************************************************************
  *******************  Reading options from the command line *********************************************** 
  **********************************************************************************************************/
-    std::string opt = "a:b:c:d:t:";  //TODO: uses a GNU extension
+    std::string opt = "a:b:c:d:t:v";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
     std::string name3 = "";
@@ -110,6 +143,9 @@ int main(int argc, char ** argv)
             break;
             case 't' :
                 dsrmax = std::stod(optarg);
+            break;
+            case 'v' :
+                verbose = true;
             break;
             default :
                 std::cerr<< "One of the command line arguments is invalid\n";
@@ -145,11 +181,14 @@ int main(int argc, char ** argv)
         assert(coords1.get());
         getCoords(ppiol, file1, dec1.first, coords1.get());
 
+        cmsg(piol, "Read " + std::to_string(sz[0]) + " sets of coordinates from file " + name1);
+
         sz[1] = dec2.second;
         coords2 = std::make_unique<Coords>(sz[1]);
         getCoords(ppiol, file2, dec2.first, coords2.get());
-    }
 
+        cmsg(piol, "Read " + std::to_string(sz[1]) + " sets of coordinates from file " + name2);
+    }
 
 /*****************************************************************************/
 /********************/ cmsg(piol, "Compute phase"); /*************************/
@@ -186,24 +225,10 @@ int main(int argc, char ** argv)
             active.push_back(lrank);
     }
 
-#warning This is for debug purposes only
-    ppiol->comm->barrier();
-    if (!rank)
+    if (verbose)
     {
-        for (size_t i = 0; i < numRank; i++)
-            std::cout << "minmax " << i << " " << xsmin[i] << " " << xsmax[i] << std::endl;
-    }
-    for (size_t i = 0; i < numRank; i++)
-    {
-        ppiol->comm->barrier();
-        if (rank == i)
-        {
-            std::cout << "Count " << i << " " << active.size() << std::endl;
-            for (size_t j = 0; j < active.size(); j++)
-                std::cout << "\t active " << active[j] << std::endl;
-            std::cout << "min,max " << i << " " << xslmin << " " << xslmax << std::endl;
-        }
-        ppiol->comm->barrier();
+        printxSrcMinMax(piol, xsmin, xsmax);
+        printActivePairs(piol, xslmin, xslmax, active);
     }
 
     //Perform the updates of min and minrs using data from other processes.
@@ -211,8 +236,47 @@ int main(int argc, char ** argv)
     for (size_t i = 0; i < active.size(); i ++)
     {
         size_t lrank = active[i];
+
+        if (verbose)
+            for (size_t j = 0; j < numRank; j++)
+            {
+                ppiol->comm->barrier();
+                if (j == rank)
+                    std::cout << j << " active " << lrank << std::endl;
+                ppiol->comm->barrier();
+            }
+
         auto proc = getCoordsWin(lrank, szall[lrank], win);
+
+        if (verbose)
+            for (size_t j = 0; j < numRank; j++)
+            {
+                ppiol->comm->barrier();
+                if (j == rank)
+                    std::cout << j << " active update " << lrank << std::endl;
+                ppiol->comm->barrier();
+            }
+
         update(offset[lrank], coords1.get(), proc.get(), min, minrs);
+    }
+
+    if (verbose)
+    for (size_t i = active.size(); i < numRank; i++)
+    {
+        for (size_t j = 0; j < numRank; j++)
+        {
+            ppiol->comm->barrier();
+            if (j == rank)
+                std::cout << j << " inactive " << std::endl;
+            ppiol->comm->barrier();
+        }
+        for (size_t j = 0; j < numRank; j++)
+        {
+            ppiol->comm->barrier();
+            if (j == rank)
+                std::cout << j << " inactive update" << std::endl;
+            ppiol->comm->barrier();
+        }
     }
 
     for (size_t i = 0; i < win.size(); i++)
@@ -222,7 +286,7 @@ int main(int argc, char ** argv)
     }
 
     cmsg(piol, "Final list pass");
-//Weed out traces that have a match thatt is too far away
+//Weed out traces that have a match that is too far away
 
     vec<size_t> list1(sz[0]);
     vec<size_t> list2(sz[0]);
@@ -261,7 +325,7 @@ int main(int argc, char ** argv)
     selectDupe(piol, rule, file3, file1, list1, lminrs);
 
     //Open and write out file2 --> file4
-    //This case is more complicated because the list is unordered and there  can be duplicate entries
+    //This case is more complicated because the list is unordered and there can be duplicate entries
     //in the list.
     cmsg(piol, "Output2");
     File::Direct file4(piol, name4, FileMode::Write);

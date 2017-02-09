@@ -11,24 +11,6 @@ void initUpdate(size_t offset, Coords * local, Coords * other, vec<size_t> & min
     }
 }
 
-struct _TempPair
-{
-    geom_t rs;
-    size_t tn;
-    _TempPair(geom_t rs_, size_t tn_) : rs(rs_), tn(tn_)
-    {
-    }
-    bool operator <(const _TempPair & p) const
-    {
-        return (p.rs < rs || (p.rs == rs && p.tn < tn));
-    }
-    void operator =(const _TempPair & p)
-    {
-        rs = p.rs;
-        tn = p.tn;
-    }
-};
-
 void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
 {
     size_t sz = local->sz;
@@ -47,11 +29,11 @@ void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, ve
 
     for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
     {
-//        size_t lmin = min[i];                               //temporary variables are improving optimisation potential
-//        geom_t lminrs = minrs[i];
+        size_t lmin = min[i];                               //temporary variables are improving optimisation potential
+        geom_t lminrs = minrs[i];
 
-/*        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                        aligned(tn:ALIGN) reduction(min, lmin)
+        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
+                        aligned(tn:ALIGN) reduction(min:lmin, lminrs)
         for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
             {
                 geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
@@ -61,25 +43,6 @@ void update(size_t offset, Coords * local, Coords * other, vec<size_t> & min, ve
             }
         min[i] = lmin;
         minrs[i] = lminrs;
-*/
-        _TempPair lm(minrs[i], min[i]);
-
-        #pragma omp declare reduction(minpair : _TempPair : \
-        omp_out = omp_in < omp_out ? omp_in : omp_out \
-        initializer (omp_priv=_TempPair(std::numeric_limits<geom_t>::max(), 0U))
-
-        #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                        aligned(tn:ALIGN) reduction(minpair:lm)
-        for (size_t j = 0U; j < other->allocSz; j++)        //loop through a multiple of the alignment
-            {
-                geom_t dval = dsr(lxS[i], lyS[i], lxR[i], lyR[i],
-                                  rxS[j], ryS[j], rxR[j], ryR[j]);
-                _TempPair tmp(dval, tn[j]);
-                lm = (lm < tmp ? lm : tmp);
-                //lm = std::min(lm, tmp);
-            }
-        min[i] = lm.tn;
-        minrs[i] = lm.rs;
     }
 }
 }}
