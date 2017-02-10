@@ -391,13 +391,12 @@ void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm)
     }
     std::vector<uchar> buf(SEGSz::getMDSz() * sz);
 
-    if (prm != nullptr && sz)
+    if (prm != nullptr)
         insertParam(sz, prm, buf.data(), 0U);
 
     obj->writeDOMD(ns, sz, offset, buf.data());
 
     state.stalent = true;
-    if (sz)
-        nt = std::max(offset[sz-1]+1U, nt);
+    nt = std::max(offset[sz-1]+1U, nt);
 }
 }}
