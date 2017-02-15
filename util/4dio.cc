@@ -103,16 +103,6 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file->readParam(0U, nullptr, nullptr);
-
-    piol->comm->barrier();
-    for (size_t i = 0; i < piol->comm->getNumRank(); i++)
-    {
-        if (i == piol->comm->getRank())
-            for (size_t j = 0; j < lnt; j++)
-                std::cout << i << " " << coords->tn[j] << " " << coords->xSrc[j] << std::endl;
-        piol->comm->barrier();
-    }
-    piol->comm->barrier();
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?
@@ -165,6 +155,7 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
         cmsg(piol, "readTrace " + std::to_string(i));
         src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
 
+        cmsg(piol, "TEST " + std::to_string(i));
         size_t n = 0;
         for (size_t j = 0; j < rblock; j++)
         {
@@ -183,9 +174,10 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
 
     for (size_t i = 0; i < extra; i++)
     {
-        cmsg(piol, "readTrace " + std::to_string(i));
+        cmsg(piol, "no readTrace " + std::to_string(i));
         src.readTrace(0, nullptr, nullptr, nullptr);
-        cmsg(piol, "writeTrace " + std::to_string(i));
+        cmsg(piol, "NTEST " + std::to_string(i));
+        cmsg(piol, "no writeTrace " + std::to_string(i));
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 }
