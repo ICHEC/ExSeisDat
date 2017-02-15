@@ -14,7 +14,7 @@ while read -r NODES ; do
     else
         qsub -v NODES=$NODES -l nodes=$NODES:ppn=24,walltime=0:02:00:00 runtest.pbs
     fi
-} # < /dev/null
+}
 done < <(ls temp/* | cut -d "_" -f 3 | cut -d "." -f 1 | sort -u)
 
 if [ $PIOL_SYSTEM == "Tullow" ]; then

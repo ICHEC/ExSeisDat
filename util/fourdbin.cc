@@ -60,26 +60,27 @@ vec<MPI_Win> createCoordsWindow(Coords * coords)
  *  \param[in] lrank The rank
  *  \param[in] sz The number of coordinates
  *  \param[in] win The vector of windows to access with.
+ *  \return Return the associated Coords structure
  */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win)
 {
-    auto proc = std::make_unique<Coords>(sz);
+    auto coords = std::make_unique<Coords>(sz);
     for (size_t i = 0; i < 5; i++)
         MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
     int err;
-    err = MPI_Get(proc->xSrc, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[0]);
+    err = MPI_Get(coords->xSrc, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[0]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(proc->ySrc, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[1]);
+    err = MPI_Get(coords->ySrc, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[1]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(proc->xRcv, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[2]);
+    err = MPI_Get(coords->xRcv, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[2]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(proc->yRcv, proc->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[3]);
+    err = MPI_Get(coords->yRcv, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[3]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(proc->tn, proc->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]);
+    err = MPI_Get(coords->tn, coords->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]);
     assert(err == MPI_SUCCESS);
     for (size_t i = 0; i < 5; i++)
         MPI_Win_unlock(lrank, win[i]);
-    return std::move(proc);
+    return std::move(coords);
 }
 
 void printxSrcMinMax(ExSeisPIOL * piol, vec<geom_t> & xsmin, vec<geom_t> & xsmax)
@@ -159,7 +160,9 @@ int main(int argc, char ** argv)
         auto dec2 = decompose(file2.readNt(), numRank, rank);
 
         sz[0] = dec1.second;
+        sz[1] = dec2.second;
 
+#ifndef HACK
         coords1 = std::make_unique<Coords>(sz[0]);
         assert(coords1.get());
         getCoords(ppiol, file1, dec1.first, coords1.get());
@@ -167,13 +170,13 @@ int main(int argc, char ** argv)
         cmsg(piol, "Read sets of coordinates from file " + name1 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
         time = MPI_Wtime();
 
-        sz[1] = dec2.second;
         coords2 = std::make_unique<Coords>(sz[1]);
         getCoords(ppiol, file2, dec2.first, coords2.get());
 
         cmsg(piol, "Read sets of coordinates from file " + name2 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
+#endif
     }
-
+#ifndef HACK
 /*****************************************************************************/
 /********************/ cmsg(piol, "Compute phase"); /*************************/
 /*****************************************************************************/
@@ -193,12 +196,9 @@ int main(int argc, char ** argv)
     auto xslmin = coords1->xSrc[0U];
     auto xslmax = coords1->xSrc[coords1->sz-1U];
 
-    //Perform a local update of min and minrs
-
+    //Perform a local initialisation update of min and minrs
     initUpdate(offset[rank], coords1.get(), coords2.get(), min, minrs);
     //recordTime(piol, "update 0", startTime);
-
-    auto win = createCoordsWindow(coords2.get());
 
     //This for loop determines the processes the local process will need to be communicating with.
     std::vector<size_t> active;
@@ -206,16 +206,16 @@ int main(int argc, char ** argv)
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
             active.push_back(i);
 
-    std::string name = "temp" + std::to_string(rank);
-    FILE * fOut = fopen(name.c_str(), "w+");
-    fprintf(fOut, "1-xsmin/max %f %f\n", xslmin, xslmax);
-    fprintf(fOut, "2-xsmin/max %f %f\n", xsmin[rank], xsmax[rank]);
-    for (size_t i = 0; i < active.size(); i++)
-        fprintf(fOut, "%zu\n", active[i]);
-    fclose(fOut);
-
     if (verbose)
     {
+        std::string name = "tmp/temp" + std::to_string(rank);
+        FILE * fOut = fopen(name.c_str(), "w+");
+        fprintf(fOut, "1-xsmin/max %f %f\n", xslmin, xslmax);
+        fprintf(fOut, "2-xsmin/max %f %f\n", xsmin[rank], xsmax[rank]);
+        for (size_t i = 0; i < active.size(); i++)
+            fprintf(fOut, "%zu\n", active[i]);
+        fclose(fOut);
+
         auto lxsmin = ppiol->comm->gather(vec<geom_t>{xslmin});
         auto lxsmax = ppiol->comm->gather(vec<geom_t>{xslmax});
 
@@ -224,7 +224,11 @@ int main(int argc, char ** argv)
             std::cout << "file2 min/max\n";
         printxSrcMinMax(piol, xsmin, xsmax);
     }
+
+////////////////////// COMPUTE //////////////////////////////////////////////
+
     time = MPI_Wtime();
+    auto win = createCoordsWindow(coords2.get());
 
     //Perform the updates of min and minrs using data from other processes.
     //This is the main loop.
@@ -232,59 +236,8 @@ int main(int argc, char ** argv)
     {
         auto ltime = MPI_Wtime();
         size_t lrank = active[i];
-        if (verbose)
-        {
-            ppiol->comm->barrier();
-            auto gather = ppiol->comm->gather(vec<size_t>{lrank + 1});
-            if (!rank)
-            {
-                std::cout << std::endl << std::endl;
-                for (size_t j = 0; j < gather.size(); j++)
-                {
-                    if (gather[j])
-                        std::cout << "rank " << j << " active " << gather[j]-1 << std::endl;
-                    else
-                        std::cout << "rank " << j << " inactive " << std::endl;
-                }
-            }
-            ppiol->comm->barrier();
-        }
-
         auto proc = getCoordsWin(lrank, szall[lrank], win);
-
-        if (verbose)
-        {
-            ppiol->comm->barrier();
-            auto gather = ppiol->comm->gather(vec<size_t>{lrank + 1});
-            if (!rank)
-                for (size_t j = 0; j < gather.size(); j++)
-                {
-                    if (gather[j])
-                        std::cout << "rank " << j << " active update " << gather[j]-1 << std::endl;
-                    else
-                        std::cout << "rank " << j << " inactive update " << std::endl;
-                }
-            ppiol->comm->barrier();
-        }
-
         update(offset[lrank], coords1.get(), proc.get(), min, minrs);
-        cmsg(piol, std::to_string(i)  + " loop time " + std::to_string(MPI_Wtime()- ltime) + " seconds");
-    }
-
-    if (verbose)
-    for (size_t i = active.size(); i < numRank; i++)
-    {
-        auto ltime = MPI_Wtime();
-        if (verbose)
-        {
-            ppiol->comm->barrier();
-            ppiol->comm->gather(vec<size_t>{0U});
-            ppiol->comm->barrier();
-            ppiol->comm->barrier();
-            ppiol->comm->gather(vec<size_t>{0U});
-            ppiol->comm->barrier();
-        }
-        cmsg(piol, std::to_string(i)  + " loop time " + std::to_string(MPI_Wtime()- ltime) + " seconds");
     }
 
     for (size_t i = 0; i < win.size(); i++)
@@ -293,7 +246,10 @@ int main(int argc, char ** argv)
         assert(err == MPI_SUCCESS);
     }
 
-    cmsg(piol, "Compute phase in " + std::to_string(MPI_Wtime()- time) + " seconds");
+    cmsg(piol, "Compute phase completed in " + std::to_string(MPI_Wtime() - time) + " seconds");
+
+///////////////////////////////////////////////////////////////////////////////
+
     cmsg(piol, "Final list pass");
 //Weed out traces that have a match that is too far away
 
@@ -313,17 +269,45 @@ int main(int argc, char ** argv)
     list2.resize(cnt);
     lminrs.resize(cnt);
 
+{
+    std::string name = "tmp/vtn" + std::to_string(rank);
+    FILE * fOut = fopen(name.c_str(), "w+");
+    fwrite(list1.data(), list1.size(), sizeof(size_t), fOut);
+    fwrite(list2.data(), list2.size(), sizeof(size_t), fOut);
+    fwrite(lminrs.data(), lminrs.size(), sizeof(geom_t), fOut);
+    fclose(fOut);
+
+    name += ".txt";
+    fOut = fopen(name.c_str(), "w+");
+    fprintf(fOut, "N#\t\tlist1\t\tlist2\t\tminrs\n");
+    for (size_t i = 0; i < list1.size(); i++)
+        fprintf(fOut, "%zu\t\t%zu\t\t%zu\t\t%f\t%f\n", i, list1[i], list2[i], lminrs[i], coords1->xSrc[i]);
+    fclose(fOut);
+
+    return 0;
+}
+#endif
+#ifdef HACK
+    vec<size_t> list1(sz[0]);
+    vec<size_t> list2(sz[0]);
+    vec<geom_t> lminrs(sz[0]);
+    FILE * fOut = fopen(name.c_str(), "w+");
+    fread(list1.data(), list1.size(), sizeof(size_t), fOut);
+    fread(list2.data(), list2.size(), sizeof(size_t), fOut);
+    fread(lminrs.data(), lminrs.size(), sizeof(geom_t), fOut);
+    fclose(fOut);
+#endif
+
     //free up some memory
     coords1.release();
     coords2.release();
 
-    //Enable as many of the parameters as possible
-    auto rule = std::make_shared<Rule>(true, true, true);
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
-
 /*****************************************************************************/
 /********************/ cmsg(piol, "Output phase"); /**************************/
 /*****************************************************************************/
+    //Enable as many of the parameters as possible
+    auto rule = std::make_shared<Rule>(true, true, true);
+    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
 
     time = MPI_Wtime();
     //Open and write out file1 --> file3

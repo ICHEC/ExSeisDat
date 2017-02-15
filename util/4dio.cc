@@ -29,18 +29,14 @@ vec<size_t> getSortIndex(size_t sz, size_t * list)
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
 void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords * coords)
 {
-    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
-    //Unfortunately shared pointers make things ugly in C++.
-    //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
-    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
-    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::gtn, Meta::xSrc});
     size_t lnt = coords->sz;
 
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::gtn, Meta::xSrc});
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
       handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
       parameters in batches because of this memory limit.*/
     size_t memlim = 2U*1024U*1024U*1024U - 4U * coords->sz * sizeof(geom_t);
-    size_t max = memlim / (2U*rule->paramMem() + crule->paramMem() + SEGSz::getMDSz());
+    size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
 
     //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
     //If not, the code will deadlock. Communication is done to ensure we balance out the correct number of redundant calls
@@ -48,7 +44,6 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
     File::Param prm(rule, lnt);
-
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
@@ -73,6 +68,15 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
 
     cmsg(piol, "getCoords post-sort");
 
+/////////////////////////////////////////////////////////////////////////////
+
+    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
+    //Unfortunately shared pointers make things ugly in C++.
+    //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
+    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+    max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
+
+    {
     File::Param prm2(crule, std::min(lnt, max));
     for (size_t i = 0; i < lnt; i += max)
     {
@@ -94,12 +98,13 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
             coords->tn[i+orig[j]] = trlist[i+orig[j]];
         }
     }
+    }
 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file->readParam(0U, nullptr, nullptr);
 
-/*    piol->comm->barrier();
+    piol->comm->barrier();
     for (size_t i = 0; i < piol->comm->getNumRank(); i++)
     {
         if (i == piol->comm->getRank())
@@ -107,7 +112,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
                 std::cout << i << " " << coords->tn[j] << " " << coords->xSrc[j] << std::endl;
         piol->comm->barrier();
     }
-    piol->comm->barrier();*/
+    piol->comm->barrier();
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?

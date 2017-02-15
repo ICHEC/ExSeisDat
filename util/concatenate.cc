@@ -7,7 +7,8 @@ using namespace PIOL;
 void doPrompt(ExSeisPIOL * piol)
 {
     char cont = '0';
-    if (!piol->comm->getRank())
+    size_t rank = piol->comm->getRank();
+    if (!rank)
     {
         std::cout << "Continue concatenation? (y/n)\n";
         std::cin >> cont;
@@ -24,7 +25,7 @@ void doPrompt(ExSeisPIOL * piol)
         std::cout << "Exit\n";
         exit(0);
     }
-    else if (!piol->comm->getRank())
+    else if (!rank)
         std::cout << "Continuing\n";
 }
 

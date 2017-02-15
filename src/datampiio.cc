@@ -379,8 +379,8 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
 {
 #warning More accurately determine a real limit for setting a view.
 #warning Is the problem strides that are too big?
-    if (offset[sz-1]+bsz-offset[0] < maxSize)
-    {
+/*    if (offset[sz-1]+bsz-offset[0] < maxSize)
+    {*/
         size_t max = maxSize / (bsz ? bsz * 2U : 1U);
         size_t remCall = 0;
         {
@@ -404,7 +404,7 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
                 err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
                 printErr(log, name, Log::Layer::Data, err, &stat, msg);
             }
-    }
+/*    }
     else
     {
 #warning For test purposes
@@ -433,7 +433,7 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
                 err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
                 printErr(log, name, Log::Layer::Data, err, &stat, msg);
             }
-    }
+    }*/
 }
 
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const

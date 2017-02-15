@@ -15,11 +15,11 @@ namespace PIOL { namespace FOURD {
 struct Coords
 {
     size_t sz;
-    geom_t * xSrc;
-    geom_t * ySrc;
-    geom_t * xRcv;
-    geom_t * yRcv;
-    size_t * tn;
+    geom_t * xSrc = NULL;
+    geom_t * ySrc = NULL;
+    geom_t * xRcv = NULL;
+    geom_t * yRcv = NULL;
+    size_t * tn = NULL;
     const size_t align = ALIGN;
     size_t allocSz;
     Coords(size_t sz_) : sz(sz_)
@@ -47,6 +47,9 @@ struct Coords
             free(xRcv);
         if (yRcv)
             free(yRcv);
+        if (tn)
+            free(tn);
+
     }
 };
 

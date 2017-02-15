@@ -25,7 +25,6 @@ cp $PIOL_DIR/src/makefile src/
 cp $PIOL_DIR/makefile .
 cp $PIOL_DIR/compiler.cfg . 
 
-#    compile
 cd src
 make -j 24 > /dev/null
 cd ../api
