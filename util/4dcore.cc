@@ -70,17 +70,6 @@ void initUpdate(size_t offset, const Coords * local, const Coords * other, vec<s
  */
 size_t update(size_t rank, size_t offset, const Coords * local, const Coords * other, vec<size_t> & min, vec<geom_t> & minrs, geom_t dsrmax)
 {
-/*  const size_t lsz = local->sz;
-    const size_t osz = other->sz;
-    for (size_t i = 0U; i < lsz; i++)            //Loop through every file1 trace
-        for (size_t j = 0U; j < osz; j++)        //loop through a multiple of the alignment
-        {
-            const geom_t dval = dsr(local->xSrc[i], local->ySrc[i], local->xRcv[i], local->yRcv[i],
-                              other->xSrc[i], other->ySrc[i], other->xRcv[i], other->yRcv[i]);
-            min[i] = (dval < minrs[i] ? other->tn[j] : min[i]);      //Update min if applicable
-            minrs[i] = std::min(dval, minrs[i]);          //Update minrs if applicable
-        }*/
-
     size_t sz = local->sz;
     //For the vectorisation
     const geom_t * lxS = local->xSrc;
@@ -98,17 +87,10 @@ size_t update(size_t rank, size_t offset, const Coords * local, const Coords * o
     //Copy min and minrs to aligned memory
     geom_t * lminrs;
     size_t * lmin;
-    //size_t allocSz = ((sz + ALIGN) / ALIGN) * ALIGN;
-    size_t allocSz = sz;
-    posix_memalign(reinterpret_cast<void **>(&lminrs), ALIGN, allocSz * sizeof(geom_t));
-    posix_memalign(reinterpret_cast<void **>(&lmin), ALIGN, allocSz * sizeof(size_t));
+    posix_memalign(reinterpret_cast<void **>(&lminrs), ALIGN, sz * sizeof(geom_t));
+    posix_memalign(reinterpret_cast<void **>(&lmin), ALIGN, sz * sizeof(size_t));
     std::copy(min.begin(), min.begin()+sz, lmin);
     std::copy(minrs.begin(), minrs.begin()+sz, lminrs);
-    for (size_t i = 0; i < sz; i++)
-    {
-        lminrs[i] = minrs[i];
-        lmin[i] = min[i];
-    }
 
     size_t rstart = 0U;
     size_t rend = other->sz;
@@ -132,10 +114,14 @@ size_t update(size_t rank, size_t offset, const Coords * local, const Coords * o
     //  sort by rcv-x --> drop traces
     //  sort by rcv-y --> drop traces
 
+    //TODO: Check if theoretical speedup is realisable for this alignment
+    lstart = size_t(lstart / ALIGN) * ALIGN;
+    //TODO: if I want to use this next line, I need to resize lmin etc.
+//    lend = size_t((lend + ALIGN-1U)/ ALIGN) * ALIGN;
     #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
                      aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (size_t i = (lstart / ALIGN) * ALIGN; i < lend; i++)                         //Loop through every file1 trace
+    for (size_t i = lstart; i < lend; i++)                         //Loop through every file1 trace
     {
         const geom_t lxs = lxS[i], lys = lyS[i], lxr = lxR[i], lyr = lyR[i];
         size_t lm = lmin[i];
@@ -156,7 +142,7 @@ size_t update(size_t rank, size_t offset, const Coords * local, const Coords * o
     std::copy(lminrs, lminrs+sz, minrs.begin());
     free(lmin);
     free(lminrs);
-    return (lend - (lstart/ALIGN) * ALIGN) * (rend - rstart);
+    return (lend - lstart) * (rend - rstart);
 }
 
 /*! Create windows for one-sided communication of coordinates
@@ -189,6 +175,7 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords)
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win)
 {
     auto coords = std::make_unique<Coords>(sz);
+#warning I don't think this is correct yet
     for (size_t i = 0; i < 5; i++)
         MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
     int err;
@@ -268,7 +255,6 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, c
 
     auto time = MPI_Wtime();
     auto win = createCoordsWindow(coords2);
-
     //Load balancing would make sense since the workloads are non-symmetric.
     //It might be difficult to do load-balancing though considering workload
     //very much depends on the constraints from both processess
@@ -278,12 +264,15 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, c
     for (size_t i = 0; i < active.size(); i ++)
     {
         auto ltime = MPI_Wtime();
-        size_t lrank = active[i];
+        auto lrank = active[i];
         auto proc = getCoordsWin(lrank, szall[lrank], win);
-        size_t ops = update(rank, offset[lrank], coords1, proc.get(), min, minrs, dsrmax);
-        std::cout << rank << " --> " << active[i] << " Time: " << MPI_Wtime() - ltime << " seconds. OpSave: " <<
+        auto wtime = MPI_Wtime() - ltime;
+        auto ops = update(rank, offset[lrank], coords1, proc.get(), min, minrs, dsrmax);
+        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: " <<
                     (double(coords1->sz * proc->sz) - double(ops)) / double(coords1->sz * proc->sz) * 100.0 << std::endl;
     }
+
+//    std::cout << rank << " done " << "Total rounds: " << active.size() << " Time: "<< MPI_Wtime() - time << " seconds" << std::endl;
 
     for (size_t i = 0; i < win.size(); i++)
     {

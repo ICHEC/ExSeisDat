@@ -33,6 +33,8 @@ int main(int argc, char ** argv)
     Set set(piol, name1, name2);
     set.sort(type);
     piol.isErr();
+    if (!piol.getRank())
+        std::cout << "Sort complete. Begin output\n";
 
     return 0;
 }

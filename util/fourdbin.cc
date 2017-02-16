@@ -122,6 +122,12 @@ int main(int argc, char ** argv)
     vec<size_t> list2(sz[0]);
     vec<geom_t> lminrs(sz[0]);
     size_t cnt = 0U;
+
+    vec<size_t> rjct1(sz[0]);
+    vec<size_t> rjct2(sz[0]);
+    vec<geom_t> rjctminrs(sz[0]);
+    size_t rjct = 0;
+
     for (size_t i = 0U; i < sz[0]; i++)
         if (minrs[i] <= dsrmax)
         {
@@ -129,44 +135,57 @@ int main(int argc, char ** argv)
             lminrs[cnt] = minrs[i];
             list1[cnt++] = coords1->tn[i];
         }
+        else
+        {
+            rjct2[rjct] = min[i];
+            rjctminrs[rjct] = minrs[i];
+            rjct1[rjct++] = coords1->tn[i];
+        }
 
     list1.resize(cnt);
     list2.resize(cnt);
     lminrs.resize(cnt);
 
+    rjct1.resize(rjct);
+    rjct2.resize(rjct);
+    rjctminrs.resize(rjct);
+
 {
     std::string name = "tmp/vtn" + std::to_string(rank);
     FILE * fOut = fopen(name.c_str(), "w+");
-    fwrite(list1.data(), list1.size(), sizeof(size_t), fOut);
-    fwrite(list2.data(), list2.size(), sizeof(size_t), fOut);
-    fwrite(lminrs.data(), lminrs.size(), sizeof(geom_t), fOut);
+    assert(1U == fwrite(&cnt, sizeof(size_t), 1U, fOut));
+    assert(list1.size() == fwrite(list1.data(), sizeof(size_t), list1.size(), fOut));
+    assert(list2.size() == fwrite(list2.data(), sizeof(size_t), list2.size(), fOut));
+    assert(lminrs.size() == fwrite(lminrs.data(), sizeof(geom_t), lminrs.size(), fOut));
     fclose(fOut);
 
     name += ".txt";
     fOut = fopen(name.c_str(), "w+");
-    fprintf(fOut, "N#\tlist1\tlist2\tminrs\tcoord\n");
-    for (size_t i = 0; i < list1.size(); i++)
+    fprintf(fOut, "N#\tlist1\tlist2\tminrs\n");
+    for (size_t i = 0; i < cnt; i++)
         fprintf(fOut, "%zu\t%zu\t%zu\t%f\n", i, list1[i], list2[i], lminrs[i]);
     fclose(fOut);
 
+    name += "_reject";
+    fOut = fopen(name.c_str(), "w+");
+    fprintf(fOut, "N#\trjct1\trjct2\trjctminrs\n");
+    for (size_t i = 0; i < rjct; i++)
+        fprintf(fOut, "%zu\t%zu\t%zu\t%f\n", i, rjct1[i], rjct2[i], rjctminrs[i]);
+    fclose(fOut);
     return 0;
 }
 #endif
 #ifdef HACK
-    auto dec1 = decompose(file1.readNt(), numRank, rank);
-    auto dec2 = decompose(file2.readNt(), numRank, rank);
-
-    sz[0] = dec1.second;
-    sz[1] = dec2.second;
-
-    vec<size_t> list1(sz[0]);
-    vec<size_t> list2(sz[0]);
-    vec<geom_t> lminrs(sz[0]);
+    size_t cnt;
     std::string name = "tmp/vtn" + std::to_string(rank);
     FILE * fOut = fopen(name.c_str(), "r+");
-    fread(list1.data(), list1.size(), sizeof(size_t), fOut);
-    fread(list2.data(), list2.size(), sizeof(size_t), fOut);
-    fread(lminrs.data(), lminrs.size(), sizeof(geom_t), fOut);
+    assert(1U == fread(&cnt, sizeof(size_t), 1U, fOut));
+    vec<size_t> list1(cnt);
+    vec<size_t> list2(cnt);
+    vec<geom_t> lminrs(cnt);
+    assert(list1.size() == fread(list1.data(), sizeof(size_t), list1.size(), fOut);
+    assert(list2.size() == fread(list2.data(), sizeof(size_t), list2.size(), fOut);
+    assert(lminrs.size() == fread(lminrs.data(), sizeof(geom_t), lminrs.size(), fOut);
     fclose(fOut);
 #endif
 
