@@ -7,7 +7,7 @@ DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = concatenate segsort versort fourdbin cropen creadwrite assess filemake makerep makerepn1 makerepn2 minmax
+BIN = concatenate segsort versort fourdbin cropen creadwrite assess filemake makerep makerepn1 makerepn2 minmax traceanalysis
 CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
@@ -33,6 +33,8 @@ cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 creadwrite: obj/creadwrite.co obj/sglobal.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
+traceanalysis: obj/traceanalysis.cpo
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 versort: obj/verifysort.cpo obj/sglobal.cpo

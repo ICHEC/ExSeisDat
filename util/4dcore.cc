@@ -68,7 +68,7 @@ void initUpdate(size_t offset, const Coords * local, const Coords * other, vec<s
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-void update(size_t offset, const Coords * local, const Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
+size_t update(size_t rank, size_t offset, const Coords * local, const Coords * other, vec<size_t> & min, vec<geom_t> & minrs, geom_t dsrmax)
 {
 /*  const size_t lsz = local->sz;
     const size_t osz = other->sz;
@@ -110,19 +110,39 @@ void update(size_t offset, const Coords * local, const Coords * other, vec<size_
         lmin[i] = min[i];
     }
 
+    size_t rstart = 0U;
+    size_t rend = other->sz;
+    size_t lstart = 0U;
+    size_t lend = local->sz;
+
+    //Ignore all file2 traces that can not possibly match our criteria within the min/max
+    //of src x.
+    while (rstart < sz && rxS[rstart] < lxS[0] - dsrmax)
+        rstart++;
+    while (rend >= rstart && rxS[rend] > lxS[sz-1] + dsrmax)
+        rend--;
+    while (lstart < sz && lxS[lstart] < rxS[rstart] - dsrmax)
+        lstart++;
+    while (lend >= lstart && lxS[lend] > rxS[rend-1] + dsrmax)
+        lend--;
+
+    //TODO: A more advanced reduction of the workload would be to:
+    //  sort by src-x --> drop traces
+    //  sort by src-y --> drop traces
+    //  sort by rcv-x --> drop traces
+    //  sort by rcv-y --> drop traces
+
     #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
                      aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (size_t i = 0; i < sz; i++)                         //Loop through every file1 trace
+    for (size_t i = (lstart / ALIGN) * ALIGN; i < lend; i++)                         //Loop through every file1 trace
     {
         const geom_t lxs = lxS[i], lys = lyS[i], lxr = lxR[i], lyr = lyR[i];
         size_t lm = lmin[i];
         geom_t lmrs = lminrs[i];
-//TODO: Try vectorise this when custom reductions are supported by the intel compiler
-//The main issue is a structure like std::pair<geom_t, size_t> needs to be reduced rather than lm or lmrs individually
-        for (size_t j = 0U; j < other->sz; j++)        //loop through a multiple of the alignment
+        for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
         {
-            const geom_t rxs = rxS[j], rys = ryS[j], rxr = rxR[j], ryr = lyR[j];
+            const geom_t rxs = rxS[j], rys = ryS[j], rxr = rxR[j], ryr = ryR[j];
             geom_t dval = dsr(lxs, lys, lxr, lyr,
                               rxs, rys, rxr, ryr);
             lm = (dval < lmrs ? tn[j] : lm);      //Update min if applicable
@@ -136,6 +156,7 @@ void update(size_t offset, const Coords * local, const Coords * other, vec<size_
     std::copy(lminrs, lminrs+sz, minrs.begin());
     free(lmin);
     free(lminrs);
+    return (lend - (lstart/ALIGN) * ALIGN) * (rend - rstart);
 }
 
 /*! Create windows for one-sided communication of coordinates
@@ -248,6 +269,10 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, c
     auto time = MPI_Wtime();
     auto win = createCoordsWindow(coords2);
 
+    //Load balancing would make sense since the workloads are non-symmetric.
+    //It might be difficult to do load-balancing though considering workload
+    //very much depends on the constraints from both processess
+
     //Perform the updates of min and minrs using data from other processes.
     //This is the main loop.
     for (size_t i = 0; i < active.size(); i ++)
@@ -255,9 +280,9 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, c
         auto ltime = MPI_Wtime();
         size_t lrank = active[i];
         auto proc = getCoordsWin(lrank, szall[lrank], win);
-        update(offset[lrank], coords1, proc.get(), min, minrs);
-        if (verbose)
-            std::cout << "rank " << rank << " i " << i << " lrank " << lrank << " remaining " << active.size() << std::endl;
+        size_t ops = update(rank, offset[lrank], coords1, proc.get(), min, minrs, dsrmax);
+        std::cout << rank << " --> " << active[i] << " Time: " << MPI_Wtime() - ltime << " seconds. OpSave: " <<
+                    (double(coords1->sz * proc->sz) - double(ops)) / double(coords1->sz * proc->sz) * 100.0 << std::endl;
     }
 
     for (size_t i = 0; i < win.size(); i++)
