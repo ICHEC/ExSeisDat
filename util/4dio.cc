@@ -27,10 +27,13 @@ vec<size_t> getSortIndex(size_t sz, size_t * list)
  *  \param[in] coords The vector for storing the parameters. Number of parameters is coords.size()/4
  */
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
-void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords * coords)
+std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std::pair<size_t, size_t> dec)
 {
-    size_t lnt = coords->sz;
+    size_t offset = dec.first;
+    size_t lnt = dec.second;
 
+    auto coords = std::make_unique<Coords>(lnt);
+    assert(coords.get());
     auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::gtn, Meta::xSrc});
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
       handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
@@ -66,7 +69,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
                         File::getPrm<size_t>(0U, Meta::gtn, &e1) < File::getPrm<size_t>(0U, Meta::gtn, &e2));
             });
 
-    cmsg(piol, "getCoords post-sort");
+    cmsg(piol, "getCoords post-sort I/O");
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +106,7 @@ void getCoords(ExSeisPIOL * piol, File::Interface * file, size_t offset, Coords 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file->readParam(0U, nullptr, nullptr);
+    return std::move(coords);
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?

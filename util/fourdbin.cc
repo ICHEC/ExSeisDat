@@ -59,8 +59,7 @@ void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> &
 int main(int argc, char ** argv)
 {
     ExSeis piol;
-    ExSeisPIOL * ppiol = piol;
-    geom_t dsrmax = 0.5;            //Default dsdr criteria
+    geom_t dsrmax = 1.0;            //Default dsdr criteria
     bool verbose = false;
     bool skipToOutput = false;
 /**********************************************************************************************************
@@ -118,46 +117,34 @@ int main(int argc, char ** argv)
 
     if (!skipToOutput)
     {
-        std::unique_ptr<Coords> coords1;
-        std::unique_ptr<Coords> coords2;
-        size_t sz[2];
         cmsg(piol, "Parameter-read phase");
         //Perform the decomposition and read the coordinates of interest.
         auto time = MPI_Wtime();
-        {
-            auto dec1 = decompose(file1.readNt(), numRank, rank);
-            auto dec2 = decompose(file2.readNt(), numRank, rank);
+        auto dec1 = decompose(file1.readNt(), numRank, rank);
+        auto dec2 = decompose(file2.readNt(), numRank, rank);
+        auto coords1 = getCoords(piol, file1, dec1);
 
-            sz[0] = dec1.second;
-            sz[1] = dec2.second;
+        cmsg(piol, "Read sets of coordinates from file " + name1 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
+        time = MPI_Wtime();
 
-            coords1 = std::make_unique<Coords>(sz[0]);
-            assert(coords1.get());
-            getCoords(ppiol, file1, dec1.first, coords1.get());
+        auto coords2 = getCoords(piol, file2, dec2);
 
-            cmsg(piol, "Read sets of coordinates from file " + name1 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
-            time = MPI_Wtime();
+        cmsg(piol, "Read sets of coordinates from file " + name2 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
-            coords2 = std::make_unique<Coords>(sz[1]);
-            getCoords(ppiol, file2, dec2.first, coords2.get());
-
-            cmsg(piol, "Read sets of coordinates from file " + name2 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
-        }
-
-        vec<size_t> min(sz[0]);
-        vec<geom_t> minrs(sz[0]);
+        vec<size_t> min(coords1->sz);
+        vec<geom_t> minrs(coords1->sz);
         calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), min, minrs, verbose);
 
         cmsg(piol, "Final list pass");
 
 //Weed out traces that have a match that is too far away
 
-        list1.resize(sz[0]);
-        list2.resize(sz[0]);
-        lminrs.resize(sz[0]);
+        list1.resize(coords1->sz);
+        list2.resize(coords1->sz);
+        lminrs.resize(coords1->sz);
         size_t cnt = 0U;
 
-        for (size_t i = 0U; i < sz[0]; i++)
+        for (size_t i = 0U; i < coords1->sz; i++)
             if (minrs[i] <= dsrmax)
             {
                 list2[cnt] = min[i];

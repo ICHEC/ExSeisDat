@@ -20,26 +20,5 @@ using vec = std::vector<T>;
 namespace PIOL
 {
 void cmsg(ExSeisPIOL * piol, std::string msg);
-
-template <bool AllProc = true>
-void recordTime(ExSeisPIOL * piol, std::string msg, double startTime)
-{
-    auto time = MPI_Wtime();
-
-    if (AllProc)
-    {
-        auto pTimeTot = piol->comm->gather(vec<float>{static_cast<float>(time - startTime)});
-        if (!piol->comm->getRank())
-            for (size_t i = 0; i < pTimeTot.size(); i++)
-                std::cout << msg << " time: " << i << " " << pTimeTot[i] << std::endl;
-        piol->comm->barrier();
-    }
-    else
-    {
-        auto pTimeTot = (time - startTime);
-        if (!piol->comm->getRank())
-            std::cout << msg << " time: " << pTimeTot << std::endl;
-    }
-}
 }
 #endif
