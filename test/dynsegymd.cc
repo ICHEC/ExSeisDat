@@ -54,7 +54,7 @@ TEST_F(RuleFixEmpty, AddRmLongRules)
 
 TEST_F(RuleFixEmpty, AddRmFloatRules)
 {
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
+    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
     ASSERT_NE(nullptr, rule->getEntry(Meta::dsdr));
     auto frule = dynamic_cast<SEGYFloatRuleEntry *>(rule->getEntry(Meta::dsdr));
     ASSERT_NE(nullptr, frule);
@@ -67,7 +67,7 @@ TEST_F(RuleFixEmpty, AddRmFloatRules)
 
 TEST_F(RuleFixEmpty, Extent)
 {
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::ScaleCoord);
+    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::ScaleCoord);
     ASSERT_EQ(rule->extent(), size_t(Tr::SrcMeas) + 4U - size_t(Tr::ScaleCoord));
 }
 

@@ -73,9 +73,9 @@ void addShortRule(RuleHdl rule, Meta m, size_t loc)
     rule->rule->addShort(m, static_cast<File::Tr>(loc));
 }
 
-void addFloat(RuleHdl rule, Meta m, size_t loc, size_t scalLoc)
+void addSEGYFloat(RuleHdl rule, Meta m, size_t loc, size_t scalLoc)
 {
-    rule->rule->addFloat(m, static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
+    rule->rule->addSEGYFloat(m, static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
 }
 
 void rmRule(RuleHdl rule, Meta m)

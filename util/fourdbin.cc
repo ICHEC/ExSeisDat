@@ -181,7 +181,12 @@ int main(int argc, char ** argv)
     cmsg(piol, "Output phase");
     //Enable as many of the parameters as possible
     auto rule = std::make_shared<Rule>(true, true, true);
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
+
+
+    //Note: Set to TimeScal for OpenCPS viewing of dataset.
+    //OpenCPS is restrictive on what locations can be used
+    //as scalars.
+    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::TimeScal);
 
     auto time = MPI_Wtime();
     {

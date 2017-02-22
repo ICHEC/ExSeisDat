@@ -64,6 +64,7 @@ enum class Tr : size_t
     TransConst  = 205U, //!< int32_t. The transduction constant.
     TransExp    = 209U, //!< int16_t. The transduction exponent.
     TransUnit   = 211U, //!< int16_t. The transduction units
+    TimeScal    = 215U, //!< int16_t. Scalar for time measurements.
     SrcMeas     = 225U, //!< int32_t. Source measurement.
     SrcMeasExp  = 229U, //!< int16_t. Source measurement exponent.
 };
@@ -344,7 +345,7 @@ struct Rule
      *  \param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (4 bytes).
      *  \param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
      */
-    void addFloat(Meta m, Tr loc, Tr scalLoc);
+    void addSEGYFloat(Meta m, Tr loc, Tr scalLoc);
 
     /*! Add a rule for floats.
      *  \param[in] m The Meta entry.

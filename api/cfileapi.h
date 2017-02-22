@@ -114,7 +114,7 @@ void addShortRule(RuleHdl rule, Meta m, size_t loc);
  *  \param[in] loc The location in the trace header for the rule.
  *  \param[in] scalLoc The location in the trace header for the shared scaler;
  */
-void addFloatRule(RuleHdl rule, Meta m, size_t loc, size_t scalLoc);
+void addSEGYFloatRule(RuleHdl rule, Meta m, size_t loc, size_t scalLoc);
 
 /*! remove a rule for a parameter
  *  \param[in] rule The Rule handle associated with the structure to free

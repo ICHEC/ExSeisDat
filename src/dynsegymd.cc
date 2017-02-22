@@ -228,7 +228,7 @@ void Rule::addShort(Meta m, Tr loc)
     flag.badextent = (!flag.fullextent);
 }
 
-void Rule::addFloat(Meta m, Tr loc, Tr scalLoc)
+void Rule::addSEGYFloat(Meta m, Tr loc, Tr scalLoc)
 {
     auto ent = translate.find(m);
     if (ent != translate.end())

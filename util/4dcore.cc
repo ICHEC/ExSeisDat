@@ -117,20 +117,20 @@ geom_t dsr(const geom_t xs1, const geom_t ys1, const geom_t xr1, const geom_t yr
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  \tparam Init If true, perform the initialisation sequence.
  *  \param[in] szall A vector containing the amount of data each process has from the second input file.
- *  \param[in] coords1 A vector containing the process's parameter data from the first input file. This data
- *             is never sent to any other process.
- *  \param[in] other A vector containing the parameter data from another process.
+ *  \param[in] crd1 A vector containing the process's parameter data from the first input file. This data
+ *             is never sent to any crd2 process.
+ *  \param[in] crd2 A vector containing the parameter data from another process.
  *  \param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-void initUpdate(size_t offset, const Coords * coords1, const Coords * other, vec<size_t> & min, vec<geom_t> & minrs)
+void initUpdate(size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<geom_t> & minrs)
 {
-    for (size_t i = 0; i < coords1->sz; i++)
+    for (size_t i = 0; i < crd1->sz; i++)
     {
-        minrs[i] = dsr(coords1->xSrc[i], coords1->ySrc[i], coords1->xRcv[i], coords1->yRcv[i],
-                       other->xSrc[0], other->ySrc[0], other->xRcv[0], other->yRcv[0]);
+        minrs[i] = dsr(crd1->xSrc[i], crd1->ySrc[i], crd1->xRcv[i], crd1->yRcv[i],
+                       crd2->xSrc[0], crd2->ySrc[0], crd2->xRcv[0], crd2->yRcv[0]);
         min[i] = offset;
     }
 }
@@ -138,46 +138,37 @@ void initUpdate(size_t offset, const Coords * coords1, const Coords * other, vec
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  \tparam Init If true, perform the initialisation sequence.
  *  \param[in] szall A vector containing the amount of data each process has from the second input file.
- *  \param[in] coords1 A vector containing the process's parameter data from the first input file. This data
+ *  \param[in] crd1 A vector containing the process's parameter data from the first input file. This data
  *             is never sent to any other process.
- *  \param[in] other A vector containing the parameter data from another process.
+ *  \param[in] crd2 A vector containing the parameter data from another process.
  *  \param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-size_t update(size_t rank, size_t offset, const Coords * coords1, const Coords * other, vec<size_t> & min, vec<geom_t> & minrs, geom_t dsrmax)
+size_t update(size_t rank, size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<geom_t> & minrs, geom_t dsrmax)
 {
-    size_t sz = coords1->sz;
+    size_t sz = crd1->sz;
+
     //For the vectorisation
-    const geom_t * lxS = coords1->xSrc;
-    const geom_t * lyS = coords1->ySrc;
-    const geom_t * lxR = coords1->xRcv;
-    const geom_t * lyR = coords1->yRcv;
-
-    const geom_t * rxS = other->xSrc;
-    const geom_t * ryS = other->ySrc;
-    const geom_t * rxR = other->xRcv;
-    const geom_t * ryR = other->yRcv;
-
-    const size_t * tn = other->tn;
-
-    //Copy min and minrs to aligned memory
-    geom_t * lminrs;
-    size_t * lmin;
-    posix_memalign(reinterpret_cast<void **>(&lminrs), ALIGN, sz * sizeof(geom_t));
-    posix_memalign(reinterpret_cast<void **>(&lmin), ALIGN, sz * sizeof(size_t));
-    std::copy(min.begin(), min.begin()+sz, lmin);
-    std::copy(minrs.begin(), minrs.begin()+sz, lminrs);
-
-    size_t rstart = 0U;
-    size_t rend = other->sz;
     size_t lstart = 0U;
-    size_t lend = coords1->sz;
+    size_t lend = crd1->sz;
+    size_t rstart = 0U;
+    size_t rend = crd2->sz;
+
+    const geom_t * lxS = crd1->xSrc;
+    const geom_t * lyS = crd1->ySrc;
+    const geom_t * lxR = crd1->xRcv;
+    const geom_t * lyR = crd1->yRcv;
+    const geom_t * rxS = crd2->xSrc;
+    const geom_t * ryS = crd2->ySrc;
+    const geom_t * rxR = crd2->xRcv;
+    const geom_t * ryR = crd2->yRcv;
+    const size_t * tn = crd2->tn;
 
     //Ignore all file2 traces that can not possibly match our criteria within the min/max
     //of src x.
-    while (rstart < sz && rxS[rstart] < lxS[0] - dsrmax)
+    while (rstart < crd2->sz && rxS[rstart] < lxS[0] - dsrmax)
         rstart++;
     while (rend >= rstart && rxS[rend] > lxS[sz-1] + dsrmax)
         rend--;
@@ -196,20 +187,44 @@ size_t update(size_t rank, size_t offset, const Coords * coords1, const Coords *
     lstart = size_t(lstart / ALIGN) * ALIGN;
 
     //TODO: if I want to use this next line, I need to resize lmin etc.
-//    lend = size_t((lend + ALIGN-1U)/ ALIGN) * ALIGN;
+
+    size_t lsz = lend-lstart;
+    size_t rsz = rend-rstart;
+    size_t lszAlign = size_t((lend + ALIGN-1U)/ ALIGN) * ALIGN - lstart;
+
+    if (!lsz || !rsz)
+        return 0U;
+
+    //Copy min and minrs to aligned memory
+    geom_t * lminrs;
+    size_t * lmin;
+    posix_memalign(reinterpret_cast<void **>(&lminrs), ALIGN, lszAlign * sizeof(geom_t));
+    posix_memalign(reinterpret_cast<void **>(&lmin), ALIGN, lszAlign * sizeof(size_t));
+    std::copy(min.begin(), min.begin() + lsz, lmin);
+    std::copy(minrs.begin(), minrs.begin() + lsz, lminrs);
+
+    lxS = &crd1->xSrc[lstart];
+    lyS = &crd1->ySrc[lstart];
+    lxR = &crd1->xRcv[lstart];
+    lyR = &crd1->yRcv[lstart];
+    rxS = &crd2->xSrc[rstart];
+    ryS = &crd2->ySrc[rstart];
+    rxR = &crd2->xRcv[rstart];
+    ryR = &crd2->yRcv[rstart];
+    tn = &crd2->tn[rstart];
+
     #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
                      aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (size_t i = lstart; i < lend; i++)                         //Loop through every file1 trace
+    for (size_t i = 0U; i < lszAlign; i++)                         //Loop through every file1 trace
     {
         const geom_t lxs = lxS[i], lys = lyS[i], lxr = lxR[i], lyr = lyR[i];
         size_t lm = lmin[i];
         geom_t lmrs = lminrs[i];
-        for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
+        for (size_t j = 0U; j < rsz; j++)        //loop through a multiple of the alignment
         {
             const geom_t rxs = rxS[j], rys = ryS[j], rxr = rxR[j], ryr = ryR[j];
-            geom_t dval = dsr(lxs, lys, lxr, lyr,
-                              rxs, rys, rxr, ryr);
+            geom_t dval = dsr(lxs, lys, lxr, lyr, rxs, rys, rxr, ryr);
             lm = (dval < lmrs ? tn[j] : lm);      //Update min if applicable
             lmrs = std::min(dval, lmrs);          //Update minrs if applicable
         }
@@ -217,14 +232,14 @@ size_t update(size_t rank, size_t offset, const Coords * coords1, const Coords *
         lminrs[i] = lmrs;
     }
 
-    std::copy(lmin, lmin+sz, min.begin());
-    std::copy(lminrs, lminrs+sz, minrs.begin());
+    std::copy(lmin, lmin+lsz, min.begin() + lstart);
+    std::copy(lminrs, lminrs+lsz, minrs.begin() + lstart);
     free(lmin);
     free(lminrs);
-    return (lend - lstart) * (rend - rstart);
+    return lsz * rsz;
 }
 
-void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, const Coords * coords2, vec<size_t> & min, vec<geom_t> & minrs, bool verbose)
+void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * crd1, const Coords * coords2, vec<size_t> & min, vec<geom_t> & minrs, bool verbose)
 {
     cmsg(piol, "Compute phase");
     size_t rank = piol->comm->getRank();
@@ -239,11 +254,11 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, c
     auto xsmax = piol->comm->gather(vec<geom_t>{coords2->xSrc[coords2->sz-1U]});
 
     //The File1 local min and local maximum for the particular process
-    auto xslmin = coords1->xSrc[0U];
-    auto xslmax = coords1->xSrc[coords1->sz-1U];
+    auto xslmin = crd1->xSrc[0U];
+    auto xslmax = crd1->xSrc[crd1->sz-1U];
 
     //Perform a local initialisation update of min and minrs
-    initUpdate(offset[rank], coords1, coords2, min, minrs);
+    initUpdate(offset[rank], crd1, coords2, min, minrs);
 
     //This for loop determines the processes the local process will need to be communicating with.
     vec<size_t> active;
@@ -271,9 +286,9 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, c
         auto lrank = active[i];
         auto proc = getCoordsWin(lrank, szall[lrank], win);
         auto wtime = MPI_Wtime() - ltime;
-        auto ops = update(rank, offset[lrank], coords1, proc.get(), min, minrs, dsrmax);
+        auto ops = update(rank, offset[lrank], crd1, proc.get(), min, minrs, dsrmax);
         std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: " <<
-                    (double(coords1->sz * proc->sz) - double(ops)) / double(coords1->sz * proc->sz) * 100.0 << std::endl;
+                    (double(crd1->sz * proc->sz) - double(ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
     }
 
     std::cout << rank << " done. " << "Total rounds: " << active.size() << " Time: "<< MPI_Wtime() - time << " seconds" << std::endl;
