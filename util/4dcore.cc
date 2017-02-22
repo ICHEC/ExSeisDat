@@ -73,7 +73,7 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
     auto coords = std::make_unique<Coords>(sz);
 #warning I don't think this is correct yet
     for (size_t i = 0; i < 5; i++)
-        MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
+        MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]);
     int err;
     err = MPI_Get(coords->xSrc, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[0]);
     assert(err == MPI_SUCCESS);
