@@ -62,12 +62,12 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std
 
     cmsg(piol, "getCoords sort");
 
-    auto trlist = File::sortOrder(piol, offset, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
+    auto trlist = File::sort(piol, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
             {
                 return (File::getPrm<geom_t>(0U, Meta::xSrc, &e1) < File::getPrm<geom_t>(0U, Meta::xSrc, &e2) ? true :
                         File::getPrm<geom_t>(0U, Meta::xSrc, &e1) == File::getPrm<geom_t>(0U, Meta::xSrc, &e2) &&
                         File::getPrm<size_t>(0U, Meta::gtn, &e1) < File::getPrm<size_t>(0U, Meta::gtn, &e2));
-            });
+            }, false);
 
     cmsg(piol, "getCoords post-sort I/O");
 
@@ -111,7 +111,7 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
+void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
 {
     size_t ns = src.readNs();
     size_t lnt = list.size();
@@ -183,55 +183,6 @@ void selectDupe(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direc
         cmsg(piol, "NTEST " + std::to_string(i));
         cmsg(piol, "no writeTrace " + std::to_string(i));
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
-    }
-}
-
-// This is an output related function and doesn't change the core algorithm.
-void select(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
-{
-    const size_t ns = src.readNs();
-    const size_t lnt = list.size();
-    dst.writeText("ExSeisDat 4d-bin file.\n");
-    size_t offset = 0;
-    size_t biggest = 0;
-    size_t sz = 0;
-    {
-        auto offsets = piol->comm->gather(vec<size_t>{lnt});
-        for (size_t i = 0; i < offsets.size(); i++)
-        {
-            if (i == piol->comm->getRank())
-                offset = sz;
-            sz += offsets[i];
-            biggest = std::max(biggest, offsets[i]);
-        }
-    }
-    size_t memused = lnt * (sizeof(size_t) + sizeof(geom_t));
-    size_t memlim = 2U*1024U*1024U*1024U;
-    assert(memlim > memused);
-
-    size_t max = (memlim - memused) / (4U*SEGSz::getDOSz(ns) + 4U*rule->extent());
-    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-
-    dst.writeNt(sz);
-    dst.writeInc(src.readInc());
-    dst.writeNs(src.readNs());
-
-    File::Param prm(rule, std::min(lnt, max));
-    vec<trace_t> trc(src.readNs() * std::min(lnt, max));
-
-    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-        src.readTrace(rblock, &list[i], trc.data(), &prm);
-        for (size_t j = 0; j < rblock; j++)
-            setPrm(j, Meta::dsdr, minrs[j], &prm);
-        dst.writeTrace(offset+i, rblock, trc.data(), &prm);
-    }
-
-    for (size_t i = 0; i < extra; i++)
-    {
-        src.readTrace(0, nullptr, nullptr, nullptr);
-        dst.writeTrace(0, size_t(0), nullptr, nullptr);
     }
 }
 }}

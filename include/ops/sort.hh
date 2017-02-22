@@ -17,7 +17,8 @@ namespace PIOL { namespace File {
 template <class T>
 using Compare = std::function<bool(const T &, const T &)>;
 
-/*! Function to sort the metadata in a Param struct. The Param vector is used internally
+/*! Function to sort the metadata in a Param struct. The returned vector is the location where the nth parameter
+ *  is located in the sorted list. Implementation note: the Param vector is used internally
  *  to allow random-access iterator support.
  *  \param[in] piol The PIOL object.
  *  \param[in] offset The offset for the local process
@@ -26,9 +27,7 @@ using Compare = std::function<bool(const T &, const T &)>;
  *                  vector. It assumes each Param structure has exactly one entry.
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
  */
-std::vector<size_t> sort(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp);
-#warning TEMPORARY, this will be integrated into the above by the story end
-std::vector<size_t> sortOrder(ExSeisPIOL * piol, size_t offset, Param * prm, Compare<Param> comp);
+std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bool FileOrder = true);
 
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.

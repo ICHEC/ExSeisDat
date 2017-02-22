@@ -1,21 +1,25 @@
 rm -f temp/*
 
-if [ -f  testmatrix_1param ]; then
-awk "{ print \$0 > \"temp/util_1_\"\$1\".sh\" }" testmatrix_1param
-fi
-if [ -f  testmatrix_0param ]; then
-awk "{ print \$0 > \"temp/util_0_\"\$1\".sh\" }" testmatrix_0param
-fi
+for file in testmatrix_*param; do
+  num=$(echo $file | tr -dc '0-9')
+  awk "{ print \$0 > \"temp/util_${num}_\"\$1\".sh\" }" $file
+done
 
 while read -r NODES ; do
 {
     if [ $PIOL_SYSTEM == "Tullow" ]; then
         NODES=$NODES bash runtest.pbs
     else
-        qsub -v NODES=$NODES -l nodes=$NODES:ppn=24,walltime=0:02:00:00 runtest.pbs
+        qsub -v NODES=$NODES -l nodes=$NODES:ppn=24,walltime=0:01:00:00 runtest.pbs
     fi
 }
 done < <(ls temp/* | cut -d "_" -f 3 | cut -d "." -f 1 | sort -u)
+
+shopt -s nocasematch
+if [ $1 == "n" ]; then
+    exit
+fi
+shopt -u nocasematch
 
 if [ $PIOL_SYSTEM == "Tullow" ]; then
     echo Skip makefile check

@@ -184,22 +184,25 @@ int main(int argc, char ** argv)
     rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
 
     auto time = MPI_Wtime();
-    //Open and write out file1 --> file3
-    File::Direct file3(piol, name3, FileMode::Write);
-
-    cmsg(piol, "Output 3");
-    //select(piol, rule, file3, file1, list1, minrs);
-    #warning the wrong but safer function
-    selectDupe(piol, rule, file3, file1, list1, lminrs);
+    {
+        //Open and write out file1 --> file3
+        File::Direct file3(piol, name3, FileMode::Write);
+        cmsg(piol, "Output 3");
+        //select(piol, rule, file3, file1, list1, minrs);
+        outputNonMono(piol, rule, file3, file1, list1, lminrs);
+    }
 
     cmsg(piol, "Output 3 in " + std::to_string(MPI_Wtime()- time) + " seconds");
     time = MPI_Wtime();
-    //Open and write out file2 --> file4
-    //This case is more complicated because the list is unordered and there can be duplicate entries
-    //in the list.
-    File::Direct file4(piol, name4, FileMode::Write);
-    selectDupe(piol, rule, file4, file2, list2, lminrs);
-    cmsg(piol, "Output 4 in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
+    {
+        //Open and write out file2 --> file4
+        //This case is more complicated because the list is unordered and there can be duplicate entries
+        //in the list.
+        File::Direct file4(piol, name4, FileMode::Write);
+        outputNonMono(piol, rule, file4, file2, list2, lminrs);
+    }
+
+    cmsg(piol, "Output 4 in " + std::to_string(MPI_Wtime()- time) + " seconds");
     return 0;
 }

@@ -348,6 +348,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
         }
         else
         {
+            //TODO: Do not make assumptions about Parameter sizes fitting in memory.
             File::Param prm(lsnt);
             size_t loff = 0;
             size_t c = 0;
@@ -358,14 +359,9 @@ void InternalSet::sort(File::Compare<File::Param> func)
                     if (f->lst[i] != NOT_IN_OUTPUT)
                         list.push_back(f->offset + i);
 
-#warning this can now be optimised with the new readParam skip parameter
-                //TODO: Do not make assumptions about Parameter sizes fitting in memory.
-                //Replace this with an extra loop over the readParam calls
-                File::Param fprm(list.size());
-                f->ifc->readParam(list.size(), list.data(), &fprm);
+                f->ifc->readParam(list.size(), list.data(), &prm, loff);
                 for (size_t i = 0; i < list.size(); i++)
                 {
-                    cpyPrm(i, &fprm, loff+i, &prm);
                     setPrm(loff+i, Meta::gtn, off + loff + i, &prm);
                     setPrm(loff+i, Meta::ltn, (f->offset + i) * o.second.size() + c, &prm);
                 }
@@ -373,7 +369,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 loff += list.size();
             }
 
-            auto trlist = File::sort(piol.get(), off, &prm, func);
+            auto trlist = File::sort(piol.get(), &prm, func);
             size_t j = 0;
             for (auto & f : o.second)
                 for (auto & l : f->lst)

@@ -14,7 +14,6 @@ cd $PBS_O_WORKDIR
 export PIOL_DIR=$PBS_O_WORKDIR/..
 
 if [ $PIOL_SYSTEM == "Tullow" ]; then
-#    export TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test/$USER
     export TEST_DIR=/panfs/gpt2/SEAM_DATA/temp/$USER
 else
     export TEST_DIR=/ichec/work/exseisdat/test/$USER
@@ -22,33 +21,20 @@ fi
 
 export OUTPUT=test.segy
 
-if [ -f $PBS_O_WORKDIR/temp/util_1_$NODES.sh ]; then
+for file in temp/util_*_$NODES.sh; do
+    num=$(echo $file | cut -d "_" -f 2)
     while read -r all; do
     {
         set -- $all
-        if [ ! -e test_f_$4.sh ]; then
-            echo script test_f_$4.sh does not exist >> TEST$PBS_JOBID
+        if [ ! -e test_${num}_$4.sh ]; then
+            echo script test_${num}_$4.sh does not exist >> TEST$PBS_JOBID
             exit -1
         fi
 
         set -f
-        source test_f_$4.sh $5 $OUTPUT
+        source test_${num}_$4.sh $7 $8 $OUTPUT
         set +f
         bash farm.sh "$@" >> TEST$PBS_JOBID 2>&1
     } < /dev/null
-    done < $PBS_O_WORKDIR/temp/util_1_$NODES.sh
-fi
-
-if [ -f $PBS_O_WORKDIR/temp/util_0_$NODES.sh ]; then
-    while read -r all; do
-    {
-        set -- $all
-        if [ ! -e test_n_$4.sh ]; then
-            echo script test_n_$4.sh does not exist >> TEST$PBS_JOBID
-            exit -1
-        fi
-        source test_n_$4.sh $OUTPUT
-        bash farm.sh "$@" >> TEST$PBS_JOBID 2>&1
-    } < /dev/null
-    done < $PBS_O_WORKDIR/temp/util_0_$NODES.sh
-fi
+    done < $file
+done

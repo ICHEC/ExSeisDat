@@ -1,6 +1,5 @@
 #!/bin/bash
 if [ $PIOL_SYSTEM == "Tullow" ]; then
-#    TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test/$USER
     TEST_DIR=/panfs/gpt2/SEAM_DATA/temp/$USER
 else
     TEST_DIR=/ichec/work/exseisdat/test/$USER
