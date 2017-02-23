@@ -147,41 +147,36 @@ void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Di
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
+        //Sort the initial list and make a new list without duplicates
         auto idx = getSortIndex(rblock, &list[i]);
         std::vector<size_t> nodups;
-        for (size_t j = 0; j < rblock; j++)
-            if (!j || list[idx[j-1]] != list[idx[j]])
+        nodups.push_back(list[idx[0]]);
+        for (size_t j = 1; j < rblock; j++)
+            if (list[idx[j-1]] != list[idx[j]])
                 nodups.push_back(list[idx[j]]);
 
         File::Param sprm(rule, nodups.size());
         vec<trace_t> strc(ns * nodups.size());
 
-        cmsg(piol, "readTrace " + std::to_string(i));
         src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
 
-        cmsg(piol, "TEST " + std::to_string(i));
         size_t n = 0;
-        for (size_t j = 0; j < rblock; j++)
+        for (size_t j = 1; j < rblock; j++)
         {
             if (!j || list[idx[j-1]] != list[idx[j]])
                 n = j;
-            cpyPrm(n, &sprm, idx[n], &prm);
-
-            setPrm(j, Meta::dsdr, minrs[j], &prm);
+            cpyPrm(n, &sprm, idx[j], &prm);
+            setPrm(idx[j], Meta::dsdr, minrs[j], &prm);
             for (size_t k = 0; k < ns; k++)
                 trc[j*ns + k] = strc[idx[n]*ns + k];
         }
 
-        cmsg(piol, "writeTrace " + std::to_string(i));
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }
 
     for (size_t i = 0; i < extra; i++)
     {
-        cmsg(piol, "no readTrace " + std::to_string(i));
         src.readTrace(0, nullptr, nullptr, nullptr);
-        cmsg(piol, "NTEST " + std::to_string(i));
-        cmsg(piol, "no writeTrace " + std::to_string(i));
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 }
