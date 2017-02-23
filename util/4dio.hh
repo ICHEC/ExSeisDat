@@ -15,10 +15,10 @@ namespace PIOL { namespace FOURD {
 struct Coords
 {
     size_t sz;
-    geom_t * xSrc = NULL;
-    geom_t * ySrc = NULL;
-    geom_t * xRcv = NULL;
-    geom_t * yRcv = NULL;
+    fourd_t * xSrc = NULL;
+    fourd_t * ySrc = NULL;
+    fourd_t * xRcv = NULL;
+    fourd_t * yRcv = NULL;
     size_t * tn = NULL;
     const size_t align = ALIGN;
     size_t allocSz;
@@ -28,13 +28,13 @@ struct Coords
 
         //posix_memalign() guarantees the memory allocated is alligned according to the alignment
         //value
-        posix_memalign(reinterpret_cast<void **>(&xSrc), align, allocSz * sizeof(geom_t));
-        posix_memalign(reinterpret_cast<void **>(&ySrc), align, allocSz * sizeof(geom_t));
-        posix_memalign(reinterpret_cast<void **>(&xRcv), align, allocSz * sizeof(geom_t));
-        posix_memalign(reinterpret_cast<void **>(&yRcv), align, allocSz * sizeof(geom_t));
+        posix_memalign(reinterpret_cast<void **>(&xSrc), align, allocSz * sizeof(fourd_t));
+        posix_memalign(reinterpret_cast<void **>(&ySrc), align, allocSz * sizeof(fourd_t));
+        posix_memalign(reinterpret_cast<void **>(&xRcv), align, allocSz * sizeof(fourd_t));
+        posix_memalign(reinterpret_cast<void **>(&yRcv), align, allocSz * sizeof(fourd_t));
         posix_memalign(reinterpret_cast<void **>(&tn), align, allocSz * sizeof(size_t));
         for (size_t i = 0; i < allocSz; i++)
-            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<geom_t>::max();
+            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<fourd_t>::max();
     }
 
     ~Coords(void)
@@ -54,6 +54,6 @@ struct Coords
 };
 
 extern std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std::pair<size_t, size_t> dec);
-extern void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs);
+extern void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<fourd_t> & minrs);
 }}
 #endif

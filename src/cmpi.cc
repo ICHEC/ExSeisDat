@@ -102,7 +102,12 @@ std::vector<size_t> MPI::gather(const std::vector<size_t> & in) const
     return MPIGather(log, this, in);
 }
 
-std::vector<geom_t> MPI::gather(const std::vector<geom_t> & in) const
+std::vector<float> MPI::gather(const std::vector<float> & in) const
+{
+    return MPIGather(log, this, in);
+}
+
+std::vector<double> MPI::gather(const std::vector<double> & in) const
 {
     return MPIGather(log, this, in);
 }

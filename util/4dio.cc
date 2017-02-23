@@ -111,7 +111,7 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<geom_t> & minrs)
+void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<fourd_t> & minrs)
 {
     size_t ns = src.readNs();
     size_t lnt = list.size();

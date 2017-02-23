@@ -7,5 +7,5 @@
  *//*******************************************************************************************/
 #include "4dio.hh"
 namespace PIOL { namespace FOURD {
-extern void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * coords1, const Coords * coords2, vec<size_t> & min, vec<geom_t> & minrs, bool verbose);
+extern void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * coords1, const Coords * coords2, vec<size_t> & min, vec<fourd_t> & minrs, bool verbose);
 }}

@@ -10,8 +10,6 @@ else
     TEST_DIR=/ichec/work/exseisdat/test/$USER
 fi
 
-bash md5sum.sh
-
 cat > tests.cc << EOL
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"

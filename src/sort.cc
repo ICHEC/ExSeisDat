@@ -14,6 +14,9 @@
 #include <iterator>
 #include <functional>
 
+#warning test
+#include <iostream>
+
 #include "global.hh"
 #include "ops/sort.hh"
 #include "file/file.hh"
@@ -269,15 +272,12 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
         dat[i] = temp1[i];
 }
 
-std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> & list)
+std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 {
     csize_t lnt = list.size();
-    csize_t memSz = (sizeof(size_t) + sizeof(std::pair<size_t, size_t>)) / lnt;
-    csize_t regionSz = std::min(piol->comm->min(lnt) / 4U, getLimSz(memSz));
+    csize_t regionSz = piol->comm->min(lnt) / 4U;
     csize_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
-
     csize_t offset = offcalc(piol, lnt);
-//    auto list = sortOrder(piol, prm, comp);
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)
@@ -309,8 +309,7 @@ std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> & list)
 std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bool FileOrder)
 {
     size_t lnt = prm->size();
-    size_t memSz = (prm->f.size() + prm->i.size() + prm->s.size() + prm->t.size() + sizeof(Param) + sizeof(std::pair<size_t, size_t>)) / prm->size();
-    size_t regionSz = std::min(piol->comm->min(lnt) / 4U, getLimSz(memSz));
+    size_t regionSz = piol->comm->min(lnt) / 4U;
     size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
 
     std::vector<Param> vprm;

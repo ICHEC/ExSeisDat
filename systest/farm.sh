@@ -3,6 +3,8 @@
 
 read -r NODE_COUNT NODE_PPN MPI NAME STRIPE_COUNT MODULE FILENAME1 FILENAME2 < <(echo "$@")
 
+echo Line: $NODE_COUNT $NODE_PPN $MPI $NAME $STRIPE_COUNT $MODULE $FILENAME1 $FILENAME2
+
 #global variables
 source /etc/profile.d/modules.sh #So we can use the module command
 source ../mod_$MODULE
@@ -72,16 +74,23 @@ else
     echo FILE DID NOT COMPILE
 fi
 
-if [[ -n FILENAME1 ]]; then 
+if [[ -n $FILENAME1 ]]; then 
     FILENAME1=$(basename $FILENAME1 .segy)
 fi
-if [[ -n FILENAME2 ]]; then 
+if [[ -n $FILENAME2 ]]; then 
     FILENAME2=$(basename $FILENAME2 .segy)
 fi
 
 cat $PIOL_DIR/checksum/checksum_$FILENAME1${FILENAME2}_$NAME > CMP_CHECKSUM
+echo $FILENAME1$FILENAME2 $FILENAME1${FILENAME2}
+FILENAME=$FILENAME1${FILENAME2}
+if [[ -z $FILENAME ]]; then
+    FILENAME=EMPTY
+fi
+echo $FILENAME1$FILENAME2 and $FILENAME
+
 if [ -z $PBS_NODEFILE ]; then
-    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $FILENAME1$FILENAME2 $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
+    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $FILENAME $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
 else
-    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $FILENAME1$FILENAME2 $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
+    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $FILENAME $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
 fi

@@ -262,8 +262,17 @@ struct FileSEGYTest : public Test
         ASSERT_EQ(ilNum(offset), File::getPrm<llint>(0U, Meta::il, &prm));
         ASSERT_EQ(xlNum(offset), File::getPrm<llint>(0U, Meta::xl, &prm));
 
-        ASSERT_DOUBLE_EQ(xNum(offset), File::getPrm<geom_t>(0U, Meta::xSrc, &prm));
-        ASSERT_DOUBLE_EQ(yNum(offset), File::getPrm<geom_t>(0U, Meta::ySrc, &prm));
+        if (sizeof(geom_t) == sizeof(double))
+        {
+            ASSERT_DOUBLE_EQ(xNum(offset), File::getPrm<geom_t>(0U, Meta::xSrc, &prm));
+            ASSERT_DOUBLE_EQ(yNum(offset), File::getPrm<geom_t>(0U, Meta::ySrc, &prm));
+        }
+        else
+        {
+            ASSERT_FLOAT_EQ(xNum(offset), File::getPrm<geom_t>(0U, Meta::xSrc, &prm));
+            ASSERT_FLOAT_EQ(yNum(offset), File::getPrm<geom_t>(0U, Meta::ySrc, &prm));
+        }
+
     }
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
@@ -280,8 +289,16 @@ struct FileSEGYTest : public Test
             ASSERT_EQ(ilNum(i), File::getPrm<llint>(i, Meta::il, &prm));
             ASSERT_EQ(xlNum(i), File::getPrm<llint>(i, Meta::xl, &prm));
 
-            ASSERT_DOUBLE_EQ(xNum(i), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
-            ASSERT_DOUBLE_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            if (sizeof(geom_t) == sizeof(double))
+            {
+                ASSERT_DOUBLE_EQ(xNum(i), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            }
+            else
+            {
+                ASSERT_FLOAT_EQ(xNum(i), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_FLOAT_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            }
         }
     }
 
@@ -386,7 +403,7 @@ struct FileSEGYTest : public Test
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
         }
 
-        std::vector<float> bufnew(tn * ns);
+        std::vector<trace_t> bufnew(tn * ns);
         File::Param prm(tn);
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
@@ -396,8 +413,16 @@ struct FileSEGYTest : public Test
                 ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
 
-                ASSERT_DOUBLE_EQ(xNum(i+offset), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
-                ASSERT_DOUBLE_EQ(yNum(i+offset), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                if (sizeof(geom_t) == sizeof(double))
+                {
+                    ASSERT_DOUBLE_EQ(xNum(i+offset), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_DOUBLE_EQ(yNum(i+offset), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
+                else
+                {
+                    ASSERT_FLOAT_EQ(xNum(i+offset), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_FLOAT_EQ(yNum(i+offset), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
             }
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset + i + j)) << "Trace Number: " << i << " " << j;
@@ -452,8 +477,16 @@ struct FileSEGYTest : public Test
                 ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
 
-                ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
-                ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                if (sizeof(geom_t) == sizeof(double))
+                {
+                    ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
+                else
+                {
+                    ASSERT_FLOAT_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_FLOAT_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
             }
             for (size_t j = 0U; j < ns; j++)
                 ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + j)) << "Trace Number: " << offset[i] << " " << j;

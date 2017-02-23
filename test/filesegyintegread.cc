@@ -19,7 +19,10 @@ TEST_F(FileSEGYIntegRead, SEGYReadHO)
     piol->isErr();
     EXPECT_EQ(nt, file->readNt());
     piol->isErr();
-    EXPECT_DOUBLE_EQ(double(20e-6), file->readInc());
+    if (sizeof(geom_t) == sizeof(double))
+        EXPECT_DOUBLE_EQ(double(20e-6), file->readInc());
+    else
+        EXPECT_FLOAT_EQ(float(20e-6), file->readInc());
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceSmall)

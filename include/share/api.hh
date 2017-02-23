@@ -10,7 +10,7 @@
 #define PIOLSHAREAPI_INCLUDE_GUARD
 
 #ifndef __cplusplus
-typedef float geom_t;  //!< TODO: This should be done somewhere more general
+typedef double geom_t;  //!< TODO: This should be done somewhere more general
 #endif
 
 #ifdef __cplusplus

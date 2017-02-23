@@ -17,6 +17,7 @@ struct OpsTest : public Test
     {
     }
 };
+
 /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
  *  the collective min and max across all processes (which also must all call this file).
  *  \param[in, out] piol The PIOL object
@@ -43,14 +44,26 @@ TEST_F(OpsTest, getMinMaxSimple)
     {
         getMinMax(piol, offset, coord.size(), coord.data(), minmax.data());
         piol.isErr();
-        ASSERT_DOUBLE_EQ(minmax[0].val, 1500.); //min x
         ASSERT_EQ(offset, minmax[0].num);
-        ASSERT_DOUBLE_EQ(minmax[1].val, 2499.); //max x
         ASSERT_EQ(offset+999, minmax[1].num);
-        ASSERT_DOUBLE_EQ(minmax[2].val, 301.); //min x
         ASSERT_EQ(offset+999, minmax[2].num);
-        ASSERT_DOUBLE_EQ(minmax[3].val, 1300.); //max x
         ASSERT_EQ(offset, minmax[3].num);
+
+        if (sizeof(geom_t) == sizeof(double))
+        {
+            ASSERT_DOUBLE_EQ(minmax[0].val, 1500.); //min x
+            ASSERT_DOUBLE_EQ(minmax[1].val, 2499.); //max x
+            ASSERT_DOUBLE_EQ(minmax[2].val, 301.); //min x
+            ASSERT_DOUBLE_EQ(minmax[3].val, 1300.); //max x
+        }
+        else
+        {
+            ASSERT_FLOAT_EQ(minmax[0].val, 1500.); //min x
+            ASSERT_FLOAT_EQ(minmax[1].val, 2499.); //max x
+            ASSERT_FLOAT_EQ(minmax[2].val, 301.); //min x
+            ASSERT_FLOAT_EQ(minmax[3].val, 1300.); //max x
+        }
+
     }
 }
 
@@ -86,7 +99,7 @@ TEST_F(OpsTest, getMinMaxFail3)  //These fails won't surive a multi-processor ex
 template <bool Y, bool Min>
 void testMinMax(const std::vector<coord_t> & coord, const std::vector<CoordElem> & minmax)
 {
-    double val = double(Min ? 1 : -1) * std::numeric_limits<double>::infinity();
+    geom_t val = geom_t(Min ? 1 : -1) * std::numeric_limits<geom_t>::infinity();
     size_t tn = 0;
     for (size_t i = 0; i < coord.size(); i++)
     {
@@ -97,7 +110,11 @@ void testMinMax(const std::vector<coord_t> & coord, const std::vector<CoordElem>
             tn = i;
         }
     }
-    ASSERT_DOUBLE_EQ(val, minmax[2U*size_t(Y) + size_t(!Min)].val);
+
+    if (sizeof(double) == sizeof(geom_t))
+        ASSERT_DOUBLE_EQ(val, minmax[2U*size_t(Y) + size_t(!Min)].val);
+    else
+        ASSERT_FLOAT_EQ(val, minmax[2U*size_t(Y) + size_t(!Min)].val);
     ASSERT_EQ(tn, minmax[2U*size_t(Y) + size_t(!Min)].num);
 }
 
@@ -127,14 +144,13 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
     Param prm(200);
     for (size_t i = 0; i < prm.size(); i++)
     {
-        setPrm(i, Meta::xSrc, 1000.0 - i / 20, &prm);
-        setPrm(i, Meta::ySrc, 1000.0 - i % 20, &prm);
-        setPrm(i, Meta::xRcv, 1000.0 - i / 10, &prm);
-        setPrm(i, Meta::yRcv, 1000.0 - i % 10, &prm);
+        setPrm(i, Meta::xSrc, 1000.0 - geom_t(i / 20), &prm);
+        setPrm(i, Meta::ySrc, 1000.0 - geom_t(i % 20), &prm);
+        setPrm(i, Meta::xRcv, 1000.0 - geom_t(i / 10), &prm);
+        setPrm(i, Meta::yRcv, 1000.0 - geom_t(i % 10), &prm);
         setPrm(i, Meta::gtn, i, &prm);
     }
     auto list = sort(piol, SortType::SrcRcv, &prm);
-
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(list.size() - i-1, list[i]) << " i " << i << " list.size()-i-1 " << list.size()-i-1  << " list[i] " << list[i];
 }

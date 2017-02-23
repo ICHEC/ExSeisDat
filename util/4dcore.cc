@@ -6,7 +6,7 @@
 namespace PIOL { namespace FOURD {
 
 //This function prints to stdio
-void printxSrcMinMax(ExSeisPIOL * piol, vec<geom_t> & xsmin, vec<geom_t> & xsmax)
+void printxSrcMinMax(ExSeisPIOL * piol, vec<fourd_t> & xsmin, vec<fourd_t> & xsmax)
 {
     piol->comm->barrier();
     assert(xsmin.size() == xsmax.size());
@@ -17,7 +17,7 @@ void printxSrcMinMax(ExSeisPIOL * piol, vec<geom_t> & xsmin, vec<geom_t> & xsmax
 }
 
 //This function outputs some data for inspection
-void printxSMinMax(ExSeisPIOL * piol, geom_t xslmin, geom_t xslmax, geom_t xsrmin, geom_t xsrmax, vec<size_t> & active)
+void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xsrmin, fourd_t xsrmax, vec<size_t> & active)
 {
     size_t rank = piol->comm->getRank();
     std::string name = "tmp/temp" + std::to_string(rank);
@@ -27,8 +27,8 @@ void printxSMinMax(ExSeisPIOL * piol, geom_t xslmin, geom_t xslmax, geom_t xsrmi
     for (size_t i = 0; i < active.size(); i++)
         fprintf(fOut, "%zu\n", active[i]);
     fclose(fOut);
-    auto lxsmin = piol->comm->gather(vec<geom_t>{xslmin});
-    auto lxsmax = piol->comm->gather(vec<geom_t>{xslmax});
+    auto lxsmin = piol->comm->gather(vec<fourd_t>{xslmin});
+    auto lxsmax = piol->comm->gather(vec<fourd_t>{xslmax});
     printxSrcMinMax(piol, lxsmin, lxsmax);
     if (!rank)
         std::cout << "file2 min/max\n";
@@ -36,7 +36,7 @@ void printxSMinMax(ExSeisPIOL * piol, geom_t xslmin, geom_t xslmax, geom_t xsrmi
 
 /* The intel compiler uses an incorrect hypotenuse function when it vectorises.
  */
-geom_t hypot(geom_t x, geom_t y)
+fourd_t hypot(fourd_t x, fourd_t y)
 {
     return sqrtf(x*x + y*y);
 }
@@ -49,13 +49,13 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords)
     vec<MPI_Win> win(5);
     //Look at MPI_Info
     int err;
-    err = MPI_Win_create(coords->xSrc, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[0]);
+    err = MPI_Win_create(coords->xSrc, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[0]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->ySrc, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[1]);
+    err = MPI_Win_create(coords->ySrc, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[1]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->xRcv, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[2]);
+    err = MPI_Win_create(coords->xRcv, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[2]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->yRcv, coords->sz, sizeof(geom_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[3]);
+    err = MPI_Win_create(coords->yRcv, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[3]);
     assert(err == MPI_SUCCESS);
     err = MPI_Win_create(coords->tn, coords->sz, sizeof(size_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[4]);
     assert(err == MPI_SUCCESS);
@@ -71,17 +71,16 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords)
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win)
 {
     auto coords = std::make_unique<Coords>(sz);
-#warning I don't think this is correct yet
     for (size_t i = 0; i < 5; i++)
-        MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]);
+        MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
     int err;
-    err = MPI_Get(coords->xSrc, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[0]);
+    err = MPI_Get(coords->xSrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->ySrc, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[1]);
+    err = MPI_Get(coords->ySrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[1]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->xRcv, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[2]);
+    err = MPI_Get(coords->xRcv, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[2]);
     assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->yRcv, coords->sz, MPIType<geom_t>(), lrank, 0, sz, MPIType<geom_t>(), win[3]);
+    err = MPI_Get(coords->yRcv, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[3]);
     assert(err == MPI_SUCCESS);
     err = MPI_Get(coords->tn, coords->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]);
     assert(err == MPI_SUCCESS);
@@ -106,11 +105,11 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
  * rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)
  * dsr = (min(ds, rds) + min(dr, rdr))^2
  * \todo Compute load just jumped up. No Branching. Acceleration opportunity! */
-geom_t dsr(const geom_t xs1, const geom_t ys1, const geom_t xr1, const geom_t yr1,
-           const geom_t xs2, const geom_t ys2, const geom_t xr2, const geom_t yr2)
+fourd_t dsr(const fourd_t xs1, const fourd_t ys1, const fourd_t xr1, const fourd_t yr1,
+           const fourd_t xs2, const fourd_t ys2, const fourd_t xr2, const fourd_t yr2)
 {
-    const geom_t forward = hypot(xs1 - xs2, ys1 - ys2) + hypot(xr1 - xr2, yr1 - yr2); //Forward-boat case
-    const geom_t reverse = hypot(xs1 - xr2, ys1 - yr2) + hypot(xr1 - xs2, yr1 - ys2); //Reverse-boat case
+    const fourd_t forward = hypot(xs1 - xs2, ys1 - ys2) + hypot(xr1 - xr2, yr1 - yr2); //Forward-boat case
+    const fourd_t reverse = hypot(xs1 - xr2, ys1 - yr2) + hypot(xr1 - xs2, yr1 - ys2); //Reverse-boat case
     return std::min(forward, reverse);
 }
 
@@ -125,7 +124,7 @@ geom_t dsr(const geom_t xs1, const geom_t ys1, const geom_t xr1, const geom_t yr
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-void initUpdate(size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<geom_t> & minrs)
+void initUpdate(size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs)
 {
     for (size_t i = 0; i < crd1->sz; i++)
     {
@@ -146,85 +145,56 @@ void initUpdate(size_t offset, const Coords * crd1, const Coords * crd2, vec<siz
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-size_t update(size_t rank, size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<geom_t> & minrs, geom_t dsrmax)
+size_t update(size_t rank, size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, fourd_t dsrmax)
 {
-    size_t sz = crd1->sz;
-
     //For the vectorisation
     size_t lstart = 0U;
     size_t lend = crd1->sz;
     size_t rstart = 0U;
     size_t rend = crd2->sz;
 
-    const geom_t * lxS = crd1->xSrc;
-    const geom_t * lyS = crd1->ySrc;
-    const geom_t * lxR = crd1->xRcv;
-    const geom_t * lyR = crd1->yRcv;
-    const geom_t * rxS = crd2->xSrc;
-    const geom_t * ryS = crd2->ySrc;
-    const geom_t * rxR = crd2->xRcv;
-    const geom_t * ryR = crd2->yRcv;
-    const size_t * tn = crd2->tn;
-
     //Ignore all file2 traces that can not possibly match our criteria within the min/max
     //of src x.
-    while (rstart < crd2->sz && rxS[rstart] < lxS[0] - dsrmax)
-        rstart++;
-    while (rend >= rstart && rxS[rend] > lxS[sz-1] + dsrmax)
-        rend--;
-    while (lstart < sz && lxS[lstart] < rxS[rstart] - dsrmax)
-        lstart++;
-    while (lend >= lstart && lxS[lend] > rxS[rend-1] + dsrmax)
-        lend--;
-
-    //TODO: A more advanced reduction of the workload would be to:
-    //  sort by src-x --> drop traces
-    //  sort by src-y --> drop traces
-    //  sort by rcv-x --> drop traces
-    //  sort by rcv-y --> drop traces
+    for (;rstart < rend && crd2->xSrc[rstart] < crd1->xSrc[lstart] - dsrmax; rstart++);
+    for (;rend >= rstart && crd2->xSrc[rend] > crd1->xSrc[lend-1] + dsrmax; rend--);
+    for (;lstart < lend && crd1->xSrc[lstart] < crd2->xSrc[rstart] - dsrmax; lstart++);
+    for (;lend >= lstart && crd1->xSrc[lend] > crd2->xSrc[rend-1] + dsrmax; lend--);
 
     //TODO: Check if theoretical speedup is realisable for this alignment
     lstart = size_t(lstart / ALIGN) * ALIGN;
-
-    //TODO: if I want to use this next line, I need to resize lmin etc.
-
     size_t lsz = lend-lstart;
     size_t rsz = rend-rstart;
-    size_t lszAlign = size_t((lend + ALIGN-1U)/ ALIGN) * ALIGN - lstart;
-
-    if (!lsz || !rsz)
-        return 0U;
 
     //Copy min and minrs to aligned memory
-    geom_t * lminrs;
+    fourd_t * lminrs;
     size_t * lmin;
-    posix_memalign(reinterpret_cast<void **>(&lminrs), ALIGN, lszAlign * sizeof(geom_t));
-    posix_memalign(reinterpret_cast<void **>(&lmin), ALIGN, lszAlign * sizeof(size_t));
-    std::copy(min.begin(), min.begin() + lsz, lmin);
-    std::copy(minrs.begin(), minrs.begin() + lsz, lminrs);
+    posix_memalign(reinterpret_cast<void **>(&lminrs), ALIGN, crd1->sz * sizeof(fourd_t));
+    posix_memalign(reinterpret_cast<void **>(&lmin), ALIGN, crd1->sz * sizeof(size_t));
+    std::copy(min.begin(), min.begin() + crd1->sz, lmin);
+    std::copy(minrs.begin(), minrs.begin() + crd1->sz, lminrs);
 
-    lxS = &crd1->xSrc[lstart];
-    lyS = &crd1->ySrc[lstart];
-    lxR = &crd1->xRcv[lstart];
-    lyR = &crd1->yRcv[lstart];
-    rxS = &crd2->xSrc[rstart];
-    ryS = &crd2->ySrc[rstart];
-    rxR = &crd2->xRcv[rstart];
-    ryR = &crd2->yRcv[rstart];
-    tn = &crd2->tn[rstart];
-
-    #pragma omp simd aligned(rxS:ALIGN) aligned(ryS:ALIGN) aligned(rxR:ALIGN) aligned(ryR:ALIGN) \
-                     aligned(lxS:ALIGN) aligned(lyS:ALIGN) aligned(lxR:ALIGN) aligned(lyR:ALIGN) \
+    //These declarations are so that the compiler handles the pragma correctly
+    const fourd_t * xS1 = crd1->xSrc;
+    const fourd_t * xR1 = crd1->xRcv;
+    const fourd_t * yS1 = crd1->ySrc;
+    const fourd_t * yR1 = crd1->yRcv;
+    const fourd_t * xS2 = crd2->xSrc;
+    const fourd_t * xR2 = crd2->xRcv;
+    const fourd_t * yS2 = crd2->ySrc;
+    const fourd_t * yR2 = crd2->yRcv;
+    const size_t * tn = crd2->tn;
+    #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) aligned(yR2:ALIGN) \
+                     aligned(xS1:ALIGN) aligned(yS1:ALIGN) aligned(xR1:ALIGN) aligned(yR1:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (size_t i = 0U; i < lszAlign; i++)                         //Loop through every file1 trace
+    for (size_t i = lstart; i < lend; i++)                         //Loop through every file1 trace
     {
-        const geom_t lxs = lxS[i], lys = lyS[i], lxr = lxR[i], lyr = lyR[i];
+        const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
         size_t lm = lmin[i];
-        geom_t lmrs = lminrs[i];
-        for (size_t j = 0U; j < rsz; j++)        //loop through a multiple of the alignment
+        fourd_t lmrs = lminrs[i];
+        for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
         {
-            const geom_t rxs = rxS[j], rys = ryS[j], rxr = rxR[j], ryr = ryR[j];
-            geom_t dval = dsr(lxs, lys, lxr, lyr, rxs, rys, rxr, ryr);
+            const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j], yr2 = yR2[j];
+            fourd_t dval = dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2);
             lm = (dval < lmrs ? tn[j] : lm);      //Update min if applicable
             lmrs = std::min(dval, lmrs);          //Update minrs if applicable
         }
@@ -232,14 +202,14 @@ size_t update(size_t rank, size_t offset, const Coords * crd1, const Coords * cr
         lminrs[i] = lmrs;
     }
 
-    std::copy(lmin, lmin+lsz, min.begin() + lstart);
-    std::copy(lminrs, lminrs+lsz, minrs.begin() + lstart);
+    std::copy(lmin, lmin+crd1->sz, min.begin());
+    std::copy(lminrs, lminrs+crd1->sz, minrs.begin());
     free(lmin);
     free(lminrs);
     return lsz * rsz;
 }
 
-void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * crd1, const Coords * coords2, vec<size_t> & min, vec<geom_t> & minrs, bool verbose)
+void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, const Coords * coords2, vec<size_t> & min, vec<fourd_t> & minrs, bool verbose)
 {
     cmsg(piol, "Compute phase");
     size_t rank = piol->comm->getRank();
@@ -250,8 +220,8 @@ void calc4DBin(ExSeisPIOL * piol, const geom_t dsrmax, const Coords * crd1, cons
         offset[i] = offset[i-1] + szall[i];
 
     //The File2 min/max from every process
-    auto xsmin = piol->comm->gather(vec<geom_t>{coords2->xSrc[0U]});
-    auto xsmax = piol->comm->gather(vec<geom_t>{coords2->xSrc[coords2->sz-1U]});
+    auto xsmin = piol->comm->gather(vec<fourd_t>{coords2->xSrc[0U]});
+    auto xsmax = piol->comm->gather(vec<fourd_t>{coords2->xSrc[coords2->sz-1U]});
 
     //The File1 local min and local maximum for the particular process
     auto xslmin = crd1->xSrc[0U];

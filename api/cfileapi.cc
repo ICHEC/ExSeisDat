@@ -245,7 +245,7 @@ void writeNt(ExSeisFile f, size_t nt)
     f->file->writeNt(nt);
 }
 
-void writeInc(ExSeisFile f, const double inc)
+void writeInc(ExSeisFile f, const geom_t inc)
 {
     f->file->writeInc(inc);
 }

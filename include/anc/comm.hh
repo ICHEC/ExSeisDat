@@ -48,7 +48,9 @@ class Interface
      *  \param[in] val The local value to use in the gather
      *  \return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<geom_t> gather(const std::vector<geom_t> & val) const = 0;
+    virtual std::vector<double> gather(const std::vector<double> & val) const = 0;
+
+    virtual std::vector<float> gather(const std::vector<float> & val) const = 0;
 
     /*! \brief Pass a vector of llint and return the corresponding values to each process
      *  \param[in] val The local value to use in the gather

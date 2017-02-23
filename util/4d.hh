@@ -17,6 +17,8 @@ using cvec = const std::vector<T>;
 template <class T>
 using vec = std::vector<T>;
 
+typedef float fourd_t;
+
 namespace PIOL
 {
 void cmsg(ExSeisPIOL * piol, std::string msg);

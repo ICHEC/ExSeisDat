@@ -33,7 +33,7 @@ void cmsg(ExSeisPIOL * piol, std::string msg)
 }
 }
 
-void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> & list2, vec<geom_t> & lminrs)
+void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> & list2, vec<fourd_t> & lminrs)
 {
     if (verbose)
     {
@@ -44,7 +44,7 @@ void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> &
         assert(1U == fwrite(&cnt, sizeof(size_t), 1U, fOut));
         assert(list1.size() == fwrite(list1.data(), sizeof(size_t), list1.size(), fOut));
         assert(list2.size() == fwrite(list2.data(), sizeof(size_t), list2.size(), fOut));
-        assert(lminrs.size() == fwrite(lminrs.data(), sizeof(geom_t), lminrs.size(), fOut));
+        assert(lminrs.size() == fwrite(lminrs.data(), sizeof(fourd_t), lminrs.size(), fOut));
         fclose(fOut);
 
         name += ".txt";
@@ -59,7 +59,7 @@ void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> &
 int main(int argc, char ** argv)
 {
     ExSeis piol;
-    geom_t dsrmax = 1.0;            //Default dsdr criteria
+    fourd_t dsrmax = 1.0;            //Default dsdr criteria
     bool verbose = false;
     bool skipToOutput = false;
 /**********************************************************************************************************
@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
 
     vec<size_t> list1;
     vec<size_t> list2;
-    vec<geom_t> lminrs;
+    vec<fourd_t> lminrs;
 
     //Open the two input files
     File::Direct file1(piol, name1, FileMode::Read);
@@ -132,7 +132,7 @@ int main(int argc, char ** argv)
         cmsg(piol, "Read sets of coordinates from file " + name2 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
         vec<size_t> min(coords1->sz);
-        vec<geom_t> minrs(coords1->sz);
+        vec<fourd_t> minrs(coords1->sz);
         calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), min, minrs, verbose);
 
         cmsg(piol, "Final list pass");
@@ -174,7 +174,7 @@ int main(int argc, char ** argv)
 
         assert(list1.size() == fread(list1.data(), sizeof(size_t), list1.size(), fOut));
         assert(list2.size() == fread(list2.data(), sizeof(size_t), list2.size(), fOut));
-        assert(lminrs.size() == fread(lminrs.data(), sizeof(geom_t), lminrs.size(), fOut));
+        assert(lminrs.size() == fread(lminrs.data(), sizeof(fourd_t), lminrs.size(), fOut));
         fclose(fOut);
     }
 

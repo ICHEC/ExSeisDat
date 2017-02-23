@@ -168,7 +168,7 @@ std::pair<TrGrd, TrGrd> getPair(Grid pair)
     }
 }
 
-extern geom_t scaleConv(int16_t scale);
+//extern geom_t scaleConv(int16_t scale);
 extern geom_t getMd(const TrScal scal, const uchar * src);
 extern geom_t getMd(const TrCrd item, const geom_t scale, const uchar * src);
 extern int32_t getMd(const TrGrd item, const uchar * src);
@@ -176,7 +176,7 @@ extern void setCoord(const Coord item, const coord_t coord, const int16_t scale,
 extern coord_t getCoord(const Coord item, const geom_t scale, const uchar * buf);
 extern grid_t getGrid(const Grid item, const uchar * buf);
 extern void setGrid(const Grid item, const grid_t grid, uchar * buf);
-extern int16_t deScale(const geom_t val);
+//extern int16_t deScale(const geom_t val);
 extern int16_t scalComp(int16_t scal1, int16_t scal2);
 extern int16_t calcScale(const coord_t coord);
 //extern void extractTraceParam(const uchar * md, TraceParam * prm);

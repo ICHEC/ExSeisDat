@@ -87,10 +87,20 @@ TEST_F(RuleFixList, setPrm)
     }
     for (size_t i = 0; i < 100; i++)
     {
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i) + 1.);
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i) + 2.);
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i) + 3.);
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i) + 4.);
+        if (sizeof(geom_t) == sizeof(double))
+        {
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i+1));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i+2));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i+3));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i+4));
+        }
+        else
+        {
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i + 1));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i + 2));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i + 3));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i + 4));
+        }
         ASSERT_EQ(getPrm<llint>(i, Meta::dsdr, &prm), llint(i + 1));
         ASSERT_EQ(getPrm<short>(i, Meta::il, &prm), short(i + 2));
     }

@@ -284,7 +284,7 @@ extern void writeNt(ExSeisFile f, size_t nt);
  *  \param[in] f A handle for the file.
  *  \param[in] inc The new increment between trace samples.
  */
-extern void writeInc(ExSeisFile f, double inc);
+extern void writeInc(ExSeisFile f, geom_t inc);
 
 /*
  *    Reading data from the trace headers
