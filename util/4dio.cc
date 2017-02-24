@@ -5,7 +5,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-
+#include <iostream>
 #include "4dio.hh"
 #include "fileops.hh"   //For sort
 namespace PIOL { namespace FOURD {
@@ -43,7 +43,7 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std
 
     //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
     //If not, the code will deadlock. Communication is done to ensure we balance out the correct number of redundant calls
-    size_t biggest = piol->comm->max(max);
+    size_t biggest = piol->comm->max(lnt);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
     File::Param prm(rule, lnt);
@@ -59,7 +59,6 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file->readParam(0U, size_t(0), nullptr, 0U);
-
     cmsg(piol, "getCoords sort");
 
     auto trlist = File::sort(piol, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
@@ -146,14 +145,13 @@ void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Di
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-
         //Sort the initial list and make a new list without duplicates
         auto idx = getSortIndex(rblock, &list[i]);
         std::vector<size_t> nodups;
-        nodups.push_back(list[idx[0]]);
+        nodups.push_back(list[i+idx[0]]);
         for (size_t j = 1; j < rblock; j++)
-            if (list[idx[j-1]] != list[idx[j]])
-                nodups.push_back(list[idx[j]]);
+            if (list[i+idx[j-1]] != list[i+idx[j]])
+                nodups.push_back(list[i+idx[j]]);
 
         File::Param sprm(rule, nodups.size());
         vec<trace_t> strc(ns * nodups.size());
@@ -161,14 +159,15 @@ void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Di
         src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
 
         size_t n = 0;
-        for (size_t j = 1; j < rblock; j++)
+        for (size_t j = 0; j < rblock; j++)
         {
-            if (!j || list[idx[j-1]] != list[idx[j]])
-                n = j;
+            n += (j && list[i+idx[j-1]] != list[i+idx[j]]);
+
             cpyPrm(n, &sprm, idx[j], &prm);
-            setPrm(idx[j], Meta::dsdr, minrs[j], &prm);
+            setPrm(idx[j], Meta::dsdr, minrs[i+idx[j]], &prm);
+
             for (size_t k = 0; k < ns; k++)
-                trc[j*ns + k] = strc[idx[n]*ns + k];
+                trc[idx[j]*ns + k] = strc[n*ns + k];
         }
 
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
