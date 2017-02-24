@@ -94,30 +94,33 @@ class Interface
      */
     virtual void writeInc(const geom_t inc_) = 0;
 
+    /*! \brief Read the trace parameters from offset to offset+sz of the respective
+     *  trace headers.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
+     */
+    virtual void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const = 0;
+
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
+     *  \param[in] skip When writing, skip the first "skip" entries of prm
      *
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
     virtual void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip = 0) = 0;
 
-    /*! \brief Read the trace parameters from offset to offset+sz of the respective
-     *  trace headers.
-     *  \param[in] offset The starting trace number.
-     *  \param[in] sz The number of traces to process.
-     *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
-     */
-    virtual void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const = 0;
-
     /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process.
      *  \param[out] trace The array of traces to fill from the file
      *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
@@ -126,6 +129,7 @@ class Interface
      *  \param[in] sz The number of traces to process.
      *  \param[in] trace The array of traces to write to the file
      *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
+     *  \param[in] skip When writing, skip the first "skip" entries of prm
      */
     virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
 
@@ -134,6 +138,7 @@ class Interface
      *  \param[in] offset An array of trace numbers to read.
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[out] prm A parameter structure
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
      *
      *  \details When prm==PARAM_NULL only the trace DF is read.
      */
@@ -144,6 +149,7 @@ class Interface
      *  \param[in] offset An array of trace numbers to write.
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[in] prm A parameter structure
+     *  \param[in] skip When writing, skip the first "skip" entries of prm
      *
      *  \details When prm==PARAM_NULL only the trace DF is written.
      *  It is assumed that the parameter writing operation is not an update. Any previous
@@ -155,6 +161,7 @@ class Interface
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to read.
      *  \param[out] prm A parameter structure
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const = 0;
 
@@ -162,6 +169,7 @@ class Interface
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to write.
      *  \param[in] prm A parameter structure
+     *  \param[in] skip When writing, skip the first "skip" entries of prm
      *
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.

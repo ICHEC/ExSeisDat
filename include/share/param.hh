@@ -23,18 +23,18 @@ struct Param
     std::vector<int16_t> s;   //!< Short array.
     std::vector<size_t> t;    //!< trace number array.
     std::shared_ptr<Rule> r;  //!< The rules which describe the indexing of the arrays.
-    size_t sz;
+    size_t sz;                //!< The number of sets of trace parameters.
 
     /*! Allocate the basic space required to store the arrays and store the rules.
      *  \param[in] r_ The rules which describe the layout of the arrays.
      *  \param[in] sz The number of sets of trace parameters.
      */
-    Param(std::shared_ptr<Rule> r_, size_t sz);
+    Param(std::shared_ptr<Rule> r_, csize_t sz);
 
     /*! Allocate the basic space required to store the arrays and store the rules. Default rules
      *  \param[in] sz The number of sets of trace parameters.
      */
-    Param(size_t sz = 1);
+    Param(csize_t sz = 1);
 
     /*! Return the number of sets of trace parameters.
      *  \return Number of sets

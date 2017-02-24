@@ -105,6 +105,7 @@ void setMd(const Hdr item, const T src, uchar * dst)
  *  \param[in] md The buffer in the SEG-Y trace header format
  *  \param[out] prm The parameter structure
  *  \param[in] stride The stride to use between adjacent blocks in the input buffer.
+ *  \param[in] skip Skip the first "skip" entries when filling Param
  */
 extern void extractParam(size_t sz, const uchar * md, Param * prm, size_t stride, size_t skip);
 
@@ -113,6 +114,7 @@ extern void extractParam(size_t sz, const uchar * md, Param * prm, size_t stride
  *  \param[in] prm The parameter structure
  *  \param[out] md The buffer in the SEG-Y trace header format
  *  \param[in] stride The stride to use between adjacent blocks in the input buffer.
+ *  \param[in] skip Skip the first "skip" entries when extracting entries from Param
  */
 extern void insertParam(size_t sz, const Param * prm, uchar * md, size_t stride, size_t skip);
 }}

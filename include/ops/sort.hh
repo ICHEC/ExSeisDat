@@ -21,10 +21,10 @@ using Compare = std::function<bool(const T &, const T &)>;
  *  is located in the sorted list. Implementation note: the Param vector is used internally
  *  to allow random-access iterator support.
  *  \param[in] piol The PIOL object.
- *  \param[in] offset The offset for the local process
  *  \param[in,out] prm The parameter structure to sort
  *  \param[in] comp The Param function to use for less-than comparisons between objects in the
  *                  vector. It assumes each Param structure has exactly one entry.
+ *  \param[in] FileOrder Do we wish to have the sort in the sorted input order (true) or sorted order (false)
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
  */
 std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bool FileOrder = true);

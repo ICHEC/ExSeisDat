@@ -205,6 +205,11 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
             cpyPrm(i, &rprm, 0U, &dat[i+dat.size()-regionSz]);
 }
 
+/*! Calculate an offset based on local size and implied ordering of left to right.
+ *  \param[in] piol The piol handle
+ *  \param[in] sz The local size
+ *  \return The associated offset
+ */
 static size_t offcalc(ExSeisPIOL * piol, size_t sz)
 {
     size_t rank = piol->comm->getRank();
@@ -272,6 +277,11 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
         dat[i] = temp1[i];
 }
 
+/*! Parallel sort a list. Local vector is part of the entire list.
+ *  \param[in] piol The PIOL object.
+ *  \param[in] list The local vector
+ *  \return Return a new sorted vector
+ */
 std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 {
     csize_t lnt = list.size();

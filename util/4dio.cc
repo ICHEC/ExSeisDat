@@ -5,7 +5,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <iostream>
+#include <numeric>
 #include "4dio.hh"
 #include "fileops.hh"   //For sort
 namespace PIOL { namespace FOURD {

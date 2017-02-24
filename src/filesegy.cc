@@ -187,7 +187,7 @@ void SEGY::writeInc(const geom_t inc_)
     }
 }
 
-void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, size_t skip) const
+void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, csize_t skip) const
 {
     size_t ntz = (state.stalent || !sz ? sz : (offset + sz > nt ? nt - offset : sz));
     uchar * buf = reinterpret_cast<uchar *>(trace);
@@ -214,7 +214,7 @@ void SEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, s
             reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
-void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, size_t skip)
+void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, csize_t skip)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -253,7 +253,7 @@ void SEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param *
 }
 
 //TODO: Unit test
-void SEGY::readParam(csize_t offset, csize_t sz, Param * prm, size_t skip) const
+void SEGY::readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const
 {
     if (offset >= nt && sz && !state.stalent)   //Nothing to be read.
     {
@@ -272,7 +272,7 @@ void SEGY::readParam(csize_t offset, csize_t sz, Param * prm, size_t skip) const
         extractParam(ntz, buf.data(), prm, 0, skip);
 }
 
-void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm, size_t skip)
+void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip)
 {
     #ifdef NT_LIMITS
     if (sz+offset > NT_LIMITS)
@@ -298,7 +298,7 @@ void SEGY::writeParam(csize_t offset, csize_t sz, const Param * prm, size_t skip
     nt = std::max(offset + sz, nt);
 }
 
-void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, size_t skip) const
+void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const
 {
     uchar * buf = reinterpret_cast<uchar *>(trace);
     if (prm == PARAM_NULL)
@@ -324,7 +324,7 @@ void SEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm,
             reverse4Bytes(&buf[i*sizeof(float)]);
 }
 
-void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, size_t skip)
+void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, csize_t skip)
 {
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
@@ -354,7 +354,7 @@ void SEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param
         nt = std::max(offset[sz-1]+1U, nt);
 }
 
-void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm, size_t skip) const
+void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const
 {
 //TODO: Is it useful to check if all the offsets are greater than nt?
     if (!sz)   //Nothing to be written.
@@ -369,7 +369,7 @@ void SEGY::readParam(csize_t sz, csize_t * offset, Param * prm, size_t skip) con
         extractParam(sz, buf.data(), prm, 0U, skip);
 }
 
-void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm, size_t skip)
+void SEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip)
 {
     #ifdef NT_LIMITS
     size_t max = 0;
