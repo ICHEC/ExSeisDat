@@ -8,7 +8,7 @@
 #include "share/segy.hh"
 using namespace PIOL;
 
-void writeContig(ExSeis piol, File::Direct * file, size_t offset, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+void writeContig(ExSeis piol, File::WriteDirect * file, size_t offset, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
 {
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
@@ -43,7 +43,7 @@ void writeContig(ExSeis piol, File::Direct * file, size_t offset, size_t nt, siz
     }
 }
 
-void writeRandom(ExSeisPIOL * piol, File::Direct * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
 {
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
@@ -111,7 +111,7 @@ void writeRandom(ExSeisPIOL * piol, File::Direct * file, size_t nt, size_t ns, s
 void FileMake(bool lob, bool random, const std::string name, size_t max, size_t ns, size_t nt, geom_t inc)
 {
     ExSeis piol;
-    File::Direct file(piol, name, FileMode::Write);
+    File::WriteDirect file(piol, name);
 
     piol.isErr();
     file.writeNs(ns);

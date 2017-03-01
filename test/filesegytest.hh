@@ -20,14 +20,6 @@
 #undef private
 #undef protected
 
-/*namespace PIOL { namespace File {
-extern int16_t calcScale(const coord_t coord);
-extern int16_t scalComp(int16_t scal1, int16_t scal2);
-extern void setCoord(const File::Coord item, const coord_t coord, const int16_t scale, uchar * buf);
-extern void setGrid(const File::Grid item, const grid_t grid, uchar * buf);
-extern int16_t deScale(const geom_t val);
-}}*/
-
 using namespace testing;
 using namespace PIOL;
 using PIOL::File::deScale;
@@ -37,7 +29,6 @@ using File::calcScale;
 using File::scalComp;
 using File::setCoord;
 using File::setGrid;
-
 
 enum Hdr : size_t
 {
@@ -105,13 +96,13 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t *, const uchar *));
 };
 
-struct FileSEGYTest : public Test
+struct FileReadSEGYTest : public Test
 {
     std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPI::Opt opt;
     bool testEBCDIC;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    std::unique_ptr<File::Direct> file;
+    std::unique_ptr<File::ReadDirect> file;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
@@ -120,7 +111,7 @@ struct FileSEGYTest : public Test
     std::vector<uchar> ho;
     std::shared_ptr<MockObj> mock;
 
-    FileSEGYTest()
+    FileReadSEGYTest()
     {
         testEBCDIC = false;
         file = nullptr;
@@ -129,34 +120,29 @@ struct FileSEGYTest : public Test
         ho.resize(SEGSz::getHOSz());
     }
 
-    ~FileSEGYTest()
+    ~FileReadSEGYTest()
     {
         Mock::VerifyAndClearExpectations(&mock);
     }
 
-    template <bool WRITE = true, bool OPTS = false>
+    template <bool OPTS = false>
     void makeSEGY(std::string name)
     {
         if (file.get() != nullptr)
             file.reset();
-        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
         if (OPTS)
         {
-            File::SEGY::Opt fopt;
+            File::ReadSEGY::Opt fopt;
             Obj::SEGY::Opt oopt;
             Data::MPIIO::Opt dopt;
-            file = std::make_unique<File::Direct>(piol, name, fopt, oopt, dopt, mode);
+            file = std::make_unique<File::ReadDirect>(piol, name, fopt, oopt, dopt);
         }
         else
-            file = std::make_unique<File::Direct>(piol, name, mode);
+            file = std::make_unique<File::ReadDirect>(piol, name);
 
         piol->isErr();
-
-        if (WRITE)
-            writeHO<false>();
     }
 
-    template <bool WRITE = true, bool callHO = true>
     void makeMockSEGY()
     {
         if (file.get() != nullptr)
@@ -167,38 +153,6 @@ struct FileSEGYTest : public Test
         piol->isErr();
         Mock::AllowLeak(mock.get());
 
-        ho.resize(SEGSz::getHOSz());
-
-        if (!WRITE)
-        {
-            EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns)));
-            initReadHOMock(testEBCDIC);
-        }
-        else
-            EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(0U));
-
-        auto sfile = std::make_shared<File::SEGY>(piol, notFile, mock, (WRITE ? FileMode::Test : FileMode::Read));
-        file = std::make_unique<File::Direct>();
-        file->file = std::move(sfile);
-        file->rule = std::make_shared<File::Rule>(true, true);
-
-        if (WRITE)
-        {
-            if (callHO)
-            {
-                piol->isErr();
-                writeHO<true>();
-            }
-            else
-            {
-                file->file->nt = nt;
-                file->file->ns = ns;
-            }
-        }
-    }
-
-    void initReadHOMock(bool testEBCDIC)
-    {
         if (testEBCDIC)
         {
             // Create an EBCDID string to convert back to ASCII in the test
@@ -211,19 +165,25 @@ struct FileSEGYTest : public Test
             iconv_close(toAsc);
         }
         else
-        {
             for (size_t i = 0; i < testString.size(); i++)
                 ho[i] = testString[i];
-        }
-        for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++)
-            ho[i] = ho[i % testString.size()];
+        if (testString.size())
+            for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++)
+                ho[i] = ho[i % testString.size()];
 
         ho[NumSample] = ns >> 8 & 0xFF;
         ho[NumSample+1] = ns & 0xFF;
         ho[Increment] = inc >> 8 & 0xFF;
         ho[Increment+1] = inc & 0xFF;
         ho[Type+1] = format;
+
+        EXPECT_CALL(*mock, getFileSz()).Times(Exactly(1)).WillOnce(Return(SEGSz::getHOSz() +
+                                                                       nt*SEGSz::getDOSz(ns)));
         EXPECT_CALL(*mock, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
+
+        auto sfile = std::make_shared<File::ReadSEGY>(piol, notFile, mock);
+        file = std::make_unique<File::ReadDirect>();
+        file->file = std::move(sfile);
     }
 
     void initTrBlock()
@@ -272,7 +232,6 @@ struct FileSEGYTest : public Test
             ASSERT_FLOAT_EQ(xNum(offset), File::getPrm<geom_t>(0U, Meta::xSrc, &prm));
             ASSERT_FLOAT_EQ(yNum(offset), File::getPrm<geom_t>(0U, Meta::ySrc, &prm));
         }
-
     }
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
@@ -300,72 +259,6 @@ struct FileSEGYTest : public Test
                 ASSERT_FLOAT_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
             }
         }
-    }
-
-    template <bool MOCK = true>
-    void writeHO()
-    {
-        if (MOCK)
-        {
-            size_t fsz = SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns);
-            EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
-
-            for (size_t i = 0U; i < std::min(testString.size(), SEGSz::getTextSz()); i++)
-                ho[i] = testString[i];
-
-            ho[NumSample+1] = ns & 0xFF;
-            ho[NumSample] = ns >> 8 & 0xFF;
-            ho[Increment+1] = inc & 0xFF;
-            ho[Increment] = inc >> 8 & 0xFF;
-            ho[Type+1] = format;
-            ho[3255U] = 1;
-            ho[3500U] = 1;
-            ho[3503U] = 1;
-            ho[3505U] = 0;
-
-            EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1)).WillOnce(check0(ho.data(), SEGSz::getHOSz()));
-        }
-
-        file->writeNt(nt);
-        piol->isErr();
-
-        file->writeNs(ns);
-        piol->isErr();
-
-        file->writeInc(geom_t(inc*SI::Micro));
-        piol->isErr();
-
-        file->writeText(testString);
-        piol->isErr();
-    }
-
-    void writeTrHdrGridTest(size_t offset)
-    {
-        std::vector<uchar> tr(SEGSz::getMDSz());
-        getBigEndian(ilNum(offset), tr.data()+il);
-        getBigEndian(xlNum(offset), tr.data()+xl);
-        getBigEndian<int16_t>(1, &tr[ScaleCoord]);
-        getBigEndian(int32_t(offset), &tr[SeqFNum]);
-
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
-                                                        .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
-
-        File::Param prm(1U);
-        File::setPrm(0, Meta::il, ilNum(offset), &prm);
-        File::setPrm(0, Meta::xl, xlNum(offset), &prm);
-        File::setPrm(0, Meta::tn, offset, &prm);
-        file->writeParam(offset, 1U, &prm);
-    }
-
-    void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val,
-                             int16_t scal, size_t offset, std::vector<uchar> * tr)
-    {
-        getBigEndian(scal,              &tr->at(ScaleCoord));
-        getBigEndian(val.first,         &tr->at(item.first));
-        getBigEndian(val.second,        &tr->at(item.second));
-        getBigEndian(int32_t(offset),   &tr->at(SeqFNum));
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
-                                                        .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
     }
 
     template <bool readPrm = false, bool MOCK = true>
@@ -492,6 +385,190 @@ struct FileSEGYTest : public Test
                 ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + j)) << "Trace Number: " << offset[i] << " " << j;
         }
     }
+};
+
+struct FileWriteSEGYTest : public Test
+{
+    std::shared_ptr<ExSeisPIOL> piol;
+    Comm::MPI::Opt opt;
+    bool testEBCDIC;
+    std::string testString = {"This is a string for testing EBCDIC conversion etc."};
+    std::unique_ptr<File::WriteDirect> file;
+    std::unique_ptr<File::ReadDirect> readfile;
+    std::vector<uchar> tr;
+    size_t nt = 40U;
+    size_t ns = 200U;
+    int inc = 10;
+    csize_t format = 5;
+    std::vector<uchar> ho;
+    std::shared_ptr<MockObj> mock;
+    std::string name_;
+
+    FileWriteSEGYTest()
+    {
+        testEBCDIC = false;
+        file = nullptr;
+        opt.initMPI = false;
+        piol = std::make_shared<ExSeisPIOL>(opt);
+        ho.resize(SEGSz::getHOSz());
+    }
+
+    ~FileWriteSEGYTest()
+    {
+        Mock::VerifyAndClearExpectations(&mock);
+    }
+
+    void makeSEGY(std::string name)
+    {
+        name_ = name;
+        if (file.get() != nullptr)
+            file.reset();
+        piol->isErr();
+
+/*        file = std::make_unique<File::WriteDirect>(piol, name);
+
+        writeHO<false>();
+
+        delete file.release();*/
+
+        File::WriteSEGY::Opt f;
+        File::ReadSEGY::Opt rf;
+        Obj::SEGY::Opt o;
+        Data::MPIIO::Opt d;
+        auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Test);
+        auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
+
+        auto fi = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
+        file = std::make_unique<File::WriteDirect>();
+        file->file = std::move(fi);
+
+        writeHO<false>();
+
+        auto rfi = std::make_shared<File::ReadSEGY>(piol, name, rf, obj);
+        readfile = std::make_unique<File::ReadDirect>();
+        readfile->file = std::move(rfi);
+
+        readfile->file->nt = nt;
+        readfile->file->ns = ns;
+        readfile->file->inc = inc;
+        readfile->file->text = testString;
+    }
+
+    template <bool callHO = true>
+    void makeMockSEGY()
+    {
+        if (file.get() != nullptr)
+            file.reset();
+        if (mock != nullptr)
+            mock.reset();
+        mock = std::make_shared<MockObj>(piol, notFile, nullptr);
+        piol->isErr();
+        Mock::AllowLeak(mock.get());
+
+        auto sfile = std::make_shared<File::WriteSEGY>(piol, notFile, mock);
+        file = std::make_unique<File::WriteDirect>();
+        file->file = std::move(sfile);
+
+        if (callHO)
+        {
+            piol->isErr();
+            writeHO<true>();
+        }
+        else
+        {
+            file->file->nt = nt;
+            file->file->ns = ns;
+        }
+    }
+    void initTrBlock()
+    {
+        tr.resize(nt * SEGSz::getMDSz());
+        for (size_t i = 0; i < nt; i++)
+        {
+            uchar * md = &tr[i * SEGSz::getMDSz()];
+            getBigEndian(ilNum(i), &md[il]);
+            getBigEndian(xlNum(i), &md[xl]);
+
+            int16_t scale;
+            int16_t scal1 = deScale(xNum(i));
+            int16_t scal2 = deScale(yNum(i));
+
+            if (scal1 > 1 || scal2 > 1)
+                scale = std::max(scal1, scal2);
+            else
+                scale = std::min(scal1, scal2);
+
+            getBigEndian(scale, &md[ScaleCoord]);
+            getBigEndian(int32_t(std::lround(xNum(i)/scale)), &md[xSrc]);
+            getBigEndian(int32_t(std::lround(yNum(i)/scale)), &md[ySrc]);
+        }
+    }
+
+    template <bool MOCK = true>
+    void writeHO()
+    {
+        if (MOCK)
+        {
+            size_t fsz = SEGSz::getHOSz() + nt*SEGSz::getDOSz(ns);
+            EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
+
+            for (size_t i = 0U; i < std::min(testString.size(), SEGSz::getTextSz()); i++)
+                ho[i] = testString[i];
+
+            ho[NumSample+1] = ns & 0xFF;
+            ho[NumSample] = ns >> 8 & 0xFF;
+            ho[Increment+1] = inc & 0xFF;
+            ho[Increment] = inc >> 8 & 0xFF;
+            ho[Type+1] = format;
+            ho[3255U] = 1;
+            ho[3500U] = 1;
+            ho[3503U] = 1;
+            ho[3505U] = 0;
+
+            EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1)).WillOnce(check0(ho.data(), SEGSz::getHOSz()));
+        }
+
+        file->writeNt(nt);
+        piol->isErr();
+
+        file->writeNs(ns);
+        piol->isErr();
+
+        file->writeInc(geom_t(inc*SI::Micro));
+        piol->isErr();
+
+        file->writeText(testString);
+        piol->isErr();
+    }
+
+    void writeTrHdrGridTest(size_t offset)
+    {
+        std::vector<uchar> tr(SEGSz::getMDSz());
+        getBigEndian(ilNum(offset), tr.data()+il);
+        getBigEndian(xlNum(offset), tr.data()+xl);
+        getBigEndian<int16_t>(1, &tr[ScaleCoord]);
+        getBigEndian(int32_t(offset), &tr[SeqFNum]);
+
+        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
+                                                        .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
+
+        File::Param prm(1U);
+        File::setPrm(0, Meta::il, ilNum(offset), &prm);
+        File::setPrm(0, Meta::xl, xlNum(offset), &prm);
+        File::setPrm(0, Meta::tn, offset, &prm);
+        file->writeParam(offset, 1U, &prm);
+    }
+
+    void initWriteTrHdrCoord(std::pair<size_t, size_t> item, std::pair<int32_t, int32_t> val,
+                             int16_t scal, size_t offset, std::vector<uchar> * tr)
+    {
+        getBigEndian(scal,              &tr->at(ScaleCoord));
+        getBigEndian(val.first,         &tr->at(item.first));
+        getBigEndian(val.second,        &tr->at(item.second));
+        getBigEndian(int32_t(offset),   &tr->at(SeqFNum));
+        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _)).Times(Exactly(1))
+                                                        .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
+    }
 
     void initWriteHeaders(size_t filePos, uchar * md) {
         coord_t src = coord_t(xNum(filePos), yNum(filePos));
@@ -525,10 +602,8 @@ struct FileSEGYTest : public Test
                 std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
                 return;
             }
-            if (writePrm)
-                buf.resize(tn * SEGSz::getDOSz(ns));
-            else
-                buf.resize(tn * SEGSz::getDFSz(ns));
+            buf.resize(tn * (writePrm ? SEGSz::getDOSz(ns) : SEGSz::getDFSz(ns)));
+
             for (size_t i = 0U; i < tn; i++)
             {
                 if(writePrm)
@@ -547,10 +622,10 @@ struct FileSEGYTest : public Test
                 EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
-        File::Param prm(tn);
         std::vector<float> bufnew(tn * ns);
         if (writePrm)
         {
+            File::Param prm(tn);
             for (size_t i = 0U; i < tn; i++)
             {
                 File::setPrm(i, Meta::xSrc, xNum(offset+i), &prm);
@@ -573,12 +648,47 @@ struct FileSEGYTest : public Test
             for (size_t i = 0U; i < tn; i++)
                 for (size_t j = 0U; j < ns; j++)
                     bufnew[i*ns + j] = float(offset + i + j);
-
             file->writeTrace(offset, tn, bufnew.data());
         }
 
         if (MOCK == false)
-            readTraceTest<writePrm, MOCK>(offset, tn);
+        {
+            readfile->file->nt = std::max(offset+tn, readfile->file->nt);
+            readTraceTest<writePrm>(offset, tn);
+        }
+    }
+
+    template <bool readPrm = false>
+    void readTraceTest(csize_t offset, csize_t tn)
+    {
+        size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
+        std::vector<trace_t> bufnew(tn * ns);
+        File::Param prm(tn);
+        if (readPrm)
+            readfile->readTrace(offset, tn, bufnew.data(), &prm);
+        else
+            readfile->readTrace(offset, tn, bufnew.data());
+        for (size_t i = 0U; i < tnRead; i++)
+        {
+            if (readPrm && tnRead * ns)
+            {
+                ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
+                ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
+
+                if (sizeof(geom_t) == sizeof(double))
+                {
+                    ASSERT_DOUBLE_EQ(xNum(i+offset), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_DOUBLE_EQ(yNum(i+offset), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
+                else
+                {
+                    ASSERT_FLOAT_EQ(xNum(i+offset), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_FLOAT_EQ(yNum(i+offset), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
+            }
+            for (size_t j = 0U; j < ns; j++)
+                ASSERT_EQ(bufnew[i*ns + j], trace_t(offset + i + j)) << "Trace Number: " << i << " " << j;
+        }
     }
 
     template <bool writePrm = false, bool MOCK = true>
@@ -643,7 +753,45 @@ struct FileSEGYTest : public Test
             file->writeTrace(tn, offset.data(), bufnew.data());
 
         if (MOCK == false)
-            readRandomTraceTest<writePrm, MOCK>(tn, offset);
+        {
+            for (size_t i = 0U; i < tn; i++)
+                readfile->file->nt = std::max(offset[i], readfile->file->nt);
+            readRandomTraceTest<writePrm>(tn, offset);
+        }
+    }
+
+    template <bool readPrm = false>
+    void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
+    {
+        ASSERT_EQ(tn, offset.size());
+        std::vector<uchar> buf;
+        std::vector<float> bufnew(tn * ns);
+        File::Param prm(tn);
+        if (readPrm)
+            readfile->readTrace(tn, offset.data(), bufnew.data(), &prm);
+        else
+            readfile->readTrace(tn, offset.data(), bufnew.data());
+        for (size_t i = 0U; i < tn; i++)
+        {
+            if (readPrm && tn * ns)
+            {
+                ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
+                ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
+
+                if (sizeof(geom_t) == sizeof(double))
+                {
+                    ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
+                else
+                {
+                    ASSERT_FLOAT_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                    ASSERT_FLOAT_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+                }
+            }
+            for (size_t j = 0U; j < ns; j++)
+                ASSERT_EQ(bufnew[i*ns + j], float(offset[i] + j)) << "Trace Number: " << offset[i] << " " << j;
+        }
     }
 
     template <bool MOCK = true>
@@ -693,8 +841,9 @@ struct FileSEGYTest : public Test
         file->writeParam(offset, prm.size(), &prm);
     }
 };
-typedef FileSEGYTest FileSEGYWrite;
-typedef FileSEGYTest FileSEGYRead;
-typedef FileSEGYTest FileSEGYIntegRead;
-typedef FileSEGYTest FileSEGYIntegWrite;
+
+typedef FileWriteSEGYTest FileSEGYWrite;
+typedef FileReadSEGYTest FileSEGYRead;
+typedef FileReadSEGYTest FileSEGYIntegRead;
+typedef FileWriteSEGYTest FileSEGYIntegWrite;
 

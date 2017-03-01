@@ -112,8 +112,8 @@ int main(int argc, char ** argv)
     vec<fourd_t> lminrs;
 
     //Open the two input files
-    File::Direct file1(piol, name1, FileMode::Read);
-    File::Direct file2(piol, name2, FileMode::Read);
+    File::ReadDirect file1(piol, name1);
+    File::ReadDirect file2(piol, name2);
 
     if (!skipToOutput)
     {
@@ -191,7 +191,7 @@ int main(int argc, char ** argv)
     auto time = MPI_Wtime();
     {
         //Open and write out file1 --> file3
-        File::Direct file3(piol, name3, FileMode::Write);
+        File::WriteDirect file3(piol, name3);
         cmsg(piol, "Output 3");
         //select(piol, rule, file3, file1, list1, minrs);
         outputNonMono(piol, rule, file3, file1, list1, lminrs);
@@ -204,7 +204,7 @@ int main(int argc, char ** argv)
         //Open and write out file2 --> file4
         //This case is more complicated because the list is unordered and there can be duplicate entries
         //in the list.
-        File::Direct file4(piol, name4, FileMode::Write);
+        File::WriteDirect file4(piol, name4);
         outputNonMono(piol, rule, file4, file2, list2, lminrs);
     }
 

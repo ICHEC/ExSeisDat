@@ -5,7 +5,7 @@
 #include "ctest.h"
 #include "cfileapi.h"
 
-void readWriteParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModPrm fprm)
+void readWriteParam(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh, size_t off, size_t tcnt, ModPrm fprm)
 {
     CParam trhdr = initDefParam(tcnt);
     readParam(ifh, off, tcnt, trhdr);
@@ -19,7 +19,7 @@ void readWriteParam(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t of
     freeParam(trhdr);
 }
 
-void readWriteTrace(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t off, size_t tcnt, ModTrc ftrc)
+void readWriteTrace(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh, size_t off, size_t tcnt, ModTrc ftrc)
 {
     size_t ns = readNs(ifh);
     float * trace = malloc(tcnt * getSEGYTraceLen(ns));
@@ -35,7 +35,7 @@ void readWriteTrace(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh, size_t of
     free(trace);
 }
 
-void writeHeader(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh)
+void writeHeader(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh)
 {
     writeText(ofh, readText(ifh));
     writeNs(ofh, readNs(ifh));
@@ -44,7 +44,7 @@ void writeHeader(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh)
     isErr(piol);
 }
 
-void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
+void writePayload(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh,
                   size_t goff, size_t lnt, size_t tcnt,
                   ModPrm fprm, ModTrc ftrc)
 {
@@ -69,13 +69,13 @@ void writePayload(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh,
 
 int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, size_t memmax, ModPrm fprm, ModTrc ftrc)
 {
-    ExSeisFile ifh = openReadFile(piol, iname);
+    ExSeisRead ifh = openReadFile(piol, iname);
     isErr(piol);
 
     size_t ns = readNs(ifh);
     size_t nt = readNt(ifh);
     //Write all header metadata
-    ExSeisFile ofh = openWriteFile(piol, oname);
+    ExSeisWrite ofh = openWriteFile(piol, oname);
     isErr(piol);
 
     writeHeader(piol, ifh, ofh);
@@ -86,8 +86,8 @@ int ReadWriteFile(ExSeisHandle piol, const char * iname, const char * oname, siz
     writePayload(piol, ifh, ofh, dec.start, dec.sz, tcnt, fprm, ftrc);
 
     isErr(piol);
-    closeFile(ofh);
-    closeFile(ifh);
+    closeWriteFile(ofh);
+    closeReadFile(ifh);
     return 0;
 }
 

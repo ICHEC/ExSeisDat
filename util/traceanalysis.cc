@@ -1,4 +1,4 @@
- #include <unistd.h> //getopt
+#include <unistd.h> //getopt
 #include <iostream>
 #include "cppfileapi.hh"
 using namespace PIOL;
@@ -21,7 +21,7 @@ int main(int argc, char ** argv)
                 std::cerr<< "One of the command line arguments is invalid\n";
             break;
         }
-    File::Direct file(piol, name, FileMode::Read);
+    File::ReadDirect file(piol, name);
 
     File::Param prm(1U);
     file->readParam(tn, 1U, &prm);

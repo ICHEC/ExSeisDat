@@ -17,7 +17,7 @@ extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t ran
 using namespace PIOL;
 using namespace testing;
 
-class MockFile : public File::Interface
+class MockFile : public File::ReadInterface
 {
     public :
     MOCK_CONST_METHOD0(readNs, size_t(void));

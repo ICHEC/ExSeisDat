@@ -34,6 +34,6 @@ std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bo
  *  \param[in] dec The decomposition: a pair which contains the offset (first) and the number of traces for the local process.
  *  \return Return true if the local ordering is correct.
  */
-extern bool checkOrder(File::Interface * src, std::pair<size_t, size_t> dec);
+extern bool checkOrder(ReadInterface * src, std::pair<size_t, size_t> dec);
 }}
 #endif

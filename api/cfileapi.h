@@ -19,7 +19,8 @@ extern "C" {
 #endif
 
 typedef struct PIOLWrapper * ExSeisHandle;      //!< A wrapper around a shared PIOL Object
-typedef struct ExSeisFileWrapper * ExSeisFile;  //!< A wrapper around a File Layer pointer
+typedef struct ExSeisReadWrapper * ExSeisRead;  //!< A wrapper around a File Layer pointer
+typedef struct ExSeisWriteWrapper * ExSeisWrite;//!< A wrapper around a File Layer pointer
 typedef struct RuleWrapper * RuleHdl;           //!< A wrapper around a File Layer pointer
 typedef struct ParamWrapper * CParam;           //!< A wrapper around a File Layer pointer
 
@@ -218,19 +219,20 @@ extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta
  * \param[in] name The name of the file.
  * \return A handle for the file.
  */
-extern ExSeisFile openReadFile(ExSeisHandle piol, const char * name);
+extern ExSeisRead openReadFile(ExSeisHandle piol, const char * name);
 
 /*! Open a write-only file and return a handle for the file
  * \param[in] piol A handle to the PIOL.
  * \param[in] name The name of the file.
  * \return A handle for the file.
  */
-extern ExSeisFile openWriteFile(ExSeisHandle piol, const char * name);
+extern ExSeisWrite openWriteFile(ExSeisHandle piol, const char * name);
 
 /*! \brief Close the file associated with the handle
  *  \param[in] f A handle for the file.
  */
-extern void closeFile(ExSeisFile f);
+extern void closeReadFile(ExSeisRead f);
+extern void closeWriteFile(ExSeisWrite f);
 
 /*
  * Read binary and text headers
@@ -242,49 +244,49 @@ extern void closeFile(ExSeisFile f);
  *  \param[in] f A handle for the file.
  *  \return A string containing the text (in ASCII format)
  */
-extern const char * readText(ExSeisFile f);
+extern const char * readText(ExSeisRead f);
 
 /*! \brief Read the number of samples per trace
  *  \param[in] f A handle for the file.
  *  \return The number of samples per trace
  */
-extern size_t readNs(ExSeisFile f);
+extern size_t readNs(ExSeisRead f);
 
 /*! \brief Read the number of traces in the file
  *  \param[in] f A handle for the file.
  *  \return The number of traces
  */
-extern size_t readNt(ExSeisFile f);
+extern size_t readNt(ExSeisRead f);
 
 /*! \brief Read the increment between trace samples
  *  \param[in] f A handle for the file.
  *  \return The increment between trace samples
  */
-extern double readInc(ExSeisFile f);
+extern double readInc(ExSeisRead f);
 
 /*! \brief Write the human readable text from the file.
  *  \param[in] f A handle for the file.
  *  \param[in] text The new null-terminated string containing the text (in ASCII format).
  */
-extern void writeText(ExSeisFile f, const char * text);
+extern void writeText(ExSeisWrite f, const char * text);
 
 /*! \brief Write the number of samples per trace
  *  \param[in] f A handle for the file.
  *  \param[in] ns The new number of samples per trace.
  */
-extern void writeNs(ExSeisFile f, size_t ns);
+extern void writeNs(ExSeisWrite f, size_t ns);
 
 /*! \brief Write the number of traces in the file
  *  \param[in] f A handle for the file.
  *  \param[in] nt The new number of traces.
  */
-extern void writeNt(ExSeisFile f, size_t nt);
+extern void writeNt(ExSeisWrite f, size_t nt);
 
 /*! \brief Write the increment between trace samples.
  *  \param[in] f A handle for the file.
  *  \param[in] inc The new increment between trace samples.
  */
-extern void writeInc(ExSeisFile f, geom_t inc);
+extern void writeInc(ExSeisWrite f, geom_t inc);
 
 /*
  *    Reading data from the trace headers
@@ -300,7 +302,7 @@ extern void writeInc(ExSeisFile f, geom_t inc);
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void writeParam(ExSeisFile f, size_t offset, size_t sz, const CParam prm);
+extern void writeParam(ExSeisWrite f, size_t offset, size_t sz, const CParam prm);
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
@@ -309,7 +311,7 @@ extern void writeParam(ExSeisFile f, size_t offset, size_t sz, const CParam prm)
  *  \param[in] sz The number of traces to process.
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readParam(ExSeisFile f, size_t offset, size_t sz, CParam prm);
+extern void readParam(ExSeisRead f, size_t offset, size_t sz, CParam prm);
 
 /*
  *    Reading the traces themselves
@@ -320,7 +322,7 @@ extern void readParam(ExSeisFile f, size_t offset, size_t sz, CParam prm);
  *  \param[in] sz The number of traces to process
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  */
-extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
+extern void readTrace(ExSeisRead f, size_t offset, size_t sz, float * trace);
 
 /*! \brief Read the trace and trace parameters from offset to offset+sz.
  *  \param[in] f A handle for the file.
@@ -329,7 +331,7 @@ extern void readTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, CParam prm);
+extern void readFullTrace(ExSeisRead f, size_t offset, size_t sz, float * trace, CParam prm);
 
 /*! \brief Read the traces from offset to offset+sz.
  *  \param[in] f A handle for the file.
@@ -338,7 +340,7 @@ extern void readFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace,
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \warning This function is not thread safe.
  */
-extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
+extern void writeTrace(ExSeisWrite f, size_t offset, size_t sz, float * trace);
 
 /*! \brief Read the traces and trace parameters from offset to offset+sz.
  *  \param[in] f A handle for the file.
@@ -348,7 +350,7 @@ extern void writeTrace(ExSeisFile f, size_t offset, size_t sz, float * trace);
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  *  \warning This function is not thread safe.
  */
-extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace, const CParam prm);
+extern void writeFullTrace(ExSeisWrite f, size_t offset, size_t sz, float * trace, const CParam prm);
 
 //Lists
 
@@ -358,7 +360,7 @@ extern void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, float * trace
  *  \param[in] offset A list of trace numbers.
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  */
-extern void readListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
+extern void readListTrace(ExSeisRead f, size_t sz, size_t * offset, float * trace);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -367,7 +369,7 @@ extern void readListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trac
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \warning This function is not thread safe.
  */
-extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace);
+extern void writeListTrace(ExSeisWrite f, size_t sz, size_t * offset, float * trace);
 
 /*! \brief Read the traces and trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -376,7 +378,7 @@ extern void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, float * tra
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[out] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, CParam prm);
+extern void readFullListTrace(ExSeisRead f, size_t sz, size_t * offset, float * trace, CParam prm);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -385,7 +387,7 @@ extern void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * 
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float * trace, const CParam prm);
+extern void writeFullListTrace(ExSeisWrite f, size_t sz, size_t * offset, float * trace, const CParam prm);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -393,7 +395,7 @@ extern void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, float *
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void writeListParam(ExSeisFile f, size_t sz, size_t * offset, const CParam prm);
+extern void writeListParam(ExSeisWrite f, size_t sz, size_t * offset, const CParam prm);
 
 /*! \brief Read the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -401,7 +403,7 @@ extern void writeListParam(ExSeisFile f, size_t sz, size_t * offset, const CPara
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readListParam(ExSeisFile f, size_t sz, size_t * offset, CParam prm);
+extern void readListParam(ExSeisRead f, size_t sz, size_t * offset, CParam prm);
 
 #ifdef DISABLED_OPTIONS
 /*

@@ -229,7 +229,7 @@ std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, Param * prm)
 }
 
 //TODO: Make this work with SortType type;
-bool checkOrder(Interface * src, std::pair<size_t , size_t> dec, SortType type)
+bool checkOrder(ReadInterface * src, std::pair<size_t , size_t> dec, SortType type)
 {
     auto comp = getComp(type);
     Param prm(dec.second);

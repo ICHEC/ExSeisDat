@@ -210,7 +210,7 @@ int getMPIMode(FileMode mode)
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
 #endif
         case FileMode::Test :
-            return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN | MPI_MODE_DELETE_ON_CLOSE;
+            return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
     }
 }
 

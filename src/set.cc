@@ -47,7 +47,7 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
  *  \todo Re-use this
  *  \return Return the number of traces read and written across all processes.
  */
-size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::Interface * src, File::Interface * dst)
+size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::ReadInterface * src, File::WriteInterface * dst)
 {
     const size_t memlim = 2U*1024U*1024U*1024U;
     auto dec = decompose(src->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
@@ -100,7 +100,7 @@ std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
  *  \param[out] out The output file interface
  */
 void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list,
-                                size_t max, File::Interface * in, File::Interface * out)
+                                size_t max, File::ReadInterface * in, File::WriteInterface * out)
 {
     std::vector<size_t> & ilist = list.first;
     std::vector<size_t> & olist = list.second;
@@ -195,11 +195,11 @@ void InternalSet::add(std::string name)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
     auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
-    auto in = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
+    auto in = std::make_unique<File::ReadSEGY>(piol, name, obj);
     add(std::move(in));
 }
 
-void InternalSet::add(std::unique_ptr<File::Interface> in)
+void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
 {
     file.emplace_back(std::make_unique<FileDesc>());
     auto & f = file.back();
@@ -244,7 +244,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
             //TODO: There could be a problem with excessive amounts of open files
             file.emplace_back(std::make_unique<FileDesc>());
             auto & f = file.back();
-            f->ifc = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Read);
+            f->ifc = std::make_unique<File::ReadSEGY>(piol, name, obj);
 
             //Perform and store the decomposition
             auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
@@ -392,10 +392,9 @@ std::vector<std::string> InternalSet::output(std::string oname)
             name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
         names.push_back(name);
 
-        std::unique_ptr<File::SEGY> out;
         auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);
         auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Write);
-        out = std::make_unique<File::SEGY>(piol, name, obj, FileMode::Write);
+        auto out = std::make_unique<File::WriteSEGY>(piol, name, obj);
 
         out->writeNs(o.first.first);
         out->writeInc(o.first.second);

@@ -10,17 +10,17 @@
 namespace PIOL { namespace File {
 const Param * PARAM_NULL = (Param *)1;
 
-const std::string & Interface::readText(void) const
+const std::string & ReadInterface::readText(void) const
 {
     return text;
 }
 
-size_t Interface::readNs(void) const
+size_t ReadInterface::readNs(void) const
 {
     return ns;
 }
 
-geom_t Interface::readInc(void) const
+geom_t ReadInterface::readInc(void) const
 {
    return inc;
 }

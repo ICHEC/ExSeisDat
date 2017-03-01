@@ -21,7 +21,7 @@ namespace PIOL {
  */
 struct FileDesc
 {
-    std::unique_ptr<File::Interface> ifc;   //!< The file interface
+    std::unique_ptr<File::ReadInterface> ifc;   //!< The file interface
 
     size_t offset;                          //!< Local offset into the file
 
@@ -109,10 +109,10 @@ class InternalSet
      */
     void summary(void) const;
 
-    /*! Add a file to the set based on the File::Interface
+    /*! Add a file to the set based on the File::ReadInterface
      *  \param[in] in The file interface
      */
-    void add(std::unique_ptr<File::Interface> in);
+    void add(std::unique_ptr<File::ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
      *  \param[in] name The input name

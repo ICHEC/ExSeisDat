@@ -34,6 +34,6 @@ enum class FileMode : size_t
 namespace PIOL {
 namespace Data { class Interface; }
 namespace Obj { class Interface; }
-namespace File { class Interface; }
+namespace File { class ReadInterface; class WriteInterface; }
 }
 #endif

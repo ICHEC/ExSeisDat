@@ -53,7 +53,7 @@ struct Coords
     }
 };
 
-extern std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std::pair<size_t, size_t> dec);
-extern void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<fourd_t> & minrs);
+extern std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file, std::pair<size_t, size_t> dec);
+extern void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::WriteDirect & dst, File::ReadDirect & src, vec<size_t> & list, vec<fourd_t> & minrs);
 }}
 #endif

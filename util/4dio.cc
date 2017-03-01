@@ -27,7 +27,7 @@ vec<size_t> getSortIndex(size_t sz, size_t * list)
  *  \param[in] coords The vector for storing the parameters. Number of parameters is coords.size()/4
  */
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
-std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std::pair<size_t, size_t> dec)
+std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file, std::pair<size_t, size_t> dec)
 {
     size_t offset = dec.first;
     size_t lnt = dec.second;
@@ -110,7 +110,7 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::Interface * file, std
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Direct & dst, File::Direct & src, vec<size_t> & list, vec<fourd_t> & minrs)
+void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::WriteDirect & dst, File::ReadDirect & src, vec<size_t> & list, vec<fourd_t> & minrs)
 {
     size_t ns = src.readNs();
     size_t lnt = list.size();

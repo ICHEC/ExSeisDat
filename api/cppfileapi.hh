@@ -12,8 +12,6 @@
 #include "file/file.hh"
 #include "file/dynsegymd.hh"
 namespace PIOL {
-namespace File { class Direct; }
-
 /*! This class provides access to the ExSeisPIOL class but with a simpler API
  */
 class ExSeis
@@ -95,11 +93,10 @@ class ExSeis
 namespace File {
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
-class Direct
+class ReadDirect
 {
     private :
-    std::shared_ptr<Interface> file;      //!< The pointer to the base class (polymorphic)
-    std::shared_ptr<Rule> rule;           //!< Rule to use internally for Param calls
+    std::shared_ptr<ReadInterface> file;      //!< The pointer to the base class (polymorphic)
 
     public :
     /*! Constructor with options.
@@ -111,37 +108,34 @@ class Direct
      *  \param[in] f The File options.
      *  \param[in] o The Object options.
      *  \param[in] d The Data options.
-     *  \param[in] mode The mode of file access.
      *  \param[in] rule_ The rule set to use for Param calls.
      */
     template <class F, class O, class D>
-    Direct(const Piol piol, const std::string name, const F & f, const O & o, const D & d, const FileMode mode,
-           std::shared_ptr<Rule> rule_ = std::make_shared<Rule>(true, true))
+    ReadDirect(const Piol piol, const std::string name, const F & f, const O & o, const D & d)
     {
-        auto data = std::make_shared<typename D::Type>(piol, name, d, mode);
-        auto obj = std::make_shared<typename O::Type>(piol, name, o, data, mode);
-        file = std::make_shared<typename F::Type>(piol, name, f, obj, mode);
-        rule = rule_;
+        auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
+        auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Read);
+#warning TODO: Check that F::Type can be upcast to File::ReadInterface
+        file = std::make_shared<typename F::Type>(piol, name, f, obj);
     }
 
     /*! Constructor without options.
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
-     *  \param[in] mode  The mode of file access.
      *  \param[in] rule_ The rule set to use for Param calls.
      */
-    Direct(const Piol piol, const std::string name, const FileMode mode, std::shared_ptr<Rule> rule_ = std::make_shared<Rule>(true, true));
+    ReadDirect(const Piol piol, const std::string name);
 
-    Direct(void) { }
+    ReadDirect(void) { }
 
     /*! Empty destructor
      */
-    ~Direct(void) { }
+    ~ReadDirect(void) { }
 
     /*! Overload of member of pointer access
      *  \return Return the base File layer class Interface.
      */
-    Interface * operator->() const
+    ReadInterface * operator->() const
     {
         return file.get();
     }
@@ -149,18 +143,9 @@ class Direct
     /*! Operator to convert to an Interface object.
      *  \return Return the internal \c Interface pointer.
      */
-    operator Interface * () const
+    operator ReadInterface * () const
     {
         return file.get();
-    }
-
-    /*! Get the rules used by the object.
-     *  \return Return a \c shared_ptr to the internal rules used.
-
-     */
-    std::shared_ptr<Rule> getRule(void) const
-    {
-        return rule;
     }
 
     /*! \brief Read the human readable text from the file.
@@ -182,6 +167,98 @@ class Direct
      *  \return The increment between trace samples
      */
     geom_t readInc(void) const;
+
+    /*! \brief Read the traces from offset to offset+sz.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process
+     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  \param[out] prm The parameter structure
+     *
+     *  \details When prm==PRM_NULL only the trace DF is read.
+     */
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+
+    /*! \brief Function to read the trace parameters from offset to offset+sz of the respective
+     *  trace headers.
+     *  \param[in] offset The starting trace number.
+     *  \param[in] sz The number of traces to process.
+     *  \param[out] prm The parameter structure
+     */
+    void readParam(csize_t offset, csize_t sz, Param * prm) const;
+
+     /*! \brief Read the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read.
+     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  \param[out] prm The parameter structure
+     *
+     *  \details When prm==PRM_NULL only the trace DF is read.
+     */
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+
+    /*! \brief Read the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read.
+     *  \param[out] prm The parameter structure
+     */
+    void readParam(csize_t sz, csize_t * offset, Param * prm) const;
+};
+
+/*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
+ */
+class WriteDirect
+{
+    private :
+    std::shared_ptr<WriteInterface> file;      //!< The pointer to the base class (polymorphic)
+
+    public :
+    /*! Constructor with options.
+     *  \tparam F The nested options structure of interest for the file layer.
+     *  \tparam O The nested options structure of interest for the object layer.
+     *  \tparam D The nested options structure of interest for the data layer.
+     *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name The name of the file associated with the instantiation.
+     *  \param[in] f The File options.
+     *  \param[in] o The Object options.
+     *  \param[in] d The Data options.
+     *  \param[in] rule_ The rule set to use for Param calls.
+     */
+    template <class F, class O, class D>
+    WriteDirect(const Piol piol, const std::string name, const F & f, const O & o, const D & d)
+    {
+        auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
+        auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Write);
+        file = std::make_shared<typename F::Type>(piol, name, f, obj);
+    }
+
+    /*! Constructor without options.
+     *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name The name of the file associated with the instantiation.
+     *  \param[in] rule_ The rule set to use for Param calls.
+     */
+    WriteDirect(const Piol piol, const std::string name);
+
+    WriteDirect(void) { }
+
+    /*! Empty destructor
+     */
+    ~WriteDirect(void) { }
+
+    /*! Overload of member of pointer access
+     *  \return Return the base File layer class Interface.
+     */
+    WriteInterface * operator->() const
+    {
+        return file.get();
+    }
+
+    /*! Operator to convert to an Interface object.
+     *  \return Return the internal \c Interface pointer.
+     */
+    operator WriteInterface * () const
+    {
+        return file.get();
+    }
 
     /*! \brief Write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
@@ -206,16 +283,6 @@ class Direct
     /*! \brief Read the traces from offset to offset+sz.
      *  \param[in] offset The starting trace number.
      *  \param[in] sz The number of traces to process
-     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
-     *  \param[out] prm The parameter structure
-     *
-     *  \details When prm==PRM_NULL only the trace DF is read.
-     */
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
-
-    /*! \brief Read the traces from offset to offset+sz.
-     *  \param[in] offset The starting trace number.
-     *  \param[in] sz The number of traces to process
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[in] prm The parameter structure
      *  \warning This function is not thread safe.
@@ -235,24 +302,6 @@ class Direct
      */
     void writeParam(csize_t offset, csize_t sz, const Param * prm);
 
-    /*! \brief Function to read the trace parameters from offset to offset+sz of the respective
-     *  trace headers.
-     *  \param[in] offset The starting trace number.
-     *  \param[in] sz The number of traces to process.
-     *  \param[out] prm The parameter structure
-     */
-    void readParam(csize_t offset, csize_t sz, Param * prm) const;
-
-     /*! \brief Read the traces specified by the offsets in the passed offset array.
-     *  \param[in] sz The number of traces to process
-     *  \param[in] offset An array of trace numbers to read.
-     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
-     *  \param[out] prm The parameter structure
-     *
-     *  \details When prm==PRM_NULL only the trace DF is read.
-     */
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
-
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to write.
@@ -264,13 +313,6 @@ class Direct
      *  contents of the trace header will be overwritten.
      */
     void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL);
-
-    /*! \brief Read the traces specified by the offsets in the passed offset array.
-     *  \param[in] sz The number of traces to process
-     *  \param[in] offset An array of trace numbers to read.
-     *  \param[out] prm The parameter structure
-     */
-    void readParam(csize_t sz, csize_t * offset, Param * prm) const;
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process

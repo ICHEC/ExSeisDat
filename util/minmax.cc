@@ -8,7 +8,7 @@ using namespace File;
 int calcMin(std::string iname, std::string oname)
 {
     ExSeis piol;
-    File::Direct in(piol, iname, FileMode::Read);
+    File::ReadDirect in(piol, iname);
 
     auto dec = decompose(in.readNt(), piol.getNumRank(), piol.getRank());
     size_t offset = dec.first;
@@ -56,7 +56,7 @@ int calcMin(std::string iname, std::string oname)
             }
         }
 
-    File::Direct out(piol, oname, FileMode::Write);
+    File::WriteDirect out(piol, oname);
     out.writeNt(sz);
     out.writeNs(1U);
     out.writeInc(in.readInc());

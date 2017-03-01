@@ -37,7 +37,7 @@ int main(int argc, char ** argv)
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
-    File::Direct src(piol, name1, FileMode::Read);
+    File::ReadDirect src(piol, name1);
 
     //Perform the decomposition and read coordinates of interest.
     auto dec = decompose(src.readNt(), numRank, rank);
