@@ -10,8 +10,8 @@
 #include "global.hh"
 #include <regex>
 #include <map>
-#include <numeric>
 #include <functional>
+#include "share/misc.hh"    //For getSort..
 #include "set/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
@@ -74,20 +74,6 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
         dst->writeTrace(size_t(0), size_t(0), nullptr, (File::Param *)nullptr);
     }
     return src->readNt();
-}
-
-
-/*! Get the sorted index associated with a given list
- *  \param[in] sz The length of the list
- *  \param[in] list The array of numbers
- *  \return A vector containing the numbering of list in a sorted order
- */
-std::vector<size_t> getSortIndex(size_t sz, const size_t * list)
-{
-    std::vector<size_t> index(sz);
-    std::iota(index.begin(), index.end(), 0);
-    std::sort(index.begin(), index.end(), [list] (size_t s1, size_t s2) { return list[s1] < list[s2]; });
-    return index;
 }
 
 /*! Read a list of traces from the input and write it to the output.

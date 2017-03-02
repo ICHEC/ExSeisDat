@@ -1,6 +1,11 @@
-//#include "global.hh"
-//#include "anc/cmpi.hh"
-//#include "file/filesegy.hh"
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \date January 2017
+ *   \brief
+ *   \details This utility searches for files matching a wildcard, filters out the SEGY matches
+ *            and provides details about what is in the files.
+ *//*******************************************************************************************/
 #include "cppfileapi.hh"
 #include <iostream>
 #include <glob.h>

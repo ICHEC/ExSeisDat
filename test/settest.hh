@@ -33,12 +33,15 @@ class MockFile : public File::ReadInterface
     MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t *, File::Param *, csize_t));
     MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t, trace_t *, File::Param *, csize_t));
     MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTraceNonMono, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
+};
 
+/*
     MOCK_METHOD4(writeParam, void(csize_t, csize_t, const File::Param *, csize_t));
     MOCK_METHOD5(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *, csize_t));
     MOCK_METHOD5(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *, csize_t));
     MOCK_METHOD4(writeParam, void(csize_t, csize_t *, const File::Param *, csize_t));
-};
+*/
 
 ACTION_P(cpyprm, src)
 {

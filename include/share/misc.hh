@@ -1,17 +1,14 @@
-
 /*******************************************************************************************//*!
  *   \file
  *   \author Cathal O Broin - cathal@ichec.ie - first commit
  *   \copyright TBD. Do not distribute
- *   \date February 2017
- *   \brief Sort a file in 9 lines
+ *   \date March 2017
+ *   \detals For small functions outside the library that don't make sense anywhere else.
 *//*******************************************************************************************/
-#include "set.hh"
-using namespace PIOL;
-int main(void)
+#ifndef PIOLSHAREMISC_INCLUDE_GUARD
+#define PIOLSHAREMISC_INCLUDE_GUARD
+namespace PIOL
 {
-    ExSeis piol;
-    Set set(piol, "/ichec/work/exseisdat/dat/10*/b*", "temp");
-    set.sort(SortType::OffLine);
-    return 0;
+extern std::vector<size_t> getSortIndex(size_t sz, const size_t * list);
 }
+#endif

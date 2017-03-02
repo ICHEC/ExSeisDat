@@ -54,7 +54,7 @@ extract: extract.c
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(BIN) $(CURR_DEPENDS) $(CURR_DEP)
+	rm -f $(OBJECTS) $(OBJDIR)/*.optrpt $(BIN) $(CURR_DEPENDS) $(CURR_DEP)
 
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o

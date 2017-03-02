@@ -27,7 +27,7 @@ all: $(BIN)
 
 .PHONY: clean
 clean:
-	rm -f obj/*.co obj/*.cpo $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
+	rm -f $(OBJDIR)/*.co $(OBJDIR)/*.cpo $(OBJDIR)/*.optrpt $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
 
 cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)

@@ -13,10 +13,6 @@
 #include <algorithm>
 #include <iterator>
 #include <functional>
-
-#warning test
-#include <iostream>
-
 #include "global.hh"
 #include "ops/sort.hh"
 #include "file/file.hh"
@@ -343,5 +339,4 @@ std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bo
 
     return (FileOrder ? sort(piol, list): list);
 }
-
 }}

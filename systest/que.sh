@@ -29,6 +29,7 @@ if [[ $PIOL_SYSTEM == "Tullow" ]]; then
     exit
 fi
 
+source ../mod_gnu
 export PIOL_DIR=$PWD/..
 export TEST_DIR=/ichec/work/exseisdat/test/$USER
 bash warncheck.sh

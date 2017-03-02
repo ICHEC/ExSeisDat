@@ -101,6 +101,11 @@ void ReadDirect::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param 
     file->readTrace(sz, offset, trace, prm);
 }
 
+void ReadDirect::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+{
+    file->readTraceNonMono(sz, offset, trace, prm);
+}
+
 void WriteDirect::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
 {
     file->writeTrace(sz, offset, trace, prm);

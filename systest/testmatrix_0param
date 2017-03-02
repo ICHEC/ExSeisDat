@@ -1,0 +1,6 @@
+1   1   intel    filemake 10  gnu
+5   23  intel    filemake 10  intel
+1   23  openmpi/gcc/1.8.4 filemake       10  gnu
+5   13  openmpi/gcc/1.8.4 filemake       10  gnu
+1   24  intel    filemake       10  intel
+5   24  mvapich2/intel/2.1a filemake       10  intel

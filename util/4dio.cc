@@ -3,7 +3,7 @@
  *   \author Cathal O Broin - cathal@ichec.ie - first commit
  *   \date January 2017
  *   \brief
- *   \details
+ *   \details This file contains the I/O related portions of the 4d Binning utility.
  *//*******************************************************************************************/
 #include <numeric>
 #include "4dio.hh"
@@ -145,30 +145,9 @@ void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Wr
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        //Sort the initial list and make a new list without duplicates
-        auto idx = getSortIndex(rblock, &list[i]);
-        std::vector<size_t> nodups;
-        nodups.push_back(list[i+idx[0]]);
-        for (size_t j = 1; j < rblock; j++)
-            if (list[i+idx[j-1]] != list[i+idx[j]])
-                nodups.push_back(list[i+idx[j]]);
-
-        File::Param sprm(rule, nodups.size());
-        vec<trace_t> strc(ns * nodups.size());
-
-        src.readTrace(nodups.size(), nodups.data(), strc.data(), &sprm);
-
-        size_t n = 0;
+        src.readTraceNonMono(rblock, &list[i], trc.data(), &prm);
         for (size_t j = 0; j < rblock; j++)
-        {
-            n += (j && list[i+idx[j-1]] != list[i+idx[j]]);
-
-            cpyPrm(n, &sprm, idx[j], &prm);
-            setPrm(idx[j], Meta::dsdr, minrs[i+idx[j]], &prm);
-
-            for (size_t k = 0; k < ns; k++)
-                trc[idx[j]*ns + k] = strc[n*ns + k];
-        }
+            setPrm(j, Meta::dsdr, minrs[i+j], &prm);
 
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }

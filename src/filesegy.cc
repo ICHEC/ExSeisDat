@@ -18,6 +18,7 @@
 #include "share/segy.hh"
 #include "file/iconv.hh"
 #include "share/units.hh"
+#include "share/misc.hh"
 #include "share/datatype.hh"
 #include "file/segymd.hh"
 namespace PIOL { namespace File {
@@ -353,6 +354,31 @@ void ReadSEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * 
     else
         for (size_t i = 0; i < ns * sz; i++)
             reverse4Bytes(&buf[i*sizeof(float)]);
+}
+
+void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const
+{
+    //Sort the initial offset and make a new offset without duplicates
+    auto idx = getSortIndex(sz, offset);
+    std::vector<size_t> nodups;
+    nodups.push_back(offset[idx[0]]);
+    for (size_t j = 1; j < sz; j++)
+        if (offset[idx[j-1]] != offset[idx[j]])
+            nodups.push_back(offset[idx[j]]);
+
+    File::Param sprm(prm->r, nodups.size());
+    std::vector<trace_t> strace(ns * nodups.size());
+
+    readTrace(nodups.size(), nodups.data(), strace.data(), &sprm, 0);
+
+    size_t n = 0;
+    for (size_t j = 0; j < sz; j++)
+    {
+        n += (j && offset[idx[j-1]] != offset[idx[j]]);
+        cpyPrm(n, &sprm, idx[j], prm);
+        for (size_t k = 0; k < ns; k++)
+            trace[idx[j]*ns + k] = strace[n*ns + k];
+    }
 }
 
 void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, csize_t skip)
