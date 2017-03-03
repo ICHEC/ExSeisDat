@@ -369,13 +369,13 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, P
     File::Param sprm(prm->r, nodups.size());
     std::vector<trace_t> strace(ns * nodups.size());
 
-    readTrace(nodups.size(), nodups.data(), strace.data(), &sprm, 0);
+    readTrace(nodups.size(), nodups.data(), strace.data(), &sprm, 0U);
 
     size_t n = 0;
     for (size_t j = 0; j < sz; j++)
     {
         n += (j && offset[idx[j-1]] != offset[idx[j]]);
-        cpyPrm(n, &sprm, idx[j], prm);
+        cpyPrm(n, &sprm, skip + idx[j], prm);
         for (size_t k = 0; k < ns; k++)
             trace[idx[j]*ns + k] = strace[n*ns + k];
     }

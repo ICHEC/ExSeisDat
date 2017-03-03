@@ -115,7 +115,6 @@ class ReadDirect
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Read);
-#warning TODO: Check that F::Type can be upcast to File::ReadInterface
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
     }
 
