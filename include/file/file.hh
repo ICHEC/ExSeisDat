@@ -102,6 +102,7 @@ class ReadInterface
      *  \details When prm==PARAM_NULL only the trace DF is read.
      */
     virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+
     virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
