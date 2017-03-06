@@ -1,6 +1,3 @@
-//#include "global.hh"
-//#include "anc/cmpi.hh"
-//#include "file/filesegy.hh"
 #include <assert.h>
 #include "set.hh"
 #include "sglobal.hh"

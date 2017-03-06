@@ -10,7 +10,6 @@
 #include "global.hh"
 #include <regex>
 #include <map>
-#include <functional>
 #include "share/misc.hh"    //For getSort..
 #include "set/set.hh"
 #include "data/datampiio.hh"

@@ -5,7 +5,7 @@
  *   \date March 2017
  *   \detals For small functions outside the library that don't make sense anywhere else.
 *//*******************************************************************************************/
-#include <vector>
+#include "share/misc.hh"
 #include <algorithm>
 #include <numeric>
 namespace PIOL

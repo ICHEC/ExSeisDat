@@ -6,7 +6,6 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <assert.h>
 #include "global.hh"
 #include "anc/mpi.hh"
 #include "share/mpi.hh"

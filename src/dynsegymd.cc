@@ -6,7 +6,6 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <algorithm>
 #include <iostream>
 #include "file/dynsegymd.hh"
 namespace PIOL { namespace File {

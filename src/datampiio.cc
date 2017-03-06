@@ -7,7 +7,6 @@
  *   \details
  *//*******************************************************************************************/
 #include <assert.h>
-#include <functional>
 #include <algorithm>
 #include "data/datampiio.hh"
 #include "anc/piol.hh"

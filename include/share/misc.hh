@@ -7,6 +7,8 @@
 *//*******************************************************************************************/
 #ifndef PIOLSHAREMISC_INCLUDE_GUARD
 #define PIOLSHAREMISC_INCLUDE_GUARD
+#include <vector>
+#include <cstddef>
 namespace PIOL
 {
 extern std::vector<size_t> getSortIndex(size_t sz, const size_t * list);

@@ -6,21 +6,10 @@
  *   \brief
  *   \details WriteSEGY functions
  *//*******************************************************************************************/
-#include <cstring>
-#include <vector>
-#include <memory>
-#include <cmath>
-#include <limits>
-#include <iterator>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "object/object.hh"
-#include "share/segy.hh"
-#include "file/iconv.hh"
-#include "share/units.hh"
 #include "share/misc.hh"
-#include "share/datatype.hh"
-#include "file/segymd.hh"
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 WriteSEGY::Opt::Opt(void)

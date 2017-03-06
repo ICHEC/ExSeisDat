@@ -6,20 +6,8 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <cstring>
-#include <vector>
-#include <memory>
-#include <cmath>
-#include <limits>
 #include "global.hh"
-#include "file/filesegy.hh"
-#include "object/object.hh"
-#include "share/segy.hh"
-#include "file/iconv.hh"
-#include "share/units.hh"
-#include "share/datatype.hh"
 #include "file/segymd.hh"
-#include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
 /*! \brief Convert a SEG-Y scale integer to a floating point type

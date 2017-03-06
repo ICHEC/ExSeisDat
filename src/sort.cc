@@ -11,11 +11,8 @@
  *   is complete.
 *//*******************************************************************************************/
 #include <algorithm>
-#include <iterator>
-#include <functional>
 #include "global.hh"
 #include "ops/sort.hh"
-#include "file/file.hh"
 #include "share/mpi.hh"
 
 namespace PIOL { namespace File {
