@@ -6,6 +6,9 @@
  *   \brief
  *   \details WriteSEGY functions
  *//*******************************************************************************************/
+#include <cmath>
+#include <cstring>
+#include <limits>
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "object/object.hh"

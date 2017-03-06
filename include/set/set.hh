@@ -15,8 +15,8 @@
 #include <memory>
 #include <deque>
 #include <map>
-namespace PIOL {
 
+namespace PIOL {
 /*! A file-descriptor structure which describes an input file and the decomposition for the set layer
  */
 struct FileDesc

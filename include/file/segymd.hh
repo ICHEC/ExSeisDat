@@ -8,17 +8,10 @@
  *//*******************************************************************************************/
 #ifndef PIOLFILESEGYMD_INCLUDE_GUARD
 #define PIOLFILESEGYMD_INCLUDE_GUARD
-#include <cstring>
-#include <vector>
-#include <memory>
-#include <cmath>
-#include <limits>
 #include "global.hh"
-#include "file/filesegy.hh"
-#include "object/object.hh"
 #include "share/segy.hh"
-#include "file/iconv.hh"
 #include "share/units.hh"
+#include "share/param.hh"
 #include "share/datatype.hh"
 
 namespace PIOL { namespace File {

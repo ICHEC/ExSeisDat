@@ -9,7 +9,6 @@
 *//*******************************************************************************************/
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
-#include <memory>
 #include "global.hh"
 
 namespace PIOL { namespace Obj {

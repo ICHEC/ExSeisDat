@@ -6,6 +6,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <cmath>
 #include "global.hh"
 #include "file/segymd.hh"
 

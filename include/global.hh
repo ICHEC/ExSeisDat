@@ -10,6 +10,7 @@
 #ifndef PIOLGLOBAL_INCLUDE_GUARD
 #define PIOLGLOBAL_INCLUDE_GUARD
 #include <cstdint>
+#include <vector>
 #include <memory>
 typedef unsigned char uchar;        //!< The type to use for accessing individual bytes
 typedef int64_t llint;              //!< A large signed integer type.

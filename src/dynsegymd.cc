@@ -7,6 +7,11 @@
  *   \details
  *//*******************************************************************************************/
 #include <iostream>
+#include <limits>
+#include <cstring>
+#include <cmath>
+#include "file/segymd.hh"
+#include "share/datatype.hh"
 #include "file/dynsegymd.hh"
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)

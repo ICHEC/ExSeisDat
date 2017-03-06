@@ -15,13 +15,13 @@
  *//*******************************************************************************************/
 #ifndef PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 #define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
-#include "global.hh"
 #include <unordered_map>
 #include <initializer_list>
+#include "global.hh"
 #include "file/file.hh"
-#include "file/segymd.hh"
 #include "share/param.hh"
 #include "share/api.hh"
+
 namespace PIOL { namespace File {
 /*! SEG-Y Trace Header offsets
  */

@@ -10,6 +10,7 @@
 #define PIOLFILEICONV_INCLUDE_GUARD
 #include "global.hh"
 #include <string>
+
 namespace PIOL {
 /*!\brief This function detects if the given unsigned character array contains ebcdic text. If so, it converts
  * the strong. Otherwise it is unmodified.

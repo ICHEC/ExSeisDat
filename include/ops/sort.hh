@@ -8,9 +8,8 @@
 #ifndef PIOLOPSSORT_INCLUDE_GUARD
 #define PIOLOPSSORT_INCLUDE_GUARD
 #include "global.hh"
-#include "file/file.hh"
-#include "file/dynsegymd.hh"
-#include "share/mpi.hh"
+#include "share/param.hh"
+
 namespace PIOL { namespace File {
 /*! A template for the Compare less-than function
  */

@@ -8,7 +8,10 @@
 
 #ifndef FOURDBIN4DIO_INCLUDE_GUARD
 #define FOURDBIN4DIO_INCLUDE_GUARD
+#include <limits>
 #include "4d.hh"
+#include "share/segy.hh"
+
 namespace PIOL { namespace FOURD {
 /*! This structure is for holding ALIGN aligned memory containing the coordinates.
  */

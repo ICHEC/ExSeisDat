@@ -9,8 +9,6 @@
 #include <assert.h>
 #include <algorithm>
 #include "data/datampiio.hh"
-#include "anc/piol.hh"
-#include "anc/mpi.hh"
 #include "share/mpi.hh"
 
 namespace PIOL { namespace Data {

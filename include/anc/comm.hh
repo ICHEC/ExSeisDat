@@ -13,7 +13,6 @@
 #ifndef PIOLANCCOMM_INCLUDE_GUARD
 #define PIOLANCCOMM_INCLUDE_GUARD
 #include "global.hh"
-#include <vector>
 namespace PIOL { namespace Comm {
 /*! \brief The Communication layer interface. Specific communication implementations
  *  work off this base class.

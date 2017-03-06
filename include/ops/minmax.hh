@@ -13,7 +13,6 @@
 #include "global.hh"
 #include "share/api.hh"
 
-//#include <cstring>
 namespace PIOL { namespace File {
 
 template <typename T>

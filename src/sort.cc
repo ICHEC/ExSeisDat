@@ -13,7 +13,9 @@
 #include <algorithm>
 #include "global.hh"
 #include "ops/sort.hh"
+#include "file/dynsegymd.hh"
 #include "share/mpi.hh"
+#include "share/api.hh"
 
 namespace PIOL { namespace File {
 /*! Wait on two requests to finish. The largest and smallest rank only wait on one request.

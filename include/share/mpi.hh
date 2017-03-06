@@ -12,8 +12,8 @@
 #include <mpi.h>
 #include <typeinfo>
 #include "global.hh"
-namespace PIOL {
 
+namespace PIOL {
 /*! \brief Check the MPI error code and log an error event if there is an error.
  *  \param[in,out] log  The log object
  *  \param[in] file The related file. Use "" if the option is not applicable.
