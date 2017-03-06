@@ -25,12 +25,12 @@ using File::Tr;
 using File::Rule;
 
 namespace PIOL {
-void cmsg(ExSeisPIOL * piol, std::string msg)
-{
-    piol->comm->barrier();
-    if (!piol->comm->getRank())
-        std::cout << msg << std::endl;
-}
+    void cmsg(ExSeisPIOL * piol, std::string msg)
+    {
+        piol->comm->barrier();
+        if (!piol->comm->getRank())
+            std::cout << msg << std::endl;
+    }
 }
 
 void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> & list2, vec<fourd_t> & lminrs)
@@ -63,9 +63,9 @@ int main(int argc, char ** argv)
     bool verbose = false;
     bool skipToOutput = false;
 /**********************************************************************************************************
- *******************  Reading options from the command line *********************************************** 
+ *******************  Reading options from the command line ***********************************************
  **********************************************************************************************************/
-    std::string opt = "a:b:c:d:t:vs";  //TODO: uses a GNU extension
+    std::string opt = "a:b:c:d:t:v:s";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
     std::string name3 = "";

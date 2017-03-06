@@ -146,6 +146,7 @@ void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Di
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         //Sort the initial list and make a new list without duplicates
+        //We want to avoid reading duplicates but we should write them
         auto idx = getSortIndex(rblock, &list[i]);
         std::vector<size_t> nodups;
         nodups.push_back(list[i+idx[0]]);
