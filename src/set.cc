@@ -342,7 +342,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 for (size_t i = 0; i < list.size(); i++)
                 {
                     setPrm(loff+i, Meta::gtn, off + loff + i, &prm);
-                    setPrm(loff+i, Meta::ltn, (f->offset + i) * o.second.size() + c, &prm);
+                    setPrm(loff+i, Meta::ltn, list[i] * o.second.size() + c, &prm);
                 }
                 c++;
                 loff += list.size();

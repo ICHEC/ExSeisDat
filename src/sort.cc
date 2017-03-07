@@ -212,7 +212,7 @@ static size_t offcalc(ExSeisPIOL * piol, size_t sz)
 
     for (size_t i = 1; i < rank+1; i++)
         szall[i] += szall[i-1];
-    return (rank ? szall[rank] : 0U);
+    return (rank ? szall[rank-1] : 0U);
 }
 
 /*! Function to sort a given vector by a nearest neighbour approach.
