@@ -31,8 +31,6 @@ clean:
 
 cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
-creadwrite: obj/creadwrite.co obj/sglobal.co
-	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 traceanalysis: obj/traceanalysis.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 assess: obj/assess.cpo obj/sglobal.cpo
@@ -40,6 +38,8 @@ assess: obj/assess.cpo obj/sglobal.cpo
 versort: obj/verifysort.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 concatenate: obj/concatenate.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
+creadwrite: obj/concatenate.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 segsort: obj/sort.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)

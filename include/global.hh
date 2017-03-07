@@ -19,7 +19,6 @@ typedef double geom_t;               //!< Real type for geometry
 typedef double unit_t;               //!< Real type for geometry
 typedef const std::size_t csize_t;  //!< Short hand for a const size_t
 
-#include "anc/log.hh"
 #include "anc/piol.hh"
 
 /*! The file modes possible for files.

@@ -26,8 +26,8 @@ class ReadSEGY : public ReadInterface
      */
     struct Opt
     {
-        typedef ReadSEGY Type;          //!< The Type of the class this structure is nested in
-        unit_t incFactor;           //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
+        typedef ReadSEGY Type;  //!< The Type of the class this structure is nested in
+        unit_t incFactor;       //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
 
         /*! Constructor which provides the default Rules
          */
@@ -35,7 +35,7 @@ class ReadSEGY : public ReadInterface
     };
 
     private :
-    Format format;          //<! Type formats
+    Format format;              //<! Type formats
 
     unit_t incFactor;           //!< The increment factor
 
@@ -63,7 +63,6 @@ class ReadSEGY : public ReadInterface
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] obj_    A shared pointer to the object layer
-     *  \param[in] mode    The mode of file access.
      */
     ReadSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 
@@ -88,8 +87,8 @@ class WriteSEGY : public WriteInterface
      */
     struct Opt
     {
-        typedef WriteSEGY Type;          //!< The Type of the class this structure is nested in
-        unit_t incFactor;           //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
+        typedef WriteSEGY Type; //!< The Type of the class this structure is nested in
+        unit_t incFactor;       //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
 
         /*! Constructor which provides the default Rules
          */
@@ -97,7 +96,7 @@ class WriteSEGY : public WriteInterface
     };
 
     private :
-    Format format;          //<! Type formats
+    Format format;              //<! Type formats
 
     /*! State flags structure for SEGY
      */
@@ -117,10 +116,12 @@ class WriteSEGY : public WriteInterface
 
     /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
-     *  \param[in] mode_    The mode of file access.
      */
     void Init(const WriteSEGY::Opt & segyOpt);
 
+    /*! Calculate the number of traces currently stored (or implied to exist).
+     *  \return Return the number of traces
+     */
     size_t calcNt(void);
 
     public :
@@ -129,7 +130,6 @@ class WriteSEGY : public WriteInterface
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] segyOpt The SEGY-File options
      *  \param[in] obj_    A shared pointer to the object layer
-     *  \param[in] mode    The mode of file access.
      */
     WriteSEGY(const Piol piol_, const std::string name_, const WriteSEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_);
 
@@ -137,7 +137,6 @@ class WriteSEGY : public WriteInterface
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] obj_    A shared pointer to the object layer
-     *  \param[in] mode    The mode of file access.
      */
     WriteSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 

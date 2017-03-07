@@ -181,6 +181,7 @@ struct SEGYIndexRuleEntry : public RuleEntry
     SEGYIndexRuleEntry(size_t num_) : RuleEntry(num_, 0U) { }
 
     /*! Return 0. nothing stored
+     *  \return Return 0
      */
     size_t min(void)
     {
@@ -188,6 +189,7 @@ struct SEGYIndexRuleEntry : public RuleEntry
     }
 
     /*! Return 0. nothing stored
+     *  \return Return 0
      */
     size_t max(void)
     {
@@ -311,7 +313,7 @@ struct Rule
      *  default rules in place or no rules in place.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] defaults Whether the default SEG-Y rules should be set.
-     *  \param[in] defaults Whether maximum amount of rules should be set. Useful when copying files
+     *  \param[in] extra Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
     Rule(bool full, bool defaults, bool extra = false);
@@ -448,11 +450,11 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
 }
 
 /*! Copy params from one parameter structure to another.
- * \param[in] i The trace number of the source.
+ * \param[in] j The trace number of the source.
  * \param[in] src The source parameter structure.
- * \param[in] j The trace number of the destination.
+ * \param[in] k The trace number of the destination.
  * \param[out] dst The destination parameter structure.
  */
-void cpyPrm(csize_t i, const Param * src, csize_t j, Param * dst);
+void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst);
 }}
 #endif

@@ -47,6 +47,8 @@ cexample2: obj/example2.co ../util/obj/sglobal.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 example1: obj/example1.cpo ../util/obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
+creadwrite: obj/creadwrite.co obj/sglobal.co
+	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 
 ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)

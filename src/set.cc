@@ -9,6 +9,7 @@
 #include <glob.h>
 #include "global.hh"
 #include <regex>
+#include <numeric>
 #include <map>
 #include "share/misc.hh"    //For getSort..
 #include "set/set.hh"
@@ -184,6 +185,7 @@ void InternalSet::add(std::string name)
     add(std::move(in));
 }
 
+//TODO: Combine this with fillDesc?
 void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
 {
     file.emplace_back(std::make_unique<FileDesc>());
@@ -275,14 +277,6 @@ size_t InternalSet::getLNt(void)
             nt += (l != NOT_IN_OUTPUT);
     return nt;
 }
-
-//Find the total set size
-/*size_t InternalSet::getSetNt(void)
-{
-    auto lnt = getLNt();
-    //TODO: Perform a reduction here to add all the totals
-    return lnt;
-}*/
 
 void InternalSet::summary(void) const
 {

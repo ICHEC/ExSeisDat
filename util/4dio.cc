@@ -7,28 +7,17 @@
  *//*******************************************************************************************/
 #include <numeric>
 #include "4dio.hh"
+#include "sglobal.hh"
 #include "fileops.hh"   //For sort
+#include "share/misc.hh"
 namespace PIOL { namespace FOURD {
-//This trick is discussed here:
-//http://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
-vec<size_t> getSortIndex(size_t sz, size_t * list)
-{
-    vec<size_t> index(sz);
-    std::iota(index.begin(), index.end(), 0);
-    std::sort(index.begin(), index.end(), [list] (size_t s1, size_t s2) { return list[s1] < list[s2]; });
-    return index;
-}
-
 //TODO: Integration candidate
-/*! This function extracts the relevant parameters from the file and inserts them into a vector (coords)
- *  \param[in] piol The piol handle, used for MPI collectives.
- *  \param[in] file The input file to access parameters from.
- *  \param[in] offset The offset for the local process to access from
- *  \param[in] coords The vector for storing the parameters. Number of parameters is coords.size()/4
- */
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
-std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file, std::pair<size_t, size_t> dec)
+std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 {
+    auto time = MPI_Wtime();
+    File::ReadDirect file(piol, name);
+    auto dec = decompose(file.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
@@ -50,6 +39,8 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file,
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
+
+        //WARNING: Treat ReadDirect like the internal API for using a non-exposed function
         file->readParam(offset+i, rblock, &prm, i);
 
         for (size_t j = 0; j < rblock; j++)
@@ -58,17 +49,17 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file,
 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
-        file->readParam(0U, size_t(0), nullptr, 0U);
-    cmsg(piol, "getCoords sort");
+        file.readParam(size_t(0), size_t(0), nullptr);
+    cmsg(piol.get(), "getCoords sort");
 
-    auto trlist = File::sort(piol, &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
+    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
             {
                 return (File::getPrm<geom_t>(0U, Meta::xSrc, &e1) < File::getPrm<geom_t>(0U, Meta::xSrc, &e2) ? true :
                         File::getPrm<geom_t>(0U, Meta::xSrc, &e1) == File::getPrm<geom_t>(0U, Meta::xSrc, &e2) &&
                         File::getPrm<size_t>(0U, Meta::gtn, &e1) < File::getPrm<size_t>(0U, Meta::gtn, &e2));
             }, false);
 
-    cmsg(piol, "getCoords post-sort I/O");
+    cmsg(piol.get(), "getCoords post-sort I/O");
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +80,7 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file,
         for (size_t j = 0; j < sortlist.size(); j++)
             sortlist[j] = trlist[i + sortlist[j]];
 
-        file->readParam(rblock, sortlist.data(), &prm2);
+        file.readParam(rblock, sortlist.data(), &prm2);
 
         for (size_t j = 0; j < rblock; j++)
         {
@@ -104,14 +95,28 @@ std::unique_ptr<Coords> getCoords(ExSeisPIOL * piol, File::ReadInterface * file,
 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
-        file->readParam(0U, nullptr, nullptr);
+        file.readParam(0U, nullptr, nullptr);
+
+    cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
+
     return std::move(coords);
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::WriteDirect & dst, File::ReadDirect & src, vec<size_t> & list, vec<fourd_t> & minrs)
+void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs)
 {
+    auto time = MPI_Wtime();
+    //Enable as many of the parameters as possible
+    auto rule = std::make_shared<File::Rule>(true, true, true);
+    //Note: Set to TimeScal for OpenCPS viewing of dataset.
+    //OpenCPS is restrictive on what locations can be used
+    //as scalars.
+    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+
+    File::ReadDirect src(piol, sname);
+    File::WriteDirect dst(piol, dname);
+
     size_t ns = src.readNs();
     size_t lnt = list.size();
     size_t offset = 0;
@@ -157,5 +162,7 @@ void outputNonMono(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, File::Wr
         src.readTrace(0, nullptr, nullptr, nullptr);
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
+
+    cmsg(piol.get(), "Output " + sname + " to " + dname + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 }
 }}

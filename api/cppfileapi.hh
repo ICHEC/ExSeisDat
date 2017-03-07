@@ -194,6 +194,7 @@ class ReadDirect
      *  \details When prm==PRM_NULL only the trace DF is read.
      */
     void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+
     void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.

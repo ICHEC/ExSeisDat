@@ -5,6 +5,7 @@
  *   \date March 2017
  *   \brief This file contains the compute heavy kernel of the 4d-binning utility
 *//*******************************************************************************************/
+#include <math.h>
 #include <assert.h>
 #include <algorithm>
 #include "share/mpi.hh"
@@ -13,6 +14,11 @@
 namespace PIOL { namespace FOURD {
 
 //This function prints to stdio
+/*! Process 0 will print the xSrc min and max values for each process
+ *  \param[in] piol The piol object.
+ *  \param[in] xsmin A vector of the min xSrc for each process.
+ *  \param[in] xsmax A vector of the max xSrc for each process.
+ */
 void printxSrcMinMax(ExSeisPIOL * piol, vec<fourd_t> & xsmin, vec<fourd_t> & xsmax)
 {
     piol->comm->barrier();
@@ -23,7 +29,16 @@ void printxSrcMinMax(ExSeisPIOL * piol, vec<fourd_t> & xsmin, vec<fourd_t> & xsm
     piol->comm->barrier();
 }
 
-//This function outputs some data for inspection
+/*! Each process will print their xSrc min/max and active ranks to an output file.
+ *  xSrc min/max will also be printed to the terminal.
+ * \param[in] piol The piol object.
+ * \param[in] xslmin The minimum local value for xSrc from file 1.
+ * \param[in] xslmax The maximum local value for xSrc from file 1.
+ * \param[in] xsrmin The minimum local value for xSrc from file 2.
+ * \param[in] xsrmax The maximum local value for xSrc from file 2.
+ * \param[in] active An array of active ranks for the local process. That is, processes the
+ *            local process will do a one-sided MPI_Get on.
+ */
 void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xsrmin, fourd_t xsrmax, vec<size_t> & active)
 {
     size_t rank = piol->comm->getRank();
@@ -34,6 +49,7 @@ void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xs
     for (size_t i = 0; i < active.size(); i++)
         fprintf(fOut, "%zu\n", active[i]);
     fclose(fOut);
+
     auto lxsmin = piol->comm->gather(vec<fourd_t>{xslmin});
     auto lxsmax = piol->comm->gather(vec<fourd_t>{xslmax});
     printxSrcMinMax(piol, lxsmin, lxsmax);
@@ -41,15 +57,21 @@ void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xs
         std::cout << "file2 min/max\n";
 }
 
-/* The intel compiler uses an incorrect hypotenuse function when it vectorises.
+/*! Calculate the hypotenuse of a RH triangle using x and y as lengths.
+ *  \param[in] x One side.
+ *  \param[in] y The other.
+ *  \note The intel compiler uses an incorrect hypotenuse function when it vectorises, so this
+ *        is defined.
+ *  \return Return the hypotenuse.
  */
-fourd_t hypot(fourd_t x, fourd_t y)
+fourd_t hypot(const fourd_t x, const fourd_t y)
 {
     return sqrtf(x*x + y*y);
 }
 
 /*! Create windows for one-sided communication of coordinates
  *  \param[in] coords The coordinate structure of arrays to open to RDMA.
+ *  \return Return a vector of all the window values.
  */
 vec<MPI_Win> createCoordsWindow(const Coords * coords)
 {
@@ -96,22 +118,27 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
     return std::move(coords);
 }
 
-/*! Calcuate the difference criteria between source/receiver pairs between traces. For each trace in
- *  file1 the fourdbin utility finds the trace from file2 which is the minimum distance away.
- *  \param[in] prm1 A pointer to an array of size 4 which has sx, sy, rx, ry in that order. (file1
- *  \param[in] prm2 A pointer to an array of size 4 which has sx, sy, rx, ry in that order. (file2)
- *  \return Return the dsr value.
+/*! Calcuate the difference criteria between source/receiver pairs between traces.
+ *  \param[in] xs1 xSrc from pair 1
+ *  \param[in] ys1 ySrc from pair 1
+ *  \param[in] xr1 xRcv from pair 1
+ *  \param[in] yr1 yRcv from pair 1
+ *  \param[in] xs2 xSrc from pair 2
+ *  \param[in] ys2 ySrc from pair 2
+ *  \param[in] xr2 xRcv from pair 2
+ *  \param[in] yr2 yRcv from pair 2
+ *  \return Return the dsr value
  *
- * The definitions of ds and dr are:
- * ds = \sqrt((sx1-sx2)^2+(sy1-sy2)^2)
- * dr = \sqrt((rx1-rx2)^2+(ry1-ry2)^2)
+ * \details The definitions of ds and dr are:
+ * \f$ds = \sqrt((sx1-sx2)^2+(sy1-sy2)^2)\f$
+ * \f$dr = \sqrt((rx1-rx2)^2+(ry1-ry2)^2)\f$
  * The boat may be going in the opposite direction for the data in file2 so that the source from file1
  * is closer to the receiver in file2 and vice-versa. We interchange _sx->rx, _sy->ry _rx->sx _ry->sy
  * for prm2 in that case (prm2).
- * rds = \sqrt((sx1-rx2)^2+(sy1-ry2)^2)
- * rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)
- * dsr = (min(ds, rds) + min(dr, rdr))^2
- * \todo Compute load just jumped up. No Branching. Acceleration opportunity! */
+ * \f$rds = \sqrt((sx1-rx2)^2+(sy1-ry2)^2)\f$
+ * \f$rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)\f$
+ * \f$dsr = (min(ds, rds) + min(dr, rdr))^2\f$
+*/
 fourd_t dsr(const fourd_t xs1, const fourd_t ys1, const fourd_t xr1, const fourd_t yr1,
            const fourd_t xs2, const fourd_t ys2, const fourd_t xr2, const fourd_t yr2)
 {
@@ -122,28 +149,26 @@ fourd_t dsr(const fourd_t xs1, const fourd_t ys1, const fourd_t xr1, const fourd
 
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  \tparam Init If true, perform the initialisation sequence.
- *  \param[in] szall A vector containing the amount of data each process has from the second input file.
  *  \param[in] crd1 A vector containing the process's parameter data from the first input file. This data
  *             is never sent to any crd2 process.
  *  \param[in] crd2 A vector containing the parameter data from another process.
- *  \param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
+ *  \param[out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
- *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
+ *  \param[out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
-void initUpdate(size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs)
+void initUpdate(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs)
 {
     for (size_t i = 0; i < crd1->sz; i++)
     {
         minrs[i] = dsr(crd1->xSrc[i], crd1->ySrc[i], crd1->xRcv[i], crd1->yRcv[i],
                        crd2->xSrc[0], crd2->ySrc[0], crd2->xRcv[0], crd2->yRcv[0]);
-        min[i] = offset;
+        min[i] = crd2->tn[0];
     }
 }
 
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  \tparam Init If true, perform the initialisation sequence.
- *  \param[in] szall A vector containing the amount of data each process has from the second input file.
  *  \param[in] crd1 A vector containing the process's parameter data from the first input file. This data
  *             is never sent to any other process.
  *  \param[in] crd2 A vector containing the parameter data from another process.
@@ -151,8 +176,10 @@ void initUpdate(size_t offset, const Coords * crd1, const Coords * crd2, vec<siz
  *                 This vector is updated by the loop.
  *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
+ *  \param[in] dsrmax The maximum distance a pair from crd2 can be from crd1.
+ *  \return Return the number of dsr calculations performed.
  */
-size_t update(size_t rank, size_t offset, const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, fourd_t dsrmax)
+size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, const fourd_t dsrmax)
 {
     //For the vectorisation
     size_t lstart = 0U;
@@ -190,6 +217,7 @@ size_t update(size_t rank, size_t offset, const Coords * crd1, const Coords * cr
     const fourd_t * yS2 = crd2->ySrc;
     const fourd_t * yR2 = crd2->yRcv;
     const size_t * tn = crd2->tn;
+
     #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) aligned(yR2:ALIGN) \
                      aligned(xS1:ALIGN) aligned(yS1:ALIGN) aligned(xR1:ALIGN) aligned(yR1:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
@@ -235,7 +263,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     auto xslmax = crd1->xSrc[crd1->sz-1U];
 
     //Perform a local initialisation update of min and minrs
-    initUpdate(offset[rank], crd1, coords2, min, minrs);
+    initUpdate(crd1, coords2, min, minrs);
 
     //This for loop determines the processes the local process will need to be communicating with.
     vec<size_t> active;
@@ -263,7 +291,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         auto lrank = active[i];
         auto proc = getCoordsWin(lrank, szall[lrank], win);
         auto wtime = MPI_Wtime() - ltime;
-        auto ops = update(rank, offset[lrank], crd1, proc.get(), min, minrs, dsrmax);
+        auto ops = update(crd1, proc.get(), min, minrs, dsrmax);
         std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: " <<
                     (double(crd1->sz * proc->sz) - double(ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
     }

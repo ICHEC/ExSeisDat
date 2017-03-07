@@ -43,7 +43,38 @@ enum class Hdr : size_t
     Extensions = 3505U, //!< int16_t. If we use header extensions or not.
 };
 
+/*! \brief Convert a SEG-Y scale integer to a floating point type
+ *  \param[in] scale The int16_t scale taken from the SEG-Y file
+ *  \return The scale convertered to floating point.
+ */
 extern geom_t scaleConv(int16_t scale);
+
+/*! \fn int16_t PIOL::File::deScale(const geom_t val)
+ * \brief Take a coordinate and extract a suitable scale factor to represent that number
+ * in 6 byte fixed point format of the SEG-Y specification.
+ * \param[in] val The coordinate of interest.
+ * \return An appropriate scale factor for the coordinate.
+ * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
+ * There are ten possible values for the scale factor. Shown are the possible values
+ * and the form the input float should have to use that scale factor.
+ * firstly, anything smaller than 4 decimal points is discarded since the approach
+ * can not represent it.
+*//*
+ * Shown is the
+ * position of the least significant digit:
+ * -10000 - \d0000.0000
+ * -1000  - \d000.0000
+ * -100   - \d00.0000
+ * -10    - \d0.0000
+ * -1     - \d
+ * 1      - \d
+ * 10     - \d.\d
+ * 100    - \d.\d\d
+ * 1000   - \d.\d\d\d
+ * 10000  - \d.\d\d\d\d
+ * \todo Handle the annoying case of numbers at or around 2147483648 with a decimal somewhere.
+ * \todo Add rounding before positive scale values
+*/
 extern int16_t deScale(const geom_t val);
 
 /*! \brief Get the header metadata value from the binary header.

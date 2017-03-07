@@ -5,24 +5,18 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#warning temp
-#include <stdio.h>
-
 #include <assert.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <cmath>
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include "cppfileapi.hh"
-#include "sglobal.hh"
 #include "4dio.hh"
 #include "4dcore.hh"
 
 using namespace PIOL;
 using namespace FOURD;
-using File::Tr;
-using File::Rule;
 
 namespace PIOL {
 void cmsg(ExSeisPIOL * piol, std::string msg)
@@ -33,43 +27,31 @@ void cmsg(ExSeisPIOL * piol, std::string msg)
 }
 }
 
-void printAllLists(bool verbose, size_t rank, vec<size_t> & list1, vec<size_t> & list2, vec<fourd_t> & lminrs)
-{
-    if (verbose)
-    {
-        size_t cnt = list1.size();
-        assert(list1.size() == list2.size() && list1.size() == lminrs.size());
-        std::string name = "tmp/vtn" + std::to_string(rank);
-        FILE * fOut = fopen(name.c_str(), "w+");
-        assert(1U == fwrite(&cnt, sizeof(size_t), 1U, fOut));
-        assert(list1.size() == fwrite(list1.data(), sizeof(size_t), list1.size(), fOut));
-        assert(list2.size() == fwrite(list2.data(), sizeof(size_t), list2.size(), fOut));
-        assert(lminrs.size() == fwrite(lminrs.data(), sizeof(fourd_t), lminrs.size(), fOut));
-        fclose(fOut);
-
-        name += ".txt";
-        fOut = fopen(name.c_str(), "w+");
-        fprintf(fOut, "N#\tlist1\tlist2\tminrs\n");
-        for (size_t i = 0; i < cnt; i++)
-            fprintf(fOut, "%zu\t%zu\t%zu\t%f\n", i, list1[i], list2[i], lminrs[i]);
-        fclose(fOut);
-    }
-}
-
+/*! Main function for fourdbin.
+ *  \param[in] argc The number of input strings.
+ *  \param[in] argv The array of input strings.
+ *  \return zero on success, non-zero on failure
+ *  \details 4 files must be specified on the command line:
+ *           -a \<inp1\> : First input file
+ *           -b \<inp2\> : Second input file
+ *           -c \<out1\> : First output file
+ *           -d \<out2\> : Second output file
+ *           -t \<val\> : floating value for dsrmax
+ *           -v : Use this option for extra verbosity
+ *  \return Return zero on success, non-zero on failure.
+ */
 int main(int argc, char ** argv)
 {
     ExSeis piol;
     fourd_t dsrmax = 1.0;            //Default dsdr criteria
     bool verbose = false;
-    bool skipToOutput = false;
-/**********************************************************************************************************
- *******************  Reading options from the command line *********************************************** 
- **********************************************************************************************************/
-    std::string opt = "a:b:c:d:t:vs";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
     std::string name3 = "";
     std::string name4 = "";
+
+/*******************  Reading options from the command line ***********************************************/
+    std::string opt = "a:b:c:d:t:v";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -92,122 +74,44 @@ int main(int argc, char ** argv)
                 verbose = true;
                 cmsg(piol, "Verbose mode enabled");
             break;
-            case 's' :
-                skipToOutput = true;
-                cmsg(piol, "Skipping to output stage");
-            break;
             default :
                 std::cerr<< "One of the command line arguments is invalid\n";
             break;
         }
     assert(name1.size() && name2.size() && name3.size() && name4.size());
-/**********************************************************************************************************
- **********************************************************************************************************/
+/**********************************************************************************************************/
+    //Open the two input files
+    cmsg(piol, "Parameter-read phase");
 
-    size_t rank = piol.getRank();
-    size_t numRank = piol.getNumRank();
+    //Perform the decomposition and read the coordinates of interest.
+    auto coords1 = getCoords(piol, name1);
+    auto coords2 = getCoords(piol, name2);
 
+    vec<size_t> min(coords1->sz);
+    vec<fourd_t> minrs(coords1->sz);
+    calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), min, minrs, verbose);
+    coords2.release();
+
+    cmsg(piol, "Final list pass");
+    //Now we weed out traces that have a match that is too far away
     vec<size_t> list1;
     vec<size_t> list2;
     vec<fourd_t> lminrs;
 
-    //Open the two input files
-    File::ReadDirect file1(piol, name1);
-    File::ReadDirect file2(piol, name2);
-
-    if (!skipToOutput)
-    {
-        cmsg(piol, "Parameter-read phase");
-        //Perform the decomposition and read the coordinates of interest.
-        auto time = MPI_Wtime();
-        auto dec1 = decompose(file1.readNt(), numRank, rank);
-        auto dec2 = decompose(file2.readNt(), numRank, rank);
-        auto coords1 = getCoords(piol, file1, dec1);
-
-        cmsg(piol, "Read sets of coordinates from file " + name1 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
-        time = MPI_Wtime();
-
-        auto coords2 = getCoords(piol, file2, dec2);
-
-        cmsg(piol, "Read sets of coordinates from file " + name2 + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
-
-        vec<size_t> min(coords1->sz);
-        vec<fourd_t> minrs(coords1->sz);
-        calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), min, minrs, verbose);
-
-        cmsg(piol, "Final list pass");
-
-//Weed out traces that have a match that is too far away
-
-        list1.resize(coords1->sz);
-        list2.resize(coords1->sz);
-        lminrs.resize(coords1->sz);
-        size_t cnt = 0U;
-
-        for (size_t i = 0U; i < coords1->sz; i++)
-            if (minrs[i] <= dsrmax)
-            {
-                list2[cnt] = min[i];
-                lminrs[cnt] = minrs[i];
-                list1[cnt++] = coords1->tn[i];
-            }
-        //free up some memory
-        coords1.release();
-        coords2.release();
-
-        list1.resize(cnt);
-        list2.resize(cnt);
-        lminrs.resize(cnt);
-
-        printAllLists(verbose, rank, list1, list2, lminrs);
-    }
-    else
-    {
-        size_t cnt;
-        std::string name = "tmp/vtn" + std::to_string(rank);
-        FILE * fOut = fopen(name.c_str(), "r+");
-        assert(1U == fread(&cnt, sizeof(size_t), 1U, fOut));
-
-        list1.resize(cnt);
-        list2.resize(cnt);
-        lminrs.resize(cnt);
-
-        assert(list1.size() == fread(list1.data(), sizeof(size_t), list1.size(), fOut));
-        assert(list2.size() == fread(list2.data(), sizeof(size_t), list2.size(), fOut));
-        assert(lminrs.size() == fread(lminrs.data(), sizeof(fourd_t), lminrs.size(), fOut));
-        fclose(fOut);
-    }
+    for (size_t i = 0U; i < coords1->sz; i++)
+        if (minrs[i] <= dsrmax)
+        {
+            list2.push_back(min[i]);
+            lminrs.push_back(minrs[i]);
+            list1.push_back(coords1->tn[i]);
+        }
+    //free up some memory
+    coords1.release();
 
     cmsg(piol, "Output phase");
-    //Enable as many of the parameters as possible
-    auto rule = std::make_shared<Rule>(true, true, true);
 
+    outputNonMono(piol, name3, name1, list1, lminrs);
+    outputNonMono(piol, name4, name2, list2, lminrs);
 
-    //Note: Set to TimeScal for OpenCPS viewing of dataset.
-    //OpenCPS is restrictive on what locations can be used
-    //as scalars.
-    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::TimeScal);
-
-    auto time = MPI_Wtime();
-    {
-        //Open and write out file1 --> file3
-        File::WriteDirect file3(piol, name3);
-        cmsg(piol, "Output 3");
-        //select(piol, rule, file3, file1, list1, minrs);
-        outputNonMono(piol, rule, file3, file1, list1, lminrs);
-    }
-
-    cmsg(piol, "Output 3 in " + std::to_string(MPI_Wtime()- time) + " seconds");
-    time = MPI_Wtime();
-
-    {
-        //Open and write out file2 --> file4
-        //This case is more complicated because the list is unordered and there can be duplicate entries
-        //in the list.
-        File::WriteDirect file4(piol, name4);
-        outputNonMono(piol, rule, file4, file2, list2, lminrs);
-    }
-
-    cmsg(piol, "Output 4 in " + std::to_string(MPI_Wtime()- time) + " seconds");
     return 0;
 }

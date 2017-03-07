@@ -1,6 +1,6 @@
 #include "sglobal.h"
 #include <assert.h>
-Extent decompose(size_t sz, size_t nrank, size_t rank)
+Extent decompose(const size_t sz, const size_t nrank, const size_t rank)
 {
     assert(nrank > rank);
     size_t r = sz%nrank;
@@ -10,7 +10,7 @@ Extent decompose(size_t sz, size_t nrank, size_t rank)
     return extent;
 }
 
-char * copyString(char * oldstr)
+char * copyString(const char * oldstr)
 {
     size_t len = strlen(oldstr);
     //Note that small sizes can generate false positives with valgrind

@@ -10,17 +10,26 @@
 #include <iostream>
 #include "cppfileapi.hh"
 
-#define ALIGN 32U
+#define ALIGN 32U   //!< Constant for alignment reasons.
+
+/*! A typedef to simplify const std::vector
+ */
 template <class T>
 using cvec = const std::vector<T>;
 
+/*! A typedef to simplify std::vector
+ */
 template <class T>
 using vec = std::vector<T>;
 
-typedef float fourd_t;
+typedef float fourd_t;  //!< A typedef for the precision used for coordinates during the 4dbin
 
 namespace PIOL
 {
+/*! Every process will call this function and process 0 will print the string.
+ *  \param[in] piol The piol object.
+ *  \param[in] msg The string to print.
+ */
 void cmsg(ExSeisPIOL * piol, std::string msg);
 }
 #endif

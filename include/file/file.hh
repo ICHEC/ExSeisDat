@@ -92,9 +92,9 @@ class ReadInterface
      */
     virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
-    /*! \brief Read the traces specified by the offsets in the passed offset array.
+    /*! \brief Read the traces specified by the offsets in the passed offset array. Assumes Monotonic.
      *  \param[in] sz The number of traces to process
-     *  \param[in] offset An array of trace numbers to read.
+     *  \param[in] offset An array of trace numbers to read (monotonic list).
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
@@ -103,6 +103,15 @@ class ReadInterface
      */
     virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
+    /*! \brief Read the traces specified by the offsets in the passed offset array. Does not assume monotonic
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read (non-monotonic list).
+     *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  \param[out] prm A parameter structure
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
+     *
+     *  \details When prm==PARAM_NULL only the trace DF is read.
+     */
     virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
