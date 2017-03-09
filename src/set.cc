@@ -85,11 +85,11 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
  *  \param[in] in The input file interface
  *  \param[out] out The output file interface
  */
-void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list,
-                                size_t max, File::ReadInterface * in, File::WriteInterface * out)
+void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list, size_t max,
+                                        File::ReadInterface * in, File::WriteInterface * out, Mod modify)
 {
-    std::vector<size_t> & ilist = list.first;
-    std::vector<size_t> & olist = list.second;
+    auto & ilist = list.first;
+    auto & olist = list.second;
     size_t lnt = ilist.size();
     size_t fmax = std::min(lnt, max);
     size_t ns = in->readNs();
@@ -104,7 +104,8 @@ void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst 
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
-        std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
+        modify(&iprm, itrc.data());
+        auto sortlist = getSortIndex(rblock, olist.data() + i);
         for (size_t j = 0U; j < rblock; j++)
         {
             cpyPrm(sortlist[j], &iprm, j, &oprm);
@@ -391,7 +392,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
         for (auto & f : o.second)
         {
             auto l = getList(f);
-            readwriteTraces(piol.get(), rule, l, max, f->ifc.get(), out.get());
+            readwriteTraces(piol.get(), rule, l, max, f->ifc.get(), out.get(), modify);
         }
     }
     return names;
