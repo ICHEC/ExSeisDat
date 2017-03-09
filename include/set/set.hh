@@ -28,7 +28,7 @@ struct FileDesc
     std::vector<size_t> lst;                    //!< The size of this corresponds to the local decomposition
 };
 
-typedef std::function<void(File::Param *, trace_t *)> Mod;
+typedef std::function<void(File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 
 /*! The internal set class
  */
@@ -107,7 +107,7 @@ class InternalSet
         outmsg = outmsg_;
     }
 
-    /*! Summarise the current status by whatever means the PIOL instrinsically supports
+    /*! Summarise the current status by whatever means the PIOL intrinsically supports
      */
     void summary(void) const;
 

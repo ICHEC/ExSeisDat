@@ -79,17 +79,25 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
 /*! Read a list of traces from the input and write it to the output.
  *  \param[in] piol A pointer to the PIOL object.
  *  \param[in] rule The rule to use for the trace parameters.
- *  \param[in] list A pair of vectors. The first vector is every input trace. The
- *             second is where the input trace should go in the output.
- *  \param[in] max The maximum number of traces to read/write at a time
- *  \param[in] in The input file interface
- *  \param[out] out The output file interface
+ *  \param[in] max The maximum number of traces to read/write at a time.
+ *  \param[in] f The input file descriptor.
+ *  \param[in] modify
+ *  \param[out] out The output file interface.
  */
-void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst & list, size_t max,
-                                        File::ReadInterface * in, File::WriteInterface * out, Mod modify)
+void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f, Mod modify,
+                                        File::WriteInterface * out)
 {
-    auto & ilist = list.first;
-    auto & olist = list.second;
+    std::vector<size_t> ilist;
+    std::vector<size_t> olist;
+    for (size_t i = 0; i < f->lst.size(); i++)
+        if (f->lst[i] != NOT_IN_OUTPUT)
+        {
+            ilist.push_back(f->offset + i);
+            olist.push_back(f->lst[i]);
+        }
+
+    File::ReadInterface * in = f->ifc.get();
+
     size_t lnt = ilist.size();
     size_t fmax = std::min(lnt, max);
     size_t ns = in->readNs();
@@ -105,7 +113,7 @@ void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst 
         size_t rblock = (i + max < lnt ? max : lnt - i);
         in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
         modify(&iprm, itrc.data());
-        auto sortlist = getSortIndex(rblock, olist.data() + i);
+        std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
         for (size_t j = 0U; j < rblock; j++)
         {
             cpyPrm(sortlist[j], &iprm, j, &oprm);
@@ -122,26 +130,6 @@ void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, iolst 
         in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
         out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
     }
-}
-
-/*! Return a pair of input-output vectors
- *  \param[in] f The file descriptor
- *  \return A pair of vectors. First is input trace number, second is output trace number.
- */
-iolst getList(FileDesc * f)
-{
-    iolst list;
-    size_t cnt = 0;
-    for (auto & l : f->lst)
-    {
-        if (l != NOT_IN_OUTPUT)
-        {
-            list.first.push_back(f->offset + cnt);
-            list.second.push_back(l);
-        }
-        cnt++;
-    }
-    return list;
 }
 
 /*! For CoordElem. Update the dst element based on if the operation gives true.
@@ -261,7 +249,6 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
     piol->isErr();
 }
 
-//Find total size
 size_t InternalSet::getInNt(void)
 {
     size_t nt = 0U;
@@ -382,7 +369,6 @@ std::vector<std::string> InternalSet::output(std::string oname)
 
         //Assume the process can hold the list
         const size_t memlim = 2U*1024U*1024U*1024U;
-        //size_t max = memlim / (2U * (sizeof(size_t) + SEGSz::getDOSz(ns) + rule->paramMem()));
         size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
 
 //TODO: This is not the ideal for small files. per input file read/write
@@ -390,10 +376,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
 // because the write buffer would interleave with the read a bit.
 
         for (auto & f : o.second)
-        {
-            auto l = getList(f);
-            readwriteTraces(piol.get(), rule, l, max, f->ifc.get(), out.get(), modify);
-        }
+            readwriteTraces(piol.get(), rule, max, f, modify, out.get());
     }
     return names;
 }
@@ -411,7 +394,11 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
 
     for (auto & f : file)
     {
-        auto l = getList(f.get()).first;
+        std::vector<size_t> l;
+        for (size_t i = 0; i < f->lst.size(); i++)
+            if (f->lst[i] != NOT_IN_OUTPUT)
+                l.push_back(f->offset + i);
+
         std::vector<File::Param> vprm;
         File::Param prm(rule, l.size());
         f->ifc->readParam(l.size(), l.data(), &prm);
