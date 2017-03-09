@@ -139,7 +139,5 @@ struct SetTest : public Test
             }
         }
     }
-
-
 };
 

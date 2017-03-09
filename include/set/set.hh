@@ -22,12 +22,13 @@ namespace PIOL {
 struct FileDesc
 {
     std::unique_ptr<File::ReadInterface> ifc;   //!< The file interface
+    size_t offset;                              //!< Local offset into the file
 
-    size_t offset;                          //!< Local offset into the file
-
-    std::vector<size_t> lst;                //!< The size of this corresponds to the local decomposition
     //TODO: Temporary approach. This approach will NEED to be optimised in certain cases since it keeps pointless traces
+    std::vector<size_t> lst;                    //!< The size of this corresponds to the local decomposition
 };
+
+typedef std::function<void(File::Param *, trace_t *)> Mod;
 
 /*! The internal set class
  */
@@ -41,6 +42,7 @@ class InternalSet
     std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;   //!< A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, size_t> offmap;                 //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                                   //!< Contains a pointer to the Rules for parameters
+    Mod modify = [] (File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
@@ -118,6 +120,14 @@ class InternalSet
      *  \param[in] name The input name
      */
     void add(std::string name);
+
+    /*! Modify traces and parameters. Multiple modifies can be called.
+     *  \param[in] modify_ Function to modify traces and parameters
+     */
+    void mod(Mod modify_)
+    {
+        modify = [oldmod = modify, modify_] (File::Param * p, trace_t * t) { oldmod(p, t); modify_(p, t); };
+    }
 };
 }
 #endif

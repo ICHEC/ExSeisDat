@@ -20,7 +20,7 @@ test: tests.o main.o
 
 .PHONY: clean
 clean:
-	rm -f test tests.o main.o
+	rm -f test tests.o main.o *.optrpt
 
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o

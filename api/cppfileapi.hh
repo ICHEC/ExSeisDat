@@ -116,6 +116,9 @@ class ReadDirect
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Read);
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
+        if (!file)
+            piol->log->record(name, Log::Layer::API, Log::Status::Error,
+            "ReadInterface creation failure in ReadDirect<F,O,D>()", Log::Verb::None);
     }
 
     /*! Constructor without options.
@@ -230,6 +233,9 @@ class WriteDirect
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Write);
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
+        if (!file)
+            piol->log->record(name, Log::Layer::API, Log::Status::Error,
+                              "WriteInterface creation failure in WriteDirect<F,O,D>()", Log::Verb::None);
     }
 
     /*! Constructor without options.

@@ -16,7 +16,7 @@ while read -r NODES ; do
 done < <(ls temp/* | cut -d "_" -f 3 | cut -d "." -f 1 | sort -u)
 
 shopt -s nocasematch
-if [[ -z "$1" ]]; then
+if [[ -n "$1" ]]; then
 if [[ $1 == "n" ]]; then
     exit
 fi

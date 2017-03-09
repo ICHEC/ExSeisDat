@@ -24,7 +24,8 @@ enum class Layer : size_t
     Comm,
     Log,        //!< The Log layer itself.
     MPI,        //!< Misc MPI.
-    PIOL
+    PIOL,
+    API
 };
 
 /*! \brief The enumeration for the different status messages.
