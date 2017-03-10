@@ -19,12 +19,12 @@ using namespace PIOL;
 using namespace FOURD;
 
 namespace PIOL {
-void cmsg(ExSeisPIOL * piol, std::string msg)
-{
-    piol->comm->barrier();
-    if (!piol->comm->getRank())
-        std::cout << msg << std::endl;
-}
+    void cmsg(ExSeisPIOL * piol, std::string msg)
+    {
+        piol->comm->barrier();
+        if (!piol->comm->getRank())
+            std::cout << msg << std::endl;
+    }
 }
 
 /*! Main function for fourdbin.
