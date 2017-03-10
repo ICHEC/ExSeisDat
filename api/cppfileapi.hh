@@ -108,7 +108,6 @@ class ReadDirect
      *  \param[in] f The File options.
      *  \param[in] o The Object options.
      *  \param[in] d The Data options.
-     *  \param[in] rule_ The rule set to use for Param calls.
      */
     template <class F, class O, class D>
     ReadDirect(const Piol piol, const std::string name, const F & f, const O & o, const D & d)
@@ -124,7 +123,6 @@ class ReadDirect
     /*! Constructor without options.
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
-     *  \param[in] rule_ The rule set to use for Param calls.
      */
     ReadDirect(const Piol piol, const std::string name);
 
@@ -225,7 +223,6 @@ class WriteDirect
      *  \param[in] f The File options.
      *  \param[in] o The Object options.
      *  \param[in] d The Data options.
-     *  \param[in] rule_ The rule set to use for Param calls.
      */
     template <class F, class O, class D>
     WriteDirect(const Piol piol, const std::string name, const F & f, const O & o, const D & d)
@@ -241,7 +238,6 @@ class WriteDirect
     /*! Constructor without options.
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
-     *  \param[in] rule_ The rule set to use for Param calls.
      */
     WriteDirect(const Piol piol, const std::string name);
 

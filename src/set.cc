@@ -47,7 +47,7 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
  *  \todo Re-use this
  *  \return Return the number of traces read and written across all processes.
  */
-size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::ReadInterface * src, File::WriteInterface * dst)
+size_t readWriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::ReadInterface * src, File::WriteInterface * dst)
 {
     const size_t memlim = 2U*1024U*1024U*1024U;
     auto dec = decompose(src->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
@@ -84,7 +84,7 @@ size_t readwriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
  *  \param[in] modify
  *  \param[out] out The output file interface.
  */
-void readwriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f, Mod modify,
+void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f, Mod modify,
                                         File::WriteInterface * out)
 {
     std::vector<size_t> ilist;
@@ -376,7 +376,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
 // because the write buffer would interleave with the read a bit.
 
         for (auto & f : o.second)
-            readwriteTraces(piol.get(), rule, max, f, modify, out.get());
+            readWriteTraces(piol.get(), rule, max, f, modify, out.get());
     }
     return names;
 }
