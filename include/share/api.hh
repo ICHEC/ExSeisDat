@@ -75,10 +75,15 @@ typedef enum
 #endif
 {
     SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
-    SrcOff,
-    RcvOff,
-    LineOff,
-    OffLine
+    SrcOff,     //!< Sort by source x, source y, calcuated offset
+    SrcROff,    //!< Sort by source x, source y, offset read from file 
+    RcvOff,     //!< Sort by reciever x, reciever y, calculate offset
+    RcvROff,    //!< Sort by reciever x, reciever y, offset read from file
+    LineOff,    //!< Sort by inline, crossline, calculated offset
+    LineROff,   //!< Sort by inline, crossline, offset read from file
+    OffLine,    //!< Sort by calculated offset, inline, crossline
+    ROffLine   //!< Sort by offset read from file, inline, crossline
+
 #ifdef __cplusplus
 };
 #else

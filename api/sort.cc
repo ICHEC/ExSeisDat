@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <functional>
-
+#include <iostream>
 #include "global.hh"
 #include "fileops.hh"
 #include "ops/sort.hh"
@@ -73,7 +73,7 @@ bool lessSrcRcv(const Param & e1, const Param & e2)
     }
     return false;
 }
-
+template <bool CalcOff>
 bool lessSrcOff(const Param & e1, const Param & e2)
 {
     auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
@@ -92,18 +92,18 @@ bool lessSrcOff(const Param & e1, const Param & e2)
         {
             auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
             auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-            auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
 
             auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
             auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
-            auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
 
             return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
 }
-
+template <bool CalcOff>
 bool lessRcvOff(const Param & e1, const Param & e2)
 {
     auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
@@ -122,18 +122,18 @@ bool lessRcvOff(const Param & e1, const Param & e2)
         {
             auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
             auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-            auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
 
             auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
             auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
-            auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
 
             return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
 }
-
+template <bool CalcOff>
 bool lessLineOff(const Param & e1, const Param & e2)
 {
     auto e1il = getPrm<llint>(0U, Meta::il, &e1);
@@ -159,28 +159,29 @@ bool lessLineOff(const Param & e1, const Param & e2)
             auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
             auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
 
-            auto off1 = off(e1sx, e1sy, e1rx, e1ry);
-            auto off2 = off(e2sx, e2sy, e2rx, e2ry);
-
+            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
+            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
+	    std::cout<< off1 << off2 << std::endl;
             return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
 }
 
+template <bool CalcOff>
 bool lessOffLine(const Param & e1, const Param & e2)
 {
     auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
     auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
     auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
     auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-    auto off1 = off(e1sx, e1sy, e1rx, e1ry);
+    auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
 
     auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
     auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
     auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
     auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
-    auto off2 = off(e2sx, e2sy, e2rx, e2ry);
+    auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
 
     if (off1 < off2)
         return true;
@@ -209,17 +210,30 @@ Compare<Param> getComp(SortType type)
             return lessSrcRcv;
         break;
         case SortType::SrcOff :
-            return lessSrcOff;
+	    return lessSrcOff<true>;
+        break;
+        case SortType::SrcROff :
+	    return lessSrcOff<false>;
         break;
         case SortType::RcvOff :
-            return lessRcvOff;
+	    return lessRcvOff<true>;
+        break;
+        case SortType::RcvROff :
+	    return lessRcvOff<false>;
         break;
         case SortType::LineOff :
-            return lessLineOff;
+	    return lessLineOff<true>;
+        break;
+        case SortType::LineROff :
+	    return lessLineOff<false>;
         break;
         case SortType::OffLine :
-            return lessOffLine;
+            return lessOffLine<true>;
         break;
+        case SortType::ROffLine :
+            return lessOffLine<false>;
+        break;
+ 
     }
 }
 
