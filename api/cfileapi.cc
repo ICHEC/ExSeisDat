@@ -38,9 +38,14 @@ struct ParamWrapper
     File::Param * param;
 };
 
-struct ExSeisFileWrapper
+struct ExSeisReadWrapper
 {
-    PIOL::File::Direct * file;
+    PIOL::File::ReadDirect * file;
+};
+
+struct ExSeisWriteWrapper
+{
+    PIOL::File::WriteDirect * file;
 };
 
 struct ExSeisSetWrapper
@@ -73,9 +78,9 @@ void addShortRule(RuleHdl rule, Meta m, size_t loc)
     rule->rule->addShort(m, static_cast<File::Tr>(loc));
 }
 
-void addFloat(RuleHdl rule, Meta m, size_t loc, size_t scalLoc)
+void addSEGYFloat(RuleHdl rule, Meta m, size_t loc, size_t scalLoc)
 {
-    rule->rule->addFloat(m, static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
+    rule->rule->addSEGYFloat(m, static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
 }
 
 void rmRule(RuleHdl rule, Meta m)
@@ -183,21 +188,21 @@ size_t getNumRank(ExSeisHandle piol)
 
 ////////////////// File Layer ////////////////////////////
 
-ExSeisFile openWriteFile(ExSeisHandle piol, const char * name)
+ExSeisWrite openWriteFile(ExSeisHandle piol, const char * name)
 {
-    auto wrap = new ExSeisFileWrapper;
-    wrap->file = new File::Direct(*piol->piol, name, FileMode::Write);
+    auto wrap = new ExSeisWriteWrapper;
+    wrap->file = new File::WriteDirect(*piol->piol, name);
     return wrap;
 }
 
-ExSeisFile openReadFile(ExSeisHandle piol, const char * name)
+ExSeisRead openReadFile(ExSeisHandle piol, const char * name)
 {
-    auto wrap = new ExSeisFileWrapper;
-    wrap->file = new File::Direct(*piol->piol, name, FileMode::Read);
+    auto wrap = new ExSeisReadWrapper;
+    wrap->file = new File::ReadDirect(*piol->piol, name);
     return wrap;
 }
 
-void closeFile(ExSeisFile f)
+void closeReadFile(ExSeisRead f)
 {
     if (f != NULL)
     {
@@ -209,106 +214,117 @@ void closeFile(ExSeisFile f)
         std::cerr << "Invalid free of ExSeisFile NULL.\n";
 }
 
-const char * readText(ExSeisFile f)
+void closeWriteFile(ExSeisWrite f)
+{
+    if (f != NULL)
+    {
+        if (f->file != NULL)
+            delete f->file;
+        delete f;
+    }
+    else
+        std::cerr << "Invalid free of ExSeisFile NULL.\n";
+}
+
+const char * readText(ExSeisRead f)
 {
     return f->file->readText().c_str();
 }
 
-size_t readNs(ExSeisFile f)
+size_t readNs(ExSeisRead f)
 {
     return f->file->readNs();
 }
 
-size_t readNt(ExSeisFile f)
+size_t readNt(ExSeisRead f)
 {
     return f->file->readNt();
 }
 
-double readInc(ExSeisFile f)
+double readInc(ExSeisRead f)
 {
    return f->file->readInc();
 }
 
-void writeText(ExSeisFile f, const char * text)
+void writeText(ExSeisWrite f, const char * text)
 {
     std::string text_(text);
     f->file->writeText(text_);
 }
 
-void writeNs(ExSeisFile f, size_t ns)
+void writeNs(ExSeisWrite f, size_t ns)
 {
     f->file->writeNs(ns);
 }
 
-void writeNt(ExSeisFile f, size_t nt)
+void writeNt(ExSeisWrite f, size_t nt)
 {
     f->file->writeNt(nt);
 }
 
-void writeInc(ExSeisFile f, const double inc)
+void writeInc(ExSeisWrite f, const geom_t inc)
 {
     f->file->writeInc(inc);
 }
 
 //Contiguous traces
-void readTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
+void readTrace(ExSeisRead f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->readTrace(offset, sz, trace);
 }
 
-void readFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, CParam prm)
+void readFullTrace(ExSeisRead f, size_t offset, size_t sz, trace_t * trace, CParam prm)
 {
     f->file->readTrace(offset, sz, trace, prm->param);
 }
 
-void writeTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace)
+void writeTrace(ExSeisWrite f, size_t offset, size_t sz, trace_t * trace)
 {
     f->file->writeTrace(offset, sz, trace);
 }
 
-void writeFullTrace(ExSeisFile f, size_t offset, size_t sz, trace_t * trace, const CParam prm)
+void writeFullTrace(ExSeisWrite f, size_t offset, size_t sz, trace_t * trace, const CParam prm)
 {
     f->file->writeTrace(offset, sz, trace, static_cast<const File::Param *>(prm->param));
 }
 
-void writeParam(ExSeisFile f, size_t offset, size_t sz, const CParam prm)
+void writeParam(ExSeisWrite f, size_t offset, size_t sz, const CParam prm)
 {
     f->file->writeParam(offset, sz, static_cast<const File::Param *>(prm->param));
 }
 
-void readParam(ExSeisFile f, size_t offset, size_t sz, CParam prm)
+void readParam(ExSeisRead f, size_t offset, size_t sz, CParam prm)
 {
     f->file->readParam(offset, sz, prm->param);
 }
 
 //List traces
-void readListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
+void readListTrace(ExSeisRead f, size_t sz, size_t * offset, trace_t * trace)
 {
     f->file->readTrace(sz, offset, trace);
 }
 
-void writeListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace)
+void writeListTrace(ExSeisWrite f, size_t sz, size_t * offset, trace_t * trace)
 {
     f->file->writeTrace(sz, offset, trace);
 }
 
-//
-void readFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, CParam prm)
+void readFullListTrace(ExSeisRead f, size_t sz, size_t * offset, trace_t * trace, CParam prm)
 {
     f->file->readTrace(sz, offset, trace, prm->param);
 }
 
-void writeFullListTrace(ExSeisFile f, size_t sz, size_t * offset, trace_t * trace, const CParam prm)
+void writeFullListTrace(ExSeisWrite f, size_t sz, size_t * offset, trace_t * trace, const CParam prm)
 {
     f->file->writeTrace(sz, offset, trace, static_cast<const File::Param *>(prm->param));
 }
 
-void writeListParam(ExSeisFile f, size_t sz, size_t * offset, const CParam prm)
+void writeListParam(ExSeisWrite f, size_t sz, size_t * offset, const CParam prm)
 {
     f->file->writeParam(sz, offset, static_cast<const File::Param *>(prm->param));
 }
 
-void readListParam(ExSeisFile f, size_t sz, size_t * offset, CParam prm)
+void readListParam(ExSeisRead f, size_t sz, size_t * offset, CParam prm)
 {
     f->file->readParam(sz, offset, prm->param);
 }
@@ -319,8 +335,6 @@ void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, co
 {
     getMinMax(*piol->piol, offset, sz, m1, m2, static_cast<const File::Param *>(prm->param), minmax);
 }
-
-
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
 size_t getSEGYTextSz()
@@ -370,6 +384,7 @@ void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax)
     s->set->getMinMax(m1, m2, minmax);
 }
 
+<<<<<<< HEAD
 /*
 //--------------------------------------------------------
 void sortSet(ExSeisSet s, bool (* func)(const File::Param *, const File::Param *))
@@ -378,6 +393,8 @@ void sortSet(ExSeisSet s, bool (* func)(const File::Param *, const File::Param *
 }
 //---------------------------------------------------------------
 */
+=======
+>>>>>>> 2b62260a25a325a5f3f653af261242c194f51314
 void sortSet(ExSeisSet s, SortType type)
 {
     s->set->sort(type);

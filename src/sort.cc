@@ -11,13 +11,11 @@
  *   is complete.
 *//*******************************************************************************************/
 #include <algorithm>
-#include <iterator>
-#include <functional>
-
 #include "global.hh"
 #include "ops/sort.hh"
-#include "file/file.hh"
+#include "file/dynsegymd.hh"
 #include "share/mpi.hh"
+#include "share/api.hh"
 
 namespace PIOL { namespace File {
 /*! Wait on two requests to finish. The largest and smallest rank only wait on one request.
@@ -202,6 +200,21 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
             cpyPrm(i, &rprm, 0U, &dat[i+dat.size()-regionSz]);
 }
 
+/*! Calculate an offset based on local size and implied ordering of left to right.
+ *  \param[in] piol The piol handle
+ *  \param[in] sz The local size
+ *  \return The associated offset
+ */
+static size_t offcalc(ExSeisPIOL * piol, size_t sz)
+{
+    size_t rank = piol->comm->getRank();
+    auto szall = piol->comm->gather(std::vector<size_t>{sz});
+
+    for (size_t i = 1; i < rank+1; i++)
+        szall[i] += szall[i-1];
+    return (rank ? szall[rank-1] : 0U);
+}
+
 /*! Function to sort a given vector by a nearest neighbour approach.
  *  \tparam T Type of vector
  *  \param[in] piol The PIOL object.
@@ -259,43 +272,22 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
         dat[i] = temp1[i];
 }
 
-/*! Function to sort the metadata in a Param struct. The Param vector is used internally
- *  to allow random-access iterator support.
+/*! Parallel sort a list. Local vector is part of the entire list.
  *  \param[in] piol The PIOL object.
- *  \param[in] nt The number of traces to process (across all processes).
- *  \param[in] offset The offset for the local process
- *  \param[in,out] prm The parameter structure to sort
- *  \param[in] comp The Param function to use for less-than comparisons between objects in the
- *                  vector. It assumes each Param structure has exactly one entry.
- *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
- *          i.e. returns global offset positions of traces in sorted order
+ *  \param[in] list The local vector
+ *  \return Return a new sorted vector
  */
-std::vector<size_t> sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * prm, Compare<Param> comp)
+std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 {
-    size_t lnt = prm->size();
-    size_t memSz = (prm->f.size() + prm->i.size() + prm->s.size() + prm->t.size() + sizeof(Param) + sizeof(std::pair<size_t, size_t>)) / prm->size();
-    size_t regionSz = std::min(nt / (piol->comm->getNumRank() * 4U), getLimSz(memSz));
-    size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
-    std::vector<Param> vprm;
-
-    for (size_t i = 0; i < lnt; i++)
-    {
-        vprm.emplace_back(prm->r, 1U);
-        cpyPrm(i, prm, 0, &vprm.back());
-    }
-
-    {
-        std::vector<Param> temp1; //The extra vector temp1 is needed to be larger than vprm for passing values to neighbours
-        for (size_t i = 0; i < lnt+edge2; i++)
-            temp1.emplace_back(prm->r, 1U);
-
-        sort(piol, regionSz, temp1, vprm, comp);
-    }
+    csize_t lnt = list.size();
+    csize_t regionSz = piol->comm->min(lnt) / 4U;
+    csize_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
+    csize_t offset = offcalc(piol, lnt);
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)
     {
-        plist[i].first = getPrm<llint>(0U, Meta::gtn, &vprm[i]);
+        plist[i].first = list[i];
         plist[i].second = offset + i;
     }
 
@@ -314,9 +306,36 @@ std::vector<size_t> sort(ExSeisPIOL * piol, size_t nt, size_t offset, Param * pr
         #endif
     }
 
-    std::vector<size_t> list(lnt);
     for (size_t i = 0; i < lnt; i++)
         list[i] = plist[i].second;
     return list;
+}
+
+std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bool FileOrder)
+{
+    size_t lnt = prm->size();
+    size_t regionSz = piol->comm->min(lnt) / 4U;
+    size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
+
+    std::vector<Param> vprm;
+    for (size_t i = 0; i < lnt; i++)
+    {
+        vprm.emplace_back(prm->r, 1U);
+        cpyPrm(i, prm, 0, &vprm.back());
+    }
+
+    {
+        std::vector<Param> temp1; //The extra vector temp1 is needed to be larger than vprm for passing values to neighbours
+        for (size_t i = 0; i < lnt+edge2; i++)
+            temp1.emplace_back(prm->r, 1U);
+
+        sort(piol, regionSz, temp1, vprm, comp);
+    }
+
+    std::vector<size_t> list(lnt);
+    for (size_t i = 0; i < lnt; i++)
+        list[i] = getPrm<size_t>(0U, Meta::gtn, &vprm[i]);
+
+    return (FileOrder ? sort(piol, list): list);
 }
 }}

@@ -5,10 +5,16 @@
 #include <algorithm>
 using namespace PIOL;
 using namespace File;
-int calcMin(std::string iname, std::string oname)
+
+/*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
+ *  and yCMP. Write the matching traces to the output file in that order.
+ *  \param[in] iname Input file
+ *  \param[in] oname Output file
+ */
+void calcMin(std::string iname, std::string oname)
 {
     ExSeis piol;
-    File::Direct in(piol, iname, FileMode::Read);
+    File::ReadDirect in(piol, iname);
 
     auto dec = decompose(in.readNt(), piol.getNumRank(), piol.getRank());
     size_t offset = dec.first;
@@ -56,29 +62,27 @@ int calcMin(std::string iname, std::string oname)
             }
         }
 
-    File::Direct out(piol, oname, FileMode::Write);
+    File::WriteDirect out(piol, oname);
     out.writeNt(sz);
     out.writeNs(1U);
     out.writeInc(in.readInc());
     out.writeTrace(0, sz, trace.data(), &oprm);
-    return 0;
 }
 
-const std::string Arg = "Arguments: -i for input file, -o for output file\n";
-
+/* Main function for minmax.
+ *  \param[in] argc The number of input strings.
+ *  \param[in] argv The array of input strings.
+ *  \return zero on success, non-zero on failure
+ *  \details Options:
+ *           -i \<file\> : input file name
+ *           -o \<file\> : output file name
+ */
 int main(int argc, char ** argv)
 {
-    if (argc < 5)
-    {
-        std::cerr << Arg;
-        return -1;
-    }
-
-// -i input file name
-// -o output file name
-    std::string opt = "i:o:";  //TODO: uses a GNU extension
     std::string iname = "";
     std::string oname = "";
+
+    std::string opt = "i:o:";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -95,7 +99,8 @@ int main(int argc, char ** argv)
 
     if (iname == "" || oname == "")
     {
-        std::cerr << "Invalid arguments given.\n" << Arg;
+        std::cerr << "Invalid arguments given.\n";
+        std::cerr << "Arguments: -i for input file, -o for output file\n";
         return -1;
     }
 

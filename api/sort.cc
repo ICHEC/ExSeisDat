@@ -237,13 +237,13 @@ Compare<Param> getComp(SortType type)
     }
 }
 
-std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, size_t nt, size_t offset, Param * prm)
+std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, Param * prm)
 {
-    return sort(piol, nt, offset, prm, getComp(type));
+    return sort(piol, prm, getComp(type));
 }
 
 //TODO: Make this work with SortType type;
-bool checkOrder(Interface * src, std::pair<size_t , size_t> dec, SortType type)
+bool checkOrder(ReadInterface * src, std::pair<size_t , size_t> dec, SortType type)
 {
     auto comp = getComp(type);
     Param prm(dec.second);

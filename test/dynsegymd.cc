@@ -54,7 +54,7 @@ TEST_F(RuleFixEmpty, AddRmLongRules)
 
 TEST_F(RuleFixEmpty, AddRmFloatRules)
 {
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
+    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
     ASSERT_NE(nullptr, rule->getEntry(Meta::dsdr));
     auto frule = dynamic_cast<SEGYFloatRuleEntry *>(rule->getEntry(Meta::dsdr));
     ASSERT_NE(nullptr, frule);
@@ -67,7 +67,7 @@ TEST_F(RuleFixEmpty, AddRmFloatRules)
 
 TEST_F(RuleFixEmpty, Extent)
 {
-    rule->addFloat(Meta::dsdr, Tr::SrcMeas, Tr::ScaleCoord);
+    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::ScaleCoord);
     ASSERT_EQ(rule->extent(), size_t(Tr::SrcMeas) + 4U - size_t(Tr::ScaleCoord));
 }
 
@@ -87,10 +87,20 @@ TEST_F(RuleFixList, setPrm)
     }
     for (size_t i = 0; i < 100; i++)
     {
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i) + 1.);
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i) + 2.);
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i) + 3.);
-        ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i) + 4.);
+        if (sizeof(geom_t) == sizeof(double))
+        {
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i+1));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i+2));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i+3));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i+4));
+        }
+        else
+        {
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i + 1));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i + 2));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i + 3));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i + 4));
+        }
         ASSERT_EQ(getPrm<llint>(i, Meta::dsdr, &prm), llint(i + 1));
         ASSERT_EQ(getPrm<short>(i, Meta::il, &prm), short(i + 2));
     }
@@ -98,29 +108,32 @@ TEST_F(RuleFixList, setPrm)
 
 TEST_F(RuleFixDefault, Constructor)
 {
-        ASSERT_EQ(rule->translate.size(), 9);
+        ASSERT_EQ(rule->translate.size(), 12);
         ASSERT_EQ(rule->numFloat, 6);
-        ASSERT_EQ(rule->numLong, 3);
+        ASSERT_EQ(rule->numLong, 4);
         ASSERT_EQ(rule->numShort, 0);
+        ASSERT_EQ(rule->numIndex, 2);
         ASSERT_EQ(rule->extent(), 240U);
 }
 
 TEST_F(RuleFixDefault, MakeCopy)
 {
     auto r = new Rule(rule->translate, false);
-    ASSERT_EQ(r->translate.size(), 9);
+    ASSERT_EQ(r->translate.size(), 12);
     ASSERT_EQ(r->numFloat, 6);
-    ASSERT_EQ(r->numLong, 3);
+    ASSERT_EQ(r->numLong, 4);
     ASSERT_EQ(r->numShort, 0);
+    ASSERT_EQ(r->numIndex, 2);
     ASSERT_EQ(r->extent(), 192);
 }
 
 TEST_F(RuleFixDefault, MakeCopyFull)
 {
     auto r = new Rule(rule->translate, true);
-    ASSERT_EQ(r->translate.size(), 9);
+    ASSERT_EQ(r->translate.size(), 12);
     ASSERT_EQ(r->numFloat, 6);
-    ASSERT_EQ(r->numLong, 3);
+    ASSERT_EQ(r->numLong, 4);
     ASSERT_EQ(r->numShort, 0);
+    ASSERT_EQ(r->numIndex, 2);
     ASSERT_EQ(r->extent(), 240);
 }

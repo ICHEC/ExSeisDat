@@ -17,7 +17,7 @@ extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t ran
 using namespace PIOL;
 using namespace testing;
 
-class MockFile : public File::Interface
+class MockFile : public File::ReadInterface
 {
     public :
     MOCK_CONST_METHOD0(readNs, size_t(void));
@@ -29,16 +29,19 @@ class MockFile : public File::Interface
     MOCK_METHOD1(writeNt, void(const csize_t));
     MOCK_METHOD1(writeInc, void(const geom_t));
 
-    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t, File::Param *));
-    MOCK_CONST_METHOD3(readParam, void(csize_t, csize_t *, File::Param *));
-    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t, trace_t *, File::Param *));
-    MOCK_CONST_METHOD4(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *));
-
-    MOCK_METHOD3(writeParam, void(csize_t, csize_t, const File::Param *));
-    MOCK_METHOD4(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *));
-    MOCK_METHOD4(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *));
-    MOCK_METHOD3(writeParam, void(csize_t, csize_t *, const File::Param *));
+    MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t, File::Param *, csize_t));
+    MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTraceNonMono, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
 };
+
+/*
+    MOCK_METHOD4(writeParam, void(csize_t, csize_t, const File::Param *, csize_t));
+    MOCK_METHOD5(writeTrace, void(csize_t, csize_t, trace_t *, const File::Param *, csize_t));
+    MOCK_METHOD5(writeTrace, void(csize_t, csize_t *, trace_t *, const File::Param *, csize_t));
+    MOCK_METHOD4(writeParam, void(csize_t, csize_t *, const File::Param *, csize_t));
+*/
 
 ACTION_P(cpyprm, src)
 {
@@ -111,9 +114,14 @@ struct SetTest : public Test
                             setPrm(l, Meta::il, 2000U + (dec.first + l) % (nt / 10U), tprm);
                             setPrm(l, Meta::xl, 2000U + (dec.first + l) / (nt / 10U), tprm);
                             setPrm(l, Meta::tn, l+dec.first, tprm);
+<<<<<<< HEAD
 			    setPrm(l, Meta::Offset, cdist, tprm);
                          }
 		                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _))
+=======
+                        }
+                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
+>>>>>>> 2b62260a25a325a5f3f653af261242c194f51314
                                     .Times(Exactly(srtCnt))
                                     .WillRepeatedly(cpyprm(&prm.back()));
 
@@ -146,7 +154,5 @@ struct SetTest : public Test
             }
         }
     }
-
-
 };
 

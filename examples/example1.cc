@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date February 2017
+ *   \brief This example shows how to make a new file with the file api
+ *   is complete.
+*//*******************************************************************************************/
 #include "sglobal.hh"
 #include <memory>
 #include <string>
@@ -24,7 +32,7 @@ int main(int argc, char ** argv)
     ExSeis piol;
 
     //Create a SEGY file object
-    File::Direct file(piol, name, FileMode::Write);
+    File::WriteDirect file(piol, name);
 
     //lnt is the number of traces and sets of trace parameters we will write per process
     size_t nt = 40000, ns = 300;

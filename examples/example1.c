@@ -16,7 +16,7 @@ int main(int argc, char ** argv)
     assert(name);
 
     //Create a SEGY file object
-    ExSeisFile fh = openWriteFile(piol, name);
+    ExSeisWrite fh = openWriteFile(piol, name);
 
     //nt is the number of traces, ns the number of samples per trace
     size_t nt = 400000, ns = 1000;
@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
     free(trc);
 
     //Close the file handle and free the piol
-    closeFile(fh);
+    closeWriteFile(fh);
     freePIOL(piol);
 
     return 0;

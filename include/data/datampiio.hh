@@ -8,11 +8,7 @@
 *//*******************************************************************************************/
 #ifndef PIOLDATAMPIIO_INCLUDE_GUARD
 #define PIOLDATAMPIIO_INCLUDE_GUARD
-#include <mpi.h>
-#include <memory>
-#include <typeinfo>
 #include "global.hh"
-//#include "anc/cmpi.hh"
 #include "data/data.hh"
 
 namespace PIOL { namespace Data {

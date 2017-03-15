@@ -1,13 +1,25 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \date Q4 2016
+ *   \brief
+ *   \details This function takes one or more files as input and produces a new file or files
+ *            which contain all traces with identical ns and increment.
+ *//*******************************************************************************************/
 #include <assert.h>
 #include "set.hh"
 #include "sglobal.hh"
 #include <iostream>
 using namespace PIOL;
 
+/*! Prompt the user asking them if they want to continue with concatenation. Multi-process safe.
+ *  \param[in] piol The piol object.
+ */
 void doPrompt(ExSeisPIOL * piol)
 {
     char cont = '0';
-    if (!piol->comm->getRank())
+    size_t rank = piol->comm->getRank();
+    if (!rank)
     {
         std::cout << "Continue concatenation? (y/n)\n";
         std::cin >> cont;
@@ -24,19 +36,23 @@ void doPrompt(ExSeisPIOL * piol)
         std::cout << "Exit\n";
         exit(0);
     }
-    else if (!piol->comm->getRank())
+    else if (!rank)
         std::cout << "Continuing\n";
 }
 
+/*! The main functon for concatenation.
+ *  \param[in] argc The number of arguments.
+ *  \param[in] argv The array of cstrings.
+ *  \details The options -i and -o must be specified, there are no defaults.
+ *           -i \<pattern\> : input files (glob)
+ *           -o \<pattern\> : output file prefix
+ *           -m \<msg\> :  Message to write to the text header
+ *           -p : Prompt the user to OK before concatenation
+ *  \return Return zero on success, non-zero on failure.
+ */
 int main(int argc, char ** argv)
 {
     ExSeis piol;
-    if (argc < 2)
-    {
-        std::cout << "Too few arguments\n";
-        return -1;
-    }
-
     std::string pattern = "";
     std::string outprefix = "";
     std::string msg = "Concatenated with ExSeisPIOL";
@@ -65,6 +81,7 @@ int main(int argc, char ** argv)
                 std::cerr<< "One of the command line arguments is invalid\n";
             break;
         }
+    assert(pattern != "" && outprefix != "");
 
     Set set(piol, pattern, std::make_shared<File::Rule>(true, true));
     set.text(msg);

@@ -13,20 +13,40 @@ using namespace SEGSz;
 
 TEST(SEGYMd, ScaleBigIntegers)
 {
-    EXPECT_EQ(10000,  deScale(21474836470000.0));
-    EXPECT_EQ(1000,   deScale(2147483647000.0));
-    EXPECT_EQ(100,    deScale(214748364700.0));
-    EXPECT_EQ(10,     deScale(21474836470.0));
+    if (sizeof(double) == sizeof(geom_t))
+    {
+        EXPECT_EQ(10000,  deScale(21474836470000.0));
+        EXPECT_EQ(1000,   deScale(2147483647000.0));
+        EXPECT_EQ(100,    deScale(214748364700.0));
+        EXPECT_EQ(10,     deScale(21474836470.0));
+        EXPECT_EQ(10000,  deScale(10000000000000.0));
+        EXPECT_EQ(1000,   deScale(01000000000000.0));
+        EXPECT_EQ(100,    deScale(00100000000000.0));
+        EXPECT_EQ(10,     deScale(00010000000000.0));
 
-    EXPECT_EQ(10000,  deScale(10000000000000.0));
-    EXPECT_EQ(1000,   deScale(01000000000000.0));
-    EXPECT_EQ(100,    deScale(00100000000000.0));
-    EXPECT_EQ(10,     deScale(00010000000000.0));
+        EXPECT_EQ(10000,  deScale(21474836470000.0000999));
+        EXPECT_EQ(1000,   deScale(2147483647000.0000999));
+        EXPECT_EQ(100,    deScale(214748364700.0000999));
+        EXPECT_EQ(10,     deScale(21474836470.0000999));
+    }
+    else if (sizeof(float) == sizeof(geom_t))
+    {
+        //Fix these due to guaranteed big precision loss
+        EXPECT_EQ(10000,  deScale(21474836470000.0));
+        EXPECT_EQ(1000,   deScale(2147483647000.0));
+        EXPECT_EQ(100,    deScale(214748364700.0));
+        EXPECT_EQ(10,     deScale(21474836470.0));
 
-    EXPECT_EQ(10000,  deScale(21474836470000.0000999));
-    EXPECT_EQ(1000,   deScale(2147483647000.0000999));
-    EXPECT_EQ(100,    deScale(214748364700.0000999));
-    EXPECT_EQ(10,     deScale(21474836470.0000999));
+        EXPECT_EQ(10000,  deScale(10000000000000.0)); //ok
+        EXPECT_EQ(1000,   deScale(01000000000000.0)); //ok
+        EXPECT_EQ(100,    deScale(00100000000000.0)); //ok
+        EXPECT_EQ(10,     deScale(00010000000000.0)); //ok
+
+        EXPECT_EQ(10000,  deScale(21474836470000.0000999));
+        EXPECT_EQ(1000,   deScale(2147483647000.0000999));
+        EXPECT_EQ(100,    deScale(214748364700.0000999));
+        EXPECT_EQ(10,     deScale(21474836470.0000999));
+    }
 }
 
 TEST(SEGYMd, ScaleDecimals)
@@ -57,7 +77,8 @@ TEST(SEGYMd, ScaleDecimals)
     EXPECT_EQ(1,      deScale(2147483647.0000999));
 }
 
-/*TEST(SEGYMd, getSrc)
+/*
+TEST(SEGYMd, getSrc)
 {
     auto p = std::pair<TrCrd, TrCrd>(static_cast<TrCrd>(73U), static_cast<TrCrd>(77U));
     ASSERT_EQ(p, getPair(Coord::Src));

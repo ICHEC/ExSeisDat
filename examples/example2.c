@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
     size_t rank = getRank(piol);
 
     //Create a SEGY file object for input
-    ExSeisFile ifh = openReadFile(piol, iname);
+    ExSeisRead ifh = openReadFile(piol, iname);
     isErr(piol);
 
     //Create some local variables based on the input file
@@ -45,7 +45,7 @@ int main(int argc, char ** argv)
     CParam trhdr = initDefParam(lnt);
 
     //Create a SEGY file object for output
-    ExSeisFile ofh = openWriteFile(piol, oname);
+    ExSeisWrite ofh = openWriteFile(piol, oname);
     isErr(piol);
 
     //Write the headers based on the input file.
@@ -62,8 +62,8 @@ int main(int argc, char ** argv)
     freeParam(trhdr);
 
     //Close the file handles and close the piol
-    closeFile(ifh);
-    closeFile(ofh);
+    closeReadFile(ifh);
+    closeWriteFile(ofh);
     freePIOL(piol);
     return 0;
 }

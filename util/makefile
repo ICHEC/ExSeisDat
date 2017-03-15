@@ -7,7 +7,7 @@ DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = concatenate segsort versort fourdbin cropen creadwrite assess filemake makerep makerepn1 makerepn2 minmax
+BIN = concatenate segsort versort fourdbin cropen creadwrite assess filemake makerep makerepn1 makerepn2 minmax traceanalysis
 CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
@@ -27,21 +27,23 @@ all: $(BIN)
 
 .PHONY: clean
 clean:
-	rm -f obj/*.co obj/*.cpo $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
+	rm -f $(OBJDIR)/*.co $(OBJDIR)/*.cpo $(OBJDIR)/*.optrpt $(CURR_DEPENDS) $(CURR_DEP) *.dep $(CURR_BIN)
 
 cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
-creadwrite: obj/creadwrite.co obj/sglobal.co
-	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
+traceanalysis: obj/traceanalysis.cpo
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 versort: obj/verifysort.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 concatenate: obj/concatenate.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
+creadwrite: obj/concatenate.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 segsort: obj/sort.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
-fourdbin: obj/fourdbin.cpo obj/sglobal.cpo
+fourdbin: obj/fourdbin.cpo obj/4dio.cpo obj/4dcore.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 filemake: obj/filemake.cpo obj/sglobal.cpo
 	$(CXX) $(IMELD_FLAG) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)

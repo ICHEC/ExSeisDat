@@ -15,13 +15,13 @@
  *//*******************************************************************************************/
 #ifndef PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 #define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
-#include "global.hh"
 #include <unordered_map>
 #include <initializer_list>
+#include "global.hh"
 #include "file/file.hh"
-#include "file/segymd.hh"
 #include "share/param.hh"
 #include "share/api.hh"
+
 namespace PIOL { namespace File {
 /*! SEG-Y Trace Header offsets
  */
@@ -64,6 +64,7 @@ enum class Tr : size_t
     TransConst  = 205U, //!< int32_t. The transduction constant.
     TransExp    = 209U, //!< int16_t. The transduction exponent.
     TransUnit   = 211U, //!< int16_t. The transduction units
+    TimeScal    = 215U, //!< int16_t. Scalar for time measurements.
     SrcMeas     = 225U, //!< int32_t. Source measurement.
     SrcMeasExp  = 229U, //!< int16_t. Source measurement exponent.
 };
@@ -180,6 +181,7 @@ struct SEGYIndexRuleEntry : public RuleEntry
     SEGYIndexRuleEntry(size_t num_) : RuleEntry(num_, 0U) { }
 
     /*! Return 0. nothing stored
+     *  \return Return 0
      */
     size_t min(void)
     {
@@ -187,6 +189,7 @@ struct SEGYIndexRuleEntry : public RuleEntry
     }
 
     /*! Return 0. nothing stored
+     *  \return Return 0
      */
     size_t max(void)
     {
@@ -310,7 +313,7 @@ struct Rule
      *  default rules in place or no rules in place.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] defaults Whether the default SEG-Y rules should be set.
-     *  \param[in] defaults Whether maximum amount of rules should be set. Useful when copying files
+     *  \param[in] extra Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
     Rule(bool full, bool defaults, bool extra = false);
@@ -318,8 +321,9 @@ struct Rule
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
      *  \param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
+     *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      */
-    Rule(std::initializer_list<Meta> m);
+    Rule(std::initializer_list<Meta> m, bool full = true);
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
@@ -343,7 +347,7 @@ struct Rule
      *  \param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (4 bytes).
      *  \param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
      */
-    void addFloat(Meta m, Tr loc, Tr scalLoc);
+    void addSEGYFloat(Meta m, Tr loc, Tr scalLoc);
 
     /*! Add a rule for floats.
      *  \param[in] m The Meta entry.
@@ -446,11 +450,11 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
 }
 
 /*! Copy params from one parameter structure to another.
- * \param[in] i The trace number of the source.
+ * \param[in] j The trace number of the source.
  * \param[in] src The source parameter structure.
- * \param[in] j The trace number of the destination.
+ * \param[in] k The trace number of the destination.
  * \param[out] dst The destination parameter structure.
  */
-void cpyPrm(csize_t i, const Param * src, csize_t j, Param * dst);
+void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst);
 }}
 #endif

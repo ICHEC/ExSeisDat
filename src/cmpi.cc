@@ -1,12 +1,11 @@
 /*******************************************************************************************//*!
  *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date July 2016
+ *   \author cathal o broin - cathal@ichec.ie - first commit
+ *   \copyright tbd. do not distribute
+ *   \date july 2016
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <assert.h>
 #include "global.hh"
 #include "anc/mpi.hh"
 #include "share/mpi.hh"
@@ -87,6 +86,11 @@ size_t MPI::max(size_t val)
     return getMPIOp(log, this, val, MPI_MAX);
 }
 
+size_t MPI::min(size_t val)
+{
+    return getMPIOp(log, this, val, MPI_MIN);
+}
+
 std::vector<llint> MPI::gather(const std::vector<llint> & in) const
 {
     return MPIGather(log, this, in);
@@ -97,7 +101,12 @@ std::vector<size_t> MPI::gather(const std::vector<size_t> & in) const
     return MPIGather(log, this, in);
 }
 
-std::vector<geom_t> MPI::gather(const std::vector<geom_t> & in) const
+std::vector<float> MPI::gather(const std::vector<float> & in) const
+{
+    return MPIGather(log, this, in);
+}
+
+std::vector<double> MPI::gather(const std::vector<double> & in) const
 {
     return MPIGather(log, this, in);
 }

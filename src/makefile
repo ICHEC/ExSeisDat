@@ -1,9 +1,7 @@
 
 include ../compiler.cfg
 BIN=$(LIB_DIR)/libipiol.so
-CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(CXXINC_FOLDER) $(CUSTOM_FLAGS)
 OBJDIR = obj
-
 DEP=depend
 SOURCES:=$(wildcard *.cc)
 OBJECTS:=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
@@ -33,5 +31,5 @@ endif
 
 .PHONY: clean
 clean:
-	rm -f $(CURR_OBJECTS) *.dep $(CURR_DEP) $(BIN)
+	rm -f $(CURR_OBJECTS) $(OBJDIR)/*.optrpt *.dep $(CURR_DEP) $(BIN)
 

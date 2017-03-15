@@ -6,7 +6,6 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <execinfo.h>
 #include "share/mpi.hh"
 namespace PIOL {
 void printErr(Log::Logger * log, const std::string file, const Log::Layer layer, const int err, const MPI_Status * stat, std::string msg)

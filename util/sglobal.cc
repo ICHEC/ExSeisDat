@@ -12,19 +12,19 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
     return std::make_pair(start, std::min(sz - start, q + (rank < r)));
 }
 
-std::vector<size_t> lobdecompose(PIOL::ExSeisPIOL * piol, size_t work, size_t numRank, size_t rank)
+std::vector<size_t> lobdecompose(PIOL::ExSeisPIOL * piol, size_t sz, size_t numRank, size_t rank)
 {
     double total = (numRank*(numRank+1U))/2U;
     rank++;
-    size_t lnt = std::lround(double(work * rank) / total);
+    size_t lnt = std::lround(double(sz * rank) / total);
 
-    auto rem = work - piol->comm->sum(lnt);
+    auto rem = sz - piol->comm->sum(lnt);
     if (rank == 1)
         lnt += rem;
 
     auto nts = piol->comm->gather(std::vector<size_t>{lnt});
     size_t biggest = *std::max_element(nts.begin(), nts.end());
-    assert(work == std::accumulate(nts.begin(), nts.end(), 0U));
+    assert(sz == std::accumulate(nts.begin(), nts.end(), 0U));
 
     if (rank == 1)
         return std::vector<size_t>{0U, lnt, biggest};

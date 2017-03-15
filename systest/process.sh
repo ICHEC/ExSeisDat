@@ -1,16 +1,15 @@
-#ctestReadWrite largesegy.segy 0 24 48
-#For each line, create a google-test function
+# For each line, create a google-test function
 if [ -z $PIOL_SYSTEM ]; then
     echo Please load relevant modules.
     exit
 fi
 
 if [ $PIOL_SYSTEM == Tullow ]; then
-#    TEST_DIR=/panfs/gpt2/MODELLING/DEVELOP/piotest/test/$USER
     TEST_DIR=/panfs/gpt2/SEAM_DATA/temp/$USER
 else
     TEST_DIR=/ichec/work/exseisdat/test/$USER
 fi
+
 cat > tests.cc << EOL
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"

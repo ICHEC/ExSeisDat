@@ -1,0 +1,195 @@
+Note: Google Test filter = -*Farm*
+[==========] Running 224 tests from 23 test cases.
+[----------] Global test environment set-up.
+[----------] 1 test from FileDeathTest
+[ RUN      ] FileDeathTest.BadNameConstructor
+[       OK ] FileDeathTest.BadNameConstructor (2 ms)
+[----------] 1 test from FileDeathTest (2 ms total)
+
+[----------] 1 test from MPIIODeathTest
+[ RUN      ] MPIIODeathTest.FailedConstructor
+[       OK ] MPIIODeathTest.FailedConstructor (2 ms)
+[----------] 1 test from MPIIODeathTest (2 ms total)
+
+[----------] 14 tests from SetTest
+[ RUN      ] SetTest.SortSrcX
+[       OK ] SetTest.SortSrcX (3 ms)
+[ RUN      ] SetTest.SortRcvX
+[       OK ] SetTest.SortRcvX (2 ms)
+[ RUN      ] SetTest.SortRcvXR
+[       OK ] SetTest.SortRcvXR (2 ms)
+[ RUN      ] SetTest.SortLine
+[       OK ] SetTest.SortLine (3 ms)
+[ RUN      ] SetTest.SortLineROff
+[       OK ] SetTest.SortLineROff (3 ms)
+[ RUN      ] SetTest.SortOffLine
+[       OK ] SetTest.SortOffLine (4 ms)
+[ RUN      ] SetTest.SortROffLine
+[       OK ] SetTest.SortROffLine (27 ms)
+[ RUN      ] SetTest.SortSortRcv
+[       OK ] SetTest.SortSortRcv (4 ms)
+[ RUN      ] SetTest.SortSortRcvROff
+[       OK ] SetTest.SortSortRcvROff (4 ms)
+[ RUN      ] SetTest.SortSrcXRcvY
+[       OK ] SetTest.SortSrcXRcvY (3 ms)
+[ RUN      ] SetTest.getMinMax
+[       OK ] SetTest.getMinMax (1 ms)
+[ RUN      ] SetTest.getActive
+[       OK ] SetTest.getActive (0 ms)
+[ RUN      ] SetTest.getActive2
+[       OK ] SetTest.getActive2 (1 ms)
+[ RUN      ] SetTest.getActive3
+[       OK ] SetTest.getActive3 (0 ms)
+[----------] 14 tests from SetTest (57 ms total)
+
+[----------] 1 test from Prefix
+[ RUN      ] Prefix.SizeCheck
+[       OK ] Prefix.SizeCheck (0 ms)
+[----------] 1 test from Prefix (0 ms total)
+
+[----------] 1 test from Files
+[ RUN      ] Files.SelfTest
+selftests.cc:26: Failure
+      Expected: 0
+To be equal to: stat(plargeFile.c_str(), &stats)
+      Which is: -1
+[  FAILED  ] Files.SelfTest (0 ms)
+[----------] 1 test from Files (0 ms total)
+
+[----------] 2 tests from SEGYMd
+[ RUN      ] SEGYMd.ScaleBigIntegers
+[       OK ] SEGYMd.ScaleBigIntegers (0 ms)
+[ RUN      ] SEGYMd.ScaleDecimals
+[       OK ] SEGYMd.ScaleDecimals (0 ms)
+[----------] 2 tests from SEGYMd (1 ms total)
+
+[----------] 1 test from SEGYSizes
+[ RUN      ] SEGYSizes.All
+[       OK ] SEGYSizes.All (0 ms)
+[----------] 1 test from SEGYSizes (0 ms total)
+
+[----------] 8 tests from OpsTest
+[ RUN      ] OpsTest.getMinMaxSimple
+[       OK ] OpsTest.getMinMaxSimple (0 ms)
+[ RUN      ] OpsTest.getMinMaxFail1
+[       OK ] OpsTest.getMinMaxFail1 (0 ms)
+[ RUN      ] OpsTest.getMinMaxFail2
+[       OK ] OpsTest.getMinMaxFail2 (0 ms)
+[ RUN      ] OpsTest.getMinMaxFail3
+[       OK ] OpsTest.getMinMaxFail3 (0 ms)
+[ RUN      ] OpsTest.getMinMaxRand
+[       OK ] OpsTest.getMinMaxRand (1080 ms)
+[ RUN      ] OpsTest.SortSrcRcvBackwards
+opstest.cc:139: Failure
+      Expected: list.size() - i-1
+      Which is: 199
+To be equal to: list[i]
+      Which is: 0
+[  FAILED  ] OpsTest.SortSrcRcvBackwards (0 ms)
+[ RUN      ] OpsTest.SortSrcRcvForwards
+[       OK ] OpsTest.SortSrcRcvForwards (0 ms)
+[ RUN      ] OpsTest.SortSrcRcvRand
+opstest.cc:181: Failure
+      Expected: 5
+To be equal to: list[0]
+      Which is: 0
+[  FAILED  ] OpsTest.SortSrcRcvRand (0 ms)
+[----------] 8 tests from OpsTest (1080 ms total)
+
+[----------] 30 tests from ObjSpecTest
+[ RUN      ] ObjSpecTest.SEGYHOWrite1
+[       OK ] ObjSpecTest.SEGYHOWrite1 (1 ms)
+[ RUN      ] ObjSpecTest.SEGYHOWrite2
+[       OK ] ObjSpecTest.SEGYHOWrite2 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYHOWrite3
+[       OK ] ObjSpecTest.SEGYHOWrite3 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYWriteSingle1
+[       OK ] ObjSpecTest.SEGYWriteSingle1 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYWriteSingle2
+[       OK ] ObjSpecTest.SEGYWriteSingle2 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYWriteZeroNt
+[       OK ] ObjSpecTest.SEGYWriteZeroNt (0 ms)
+[ RUN      ] ObjSpecTest.SEGYWriteZeroNs
+[       OK ] ObjSpecTest.SEGYWriteZeroNs (1 ms)
+[ RUN      ] ObjSpecTest.SEGYWrite
+[       OK ] ObjSpecTest.SEGYWrite (30 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomWriteSingle1
+[       OK ] ObjSpecTest.SEGYRandomWriteSingle1 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomWriteSingle2
+[       OK ] ObjSpecTest.SEGYRandomWriteSingle2 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomWriteZeroNt
+[       OK ] ObjSpecTest.SEGYRandomWriteZeroNt (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomWriteZeroNs
+[       OK ] ObjSpecTest.SEGYRandomWriteZeroNs (1 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomWrite
+[       OK ] ObjSpecTest.SEGYRandomWrite (28 ms)
+[ RUN      ] ObjSpecTest.SEGYHORead1
+[       OK ] ObjSpecTest.SEGYHORead1 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYHORead2
+[       OK ] ObjSpecTest.SEGYHORead2 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYHORead3
+[       OK ] ObjSpecTest.SEGYHORead3 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYReadSingle1
+[       OK ] ObjSpecTest.SEGYReadSingle1 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYReadSingle2
+[       OK ] ObjSpecTest.SEGYReadSingle2 (1 ms)
+[ RUN      ] ObjSpecTest.SEGYReadZeroNt
+[       OK ] ObjSpecTest.SEGYReadZeroNt (0 ms)
+[ RUN      ] ObjSpecTest.SEGYReadZeroNs
+[       OK ] ObjSpecTest.SEGYReadZeroNs (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRead
+[       OK ] ObjSpecTest.SEGYRead (26 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomReadSingle1
+[       OK ] ObjSpecTest.SEGYRandomReadSingle1 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomReadSingle2
+[       OK ] ObjSpecTest.SEGYRandomReadSingle2 (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomReadZeroNt
+[       OK ] ObjSpecTest.SEGYRandomReadZeroNt (0 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomReadZeroNs
+[       OK ] ObjSpecTest.SEGYRandomReadZeroNs (1 ms)
+[ RUN      ] ObjSpecTest.SEGYRandomRead
+[       OK ] ObjSpecTest.SEGYRandomRead (29 ms)
+[ RUN      ] ObjSpecTest.TestBypassConstructor
+[       OK ] ObjSpecTest.TestBypassConstructor (0 ms)
+[ RUN      ] ObjSpecTest.ZeroSEGYFileSize
+[       OK ] ObjSpecTest.ZeroSEGYFileSize (0 ms)
+[ RUN      ] ObjSpecTest.SmallSEGYFileSize
+[       OK ] ObjSpecTest.SmallSEGYFileSize (0 ms)
+[ RUN      ] ObjSpecTest.BigSEGYFileSize
+[       OK ] ObjSpecTest.BigSEGYFileSize (0 ms)
+[----------] 30 tests from ObjSpecTest (119 ms total)
+
+[----------] 29 tests from ObjIntegTest
+[ RUN      ] ObjIntegTest.zeroSEGYFileSize
+[       OK ] ObjIntegTest.zeroSEGYFileSize (1 ms)
+[ RUN      ] ObjIntegTest.SmallSEGYFileSize
+[       OK ] ObjIntegTest.SmallSEGYFileSize (0 ms)
+[ RUN      ] ObjIntegTest.BigSEGYFileSize
+[       OK ] ObjIntegTest.BigSEGYFileSize (0 ms)
+[ RUN      ] ObjIntegTest.SEGYHOWrite1
+[       OK ] ObjIntegTest.SEGYHOWrite1 (2 ms)
+[ RUN      ] ObjIntegTest.SEGYHOWrite2
+[       OK ] ObjIntegTest.SEGYHOWrite2 (10 ms)
+[ RUN      ] ObjIntegTest.SEGYHOWrite3
+[       OK ] ObjIntegTest.SEGYHOWrite3 (2 ms)
+[ RUN      ] ObjIntegTest.SEGYWriteSingle1
+[       OK ] ObjIntegTest.SEGYWriteSingle1 (1 ms)
+[ RUN      ] ObjIntegTest.SEGYWriteSingle2
+[       OK ] ObjIntegTest.SEGYWriteSingle2 (2 ms)
+[ RUN      ] ObjIntegTest.SEGYWriteZeroNt
+[       OK ] ObjIntegTest.SEGYWriteZeroNt (1 ms)
+[ RUN      ] ObjIntegTest.SEGYWriteZeroNs
+[       OK ] ObjIntegTest.SEGYWriteZeroNs (2 ms)
+[ RUN      ] ObjIntegTest.SEGYWrite
+[       OK ] ObjIntegTest.SEGYWrite (31 ms)
+[ RUN      ] ObjIntegTest.SEGYRandomWriteSingle1
+[       OK ] ObjIntegTest.SEGYRandomWriteSingle1 (1 ms)
+[ RUN      ] ObjIntegTest.SEGYRandomWriteSingle2
+[       OK ] ObjIntegTest.SEGYRandomWriteSingle2 (1 ms)
+[ RUN      ] ObjIntegTest.SEGYRandomWriteZeroNt
+[       OK ] ObjIntegTest.SEGYRandomWriteZeroNt (1 ms)
+[ RUN      ] ObjIntegTest.SEGYRandomWriteZeroNs
+[       OK ] ObjIntegTest.SEGYRandomWriteZeroNs (18 ms)
+[ RUN      ] ObjIntegTest.SEGYRandomWrite
+[       OK ] ObjIntegTest.SEGYRandomWrite (212 ms)
+[ RUN      ] ObjIntegTest.SEGYHORead1

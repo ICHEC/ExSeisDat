@@ -6,10 +6,9 @@
  *   \brief This file performs a variety of bit operations and conversions on datatypes
  *   \details
  *//*******************************************************************************************/
-#include "share/datatype.hh"
-#include <stdint.h>
-#include <arpa/inet.h>
 #include "global.hh"
+#include "share/datatype.hh"
+#include <arpa/inet.h>
 
 namespace PIOL {
 void reverse4Bytes(uchar * src)

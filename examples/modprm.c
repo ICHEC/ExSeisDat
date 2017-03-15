@@ -14,7 +14,7 @@
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisFile ifh, ExSeisFile ofh)
+void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisRead ifh, ExSeisWrite ofh)
 {
     CParam prm = initDefParam(tcnt);
     readParam(ifh, off, tcnt, prm);
@@ -36,7 +36,7 @@ void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisFile ifh, 
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void writeHeader(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh)
+void writeHeader(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh)
 {
     writeText(ofh, readText(ifh));
     writeNs(ofh, readNs(ifh));
@@ -54,7 +54,7 @@ void writeHeader(ExSeisHandle piol, ExSeisFile ifh, ExSeisFile ofh)
  *  \param[out] ofh The output file handle
  */
 void writePayload(ExSeisHandle piol, size_t goff, size_t lnt, size_t tcnt,
-                  ExSeisFile ifh, ExSeisFile ofh)
+                  ExSeisRead ifh, ExSeisWrite ofh)
 {
     size_t biggest = lnt;
     int err = MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
@@ -99,13 +99,13 @@ int main(int argc, char ** argv)
     ExSeisHandle piol = initMPIOL();
     isErr(piol);
 
-    ExSeisFile ifh = openReadFile(piol, iname);
+    ExSeisRead ifh = openReadFile(piol, iname);
     isErr(piol);
 
     size_t ns = readNs(ifh);
     size_t nt = readNt(ifh);
     //Write all header metadata
-    ExSeisFile ofh = openWriteFile(piol, oname);
+    ExSeisWrite ofh = openWriteFile(piol, oname);
     isErr(piol);
 
     writeHeader(piol, ifh, ofh);
@@ -116,8 +116,8 @@ int main(int argc, char ** argv)
     writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
 
     isErr(piol);
-    closeFile(ofh);
-    closeFile(ifh);
+    closeWriteFile(ofh);
+    closeReadFile(ifh);
     freePIOL(piol);
 
     if (iname != NULL)

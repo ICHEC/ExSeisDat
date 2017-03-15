@@ -1,10 +1,12 @@
 #!/bin/bash
-#TODO: Safety checks
-read -r NODE_COUNT NODE_PPN MPI NAME FILENAME STRIPE_COUNT MODULE < <(echo "$@")
+#TODO: More safety checks
+
+read -r NODE_COUNT NODE_PPN MPI NAME STRIPE_COUNT MODULE FILENAME1 FILENAME2 < <(echo "$@")
+
+echo Line: $NODE_COUNT $NODE_PPN $MPI $NAME $STRIPE_COUNT $MODULE $FILENAME1 $FILENAME2
 
 #global variables
 source /etc/profile.d/modules.sh #So we can use the module command
-
 source ../mod_$MODULE
 
 if [ $MPI != "intel" ]; then
@@ -72,19 +74,21 @@ else
     echo FILE DID NOT COMPILE
 fi
 
-#    checksum
-#    record pass/fail
-#md5sum dat/* | cut -d ' ' -f 1  > newChecksum
-#if [ ! -f $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME ]; then
-#RET=4
-#else
-#cmp newChecksum $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME
-#RET=$?
-#fi
+if [[ -n $FILENAME1 ]]; then 
+    FILENAME1=$(basename $FILENAME1 .segy)
+fi
+if [[ -n $FILENAME2 ]]; then 
+    FILENAME2=$(basename $FILENAME2 .segy)
+fi
 
-cat $PIOL_DIR/checksum/checksum_$(basename $FILENAME)_$NAME > CMP_CHECKSUM
+cat $PIOL_DIR/checksum/checksum_$FILENAME1${FILENAME2}_$NAME > CMP_CHECKSUM
+FILENAME=$FILENAME1${FILENAME2}
+if [[ -z $FILENAME ]]; then
+    FILENAME=EMPTY
+fi
+
 if [ -z $PBS_NODEFILE ]; then
-    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
+    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $FILENAME $NODE_PPN $(expr $NODES \* $NODE_PPN) > CHECK
 else
-    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $(basename $FILENAME .segy) $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
+    echo -n $NAME$NODE_COUNT$NODE_PPN$MPI_BASE$STRIPE_COUNT$MODULE $FILENAME $NODE_PPN $(wc -l $PBS_NODEFILE | cut -d ' ' -f 1) > CHECK
 fi

@@ -7,11 +7,8 @@
  *   \details
  *//*******************************************************************************************/
 #include <assert.h>
-#include <functional>
 #include <algorithm>
 #include "data/datampiio.hh"
-#include "anc/piol.hh"
-#include "anc/mpi.hh"
 #include "share/mpi.hh"
 
 namespace PIOL { namespace Data {
@@ -210,7 +207,7 @@ int getMPIMode(FileMode mode)
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
 #endif
         case FileMode::Test :
-            return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN | MPI_MODE_DELETE_ON_CLOSE;
+            return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
     }
 }
 
@@ -374,9 +371,9 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
 void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
 {
-#warning More accurately determine a real limit for setting a view.
+//TODO: More accurately determine a real limit for setting a view.
+//      Is the problem strides that are too big?
     size_t max = maxSize / (bsz ? bsz * 2U : 1U);
-
     size_t remCall = 0;
     {
         auto vec = piol->comm->gather(std::vector<size_t>{sz});

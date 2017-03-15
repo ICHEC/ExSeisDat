@@ -8,7 +8,6 @@
 *//*******************************************************************************************/
 #ifndef PIOLOBJSEGY_INCLUDE_GUARD
 #define PIOLOBJSEGY_INCLUDE_GUARD
-#include <memory>
 #include "global.hh"
 #include "object/object.hh"
 

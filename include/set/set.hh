@@ -15,19 +15,20 @@
 #include <memory>
 #include <deque>
 #include <map>
-namespace PIOL {
 
+namespace PIOL {
 /*! A file-descriptor structure which describes an input file and the decomposition for the set layer
  */
 struct FileDesc
 {
-    std::unique_ptr<File::Interface> ifc;   //!< The file interface
+    std::unique_ptr<File::ReadInterface> ifc;   //!< The file interface
+    size_t offset;                              //!< Local offset into the file
 
-    size_t offset;                          //!< Local offset into the file
-
-    std::vector<size_t> lst;                //!< The size of this corresponds to the local decomposition
     //TODO: Temporary approach. This approach will NEED to be optimised in certain cases since it keeps pointless traces
+    std::vector<size_t> lst;                    //!< The size of this corresponds to the local decomposition
 };
+
+typedef std::function<void(File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 
 /*! The internal set class
  */
@@ -41,6 +42,7 @@ class InternalSet
     std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;   //!< A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, size_t> offmap;                 //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                                   //!< Contains a pointer to the Rules for parameters
+    Mod modify = [] (File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
@@ -105,19 +107,27 @@ class InternalSet
         outmsg = outmsg_;
     }
 
-    /*! Summarise the current status by whatever means the PIOL instrinsically supports
+    /*! Summarise the current status by whatever means the PIOL intrinsically supports
      */
     void summary(void) const;
 
-    /*! Add a file to the set based on the File::Interface
+    /*! Add a file to the set based on the File::ReadInterface
      *  \param[in] in The file interface
      */
-    void add(std::unique_ptr<File::Interface> in);
+    void add(std::unique_ptr<File::ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
      *  \param[in] name The input name
      */
     void add(std::string name);
+
+    /*! Modify traces and parameters. Multiple modifies can be called.
+     *  \param[in] modify_ Function to modify traces and parameters
+     */
+    void mod(Mod modify_)
+    {
+        modify = [oldmod = modify, modify_] (File::Param * p, trace_t * t) { oldmod(p, t); modify_(p, t); };
+    }
 };
 }
 #endif

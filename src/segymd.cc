@@ -6,58 +6,17 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <cstring>
-#include <vector>
-#include <memory>
 #include <cmath>
-#include <limits>
 #include "global.hh"
-#include "file/filesegy.hh"
-#include "object/object.hh"
-#include "share/segy.hh"
-#include "file/iconv.hh"
-#include "share/units.hh"
-#include "share/datatype.hh"
 #include "file/segymd.hh"
-#include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
-/*! \brief Convert a SEG-Y scale integer to a floating point type
- *  \param[in] scale The int16_t scale taken from the SEG-Y file
- *  \return The scale convertered to floating point.
- */
 geom_t scaleConv(int16_t scale)
 {
     scale = (!scale ? 1 : scale);
     return (scale > 0 ? geom_t(scale) : geom_t(1)/geom_t(-scale));
 }
 
-/*! \fn int16_t PIOL::File::deScale(const geom_t val)
- * \brief Take a coordinate and extract a suitable scale factor to represent that number
- * in 6 byte fixed point format of the SEG-Y specification.
- * \param[in] val The coordinate of interest.
- * \return An appropriate scale factor for the coordinate.
- * \details Convert the number from float to a 6 byte SEGY fixed-point representation.
- * There are ten possible values for the scale factor. Shown are the possible values
- * and the form the input float should have to use that scale factor.
- * firstly, anything smaller than 4 decimal points is discarded since the approach
- * can not represent it.
-*//*
- * Shown is the
- * position of the least significant digit:
- * -10000 - \d0000.0000
- * -1000  - \d000.0000
- * -100   - \d00.0000
- * -10    - \d0.0000
- * -1     - \d
- * 1      - \d
- * 10     - \d.\d
- * 100    - \d.\d\d
- * 1000   - \d.\d\d\d
- * 10000  - \d.\d\d\d\d
- * TODO: Handle the annoying case of numbers at or around 2147483648 with a decimal somewhere.
- * TODO: Add rounding before positive scale values
-*/
 int16_t deScale(const geom_t val)
 {
     constexpr llint tenk = 10000;

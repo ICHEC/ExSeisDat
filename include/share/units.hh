@@ -10,6 +10,7 @@
 #ifndef PIOLSHAREUNITS_INCLUDE_GUARD
 #define PIOLSHAREUNITS_INCLUDE_GUARD
 #include "global.hh"
+
 namespace PIOL {
 namespace SI                        //!< This namespace is being used like an enum
 {

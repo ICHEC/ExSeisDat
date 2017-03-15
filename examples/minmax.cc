@@ -1,3 +1,11 @@
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \copyright TBD. Do not distribute
+ *   \date February 2017
+ *   \brief This is an example of using minmax through the Set API
+ *   is complete.
+*//*******************************************************************************************/
 #include "set.hh"
 #include <iostream>
 #include <algorithm>

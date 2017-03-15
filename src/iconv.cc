@@ -6,12 +6,9 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include "file/iconv.hh"
 #include <iconv.h>
-#include <vector>
-#include <cassert>
 #include <cstring>
-#include <memory>
+#include "file/iconv.hh"
 namespace PIOL {
 /*! \brief Return whether a character is a "good" ASCII character (i.e letters, numbers, spaces etc).
  *  \param[in] s The character

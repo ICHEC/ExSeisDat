@@ -1,11 +1,23 @@
-//#include "global.hh"
-//#include "anc/cmpi.hh"
-//#include "file/filesegy.hh"
+/*******************************************************************************************//*!
+ *   \file
+ *   \author Cathal O Broin - cathal@ichec.ie - first commit
+ *   \date January 2017
+ *   \brief
+ *   \details This utility searches for files matching a wildcard, filters out the SEGY matches
+ *            and provides details about what is in the files.
+ *//*******************************************************************************************/
 #include "cppfileapi.hh"
 #include <iostream>
 #include <glob.h>
 #include <regex>
 using namespace PIOL;
+
+/*! Main function for assess.
+ *  \param[in] argc The number of arguments. Should be at least 2.
+ *  \param[in] argv The cstring array. The second array should be a globbing pattern.
+ *  \todo Switch globbing with regex
+ *  \return Return 0 on success, -1 on failure
+ */
 int main(int argc, char ** argv)
 {
     if (argc < 2)
@@ -29,7 +41,7 @@ int main(int argc, char ** argv)
         {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
 
-            File::Direct file(piol, globs.gl_pathv[i], FileMode::Read);
+            File::ReadDirect file(piol, globs.gl_pathv[i]);
             piol.isErr();
             std::cout << "-\tNs: " << file.readNs() << "\n";
             std::cout << "-\tNt: " << file.readNt() << "\n";

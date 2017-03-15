@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-
+#include <iostream>
 //Tests to make sure that functions only used in testing are as expected
 
 TEST(Prefix, SizeCheck)

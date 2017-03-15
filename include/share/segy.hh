@@ -8,6 +8,7 @@
 #include "global.hh"
 #ifndef PIOLSHARESEGY_INCLUDE_GUARD
 #define PIOLSHARESEGY_INCLUDE_GUARD
+
 namespace PIOL { namespace SEGSz {
 /*! \brief An enumeration containing important SEG-Y sizes
  */
