@@ -1,3 +1,4 @@
+#include <iostream>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
@@ -121,22 +122,29 @@ TEST_F(OpsTest, getMinMaxRand)
     }
 }
 
-//extern std::vector<size_t> Sort(ExSeisPIOL * piol, size_t nt, size_t offset, std::vector<PrmEntry> & coords, Compare<PrmEntry> comp);
+//extern std::vector<size_t> File::sort(ExSeisPIOL * piol, size_t nt, size_t offset, std::vector<PrmEntry> & coords, Compare<PrmEntry> comp);
 TEST_F(OpsTest, SortSrcRcvBackwards)
 {
     Param prm(200);
+
     for (size_t i = 0; i < prm.size(); i++)
     {
         setPrm(i, Meta::xSrc, 1000.0 - i / 20, &prm);
         setPrm(i, Meta::ySrc, 1000.0 - i % 20, &prm);
         setPrm(i, Meta::xRcv, 1000.0 - i / 10, &prm);
         setPrm(i, Meta::yRcv, 1000.0 - i % 10, &prm);
-        setPrm(i, Meta::tn, i, &prm);
+        setPrm(i, Meta::gtn, i, &prm);
+
     }
     auto list = sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
-        ASSERT_EQ(list.size() - i-1, list[i]);
+
+
+    for (size_t i = 0; i < list.size(); i++)
+      {
+        ASSERT_EQ(list.size() - i - 1, list[i]);
+      }
 }
 
 TEST_F(OpsTest, SortSrcRcvForwards)
@@ -148,7 +156,7 @@ TEST_F(OpsTest, SortSrcRcvForwards)
         setPrm(i, Meta::ySrc, 1000.0 + i % 20, &prm);
         setPrm(i, Meta::xRcv, 1000.0 + i / 10, &prm);
         setPrm(i, Meta::yRcv, 1000.0 + i % 10, &prm);
-        setPrm(i, Meta::tn, i, &prm);
+        setPrm(i, Meta::gtn, i, &prm);
     }
     auto list = sort(piol, SortType::SrcRcv, prm.size(), 0, &prm);
 
@@ -165,7 +173,7 @@ TEST_F(OpsTest, SortSrcRcvRand)
         setPrm(i, Meta::ySrc, 1000.0, &prm);
         setPrm(i, Meta::xRcv, 1000.0, &prm);
         setPrm(i, Meta::yRcv, 1000.0, &prm);
-        setPrm(i, Meta::tn, i, &prm);
+        setPrm(i, Meta::gtn, i, &prm);
     }
     setPrm(0, Meta::xSrc, 5.0, &prm);
     setPrm(1, Meta::xSrc, 3.0, &prm);
