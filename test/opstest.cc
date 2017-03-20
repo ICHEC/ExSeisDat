@@ -1,4 +1,3 @@
-#include <iostream>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
@@ -139,11 +138,9 @@ TEST_F(OpsTest, getMinMaxRand)
     }
 }
 
-//extern std::vector<size_t> File::sort(ExSeisPIOL * piol, size_t nt, size_t offset, std::vector<PrmEntry> & coords, Compare<PrmEntry> comp);
 TEST_F(OpsTest, SortSrcRcvBackwards)
 {
     Param prm(200);
-
     for (size_t i = 0; i < prm.size(); i++)
     {
         setPrm(i, Meta::xSrc, 1000.0 - geom_t(i / 20), &prm);

@@ -1,9 +1,7 @@
 /* These unit tests might be fairly redundant since they are basically the same as the system tests.
  */
 #include "settest.hh"
-#include<iostream>
 
-//Sort
 TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
@@ -34,26 +32,19 @@ TEST_F(SetTest, SortRcvX)
     }
 }
 
-
-//!< Added MF 3/13/17
 TEST_F(SetTest, SortRcvXR)
 {
-  init(1, 1, 1, 1, true);
+    init(1, 1, 1, 1, true);
+    set->sort(SortType::RcvROff);
 
-  set->sort(SortType::RcvROff);
-
-  for (size_t i = 0; i < set->file.size(); i++)
+    for (size_t i = 0; i < set->file.size(); i++)
     {
-      size_t l = 1;
-      for (size_t j = 1; j < set->file[i]->lst.size(); j++, l++)
-	EXPECT_EQ(set->file[i]->lst[j] - 1, set->file[i]->lst[j-1]);
-      EXPECT_EQ(l, 1000+i);
+        size_t l = 1;
+        for (size_t j = 1; j < set->file[i]->lst.size(); j++, l++)
+            EXPECT_EQ(set->file[i]->lst[j] - 1, set->file[i]->lst[j-1]);
+        EXPECT_EQ(l, 1000+i);
     }
 }
-
-//>!
-
-
 
 TEST_F(SetTest, SortLine)
 {
@@ -71,23 +62,21 @@ TEST_F(SetTest, SortLine)
     }
 }
 
-//!< added by MF on 3/13/17 
 TEST_F(SetTest, SortLineROff)
 {
-  init(1, 1, 1, 1, false);
+    init(1, 1, 1, 1, false);
 
-  set->sort(SortType::LineROff);
-  for (size_t i = 0; i < set->file.size(); i++)
+    set->sort(SortType::LineROff);
+    for (size_t i = 0; i < set->file.size(); i++)
     {
-      size_t total = set->file[i]->lst.size();
-      size_t l = 0;
-      for (llint j = 0; j < 10U; j++)
-	for (llint k = 0; k < total / 10; k++, l++)
-	  EXPECT_EQ(set->file[i]->lst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
-      EXPECT_EQ(l, 1000+i);
+        size_t total = set->file[i]->lst.size();
+        size_t l = 0;
+        for (llint j = 0; j < 10U; j++)
+            for (llint k = 0; k < total / 10; k++, l++)
+                EXPECT_EQ(set->file[i]->lst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
+        EXPECT_EQ(l, 1000+i);
     }
 }
-//>!
 
 const std::vector<size_t> sortOffLine = {
 0, 2, 5, 10, 16, 25, 34, 44, 57, 72, 88, 99, 109, 122, 133, 144, 154, 165, 175,
@@ -153,43 +142,33 @@ const std::vector<size_t> sortOffLine = {
 809, 819, 829, 839, 849, 859, 869, 879, 889, 899, 909, 919, 929, 939, 949, 959,
 969, 979, 989, 999};
 
-//TODO: Verify this with Gareth/Sean
 TEST_F(SetTest, SortOffLine)
 {
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::OffLine);
-    size_t i;
-    for (i = 0; i < set->file.size(); i++)
+    for (size_t i = 0; i < set->file.size(); i++)
     {
         size_t l = 0;
-        size_t j;
-        for (j = 0; j < set->file[i]->lst.size(); j++, l++)
+        for (size_t j = 0; j < set->file[i]->lst.size(); j++, l++)
             EXPECT_EQ(sortOffLine[j], set->file[i]->lst[j]);
         EXPECT_EQ(l, 1000+i);
     }
 }
 
-///!< Modified by MF 3/13/17 -> testing for reading offset from file
-// *NB* was the previous test verified by Gareth/Sean 
 TEST_F(SetTest, SortROffLine)
 {
-  init(1, 1, 1, 1, false);
+    init(1, 1, 1, 1, false);
 
-  set->sort(SortType::ROffLine);
-  size_t i;
-  for (i = 0; i < set->file.size(); i++)
+    set->sort(SortType::ROffLine);
+    for (size_t i = 0; i < set->file.size(); i++)
     {
-      size_t l = 0;
-      size_t j;
-      for (j = 0; j < set->file[i]->lst.size(); j++, l++)
-        {
-          EXPECT_EQ(sortOffLine[j], set->file[i]->lst[j]);
-	}
-      EXPECT_EQ(l, 1000+i);
+        size_t l = 0;
+        for (size_t j = 0; j < set->file[i]->lst.size(); j++, l++)
+            EXPECT_EQ(sortOffLine[j], set->file[i]->lst[j]);
+        EXPECT_EQ(l, 1000+i);
     }
 }
-//>!
 
 TEST_F(SetTest, SortSortRcv)
 {
@@ -207,25 +186,21 @@ TEST_F(SetTest, SortSortRcv)
     }
 }
 
-//!< Modified by MF 3/13/17 -> testing for reading offset from file
 TEST_F(SetTest, SortSortRcvROff)
 {
-  init(1, 1, 1, 2, true);
+    init(1, 1, 1, 2, true);
 
-  set->sort(SortType::SrcRcv);
-  set->sort(SortType::RcvROff);
+    set->sort(SortType::SrcRcv);
+    set->sort(SortType::RcvROff);
 
-  for (size_t i = 0; i < set->file.size(); i++)
+    for (size_t i = 0; i < set->file.size(); i++)
     {
-      size_t l = 1;
-      for (size_t j = 1; j < set->file[i]->lst.size(); j++, l++)
-	
-	EXPECT_EQ(set->file[i]->lst[j] - 1, set->file[i]->lst[j-1]);
-      EXPECT_EQ(l, 1000+i);
+        size_t l = 1;
+        for (size_t j = 1; j < set->file[i]->lst.size(); j++, l++)
+            EXPECT_EQ(set->file[i]->lst[j] - 1, set->file[i]->lst[j-1]);
+        EXPECT_EQ(l, 1000+i);
     }
 }
-//>!
-
 
 TEST_F(SetTest, SortSrcXRcvY)
 {

@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <iterator>
 #include <functional>
-#include <iostream>
 #include "global.hh"
 #include "fileops.hh"
 #include "ops/sort.hh"
@@ -73,6 +72,7 @@ bool lessSrcRcv(const Param & e1, const Param & e2)
     }
     return false;
 }
+
 template <bool CalcOff>
 bool lessSrcOff(const Param & e1, const Param & e2)
 {
@@ -161,7 +161,6 @@ bool lessLineOff(const Param & e1, const Param & e2)
 
             auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
             auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
-	    std::cout<< off1 << off2 << std::endl;
             return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
@@ -210,22 +209,22 @@ Compare<Param> getComp(SortType type)
             return lessSrcRcv;
         break;
         case SortType::SrcOff :
-	    return lessSrcOff<true>;
+            return lessSrcOff<true>;
         break;
         case SortType::SrcROff :
-	    return lessSrcOff<false>;
+            return lessSrcOff<false>;
         break;
         case SortType::RcvOff :
-	    return lessRcvOff<true>;
+            return lessRcvOff<true>;
         break;
         case SortType::RcvROff :
-	    return lessRcvOff<false>;
+            return lessRcvOff<false>;
         break;
         case SortType::LineOff :
-	    return lessLineOff<true>;
+            return lessLineOff<true>;
         break;
         case SortType::LineROff :
-	    return lessLineOff<false>;
+            return lessLineOff<false>;
         break;
         case SortType::OffLine :
             return lessOffLine<true>;
@@ -233,7 +232,6 @@ Compare<Param> getComp(SortType type)
         case SortType::ROffLine :
             return lessOffLine<false>;
         break;
- 
     }
 }
 
