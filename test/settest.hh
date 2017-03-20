@@ -103,7 +103,7 @@ struct SetTest : public Test
                             setPrm(l, Meta::xl, yR, tprm);
                             setPrm(l, Meta::tn, l+dec.first, tprm);
                             setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
-                         }
+                        }
                     EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
                                     .Times(Exactly(srtCnt))
                                     .WillRepeatedly(cpyprm(&prm.back()));
