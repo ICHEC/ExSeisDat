@@ -146,33 +146,15 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
 
     for (size_t i = 0; i < prm.size(); i++)
     {
-<<<<<<< HEAD
-        setPrm(i, Meta::xSrc, 1000.0 - i / 20, &prm);
-        setPrm(i, Meta::ySrc, 1000.0 - i % 20, &prm);
-        setPrm(i, Meta::xRcv, 1000.0 - i / 10, &prm);
-        setPrm(i, Meta::yRcv, 1000.0 - i % 10, &prm);
-        setPrm(i, Meta::gtn, i, &prm);
-
-=======
         setPrm(i, Meta::xSrc, 1000.0 - geom_t(i / 20), &prm);
         setPrm(i, Meta::ySrc, 1000.0 - geom_t(i % 20), &prm);
         setPrm(i, Meta::xRcv, 1000.0 - geom_t(i / 10), &prm);
         setPrm(i, Meta::yRcv, 1000.0 - geom_t(i % 10), &prm);
         setPrm(i, Meta::gtn, i, &prm);
->>>>>>> 2b62260a25a325a5f3f653af261242c194f51314
     }
     auto list = sort(piol, SortType::SrcRcv, &prm);
     for (size_t i = 0; i < list.size(); i++)
-<<<<<<< HEAD
-
-
-    for (size_t i = 0; i < list.size(); i++)
-      {
-        ASSERT_EQ(list.size() - i - 1, list[i]);
-      }
-=======
         ASSERT_EQ(list.size() - i-1, list[i]) << " i " << i << " list.size()-i-1 " << list.size()-i-1  << " list[i] " << list[i];
->>>>>>> 2b62260a25a325a5f3f653af261242c194f51314
 }
 
 TEST_F(OpsTest, SortSrcRcvForwards)

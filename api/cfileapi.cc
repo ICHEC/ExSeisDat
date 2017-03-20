@@ -384,17 +384,6 @@ void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax)
     s->set->getMinMax(m1, m2, minmax);
 }
 
-<<<<<<< HEAD
-/*
-//--------------------------------------------------------
-void sortSet(ExSeisSet s, bool (* func)(const File::Param *, const File::Param *))
-{
-  s->set->sort([func] (const File::Param & a, const File::Param & b) -> bool { return func(&a, &b); });
-}
-//---------------------------------------------------------------
-*/
-=======
->>>>>>> 2b62260a25a325a5f3f653af261242c194f51314
 void sortSet(ExSeisSet s, SortType type)
 {
     s->set->sort(type);

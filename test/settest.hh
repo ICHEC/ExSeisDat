@@ -77,16 +77,12 @@ struct SetTest : public Test
                     EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(1000. + geom_t(i)));
 
                     auto dec = decompose(nt, piol->comm->getNumRank(), piol->comm->getRank());
-		    prm.emplace_back(dec.second);
-	
+                    prm.emplace_back(dec.second);
                     File::Param * tprm = &prm.back();
 
                     if (linear)
                         for (size_t l = 0; l < dec.second; l++)
-                        {   
-			    auto xS = 2000. - geom_t((dec.first + l) % (nt / 10U));
-			    auto yR = 2000. + geom_t((dec.first + l) / (nt / 10U));
-			    auto cdist = (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR);
+                        {
                             setPrm(l, Meta::xSrc, 2000. - geom_t(dec.first + l), tprm);
                             setPrm(l, Meta::ySrc, 2000. - geom_t(dec.first + l), tprm);
                             setPrm(l, Meta::xRcv, 2000. + geom_t(dec.first + l), tprm);
@@ -96,32 +92,28 @@ struct SetTest : public Test
                             setPrm(l, Meta::il, 2000U + dec.first + l, tprm);
                             setPrm(l, Meta::xl, 2000U + dec.first + l, tprm);
                             setPrm(l, Meta::tn, l+dec.first, tprm);
-                            setPrm(l, Meta::Offset, cdist, tprm);
-	                        }
+
+                            auto xS = 2000. - geom_t((dec.first + l) % (nt / 10U));
+                            auto yR = 2000. + geom_t((dec.first + l) / (nt / 10U));
+                            setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
+	                   }
                     else
-		      
                         for (size_t l = 0; l < dec.second; l++)
                         {
-			    auto xS = 2000. - geom_t((dec.first + l) % (nt / 10U));
-			    auto yR = 2000. + geom_t((dec.first + l) / (nt / 10U));
-			    auto cdist = (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR);
-                            setPrm(l, Meta::xSrc, 2000. - geom_t((dec.first + l) % (nt / 10U)), tprm);
+			                auto xS = 2000U - (dec.first + l) % (nt / 10U);
+                            auto yR = 2000U + (dec.first + l) / (nt / 10U);
+                            setPrm(l, Meta::xSrc, xS, tprm);
                             setPrm(l, Meta::ySrc, 2000., tprm);
                             setPrm(l, Meta::xRcv, 2000., tprm);
-                            setPrm(l, Meta::yRcv, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
-                            setPrm(l, Meta::xCmp, 2000. + geom_t((dec.first + l) % (nt / 10U)), tprm);
-                            setPrm(l, Meta::yCmp, 2000. + geom_t((dec.first + l) / (nt / 10U)), tprm);
-                            setPrm(l, Meta::il, 2000U + (dec.first + l) % (nt / 10U), tprm);
-                            setPrm(l, Meta::xl, 2000U + (dec.first + l) / (nt / 10U), tprm);
+                            setPrm(l, Meta::yRcv, yR, tprm);
+                            setPrm(l, Meta::xCmp, xS, tprm);
+                            setPrm(l, Meta::yCmp, yR, tprm);
+                            setPrm(l, Meta::il, 4000U - xS, tprm);
+                            setPrm(l, Meta::xl, yR, tprm);
                             setPrm(l, Meta::tn, l+dec.first, tprm);
-<<<<<<< HEAD
-			    setPrm(l, Meta::Offset, cdist, tprm);
+			                setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                          }
-		                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _))
-=======
-                        }
-                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
->>>>>>> 2b62260a25a325a5f3f653af261242c194f51314
+		            EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
                                     .Times(Exactly(srtCnt))
                                     .WillRepeatedly(cpyprm(&prm.back()));
 
