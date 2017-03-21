@@ -23,6 +23,7 @@ typedef struct ExSeisReadWrapper * ExSeisRead;  //!< A wrapper around a File Lay
 typedef struct ExSeisWriteWrapper * ExSeisWrite;//!< A wrapper around a File Layer pointer
 typedef struct RuleWrapper * RuleHdl;           //!< A wrapper around a File Layer pointer
 typedef struct ParamWrapper * CParam;           //!< A wrapper around a File Layer pointer
+typedef struct ExSeisSetWrapper * ExSeisSet;    //!< A wrapper around a File Layer pointer
 
 /*
  * PIOL calls. Non-file specific
@@ -211,6 +212,13 @@ void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
  *  \param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
  */
 extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, const CParam prm, CoordElem * minmax);
+
+/*! Sort the set using a custom comparison function
+ *  \param[in] s A handle for the set.
+ *  \param[in] func The custom comparison function to sort set
+ */
+extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
+
 /*
  * Opening and closing files
  */
@@ -232,6 +240,10 @@ extern ExSeisWrite openWriteFile(ExSeisHandle piol, const char * name);
  *  \param[in] f A handle for the file.
  */
 extern void closeReadFile(ExSeisRead f);
+
+/*! \brief Close the file associated with the handle
+ *  \param[in] f A handle for the file.
+ */
 extern void closeWriteFile(ExSeisWrite f);
 
 /*

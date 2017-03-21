@@ -20,12 +20,10 @@ std::shared_ptr<File::Rule> getMaxRules(void)
     return rule;
 }
 
-
 void Set::sort(SortType type)
 {
     InternalSet::sort(File::getComp(type));
 }
-
 
 void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
 {
