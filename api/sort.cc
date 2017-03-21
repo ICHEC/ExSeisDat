@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <iterator>
 #include <functional>
-#include <iostream>
 #include "global.hh"
 #include "fileops.hh"
 #include "ops/sort.hh"
@@ -34,8 +33,8 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
 }
 
 /*! For sorting by Src X, Src Y, Rcv X, Rcv Y.
- *  \param[in] e1 Structure to access jth parameter of associated Param struct.
- *  \param[in] e2 Structure to access jth parameter of associated Param struct.
+ *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
  *  \return Return true if e1 is less than e2 in terms of the sort.
  */
 bool lessSrcRcv(const Param & e1, const Param & e2)
@@ -73,6 +72,13 @@ bool lessSrcRcv(const Param & e1, const Param & e2)
     }
     return false;
 }
+
+/*! For sorting by Src X, Src Y and Offset.
+ *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  \return Return true if e1 is less than e2 in terms of the sort.
+ */
 template <bool CalcOff>
 bool lessSrcOff(const Param & e1, const Param & e2)
 {
@@ -103,6 +109,13 @@ bool lessSrcOff(const Param & e1, const Param & e2)
     }
     return false;
 }
+
+/*! For sorting by Rcv X, Rcv Y and Offset.
+ *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  \return Return true if e1 is less than e2 in terms of the sort.
+ */
 template <bool CalcOff>
 bool lessRcvOff(const Param & e1, const Param & e2)
 {
@@ -133,6 +146,13 @@ bool lessRcvOff(const Param & e1, const Param & e2)
     }
     return false;
 }
+
+/*! For sorting by Inline, Crossline and Offset.
+ *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  \return Return true if e1 is less than e2 in terms of the sort.
+ */
 template <bool CalcOff>
 bool lessLineOff(const Param & e1, const Param & e2)
 {
@@ -161,13 +181,18 @@ bool lessLineOff(const Param & e1, const Param & e2)
 
             auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
             auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
-	    std::cout<< off1 << off2 << std::endl;
             return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
         }
     }
     return false;
 }
 
+/*! For sorting by Offset, Inline and Crossline.
+ *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  \return Return true if e1 is less than e2 in terms of the sort.
+ */
 template <bool CalcOff>
 bool lessOffLine(const Param & e1, const Param & e2)
 {
@@ -210,22 +235,22 @@ Compare<Param> getComp(SortType type)
             return lessSrcRcv;
         break;
         case SortType::SrcOff :
-	    return lessSrcOff<true>;
+            return lessSrcOff<true>;
         break;
         case SortType::SrcROff :
-	    return lessSrcOff<false>;
+            return lessSrcOff<false>;
         break;
         case SortType::RcvOff :
-	    return lessRcvOff<true>;
+            return lessRcvOff<true>;
         break;
         case SortType::RcvROff :
-	    return lessRcvOff<false>;
+            return lessRcvOff<false>;
         break;
         case SortType::LineOff :
-	    return lessLineOff<true>;
+            return lessLineOff<true>;
         break;
         case SortType::LineROff :
-	    return lessLineOff<false>;
+            return lessLineOff<false>;
         break;
         case SortType::OffLine :
             return lessOffLine<true>;
@@ -233,7 +258,6 @@ Compare<Param> getComp(SortType type)
         case SortType::ROffLine :
             return lessOffLine<false>;
         break;
- 
     }
 }
 
@@ -242,7 +266,6 @@ std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, Param * prm)
     return sort(piol, prm, getComp(type));
 }
 
-//TODO: Make this work with SortType type;
 bool checkOrder(ReadInterface * src, std::pair<size_t , size_t> dec, SortType type)
 {
     auto comp = getComp(type);
