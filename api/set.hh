@@ -16,6 +16,7 @@ extern std::shared_ptr<File::Rule> getMaxRules(void);
 class Set : public InternalSet
 {
     public :
+    using InternalSet::sort;
 
     /*! Constructor
      *  \param[in] piol The PIOL object.

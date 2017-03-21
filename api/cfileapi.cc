@@ -343,9 +343,10 @@ void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
             ParamWrapper awrap = { const_cast<File::Param *>(&a) };
             ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
             return func(&awrap, &bwrap);
-	};
+    };
     s->set->sort(lam);
 }
+
 //////////////////////////////////////SEGSZ///////////////////////////////////
 size_t getSEGYTextSz()
 {
