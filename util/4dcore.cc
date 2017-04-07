@@ -73,7 +73,7 @@ fourd_t hypot(const fourd_t x, const fourd_t y)
  *  \param[in] coords The coordinate structure of arrays to open to RDMA.
  *  \return Return a vector of all the window values.
  */
-vec<MPI_Win> createCoordsWindow(const Coords * coords)
+vec<MPI_Win> createCoordsWindow(const Coords * coords, bool ixline)
 {
     vec<MPI_Win> win(5);
     //Look at MPI_Info
@@ -88,6 +88,16 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords)
     assert(err == MPI_SUCCESS);
     err = MPI_Win_create(coords->tn, coords->sz, sizeof(size_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[4]);
     assert(err == MPI_SUCCESS);
+
+    if (ixline)
+    {
+        win.resize(7);
+        err = MPI_Win_create(coords->il, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[5]);
+        assert(err == MPI_SUCCESS);
+        err = MPI_Win_create(coords->xl, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[6]);
+        assert(err == MPI_SUCCESS);
+    }
+
     return win;
 }
 
@@ -97,10 +107,10 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords)
  *  \param[in] win The vector of windows to access with.
  *  \return Return the associated Coords structure
  */
-std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win)
+std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
     auto coords = std::make_unique<Coords>(sz);
-    for (size_t i = 0; i < 5; i++)
+    for (size_t i = 0; i < win.size(); i++)
         MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
     int err;
     err = MPI_Get(coords->xSrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]);
@@ -113,7 +123,16 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
     assert(err == MPI_SUCCESS);
     err = MPI_Get(coords->tn, coords->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]);
     assert(err == MPI_SUCCESS);
-    for (size_t i = 0; i < 5; i++)
+
+    if (ixline)
+    {
+        err = MPI_Get(coords->il, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[5]);
+        assert(err == MPI_SUCCESS);
+        err = MPI_Get(coords->xl, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[6]);
+        assert(err == MPI_SUCCESS);
+    }
+
+    for (size_t i = 0; i < win.size(); i++)
         MPI_Win_unlock(lrank, win[i]);
     return std::move(coords);
 }
@@ -288,7 +307,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     }
 
     auto time = MPI_Wtime();
-    auto win = createCoordsWindow(coords2);
+    auto win = createCoordsWindow(coords2, opt.ixline);
     //Load balancing would make sense since the workloads are non-symmetric.
     //It might be difficult to do load-balancing though considering workload
     //very much depends on the constraints from both processess
@@ -299,7 +318,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     {
         auto ltime = MPI_Wtime();
         auto lrank = active[i];
-        auto proc = getCoordsWin(lrank, szall[lrank], win);
+        auto proc = getCoordsWin(lrank, szall[lrank], win, opt.ixline);
         auto wtime = MPI_Wtime() - ltime;
         auto ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
                                  update<false>(crd1, proc.get(), min, minrs, dsrmax));

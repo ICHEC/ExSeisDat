@@ -29,6 +29,7 @@ struct FourDOpt
     uint64_t verbose : 1;   //!< Be verbose in the output
     uint64_t printDsr : 1;  //!< print the dsr value to the SEG-Y output files
     uint64_t ixline : 1;    //!< Constrain by inline and crossline
+    FourDOpt(void) : verbose(false), printDsr(true), ixline(false) {}
 };
 
 namespace PIOL

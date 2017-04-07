@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
     std::string name2 = "";
     std::string name3 = "";
     std::string name4 = "";
-    FourDOpt fopt = {false, false, false};
+    FourDOpt fopt;
 
 /*******************  Reading options from the command line ***********************************************/
     std::string opt = "a:b:c:d:t:vpx";  //TODO: uses a GNU extension
@@ -75,7 +75,7 @@ int main(int argc, char ** argv)
                 cmsg(piol, "Verbose mode enabled");
             break;
             case 'p' :
-                fopt.printDsr = true;
+                fopt.printDsr = false;
             break;
             case 'x' :
                 fopt.ixline = true;

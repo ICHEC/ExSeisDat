@@ -48,7 +48,10 @@ struct Coords
         posix_memalign(reinterpret_cast<void **>(&xl), ALIGN, allocSz * sizeof(llint));
 
         for (size_t i = 0; i < allocSz; i++)
+        {
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<fourd_t>::max();
+            il[i] = xl[i] == std::numeric_limits<llint>::max();
+        }
     }
 
     /*! Destructor. Deallocate all the memory.

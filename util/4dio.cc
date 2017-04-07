@@ -67,7 +67,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
     //Unfortunately shared pointers make things ugly in C++.
     //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
-    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
     {
