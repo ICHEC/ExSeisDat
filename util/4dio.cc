@@ -89,6 +89,8 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
             coords->ySrc[i+orig[j]] = File::getPrm<geom_t>(j, Meta::ySrc, &prm2);
             coords->xRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::xRcv, &prm2);
             coords->yRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::yRcv, &prm2);
+            coords->il[i+orig[j]] = File::getPrm<llint>(j, Meta::il, &prm2);
+            coords->xl[i+orig[j]] = File::getPrm<llint>(j, Meta::xl, &prm2);
             coords->tn[i+orig[j]] = trlist[i+orig[j]];
         }
     }
@@ -105,7 +107,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs)
+void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, bool printDsr)
 {
     auto time = MPI_Wtime();
     //Enable as many of the parameters as possible
@@ -152,8 +154,9 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         src.readTraceNonMono(rblock, &list[i], trc.data(), &prm);
-        for (size_t j = 0; j < rblock; j++)
-            setPrm(j, Meta::dsdr, minrs[i+j], &prm);
+        if (printDsr)
+            for (size_t j = 0; j < rblock; j++)
+                setPrm(j, Meta::dsdr, minrs[i+j], &prm);
 
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }

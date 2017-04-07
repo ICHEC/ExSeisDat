@@ -157,12 +157,15 @@ fourd_t dsr(const fourd_t xs1, const fourd_t ys1, const fourd_t xr1, const fourd
  *  \param[out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
+template <const bool ixline>
 void initUpdate(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs)
 {
     for (size_t i = 0; i < crd1->sz; i++)
     {
-        minrs[i] = dsr(crd1->xSrc[i], crd1->ySrc[i], crd1->xRcv[i], crd1->yRcv[i],
-                       crd2->xSrc[0], crd2->ySrc[0], crd2->xRcv[0], crd2->yRcv[0]);
+        minrs[i] = (!ixline || (crd1->il[i] == crd2->il[0] && crd1->xl[i] == crd2->xl[0]) ?
+                   dsr(crd1->xSrc[i], crd1->ySrc[i], crd1->xRcv[i], crd1->yRcv[i],
+                       crd2->xSrc[0], crd2->ySrc[0], crd2->xRcv[0], crd2->yRcv[0]) :
+                    std::numeric_limits<fourd_t>::max());
         min[i] = crd2->tn[0];
     }
 }
@@ -179,6 +182,7 @@ void initUpdate(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec
  *  \param[in] dsrmax The maximum distance a pair from crd2 can be from crd1.
  *  \return Return the number of dsr calculations performed.
  */
+template <const bool ixline>
 size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, const fourd_t dsrmax)
 {
     //For the vectorisation
@@ -229,7 +233,9 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
         for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
         {
             const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j], yr2 = yR2[j];
-            fourd_t dval = dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2);
+            fourd_t dval = (!ixline || (crd1->il[i] == crd2->il[j] && crd1->xl[i] == crd2->xl[j]) ?
+                                 dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2) :
+                                 std::numeric_limits<fourd_t>::max());
             lm = (dval < lmrs ? tn[j] : lm);      //Update min if applicable
             lmrs = std::min(dval, lmrs);          //Update minrs if applicable
         }
@@ -244,7 +250,8 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
     return lsz * rsz;
 }
 
-void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, const Coords * coords2, vec<size_t> & min, vec<fourd_t> & minrs, bool verbose)
+void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, const Coords * coords2,
+                                  const FourDOpt opt, vec<size_t> & min, vec<fourd_t> & minrs)
 {
     cmsg(piol, "Compute phase");
     size_t rank = piol->comm->getRank();
@@ -263,7 +270,10 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     auto xslmax = crd1->xSrc[crd1->sz-1U];
 
     //Perform a local initialisation update of min and minrs
-    initUpdate(crd1, coords2, min, minrs);
+    if (opt.ixline)
+        initUpdate<true>(crd1, coords2, min, minrs);
+    else
+        initUpdate<false>(crd1, coords2, min, minrs);
 
     //This for loop determines the processes the local process will need to be communicating with.
     vec<size_t> active;
@@ -271,7 +281,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
             active.push_back(i);
 
-    if (verbose)
+    if (opt.verbose)
     {
         printxSMinMax(piol, xslmin, xslmax, xsmin[rank], xsmax[rank], active);
         printxSrcMinMax(piol, xsmin, xsmax);
@@ -291,9 +301,10 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         auto lrank = active[i];
         auto proc = getCoordsWin(lrank, szall[lrank], win);
         auto wtime = MPI_Wtime() - ltime;
-        auto ops = update(crd1, proc.get(), min, minrs, dsrmax);
-        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: " <<
-                    (double(crd1->sz * proc->sz) - double(ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
+        auto ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
+                                 update<false>(crd1, proc.get(), min, minrs, dsrmax));
+        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: "
+                  << (double(crd1->sz * proc->sz) - double(ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
     }
 
     std::cout << rank << " done. " << "Total rounds: " << active.size() << " Time: "<< MPI_Wtime() - time << " seconds" << std::endl;

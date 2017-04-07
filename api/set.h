@@ -77,6 +77,12 @@ extern void summarySet(ExSeisSet s);
  */
 extern void addSet(ExSeisSet s, const char * name);
 
+/*! Sort the set using a custom comparison function
+ *  \param[in] s A handle for the set.
+ *  \param[in] func The custom comparison function to sort set
+ */
+extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
+
 #ifdef __cplusplus
 }
 #endif

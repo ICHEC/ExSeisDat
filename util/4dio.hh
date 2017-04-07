@@ -25,6 +25,9 @@ struct Coords
     size_t * tn = NULL;     //!< The trace number
     size_t allocSz;         //!< The size which was actually allocated
 
+    llint * il = NULL;  //!< The y rcv coordinates
+    llint * xl = NULL;  //!< The y rcv coordinates
+
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
      *  \param[in] sz_ Number of traces
@@ -40,6 +43,10 @@ struct Coords
         posix_memalign(reinterpret_cast<void **>(&xRcv), ALIGN, allocSz * sizeof(fourd_t));
         posix_memalign(reinterpret_cast<void **>(&yRcv), ALIGN, allocSz * sizeof(fourd_t));
         posix_memalign(reinterpret_cast<void **>(&tn), ALIGN, allocSz * sizeof(size_t));
+
+        posix_memalign(reinterpret_cast<void **>(&il), ALIGN, allocSz * sizeof(llint));
+        posix_memalign(reinterpret_cast<void **>(&xl), ALIGN, allocSz * sizeof(llint));
+
         for (size_t i = 0; i < allocSz; i++)
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<fourd_t>::max();
     }
@@ -76,6 +83,6 @@ extern std::unique_ptr<Coords> getCoords(Piol piol, std::string name);
  *  \param[in] list The list of traces to read from the input file in the order they should appear in the output file.
  *  \param[in] minrs The value of minrs which should be stored with the trace header of each trace.
  */
-extern void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs);
+extern void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, bool printDsr);
 }}
 #endif

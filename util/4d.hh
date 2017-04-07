@@ -24,6 +24,13 @@ using vec = std::vector<T>;
 
 typedef float fourd_t;  //!< A typedef for the precision used for coordinates during the 4dbin
 
+struct FourDOpt
+{
+    uint64_t verbose : 1;   //!< Be verbose in the output
+    uint64_t printDsr : 1;  //!< print the dsr value to the SEG-Y output files
+    uint64_t ixline : 1;    //!< Constrain by inline and crossline
+};
+
 namespace PIOL
 {
 /*! Every process will call this function and process 0 will print the string.
