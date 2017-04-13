@@ -42,6 +42,12 @@ extern void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax);
  */
 extern void sortSet(ExSeisSet s, SortType type);
 
+  /*! Sort the set using a custom comparison function
+   *  \param[in] s A handle for the set.
+   *  \param[in] func The custom comparison function to sort set
+   */
+extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
+
 /*! The number of traces in the input files
  *  \param[in] s The set handle
  *  \return The number of traces in the input files

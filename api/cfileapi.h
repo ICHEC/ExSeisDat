@@ -213,12 +213,6 @@ void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
  */
 extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, const CParam prm, CoordElem * minmax);
 
-/*! Sort the set using a custom comparison function
- *  \param[in] s A handle for the set.
- *  \param[in] func The custom comparison function to sort set
- */
-extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
-
 /*
  * Opening and closing files
  */
