@@ -417,7 +417,7 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     }
 }
 
-    void InternalSet::taper(size_t nt, size_t ns, float ** trc, std::function<float(size_t weight, size_t ramp)> func)
+void InternalSet::taper(size_t nt, size_t ns, float ** trc, std::function<float(size_t weight, size_t ramp)> func, size_t ntpstr, size_t ntpend)
 {
     for (size_t i=0; i < nt, i++)
     {
