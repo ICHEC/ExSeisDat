@@ -214,7 +214,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
         {
             std::string name = globs.gl_pathv[i];
 
-            //Open the file and create the associated layers
+           //Open the file and create the associated layers
             auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
             auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
             //TODO: There could be a problem with excessive amounts of open files
@@ -413,6 +413,26 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
         {
             updateElem<std::less<geom_t>>(&tminmax[2U*i], &minmax[2U*i]);
             updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
+        }
+    }
+}
+
+    void InternalSet::taper(size_t nt, size_t ns, float ** trc, std::function<float(size_t weight, size_t ramp)> func)
+{
+    for (size_t i=0; i < nt, i++)
+    {
+        size_t wt=0;
+        for (size_t j=0; j<ns, j++)
+        {
+	    if (trc[i*ns+j]==0)
+                trc[i*ns+j]=trc[i*ns+j];
+	    else 
+                if (wt<ntpstr)
+                    trc[i*ns+j]=trc[i*ns+j]*func(wt, ntpstr);
+                else if ((ns - j)<ntpend)
+		    trc[i*ns+j]=trc[i*ns+j]*func((ns-j), ntpend);
+                else
+                    trc[i*ns+j]=trc[i*ns+j];
         }
     }
 }
