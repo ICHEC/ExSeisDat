@@ -20,22 +20,19 @@
 namespace PIOL { namespace File {
 
 
-std::function<float(size_t, size_t)> getTap(TaperType Type)
+std::function<float(float, float)> getTap(TaperType type)
 {
     switch(type)
     {
         default :
         case TaperType::linear :
-        std::function<float(size_t, size_t) func = [ ](size_t weight, size_t ramp){return weight/ramp;};
-        return func;
+	return [ ](float weight, float ramp){return weight/ramp;};
         break;
         case TaperType::cos :
-	std::function<float(size_t,size_t) func = [ ](size_t weight, size_t ramp){return cos(M_PI*(1+(weight/ramp)));};
-        return func;
+	return [ ](size_t weight, size_t ramp){return cos(M_PI*(1+(weight/ramp)));};
         break;
         case TaperType:: cos2 :
-	    std::function<float(size_t,size_t) func = [ ](size_t weight, size_t ramp){return std::pow(cos(M_PI*(1+(weight/ramp))));};
-	return func;
+	  return [ ](float weight, float ramp){return pow(cos(M_PI*(ramp+weight)/ramp),2.f);};	
 	break;
     };
 };

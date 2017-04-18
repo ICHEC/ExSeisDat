@@ -65,7 +65,7 @@ class Set : public InternalSet
      * \param[in] ntpstr The length of left-tail taper ramp.
      * \param[in] ntpend The length of right-tail taper ramp.
      */
-    void taper(size_t nt, size_t ns, float ** trc, TaperType type, size_t ntpstr, size_t ntpend);
+    void taper(size_t nt, size_t ns, trace_t * trc, TaperType type, size_t ntpstr, size_t ntpend);
 
     /*! Preform 1 tailed taper on a set of traces
      * \param[in] nt The number of traces
@@ -74,7 +74,7 @@ class Set : public InternalSet
      * \param[in] type The type of taper to be applied to traces.
      * \param[in] ntpstr The length of taper ramp.
      */
-    void taper(size_t nt,size_t ns, float ** trc, TaperType type, size_t ntpstr);
+    void taper(size_t nt,size_t ns, trace_t* trc, TaperType type, size_t ntpstr);
 };
 }
 #endif

@@ -416,24 +416,24 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
         }
     }
 }
-
-void InternalSet::taper(size_t nt, size_t ns, float ** trc, std::function<float(size_t weight, size_t ramp)> func, size_t ntpstr, size_t ntpend)
+void InternalSet::taper(size_t nt, size_t ns, trace_t* trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
 {
-    for (size_t i=0; i < nt, i++)
+    for (size_t i=0; i < nt; i++)
     {
-        size_t wt=0;
-        for (size_t j=0; j<ns, j++)
+        int wt=0;
+        for (size_t j=0; j<ns; j++)
         {
 	    if (trc[i*ns+j]==0)
                 trc[i*ns+j]=trc[i*ns+j];
 	    else 
                 if (wt<ntpstr)
-                    trc[i*ns+j]=trc[i*ns+j]*func(wt, ntpstr);
+		  trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wt), static_cast<float>(ntpstr));
                 else if ((ns - j)<ntpend)
-		    trc[i*ns+j]=trc[i*ns+j]*func((ns-j), ntpend);
+		    trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(ns-j), static_cast<float>(ntpend));
                 else
                     trc[i*ns+j]=trc[i*ns+j];
         }
     }
+    
 }
 }
