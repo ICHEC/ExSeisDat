@@ -145,13 +145,12 @@ int iol(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chu
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 Data::MPIIO::Opt::Opt(void)
 {
-#ifdef IME_ENABLED
-    coll = false;
-    fcomm = MPI_COMM_SELF;
-#else
+#ifdef MPIIO_COLLECTIVES
     coll = true;
-    fcomm = MPI_COMM_WORLD;
+#else
+    coll = false;
 #endif
+    fcomm = MPI_COMM_WORLD;
     info = MPI_INFO_NULL;
     MPI_Info_create(&info);
 //    MPI_Info_set(info, "access_style", "read_once");
@@ -189,23 +188,11 @@ int getMPIMode(FileMode mode)
     {
         default :
         case FileMode::Read :
-#ifdef IME_ENABLED
-            return MPI_MODE_RDONLY;
-#else
             return MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
-#endif
         case FileMode::Write :
-#ifdef IME_ENABLED
-            return MPI_MODE_CREATE | MPI_MODE_WRONLY;
-#else
             return MPI_MODE_CREATE | MPI_MODE_WRONLY | MPI_MODE_UNIQUE_OPEN;
-#endif
         case FileMode::ReadWrite :
-#ifdef IME_ENABLED
-            return MPI_MODE_CREATE | MPI_MODE_RDWR;
-#else
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
-#endif
         case FileMode::Test :
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
     }

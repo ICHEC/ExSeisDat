@@ -31,4 +31,13 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
                            [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
 
 }
+
+    void Set::taper(size_t nt, size_t ns, float ** trc, TaperType type, size_t ntpstr, size_t ntpend)
+{
+    InternalSet::taper(nt, ns, trc, File::getTap(type), ntpstr, ntpend);  
+}
+    void Set::taper(size_t nt, size_t ns, float ** trc, TaperType type, size_t ntpstr)
+{
+    InternalSet::taper(nt,ns,trc, File::getTap(typ),ntpstr,0);
+}
 }
