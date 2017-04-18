@@ -11,6 +11,11 @@
 #include "share/mpi.hh"
 #include "4dcore.hh"
 
+inline void MPIErr(int err)
+{
+    assert(err == MPI_SUCCESS);
+}
+
 namespace PIOL { namespace FOURD {
 
 //This function prints to stdio
@@ -77,25 +82,17 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords, bool ixline)
 {
     vec<MPI_Win> win(5);
     //Look at MPI_Info
-    int err;
-    err = MPI_Win_create(coords->xSrc, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[0]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->ySrc, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[1]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->xRcv, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[2]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->yRcv, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[3]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Win_create(coords->tn, coords->sz, sizeof(size_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[4]);
-    assert(err == MPI_SUCCESS);
+    MPIErr(MPI_Win_create(coords->xSrc, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[0]));
+    MPIErr(MPI_Win_create(coords->ySrc, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[1]));
+    MPIErr(MPI_Win_create(coords->xRcv, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[2]));
+    MPIErr(MPI_Win_create(coords->yRcv, coords->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[3]));
+    MPIErr(MPI_Win_create(coords->tn, coords->sz, sizeof(size_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[4]));
 
     if (ixline)
     {
         win.resize(7);
-        err = MPI_Win_create(coords->il, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[5]);
-        assert(err == MPI_SUCCESS);
-        err = MPI_Win_create(coords->xl, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[6]);
-        assert(err == MPI_SUCCESS);
+        MPIErr(MPI_Win_create(coords->il, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[5]));
+        MPIErr(MPI_Win_create(coords->xl, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[6]));
     }
 
     return win;
@@ -111,29 +108,22 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
 {
     auto coords = std::make_unique<Coords>(sz);
     for (size_t i = 0; i < win.size(); i++)
-        MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]);
-    int err;
-    err = MPI_Get(coords->xSrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->ySrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[1]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->xRcv, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[2]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->yRcv, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[3]);
-    assert(err == MPI_SUCCESS);
-    err = MPI_Get(coords->tn, coords->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]);
-    assert(err == MPI_SUCCESS);
+        MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]));
+
+    MPIErr(MPI_Get(coords->xSrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]));
+    MPIErr(MPI_Get(coords->ySrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[1]));
+    MPIErr(MPI_Get(coords->xRcv, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[2]));
+    MPIErr(MPI_Get(coords->yRcv, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[3]));
+    MPIErr(MPI_Get(coords->tn, coords->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(), win[4]));
 
     if (ixline)
     {
-        err = MPI_Get(coords->il, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[5]);
-        assert(err == MPI_SUCCESS);
-        err = MPI_Get(coords->xl, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[6]);
-        assert(err == MPI_SUCCESS);
+        MPIErr(MPI_Get(coords->il, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[5]));
+        MPIErr(MPI_Get(coords->xl, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[6]));
     }
 
     for (size_t i = 0; i < win.size(); i++)
-        MPI_Win_unlock(lrank, win[i]);
+        MPIErr(MPI_Win_unlock(lrank, win[i]));
     return std::move(coords);
 }
 
@@ -329,10 +319,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     std::cout << rank << " done. " << "Total rounds: " << active.size() << " Time: "<< MPI_Wtime() - time << " seconds" << std::endl;
 
     for (size_t i = 0; i < win.size(); i++)
-    {
-        int err = MPI_Win_free(&win[i]);
-        assert(err == MPI_SUCCESS);
-    }
+        MPIErr(MPI_Win_free(&win[i]));
 
     cmsg(piol, "Compute phase completed in " + std::to_string(MPI_Wtime() - time) + " seconds");
 }
