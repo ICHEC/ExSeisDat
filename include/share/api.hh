@@ -90,6 +90,25 @@ typedef enum
 } SortType;
 #endif
 
+/*! An enum class of the different types of tapering windows.
+ */
+#ifdef __cplusplus
+enum class TaperType : int
+#else
+typedef enum
+#endif
+{
+    linear,  //!< Taper using a linear ramp 
+    cos,     //!< Taper using a cos ramp
+    cos2     //!< Taper using a cos2 ramp
+
+
+#ifdef __cplusplus
+};
+#else
+} TaperType;
+#endif
+
 /*! A structure to hold a reference to a single coordinate and
  * the corresponding trace number
  */
