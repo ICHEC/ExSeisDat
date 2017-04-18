@@ -115,7 +115,8 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
-    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+    if (printDsr)
+        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
     File::ReadDirect src(piol, sname);
     File::WriteDirect dst(piol, dname);
@@ -157,7 +158,6 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
         if (printDsr)
             for (size_t j = 0; j < rblock; j++)
                 setPrm(j, Meta::dsdr, minrs[i+j], &prm);
-
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }
 
