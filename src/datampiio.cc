@@ -292,9 +292,7 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-    MPI_Status stat;
-    MPI_File_read_at_all(file, 0, d, nb*bsz, MPI_CHAR, &stat);
-    printErr(log, name, Log::Layer::Data, err, &stat, " read_at Failure\n");
+    read(0U, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
