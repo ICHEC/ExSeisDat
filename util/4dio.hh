@@ -68,6 +68,10 @@ struct Coords
             free(yRcv);
         if (tn)
             free(tn);
+        if (il)
+            free(il);
+        if (xl)
+            free(xl);
     }
 };
 
