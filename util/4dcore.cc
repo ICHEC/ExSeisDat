@@ -11,11 +11,6 @@
 #include "share/mpi.hh"
 #include "4dcore.hh"
 
-inline void MPIErr(int err)
-{
-    assert(err == MPI_SUCCESS);
-}
-
 namespace PIOL { namespace FOURD {
 
 //This function prints to stdio
@@ -95,6 +90,9 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords, bool ixline)
         MPIErr(MPI_Win_create(coords->xl, coords->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[6]));
     }
 
+    for (size_t i = 0; i < win.size(); i++)
+        MPIErr(MPI_Win_lock_all(MPI_MODE_NOCHECK, win[i]));
+
     return win;
 }
 
@@ -107,8 +105,6 @@ vec<MPI_Win> createCoordsWindow(const Coords * coords, bool ixline)
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
     auto coords = std::make_unique<Coords>(sz);
-    for (size_t i = 0; i < win.size(); i++)
-        MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]));
 
     MPIErr(MPI_Get(coords->xSrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]));
     MPIErr(MPI_Get(coords->ySrc, coords->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[1]));
@@ -121,9 +117,9 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
         MPIErr(MPI_Get(coords->il, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[5]));
         MPIErr(MPI_Get(coords->xl, coords->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[6]));
     }
-
     for (size_t i = 0; i < win.size(); i++)
-        MPIErr(MPI_Win_unlock(lrank, win[i]));
+        MPI_Win_flush_local(lrank, win[i]);
+
     return std::move(coords);
 }
 
@@ -266,9 +262,6 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     size_t rank = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
     auto szall = piol->comm->gather(vec<size_t>{coords2->sz});
-    vec<size_t> offset(szall.size());
-    for (size_t i = 1; i < offset.size(); i++)
-        offset[i] = offset[i-1] + szall[i];
 
     //The File2 min/max from every process
     auto xsmin = piol->comm->gather(vec<fourd_t>{coords2->xSrc[0U]});
@@ -298,6 +291,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
     auto time = MPI_Wtime();
     auto win = createCoordsWindow(coords2, opt.ixline);
+
     //Load balancing would make sense since the workloads are non-symmetric.
     //It might be difficult to do load-balancing though considering workload
     //very much depends on the constraints from both processess
@@ -306,21 +300,28 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     //This is the main loop.
     for (size_t i = 0; i < active.size(); i ++)
     {
-        auto ltime = MPI_Wtime();
-        auto lrank = active[i];
+        double ltime = MPI_Wtime();
+        size_t lrank = active[i];
         auto proc = getCoordsWin(lrank, szall[lrank], win, opt.ixline);
-        auto wtime = MPI_Wtime() - ltime;
-        auto ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
-                                 update<false>(crd1, proc.get(), min, minrs, dsrmax));
-        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: "
-                  << (double(crd1->sz * proc->sz) - double(ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
+
+        double wtime = MPI_Wtime() - ltime;
+        double sent = szall[lrank] * (4U*sizeof(fourd_t) + sizeof(size_t) + 2U*sizeof(llint));
+
+        size_t ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
+                                  update<false>(crd1, proc.get(), min, minrs, dsrmax));
+
+        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec."
+                  << " Comm: " << wtime << " sec " << sent / wtime / pow(2., 30.)
+                  << " GB/s. OpSave: " << (double(crd1->sz * proc->sz - ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
     }
 
     std::cout << rank << " done. " << "Total rounds: " << active.size() << " Time: "<< MPI_Wtime() - time << " seconds" << std::endl;
 
     for (size_t i = 0; i < win.size(); i++)
+    {
+        MPIErr(MPI_Win_unlock_all(win[i]));
         MPIErr(MPI_Win_free(&win[i]));
-
+    }
     cmsg(piol, "Compute phase completed in " + std::to_string(MPI_Wtime() - time) + " seconds");
 }
 }}
