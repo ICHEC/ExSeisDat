@@ -7,6 +7,10 @@
  *//*******************************************************************************************/
 #include "4dio.hh"
 namespace PIOL { namespace FOURD {
+inline void MPIErr(int err)
+{
+    assert(err == MPI_SUCCESS);
+}
 
 /*! For each trace, insert into min the trace number from coords2 (distributed)
  *  that minimise the difference between the respective src/rcv coordinates.
@@ -25,4 +29,5 @@ namespace PIOL { namespace FOURD {
  */
 extern void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * coords1, const Coords * coords2,
                                          const FourDOpt opt, vec<size_t> & min, vec<fourd_t> & minrs);
+
 }}

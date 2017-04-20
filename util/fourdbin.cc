@@ -50,6 +50,12 @@ int main(int argc, char ** argv)
     std::string name4 = "";
     FourDOpt fopt;
 
+    char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING-1];
+    int len;
+    MPI_Get_library_version(MPIVersion, &len);
+    if (!piol.getRank())
+        std::cout << "MPI Version " << MPIVersion << std::endl;
+
 /*******************  Reading options from the command line ***********************************************/
     std::string opt = "a:b:c:d:t:vpx";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))

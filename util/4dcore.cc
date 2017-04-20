@@ -11,11 +11,6 @@
 #include "share/mpi.hh"
 #include "4dcore.hh"
 
-inline void MPIErr(int err)
-{
-    assert(err == MPI_SUCCESS);
-}
-
 namespace PIOL { namespace FOURD {
 
 //This function prints to stdio
@@ -95,6 +90,9 @@ vec<MPI_Win> createCoordsWindow(const Coords * crd, bool ixline)
         MPIErr(MPI_Win_create(crd->xl, crd->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[6]));
     }
 
+    for (size_t i = 0; i < win.size(); i++)
+        MPIErr(MPI_Win_lock_all(MPI_MODE_NOCHECK, win[i]));
+
     return win;
 }
 
@@ -107,8 +105,6 @@ vec<MPI_Win> createCoordsWindow(const Coords * crd, bool ixline)
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz);
-    for (size_t i = 0; i < win.size(); i++)
-        MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, 0, win[i]));
 
     MPIErr(MPI_Get(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]));
     MPIErr(MPI_Get(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[1]));
@@ -121,9 +117,9 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
         MPIErr(MPI_Get(crd->il, crd->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[5]));
         MPIErr(MPI_Get(crd->xl, crd->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[6]));
     }
-
     for (size_t i = 0; i < win.size(); i++)
-        MPIErr(MPI_Win_unlock(lrank, win[i]));
+        MPI_Win_flush_local(lrank, win[i]);
+
     return std::move(crd);
 }
 
@@ -357,29 +353,36 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
     //Perform the updates of min and minrs using data from other processes.
     //This is the main loop.
+    //for (llint i = (rank % 2 ? 0 : active.size()); (rank % 2 &&  i < active.size()) || (!(rank % 2) && i > 0) ; i += (rank % 2 ? 1 : -1))
     for (size_t i = 0; i < active.size(); i ++)
     {
-        auto ltime = MPI_Wtime();
-        auto lrank = active[i];
+        double ltime = MPI_Wtime();
+        size_t lrank = active[i];
 #ifdef ONE_WAY_COMM
         auto proc = getCoordsWin(lrank, szall[lrank], win, opt.ixline);
 #else
         auto proc = recvCrd(lrank, szall[lrank], opt.ixline);
 #endif
-        auto wtime = MPI_Wtime() - ltime;
-        auto ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
-                                 update<false>(crd1, proc.get(), min, minrs, dsrmax));
-        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec. Comm: " << wtime << " sec. OpSave: "
-                  << (double(crd1->sz * proc->sz) - double(ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
+        double wtime = MPI_Wtime() - ltime;
+        double sent = szall[lrank] * (4U*sizeof(fourd_t) + sizeof(size_t) + 2U*sizeof(llint));
+
+        size_t ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
+                                  update<false>(crd1, proc.get(), min, minrs, dsrmax));
+
+        std::cout << rank << "\t-->\t" << active[i] << "\tTime: " << MPI_Wtime() - ltime - wtime << " sec."
+                  << " Comm: " << wtime << " sec " << sent / wtime / pow(2., 30.)
+                  << " GB/s. OpSave: " << (double(crd1->sz * proc->sz - ops)) / double(crd1->sz * proc->sz) * 100.0 << std::endl;
     }
 
     std::cout << rank << " done. " << "Total rounds: " << active.size() << " Time: "<< MPI_Wtime() - time << " seconds" << std::endl;
 
 #ifdef ONE_WAY_COMM
     for (size_t i = 0; i < win.size(); i++)
+    {
+        MPIErr(MPI_Win_unlock_all(win[i]));
         MPIErr(MPI_Win_free(&win[i]));
+    }
 #endif
-
     cmsg(piol, "Compute phase completed in " + std::to_string(MPI_Wtime() - time) + " seconds");
 }
 }}
