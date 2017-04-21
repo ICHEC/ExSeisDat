@@ -76,23 +76,26 @@ fourd_t hypot(const fourd_t x, const fourd_t y)
 vec<MPI_Win> createCoordsWindow(const Coords * crd, bool ixline)
 {
     vec<MPI_Win> win(5);
+    MPI_Info info;
+    MPI_Info_create(&info);
+    MPI_Info_set(info, "same_disp_unit", "true");
+    MPI_Info_set(info, "accumulate_ops", "same_op");
+
     //Look at MPI_Info
-    MPIErr(MPI_Win_create(crd->xSrc, crd->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[0]));
-    MPIErr(MPI_Win_create(crd->ySrc, crd->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[1]));
-    MPIErr(MPI_Win_create(crd->xRcv, crd->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[2]));
-    MPIErr(MPI_Win_create(crd->yRcv, crd->sz, sizeof(fourd_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[3]));
-    MPIErr(MPI_Win_create(crd->tn, crd->sz, sizeof(size_t), MPI_INFO_NULL, MPI_COMM_WORLD, &win[4]));
+    MPIErr(MPI_Win_create(crd->xSrc, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[0]));
+    MPIErr(MPI_Win_create(crd->ySrc, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[1]));
+    MPIErr(MPI_Win_create(crd->xRcv, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[2]));
+    MPIErr(MPI_Win_create(crd->yRcv, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[3]));
+    MPIErr(MPI_Win_create(crd->tn, crd->sz, sizeof(size_t), info, MPI_COMM_WORLD, &win[4]));
 
     if (ixline)
     {
         win.resize(7);
-        MPIErr(MPI_Win_create(crd->il, crd->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[5]));
-        MPIErr(MPI_Win_create(crd->xl, crd->sz, sizeof(llint), MPI_INFO_NULL, MPI_COMM_WORLD, &win[6]));
+        MPIErr(MPI_Win_create(crd->il, crd->sz, sizeof(llint), info, MPI_COMM_WORLD, &win[5]));
+        MPIErr(MPI_Win_create(crd->xl, crd->sz, sizeof(llint), info, MPI_COMM_WORLD, &win[6]));
     }
 
-    for (size_t i = 0; i < win.size(); i++)
-        MPIErr(MPI_Win_lock_all(MPI_MODE_NOCHECK, win[i]));
-
+    MPI_Info_free(&info);
     return win;
 }
 
@@ -105,6 +108,8 @@ vec<MPI_Win> createCoordsWindow(const Coords * crd, bool ixline)
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz);
+    for (size_t i = 0; i < win.size(); i++)
+        MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
 
     MPIErr(MPI_Get(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[0]));
     MPIErr(MPI_Get(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(), win[1]));
@@ -117,8 +122,9 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
         MPIErr(MPI_Get(crd->il, crd->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[5]));
         MPIErr(MPI_Get(crd->xl, crd->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(), win[6]));
     }
+
     for (size_t i = 0; i < win.size(); i++)
-        MPI_Win_flush_local(lrank, win[i]);
+        MPIErr(MPI_Win_unlock(lrank, win[i]));
 
     return std::move(crd);
 }
@@ -258,17 +264,17 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
 std::vector<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
 {
     std::vector<MPI_Request> request(5);
-    MPIErr(MPI_Isend(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[0]));
-    MPIErr(MPI_Isend(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[1]));
-    MPIErr(MPI_Isend(crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[2]));
-    MPIErr(MPI_Isend(crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[3]));
-    MPIErr(MPI_Isend(crd->tn, crd->sz, MPIType<size_t>(), lrank, 0, MPI_COMM_WORLD, &request[4]));
+    MPIErr(MPI_Ibsend(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[0]));
+    MPIErr(MPI_Ibsend(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD, &request[1]));
+    MPIErr(MPI_Ibsend(crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 2, MPI_COMM_WORLD, &request[2]));
+    MPIErr(MPI_Ibsend(crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 3, MPI_COMM_WORLD, &request[3]));
+    MPIErr(MPI_Ibsend(crd->tn, crd->sz, MPIType<size_t>(), lrank, 4, MPI_COMM_WORLD, &request[4]));
 
     if (ixline)
     {
         request.resize(7);
-        MPIErr(MPI_Isend(crd->il, crd->sz, MPIType<llint>(), lrank, 0, MPI_COMM_WORLD, &request[5]));
-        MPIErr(MPI_Isend(crd->xl, crd->sz, MPIType<llint>(), lrank, 0, MPI_COMM_WORLD, &request[6]));
+        MPIErr(MPI_Ibsend(crd->il, crd->sz, MPIType<llint>(), lrank, 5, MPI_COMM_WORLD, &request[5]));
+        MPIErr(MPI_Ibsend(crd->xl, crd->sz, MPIType<llint>(), lrank, 6, MPI_COMM_WORLD, &request[6]));
     }
     return request;
 }
@@ -278,16 +284,16 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
     auto crd = std::make_unique<Coords>(sz);
     std::vector<MPI_Request> request(5);
     MPIErr(MPI_Irecv(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[0]));
-    MPIErr(MPI_Irecv(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[1]));
-    MPIErr(MPI_Irecv(crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[2]));
-    MPIErr(MPI_Irecv(crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[3]));
-    MPIErr(MPI_Irecv(crd->tn, crd->sz, MPIType<size_t>(), lrank, 0, MPI_COMM_WORLD, &request[4]));
+    MPIErr(MPI_Irecv(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD, &request[1]));
+    MPIErr(MPI_Irecv(crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 2, MPI_COMM_WORLD, &request[2]));
+    MPIErr(MPI_Irecv(crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 3, MPI_COMM_WORLD, &request[3]));
+    MPIErr(MPI_Irecv(crd->tn, crd->sz, MPIType<size_t>(), lrank, 4, MPI_COMM_WORLD, &request[4]));
 
     if (ixline)
     {
         request.resize(7);
-        MPIErr(MPI_Irecv(crd->il, crd->sz, MPIType<llint>(), lrank, 0, MPI_COMM_WORLD, &request[5]));
-        MPIErr(MPI_Irecv(crd->xl, crd->sz, MPIType<llint>(), lrank, 0, MPI_COMM_WORLD, &request[6]));
+        MPIErr(MPI_Irecv(crd->il, crd->sz, MPIType<llint>(), lrank, 5, MPI_COMM_WORLD, &request[5]));
+        MPIErr(MPI_Irecv(crd->xl, crd->sz, MPIType<llint>(), lrank, 6, MPI_COMM_WORLD, &request[6]));
     }
     for (size_t i = 0; i < request.size(); i++)
     {
@@ -334,16 +340,21 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     }
 
     auto time = MPI_Wtime();
+#define ONE_WAY_COMM
 #ifdef ONE_WAY_COMM
     auto win = createCoordsWindow(crd2, opt.ixline);
 #else
+    std::vector<MPI_Request> reqs;
     {
-        auto xsfmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0U]});
-        auto xsfmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz-1U]});
+        auto xsfmin = piol->comm->gather<fourd_t>(xslmin);
+        auto xsfmax = piol->comm->gather<fourd_t>(xslmax);
 
-        for (size_t j = 0U; j < numRank; j++)
-            if ((xsmin[rank] - dsrmax <= xsfmax[j]) && (xsmax[rank] + dsrmax >= xsfmin[j]))
-                sendCrd(j, crd1, opt.ixline);
+        for (size_t i = 0U; i < numRank; i++)
+            if ((xsmin[rank] - dsrmax <= xsfmax[i]) && (xsmax[rank] + dsrmax >= xsfmin[i]))
+            {
+                std::vector<MPI_Request> rq = sendCrd(i, crd1, opt.ixline);
+                reqs.insert(reqs.end(), rq.begin(), rq.end());
+            }
     }
     piol->comm->barrier();
 #endif
@@ -365,7 +376,6 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 #endif
         double wtime = MPI_Wtime() - ltime;
         double sent = szall[lrank] * (4U*sizeof(fourd_t) + sizeof(size_t) + 2U*sizeof(llint));
-
         size_t ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
                                   update<false>(crd1, proc.get(), min, minrs, dsrmax));
 
@@ -378,11 +388,15 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
 #ifdef ONE_WAY_COMM
     for (size_t i = 0; i < win.size(); i++)
-    {
-        MPIErr(MPI_Win_unlock_all(win[i]));
         MPIErr(MPI_Win_free(&win[i]));
+#else
+    for (size_t i = 0; i < reqs.size(); i++)
+    {
+        MPI_Status stat;
+        MPIErr(MPI_Wait(&reqs[i], &stat));
     }
 #endif
+    piol->comm->barrier();
     cmsg(piol, "Compute phase completed in " + std::to_string(MPI_Wtime() - time) + " seconds");
 }
 }}

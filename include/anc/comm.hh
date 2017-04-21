@@ -67,6 +67,12 @@ class Interface
      */
     virtual std::vector<size_t> gather(const std::vector<size_t> & val) const = 0;
 
+    template <class T>
+    std::vector<T> gather(T in) const
+    {
+        return gather(std::vector<T>{in});
+    }
+
     /*! Perform a reduce across all process to get the sum of the passed values
      * \param[in] val variable to be used in the operation from thie process
      * \return the global sum (same value on all processes)

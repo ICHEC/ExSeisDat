@@ -100,6 +100,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     for (size_t i = 0; i < extra; i++)
         file.readParam(0U, nullptr, nullptr);
 
+    piol->comm->barrier();
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
     return std::move(coords);
@@ -167,6 +168,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 
+    piol->comm->barrier();
     cmsg(piol.get(), "Output " + sname + " to " + dname + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 }
 }}
