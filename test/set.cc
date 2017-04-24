@@ -1,7 +1,9 @@
 /* These unit tests might be fairly redundant since they are basically the same as the system tests.
  */
 #include "settest.hh"
-
+#include <iostream>
+#include <string>
+#include <cmath>
 const std::vector<size_t> sortOffLine = {
 0, 2, 5, 10, 16, 25, 34, 44, 57, 72, 88, 99, 109, 122, 133, 144, 154, 165, 175,
 186, 196, 206, 217, 227, 237, 248, 258, 268, 278, 288, 298, 308, 318, 329, 339,
@@ -111,12 +113,18 @@ void testSrcOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
         EXPECT_EQ(l, 1000+i);
     }
 }
-
+void createTrace(size_t nt, size_t ns, float * trc)
+{
+    for (size_t i = 0; i < nt; i++)
+        for (size_t j = 0; j < ns; j++)
+	{
+	  trc[i*ns+j]=1;//(i+1);sin(M_PI*j*(i+1));
+	}
+}
 
 TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
-
     set->sort(SortType::SrcRcv);
 
     for (size_t i = 0; i < set->file.size(); i++)
@@ -249,4 +257,384 @@ TEST_F(SetTest, getActive3)
 
     EXPECT_EQ(set->getInNt(), 2U*3333U);
     EXPECT_EQ(set->getLNt(), 2U*2222U);
+}
+
+TEST_F(SetTest, Taper2TailLin)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float)); 
+    size_t nTailLft = 50;
+    size_t nTailRt = 75;
+
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+    
+    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft, nTailRt);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j=0; j<ns; j++)
+	{
+            if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+	    {   
+	      origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtLft)-static_cast<float>(nTailLft))/static_cast<float>(nTailLft)));
+                ++wtLft;
+	    }
+            else if (wtLft < nTailLft)
+	    {
+	      origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtLft)-static_cast<float>(nTailLft))/static_cast<float>(nTailLft)));
+	        ++wtLft;
+	    }
+	    else if ((ns-j) <= nTailRt)
+	    {
+		--wtRt;
+		origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtRt)-static_cast<float>(nTailRt))/static_cast<float>(nTailRt)));
+	    }
+            EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper2TailCos)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+    size_t nTailRt = 75;
+
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+
+    set->taperRun(nt, ns, trc, TaperType::Cos, nTailLft, nTailRt);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*(.5 + (.5 * cos(M_PI * (static_cast<float>(wtLft) -  static_cast<float>(nTailLft)) / static_cast<float>(nTailLft))));
+ 	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*(.5 + .5 * cos(M_PI * (static_cast<float>(wtLft) -  static_cast<float>(nTailLft)) / static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+	    else if ((ns-j) <= nTailRt)
+            {
+	        --wtRt;
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*(.5 + .5 * cos(M_PI * (static_cast<float>(wtRt)  - static_cast<float>(nTailRt)) / static_cast<float>(nTailRt)));
+            }
+   	    EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper2TailCos2)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+    size_t nTailRt = 75;
+
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+
+    set->taperRun(nt, ns, trc, TaperType::Cos2, nTailLft, nTailRt);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j=0; j<ns; j++)
+	{
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * pow(.5 + .5 * cos(M_PI * (static_cast<float>(wtLft)  - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft)), 2);
+	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+	      origTrc[i*ns+j]=origTrc[i*ns+j] * pow(.5 + .5 * cos(M_PI * (static_cast<float>(wtLft)  - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft)), 2);
+	        ++wtLft;
+            }
+	    else if ((ns-j) <= nTailRt)
+            {
+	        --wtRt;
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*pow(.5 + .5 * cos(M_PI * (static_cast<float>(wtRt)  - static_cast<float>(nTailRt)) / static_cast<float>(nTailRt)), 2);
+            }
+     	    EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+	}
+    }
+}
+
+TEST_F(SetTest, Taper2TailCust)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+    size_t nTailRt = 75;
+    float tau = 8;
+
+    std::function<float(float,float)> func = [tau](float wt, float ramp){return std::exp(-std::abs(wt-ramp)/tau);};
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+
+    set->taperRun(nt, ns, trc, func, nTailLft, nTailRt);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * std::exp(-std::abs(static_cast<float>(wtLft)-static_cast<float>(nTailLft))/tau);
+	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * std::exp(-std::abs(static_cast<float>(wtLft)-static_cast<float>(nTailLft))/tau);
+	        ++wtLft;
+            }
+	    else if ((ns-j) <= nTailRt)
+            {
+	        --wtRt;
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * std::exp(-std::abs(static_cast<float>(wtRt)-static_cast<float>(nTailRt))/tau);
+            }
+	    EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+	}
+    }
+
+}
+TEST_F(SetTest, Taper1TailLin)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+    
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+
+    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft);
+      
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * (1. - std::abs((static_cast<float>(wtLft) - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * (1. - std::abs((static_cast<float>(wtLft) - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+            EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper1TailCos)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+  
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+    set->taperRun(nt, ns, trc, TaperType::Cos, nTailLft);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+      
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+                origTrc[i*ns+j]=origTrc[i*ns+j]*(.5 + (.5 * cos(M_PI * (static_cast<float>(wtLft) - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft))));
+                ++wtLft;
+            }
+             else if (wtLft < nTailLft)
+            {
+                origTrc[i*ns+j]=origTrc[i*ns+j]*(.5 + (.5 * cos(M_PI * (static_cast<float>(wtLft) - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft))));
+                ++wtLft;
+            }
+            EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper1TailCos2)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+    set->taperRun(nt, ns, trc, TaperType::Cos2, nTailLft);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+
+        for (size_t j=0; j<ns; j++)
+	{
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+	    {
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*pow(.5 + (.5 * cos(M_PI * (static_cast<float>(wtLft) - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft))), 2);
+	        ++wtLft;
+	    }
+            else if (wtLft < nTailLft)
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*pow(.5 + (.5 * cos(M_PI * (static_cast<float>(wtLft) - static_cast<float>(nTailLft)) / static_cast<float>(nTailLft))), 2);
+                ++wtLft;
+            }
+            EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper1TailCust)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+    float tau = 8;
+
+    std::function<float(float,float)> func = [tau](float wt, float ramp){return std::exp(-std::abs(wt-ramp)/tau);};
+    createTrace(nt, ns, trc);
+    createTrace(nt, ns, origTrc);
+    set->taperRun(nt, ns, trc, func, nTailLft);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * std::exp(-std::abs(static_cast<float>(wtLft)-static_cast<float>(nTailLft))/tau);
+	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+	        origTrc[i*ns+j]=origTrc[i*ns+j] * std::exp(-std::abs(static_cast<float>(wtLft)-static_cast<float>(nTailLft))/tau);
+	        ++wtLft;
+            }
+	    EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper2TailMuteLin)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 75;
+    size_t nTailRt = 50;
+
+    createTrace(nt, ns, trc);
+    for (size_t i = 0; i < nt; i++)
+        for (size_t j = 0; j < ns; j++)
+	{
+	    if (j < ceil(i * 3 / nt))
+                trc[i*ns+j]=0.;
+        }
+    origTrc = trc;    
+
+    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft, nTailRt);
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0.))
+            {
+                origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtLft)-static_cast<float>(nTailLft))/static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+                origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtLft)-static_cast<float>(nTailLft))/static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+	    else if ((ns-j) <= nTailRt)
+            {
+	        --wtRt;
+	        origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtRt)-static_cast<float>(nTailRt))/static_cast<float>(nTailRt)));
+            }
+	    EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
+}
+
+TEST_F(SetTest, Taper1TailMuteLinear)
+{
+    size_t nt = 100;
+    size_t ns = 200;
+    float * trc = (float * )std::calloc(nt * ns, sizeof(float));
+    float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
+    size_t nTailLft = 50;
+
+    createTrace(nt, ns, trc);
+    for (size_t i = 0; i < nt; i++)
+        for (size_t j = 0; j < ns; j++)
+        {
+	    if (j < ceil(i * 3 / nt))
+	        trc[i*ns+j]=0.;
+        }
+    origTrc = trc;
+
+    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft);
+
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+      
+        for (size_t j=0; j<ns; j++)
+        {
+	    if ((wtLft < 1 ) && (origTrc[i*ns+j] != 0))
+            {
+                origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtLft)-static_cast<float>(nTailLft))/static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+	    else if (wtLft < nTailLft)
+            {
+                origTrc[i*ns+j]=origTrc[i*ns+j]*(1.-std::abs((static_cast<float>(wtLft)-static_cast<float>(nTailLft))/static_cast<float>(nTailLft)));
+	        ++wtLft;
+            }
+            EXPECT_EQ(trc[i*ns+j],origTrc[i*ns+j]);
+        }
+    }
 }

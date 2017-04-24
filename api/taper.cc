@@ -16,7 +16,7 @@
 #include "global.hh"
 #include "ops/taper.hh"
 #include "fileops.hh"
-
+#include <iostream>
 namespace PIOL { namespace File {
 
 
@@ -25,14 +25,14 @@ std::function<float(float, float)> getTap(TaperType type)
     switch(type)
     {
         default :
-        case TaperType::linear :
-	return [ ](float weight, float ramp){return weight/ramp;};
+        case TaperType::Linear :
+	  return [ ](float weight, float ramp){return 1.-std::abs((weight-ramp)/ramp);};
         break;
-        case TaperType::cos :
-	return [ ](size_t weight, size_t ramp){return cos(M_PI*(1+(weight/ramp)));};
+        case TaperType::Cos :
+	  return [ ](float weight, float ramp){return .5 + (.5*cos(M_PI*(weight-ramp)/ramp));};
         break;
-        case TaperType:: cos2 :
-	  return [ ](float weight, float ramp){return pow(cos(M_PI*(ramp+weight)/ramp),2.f);};	
+        case TaperType:: Cos2 :
+	return [ ](float weight, float ramp){return pow(.5 +(.5*cos(M_PI*(weight-ramp)/ramp)),2.f);};	
 	break;
     };
 };

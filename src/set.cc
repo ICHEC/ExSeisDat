@@ -16,7 +16,7 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
-
+#include <iostream>
 namespace PIOL {
 typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
 
@@ -416,24 +416,54 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
         }
     }
 }
-void InternalSet::taper(size_t nt, size_t ns, trace_t* trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
+void InternalSet::taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
+{
+  mod(taperRun(nt, ns, trc, func, ntpstr, ntpend);
+}
+void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
 {
     for (size_t i=0; i < nt; i++)
     {
-        int wt=0;
+        size_t wtLft = 0;
+        size_t wtRt = ntpend;
         for (size_t j=0; j<ns; j++)
         {
-	    if (trc[i*ns+j]==0)
-                trc[i*ns+j]=trc[i*ns+j];
-	    else 
-                if (wt<ntpstr)
-		  trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wt), static_cast<float>(ntpstr));
-                else if ((ns - j)<ntpend)
-		    trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(ns-j), static_cast<float>(ntpend));
-                else
-                    trc[i*ns+j]=trc[i*ns+j];
+	    if ((wtLft < 1 ) && (trc[i*ns+j] != 0)) 
+	    {
+	        trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
+                ++wtLft;
+            }
+            else if (wtLft < ntpstr)
+	    {
+                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
+                ++wtLft;
+             }
+             else if ((ns-j) <= ntpend)
+	     {
+	         --wtRt;
+                 trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtRt), static_cast<float>(ntpend));
+             }
+ 	  }
+      }
+}
+void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr)
+{
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        for (size_t j=0; j<ns; j++)
+	{
+            if ((wtLft < 1 ) && (trc[i*ns+j] != 0))
+	    {
+                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
+                ++wtLft;
+	    }
+            else if (wtLft < ntpstr)
+	    {
+                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
+                ++wtLft;
+	    }
         }
     }
-    
 }
 }
