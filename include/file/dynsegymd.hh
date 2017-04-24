@@ -62,6 +62,7 @@ enum class Tr : size_t
     ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
     ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
     TransConst  = 205U, //!< int32_t. The transduction constant.
+    TransCLower = 207U, //!< int16_t. The lower half of TransConst.
     TransExp    = 209U, //!< int16_t. The transduction exponent.
     TransUnit   = 211U, //!< int16_t. The transduction units
     TimeScal    = 215U, //!< int16_t. Scalar for time measurements.
