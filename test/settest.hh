@@ -115,8 +115,8 @@ struct SetTest : public Test
 
     void init(size_t numFile, size_t nt, size_t inactive)
     {
-        constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
-        srand(1337);
+//        constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
+ //       srand(1337);
         if (set.get() != nullptr)
             set.release();
         set = std::make_unique<Set>(piol);
@@ -129,12 +129,12 @@ struct SetTest : public Test
 
             set->add(std::move(mock));
 
-            llint range = (nt / inactive);
+/*            llint range = (nt / inactive);
             for (size_t j = 0; j < inactive; j++)
             {
                 size_t randj = range*j + (rand() % range);
-                set->file[i]->lst[randj] = NOT_IN_OUTPUT;
-            }
+                set->file[i]->olst[randj] = NOT_IN_OUTPUT;
+            }*/
         }
     }
 };

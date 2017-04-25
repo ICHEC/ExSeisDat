@@ -63,6 +63,7 @@ class MPI : public Comm::Interface
     size_t sum(size_t val);
     size_t max(size_t val);
     size_t min(size_t val);
+    size_t offset(size_t val);
     void barrier(void) const;
 };
 }}

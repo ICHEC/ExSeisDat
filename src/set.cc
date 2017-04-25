@@ -16,12 +16,10 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
+#warning
+#include <iostream>
 
 namespace PIOL {
-typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
-
-constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();    //!< Constant to use to represent a trace not in the set
-
 /*! Perform a 1d decomposition so that the load is optimally balanced.
  *  \param[in] sz The sz of the 1d domain
  *  \param[in] numRank The number of ranks to perform the decomposition over
@@ -37,45 +35,6 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
     return std::make_pair(start, std::min(sz - start, q + (rank < r)));
 }
 
-/*! Read and write all traces in a given input file to output.
- *  This function should be used if all traces in a file are active.
- *  \param[in] piol A pointer to the PIOL object
- *  \param[in] doff The offset into the output file
- *  \param[in] rule The rule to use for the trace parameters.
- *  \param[in] src The input file interface
- *  \param[out] dst The output file interface
- *  \todo Re-use this
- *  \return Return the number of traces read and written across all processes.
- */
-size_t readWriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> rule, File::ReadInterface * src, File::WriteInterface * dst)
-{
-    const size_t memlim = 2U*1024U*1024U*1024U;
-    auto dec = decompose(src->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
-    size_t offset = dec.first;
-    size_t lnt = dec.second;
-    size_t ns = src->readNs();
-    size_t max = memlim / (2U*SEGSz::getDOSz(ns) + rule->memUsage());
-    size_t fmax = std::min(max, lnt);
-
-    auto biggest = piol->comm->max(lnt);
-    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-
-    File::Param prm(rule, fmax);
-    std::vector<trace_t> trc(ns * fmax);
-    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-        src->readTrace(offset + i, rblock, trc.data(), &prm);
-        dst->writeTrace(doff + offset + i, rblock, trc.data(), &prm);
-    }
-    for (size_t i = 0; i < extra; i++)
-    {
-        src->readTrace(size_t(0), size_t(0), nullptr, (File::Param *)nullptr);
-        dst->writeTrace(size_t(0), size_t(0), nullptr, (File::Param *)nullptr);
-    }
-    return src->readNt();
-}
-
 /*! Read a list of traces from the input and write it to the output.
  *  \param[in] piol A pointer to the PIOL object.
  *  \param[in] rule The rule to use for the trace parameters.
@@ -87,18 +46,9 @@ size_t readWriteAll(ExSeisPIOL * piol, size_t doff, std::shared_ptr<File::Rule> 
 void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f, Mod modify,
                                         File::WriteInterface * out)
 {
-    std::vector<size_t> ilist;
-    std::vector<size_t> olist;
-    for (size_t i = 0; i < f->lst.size(); i++)
-        if (f->lst[i] != NOT_IN_OUTPUT)
-        {
-            ilist.push_back(f->offset + i);
-            olist.push_back(f->lst[i]);
-        }
-
     File::ReadInterface * in = f->ifc.get();
 
-    size_t lnt = ilist.size();
+    size_t lnt = f->ilst.size();
     size_t fmax = std::min(lnt, max);
     size_t ns = in->readNs();
 
@@ -111,16 +61,16 @@ void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
+        in->readTrace(rblock, f->ilst.data() + i, itrc.data(), &iprm);
         modify(&iprm, itrc.data());
-        std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
+        std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
         for (size_t j = 0U; j < rblock; j++)
         {
             cpyPrm(sortlist[j], &iprm, j, &oprm);
 
             for (size_t k = 0U; k < ns; k++)
                 otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
-            sortlist[j] = olist[i+sortlist[j]];
+            sortlist[j] = f->olst[i+sortlist[j]];
         }
 
         out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
@@ -182,26 +132,27 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
     f->ifc = std::move(in);
 
     auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
-    f->lst.resize(dec.second);
+    f->ilst.resize(dec.second);
+    std::iota(f->ilst.begin(), f->ilst.end(), dec.first);
+
+    f->olst.resize(dec.second);
 
     auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
     fmap[key].emplace_back(f.get());
 
-    auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
+    auto sizes = piol->comm->gather(std::vector<size_t>{dec.second});
     size_t loff = 0U;    //The local process's offset into the file.
     for (size_t i = 0U; i < piol->comm->getRank(); i++)
         loff += sizes[i];
 
     auto & off = offmap[key];
-    std::iota(f->lst.begin(), f->lst.end(), off + loff);
-    f->offset = off + loff;
+    std::iota(f->olst.begin(), f->olst.end(), off + loff);
     off += f->ifc->readNt();
 }
 
 void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
     outmsg = "ExSeisPIOL: Set layer output\n";
-    //TODO: Regexes might be more useful for pattern matching instead of globbing
     glob_t globs;
     int err = glob(pattern.c_str(), GLOB_TILDE | GLOB_MARK, NULL, &globs);
     if (err)
@@ -211,39 +162,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
 
     for (size_t i = 0; i < globs.gl_pathc; i++)
         if (std::regex_match(globs.gl_pathv[i], reg))   //For each input file which matches the regex
-        {
-            std::string name = globs.gl_pathv[i];
-
-            //Open the file and create the associated layers
-            auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
-            auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
-            //TODO: There could be a problem with excessive amounts of open files
-            file.emplace_back(std::make_unique<FileDesc>());
-            auto & f = file.back();
-            f->ifc = std::make_unique<File::ReadSEGY>(piol, name, obj);
-
-            //Perform and store the decomposition
-            auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
-            f->lst.resize(dec.second);
-            f->offset = dec.first;
-            auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
-            fmap[key].emplace_back(f.get());
-            offmap[key] = 0U;
-        }
-
-    for (auto & f : file)
-    {
-        //TODO: This could be replaced with a function
-        auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
-        size_t loff = 0;    //The local process's offset into the file.
-        for (size_t i = 0; i < piol->comm->getRank(); i++)
-            loff += sizes[i];
-
-        auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
-        auto & off = offmap[key];
-        std::iota(f->lst.begin(), f->lst.end(), off + loff);
-        off += f->ifc->readNt();
-    }
+            add(globs.gl_pathv[i]);
 
     globfree(&globs);
     piol->isErr();
@@ -261,8 +180,7 @@ size_t InternalSet::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-        for (auto & l : f->lst)
-            nt += (l != NOT_IN_OUTPUT);
+        nt += f->olst.size();
     return nt;
 }
 
@@ -292,20 +210,14 @@ void InternalSet::sort(File::Compare<File::Param> func)
 {
     for (auto & o : fmap)   //Per target output file
     {
-        //TODO: replace these 4 lines with a function call
         size_t lsnt = 0U;
         for (auto & f : o.second)
-            for (auto & l : f->lst)
-                lsnt += (l != NOT_IN_OUTPUT);
+            lsnt += f->olst.size();
+        size_t off = piol->comm->offset(lsnt);
 
-        //TODO: Replace with function call(s)
-        auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
-        size_t off = 0U;
-        for (size_t i = 0; i < piol->comm->getRank(); i++)
-            off += sizes[i];
-        size_t nt = off;
-        for (size_t i = piol->comm->getRank(); i < piol->comm->getNumRank(); i++)
-            nt += sizes[i];
+        size_t nt = 0U;
+        for (auto & f : o.second)
+            nt += f->ifc->readNt();
 
         if (nt < 3U * piol->comm->getNumRank()) //TODO: It will eventually be necessary to support this use case.
         {
@@ -321,27 +233,22 @@ void InternalSet::sort(File::Compare<File::Param> func)
             size_t c = 0;
             for (auto & f : o.second)
             {
-                std::vector<size_t> list;
-                for (size_t i = 0; i < f->lst.size(); i++)
-                    if (f->lst[i] != NOT_IN_OUTPUT)
-                        list.push_back(f->offset + i);
-
-                f->ifc->readParam(list.size(), list.data(), &prm, loff);
-                for (size_t i = 0; i < list.size(); i++)
+                f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm, loff);
+                for (size_t i = 0; i < f->ilst.size(); i++)
                 {
                     setPrm(loff+i, Meta::gtn, off + loff + i, &prm);
-                    setPrm(loff+i, Meta::ltn, list[i] * o.second.size() + c, &prm);
+                    setPrm(loff+i, Meta::ltn, f->ilst[i] * o.second.size() + c, &prm);
                 }
                 c++;
-                loff += list.size();
+                loff += f->ilst.size();
             }
 
             auto trlist = File::sort(piol.get(), &prm, func);
             size_t j = 0;
             for (auto & f : o.second)
-                for (auto & l : f->lst)
-                    if (l != NOT_IN_OUTPUT)
-                        l = trlist[j++];
+#warning do a copy instead
+                for (auto & l : f->olst)
+                    l = trlist[j++];
         }
     }
 }
@@ -383,7 +290,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
 
 void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
 {
-    minmax[0].val = std::numeric_limits<geom_t>::max();
+/*    minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
     minmax[2].val = std::numeric_limits<geom_t>::max();
     minmax[3].val = std::numeric_limits<geom_t>::min();
@@ -394,26 +301,24 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
 
     for (auto & f : file)
     {
-        std::vector<size_t> l;
-        for (size_t i = 0; i < f->lst.size(); i++)
-            if (f->lst[i] != NOT_IN_OUTPUT)
-                l.push_back(f->offset + i);
-
         std::vector<File::Param> vprm;
-        File::Param prm(rule, l.size());
-        f->ifc->readParam(l.size(), l.data(), &prm);
+        File::Param prm(rule, f->ilst.size());
+        f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm);
 
-        for (size_t i = 0; i < l.size(); i++)
+        for (size_t i = 0; i < f->ilst.size(); i++)
         {
             vprm.emplace_back(rule, 1U);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
-        File::getMinMax(piol.get(), f->offset, l.size(), vprm.data(), xlam, ylam, tminmax);
+*/
+#warning Minmax can't assume ordered data! Fix this!
+/*
+        File::getMinMax(piol.get(), f->offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
         for (size_t i = 0U; i < 2U; i++)
         {
             updateElem<std::less<geom_t>>(&tminmax[2U*i], &minmax[2U*i]);
             updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
         }
-    }
+    }*/
 }
 }

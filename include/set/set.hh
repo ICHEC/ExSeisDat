@@ -22,10 +22,8 @@ namespace PIOL {
 struct FileDesc
 {
     std::unique_ptr<File::ReadInterface> ifc;   //!< The file interface
-    size_t offset;                              //!< Local offset into the file
-
-    //TODO: Temporary approach. This approach will NEED to be optimised in certain cases since it keeps pointless traces
-    std::vector<size_t> lst;                    //!< The size of this corresponds to the local decomposition
+    std::vector<size_t> ilst;                    //!< The size of this corresponds to the local decomposition
+    std::vector<size_t> olst;                    //!< The size of this corresponds to the local decomposition
 };
 
 typedef std::function<void(File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
@@ -42,6 +40,7 @@ class InternalSet
     std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;   //!< A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, size_t> offmap;                 //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                                   //!< Contains a pointer to the Rules for parameters
+
     Mod modify = [] (File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
 
     /*! Fill the file descriptors using the given pattern
