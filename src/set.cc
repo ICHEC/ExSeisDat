@@ -46,6 +46,48 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f, Mod modify,
                                         File::WriteInterface * out)
 {
+/*    std::vector<std::pair<OpOpt, Mod>> func;
+    for (size_t i = 0; i < func.size(); i++)
+    {
+        OpOpt & opt = func[i].first;
+//First implementation: Read everything!
+
+        for (size_t j = 0; j < 
+            f->readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip);
+
+            File::Param prm(lsnt);
+            size_t loff = 0;
+            size_t c = 0;
+            for (auto & f : o.second)
+            {
+                f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm, loff);
+                for (size_t i = 0; i < f->ilst.size(); i++)
+                {
+                    setPrm(loff+i, Meta::gtn, off + loff + i, &prm);
+                    setPrm(loff+i, Meta::ltn, f->ilst[i] * o.second.size() + c, &prm);
+                }
+                c++;
+                loff += f->ilst.size();
+            }
+
+            auto trlist = File::sort(piol.get(), &prm, func);
+
+            size_t j = 0;
+            for (auto & f : o.second)
+#warning do a copy instead
+                for (auto & l : f->olst)
+                    l = trlist[j++];
+
+
+
+
+
+    }
+*/
+
+
+
+
     File::ReadInterface * in = f->ifc.get();
 
     size_t lnt = f->ilst.size();

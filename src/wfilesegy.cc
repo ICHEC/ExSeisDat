@@ -122,14 +122,6 @@ void WriteSEGY::writeNs(csize_t ns_)
 
 void WriteSEGY::writeNt(csize_t nt_)
 {
-#ifdef NT_LIMITS
-    if (nt_ > NT_LIMITS)
-    {
-        const std::string msg = "nt_ beyond limited size: "  + std::to_string(NT_LIMITS) + " in writeNt()";
-        piol->log->record(name, Log::Layer::File, Log::Status::Error, msg, Log::Verb::None);
-    }
-#endif
-
     if (nt != nt_)
     {
         nt = nt_;
@@ -156,15 +148,6 @@ void WriteSEGY::writeInc(const geom_t inc_)
 
 void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, csize_t skip)
 {
-    #ifdef NT_LIMITS
-    if (sz+offset > NT_LIMITS)
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeTrace() was called with an implied write of an nt value that is too large", Log::Verb::None);
-        return;
-    }
-    #endif
-
     uchar * buf = reinterpret_cast<uchar *>(trace);
 
     //TODO: Check cache effects doing both of these loops the other way.
@@ -194,14 +177,6 @@ void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Pa
 
 void WriteSEGY::writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip)
 {
-    #ifdef NT_LIMITS
-    if (sz+offset > NT_LIMITS)
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
-        return;
-    }
-    #endif
     if (!sz)   //Nothing to be written.
     {
         obj->writeDOMD(0, 0, size_t(0), nullptr);
@@ -250,19 +225,6 @@ void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const 
 
 void WriteSEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip)
 {
-    #ifdef NT_LIMITS
-    size_t max = 0;
-    for (size_t i = 0; i < sz; i++)
-        max = std::max(offset[i], max);
-
-    if (sz+max > NT_LIMITS)
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
-        return;
-    }
-    #endif
-
     if (!sz)   //Nothing to be written.
     {
         obj->writeDOMD(0, 0, nullptr, nullptr);

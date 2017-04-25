@@ -200,6 +200,7 @@ TEST_F(SetTest, SortSrcXRcvY)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::SrcRcv);
+    piol->isErr();
 
     for (size_t i = 0; i < set->file.size(); i++)
     {

@@ -11,9 +11,6 @@ GCOMP=g++
 
 include ../compiler.cfg
 
-#INC_FOLDER=-I../include -I../api $(LOCAL_INC_FOLDER)
-# CXXFLAGS=$(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
-
 DEP=depend
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))

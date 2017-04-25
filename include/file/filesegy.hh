@@ -73,10 +73,6 @@ class ReadSEGY : public ReadInterface
     void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const;
 
     void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const;
-
-    void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const;
-
-    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const;
 };
 /*! The SEG-Y implementation of the file layer
  */

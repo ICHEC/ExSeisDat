@@ -73,74 +73,78 @@ size_t ReadSEGY::readNt(void)
 void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, csize_t skip) const
 {
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
-    uchar * buf = reinterpret_cast<uchar *>(trace);
-
-    if (prm == PARAM_NULL)
-        obj->readDODF(offset, ns, ntz, buf);
+    if (trace == TRACE_NULL)
+    {
+        std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+        obj->readDOMD(offset, ns, ntz, buf.data());
+        extractParam(ntz, buf.data(), prm, 0U, skip);
+    }
     else
     {
-        std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
-        obj->readDO(offset, ns, ntz, dobuf.data());
+        uchar * tbuf = reinterpret_cast<uchar *>(trace);
+        if (prm == PARAM_NULL)
+            obj->readDODF(offset, ns, ntz, tbuf);
+        else
+        {
+            std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+            obj->readDO(offset, ns, ntz, dobuf.data());
 
-        if (ntz)
+            for (size_t i = 0; i < sz; i++)
+                std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
+                            &tbuf[i * SEGSz::getDFSz(ns)]);
+
             extractParam(ntz, dobuf.data(), prm, SEGSz::getDFSz(ns), skip);
+        }
 
-        for (size_t i = 0; i < ntz; i++)
-            std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
-                      buf + i * SEGSz::getDFSz(ns));
+        if (trace != NULL)
+        {
+            if (format == Format::IBM)
+                for (size_t i = 0; i < ns * ntz; i ++)
+                    trace[i] = convertIBMtoIEEE(trace[i], true);
+            else
+                for (size_t i = 0; i < ns * ntz; i++)
+                    reverse4Bytes(&tbuf[i*sizeof(float)]);
+        }
     }
-    if (format == Format::IBM)
-        for (size_t i = 0; i < ns * ntz; i ++)
-            trace[i] = convertIBMtoIEEE(trace[i], true);
-    else
-        for (size_t i = 0; i < ns * ntz; i++)
-            reverse4Bytes(&buf[i*sizeof(float)]);
-}
-
-//TODO: Unit test
-void ReadSEGY::readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const
-{
-    if (offset >= nt && sz)   //Nothing to be read.
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readParam() was called for a zero byte read", Log::Verb::None);
-        return;
-    }
-
-    //Don't process beyond end of file if we can
-    size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
-
-    std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
-    obj->readDOMD(offset, ns, ntz, buf.data());
-
-    if (prm != nullptr && ntz)
-        extractParam(ntz, buf.data(), prm, 0, skip);
 }
 
 void ReadSEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const
 {
-    uchar * buf = reinterpret_cast<uchar *>(trace);
-    if (prm == PARAM_NULL)
-        obj->readDODF(ns, sz, offset, buf);
+    if (trace == TRACE_NULL)
+    {
+        std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+        obj->readDOMD(ns, sz, offset, buf.data());
+        extractParam(sz, buf.data(), prm, 0U, skip);
+    }
     else
     {
-        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
-        obj->readDO(ns, sz, offset, dobuf.data());
-
-        if (sz)
+        uchar * tbuf = reinterpret_cast<uchar *>(trace);
+        if (prm == PARAM_NULL)
+            obj->readDODF(ns, sz, offset, tbuf);
+        else
+        {
+            std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+            obj->readDO(ns, sz, offset, dobuf.data());
             extractParam(sz, dobuf.data(), prm, SEGSz::getDFSz(ns), skip);
 
-        for (size_t i = 0; i < sz; i++)
-            std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
-                      buf + i * SEGSz::getDFSz(ns));
-    }
+            for (size_t i = 0; i < sz; i++)
+                std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
+                          &tbuf[i * SEGSz::getDFSz(ns)]);
+        }
 
-    if (format == Format::IBM)
-        for (size_t i = 0; i < ns * sz; i ++)
-            trace[i] = convertIBMtoIEEE(trace[i], true);
-    else
-        for (size_t i = 0; i < ns * sz; i++)
-            reverse4Bytes(&buf[i*sizeof(float)]);
+        if (trace != NULL)
+        {
+            if (format == Format::IBM)
+                for (size_t i = 0; i < ns * sz; i ++)
+                    trace[i] = convertIBMtoIEEE(trace[i], true);
+            else
+            {
+                uchar * buf = reinterpret_cast<uchar *>(trace);
+                for (size_t i = 0; i < ns * sz; i++)
+                    reverse4Bytes(&buf[i*sizeof(float)]);
+            }
+        }
+    }
 }
 
 void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const
@@ -165,20 +169,6 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, P
         cpyPrm(n, &sprm, skip + idx[j], prm);
         for (size_t k = 0; k < ns; k++)
             trace[idx[j]*ns + k] = strace[n*ns + k];
-    }
-}
-
-void ReadSEGY::readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const
-{
-//TODO: Is it useful to check if all the offsets are greater than nt?
-    if (!sz)   //Nothing to be written.
-        obj->readDOMD(0, 0, nullptr, nullptr);
-    else
-    {
-        std::vector<uchar> buf(SEGSz::getMDSz() * sz);
-        obj->readDOMD(ns, sz, offset, buf.data());
-        if (prm != nullptr)
-            extractParam(sz, buf.data(), prm, 0U, skip);
     }
 }
 }}

@@ -13,6 +13,7 @@
 #include "share/param.hh"
 
 namespace PIOL { namespace File {
+extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
 extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
@@ -81,7 +82,15 @@ class ReadInterface
      *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    virtual void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const = 0;
+    void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const;
+
+    /*! \brief Read the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read.
+     *  \param[out] prm A parameter structure
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
+     */
+    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const;
 
     /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -113,14 +122,6 @@ class ReadInterface
      *  \details When prm==PARAM_NULL only the trace DF is read.
      */
     virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
-
-    /*! \brief Read the traces specified by the offsets in the passed offset array.
-     *  \param[in] sz The number of traces to process
-     *  \param[in] offset An array of trace numbers to read.
-     *  \param[out] prm A parameter structure
-     *  \param[in] skip When reading, skip the first "skip" entries of prm
-     */
-    virtual void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const = 0;
 };
 
 /*! \brief The File layer interface. Specific File implementations

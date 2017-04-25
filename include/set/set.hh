@@ -41,7 +41,27 @@ class InternalSet
     std::map<std::pair<size_t, geom_t>, size_t> offmap;                 //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                                   //!< Contains a pointer to the Rules for parameters
 
+    struct OpOpt
+    {
+        size_t NeedMeta : 1;
+        size_t NeedTrcVal : 1;
+        size_t ModTrcVal : 1;
+        size_t DelTrc : 1;
+        size_t AddTrc : 1;
+        size_t DepTrcCnt : 1;
+        size_t ReorderTrc : 1;
+        size_t DepOrderTrc : 1;
+        size_t DepMeta : 1;
+        size_t RotCoord : 1;
+        size_t DepCoordRot : 1;
+        size_t AllTraces : 1;
+        size_t OwnIO : 1;
+        size_t SubSetOnly : 1;
+    };
+
     Mod modify = [] (File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
+
+    std::vector<std::pair<OpOpt, Mod>> func;
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
