@@ -416,11 +416,8 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
         }
     }
 }
-void InternalSet::taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
-{
-  mod(taperRun(nt, ns, trc, func, ntpstr, ntpend);
-}
-void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
+
+void taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
 {
     for (size_t i=0; i < nt; i++)
     {
@@ -446,6 +443,7 @@ void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<floa
  	  }
       }
 }
+  /*
 void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr)
 {
     for (size_t i=0; i < nt; i++)
@@ -465,5 +463,11 @@ void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<floa
 	    }
         }
     }
-}
+    }*/
+  void InternalSet::taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
+  {
+    auto taperfix = [taperRun, nt, ns, func, ntpstr, ntpend](float * t){taperRun(nt, ns, t, func, ntpstr, ntpend);};
+    Mod modify_ = [ taperfix ] (File::Param * p, float  * t ) {taperfix(t);};
+    mod(modify_);
+  }
 }
