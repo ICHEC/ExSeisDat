@@ -21,11 +21,11 @@ inline void MPIErr(int err)
  *             across all processes.
  *  \param[in] coords2 The coordinates for each trace in file 2. The coordinates should be distributed
  *             across all processes.
+ *  \param[in] opt Options
  *  \param[out] min After the function is called this vector will contain in the entry for each trace
  *             the minimum trace. A minimum trace may not be present if the only acceptable trace was more than dsrmax
  *             away.
  *  \param[out] minrs The dsr value associated with the trace match in min.
- *  \param[in] opt Options
  */
 extern void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * coords1, const Coords * coords2,
                                          const FourDOpt opt, vec<size_t> & min, vec<fourd_t> & minrs);

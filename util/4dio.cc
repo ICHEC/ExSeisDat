@@ -67,7 +67,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
     //Unfortunately shared pointers make things ugly in C++.
     //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
-#warning use option to make il/xl optional
+    //TODO: use option to make il/xl optional
     auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
@@ -101,7 +101,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     for (size_t i = 0; i < extra; i++)
         file.readParam(0U, nullptr, nullptr);
 
-    piol->comm->barrier();
+    piol->comm->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
     return std::move(coords);
