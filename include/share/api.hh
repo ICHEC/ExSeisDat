@@ -24,6 +24,7 @@ enum class Meta : int
 typedef enum
 #endif
 {
+    Copy,       //!< Copy all headers. Don't interpret them.
     ltn,        //!< Local trace number.
     gtn,        //!< Global trace number.
     tnl,        //!< The trace number (line)

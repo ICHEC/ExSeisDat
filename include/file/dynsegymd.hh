@@ -62,6 +62,7 @@ enum class Tr : size_t
     ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
     ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
     TransConst  = 205U, //!< int32_t. The transduction constant.
+    TransCLower = 207U, //!< int16_t. The lower half of TransConst.
     TransExp    = 209U, //!< int16_t. The transduction exponent.
     TransUnit   = 211U, //!< int16_t. The transduction units
     TimeScal    = 215U, //!< int16_t. Scalar for time measurements.
@@ -96,6 +97,7 @@ enum class MdType : size_t
     Short,  //!< Short int data
     Float,  //!< Floating point data
     Index,  //!< For indexing purposes
+    Copy    //!< Copy all relevant headers. Not file format agnostic.
 };
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -167,6 +169,42 @@ struct SEGYLongRuleEntry : public RuleEntry
     MdType type(void)
     {
         return MdType::Long;
+    }
+};
+
+/*! The Long rule entry structure for the SEG-Y format.
+ */
+struct SEGYCopyRuleEntry : public RuleEntry
+{
+    /*! The constructor.
+     *  \param[in] num_ The numth entry for indexing purposes
+     *  \param[in] loc_  The location of the primary data
+     */
+    SEGYCopyRuleEntry(void) : RuleEntry(0U, 0U) { }
+
+    /*! Return the minimum location stored, i.e loc
+     *  just loc
+     *  \return the minimum location
+     */
+    size_t min(void)
+    {
+        return 0U;
+    }
+
+    /*! Return the maximum location stored up to, including the size of the data stored
+     *  \return the maximum location plus 4 bytes to store an int32_t
+     */
+    size_t max(void)
+    {
+        return 240U;
+    }
+
+    /*! Return the datatype associated with the entry.
+     *  \return \c MdType::Long
+     */
+    MdType type(void)
+    {
+        return MdType::Copy;
     }
 };
 
@@ -297,6 +335,7 @@ struct Rule
     size_t numFloat;        //!< Number of float rules.
     size_t numShort;        //!< Number of short rules.
     size_t numIndex;        //!< Number of index rules.
+    size_t numCopy;         //!< Number of copy rules. either 0 or 1.
     size_t start;           //!< The starting byte position in the SEG-Y header.
     size_t end;             //!< The end byte position (+ 1) in the SEG-Y header.
     struct

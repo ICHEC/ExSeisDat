@@ -109,11 +109,21 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
 {
     auto time = MPI_Wtime();
     //Enable as many of the parameters as possible
-    auto rule = std::make_shared<File::Rule>(true, true, true);
+    //auto rule = std::make_shared<File::Rule>(true, true, true);
+
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy});
+
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
-    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+    if (printDsr)
+        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+
+/*    rule->addLong(Meta::Misc1, File::Tr::TORF);
+    rule->addShort(Meta::Misc2, File::Tr::ShotNum);
+    rule->addShort(Meta::Misc3, File::Tr::ShotScal);
+    rule->addShort(Meta::Misc4, File::Tr::TransCLower);
+    rule->rmRule(Meta::ShotNum);*/
 
     File::ReadDirect src(piol, sname);
     File::WriteDirect dst(piol, dname);
@@ -164,6 +174,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 
+    piol->comm->barrier();
     cmsg(piol.get(), "Output " + sname + " to " + dname + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 }
 }}
