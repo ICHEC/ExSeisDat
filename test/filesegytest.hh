@@ -277,7 +277,7 @@ struct FileReadSEGYTest : public Test
                 .Times(Exactly(1))
                 .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        file->readTraceNonMono(tn, offset.data(),  const_cast<trace_t *>(File::TRACE_NULL), &prm);
+        file->readTraceNonMono(tn, offset.data(), const_cast<trace_t *>(File::TRACE_NULL), &prm);
 
         for (size_t i = 0; i < tn; i++)
         {

@@ -124,7 +124,6 @@ void InternalSet::add(std::string name)
     add(std::move(in));
 }
 
-//TODO: Combine this with fillDesc?
 void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
 {
     file.emplace_back(std::make_unique<FileDesc>());
@@ -160,22 +159,6 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
 
     globfree(&globs);
     piol->isErr();
-}
-
-size_t InternalSet::getInNt(void)
-{
-    size_t nt = 0U;
-    for (auto & f : file)
-        nt += f->ifc->readNt();
-    return nt;
-}
-
-size_t InternalSet::getLNt(void)
-{
-    size_t nt = 0U;
-    for (auto & f : file)
-        nt += f->olst.size();
-    return nt;
 }
 
 void InternalSet::summary(void) const
@@ -240,11 +223,25 @@ void InternalSet::sort(File::Compare<File::Param> func)
             auto trlist = File::sort(piol.get(), &prm, func);
             size_t j = 0;
             for (auto & f : o.second)
-#warning do a copy instead
-                for (auto & l : f->olst)
-                    l = trlist[j++];
+            {
+                std::copy(&trlist[j], &trlist[j + f->olst.size()], f->olst.begin());
+                j += f->olst.size();
+            }
         }
     }
+}
+
+std::unique_ptr<File::WriteInterface> makeSEGYFile(Piol piol, std::string name, csize_t ns, const geom_t inc, const std::string text)
+{
+    auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);
+    auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Write);
+    auto out = std::make_unique<File::WriteSEGY>(piol, name, obj);
+
+    out->writeNs(ns);
+    out->writeInc(inc);
+    out->writeText(text);
+
+    return std::move(out);
 }
 
 std::vector<std::string> InternalSet::output(std::string oname)
@@ -260,13 +257,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
             name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
         names.push_back(name);
 
-        auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);
-        auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Write);
-        auto out = std::make_unique<File::WriteSEGY>(piol, name, obj);
-
-        out->writeNs(o.first.first);
-        out->writeInc(o.first.second);
-        out->writeText(outmsg);
+        std::unique_ptr<File::WriteInterface> out = makeSEGYFile(piol, name, ns, o.first.second, outmsg);
 
         //Assume the process can hold the list
         const size_t memlim = 2U*1024U*1024U*1024U;

@@ -400,16 +400,6 @@ void sortSet(ExSeisSet s, SortType type)
     s->set->sort(type);
 }
 
-size_t getInNt(ExSeisSet s)
-{
-    return s->set->getInNt();
-}
-
-size_t getLNtSet(ExSeisSet s)
-{
-    return s->set->getLNt();
-}
-
 void outputSet(ExSeisSet s, const char * oname)
 {
     s->set->output(oname);

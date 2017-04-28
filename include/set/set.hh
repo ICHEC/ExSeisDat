@@ -94,16 +94,6 @@ class InternalSet
      */
     void sort(File::Compare<File::Param> func);
 
-    /*! The number of traces in the input files
-     *  \return The number of traces in the input files
-     */
-    size_t getInNt(void);
-
-    /*! The number of traces associated with the local process
-     *  \return The number of traces associated with the local process
-     */
-    size_t getLNt(void);
-
     /*! Output using the given output prefix
      *  \param[in] oname The output prefix
      *  \return Return a vector of the actual output names.

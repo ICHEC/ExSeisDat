@@ -234,7 +234,11 @@ TEST_F(SetTest, getActive)
 {
     init(1, 1000U, 10);
 
-    EXPECT_EQ(set->getInNt(), 1000U);
+    size_t nt = 0U;
+    for (auto & f : set->file)
+        nt += f->ifc->readNt();
+    EXPECT_EQ(nt, 1000U);
+
     //EXPECT_EQ(set->getLNt(), 1000U - 10U);
 }
 
@@ -242,7 +246,10 @@ TEST_F(SetTest, getActive2)
 {
     init(1, 3333, 1111);
 
-    EXPECT_EQ(set->getInNt(), 3333U);
+    size_t nt = 0U;
+    for (auto & f : set->file)
+        nt += f->ifc->readNt();
+    EXPECT_EQ(nt, 3333U);
     //EXPECT_EQ(set->getLNt(), 2222U);
 }
 
@@ -250,6 +257,9 @@ TEST_F(SetTest, getActive3)
 {
     init(2, 3333, 1111);
 
-    EXPECT_EQ(set->getInNt(), 2U*3333U);
+    size_t nt = 0U;
+    for (auto & f : set->file)
+        nt += f->ifc->readNt();
+    EXPECT_EQ(nt, 2U*3333U);
     //EXPECT_EQ(set->getLNt(), 2U*2222U);
 }

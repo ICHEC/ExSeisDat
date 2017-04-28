@@ -159,12 +159,18 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, P
                                             (prm != PARAM_NULL ? &sprm : prm), 0U);
 
     if (prm != PARAM_NULL)
-        for (size_t n = 0, j = 0; j < sz; ++j, n += offset[idx[j-1]] != offset[idx[j]])
+        for (size_t n = 0, j = 0; j < sz; ++j)
+        {
+            n += (j && offset[idx[j-1]] != offset[idx[j]]);
             cpyPrm(n, &sprm, skip + idx[j], prm);
+        }
 
     if (trace != TRACE_NULL)
-        for (size_t n = 0, j = 0; j < sz; ++j, n += offset[idx[j-1]] != offset[idx[j]])
+        for (size_t n = 0, j = 0; j < sz; ++j)
+        {
+            n += (j && offset[idx[j-1]] != offset[idx[j]]);
             for (size_t k = 0; k < ns; k++)
                 trace[idx[j]*ns + k] = strace[n*ns + k];
+        }
 }
 }}
