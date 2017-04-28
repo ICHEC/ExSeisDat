@@ -46,44 +46,6 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
 void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f, Mod modify,
                                         File::WriteInterface * out)
 {
-/*    std::vector<std::pair<OpOpt, Mod>> func;
-    for (size_t i = 0; i < func.size(); i++)
-    {
-        OpOpt & opt = func[i].first;
-//First implementation: Read everything!
-
-        for (size_t j = 0; j < 
-            f->readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip);
-
-            File::Param prm(lsnt);
-            size_t loff = 0;
-            size_t c = 0;
-            for (auto & f : o.second)
-            {
-                f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm, loff);
-                for (size_t i = 0; i < f->ilst.size(); i++)
-                {
-                    setPrm(loff+i, Meta::gtn, off + loff + i, &prm);
-                    setPrm(loff+i, Meta::ltn, f->ilst[i] * o.second.size() + c, &prm);
-                }
-                c++;
-                loff += f->ilst.size();
-            }
-
-            auto trlist = File::sort(piol.get(), &prm, func);
-
-            size_t j = 0;
-            for (auto & f : o.second)
-#warning do a copy instead
-                for (auto & l : f->olst)
-                    l = trlist[j++];
-
-
-
-
-
-    }
-*/
     File::ReadInterface * in = f->ifc.get();
 
     size_t lnt = f->ilst.size();
@@ -171,20 +133,14 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
 
     auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
     f->ilst.resize(dec.second);
-    std::iota(f->ilst.begin(), f->ilst.end(), dec.first);
-
     f->olst.resize(dec.second);
+    std::iota(f->ilst.begin(), f->ilst.end(), dec.first);
 
     auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
     fmap[key].emplace_back(f.get());
 
-    auto sizes = piol->comm->gather(std::vector<size_t>{dec.second});
-    size_t loff = 0U;    //The local process's offset into the file.
-    for (size_t i = 0U; i < piol->comm->getRank(); i++)
-        loff += sizes[i];
-
     auto & off = offmap[key];
-    std::iota(f->olst.begin(), f->olst.end(), off + loff);
+    std::iota(f->olst.begin(), f->olst.end(), off + dec.first);
     off += f->ifc->readNt();
 }
 

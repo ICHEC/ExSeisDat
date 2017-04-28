@@ -37,7 +37,7 @@ class MockFile : public File::ReadInterface
 
 ACTION_P(cpyprm, src)
 {
-   *arg2 = *src;
+   *arg3 = *src;
 }
 
 struct SetTest : public Test
@@ -104,7 +104,7 @@ struct SetTest : public Test
                             setPrm(l, Meta::tn, l+dec.first, tprm);
                             setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                         }
-                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
+                    EXPECT_CALL(*mock, readTrace(dec.second, An<csize_t *>(), _, _, 0))
                                                 .Times(Exactly(srtCnt))
                                                 .WillRepeatedly(cpyprm(&prm.back()));
 
