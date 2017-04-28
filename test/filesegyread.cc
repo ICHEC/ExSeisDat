@@ -71,6 +71,13 @@ TEST_F(FileSEGYRead, FileReadFileTrs)
     initReadTrHdrsMock(ns, nt);
 }
 
+TEST_F(FileSEGYRead, FileReadFileTrsRandom)
+{
+    makeMockSEGY();
+    initTrBlock();
+    initRandReadTrHdrsMock(ns, nt);
+}
+
 TEST_F(FileSEGYRead, FileReadTraceBigNS)
 {
     nt = 100;

@@ -1,6 +1,8 @@
 #include <iconv.h>
 #include <string.h>
 #include <memory>
+#include <random>
+#include <algorithm>
 #include <typeinfo>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -236,11 +238,11 @@ struct FileReadSEGYTest : public Test
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
     {
-        EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
-                    .Times(Exactly(1))
-                    .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
-
         File::Param prm(tn);
+        EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
+                .Times(Exactly(1))
+                .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+
         file->readParam(0, tn, &prm);
 
         for (size_t i = 0; i < tn; i++)
@@ -257,6 +259,40 @@ struct FileReadSEGYTest : public Test
             {
                 ASSERT_FLOAT_EQ(xNum(i), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
                 ASSERT_FLOAT_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            }
+        }
+    }
+
+    void initRandReadTrHdrsMock(size_t ns, size_t tn)
+    {
+        File::Param prm(tn);
+        std::vector<size_t> offset(tn);
+        std::iota(offset.begin(), offset.end(), 0);
+
+        std::random_device rand;
+        std::mt19937 mt(rand());
+        std::shuffle(offset.begin(), offset.end(), mt);
+
+        EXPECT_CALL(*mock.get(), readDOMD(ns, tn, A<csize_t *>(), _))
+                .Times(Exactly(1))
+                .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+
+        file->readTraceNonMono(tn, offset.data(),  const_cast<trace_t *>(File::TRACE_NULL), &prm);
+
+        for (size_t i = 0; i < tn; i++)
+        {
+            ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm));
+            ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm));
+
+            if (sizeof(geom_t) == sizeof(double))
+            {
+                ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            }
+            else
+            {
+                ASSERT_FLOAT_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_FLOAT_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
             }
         }
     }

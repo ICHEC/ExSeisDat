@@ -45,6 +45,9 @@ class ReadSEGY : public ReadInterface
      */
     void procHeader(csize_t fsz, uchar * buf);
 
+    void procTrace(size_t sz, std::function<size_t(size_t)> off, const std::vector<uchar> & buf,
+                   trace_t * trace, Param * prm, csize_t skip) const;
+
     /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
      */

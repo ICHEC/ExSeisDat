@@ -84,10 +84,6 @@ void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t
 
     }
 */
-
-
-
-
     File::ReadInterface * in = f->ifc.get();
 
     size_t lnt = f->ilst.size();
@@ -332,7 +328,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
 
 void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
 {
-/*    minmax[0].val = std::numeric_limits<geom_t>::max();
+    minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
     minmax[2].val = std::numeric_limits<geom_t>::max();
     minmax[3].val = std::numeric_limits<geom_t>::min();
@@ -345,6 +341,7 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     {
         std::vector<File::Param> vprm;
         File::Param prm(rule, f->ilst.size());
+
         f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm);
 
         for (size_t i = 0; i < f->ilst.size(); i++)
@@ -352,15 +349,14 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
             vprm.emplace_back(rule, 1U);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
-*/
 #warning Minmax can't assume ordered data! Fix this!
-/*
-        File::getMinMax(piol.get(), f->offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
+        size_t offset = piol->comm->offset(f->ilst.size());
+        File::getMinMax(piol.get(), offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
         for (size_t i = 0U; i < 2U; i++)
         {
             updateElem<std::less<geom_t>>(&tminmax[2U*i], &minmax[2U*i]);
             updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
         }
-    }*/
+    }
 }
 }

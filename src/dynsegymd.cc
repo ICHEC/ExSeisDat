@@ -62,6 +62,8 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
 
     //TODO: Change this when extents are flexible
     flag.fullextent = full;
+    translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
+    translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
 
     for (auto m : mlist)
     {
@@ -104,12 +106,6 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
             case Meta::tn :
                 r = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
             break;
-            case Meta::gtn :
-                r = new SEGYIndexRuleEntry(numIndex++);
-            break;
-            case Meta::ltn :
-                r = new SEGYIndexRuleEntry(numIndex++);
-            break;
             default :
                 //TODO: More systematic approach required
                 std::cerr << "Metadata not supported for switch yet." << std::endl;
@@ -140,6 +136,8 @@ Rule::Rule(bool full, bool defaults, bool extra)
 
     flag.fullextent = full;
 
+    translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
+    translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
     if (defaults)
     {
         translate[Meta::xSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
@@ -152,8 +150,6 @@ Rule::Rule(bool full, bool defaults, bool extra)
         translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
         translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
         translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
-        translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
-        translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
     }
 
     if (extra)

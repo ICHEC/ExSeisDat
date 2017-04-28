@@ -105,8 +105,8 @@ struct SetTest : public Test
                             setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                         }
                     EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
-                                    .Times(Exactly(srtCnt))
-                                    .WillRepeatedly(cpyprm(&prm.back()));
+                                                .Times(Exactly(srtCnt))
+                                                .WillRepeatedly(cpyprm(&prm.back()));
 
                     set->add(std::move(mock));
                 }

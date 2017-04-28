@@ -11,6 +11,7 @@
 #include "object/object.hh"
 #include "file/iconv.hh"
 #include "share/misc.hh"
+
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 ReadSEGY::Opt::Opt(void)
@@ -70,81 +71,75 @@ size_t ReadSEGY::readNt(void)
     return nt;
 }
 
+void ReadSEGY::procTrace(size_t sz, std::function<size_t(size_t)> offset, const std::vector<uchar> & buf,
+                         trace_t * trace, Param * prm, csize_t skip) const
+{
+    uchar * tbuf = reinterpret_cast<uchar *>(trace);
+    if (prm != PARAM_NULL)
+    {
+        extractParam(sz, buf.data(), prm, (trace != TRACE_NULL ? SEGSz::getDFSz(ns) : 0U), skip);
+        for (size_t i = 0; i < sz; i++)
+            setPrm(i, Meta::ltn, offset(i), prm);
+    }
+
+    if (trace != NULL && trace != TRACE_NULL)
+    {
+        if (format == Format::IBM)
+            for (size_t i = 0; i < ns * sz; i ++)
+                trace[i] = convertIBMtoIEEE(trace[i], true);
+        else
+            for (size_t i = 0; i < ns * sz; i++)
+                reverse4Bytes(&tbuf[i*sizeof(float)]);
+    }
+}
+
+
 void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, csize_t skip) const
 {
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
+    std::vector<uchar> buf;
+    uchar * tbuf = reinterpret_cast<uchar *>(trace);
     if (trace == TRACE_NULL)
     {
-        std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+        buf.resize(SEGSz::getMDSz() * ntz);
         obj->readDOMD(offset, ns, ntz, buf.data());
-        extractParam(ntz, buf.data(), prm, 0U, skip);
     }
+    else if (prm == PARAM_NULL)
+        obj->readDODF(offset, ns, ntz, tbuf);
     else
     {
-        uchar * tbuf = reinterpret_cast<uchar *>(trace);
-        if (prm == PARAM_NULL)
-            obj->readDODF(offset, ns, ntz, tbuf);
-        else
-        {
-            std::vector<uchar> dobuf(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
-            obj->readDO(offset, ns, ntz, dobuf.data());
+        buf.resize(ntz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+        obj->readDO(offset, ns, ntz, buf.data());
 
-            for (size_t i = 0; i < sz; i++)
-                std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
-                            &tbuf[i * SEGSz::getDFSz(ns)]);
-
-            extractParam(ntz, dobuf.data(), prm, SEGSz::getDFSz(ns), skip);
-        }
-
-        if (trace != NULL)
-        {
-            if (format == Format::IBM)
-                for (size_t i = 0; i < ns * ntz; i ++)
-                    trace[i] = convertIBMtoIEEE(trace[i], true);
-            else
-                for (size_t i = 0; i < ns * ntz; i++)
-                    reverse4Bytes(&tbuf[i*sizeof(float)]);
-        }
+        for (size_t i = 0; i < ntz; i++)
+            std::copy(&buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &buf[(i+1) * SEGSz::getDOSz(ns)],
+                        &tbuf[i * SEGSz::getDFSz(ns)]);
     }
+    procTrace(ntz, [offset] (size_t i) -> size_t { return offset + i; }, buf, trace, prm, skip);
 }
 
 void ReadSEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const
 {
+    uchar * tbuf = reinterpret_cast<uchar *>(trace);
+    std::vector<uchar> buf;
     if (trace == TRACE_NULL)
     {
-        std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+        buf.resize(SEGSz::getMDSz() * sz);
         obj->readDOMD(ns, sz, offset, buf.data());
-        extractParam(sz, buf.data(), prm, 0U, skip);
     }
+    else if (prm == PARAM_NULL)
+        obj->readDODF(ns, sz, offset, tbuf);
     else
     {
-        uchar * tbuf = reinterpret_cast<uchar *>(trace);
-        if (prm == PARAM_NULL)
-            obj->readDODF(ns, sz, offset, tbuf);
-        else
-        {
-            std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
-            obj->readDO(ns, sz, offset, dobuf.data());
-            extractParam(sz, dobuf.data(), prm, SEGSz::getDFSz(ns), skip);
+        buf.resize(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
+        obj->readDO(ns, sz, offset, buf.data());
 
-            for (size_t i = 0; i < sz; i++)
-                std::copy(&dobuf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &dobuf[(i+1) * SEGSz::getDOSz(ns)],
-                          &tbuf[i * SEGSz::getDFSz(ns)]);
-        }
-
-        if (trace != NULL)
-        {
-            if (format == Format::IBM)
-                for (size_t i = 0; i < ns * sz; i ++)
-                    trace[i] = convertIBMtoIEEE(trace[i], true);
-            else
-            {
-                uchar * buf = reinterpret_cast<uchar *>(trace);
-                for (size_t i = 0; i < ns * sz; i++)
-                    reverse4Bytes(&buf[i*sizeof(float)]);
-            }
-        }
+        for (size_t i = 0; i < sz; i++)
+            std::copy(&buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()], &buf[(i+1) * SEGSz::getDOSz(ns)],
+                      &tbuf[i * SEGSz::getDFSz(ns)]);
     }
+
+    procTrace(sz, [offset] (size_t i) -> size_t { return offset[i]; }, buf, trace, prm, skip);
 }
 
 void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const
@@ -157,18 +152,19 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, P
         if (offset[idx[j-1]] != offset[idx[j]])
             nodups.push_back(offset[idx[j]]);
 
-    File::Param sprm(prm->r, nodups.size());
-    std::vector<trace_t> strace(ns * nodups.size());
+    File::Param sprm(prm->r, (prm != PARAM_NULL ? nodups.size() : 0U));
+    std::vector<trace_t> strace(ns * (trace != TRACE_NULL ? nodups.size() : 0U));
 
-    readTrace(nodups.size(), nodups.data(), strace.data(), &sprm, 0U);
+    readTrace(nodups.size(), nodups.data(), (trace != TRACE_NULL ? strace.data() : trace),
+                                            (prm != PARAM_NULL ? &sprm : prm), 0U);
 
-    size_t n = 0;
-    for (size_t j = 0; j < sz; j++)
-    {
-        n += (j && offset[idx[j-1]] != offset[idx[j]]);
-        cpyPrm(n, &sprm, skip + idx[j], prm);
-        for (size_t k = 0; k < ns; k++)
-            trace[idx[j]*ns + k] = strace[n*ns + k];
-    }
+    if (prm != PARAM_NULL)
+        for (size_t n = 0, j = 0; j < sz; ++j, n += offset[idx[j-1]] != offset[idx[j]])
+            cpyPrm(n, &sprm, skip + idx[j], prm);
+
+    if (trace != TRACE_NULL)
+        for (size_t n = 0, j = 0; j < sz; ++j, n += offset[idx[j-1]] != offset[idx[j]])
+            for (size_t k = 0; k < ns; k++)
+                trace[idx[j]*ns + k] = strace[n*ns + k];
 }
 }}
