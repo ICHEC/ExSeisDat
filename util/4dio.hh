@@ -89,7 +89,8 @@ extern std::unique_ptr<Coords> getCoords(Piol piol, std::string name);
  *  \param[in] sname The name of the source file.
  *  \param[in] list The list of traces to read from the input file in the order they should appear in the output file.
  *  \param[in] minrs The value of minrs which should be stored with the trace header of each trace.
+ *  \param[in] printDsr Print the dsdr value if true.
  */
-extern void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, bool printDsr);
+extern void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr);
 }}
 #endif

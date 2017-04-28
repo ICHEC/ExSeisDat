@@ -71,9 +71,10 @@ fourd_t hypot(const fourd_t x, const fourd_t y)
 
 /*! Create windows for one-sided communication of coordinates
  *  \param[in] crd The coordinate structure of arrays to open to RDMA.
+ *  \param[in] ixline The inline/crossline are included
  *  \return Return a vector of all the window values.
  */
-vec<MPI_Win> createCoordsWin(const Coords * crd, bool ixline)
+vec<MPI_Win> createCoordsWin(const Coords * crd, const bool ixline)
 {
     vec<MPI_Win> win(5);
     MPI_Info info;
@@ -103,6 +104,7 @@ vec<MPI_Win> createCoordsWin(const Coords * crd, bool ixline)
  *  \param[in] lrank The rank
  *  \param[in] sz The number of coordinates
  *  \param[in] win The vector of windows to access with.
+ *  \param[in] ixline The inline/crossline are included
  *  \return Return the associated Coords structure
  */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)

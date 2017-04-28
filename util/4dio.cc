@@ -109,7 +109,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, bool printDsr)
+void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
 {
     auto time = MPI_Wtime();
     //Enable as many of the parameters as possible

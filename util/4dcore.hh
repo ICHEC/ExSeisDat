@@ -7,6 +7,9 @@
  *//*******************************************************************************************/
 #include "4dio.hh"
 namespace PIOL { namespace FOURD {
+/*! Error check the mpi error value.
+ *  \param[in] err The mpi error value.
+ */
 inline void MPIErr(int err)
 {
     assert(err == MPI_SUCCESS);
