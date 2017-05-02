@@ -98,9 +98,9 @@ enum class TaperType : int
 typedef enum
 #endif
 {
-    Linear,  //!< Taper using a linear ramp
-    Cos,     //!< Taper using a cos ramp
-    CosSqr     //!< Taper using a cos^2 ramp
+    Linear,     //!< Taper using a linear ramp
+    Cos,        //!< Taper using a cos ramp
+    CosSqr      //!< Taper using a cos^2 ramp
 #ifdef __cplusplus
 };
 #else

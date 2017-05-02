@@ -12,7 +12,7 @@
 #include <iostream>
 namespace PIOL { namespace File {
 
-const double pi = M_PI;
+constexpr double pi = M_PI;
 
 std::function<trace_t(trace_t, trace_t)> getTap(TaperType type)
 {
