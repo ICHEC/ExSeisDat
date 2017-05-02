@@ -214,7 +214,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
         {
             std::string name = globs.gl_pathv[i];
 
-           //Open the file and create the associated layers
+            //Open the file and create the associated layers
             auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
             auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
             //TODO: There could be a problem with excessive amounts of open files
