@@ -261,7 +261,7 @@ size_t InternalSet::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-        for (auto & l : f->lst)
+      for (auto & l : f->lst)
             nt += (l != NOT_IN_OUTPUT);
     return nt;
 }
@@ -417,57 +417,40 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     }
 }
 
-void taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
+void taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt)
 {
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
-        size_t wtRt = ntpend;
+        size_t wtRt = nTailRt;
         for (size_t j=0; j<ns; j++)
         {
 	    if ((wtLft < 1 ) && (trc[i*ns+j] != 0)) 
 	    {
-	        trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
+	        trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(nTailLft));
                 ++wtLft;
             }
-            else if (wtLft < ntpstr)
+            else if (wtLft < nTailLft)
 	    {
-                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
+                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(nTailLft));
                 ++wtLft;
              }
-             else if ((ns-j) <= ntpend)
+             else if ((ns-j) <= nTailRt)
 	     {
 	         --wtRt;
-                 trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtRt), static_cast<float>(ntpend));
+                 trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtRt), static_cast<float>(nTailRt));
              }
  	  }
       }
 }
-  /*
-void InternalSet::taperRun(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr)
+void InternalSet::taper(size_t nt, size_t ns, std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt)
 {
-    for (size_t i=0; i < nt; i++)
-    {
-        size_t wtLft = 0;
-        for (size_t j=0; j<ns; j++)
-	{
-            if ((wtLft < 1 ) && (trc[i*ns+j] != 0))
-	    {
-                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
-                ++wtLft;
-	    }
-            else if (wtLft < ntpstr)
-	    {
-                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(ntpstr));
-                ++wtLft;
-	    }
-        }
-    }
-    }*/
-  void InternalSet::taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t ntpstr, size_t ntpend)
-  {
-    auto taperfix = [taperRun, nt, ns, func, ntpstr, ntpend](float * t){taperRun(nt, ns, t, func, ntpstr, ntpend);};
-    Mod modify_ = [ taperfix ] (File::Param * p, float  * t ) {taperfix(t);};
+    Mod modify_ = [this, nt, ns, func, nTailLft, nTailRt] (File::Param * p, float  * t ) {(taper(nt,ns,t,func, nTailLft, nTailRt));};
     mod(modify_);
-  }
+}
+void InternalSet::taper(size_t nt, size_t ns, std::function<float(float weight, float ramp)> func, size_t nTailLft)
+{
+    Mod modify_ = [this, nt, ns, func, nTailLft] (File::Param * p, float  * t ) {(taper(nt,ns,t,func, nTailLft,0));};
+    mod(modify_);
+}
 }

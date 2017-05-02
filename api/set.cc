@@ -33,12 +33,12 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
 
 }
 
-void Set::taper(size_t nt, size_t ns, float * trc, TaperType type, size_t ntpstr, size_t ntpend)
+void Set::taper(size_t nt, size_t ns, TaperType type, size_t nTailLft, size_t nTailRt)
 {
-    InternalSet::taper(nt, ns, trc, File::getTap(type), ntpstr, ntpend);  
+    InternalSet::taper(nt, ns, File::getTap(type), nTailLft, nTailRt);  
 }
-void Set::taper(size_t nt, size_t ns, float * trc, TaperType type, size_t ntpstr)
+void Set::taper(size_t nt, size_t ns, TaperType type, size_t nTailLft)
 {
-    InternalSet::taper(nt,ns,trc, File::getTap(type),ntpstr);
+    InternalSet::taper(nt, ns, File::getTap(type), nTailLft);
 }
 }

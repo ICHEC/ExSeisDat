@@ -71,7 +71,7 @@ const std::vector<size_t> sortOffLine = {
 void testRcvPattern(std::deque<std::unique_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
-    {
+   {
         size_t l = 1;
         for (size_t j = 1; j < file[i]->lst.size(); j++, l++)
             EXPECT_EQ(file[i]->lst[j] - 1, file[i]->lst[j-1]);
@@ -267,12 +267,17 @@ TEST_F(SetTest, Taper2TailLin)
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float)); 
     size_t nTailLft = 50;
     size_t nTailRt = 75;
+    File::Param * p = 0;
 
+    if (set.get() != nullptr)
+      set.release();
+    set = std::make_unique<Set>(piol);
+    
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
     
-    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft, nTailRt);
-
+    set->taper(nt, ns, TaperType::Linear, nTailLft, nTailRt);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -307,12 +312,17 @@ TEST_F(SetTest, Taper2TailCos)
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
     size_t nTailRt = 75;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+      set.release();
+    set = std::make_unique<Set>(piol);
 
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
 
-    set->taperRun(nt, ns, trc, TaperType::Cos, nTailLft, nTailRt);
-
+    set->taper(nt, ns, TaperType::Cos, nTailLft, nTailRt);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -347,12 +357,17 @@ TEST_F(SetTest, Taper2TailCos2)
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
     size_t nTailRt = 75;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+      set.release();
+    set = std::make_unique<Set>(piol);
 
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
 
-    set->taperRun(nt, ns, trc, TaperType::Cos2, nTailLft, nTailRt);
-
+    set->taper(nt, ns, TaperType::Cos2, nTailLft, nTailRt);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -388,13 +403,18 @@ TEST_F(SetTest, Taper2TailCust)
     size_t nTailLft = 50;
     size_t nTailRt = 75;
     float tau = 8;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+      set.release();
+    set = std::make_unique<Set>(piol); 
 
     std::function<float(float,float)> func = [tau](float wt, float ramp){return std::exp(-std::abs(wt-ramp)/tau);};
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
 
-    set->taperRun(nt, ns, trc, func, nTailLft, nTailRt);
-
+    set->taper(nt, ns, func, nTailLft, nTailRt);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -428,12 +448,17 @@ TEST_F(SetTest, Taper1TailLin)
     float * trc = (float * )std::calloc(nt * ns, sizeof(float));
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
-    
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+        set.release();
+    set = std::make_unique<Set>(piol);
+
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
 
-    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft);
-      
+    set->taper(nt, ns, TaperType::Linear, nTailLft);
+    set->modify(p, trc);  
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -461,11 +486,17 @@ TEST_F(SetTest, Taper1TailCos)
     float * trc = (float * )std::calloc(nt * ns, sizeof(float));
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
-  
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+        set.release();
+    set = std::make_unique<Set>(piol);
+
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
-    set->taperRun(nt, ns, trc, TaperType::Cos, nTailLft);
 
+    set->taper(nt, ns, TaperType::Cos, nTailLft);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -494,11 +525,17 @@ TEST_F(SetTest, Taper1TailCos2)
     float * trc = (float * )std::calloc(nt * ns, sizeof(float));
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+        set.release();
+    set = std::make_unique<Set>(piol);
 
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
-    set->taperRun(nt, ns, trc, TaperType::Cos2, nTailLft);
-
+    
+    set->taper(nt, ns, TaperType::Cos2, nTailLft);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -528,11 +565,18 @@ TEST_F(SetTest, Taper1TailCust)
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
     float tau = 8;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+        set.release();
+    set = std::make_unique<Set>(piol);
 
     std::function<float(float,float)> func = [tau](float wt, float ramp){return std::exp(-std::abs(wt-ramp)/tau);};
     createTrace(nt, ns, trc);
     createTrace(nt, ns, origTrc);
-    set->taperRun(nt, ns, trc, func, nTailLft);
+   
+    set->taper(nt, ns, func, nTailLft);
+    set->modify(p, trc);
 
     for (size_t i=0; i < nt; i++)
     {
@@ -562,6 +606,11 @@ TEST_F(SetTest, Taper2TailMuteLin)
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 75;
     size_t nTailRt = 50;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+        set.release();
+    set = std::make_unique<Set>(piol);
 
     createTrace(nt, ns, trc);
     for (size_t i = 0; i < nt; i++)
@@ -572,7 +621,8 @@ TEST_F(SetTest, Taper2TailMuteLin)
         }
     origTrc = trc;    
 
-    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft, nTailRt);
+    set->taper(nt, ns, TaperType::Linear, nTailLft, nTailRt);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -606,6 +656,11 @@ TEST_F(SetTest, Taper1TailMuteLinear)
     float * trc = (float * )std::calloc(nt * ns, sizeof(float));
     float * origTrc = (float * )std::calloc(nt * ns, sizeof(float));
     size_t nTailLft = 50;
+    File::Param * p = 0;
+
+    if (set.get() != nullptr)
+        set.release();
+    set = std::make_unique<Set>(piol);
 
     createTrace(nt, ns, trc);
     for (size_t i = 0; i < nt; i++)
@@ -616,8 +671,8 @@ TEST_F(SetTest, Taper1TailMuteLinear)
         }
     origTrc = trc;
 
-    set->taperRun(nt, ns, trc, TaperType::Linear, nTailLft);
-
+    set->taper(nt, ns, TaperType::Linear, nTailLft);
+    set->modify(p, trc);
     for (size_t i=0; i < nt; i++)
     {
         size_t wtLft = 0;
@@ -638,3 +693,4 @@ TEST_F(SetTest, Taper1TailMuteLinear)
         }
     }
 }
+

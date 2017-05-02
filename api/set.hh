@@ -17,7 +17,7 @@ class Set : public InternalSet
 {
     public :
     using InternalSet::sort;
-
+    using InternalSet::taper;
     /*! Constructor
      *  \param[in] piol The PIOL object.
      *  \param[in] pattern The file-matching pattern
@@ -59,22 +59,20 @@ class Set : public InternalSet
 
     /*! Preform 2 tailed taper on a set of traces
      * \param[in] nt The number of traces
-     * \param[in] ns The number of samples per trace.
-     * \param[in] trc The vector of samples in all traces.
+     * \param[in] ns The number of samples per trace
      * \param[in] type The type of taper to be applied to traces.
      * \param[in] ntpstr The length of left-tail taper ramp.
      * \param[in] ntpend The length of right-tail taper ramp.
      */
-    void taper(size_t nt, size_t ns, trace_t * trc, TaperType type, size_t ntpstr, size_t ntpend);
+  void taper(size_t nt, size_t ns, TaperType type, size_t nTailLft, size_t nTailRt);
 
     /*! Preform 1 tailed taper on a set of traces
      * \param[in] nt The number of traces
-     * \param[in] ns The number of samples per trace.
-     * \param[in] trc The vector of samples in all traces.
+     * \param[in] ns The number of samples per trace
      * \param[in] type The type of taper to be applied to traces.
      * \param[in] ntpstr The length of taper ramp.
      */
-    void taper(size_t nt,size_t ns, trace_t* trc, TaperType type, size_t ntpstr);
+   void taper(size_t nt, size_t ns, TaperType type, size_t nTailLft);
 };
 }
 #endif

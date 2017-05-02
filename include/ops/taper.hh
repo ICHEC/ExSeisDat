@@ -20,6 +20,7 @@ namespace PIOL { namespace File {
  * \return Lambda function of taper weights
  */
 std::function<float(float,float)> getTap(TaperType type);
+
 }
 }
 #endif

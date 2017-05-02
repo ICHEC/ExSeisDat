@@ -35,6 +35,6 @@ std::function<float(float, float)> getTap(TaperType type)
 	return [ ](float weight, float ramp){return pow(.5 +(.5*cos(M_PI*(weight-ramp)/ramp)),2.f);};	
 	break;
     };
-};
 }
+  };
 }
