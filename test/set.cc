@@ -259,6 +259,33 @@ TEST_F(SetTest, getActive3)
     EXPECT_EQ(set->getLNt(), 2U*2222U);
 }
 
+void testTaper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt)
+{
+    for (size_t i=0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j=0; j<ns; j++)
+        {
+            if ((wtLft < 1 ) && (trc[i*ns+j] != 0))
+            {
+                trc[i*ns+j]=trc[i*ns+j]*func(wtLft, nTailLft);
+                ++wtLft;
+            }
+            else if (wtLft < nTailLft)
+            {
+                trc[i*ns+j]=trc[i*ns+j]*func(wtLft, nTailLft);
+                ++wtLft;
+            }
+            else if ((ns-j) <= nTailRt)
+            {
+                --wtRt;
+                trc[i*ns+j]=trc[i*ns+j]*func(wtRt, nTailRt);
+            }
+        }
+    }
+}
+
 void testTaper(Set * set, size_t nt, size_t ns, size_t nTailLft, size_t nTailRt, ...)
 {
     std::vector<trace_t> trc(nt * ns);
