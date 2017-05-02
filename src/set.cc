@@ -6,17 +6,17 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <assert.h>
 #include <glob.h>
-#include "global.hh"
 #include <regex>
 #include <numeric>
 #include <map>
+#include "global.hh"
 #include "share/misc.hh"    //For getSort..
 #include "set/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
-#include <iostream>
 namespace PIOL {
 typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
 
@@ -112,7 +112,7 @@ void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
-        modify(&iprm, itrc.data());
+        modify(ns, &iprm, itrc.data());
         std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
         for (size_t j = 0U; j < rblock; j++)
         {
@@ -417,40 +417,25 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     }
 }
 
-void taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt)
+void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
 {
-    for (size_t i=0; i < nt; i++)
+    assert(ns > nTailLft && ns > nTailRt);
+    for (size_t i = 0; i < sz; i++)
     {
-        size_t wtLft = 0;
-        size_t wtRt = nTailRt;
-        for (size_t j=0; j<ns; j++)
-        {
-	    if ((wtLft < 1 ) && (trc[i*ns+j] != 0)) 
-	    {
-	        trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(nTailLft));
-                ++wtLft;
-            }
-            else if (wtLft < nTailLft)
-	    {
-                trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtLft), static_cast<float>(nTailLft));
-                ++wtLft;
-             }
-             else if ((ns-j) <= nTailRt)
-	     {
-	         --wtRt;
-                 trc[i*ns+j]=trc[i*ns+j]*func(static_cast<float>(wtRt), static_cast<float>(nTailRt));
-             }
- 	  }
-      }
+        size_t jstart;
+        for (jstart = 0; jstart < ns && trc[i*ns+jstart] == 0.0f; jstart++);
+
+        for (size_t j = jstart; j < std::min(jstart+nTailLft, ns); j++)
+            trc[i*ns+j] *= func(j-jstart, nTailLft);
+
+        for (size_t j = ns - nTailRt; j < ns; j++)
+            trc[i*ns+j] *= func(ns - j - 1U, nTailRt);
+    }
 }
-void InternalSet::taper(size_t nt, size_t ns, std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt)
+
+void InternalSet::taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
 {
-    Mod modify_ = [this, nt, ns, func, nTailLft, nTailRt] (File::Param * p, float  * t ) {(taper(nt,ns,t,func, nTailLft, nTailRt));};
-    mod(modify_);
-}
-void InternalSet::taper(size_t nt, size_t ns, std::function<float(float weight, float ramp)> func, size_t nTailLft)
-{
-    Mod modify_ = [this, nt, ns, func, nTailLft] (File::Param * p, float  * t ) {(taper(nt,ns,t,func, nTailLft,0));};
+    Mod modify_ = [func, nTailLft, nTailRt] (size_t ns, File::Param * p, trace_t * t) { PIOL::taper(p->size(), ns, t, func, nTailLft, nTailRt); };
     mod(modify_);
 }
 }

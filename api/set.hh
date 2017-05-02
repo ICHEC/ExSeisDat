@@ -57,22 +57,12 @@ class Set : public InternalSet
      */
     void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
 
-    /*! Preform 2 tailed taper on a set of traces
-     * \param[in] nt The number of traces
-     * \param[in] ns The number of samples per trace
+    /*! Perform tailed taper on a set of traces
      * \param[in] type The type of taper to be applied to traces.
      * \param[in] ntpstr The length of left-tail taper ramp.
      * \param[in] ntpend The length of right-tail taper ramp.
      */
-  void taper(size_t nt, size_t ns, TaperType type, size_t nTailLft, size_t nTailRt);
-
-    /*! Preform 1 tailed taper on a set of traces
-     * \param[in] nt The number of traces
-     * \param[in] ns The number of samples per trace
-     * \param[in] type The type of taper to be applied to traces.
-     * \param[in] ntpstr The length of taper ramp.
-     */
-   void taper(size_t nt, size_t ns, TaperType type, size_t nTailLft);
+    void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
 };
 }
 #endif
