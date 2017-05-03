@@ -14,6 +14,7 @@
 #include <functional>
 #include <memory>
 #include <deque>
+#include <list>
 #include <map>
 
 namespace PIOL {
@@ -21,12 +22,66 @@ namespace PIOL {
  */
 struct FileDesc
 {
-    std::unique_ptr<File::ReadInterface> ifc;   //!< The file interface
+    std::shared_ptr<File::ReadInterface> ifc;   //!< The file interface
     std::vector<size_t> ilst;                    //!< The size of this corresponds to the local decomposition
     std::vector<size_t> olst;                    //!< The size of this corresponds to the local decomposition
 };
 
-typedef std::function<void(File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+typedef std::function<std::vector<size_t>(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+
+enum class FuncOpt : size_t
+{
+    NeedMeta,
+    NeedTrcVal,
+    ModTrcVal,
+    DelTrc,
+    AddTrc,
+    DepTrcCnt,
+    ReorderTrc,
+    DepOrderTrc,
+    DepMeta,
+    RotCoord,
+    DepCoordRot,
+    AllTraces,
+    OwnIO,
+    SubSetOnly
+};
+
+struct OpOpt
+{
+    std::vector<FuncOpt> optList;
+    bool check(FuncOpt opt)
+    {
+        auto it = std::find(optList.begin(), optList.end(), opt);
+        return it != optList.end();
+    }
+    void add(FuncOpt opt)
+    {
+        optList.push_back(opt);
+    }
+    OpOpt(std::initializer_list<FuncOpt> list) : optList(list)
+    {
+    }
+};
+
+struct CacheElem
+{
+    std::deque<std::shared_ptr<FileDesc>> desc;
+    std::unique_ptr<File::Param> prm;
+    std::vector<trace_t> trc;
+    CacheElem(std::deque<std::shared_ptr<FileDesc>> & desc_, std::unique_ptr<File::Param> prm_)
+    {
+        desc = desc_;
+        prm = std::move(prm_);
+    }
+};
+
+class Cache
+{
+    std::vector<CacheElem> cache;
+    public :
+    File::Param * cachePrm(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, std::deque<std::shared_ptr<FileDesc>> & desc);
+};
 
 /*! The internal set class
  */
@@ -36,32 +91,14 @@ class InternalSet
     Piol piol;                                                          //!< The PIOL object.
     std::string outfix;                                                 //!< The output prefix
     std::string outmsg;                                                 //!< The output text-header message
-    std::deque<std::unique_ptr<FileDesc>> file;                         //!< A deque of unique pointers to file descriptors
-    std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;   //!< A map of (ns, inc) key to a deque of file descriptor pointers
+    std::deque<std::shared_ptr<FileDesc>> file;                         //!< A deque of unique pointers to file descriptors
+    std::map<std::pair<size_t, geom_t>, std::deque<std::shared_ptr<FileDesc>>> fmap;   //!< A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, size_t> offmap;                 //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                                   //!< Contains a pointer to the Rules for parameters
 
-    struct OpOpt
-    {
-        size_t NeedMeta : 1;
-        size_t NeedTrcVal : 1;
-        size_t ModTrcVal : 1;
-        size_t DelTrc : 1;
-        size_t AddTrc : 1;
-        size_t DepTrcCnt : 1;
-        size_t ReorderTrc : 1;
-        size_t DepOrderTrc : 1;
-        size_t DepMeta : 1;
-        size_t RotCoord : 1;
-        size_t DepCoordRot : 1;
-        size_t AllTraces : 1;
-        size_t OwnIO : 1;
-        size_t SubSetOnly : 1;
-    };
+//    Mod modify = [] (size_t, File::Param *, trace_t *) -> std::vector<size_t> { return std::vector<size_t>(); };                     //!< Function to modify traces and parameters
 
-    Mod modify = [] (File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
-
-    std::vector<std::pair<OpOpt, Mod>> func;
+    std::list<std::tuple<OpOpt, std::shared_ptr<File::Rule>, Mod>> func;
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
@@ -133,10 +170,11 @@ class InternalSet
     /*! Modify traces and parameters. Multiple modifies can be called.
      *  \param[in] modify_ Function to modify traces and parameters
      */
-    void mod(Mod modify_)
+    void calcFunc(std::list<std::tuple<OpOpt, std::shared_ptr<File::Rule>, Mod>> func, Cache & cache);
+/*    void mod(Mod modify_)
     {
-        modify = [oldmod = modify, modify_] (File::Param * p, trace_t * t) { oldmod(p, t); modify_(p, t); };
-    }
+        modify = [oldmod = modify, modify_] (size_t, File::Param * p, trace_t * t) { oldmod(p, t); modify_(p, t); };
+    }*/
 };
 }
 #endif
