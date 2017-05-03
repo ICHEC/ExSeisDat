@@ -191,7 +191,7 @@ Rule::Rule(bool full, bool defaults, bool extra)
 
 Rule::~Rule(void)
 {
-    for (const auto t : translate)
+    for (auto t : translate)
         delete t.second;
 }
 
@@ -256,7 +256,10 @@ void Rule::rmRule(Meta m)
     if (iter != translate.end())
     {
         RuleEntry * entry = iter->second;
-        switch (entry->type())
+        MdType type = entry->type();
+        size_t num = entry->num;
+
+        switch (type)
         {
             case MdType::Long :
             numLong--;
@@ -273,6 +276,10 @@ void Rule::rmRule(Meta m)
         }
         delete entry;
         translate.erase(m);
+        for (auto t : translate)
+            if (t.second->type() == type && t.second->num > num)
+                t.second->num--;
+
         flag.badextent = (!flag.fullextent);
     }
 }
