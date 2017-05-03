@@ -13,6 +13,7 @@
 #include "file/segymd.hh"
 #include "share/datatype.hh"
 #include "file/dynsegymd.hh"
+
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)
 {
@@ -251,24 +252,29 @@ void Rule::addIndex(Meta m)
 
 void Rule::rmRule(Meta m)
 {
-    switch (translate[m]->type())
+    auto iter = translate.find(m);
+    if (iter != translate.end())
     {
-        case MdType::Long :
-        numLong--;
-        break;
-        case MdType::Short :
-        numShort--;
-        break;
-        case MdType::Float :
-        numFloat--;
-        break;
-        case MdType::Index :
-        numIndex--;
-        break;
+        RuleEntry * entry = iter->second;
+        switch (entry->type())
+        {
+            case MdType::Long :
+            numLong--;
+            break;
+            case MdType::Short :
+            numShort--;
+            break;
+            case MdType::Float :
+            numFloat--;
+            break;
+            case MdType::Index :
+            numIndex--;
+            break;
+        }
+        delete entry;
+        translate.erase(m);
+        flag.badextent = (!flag.fullextent);
     }
-    delete translate[m];
-    translate.erase(m);
-    flag.badextent = (!flag.fullextent);
 }
 
 RuleEntry * Rule::getEntry(Meta entry)
