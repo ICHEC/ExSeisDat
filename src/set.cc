@@ -426,7 +426,7 @@ void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t we
         for (jstart = 0; jstart < ns && trc[i*ns+jstart] == 0.0f; jstart++);
 
         for (size_t j = jstart; j < std::min(jstart+nTailLft, ns); j++)
-            trc[i*ns+j] *= func(j-jstart, nTailLft);
+            trc[i*ns+j] *= func(j-jstart+1, nTailLft);
 
         for (size_t j = ns - nTailRt; j < ns; j++)
             trc[i*ns+j] *= func(ns - j - 1U, nTailRt);
