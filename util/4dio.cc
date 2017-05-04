@@ -117,12 +117,6 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     //as scalars.
     rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
-/*    rule->addLong(Meta::Misc1, File::Tr::TORF);
-    rule->addShort(Meta::Misc2, File::Tr::ShotNum);
-    rule->addShort(Meta::Misc3, File::Tr::ShotScal);
-    rule->addShort(Meta::Misc4, File::Tr::TransCLower);
-    rule->rmRule(Meta::ShotNum);*/
-
     File::ReadDirect src(piol, sname);
     File::WriteDirect dst(piol, dname);
 
