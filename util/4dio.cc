@@ -116,8 +116,8 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
-    if (printDsr)
-        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+//    if (printDsr)
+//        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
 /*    rule->addLong(Meta::Misc1, File::Tr::TORF);
     rule->addShort(Meta::Misc2, File::Tr::ShotNum);

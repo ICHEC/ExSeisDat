@@ -13,7 +13,6 @@
 #include "file/segymd.hh"
 #include "share/datatype.hh"
 #include "file/dynsegymd.hh"
-#warning IOstream
 #include <iostream>
 
 namespace PIOL { namespace File {
@@ -363,7 +362,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             dst->s[k * r->numShort + i] = src->s[j * r->numShort + i];
         for (size_t i = 0; i < r->numIndex; i++)
             dst->t[k * r->numIndex + i] = src->t[j * r->numIndex + i];
-        if (r->translate.find(Meta::Copy) != r->translate.end())
+        if (srule->numCopy)
             std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
     }
     else
@@ -389,6 +388,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
                     break;
                     case MdType::Index :
                     dst->t[drule->numIndex*k + dent->num] = src->t[srule->numIndex*j + sent->num];
+                    break;
                     case MdType::Copy : //TODO: Make generic
                     std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
                     break;
