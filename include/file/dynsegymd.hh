@@ -485,6 +485,8 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
         case MdType::Index :
         prm->t[i * r->numIndex + r->getEntry(entry)->num] = ret;
         break;
+        case MdType::Copy :
+        break;
     }
 }
 
