@@ -13,6 +13,9 @@
 #include "file/segymd.hh"
 #include "share/datatype.hh"
 #include "file/dynsegymd.hh"
+#warning IOstream
+#include <iostream>
+
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)
 {
@@ -35,6 +38,8 @@ Rule::Rule(RuleMap translate_, bool full)
             break;
             case MdType::Index :
             numIndex++;
+            case MdType::Copy :
+            numCopy++;
             break;
         }
 
@@ -59,6 +64,7 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
     numShort = 0;
     numFloat = 0;
     numIndex = 0;
+    numCopy = 0;
 
     //TODO: Change this when extents are flexible
     flag.fullextent = full;
@@ -110,6 +116,10 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
             case Meta::ltn :
                 r = new SEGYIndexRuleEntry(numIndex++);
             break;
+            case Meta::Copy :
+                r = new SEGYCopyRuleEntry();
+                numCopy++;
+            break;
             default :
                 //TODO: More systematic approach required
                 std::cerr << "Metadata not supported for switch yet." << std::endl;
@@ -137,6 +147,7 @@ Rule::Rule(bool full, bool defaults, bool extra)
     numShort = 0;
     numFloat = 0;
     numIndex = 0;
+    numCopy = 0;
 
     flag.fullextent = full;
 
@@ -249,6 +260,7 @@ void Rule::addIndex(Meta m)
     translate[m] = new SEGYIndexRuleEntry(numIndex++);
 }
 
+//TODO: Clean data?
 void Rule::rmRule(Meta m)
 {
     switch (translate[m]->type())
@@ -265,6 +277,9 @@ void Rule::rmRule(Meta m)
         case MdType::Index :
         numIndex--;
         break;
+        case MdType::Copy :
+        numCopy--;
+        break;
     }
     delete translate[m];
     translate.erase(m);
@@ -279,13 +294,14 @@ RuleEntry * Rule::getEntry(Meta entry)
 size_t Rule::memUsage(void) const
 {
     return numLong * sizeof(SEGYLongRuleEntry) + numShort * sizeof(SEGYShortRuleEntry)
-         + numFloat * sizeof(SEGYFloatRuleEntry) + numIndex * sizeof(SEGYIndexRuleEntry) +  sizeof(Rule);
+         + numFloat * sizeof(SEGYFloatRuleEntry) + numIndex * sizeof(SEGYIndexRuleEntry)
+         + numCopy * sizeof(SEGYCopyRuleEntry) +  sizeof(Rule);
 }
 
 size_t Rule::paramMem(void) const
 {
     return numLong * sizeof(llint) + numShort * sizeof(int16_t)
-         + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t);
+         + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t) + (numCopy ? SEGSz::getMDSz() : 0);
 }
 
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
@@ -294,6 +310,9 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
     i.resize(sz * r->numLong);
     s.resize(sz * r->numShort);
     t.resize(sz * r->numIndex);
+
+    //TODO: This must be file system agnostic
+    c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
 Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
@@ -302,6 +321,9 @@ Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
     i.resize(sz * r->numLong);
     s.resize(sz * r->numShort);
     t.resize(sz * r->numIndex);
+
+    //TODO: This must be file system agnostic
+    c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
 size_t Param::size(void) const
@@ -311,7 +333,7 @@ size_t Param::size(void) const
 
 bool Param::operator==(struct Param & p) const
 {
-    return f == p.f && i == p.i && s == p.s && t == p.t;
+    return f == p.f && i == p.i && s == p.s && t == p.t && c == p.c;
 }
 
 size_t Param::memUsage(void) const
@@ -320,6 +342,7 @@ size_t Param::memUsage(void) const
          + i.capacity() * sizeof(llint)
          + s.capacity() * sizeof(int16_t)
          + t.capacity() * sizeof(size_t)
+         + c.capacity() * sizeof(uchar)
                         + sizeof(Param)
                         + r->memUsage();
 }
@@ -340,6 +363,8 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             dst->s[k * r->numShort + i] = src->s[j * r->numShort + i];
         for (size_t i = 0; i < r->numIndex; i++)
             dst->t[k * r->numIndex + i] = src->t[j * r->numIndex + i];
+        if (r->translate.find(Meta::Copy) != r->translate.end())
+            std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
     }
     else
         //For each rule in source
@@ -364,6 +389,8 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
                     break;
                     case MdType::Index :
                     dst->t[drule->numIndex*k + dent->num] = src->t[srule->numIndex*j + sent->num];
+                    case MdType::Copy : //TODO: Make generic
+                    std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
                     break;
                 }
         }
@@ -375,6 +402,16 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
         return;
     auto r = prm->r;
     size_t start = r->start;
+
+    if (r->translate.find(Meta::Copy) != r->translate.end())
+    {
+        if (!stride)
+            std::copy(&prm->c[skip * SEGSz::getMDSz()], &prm->c[(skip + sz) * SEGSz::getMDSz()], buf);
+        else
+            for (size_t i = 0; i < sz; i++)
+                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1U) * SEGSz::getMDSz()], &buf[i * (stride + SEGSz::getMDSz())]);
+    }
+
     for (size_t i = 0; i < sz; i++)
     {
         uchar * md = &buf[(r->extent() + stride)*i];
@@ -410,6 +447,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
                 case MdType::Long :
                 getBigEndian(int32_t(prm->i[(i + skip) * r->numLong + t->num]), &md[loc]);
                 break;
+                case MdType::Copy :
                 case MdType::Index : break;
             }
         }
@@ -431,6 +469,16 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
     if (prm == nullptr)
         return;
     Rule * r = prm->r.get();
+
+    if (r->translate.find(Meta::Copy) != r->translate.end())
+    {
+        if (!stride)
+            std::copy(buf, &buf[sz * SEGSz::getMDSz()], &prm->c[skip * SEGSz::getMDSz()]);
+        else
+            for (size_t i = 0; i < sz; i++)
+                std::copy(&buf[i * (stride + SEGSz::getMDSz())], &buf[(i+1U) * (stride + SEGSz::getMDSz())], &prm->c[(skip + i) * SEGSz::getMDSz()]);
+    }
+
     for (size_t i = 0; i < sz; i++)
     {
         const uchar * md = &buf[(r->extent() + stride)*i];
@@ -451,6 +499,7 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
                 case MdType::Long :
                 prm->i[(i + skip) * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
                 break;
+                case MdType::Copy :
                 case MdType::Index : break;
             }
         }

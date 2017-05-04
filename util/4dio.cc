@@ -113,7 +113,10 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
 {
     auto time = MPI_Wtime();
     //Enable as many of the parameters as possible
-    auto rule = std::make_shared<File::Rule>(true, true, true);
+    //auto rule = std::make_shared<File::Rule>(true, true, true);
+
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy});
+
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
