@@ -66,7 +66,6 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
     //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
     //Unfortunately shared pointers make things ugly in C++.
-    //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
     auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
@@ -116,8 +115,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
-//    if (printDsr)
-//        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
 /*    rule->addLong(Meta::Misc1, File::Tr::TORF);
     rule->addShort(Meta::Misc2, File::Tr::ShotNum);
