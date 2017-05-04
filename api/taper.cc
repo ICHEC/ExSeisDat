@@ -9,7 +9,6 @@
 #include <cmath>
 #include "global.hh"
 #include "fileops.hh"
-#include <iostream>
 namespace PIOL { namespace File {
 
 constexpr double pi = M_PI;
