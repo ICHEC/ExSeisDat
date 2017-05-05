@@ -115,7 +115,8 @@ void updateElem(CoordElem * src, CoordElem * dst)
 
 //////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
 
-InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) : piol(piol_), outfix(outfix_), rule(rule_)
+InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
+                                                            piol(piol_), outfix(outfix_), rule(rule_), cache(piol_)
 {
     fillDesc(piol, pattern);
 }
@@ -213,138 +214,146 @@ void InternalSet::sort(File::Compare<File::Param> sortFunc)
         });
 }
 
-File::Param * Cache::cachePrm(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, std::deque<std::shared_ptr<FileDesc>> & desc)
+
+std::string InternalSet::output(FileDeque & fQue)
 {
-    auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc; });
+    std::string name;
+    if (!fQue.size())
+        return "";
 
-    if (it == cache.end() || !it->prm)
+    size_t ns = fQue[0]->ifc->readNs();
+    geom_t inc = fQue[0]->ifc->readInc();
+    if (fQue.size() == 1)
+        name = outfix + ".segy";
+    else
+        name = outfix + std::to_string(ns) + "_" + std::to_string(inc) + ".segy";
+    std::unique_ptr<File::WriteInterface> out = makeSEGYFile(piol, name, ns, inc, outmsg);
+
+    //Assume the process can hold the list
+    const size_t memlim = 2U*1024U*1024U*1024U;
+    size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
+
+//TODO: Needs Copy
+//    if (cache.checkPrm(fQue))
+//        prm = cache.cachePrm(std::get<1>(*fCurr), o.second);
+
+//    if (cache.checkTrc(fQue))
+#warning this will need to be cleverer to avoid memory issues
+//        trc = cache.cacheTrc(fQue);
+//    File::Param * prm = nullptr;
+//    trace_t * trc = nullptr;
+    for (auto & f : fQue)
     {
-        size_t lsnt = 0U;
-        for (auto & f : desc)
-            lsnt += f->olst.size();
-        size_t off = piol->comm->offset(lsnt);
+        File::ReadInterface * in = f->ifc.get();
+        size_t lnt = f->ilst.size();
+        size_t fmax = std::min(lnt, max);
+        size_t ns = in->readNs();
 
-        size_t nt = 0U;
-        for (auto & f : desc)
-            nt += f->ifc->readNt();
-
-        auto prm = std::make_unique<File::Param>(rule, lsnt);
-
-        //TODO: Do not make assumptions about Parameter sizes fitting in memory.
-        size_t loff = 0;
-        size_t c = 0;
-        for (auto & f : desc)
+        File::Param iprm(rule, fmax);
+        File::Param oprm(rule, fmax);
+        std::vector<trace_t> itrc(fmax * ns);
+        std::vector<trace_t> otrc(fmax * ns);
+        auto biggest = piol->comm->max(lnt);
+        size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
+        for (size_t i = 0; i < lnt; i += max)
         {
-            f->ifc->readParam(f->ilst.size(), f->ilst.data(), prm.get(), loff);
-            for (size_t i = 0; i < f->ilst.size(); i++)
+            size_t rblock = (i + max < lnt ? max : lnt - i);
+            in->readTrace(rblock, f->ilst.data() + i, itrc.data(), &iprm);
+            std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
+            for (size_t j = 0U; j < rblock; j++)
             {
-                setPrm(loff+i, Meta::gtn, off + loff + i, prm.get());
-                setPrm(loff+i, Meta::ltn, f->ilst[i] * desc.size() + c, prm.get());
-            }
-            c++;
-            loff += f->ilst.size();
-        }
+                cpyPrm(sortlist[j], &iprm, j, &oprm);
 
-        if (it == cache.end())
-        {
-            cache.emplace_back(desc, std::move(prm));
-            it = cache.end() - 1U;
+                for (size_t k = 0U; k < ns; k++)
+                    otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
+                sortlist[j] = f->olst[i+sortlist[j]];
+            }
+
+            out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
         }
-        else
-            it->prm = std::move(prm);
+        for (size_t i = 0; i < extra; i++)
+        {
+            in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
+            out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
+        }
+    }
+
+/*    if (prm == nullptr && trc == nullptr)
+        for (auto & f : fQue)
+            readWriteTraces(piol.get(), rule, max, f.get(), out.get());
+    else if (prm == nullptr)
+    {
+//        prm = cache.cachePrm(std::get<1>(*fCurr), o.second);
+#warning TODO: Write
     }
     else
     {
-#warning Check if prm is cached and same rules
-    }
-    return it->prm.get();
+ //       trc = cache.cacheTrc(o.second);
+#warning TODO: Write
+    }*/
+    return name;
 }
 
-void InternalSet::calcFunc(std::list<std::tuple<OpOpt, std::shared_ptr<File::Rule>, Mod>> func, Cache & cache)
+//calc for subsets only
+FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
 {
-    auto curr = func.front();
-    OpOpt & opt = std::get<0>(curr);
-
-    if (opt.check(FuncOpt::SubSetOnly))
+    OpOpt & opt = std::get<0>(*fCurr);
+    if (!opt.check(FuncOpt::NeedTrcVal))
     {
-        for (auto & o : fmap)
+        size_t ns = fQue[0]->ifc->readNs();
+        File::Param * prm = cache.cachePrm(std::get<1>(*fCurr), fQue);
+
+        auto lfunc = std::get<2>(*fCurr);
+        std::vector<size_t> trlist = lfunc(ns, prm, (trace_t *)nullptr);    //The actual function call
+
+        size_t j = 0;
+        for (auto & f : fQue)
         {
-            size_t ns = o.first.first;
-            File::Param * prm = cache.cachePrm(piol.get(), std::get<1>(curr), o.second);
-
-            auto lfunc = std::get<2>(curr);
-            std::vector<size_t> trlist = lfunc(ns, prm, (trace_t *)nullptr);
-
-            size_t j = 0;
-            for (auto & f : o.second)
-            {
-                std::copy(&trlist[j], &trlist[j + f->olst.size()], f->olst.begin());
-                j += f->olst.size();
-            }
+            std::copy(&trlist[j], &trlist[j + f->olst.size()], f->olst.begin());
+            j += f->olst.size();
         }
     }
-    func.pop_front();
-    calcFunc(func, cache);
+    else
+    {
+#warning  TODO: Code currently does not process traces
+    }
+
+    fCurr++;
+    opt = std::get<0>(*fCurr);
+    if (fCurr != fEnd && opt.check(FuncOpt::SubSetOnly))
+        return calcFunc(fCurr, fEnd, fQue);
+    return fCurr;
 }
 
+void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd)
+{
+    if (fCurr != fEnd)
+    {
+        OpOpt & opt = std::get<0>(*fCurr);
+        if (opt.check(FuncOpt::SubSetOnly))
+            for (auto & o : fmap)                        //TODO: Parallelisable
+                fCurr = calcFunc(fCurr, fEnd, o.second);     //Iterate across the full function list
+        else
+        {
+    #warning TODO: Implement support for a truly global operation
+            std::cerr << "Error, not supported yet\n";
+            ++fCurr;
+        }
+        calcFunc(fCurr, fEnd);
+    }
+}
+
+#warning use oname
 std::vector<std::string> InternalSet::output(std::string oname)
 {
-    Cache cache;
-    calcFunc(func, cache);
+    calcFunc(func.begin(), func.end());
+    func.clear();
 
     std::vector<std::string> names;
     for (auto & o : fmap)
-    {
-        size_t ns = o.first.first;
-        std::string name;
-        if (fmap.size() == 1)
-            name = oname + ".segy";
-        else
-            name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
-        names.push_back(name);
-        std::unique_ptr<File::WriteInterface> out = makeSEGYFile(piol, name, ns, o.first.second, outmsg);
-
-        //Assume the process can hold the list
-        const size_t memlim = 2U*1024U*1024U*1024U;
-        size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
-
-//TODO: This is not the ideal for small files. per input file read/write
-// The ideal is to have a buffer for each which is emptied when full or EOF. This is a little tricky
-// because the write buffer would interleave with the read a bit.
-
-        for (auto & f : o.second)
-            readWriteTraces(piol.get(), rule, max, f.get(), out.get());
-    }
+        names.push_back(output(o.second));
     return names;
 }
-
-/*std::vector<std::string> InternalSet::output(std::string oname)
-{
-    std::vector<std::string> names;
-    for (auto & o : fmap)
-    {
-        size_t ns = o.first.first;
-        std::string name;
-        if (fmap.size() == 1)
-            name = oname + ".segy";
-        else
-            name = oname + std::to_string(ns) + "_" + std::to_string(o.first.second) + ".segy";
-        names.push_back(name);
-        std::unique_ptr<File::WriteInterface> out = makeSEGYFile(piol, name, ns, o.first.second, outmsg);
-
-        //Assume the process can hold the list
-        const size_t memlim = 2U*1024U*1024U*1024U;
-        size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
-
-//TODO: This is not the ideal for small files. per input file read/write
-// The ideal is to have a buffer for each which is emptied when full or EOF. This is a little tricky
-// because the write buffer would interleave with the read a bit.
-
-        for (auto & f : o.second)
-            readWriteTraces(piol.get(), rule, max, f, modify, out.get());
-    }
-    return names;
-}*/
 
 void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
 {

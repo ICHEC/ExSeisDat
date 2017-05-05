@@ -66,7 +66,7 @@ const std::vector<size_t> sortOffLine = {
 809, 819, 829, 839, 849, 859, 869, 879, 889, 899, 909, 919, 929, 939, 949, 959,
 969, 979, 989, 999};
 
-void testRcvPattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testRcvPattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
@@ -77,7 +77,7 @@ void testRcvPattern(std::deque<std::unique_ptr<FileDesc>> & file)
     }
 }
 
-void testLineOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testLineOffPattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
@@ -90,7 +90,7 @@ void testLineOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
     }
 }
 
-void testOffLinePattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testOffLinePattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
@@ -101,7 +101,7 @@ void testOffLinePattern(std::deque<std::unique_ptr<FileDesc>> & file)
     }
 }
 
-void testSrcOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testSrcOffPattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
@@ -118,6 +118,7 @@ TEST_F(SetTest, SortSrcX)
     init(1, 1, 1, 1, true);
 
     set->sort(SortType::SrcRcv);
+    set->calcFunc(set->func.begin(), set->func.end());
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
@@ -133,6 +134,7 @@ TEST_F(SetTest, SortRcvX)
     init(1, 1, 1, 1, true);
 
     set->sort(SortType::RcvOff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testRcvPattern(set->file);
 }
 
@@ -140,6 +142,7 @@ TEST_F(SetTest, SortRcvXR)
 {
     init(1, 1, 1, 1, true);
     set->sort(SortType::RcvROff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testRcvPattern(set->file);
 }
 
@@ -148,6 +151,7 @@ TEST_F(SetTest, SortLine)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::LineOff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testLineOffPattern(set->file);
 }
 
@@ -156,6 +160,7 @@ TEST_F(SetTest, SortLineROff)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::LineROff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testLineOffPattern(set->file);
 }
 
@@ -164,6 +169,7 @@ TEST_F(SetTest, SortOffLine)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::OffLine);
+    set->calcFunc(set->func.begin(), set->func.end());
     testOffLinePattern(set->file);
 }
 
@@ -172,6 +178,7 @@ TEST_F(SetTest, SortROffLine)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::ROffLine);
+    set->calcFunc(set->func.begin(), set->func.end());
     testOffLinePattern(set->file);
 }
 
@@ -181,6 +188,7 @@ TEST_F(SetTest, SortSortRcv)
 
     set->sort(SortType::SrcRcv);
     set->sort(SortType::RcvOff);
+    set->calcFunc(set->func.begin(), set->func.end());
 
     testSrcOffPattern(set->file);
 }
@@ -191,6 +199,7 @@ TEST_F(SetTest, SortSortRcvROff)
 
     set->sort(SortType::SrcRcv);
     set->sort(SortType::RcvROff);
+    set->calcFunc(set->func.begin(), set->func.end());
 
     testSrcOffPattern(set->file);
 }
@@ -200,6 +209,7 @@ TEST_F(SetTest, SortSrcXRcvY)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::SrcRcv);
+    set->calcFunc(set->func.begin(), set->func.end());
     piol->isErr();
 
     for (size_t i = 0; i < set->file.size(); i++)
