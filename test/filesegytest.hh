@@ -315,7 +315,7 @@ struct FileReadSEGYTest : public Test
             rule->addSEGYFloat(Meta::xSrc, File::Tr::xSrc, File::Tr::ScaleCoord);
             rule->addSEGYFloat(Meta::ySrc, File::Tr::ySrc, File::Tr::ScaleCoord);
         }
-        File::Param prm(tn);
+        File::Param prm(rule, tn);
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
