@@ -66,9 +66,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
     //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
     //Unfortunately shared pointers make things ugly in C++.
-    //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
-    //TODO: use option to make il/xl optional
-    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
+    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
     {
@@ -128,6 +126,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     rule->addShort(Meta::Misc3, File::Tr::ShotScal);
     rule->addShort(Meta::Misc4, File::Tr::TransCLower);
     rule->rmRule(Meta::ShotNum);
+    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
     File::ReadDirect src(piol, sname);
     File::WriteDirect dst(piol, dname);
