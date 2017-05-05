@@ -118,7 +118,9 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
     File::ReadDirect src(piol, sname);
+    piol->isErr();
     File::WriteDirect dst(piol, dname);
+    piol->isErr();
 
     size_t ns = src.readNs();
     size_t lnt = list.size();
