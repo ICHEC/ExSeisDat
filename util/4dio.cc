@@ -66,7 +66,8 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
     //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
     //Unfortunately shared pointers make things ugly in C++.
-    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+    //TODO: use option to make il/xl optional
+    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
     {
@@ -110,9 +111,6 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
 {
     auto time = MPI_Wtime();
-    //Enable as many of the parameters as possible
-    //auto rule = std::make_shared<File::Rule>(true, true, true);
-
     auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy});
 
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
@@ -121,15 +119,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     if (printDsr)
         rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
-    rule->addLong(Meta::Misc1, File::Tr::TORF);
-    rule->addShort(Meta::Misc2, File::Tr::ShotNum);
-    rule->addShort(Meta::Misc3, File::Tr::ShotScal);
-    rule->addShort(Meta::Misc4, File::Tr::TransCLower);
-    rule->rmRule(Meta::ShotNum);
-    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
-
     File::ReadDirect src(piol, sname);
-    piol->isErr();
     File::WriteDirect dst(piol, dname);
     piol->isErr();
 
