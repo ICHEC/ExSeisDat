@@ -114,10 +114,6 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
                 r = new SEGYCopyRuleEntry();
                 numCopy++;
             break;
-            case Meta::Copy :
-                r = new SEGYCopyRuleEntry();
-                numCopy++;
-            break;
             default :
                 //TODO: More systematic approach required
                 std::cerr << "Metadata not supported for switch yet." << std::endl;
@@ -348,6 +344,9 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 {
     Rule * srule = src->r.get();
     Rule * drule = dst->r.get();
+    if (srule->numCopy)
+        extractParam(1U, &src->c[j * SEGSz::getMDSz()], dst, 0U, k);
+
     if (srule == drule)
     {
         Rule * r = srule;
@@ -360,8 +359,8 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             dst->s[k * r->numShort + i] = src->s[j * r->numShort + i];
         for (size_t i = 0; i < r->numIndex; i++)
             dst->t[k * r->numIndex + i] = src->t[j * r->numIndex + i];
-        if (srule->numCopy)
-            std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
+//        if (srule->numCopy)
+//            std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
     }
     else
         //For each rule in source
@@ -386,10 +385,10 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
                     break;
                     case MdType::Index :
                     dst->t[drule->numIndex*k + dent->num] = src->t[srule->numIndex*j + sent->num];
-                    break;
-                    case MdType::Copy : //TODO: Make generic
+                    default : break;
+/*                    case MdType::Copy : //TODO: Make generic
                     std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
-                    break;
+                    break;*/
                 }
         }
 }
@@ -445,9 +444,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
                 break;
                 case MdType::Long :
                 getBigEndian(int32_t(prm->i[(i + skip) * r->numLong + t->num]), &md[loc]);
-                break;
-                case MdType::Copy :
-                case MdType::Index : break;
+                default : break;
             }
         }
 
@@ -497,9 +494,7 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
                 break;
                 case MdType::Long :
                 prm->i[(i + skip) * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
-                break;
-                case MdType::Copy :
-                case MdType::Index : break;
+                default : break;
             }
         }
     }

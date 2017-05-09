@@ -187,15 +187,33 @@ std::string InternalSet::output(FileDeque & fQue)
     const size_t memlim = 2U*1024U*1024U*1024U;
     size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
 
-//TODO: Needs Copy
-//    if (cache.checkPrm(fQue))
-//        prm = cache.cachePrm(std::get<1>(*fCurr), o.second);
 
-//    if (cache.checkTrc(fQue))
-#warning this will need to be cleverer to avoid memory issues
-//        trc = cache.cacheTrc(fQue);
-//    File::Param * prm = nullptr;
-//    trace_t * trc = nullptr;
+    size_t lnt = 0;
+    for (auto f : fQue)
+        lnt += f->olst.size();
+
+    size_t fmax = std::min(lnt, max);
+
+    auto biggest = piol->comm->max(lnt);
+    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
+
+    bool cacheFlush = cache.checkPrm(fQue);
+
+    if (cacheFlush)
+    {
+        for (size_t i = 0; i < lnt; i += max)
+        {
+            size_t rblock = (i + max < lnt ? max : lnt - i);
+            File::Param prm(rule, fmax);
+            auto outlist = cache.getOutputTrace(fQue, i, rblock,  &prm);
+
+            cacheFlush = 1;
+            out->writeParam(rblock, outlist.data(), &prm);
+        }
+        for (size_t i = 0; i < extra; i++)
+            out->writeParam(0, nullptr, nullptr);
+    }
+
     for (auto & f : fQue)
     {
         File::ReadInterface * in = f->ifc.get();
@@ -203,8 +221,11 @@ std::string InternalSet::output(FileDeque & fQue)
         size_t fmax = std::min(lnt, max);
         size_t ns = in->readNs();
 
-        File::Param iprm(rule, fmax);
-        File::Param oprm(rule, fmax);
+        File::Param iprm(rule, (cacheFlush ? fmax : 0));
+        File::Param oprm(rule, (cacheFlush ? fmax : 0));
+        File::Param * itprm = const_cast<File::Param *>(cacheFlush ? &iprm : File::PARAM_NULL);
+        File::Param * otprm = const_cast<File::Param *>(cacheFlush ? &oprm : File::PARAM_NULL);
+
         std::vector<trace_t> itrc(fmax * ns);
         std::vector<trace_t> otrc(fmax * ns);
         auto biggest = piol->comm->max(lnt);
@@ -212,26 +233,26 @@ std::string InternalSet::output(FileDeque & fQue)
         for (size_t i = 0; i < lnt; i += max)
         {
             size_t rblock = (i + max < lnt ? max : lnt - i);
-            in->readTrace(rblock, f->ilst.data() + i, itrc.data(), &iprm);
+            in->readTrace(rblock, f->ilst.data() + i, itrc.data(), itprm);
             std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
             for (size_t j = 0U; j < rblock; j++)
             {
-                cpyPrm(sortlist[j], &iprm, j, &oprm);
+                cpyPrm(sortlist[j], itprm, j, otprm);
 
                 for (size_t k = 0U; k < ns; k++)
                     otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
                 sortlist[j] = f->olst[i+sortlist[j]];
             }
 
-            out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
+            out->writeTrace(rblock, sortlist.data(), otrc.data(), otprm);
         }
+
         for (size_t i = 0; i < extra; i++)
         {
-            in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-            out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
+            in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(cacheFlush ? nullptr : File::PARAM_NULL));
+            out->writeTrace(0, nullptr, nullptr, (cacheFlush ? nullptr : File::PARAM_NULL));
         }
     }
-
     return name;
 }
 
@@ -255,9 +276,7 @@ FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::
         }
     }
     else
-    {
-#warning  TODO: Code currently does not process traces
-    }
+        std::cerr << "TODO: Code currently does not process traces\n";
 
     if (++fCurr != fEnd)
     {
@@ -286,17 +305,16 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
         }
         else
         {
-    #warning TODO: Implement support for a truly global operation
-            std::cerr << "Error, not supported yet\n";
+            std::cerr << "Error, not supported yet. TODO: Implement support for a truly global operation.\n";
             ++fCurr;
         }
         calcFunc(fCurr, fEnd);
     }
 }
 
-#warning use oname
 std::vector<std::string> InternalSet::output(std::string oname)
 {
+    outfix = oname;
     calcFunc(func.begin(), func.end());
     func.clear();
 
