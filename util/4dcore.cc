@@ -363,6 +363,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
     //Perform the updates of min and minrs using data from other processes.
     //This is the main loop.
+    //for (llint i = (rank % 2 ? 0 : active.size()); (rank % 2 &&  i < active.size()) || (!(rank % 2) && i > 0) ; i += (rank % 2 ? 1 : -1))
     for (size_t i = 0; i < active.size(); i ++)
     {
         double ltime = MPI_Wtime();

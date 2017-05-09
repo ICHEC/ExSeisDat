@@ -114,6 +114,10 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
                 r = new SEGYCopyRuleEntry();
                 numCopy++;
             break;
+            case Meta::Copy :
+                r = new SEGYCopyRuleEntry();
+                numCopy++;
+            break;
             default :
                 //TODO: More systematic approach required
                 std::cerr << "Metadata not supported for switch yet." << std::endl;
