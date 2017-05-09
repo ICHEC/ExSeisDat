@@ -6,14 +6,13 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <iostream>
 #include <limits>
 #include <cstring>
 #include <cmath>
+#include <iostream>
 #include "file/segymd.hh"
 #include "share/datatype.hh"
 #include "file/dynsegymd.hh"
-#include <iostream>
 
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)
@@ -259,7 +258,6 @@ void Rule::addIndex(Meta m)
     translate[m] = new SEGYIndexRuleEntry(numIndex++);
 }
 
-//TODO: Clean data?
 void Rule::rmRule(Meta m)
 {
     switch (translate[m]->type())
@@ -310,7 +308,7 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
     s.resize(sz * r->numShort);
     t.resize(sz * r->numIndex);
 
-    //TODO: This must be file system agnostic
+    //TODO: This must be file format agnostic
     c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
@@ -321,7 +319,7 @@ Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
     s.resize(sz * r->numShort);
     t.resize(sz * r->numIndex);
 
-    //TODO: This must be file system agnostic
+    //TODO: This must be file format agnostic
     c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
@@ -403,13 +401,14 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
     auto r = prm->r;
     size_t start = r->start;
 
-    if (r->translate.find(Meta::Copy) != r->translate.end())
+    if (r->numCopy)
     {
         if (!stride)
             std::copy(&prm->c[skip * SEGSz::getMDSz()], &prm->c[(skip + sz) * SEGSz::getMDSz()], buf);
         else
             for (size_t i = 0; i < sz; i++)
-                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1U) * SEGSz::getMDSz()], &buf[i * (stride + SEGSz::getMDSz())]);
+                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1U) * SEGSz::getMDSz()],
+                          &buf[i * (stride + SEGSz::getMDSz())]);
     }
 
     for (size_t i = 0; i < sz; i++)
@@ -470,13 +469,13 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
         return;
     Rule * r = prm->r.get();
 
-    if (r->translate.find(Meta::Copy) != r->translate.end())
+    if (r->numCopy)
     {
         if (!stride)
             std::copy(buf, &buf[sz * SEGSz::getMDSz()], &prm->c[skip * SEGSz::getMDSz()]);
         else
             for (size_t i = 0; i < sz; i++)
-                std::copy(&buf[i * (stride + SEGSz::getMDSz())], &buf[(i+1U) * (stride + SEGSz::getMDSz())], &prm->c[(skip + i) * SEGSz::getMDSz()]);
+                std::copy(&buf[i * (stride + SEGSz::getMDSz())], &buf[(i+1U) * (stride + SEGSz::getMDSz())], &prm->c[(i + skip) * SEGSz::getMDSz()]);
     }
 
     for (size_t i = 0; i < sz; i++)

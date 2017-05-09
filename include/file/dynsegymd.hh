@@ -21,7 +21,7 @@
 #include "file/file.hh"
 #include "share/param.hh"
 #include "share/api.hh"
-
+#include "share/segy.hh"
 namespace PIOL { namespace File {
 /*! SEG-Y Trace Header offsets
  */
@@ -171,35 +171,32 @@ struct SEGYLongRuleEntry : public RuleEntry
     }
 };
 
-/*! The Long rule entry structure for the SEG-Y format.
+/*! The Copy rule entry structure for the SEG-Y format.
  */
 struct SEGYCopyRuleEntry : public RuleEntry
 {
-    /*! The constructor.
-     *  \param[in] num_ The numth entry for indexing purposes
-     *  \param[in] loc_  The location of the primary data
+    /*! The constructor (empty).
      */
     SEGYCopyRuleEntry(void) : RuleEntry(0U, 0U) { }
 
-    /*! Return the minimum location stored, i.e loc
-     *  just loc
-     *  \return the minimum location
+    /*! Return the minimum location stored, i.e 0
+     *  \return 0U
      */
     size_t min(void)
     {
         return 0U;
     }
 
-    /*! Return the maximum location stored up to, including the size of the data stored
-     *  \return the maximum location plus 4 bytes to store an int32_t
+    /*! Return the size of the trace header
+     *  \return the size of the trace header
      */
     size_t max(void)
     {
-        return 240U;
+        return SEGSz::getMDSz();
     }
 
     /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Long
+     *  \return \c MdType::Copy
      */
     MdType type(void)
     {
