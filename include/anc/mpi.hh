@@ -59,7 +59,6 @@ class MPI : public Comm::Interface
     std::vector<double> gather(const std::vector<double> & in) const;
     std::vector<llint> gather(const std::vector<llint> & in) const;
     std::vector<size_t> gather(const std::vector<size_t> & in) const;
-//    std::vector<size_t> gather(const std::vector<size_t> & val, size_t i) const;
     size_t sum(size_t val);
     size_t max(size_t val);
     size_t min(size_t val);

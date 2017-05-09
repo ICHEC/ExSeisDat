@@ -336,17 +336,6 @@ void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, co
     getMinMax(*piol->piol, offset, sz, m1, m2, static_cast<const File::Param *>(prm->param), minmax);
 }
 
-void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
-{
-    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
-        {
-            ParamWrapper awrap = { const_cast<File::Param *>(&a) };
-            ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
-            return func(&awrap, &bwrap);
-    };
-    s->set->sort(lam);
-}
-
 //////////////////////////////////////SEGSZ///////////////////////////////////
 size_t getSEGYTextSz()
 {
@@ -418,5 +407,16 @@ void summarySet(ExSeisSet s)
 void addSet(ExSeisSet s, const char * name)
 {
     s->set->add(name);
+}
+
+void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
+{
+    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
+        {
+            ParamWrapper awrap = { const_cast<File::Param *>(&a) };
+            ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
+            return func(&awrap, &bwrap);
+    };
+    s->set->sort(lam);
 }
 }

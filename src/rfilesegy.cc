@@ -11,7 +11,6 @@
 #include "object/object.hh"
 #include "file/iconv.hh"
 #include "share/misc.hh"
-
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 ReadSEGY::Opt::Opt(void)

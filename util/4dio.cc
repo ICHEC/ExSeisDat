@@ -66,8 +66,8 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
     //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
     //Unfortunately shared pointers make things ugly in C++.
-    //without shared pointers it would be File::Rule rule = { Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv };
-    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+    //TODO: use option to make il/xl optional
+    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
     {
@@ -89,6 +89,8 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
             coords->ySrc[i+orig[j]] = File::getPrm<geom_t>(j, Meta::ySrc, &prm2);
             coords->xRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::xRcv, &prm2);
             coords->yRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::yRcv, &prm2);
+            coords->il[i+orig[j]] = File::getPrm<llint>(j, Meta::il, &prm2);
+            coords->xl[i+orig[j]] = File::getPrm<llint>(j, Meta::xl, &prm2);
             coords->tn[i+orig[j]] = trlist[i+orig[j]];
         }
     }
@@ -98,6 +100,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     for (size_t i = 0; i < extra; i++)
         file.readParam(0U, nullptr, nullptr);
 
+    piol->comm->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
     return std::move(coords);
@@ -105,18 +108,20 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs)
+void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
 {
     auto time = MPI_Wtime();
-    //Enable as many of the parameters as possible
-    auto rule = std::make_shared<File::Rule>(true, true, true);
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy});
+
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
-    rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+    if (printDsr)
+        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
 
     File::ReadDirect src(piol, sname);
     File::WriteDirect dst(piol, dname);
+    piol->isErr();
 
     size_t ns = src.readNs();
     size_t lnt = list.size();
@@ -152,9 +157,9 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         src.readTraceNonMono(rblock, &list[i], trc.data(), &prm);
-        for (size_t j = 0; j < rblock; j++)
-            setPrm(j, Meta::dsdr, minrs[i+j], &prm);
-
+        if (printDsr)
+            for (size_t j = 0; j < rblock; j++)
+                setPrm(j, Meta::dsdr, minrs[i+j], &prm);
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }
 
@@ -164,6 +169,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 
+    piol->comm->barrier();
     cmsg(piol.get(), "Output " + sname + " to " + dname + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 }
 }}

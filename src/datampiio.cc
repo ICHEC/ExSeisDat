@@ -292,9 +292,7 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-    MPI_Status stat;
-    MPI_File_read_at_all(file, 0, d, nb*bsz, MPI_CHAR, &stat);
-    printErr(log, name, Log::Layer::Data, err, &stat, " read_at Failure\n");
+    read(0U, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
@@ -333,12 +331,9 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
     int err = MPI_SUCCESS;
     size_t max = maxSize / osz;
     size_t remCall = 0;
-    if (coll)
-    {
-        auto vec = piol->comm->gather(std::vector<size_t>{sz});
-        remCall = *std::max_element(vec.begin(), vec.end());
-        remCall = remCall/max + (remCall % max > 0) - sz/max - (sz % max > 0);
-    }
+    auto vec = piol->comm->gather<size_t>(sz);
+    remCall = *std::max_element(vec.begin(), vec.end());
+    remCall = remCall/max + (remCall % max > 0) - sz/max - (sz % max > 0);
 
     for (size_t i = 0; i < sz; i += max)
     {
@@ -347,12 +342,11 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
         printErr(log, name, Log::Layer::Data, err, &stat, msg);
     }
 
-    if (coll && remCall)
-        for (size_t i = 0; i < remCall; i++)
-        {
-            err = fn(file, 0, NULL, 0, MPIType<uchar>(), &stat);
-            printErr(log, name, Log::Layer::Data, err, &stat, msg);
-        }
+    for (size_t i = 0; i < remCall; i++)
+    {
+        err = fn(file, 0, NULL, 0, MPIType<uchar>(), &stat);
+        printErr(log, name, Log::Layer::Data, err, &stat, msg);
+    }
 }
 
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
@@ -363,7 +357,7 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
     size_t max = maxSize / (bsz ? bsz * 2U : 1U);
     size_t remCall = 0;
     {
-        auto vec = piol->comm->gather(std::vector<size_t>{sz});
+        auto vec = piol->comm->gather<size_t>(sz);
         remCall = *std::max_element(vec.begin(), vec.end());
         remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
     }

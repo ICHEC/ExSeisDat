@@ -238,11 +238,12 @@ struct FileReadSEGYTest : public Test
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
     {
-        File::Param prm(tn);
         EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
-                .Times(Exactly(1))
-                .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+                    .Times(Exactly(1))
+                    .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
+        auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl, Meta::Copy, Meta::xSrc, Meta::ySrc});
+        File::Param prm(rule, tn);
         file->readParam(0, tn, &prm);
 
         for (size_t i = 0; i < tn; i++)
@@ -261,6 +262,8 @@ struct FileReadSEGYTest : public Test
                 ASSERT_FLOAT_EQ(yNum(i), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
             }
         }
+        ASSERT_TRUE(tr.size());
+        ASSERT_THAT(prm.c, ContainerEq(tr));
     }
 
     void initRandReadTrHdrsMock(size_t ns, size_t tn)
@@ -830,9 +833,10 @@ struct FileWriteSEGYTest : public Test
         }
     }
 
-    template <bool MOCK = true>
+    template <bool Copy>
     void writeTraceHeaderTest(csize_t offset, csize_t tn)
     {
+        const bool MOCK = true;
         std::vector<uchar> buf;
         if (MOCK)
         {
@@ -861,20 +865,31 @@ struct FileWriteSEGYTest : public Test
                         .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
 
-        File::Param prm(tn);
-        for (size_t i = 0; i < tn; i++)
+        if (Copy)
         {
-            File::setPrm(i, Meta::xSrc, ilNum(i+1), &prm);
-            File::setPrm(i, Meta::xRcv, ilNum(i+2), &prm);
-            File::setPrm(i, Meta::xCmp, ilNum(i+3), &prm);
-            File::setPrm(i, Meta::il, ilNum(i+4), &prm);
-            File::setPrm(i, Meta::ySrc, xlNum(i+5), &prm);
-            File::setPrm(i, Meta::yRcv, xlNum(i+6), &prm);
-            File::setPrm(i, Meta::yCmp, xlNum(i+7), &prm);
-            File::setPrm(i, Meta::xl, xlNum(i+8), &prm);
-            File::setPrm(i, Meta::tn, offset + i, &prm);
+            auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy});
+            File::Param prm(rule, tn);
+            ASSERT_TRUE(prm.size());
+            prm.c = buf;
+            file->writeParam(offset, prm.size(), &prm);
         }
-        file->writeParam(offset, prm.size(), &prm);
+        else
+        {
+            File::Param prm(tn);
+            for (size_t i = 0; i < tn; i++)
+            {
+                File::setPrm(i, Meta::xSrc, ilNum(i+1), &prm);
+                File::setPrm(i, Meta::xRcv, ilNum(i+2), &prm);
+                File::setPrm(i, Meta::xCmp, ilNum(i+3), &prm);
+                File::setPrm(i, Meta::il, ilNum(i+4), &prm);
+                File::setPrm(i, Meta::ySrc, xlNum(i+5), &prm);
+                File::setPrm(i, Meta::yRcv, xlNum(i+6), &prm);
+                File::setPrm(i, Meta::yCmp, xlNum(i+7), &prm);
+                File::setPrm(i, Meta::xl, xlNum(i+8), &prm);
+                File::setPrm(i, Meta::tn, offset + i, &prm);
+            }
+            file->writeParam(offset, prm.size(), &prm);
+        }
     }
 };
 
