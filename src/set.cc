@@ -48,51 +48,6 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
     return std::make_pair(start, std::min(sz - start, q + (rank < r)));
 }
 
-/*! Read a list of traces from the input and write it to the output.
- *  \param[in] piol A pointer to the PIOL object.
- *  \param[in] rule The rule to use for the trace parameters.
- *  \param[in] max The maximum number of traces to read/write at a time.
- *  \param[in] f The input file descriptor.
- *  \param[out] out The output file interface.
- */
-void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t max, FileDesc * f,
-                                        File::WriteInterface * out)
-{
-    File::ReadInterface * in = f->ifc.get();
-
-    size_t lnt = f->ilst.size();
-    size_t fmax = std::min(lnt, max);
-    size_t ns = in->readNs();
-
-    File::Param iprm(rule, fmax);
-    File::Param oprm(rule, fmax);
-    std::vector<trace_t> itrc(fmax * ns);
-    std::vector<trace_t> otrc(fmax * ns);
-    auto biggest = piol->comm->max(lnt);
-    size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-    for (size_t i = 0; i < lnt; i += max)
-    {
-        size_t rblock = (i + max < lnt ? max : lnt - i);
-        in->readTrace(rblock, f->ilst.data() + i, itrc.data(), &iprm);
-        std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
-        for (size_t j = 0U; j < rblock; j++)
-        {
-            cpyPrm(sortlist[j], &iprm, j, &oprm);
-
-            for (size_t k = 0U; k < ns; k++)
-                otrc[j*ns + k] = itrc[sortlist[j]*ns + k];
-            sortlist[j] = f->olst[i+sortlist[j]];
-        }
-
-        out->writeTrace(rblock, sortlist.data(), otrc.data(), &oprm);
-    }
-    for (size_t i = 0; i < extra; i++)
-    {
-        in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(File::PARAM_NULL));
-        out->writeTrace(0, nullptr, nullptr, File::PARAM_NULL);
-    }
-}
-
 /*! For CoordElem. Update the dst element based on if the operation gives true.
  *  If the elements have the same value, set the trace number to the
  *  smallest trace number.
@@ -132,13 +87,12 @@ void InternalSet::add(std::string name)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
     auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
-    auto in = std::make_unique<File::ReadSEGY>(piol, name, obj);
-    add(std::move(in));
+    add(std::move(std::make_unique<File::ReadSEGY>(piol, name, obj)));
 }
 
 void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
 {
-    file.emplace_back(std::make_unique<FileDesc>());
+    file.emplace_back(std::make_shared<FileDesc>());
     auto & f = file.back();
     f->ifc = std::move(in);
 
@@ -148,7 +102,7 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
     std::iota(f->ilst.begin(), f->ilst.end(), dec.first);
 
     auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
-    fmap[key].emplace_back(f.get());
+    fmap[key].emplace_back(f);
 
     auto & off = offmap[key];
     std::iota(f->olst.begin(), f->olst.end(), off + dec.first);
@@ -278,19 +232,6 @@ std::string InternalSet::output(FileDeque & fQue)
         }
     }
 
-/*    if (prm == nullptr && trc == nullptr)
-        for (auto & f : fQue)
-            readWriteTraces(piol.get(), rule, max, f.get(), out.get());
-    else if (prm == nullptr)
-    {
-//        prm = cache.cachePrm(std::get<1>(*fCurr), o.second);
-#warning TODO: Write
-    }
-    else
-    {
- //       trc = cache.cacheTrc(o.second);
-#warning TODO: Write
-    }*/
     return name;
 }
 
@@ -318,10 +259,12 @@ FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::
 #warning  TODO: Code currently does not process traces
     }
 
-    fCurr++;
-    opt = std::get<0>(*fCurr);
-    if (fCurr != fEnd && opt.check(FuncOpt::SubSetOnly))
-        return calcFunc(fCurr, fEnd, fQue);
+    if (++fCurr != fEnd)
+    {
+        opt = std::get<0>(*fCurr);
+        if (opt.check(FuncOpt::SubSetOnly))
+            return calcFunc(fCurr, fEnd, fQue);
+    }
     return fCurr;
 }
 
@@ -331,8 +274,16 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
     {
         OpOpt & opt = std::get<0>(*fCurr);
         if (opt.check(FuncOpt::SubSetOnly))
+        {
+            std::vector<FuncLst::iterator> flist;
+
             for (auto & o : fmap)                        //TODO: Parallelisable
-                fCurr = calcFunc(fCurr, fEnd, o.second);     //Iterate across the full function list
+                flist.push_back(calcFunc(fCurr, fEnd, o.second));     //Iterate across the full function list
+
+            std::equal(flist.begin() + 1U, flist.end(), flist.begin());
+
+            fCurr = flist.front();
+        }
         else
         {
     #warning TODO: Implement support for a truly global operation
