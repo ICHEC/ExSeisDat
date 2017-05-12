@@ -19,13 +19,13 @@ std::function<trace_t(trace_t, trace_t)> getTap(TaperType type)
     {
         default :
         case TaperType::Linear :
-	    return [](trace_t weight, trace_t ramp) { return 1.0f - std::abs((weight-ramp)/ramp); };
+        return [](trace_t weight, trace_t ramp) { return 1.0f - std::abs((weight-ramp)/ramp); };
         break;
         case TaperType::Cos :
         return [](trace_t weight, trace_t ramp) { return 0.5f + 0.5f * cos(pi*(weight-ramp)/ramp); };
         break;
         case TaperType::CosSqr :
-	    return [](trace_t weight, trace_t ramp) { return pow(0.5f + 0.5f*cos(pi*(weight-ramp)/ramp), 2.0f); };
+        return [](trace_t weight, trace_t ramp) { return pow(0.5f + 0.5f*cos(pi*(weight-ramp)/ramp), 2.0f); };
         break;
     }
 }
