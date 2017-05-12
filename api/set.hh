@@ -17,7 +17,7 @@ class Set : public InternalSet
 {
     public :
     using InternalSet::sort;
-
+    using InternalSet::taper;
     /*! Constructor
      *  \param[in] piol The PIOL object.
      *  \param[in] pattern The file-matching pattern
@@ -56,6 +56,13 @@ class Set : public InternalSet
      *  and their respective trace numbers.
      */
     void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
+
+    /*! Perform tailed taper on a set of traces
+     * \param[in] type The type of taper to be applied to traces.
+     * \param[in] ntpstr The length of left-tail taper ramp.
+     * \param[in] ntpend The length of right-tail taper ramp.
+     */
+    void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
 };
 }
 #endif

@@ -42,6 +42,32 @@ extern void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax);
  */
 extern void sortSet(ExSeisSet s, SortType type);
 
+  /*! Sort the set using a custom comparison function
+   *  \param[in] s A handle for the set.
+   *  \param[in] func The custom comparison function to sort set
+   */
+extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
+
+ 
+/*! Preform 2 tailed taper on a set of traces
+ * \param[in] nt The number of traces
+ * \param[in] ns The number of samples per trace.
+ * \param[in] trc The vector of samples in all traces.
+ * \param[in] type The type of taper to be applied to traces.
+ * \param[in] ntpstr The length of left-tail taper ramp.
+ * \param[in] ntpend The length of right-tail taper ramp.
+ */
+//extern void taper2Tail(size_t nt, size_t ns, float ** trc, TaperType type, size_t ntpstr, size_t ntpend);
+
+/*! Preform 1 tailed taper on a set of traces
+ * \param[in] nt The number of traces
+ * \param[in] ns The number of samples per trace.
+ * \param[in] trc The vector of samples in all traces.
+ * \param[in] type The type of taper to be applied to traces.
+ * \param[in] ntpstr The length of taper ramp.
+ */
+//extern void taper1Tail(size_t nt,size_t ns,  ** trc, TaperType type, size_t ntpstr);
+
 /*! The number of traces in the input files
  *  \param[in] s The set handle
  *  \return The number of traces in the input files

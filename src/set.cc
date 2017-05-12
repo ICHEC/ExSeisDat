@@ -6,17 +6,17 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
+#include <assert.h>
 #include <glob.h>
-#include "global.hh"
 #include <regex>
 #include <numeric>
 #include <map>
+#include "global.hh"
 #include "share/misc.hh"    //For getSort..
 #include "set/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
-
 namespace PIOL {
 typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
 
@@ -112,7 +112,7 @@ void readWriteTraces(ExSeisPIOL * piol, std::shared_ptr<File::Rule> rule, size_t
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         in->readTrace(rblock, ilist.data() + i, itrc.data(), &iprm);
-        modify(&iprm, itrc.data());
+        modify(ns, &iprm, itrc.data());
         std::vector<size_t> sortlist = getSortIndex(rblock, olist.data() + i);
         for (size_t j = 0U; j < rblock; j++)
         {
@@ -261,7 +261,7 @@ size_t InternalSet::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-        for (auto & l : f->lst)
+      for (auto & l : f->lst)
             nt += (l != NOT_IN_OUTPUT);
     return nt;
 }
@@ -415,5 +415,27 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
             updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
         }
     }
+}
+
+void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+{
+    assert(ns > nTailLft && ns > nTailRt);
+    for (size_t i = 0; i < sz; i++)
+    {
+        size_t jstart;
+        for (jstart = 0; jstart < ns && trc[i*ns+jstart] == 0.0f; jstart++);
+
+        for (size_t j = jstart; j < std::min(jstart+nTailLft, ns); j++)
+            trc[i*ns+j] *= func(j-jstart+1, nTailLft);
+
+        for (size_t j = ns - nTailRt; j < ns; j++)
+            trc[i*ns+j] *= func(ns - j - 1U, nTailRt);
+    }
+}
+
+void InternalSet::taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+{
+    Mod modify_ = [func, nTailLft, nTailRt] (size_t ns, File::Param * p, trace_t * t) { PIOL::taper(p->size(), ns, t, func, nTailLft, nTailRt); };
+    mod(modify_);
 }
 }

@@ -21,6 +21,7 @@
 namespace PIOL { namespace File {
 extern Compare<Param> getComp(SortType type);
 
+extern std::function<trace_t(trace_t, trace_t)> getTap(TaperType type);
 //extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, const coord_t * coord, CoordElem * minmax);
 
 //TODO: Write a test for this function

@@ -1,6 +1,7 @@
 /* These unit tests might be fairly redundant since they are basically the same as the system tests.
  */
 #include "settest.hh"
+#include <string>
 
 const std::vector<size_t> sortOffLine = {
 0, 2, 5, 10, 16, 25, 34, 44, 57, 72, 88, 99, 109, 122, 133, 144, 154, 165, 175,
@@ -69,7 +70,7 @@ const std::vector<size_t> sortOffLine = {
 void testRcvPattern(std::deque<std::unique_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
-    {
+   {
         size_t l = 1;
         for (size_t j = 1; j < file[i]->lst.size(); j++, l++)
             EXPECT_EQ(file[i]->lst[j] - 1, file[i]->lst[j-1]);
@@ -112,11 +113,41 @@ void testSrcOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
     }
 }
 
-
+void muting(size_t nt, size_t ns, trace_t * trc, size_t mute)
+{
+    for (size_t i = 0; i < nt; i++)
+        for (size_t j = 0; j < mute; j++)
+            trc[i*ns+j] = 0.0f;
+}
+void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+{
+    for (size_t i = 0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j = 0; j < ns; j++)
+        {
+            if ((wtLft < 1) && (trc[i*ns+j] != 0.0f))
+            {
+                ++wtLft;
+                trc[i*ns+j] = trc[i*ns+j] * func(wtLft, nTailLft);
+            }
+            else if ((wtLft > 0) && (wtLft < nTailLft))
+            {
+                ++wtLft;
+                trc[i*ns+j] *= func(wtLft, nTailLft);
+            }
+            else if ((ns - j) <= nTailRt)
+            {
+                --wtRt;
+                trc[i*ns+j] *= func(wtRt, nTailRt);
+            }
+        }
+    }
+}
 TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
-
     set->sort(SortType::SrcRcv);
 
     for (size_t i = 0; i < set->file.size(); i++)
@@ -249,4 +280,41 @@ TEST_F(SetTest, getActive3)
 
     EXPECT_EQ(set->getInNt(), 2U*3333U);
     EXPECT_EQ(set->getLNt(), 2U*2222U);
+}
+
+TEST_F(SetTest, Taper2TailLin)
+{
+    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50, 60);
+}
+
+TEST_F(SetTest, Taper1TailLin)
+{
+    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
+}
+TEST_F(SetTest, Taper2TailCos)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, TaperType::Cos, 50, 60);
+}
+
+TEST_F(SetTest, Taper1TailCos)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, TaperType::Cos, 50,0);
+}
+TEST_F(SetTest, Taper2TailCosSq)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, TaperType::CosSqr, 50, 60);
+}
+TEST_F(SetTest, Taper1TailCosSq)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, TaperType::CosSqr, 50, 0);
+}
+
+TEST_F(SetTest, Taper2TailLinMute)
+{
+    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 25, 30);
+}
+
+TEST_F(SetTest, Taper1TailLinMute)
+{
+    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
 }

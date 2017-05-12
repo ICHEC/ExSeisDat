@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
+#include <cmath>
 #define private public
 #define protected public
 #include "file/file.hh"
@@ -40,12 +41,17 @@ ACTION_P(cpyprm, src)
    *arg2 = *src;
 }
 
+extern void muting(size_t nt, size_t ns, trace_t * trc, size_t mute);
+extern void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
+
 struct SetTest : public Test
 {
     std::shared_ptr<ExSeisPIOL> piol;
     std::unique_ptr<Set> set;
     std::deque<File::Param> prm;
     Comm::MPI::Opt opt;
+    const double pi = M_PI;
+
     SetTest(void)
     {
         opt.initMPI = false;
@@ -136,6 +142,33 @@ struct SetTest : public Test
                 set->file[i]->lst[randj] = NOT_IN_OUTPUT;
             }
         }
+    }
+
+    void taperTest(size_t nt, size_t ns, size_t mute, std::function<trace_t(trace_t, trace_t)> func, TaperType type, size_t nTailLft, size_t nTailRt)
+    {
+       if (set.get() != nullptr)
+            set.release();
+        set = std::make_unique<Set>(piol);
+        std::vector<trace_t> trc(nt * ns);
+        std::vector<trace_t> trcMan(nt * ns);
+        File::Param p(nt);
+        std::fill(trc.begin(), trc.end(), 1.0f);
+        if (mute != 0)
+            muting(nt, ns, trc.data(),  mute);
+        trcMan = trc;
+
+        if (nTailRt == 0)
+            set->taper(type, nTailLft);
+        else
+            set->taper(type, nTailLft, nTailRt);
+        set->modify(ns, &p, trc.data());
+
+        taperMan(nt, ns, trcMan.data(), func, nTailLft, nTailRt);
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+            {
+                EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
+            }
     }
 };
 
