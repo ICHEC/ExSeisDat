@@ -22,6 +22,7 @@ struct Param
     std::vector<llint> i;     //!< Integer array.
     std::vector<int16_t> s;   //!< Short array.
     std::vector<size_t> t;    //!< trace number array.
+    std::vector<uchar> c;     //!< storage for a file format specific copy
     std::shared_ptr<Rule> r;  //!< The rules which describe the indexing of the arrays.
     size_t sz;                //!< The number of sets of trace parameters.
 

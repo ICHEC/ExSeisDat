@@ -50,7 +50,7 @@ void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t 
     long nhalf = nt/2;
 
     std::vector<size_t> offset(lnt);
-    auto num = piol->comm->gather(std::vector<size_t>{lnt});
+    auto num = piol->comm->gather<size_t>(lnt);
 
     size_t rank = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();

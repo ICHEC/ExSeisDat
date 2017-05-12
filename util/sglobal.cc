@@ -22,7 +22,7 @@ std::vector<size_t> lobdecompose(PIOL::ExSeisPIOL * piol, size_t sz, size_t numR
     if (rank == 1)
         lnt += rem;
 
-    auto nts = piol->comm->gather(std::vector<size_t>{lnt});
+    auto nts = piol->comm->gather<size_t>(lnt);
     size_t biggest = *std::max_element(nts.begin(), nts.end());
     assert(sz == std::accumulate(nts.begin(), nts.end(), 0U));
 

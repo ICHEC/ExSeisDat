@@ -295,32 +295,47 @@ TEST_F(FileSEGYWrite, FileWriteRandomTraceWPrmZeroNs)
 TEST_F(FileSEGYWrite, FileWriteParam)
 {
     makeMockSEGY<true>();
-    writeTraceHeaderTest(0U, nt);
+    writeTraceHeaderTest<false>(0U, nt);
 }
 
 TEST_F(FileSEGYWrite, FileWriteParamOne)
 {
     nt = 400;
     makeMockSEGY<true>();
-    writeTraceHeaderTest(200, 1);
+    writeTraceHeaderTest<false>(200, 1);
 }
 
 TEST_F(FileSEGYWrite, FileWriteParamBigOffset)
 {
-#ifdef NT_LIMITS
-    nt = NT_LIMITS-1;
-#else
     nt = 10000000U;
-#endif
     makeMockSEGY<true>();
-    writeTraceHeaderTest(nt-1, 1);
+    writeTraceHeaderTest<false>(nt-1, 1);
 }
 
+TEST_F(FileSEGYWrite, FileWriteParamCopy)
+{
+    makeMockSEGY<true>();
+    writeTraceHeaderTest<true>(0U, nt);
+}
+
+TEST_F(FileSEGYWrite, FileWriteParamOneCopy)
+{
+    nt = 400;
+    makeMockSEGY<true>();
+    writeTraceHeaderTest<true>(200, 1);
+}
+
+TEST_F(FileSEGYWrite, FileWriteParamBigOffsetCopy)
+{
+    nt = 10000000U;
+    makeMockSEGY<true>();
+    writeTraceHeaderTest<true>(nt-1, 1);
+}
 //Akward to fit this into the current functions
 /*TEST_F(FileSEGYDeath, FileWriteTraceParamBigOffset)
 {
     makeMockSEGY<true>();
-    writeTraceHeaderTest<false>(NT_LIMITS+1);
+    writeTraceHeaderTest<false, false>(NT_LIMITS+1);
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////

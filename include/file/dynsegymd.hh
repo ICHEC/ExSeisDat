@@ -21,7 +21,7 @@
 #include "file/file.hh"
 #include "share/param.hh"
 #include "share/api.hh"
-
+#include "share/segy.hh"
 namespace PIOL { namespace File {
 /*! SEG-Y Trace Header offsets
  */
@@ -96,6 +96,7 @@ enum class MdType : size_t
     Short,  //!< Short int data
     Float,  //!< Floating point data
     Index,  //!< For indexing purposes
+    Copy    //!< Copy all relevant headers. Not file format agnostic.
 };
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -167,6 +168,39 @@ struct SEGYLongRuleEntry : public RuleEntry
     MdType type(void)
     {
         return MdType::Long;
+    }
+};
+
+/*! The Copy rule entry structure for the SEG-Y format.
+ */
+struct SEGYCopyRuleEntry : public RuleEntry
+{
+    /*! The constructor (empty).
+     */
+    SEGYCopyRuleEntry(void) : RuleEntry(0U, 0U) { }
+
+    /*! Return the minimum location stored, i.e 0
+     *  \return 0U
+     */
+    size_t min(void)
+    {
+        return 0U;
+    }
+
+    /*! Return the size of the trace header
+     *  \return the size of the trace header
+     */
+    size_t max(void)
+    {
+        return SEGSz::getMDSz();
+    }
+
+    /*! Return the datatype associated with the entry.
+     *  \return \c MdType::Copy
+     */
+    MdType type(void)
+    {
+        return MdType::Copy;
     }
 };
 
@@ -297,6 +331,7 @@ struct Rule
     size_t numFloat;        //!< Number of float rules.
     size_t numShort;        //!< Number of short rules.
     size_t numIndex;        //!< Number of index rules.
+    size_t numCopy;         //!< Number of copy rules. either 0 or 1.
     size_t start;           //!< The starting byte position in the SEG-Y header.
     size_t end;             //!< The end byte position (+ 1) in the SEG-Y header.
     struct
@@ -445,6 +480,8 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
         break;
         case MdType::Index :
         prm->t[i * r->numIndex + r->getEntry(entry)->num] = ret;
+        break;
+        case MdType::Copy :
         break;
     }
 }

@@ -44,14 +44,20 @@ int main(int argc, char ** argv)
 {
     ExSeis piol;
     fourd_t dsrmax = 1.0;            //Default dsdr criteria
-    bool verbose = false;
     std::string name1 = "";
     std::string name2 = "";
     std::string name3 = "";
     std::string name4 = "";
+    FourDOpt fopt;
+
+    char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING-1];
+    int len;
+    MPI_Get_library_version(MPIVersion, &len);
+    if (!piol.getRank())
+        std::cout << "MPI Version " << MPIVersion << std::endl;
 
 /*******************  Reading options from the command line ***********************************************/
-    std::string opt = "a:b:c:d:t:v";  //TODO: uses a GNU extension
+    std::string opt = "a:b:c:d:t:vpx";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -71,8 +77,14 @@ int main(int argc, char ** argv)
                 dsrmax = std::stod(optarg);
             break;
             case 'v' :
-                verbose = true;
+                fopt.verbose = true;
                 cmsg(piol, "Verbose mode enabled");
+            break;
+            case 'p' :
+                fopt.printDsr = false;
+            break;
+            case 'x' :
+                fopt.ixline = true;
             break;
             default :
                 std::cerr<< "One of the command line arguments is invalid\n";
@@ -89,7 +101,7 @@ int main(int argc, char ** argv)
 
     vec<size_t> min(coords1->sz);
     vec<fourd_t> minrs(coords1->sz);
-    calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), min, minrs, verbose);
+    calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
     cmsg(piol, "Final list pass");
@@ -110,8 +122,8 @@ int main(int argc, char ** argv)
 
     cmsg(piol, "Output phase");
 
-    outputNonMono(piol, name3, name1, list1, lminrs);
-    outputNonMono(piol, name4, name2, list2, lminrs);
+    outputNonMono(piol, name3, name1, list1, lminrs, fopt.printDsr);
+    outputNonMono(piol, name4, name2, list2, lminrs, fopt.printDsr);
 
     return 0;
 }

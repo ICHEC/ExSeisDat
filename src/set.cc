@@ -187,7 +187,7 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
     auto key = std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
     fmap[key].emplace_back(f.get());
 
-    auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
+    auto sizes = piol->comm->gather<size_t>(f->lst.size());
     size_t loff = 0U;    //The local process's offset into the file.
     for (size_t i = 0U; i < piol->comm->getRank(); i++)
         loff += sizes[i];
@@ -234,7 +234,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
     for (auto & f : file)
     {
         //TODO: This could be replaced with a function
-        auto sizes = piol->comm->gather(std::vector<size_t>{f->lst.size()});
+        auto sizes = piol->comm->gather<size_t>(f->lst.size());
         size_t loff = 0;    //The local process's offset into the file.
         for (size_t i = 0; i < piol->comm->getRank(); i++)
             loff += sizes[i];
@@ -299,7 +299,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
                 lsnt += (l != NOT_IN_OUTPUT);
 
         //TODO: Replace with function call(s)
-        auto sizes = piol->comm->gather(std::vector<size_t>{lsnt});
+        auto sizes = piol->comm->gather<size_t>(lsnt);
         size_t off = 0U;
         for (size_t i = 0; i < piol->comm->getRank(); i++)
             off += sizes[i];

@@ -23,7 +23,6 @@ typedef struct ExSeisReadWrapper * ExSeisRead;  //!< A wrapper around a File Lay
 typedef struct ExSeisWriteWrapper * ExSeisWrite;//!< A wrapper around a File Layer pointer
 typedef struct RuleWrapper * RuleHdl;           //!< A wrapper around a File Layer pointer
 typedef struct ParamWrapper * CParam;           //!< A wrapper around a File Layer pointer
-typedef struct ExSeisSetWrapper * ExSeisSet;    //!< A wrapper around a File Layer pointer
 
 /*
  * PIOL calls. Non-file specific

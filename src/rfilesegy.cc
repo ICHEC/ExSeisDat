@@ -108,7 +108,7 @@ void ReadSEGY::readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) 
     }
 
     //Don't process beyond end of file if we can
-    size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
+    size_t ntz = (!sz ? 0U : (offset + sz > nt ? nt - offset : sz));
 
     std::vector<uchar> buf(SEGSz::getMDSz() * ntz);
     obj->readDOMD(offset, ns, ntz, buf.data());

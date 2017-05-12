@@ -210,9 +210,10 @@ static size_t offcalc(ExSeisPIOL * piol, size_t sz)
     size_t rank = piol->comm->getRank();
     auto szall = piol->comm->gather(std::vector<size_t>{sz});
 
-    for (size_t i = 1; i < rank+1; i++)
-        szall[i] += szall[i-1];
-    return (rank ? szall[rank-1] : 0U);
+    szall[rank] = 0U;
+    for (size_t i = 0U; i < rank; i++)
+        szall[rank] += szall[i];
+    return szall[rank];
 }
 
 /*! Function to sort a given vector by a nearest neighbour approach.
