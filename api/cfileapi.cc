@@ -389,17 +389,6 @@ void sortSet(ExSeisSet s, SortType type)
     s->set->sort(type);
 }
 
-void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
-{
-    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
-    {
-        ParamWrapper awrap = { const_cast<File::Param *>(&a) };
-        ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
-        return func(&awrap, &bwrap);
-    };
-    s->set->sort(lam);
-}
-
 size_t getInNt(ExSeisSet s)
 {
     return s->set->getInNt();
