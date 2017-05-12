@@ -400,6 +400,16 @@ void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
     s->set->sort(lam);
 }
 
+extern void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend);
+{
+    s->set->taper(type, ntpstr, ntpend);
+}
+
+extern void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr);
+{
+    s->set->taper(type, ntpstr, 0);
+}
+
 size_t getInNt(ExSeisSet s)
 {
     return s->set->getInNt();
