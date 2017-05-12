@@ -389,6 +389,16 @@ void sortSet(ExSeisSet s, SortType type)
     s->set->sort(type);
 }
 
+void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
+{
+    s->set->taper(type, ntpstr, ntpend);
+}
+
+void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
+{
+    s->set->taper(type, ntpstr);
+}
+
 size_t getInNt(ExSeisSet s)
 {
     return s->set->getInNt();
