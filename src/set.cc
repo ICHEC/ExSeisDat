@@ -261,7 +261,7 @@ size_t InternalSet::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-      for (auto & l : f->lst)
+        for (auto & l : f->lst)
             nt += (l != NOT_IN_OUTPUT);
     return nt;
 }
