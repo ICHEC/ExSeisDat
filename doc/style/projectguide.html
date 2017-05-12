@@ -344,12 +344,11 @@ Information (RTTI)</h3>
 <h3 id="Casting">Casting</h3>
 <div class="summary">
 <p>Use C++-style casts
-like <code>static_cast&lt;float&gt;(double_value)</code>, or brace
+like <code>static_cast&lt;float&gt;(double_value)</code>, int(x), or brace
 initialization for conversion of arithmetic types like
 <code>int64 y = int64{1} &lt;&lt; 42</code>. Do not use
 cast formats like
-<code>int y = (int)x</code> or <code>int y = int(x)</code> (but the latter
-is okay when invoking a constructor of a class type).</p>
+<code>int y = (int)x</code>.</p>
 </div>
 
 <h3 id="Streams">Streams</h3>

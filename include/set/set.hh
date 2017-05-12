@@ -28,7 +28,18 @@ struct FileDesc
     std::vector<size_t> lst;                    //!< The size of this corresponds to the local decomposition
 };
 
-typedef std::function<void(File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+typedef std::function<void(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+
+/*! Apply a taper to a set of traces --> used for acutal operation during output
+ * \param[in] nt The number of traces
+ * \parma[in] ns The number of samples in a trace
+ * \param[in] trc Vector of all traces
+ * \param[in] func Weight function for the taper ramp
+ * \param[in] ntpstr Length of left tail of taper
+ * \param[in] ntpend Length of right tail of taper
+ * \return Vector of tapered traces
+ */
+void taper(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
 
 /*! The internal set class
  */
@@ -42,7 +53,7 @@ class InternalSet
     std::map<std::pair<size_t, geom_t>, std::deque<FileDesc *>> fmap;   //!< A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, size_t> offmap;                 //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                                   //!< Contains a pointer to the Rules for parameters
-    Mod modify = [] (File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
+    Mod modify = [] (size_t, File::Param *, trace_t *) { };                     //!< Function to modify traces and parameters
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
@@ -99,35 +110,13 @@ class InternalSet
      */
     void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax);
 
-    /*! Apply a taper to a set of traces --> used for acutal operation during output
-     * \param[in] nt The number of traces
-     * \parma[in] ns The number of samples in a trace
-     * \param[in] trc Vector of all traces
-     * \param[in] func Weight function for the taper ramp
-     * \param[in] ntpstr Length of left tail of taper 
-     * \param[in] ntpend Length of right tail of taper
-     * \return Vector of tapered traces
-     */
-    void taper(size_t nt, size_t ns, float * trc, std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt);
-    
     /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
-     * \param[in] nt The number of traces
-     * \parma[in] ns The number of samples in a trace
      * \param[in] trc Vector of all traces
      * \param[in] func Weight function for the taper ramp
      * \param[in] ntpstr Length of left tail of taper
      * \param[in] ntpend Length of right tail of taper
      */
-    void taper(size_t nt, size_t ns,  std::function<float(float weight, float ramp)> func, size_t nTailLft, size_t nTailRt);
-
-    /*! Function to add a modify function that applies a 1-tailed taper to a set of traces
-     * \param[in] nt The number of traces
-     * \parma[in] ns The number of samples in a trace
-     * \param[in] trc Vector of all traces
-     * \param[in] func Weight function for the taper ramp
-     * \param[in] ntpstr Length of left tail of taper
-     */
-    void taper(size_t nt, size_t ns, std::function<float(float weight, float ramp)> func, size_t nTailLft);
+    void taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt = 0);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message
@@ -156,7 +145,7 @@ class InternalSet
      */
     void mod(Mod modify_)
     {
-        modify = [oldmod = modify, modify_] (File::Param * p, trace_t * t) { oldmod(p, t); modify_(p, t); };
+        modify = [oldmod = modify, modify_] (size_t ns, File::Param * p, trace_t * t) { oldmod(ns, p, t); modify_(ns, p, t); };
     }
 };
 }

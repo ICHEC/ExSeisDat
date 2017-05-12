@@ -8,7 +8,6 @@
 #include "global.hh"
 #include "set.hh"
 #include "file/dynsegymd.hh"
-#include <iostream>
 namespace PIOL {
 std::shared_ptr<File::Rule> getMaxRules(void)
 {
@@ -33,12 +32,8 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
 
 }
 
-void Set::taper(size_t nt, size_t ns, TaperType type, size_t nTailLft, size_t nTailRt)
+void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
 {
-    InternalSet::taper(nt, ns, File::getTap(type), nTailLft, nTailRt);  
-}
-void Set::taper(size_t nt, size_t ns, TaperType type, size_t nTailLft)
-{
-    InternalSet::taper(nt, ns, File::getTap(type), nTailLft);
+    InternalSet::taper(File::getTap(type), nTailLft, nTailRt);
 }
 }
