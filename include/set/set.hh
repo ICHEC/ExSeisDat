@@ -11,6 +11,7 @@
 #include "file/file.hh"
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
+#include "ops/agc.hh"
 #include <functional>
 #include <memory>
 #include <deque>
@@ -41,6 +42,16 @@ typedef std::function<void(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef
  */
 void taper(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
 
+/*! Apply automatic gain control to a set of tapers --> used for actual operation during output
+ * \param[in] nt The number of traces
+ * \parma[in] ns The number of samples in a trace
+ * \param[in] trc Vector of all traces
+ * \param[in] func Staistical function used to modulate traces
+ * \param[in] window Length of the agc window
+ * \param[in] normR Value to which traces are normalized
+ */
+void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(size_t win, trace_t * trcWin, trace_t normR)> func,
+         size_t window, trace_t normR);
 /*! The internal set class
  */
 class InternalSet
@@ -111,12 +122,18 @@ class InternalSet
     void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
-     * \param[in] trc Vector of all traces
      * \param[in] func Weight function for the taper ramp
      * \param[in] ntpstr Length of left tail of taper
      * \param[in] ntpend Length of right tail of taper
      */
     void taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt = 0);
+
+    /*! Function to add to modify function that applies automatic gain control to a set of traces
+     * \param[in] func Staistical function used to scale traces
+     * \param[in] window Length of the agc window
+     * \param[in] normR Value to which traces are normalized
+     */
+    void agc(std::function<trace_t(size_t win, trace_t * trcWin, trace_t normR)> func, size_t window, trace_t normR);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message

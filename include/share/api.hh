@@ -108,6 +108,24 @@ typedef enum
 } TaperType;
 #endif
 
+/*! An enum class of the different types of automatic gain control functions.
+ */
+#ifdef __cplusplus
+enum class AGCType : int
+#else
+typedef enum
+#endif
+{
+    RMS,       //!< AGC using Root Mean Square with rectangular window
+    RMSTri,    //!< AGC using Root Mean Square with triangular window
+    MeanAbs,   //!< AGC using Mean Ablsolute Value with rectangular window
+    Median     //!< AGC using the median value
+#ifdef __cplusplus
+};
+#else
+} AGCType;
+#endif
+
 /*! A structure to hold a reference to a single coordinate and
  * the corresponding trace number
  */
