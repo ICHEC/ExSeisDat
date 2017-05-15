@@ -318,3 +318,14 @@ TEST_F(SetTest, Taper1TailLinMute)
 {
     taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
 }
+
+TEST_F(SetTest, agcRMS)
+{
+    std::function<trace_t(size_t, trace_t)> func = [](size_t window, trace_t trc) {
+          trace_t amp = 0.0f;
+          for (size_t i = 0; i < window; i++)
+              amp += pow(trc[i], 2.0f);
+          size_t num = std::count_if(trc.begin(), trc.end(),[](float j){return j != 0.0f;});
+          return std::sqrt(amp/num);};
+     agcTest(100, 200, AGCType::RMS, func, 30, 2.0f);
+}

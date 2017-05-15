@@ -50,7 +50,7 @@ struct SetTest : public Test
     std::unique_ptr<Set> set;
     std::deque<File::Param> prm;
     Comm::MPI::Opt opt;
-    const double pi = M_PI;
+    const float pi = M_PI;
 
     SetTest(void)
     {
@@ -169,6 +169,40 @@ struct SetTest : public Test
             {
                 EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
             }
+    }
+    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t)> func, size_t window, trace_t normR)
+    {
+        if (set.get() != nullptr)
+            set.release();
+        set = std::make_unique<Set>(piol);
+        std::vector<trace_t> trc(nt*ns);
+        std::vector<trace_t> trcMan(nt*ns);
+        File::Param p(nt);
+
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+            {
+                trc[i*ns + j] = float(j)*std::exp(-.05*float(j))*std::cos(pi*2*float(j));
+             }
+       trcMan = trc;
+       set->agc(type, window, normR);
+       set->modify(ns, &p, trc.data());
+       size_t win;
+       for (size_t i = 0; i < nt; i++)
+           for (size_t j = 0; j < ns; j++)
+           {
+               if (j < window - 1)
+                   win = j + 1;
+               else if ((ns - j) < window);
+                   win = ns - j;
+               else
+               {
+                   win = window;
+               }
+               std::vector<trace_t> trcWin(trcMan.begin() + (i*ns +j), trcMan.end() + (i*ns + j + win));
+               trcMan[i*ns+j] = normR/func(win, trcWin);
+               EXPECT_FLOAT_EQ(trc[i*ns+j], normR/func(win,trcWin));
+           }
     }
 };
 
