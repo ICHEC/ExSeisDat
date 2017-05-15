@@ -410,7 +410,7 @@ extern void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
     s->set->taper(type, ntpstr, 0);
 }
 
-extern void agc(ExSeisSet s, AGCType type, size_t window, trace_t normR)
+extern void agc(ExSeisSet s, AGCType type, size_t window, float normR)
 {
     s->set->agc(type, window, normR);
 }

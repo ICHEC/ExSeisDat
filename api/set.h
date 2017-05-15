@@ -110,7 +110,7 @@ extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CPara
  * \param[in] window Length of the agc window
  * \param[in] normR Normalization value
  */
-extern void agc(ExSeisSet s, AGCType type, size_t window, trace_t normR);
+extern void agc(ExSeisSet s, AGCType type, size_t window, float normR);
 
 #ifdef __cplusplus
 }

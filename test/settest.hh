@@ -2,6 +2,7 @@
 #include "gmock/gmock.h"
 #include "tglobal.hh"
 #include <cmath>
+#include <vector>
 #define private public
 #define protected public
 #include "file/file.hh"
@@ -9,7 +10,7 @@
 #include "set.hh"
 #undef private
 #undef protected
-
+#include <iostream>
 namespace PIOL {
 extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);     //TODO: TEMP!
 }
@@ -50,7 +51,7 @@ struct SetTest : public Test
     std::unique_ptr<Set> set;
     std::deque<File::Param> prm;
     Comm::MPI::Opt opt;
-    const float pi = M_PI;
+    const double pi = M_PI;
 
     SetTest(void)
     {
@@ -170,7 +171,7 @@ struct SetTest : public Test
                 EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
             }
     }
-    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t)> func, size_t window, trace_t normR)
+    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *)> func, size_t window, trace_t normR)
     {
         if (set.get() != nullptr)
             set.release();
@@ -182,8 +183,9 @@ struct SetTest : public Test
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
             {
-                trc[i*ns + j] = float(j)*std::exp(-.05*float(j))*std::cos(pi*2*float(j));
-             }
+                trc[i*ns + j] = float(j);
+                std::cout<<trc[i*ns+j]<<std::endl;//float(j)*std::exp(-.05*float(j))*std::cos(pi*2*float(j));
+            }
        trcMan = trc;
        set->agc(type, window, normR);
        set->modify(ns, &p, trc.data());
@@ -192,16 +194,23 @@ struct SetTest : public Test
            for (size_t j = 0; j < ns; j++)
            {
                if (j < window - 1)
+               {
                    win = j + 1;
-               else if ((ns - j) < window);
+                   std::cout<<win<<std::endl;
+               }
+               else if ((ns - j) < window)
+               {
                    win = ns - j;
+                   std::cout<<win<<std::endl;
+               }
                else
                {
                    win = window;
                }
+               std::cout<<"Man win: "<<win<<std::endl;
                std::vector<trace_t> trcWin(trcMan.begin() + (i*ns +j), trcMan.end() + (i*ns + j + win));
-               trcMan[i*ns+j] = normR/func(win, trcWin);
-               EXPECT_FLOAT_EQ(trc[i*ns+j], normR/func(win,trcWin));
+              // trcMan[i*ns+j] = normR/func(win, trcWin.data());
+               EXPECT_FLOAT_EQ(trc[i*ns+j], normR/func(win,trcWin.data()));
            }
     }
 };
