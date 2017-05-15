@@ -72,7 +72,7 @@ class Set : public InternalSet
      * \param[in] window Length of the agc window
      * \param[in] normR Normalization value
      */
-    void Set::agc(AGCType type, size_t window, trace_t normR);
+    void agc(AGCType type, size_t window, trace_t normR);
 };
 }
 #endif

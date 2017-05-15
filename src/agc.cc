@@ -4,11 +4,9 @@
  *   \copyright TBD. Do not distribute
  *   \date May 2017
  *   \brief The Automatic Gain Control Operation
- *   \details The algorithm applies different statistical descriptors to 
- *   the lowest valued metadata entries are moved to adjacent processes with a lower rank and a
- *   sort is performed. After the sort the highest entries are moved again to the process with a
- *   higher rank. If each process has the same traces it started off with, the sort
- *   is complete.
+ *   \details The algorithm finds some type of moving average (RMS, RMS with Triangle window,
+ *   Mean Abs, and Median) to trace amplitudes for visualization purposes. It can be applied to
+ *   traces independantly or applies the same scalar to all traces at the same height.
 *//*******************************************************************************************/
 #include <vector>
 #include <algorithm>
@@ -60,8 +58,7 @@ void agc(size_t nt, size_t ns, trace_t * trc, const std::function<trace_t(size_t
          size_t window, trace_t normR)
 {
     size_t win;
-    //std::vector<trace_t> trcWindow;
-    //assert(ns > window);
+    assert(ns > window);
     for (size_t i = 0; i < nt; i++)
     {
         for (size_t j = 0; j < window - 1; j++)

@@ -104,6 +104,14 @@ extern void addSet(ExSeisSet s, const char * name);
  */
 extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
 
+/*! Scale traces using automatic gain control for visualization
+ * \param[in] s The set handle
+ * \param[in] type They type of agc scaling function used
+ * \param[in] window Length of the agc window
+ * \param[in] normR Normalization value
+ */
+extern void agc(ExSeisSet s, AGCType type, size_t window, trace_t normR);
+
 #ifdef __cplusplus
 }
 #endif

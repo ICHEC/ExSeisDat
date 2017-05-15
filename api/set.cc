@@ -39,6 +39,6 @@ void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
 
 void Set::agc(AGCType type, size_t window, trace_t normR)
 {
-    InternalSet::agc(File::getAGCFunc(type), window,  normR);
+    InternalSet::agc(File::agcFunc(type), window,  normR);
 }
 }

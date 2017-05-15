@@ -50,7 +50,7 @@ void taper(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t we
  * \param[in] window Length of the agc window
  * \param[in] normR Value to which traces are normalized
  */
-void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(size_t win, trace_t * trcWin, trace_t normR)> func,
+extern void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(size_t win, trace_t * trcWin, trace_t normR)> func,
          size_t window, trace_t normR);
 /*! The internal set class
  */
