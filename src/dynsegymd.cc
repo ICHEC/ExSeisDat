@@ -474,8 +474,11 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
         if (!stride)
             std::copy(buf, &buf[sz * SEGSz::getMDSz()], &prm->c[skip * SEGSz::getMDSz()]);
         else
-            for (size_t i = 0; i < sz; i++)
-                std::copy(&buf[i * (stride + SEGSz::getMDSz())], &buf[(i+1U) * (stride + SEGSz::getMDSz())], &prm->c[(i + skip) * SEGSz::getMDSz()]);
+        {
+             const size_t mdsz = SEGSz::getMDSz();
+             for (size_t i = 0; i < sz; i++)
+                std::copy(&buf[i * (stride + mdsz)], &buf[i * (stride + mdsz)+mdsz], &prm->c[(i + skip) * mdsz]);
+        }
     }
 
     for (size_t i = 0; i < sz; i++)
