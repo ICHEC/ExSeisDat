@@ -15,7 +15,7 @@
 #include "global.hh"
 #include "ops/agc.hh"
 #include "share/api.hh"
-#include <iostream>
+
 namespace PIOL { namespace File {
 
 trace_t rms(size_t window, trace_t * trc, trace_t normR)
@@ -26,7 +26,6 @@ trace_t rms(size_t window, trace_t * trc, trace_t normR)
     size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i) {return i != 0.0f;});
     if (num < 1)
         num = 1;
-    std::cout<<"Set window: "<<window<<" Set amp sum: "<<amp<<" Set num: "<<num<<std::endl;
     return normR/std::sqrt(amp/num);
 }
 
@@ -45,11 +44,11 @@ trace_t meanAbs(size_t window, trace_t * trc, trace_t normR)
 {
     trace_t amp = 0.0f;
     for (size_t j = 0; j < window; j++)
-        amp += abs(trc[j]);
+        amp += trc[j];
     size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){return i != 0.0f;});
     if (num < 1)
         num = 1;
-    return normR/(amp/num);
+    return normR/(std::abs(amp)/num);
 }
 
 trace_t median(size_t window, trace_t * trc, trace_t normR)
@@ -62,37 +61,38 @@ void agc(size_t nt, size_t ns, trace_t * trc, const std::function<trace_t(size_t
          size_t window, trace_t normR)
 {
     size_t win;
-    size_t nTemp = (window-2)/2;
-    std::vector<trace_t> lftTemp(nTemp);
-    std::vector<trace_t> rtTemp(nTemp);
     if (window % 2 == 0)
         window = window + 1;
     assert(ns > window);
     for (size_t i = 0; i < nt; i++)
     {
-        for (size_t j = 0; j < nTemp; j++)
+        std::vector<trace_t> trcHoldLft(&trc[i*ns], &trc[i*ns+window]);
+        std::vector<trace_t> trcHoldRt(&trc[(i+1)*ns - window], &trc[(i+1)*ns]);
+        std::vector<trace_t> agcHold((window/2)+1);
+        for (size_t j = (window/2); j < window; j++)
         {
-            lftTemp[j]=trc[i*ns+(window/2)+1+j];
-            rtTemp[j]=trc[i*ns+(ns-window+2+j)];
+            std::vector<trace_t> trcWindow(&trc[i*ns+j-(window/2)], &trc[i*ns + j + (window/2) + 1]);
+            agcHold[j - (window/2)] = func(window, trcWindow.data(), normR);
         }
-        for (size_t j = window; j < ns; j ++)
+        for (size_t j = window; j < ns - ((window/2)); j ++)
         {
-            win = window;
-            std::vector<trace_t> trcWindow(&trc[i*ns+j-win], &trc[i*ns +j]);
-            trc[i*ns+j-(j/2)+1] = func(win, trcWindow.data(), normR);
+            std::vector<trace_t> trcWindow(&trc[i*ns+j-(window/2)], &trc[i*ns + j + (window/2) + 1]);
+            trc[i*ns+j-(window/2)-1] = agcHold[0];
+            std::rotate(agcHold.begin(), agcHold.begin() + 1, agcHold.end());
+            agcHold[window/2] = func(window, trcWindow.data(), normR);
         }
-        for (size_t j = 0; j < window - 1; j += 2)
+        for (size_t j = ns - window; j < ns - (window/2); j++)
+            trc[i*ns+j] = agcHold[j-(ns-window)];
+        for (size_t j = 0; j < (window/2); j++)
         {
-            win = j + 1;
-            std::vector<trace_t> trcWindow(&trc[i*ns], &trc[i*ns +j]);
-            for (size_t k = 0; k < nTemp; k++)
-                trcWindow[(window/2)+1+k]= lftTemp[k];
-            trc[i*ns+(j-(j/2))] = func(win, trcWindow.data(), normR);
+            win = 2*j + 1;
+            std::vector<trace_t> trcWindow(trcHoldLft.begin(), trcHoldLft.begin() + win);
+            trc[i*ns+j] = func(win, trcWindow.data(), normR);
         }
-        for (size_t j = ns - ((window/2) + 1); j < ns; j += 2)
+        for (size_t j = ns - (window/2); j < ns; j++)
         {
-            win = ns - j;
-            std::vector<trace_t> trcWindow(&trc[(i+1)*ns-j], &trc[(i+1)*ns]);
+            win = 2*(ns - j) - 1;
+            std::vector<trace_t> trcWindow(trcHoldRt.end()-win, trcHoldRt.end());
             trc[i*ns+j] = func(win, trcWindow.data(), normR);
         }
     }

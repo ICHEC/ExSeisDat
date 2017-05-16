@@ -10,7 +10,6 @@
 #include "set.hh"
 #undef private
 #undef protected
-#include <iostream>
 namespace PIOL {
 extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);     //TODO: TEMP!
 }
@@ -183,8 +182,7 @@ struct SetTest : public Test
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
             {
-                trc[i*ns + j] = float(j);
-                std::cout<<trc[i*ns+j]<<std::endl;//float(j)*std::exp(-.05*float(j))*std::cos(pi*2*float(j));
+                trc[i*ns + j] = j*pow(-1.0f,j);
             }
        trcMan = trc;
        set->agc(type, window, normR);
@@ -193,23 +191,13 @@ struct SetTest : public Test
        for (size_t i = 0; i < nt; i++)
            for (size_t j = 0; j < ns; j++)
            {
-               if (j < window - 1)
-               {
-                   win = j + 1;
-                   std::cout<<win<<std::endl;
-               }
-               else if ((ns - j) < window)
-               {
-                   win = ns - j;
-                   std::cout<<win<<std::endl;
-               }
+               if (j < (window/2)+1)
+                   win = 2*j + 1;
+               else if ((ns - j) < (window/2) + 1)
+                   win = 2*(ns - j)-1;
                else
-               {
                    win = window;
-               }
-               std::cout<<"Man win: "<<win<<std::endl;
-               std::vector<trace_t> trcWin(trcMan.begin() + (i*ns +j), trcMan.end() + (i*ns + j + win));
-              // trcMan[i*ns+j] = normR/func(win, trcWin.data());
+               std::vector<trace_t> trcWin(trcMan.begin() + (i*ns +j-(win/2)), trcMan.begin() + (i*ns + j + (win/2)+1));
                EXPECT_FLOAT_EQ(trc[i*ns+j], normR/func(win,trcWin.data()));
            }
     }
