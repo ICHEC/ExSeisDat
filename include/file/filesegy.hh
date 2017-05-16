@@ -154,10 +154,6 @@ class WriteSEGY : public WriteInterface
     void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, csize_t skip);
 
     void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, csize_t skip);
-
-    void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip);
-
-    void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip);
 };
 }}
 #endif

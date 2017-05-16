@@ -78,8 +78,6 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD1(readHO, void(uchar *));
     MOCK_CONST_METHOD1(setFileSz, void(csize_t));
     MOCK_CONST_METHOD1(writeHO, void(const uchar *));
-#warning TODO: Separate out groups of functions to separate files
-#warning Not covered yet beyond sz=1
     MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t, const uchar *));
 
@@ -88,14 +86,12 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t, const uchar *));
 
-    MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t *, const uchar *));
-    MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t *, const uchar *));
-
-#warning Not covered yet.
-    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t *, const uchar *));
+    MOCK_CONST_METHOD4(readDO, void(csize_t *, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDO, void(csize_t *, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDODF, void(csize_t *, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDODF, void(csize_t *, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDOMD, void(csize_t *, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDOMD, void(csize_t *, csize_t, csize_t, const uchar *));
 };
 
 struct FileReadSEGYTest : public Test
@@ -238,7 +234,8 @@ struct FileReadSEGYTest : public Test
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
     {
-        EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
+        size_t zero = 0U;
+        EXPECT_CALL(*mock.get(), readDOMD(zero, ns, tn, _))
                     .Times(Exactly(1))
                     .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
@@ -276,7 +273,7 @@ struct FileReadSEGYTest : public Test
         std::mt19937 mt(rand());
         std::shuffle(offset.begin(), offset.end(), mt);
 
-        EXPECT_CALL(*mock.get(), readDOMD(ns, tn, A<csize_t *>(), _))
+        EXPECT_CALL(*mock.get(), readDOMD(A<csize_t *>(), ns, tn, _))
                 .Times(Exactly(1))
                 .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
@@ -389,10 +386,10 @@ struct FileReadSEGYTest : public Test
                 }
             }
             if (readPrm)
-                EXPECT_CALL(*mock, readDO(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, readDO(offset.data(), ns, tn, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
             else
-                EXPECT_CALL(*mock, readDODF(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, readDODF(offset.data(), ns, tn, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
         }
 
@@ -760,10 +757,10 @@ struct FileWriteSEGYTest : public Test
                 }
             }
             if (writePrm)
-                EXPECT_CALL(*mock, writeDO(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, writeDO(offset.data(), ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
             else
-                EXPECT_CALL(*mock, writeDODF(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, writeDODF(offset.data(), ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
         File::Param prm(tn);

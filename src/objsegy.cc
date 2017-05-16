@@ -72,7 +72,7 @@ void SEGY::writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) c
 }
 
 //TODO: Add optional validation in this layer?
-void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
+void SEGY::readDO(csize_t * offset, csize_t ns, csize_t sz, uchar * d) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -80,7 +80,7 @@ void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
     data->read(SEGSz::getDOSz(ns), sz, dooff.data(), d);
 }
 
-void SEGY::writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const
+void SEGY::writeDO(csize_t * offset, csize_t ns, csize_t sz, const uchar * d) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -88,7 +88,7 @@ void SEGY::writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) co
     data->write(SEGSz::getDOSz(ns), sz, dooff.data(), d);
 }
 
-void SEGY::readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const
+void SEGY::readDOMD(csize_t * offset, csize_t ns, csize_t sz, uchar * md) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -96,7 +96,7 @@ void SEGY::readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const
     data->read(SEGSz::getMDSz(), sz, dooff.data(), md);
 }
 
-void SEGY::writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const
+void SEGY::writeDOMD(csize_t * offset, csize_t ns, csize_t sz, const uchar * md) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -104,7 +104,7 @@ void SEGY::writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md)
     data->write(SEGSz::getMDSz(), sz, dooff.data(), md);
 }
 
-void SEGY::readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const
+void SEGY::readDODF(csize_t * offset, csize_t ns, csize_t sz, uchar * df) const
 {
     if (ns == 0)
         return;
@@ -114,7 +114,7 @@ void SEGY::readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const
     data->read(SEGSz::getDFSz(ns), sz, dooff.data(), df);
 }
 
-void SEGY::writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const
+void SEGY::writeDODF(csize_t * offset, csize_t ns, csize_t sz, const uchar * df) const
 {
     if (ns == 0)
         return;

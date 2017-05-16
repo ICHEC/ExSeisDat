@@ -118,7 +118,7 @@ class Interface
      *  \param[out] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const = 0;
+    virtual void readDO(csize_t * offset, csize_t ns, csize_t sz, uchar * d) const = 0;
 
     /*! \brief Write a list of data-objects.
      *  \param[in] ns The number of elements per data field.
@@ -127,7 +127,7 @@ class Interface
      *  \param[in] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const = 0;
+    virtual void writeDO(csize_t * offset, csize_t ns, csize_t sz, const uchar * d) const = 0;
 
     /*! \brief read a list of data-object metadata blocks.
      *  \param[in] ns the number of elements per data field.
@@ -136,7 +136,7 @@ class Interface
      *  \param[out] md an array which the caller guarantees is long enough for
      *  the metadata blocks.
      */
-    virtual void readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const = 0;
+    virtual void readDOMD(csize_t * offset, csize_t ns, csize_t sz, uchar * md) const = 0;
 
     /*! \brief Write a list of data-object metadata blocks.
      *  \param[in] ns The number of elements per data field.
@@ -145,7 +145,7 @@ class Interface
      *  \param[in] md An array which the caller guarantees is long enough for
      *  the metadata blocks.
      */
-    virtual void writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const = 0;
+    virtual void writeDOMD(csize_t * offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
 
     /*! \brief Read a list of data-fields.
      *  \param[in] ns The number of elements per data field.
@@ -154,7 +154,7 @@ class Interface
      *  \param[out] df An array which the caller guarantees is long enough for
      *  the data-fields.
      */
-    virtual void readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const = 0;
+    virtual void readDODF(csize_t * offset, csize_t ns, csize_t sz, uchar * df) const = 0;
 
     /*! \brief Write a list of data-fields
      *  \param[in] ns The number of elements per data field.
@@ -163,7 +163,7 @@ class Interface
      *  \param[in] df An array which the caller guarantees is long enough for
      *  the data-fields.
      */
-    virtual void writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const = 0;
+    virtual void writeDODF(csize_t * offset, csize_t ns, csize_t sz, const uchar * df) const = 0;
 };
 }}
 #endif

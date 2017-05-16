@@ -14,13 +14,6 @@ const trace_t * TRACE_NULL = (trace_t *)1;
 //TODO: Unit test
 void ReadInterface::readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const
 {
-    if (offset >= nt && sz)   //Nothing to be read.
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readParam() was called for a zero byte read", Log::Verb::None);
-        return;
-    }
-
     readTrace(offset, sz, const_cast<trace_t *>(TRACE_NULL), prm, skip);
 }
 
