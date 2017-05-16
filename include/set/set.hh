@@ -19,20 +19,32 @@ namespace PIOL {
 typedef std::function<std::vector<size_t>(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 enum class FuncOpt : size_t
 {
+//Data type dependencies
     NeedMeta,
     NeedTrcVal,
-    ModTrcVal,
-    DelTrc,
+    NeedAll,
+
+//Modification level:
     AddTrc,
-    DepTrcCnt,
+    DelTrc,
+    ModTrcVal,
+    ModMetaVal,
     ReorderTrc,
-    DepOrderTrc,
-    DepMeta,
-    RotCoord,
-    DepCoordRot,
+    ModAll,
+
+//Modification dependencies
+    DepTrcCnt,
+    DepTrcOrder,
+    DepTrcVal,
+    DepMetaVal,
+    DepAll,
+
+//Comms level:
+    SingleTrace,
+    Gather,
+    SubSetOnly,
     AllTraces,
-    OwnIO,
-    SubSetOnly
+    OwnIO
 };
 
 struct OpOpt

@@ -151,7 +151,7 @@ void InternalSet::summary(void) const
 
 void InternalSet::sort(File::Compare<File::Param> sortFunc)
 {
-    OpOpt opt = {FuncOpt::SubSetOnly, FuncOpt::DepCoordRot, FuncOpt::DepMeta};
+    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
 
     func.emplace_back(opt, rule, [this, sortFunc] (size_t ns, File::Param * prm, trace_t * trc) -> std::vector<size_t>
         {
@@ -168,6 +168,36 @@ void InternalSet::sort(File::Compare<File::Param> sortFunc)
         });
 }
 
+/*
+void InternalSet::RadonToAngle(File::Compare<File::Param> sortFunc)
+{
+    sort([](const File::Param & prm1, const File::Param & prm2)
+        {
+            auto e1il = getPrm<llint>(0U, Meta::il, &e1);
+            auto e2il = getPrm<llint>(0U, Meta::il, &e2);
+
+            if (e1il < e2il)
+                return true;
+            else if (e1il == e2il)
+            {
+                auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
+                auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
+                if (e1xl < e2xl)
+                    return true;
+                else if (e1xl == e2xl)
+                    return getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2);
+            }
+            return false;
+        });
+
+    OpOpt opt = {FuncOpt::NeedAll, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
+
+    func.emplace_back(opt, rule, [this, sortFunc] (size_t ns, File::Param * prm, trace_t * trc) -> std::vector<size_t>
+        {
+
+        });
+}
+*/
 
 std::string InternalSet::output(FileDeque & fQue)
 {
@@ -255,6 +285,11 @@ std::string InternalSet::output(FileDeque & fQue)
     }
     return name;
 }
+
+/*FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, File::Param * prm, File::ReadInterface * in, File::WriteInterface * out)
+{
+
+}*/
 
 //calc for subsets only
 FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
