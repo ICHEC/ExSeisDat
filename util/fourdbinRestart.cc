@@ -43,7 +43,6 @@ namespace PIOL {
 int main(int argc, char ** argv)
 {
     ExSeis piol;
-    fourd_t dsrmax = 1.0;            //Default dsdr criteria
     std::string name1 = "";
     std::string name2 = "";
     std::string name3 = "";
@@ -74,7 +73,6 @@ int main(int argc, char ** argv)
                 name4 = optarg;
             break;
             case 't' :
-                dsrmax = std::stod(optarg);
             break;
             case 'v' :
                 fopt.verbose = true;
@@ -92,48 +90,21 @@ int main(int argc, char ** argv)
         }
     assert(name1.size() && name2.size() && name3.size() && name4.size());
 /**********************************************************************************************************/
-    //Open the two input files
-    cmsg(piol, "Parameter-read phase");
+    std::vector<size_t> list1;
+    std::vector<size_t> list2;
+    std::vector<fourd_t> lminrs;
 
-    //Perform the decomposition and read the coordinates of interest.
-    auto coords1 = getCoords(piol, name1);
-    auto coords2 = getCoords(piol, name2);
-
-    vec<size_t> min(coords1->sz);
-    vec<fourd_t> minrs(coords1->sz);
-    calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
-    coords2.release();
-
-    cmsg(piol, "Final list pass");
-    //Now we weed out traces that have a match that is too far away
-    vec<size_t> list1;
-    vec<size_t> list2;
-    vec<fourd_t> lminrs;
-
-    for (size_t i = 0U; i < coords1->sz; i++)
-        if (minrs[i] <= dsrmax)
-        {
-            list2.push_back(min[i]);
-            lminrs.push_back(minrs[i]);
-            list1.push_back(coords1->tn[i]);
-        }
-
-    if (fopt.verbose)
-    {
-        std::string name = "tmp/restart" + std::to_string(piol.getRank());
-        FILE * fOut = fopen(name.c_str(), "w+");
-        size_t sz = list1.size();
-        assert(fwrite(&sz, sizeof(size_t), 1U, fOut) == 1U);
-        assert(fwrite(list1.data(), sizeof(size_t), sz, fOut) == sz);
-        assert(fwrite(list2.data(), sizeof(size_t), sz, fOut) == sz);
-        assert(fwrite(lminrs.data(), sizeof(fourd_t), sz, fOut) == sz);
-        fclose(fOut);
-    }
-
-    //free up some memory
-    coords1.release();
-
-    cmsg(piol, "Output phase");
+    std::string name = "tmp/restart" + std::to_string(piol.getRank());
+    FILE * fOut = fopen(name.c_str(), "r+");
+    size_t sz;
+    assert(fread(&sz, sizeof(size_t), 1U, fOut) == 1U);
+    list1.resize(sz);
+    list2.resize(sz);
+    lminrs.resize(sz);
+    assert(fread(list1.data(), sizeof(size_t), sz, fOut) == sz);
+    assert(fread(list2.data(), sizeof(size_t), sz, fOut) == sz);
+    assert(fread(lminrs.data(), sizeof(fourd_t), sz, fOut) == sz);
+    fclose(fOut);
 
     outputNonMono(piol, name3, name1, list1, lminrs, fopt.printDsr);
     outputNonMono(piol, name4, name2, list2, lminrs, fopt.printDsr);
