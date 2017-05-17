@@ -33,6 +33,8 @@ cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 traceanalysis: obj/traceanalysis.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
+radon2angle: obj/radon2angle.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 versort: obj/verifysort.cpo obj/sglobal.cpo
