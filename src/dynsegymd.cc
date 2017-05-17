@@ -281,6 +281,9 @@ void Rule::rmRule(Meta m)
             case MdType::Index :
             numIndex--;
             break;
+            case MdType::Copy :
+            numCopy--;
+            break;
         }
         delete entry;
         translate.erase(m);

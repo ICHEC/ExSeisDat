@@ -308,12 +308,10 @@ struct FileReadSEGYTest : public Test
             rule->addLong(Meta::Misc1, File::Tr::TORF);
             rule->addShort(Meta::Misc2, File::Tr::ShotNum);
             rule->addShort(Meta::Misc3, File::Tr::ShotScal);
-            rule->addShort(Meta::Misc4, File::Tr::TransCLower);
             rule->rmRule(Meta::ShotNum);
             rule->rmRule(Meta::Misc1);
             rule->rmRule(Meta::Misc2);
             rule->rmRule(Meta::Misc3);
-            rule->rmRule(Meta::Misc4);
             rule->rmRule(Meta::ySrc);
             rule->addSEGYFloat(Meta::xSrc, File::Tr::xSrc, File::Tr::ScaleCoord);
             rule->addSEGYFloat(Meta::ySrc, File::Tr::ySrc, File::Tr::ScaleCoord);

@@ -30,17 +30,6 @@ struct FileDesc
 
 typedef std::function<void(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 
-/*! Apply a taper to a set of traces --> used for acutal operation during output
- * \param[in] nt The number of traces
- * \parma[in] ns The number of samples in a trace
- * \param[in] trc Vector of all traces
- * \param[in] func Weight function for the taper ramp
- * \param[in] ntpstr Length of left tail of taper
- * \param[in] ntpend Length of right tail of taper
- * \return Vector of tapered traces
- */
-void taper(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
-
 /*! The internal set class
  */
 class InternalSet

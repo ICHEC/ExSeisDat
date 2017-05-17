@@ -64,9 +64,6 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 
 /////////////////////////////////////////////////////////////////////////////
 
-    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
-    //Unfortunately shared pointers make things ugly in C++.
-    //TODO: use option to make il/xl optional
     std::shared_ptr<File::Rule> crule;
     if (ixline)
         crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
