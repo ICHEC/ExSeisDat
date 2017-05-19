@@ -12,6 +12,11 @@
 #include "cppfileapi.hh"
 #include "share/mpi.hh"
 #include "file/dynsegymd.hh"
+
+#warning include
+#include <iostream>
+#include <assert.h>
+
 using namespace PIOL;
 
 const geom_t pi = M_PI;
@@ -21,49 +26,17 @@ std::pair<size_t, size_t> decompose(ExSeisPIOL * piol, File::ReadInterface * fil
     return decompose(file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
 }
 
-template <size_t i, class ... T>
-void winCreate(std::vector<MPI_Win> & win, std::vector<std::tuple<T...>> & vec)
-{
-    typename std::tuple_element<i, std::tuple<T...>>::type type;
-    if (i < sizeof...(T))
-    {
-        win.push_back(0);
-        MPI_Win_create(vec.data(), vec.size(), sizeof(type), MPI_INFO_NULL, MPI_COMM_WORLD, &win.back());
-        winCreate<i+1U, T...>(win, vec);
-    }
-}
-
-template <size_t i, class ... T>
-void winPut(std::tuple<T...> & val, size_t lrank, size_t offset, std::vector<MPI_Win> win)
-{
-    typename std::tuple_element<i, std::tuple<T...>>::type type;
-    if (i < sizeof...(T))
-    {
-        MPI_Put(&std::get<i>(val), 1U, MPIType<type>(), lrank, offset, 1U, MPIType<type>(), win[i]);
-        winPut<i+1U, T...>(val, lrank, offset, win);
-    }
-}
-
-template <size_t i, class ... T>
-void winGet(std::tuple<T...> & val, size_t lrank, size_t offset, std::vector<MPI_Win> win)
-{
-    typename std::tuple_element<i, std::tuple<T...>>::type type;
-    if (i < sizeof...(T))
-    {
-        MPI_Get(&std::get<i>(val), 1U, MPIType<type>(), lrank, offset, 1U, MPIType<type>(), win[i]);
-        winGet<i+1U, T...>(val, lrank, offset, win);
-    }
-}
-
 template <class ... T>
 class Uniray
 {
+    const size_t TupleSz = sizeof(std::tuple<T...>);
     ExSeisPIOL * piol;
     size_t sz;
     size_t offset;
     std::vector<size_t> szall;
     std::vector<std::tuple<T...>> vec;
-    std::vector<MPI_Win> win;
+
+    MPI_Win win;
     size_t rank, numRank;
     public :
     Uniray(ExSeisPIOL * piol_, size_t sz_) : piol(piol_), sz(sz_)
@@ -74,13 +47,12 @@ class Uniray
         offset = dec.first;
         szall = piol->comm->gather(dec.second);
         vec.resize(dec.second);
-        winCreate<0U, T...>(win, vec);
+        MPI_Win_create(vec.data(), vec.size(), TupleSz, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
     }
 
     ~Uniray(void)
     {
-        for (auto w : win)
-            MPI_Win_free(&w);
+        MPI_Win_free(&win);
     }
 
     void set(size_t i, std::tuple<T...> val)
@@ -97,11 +69,9 @@ class Uniray
             vec[i-lOffset] = val;
         else
         {
-            for (size_t j = 0; j < sizeof...(T); j++)
-                MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[j]);
-            winPut<0, T...>(val, lrank, i-lOffset, win);
-            for (size_t j = 0; j < sizeof...(T); j++)
-                MPI_Win_unlock(lrank, win[j]);
+            MPI_Win_lock(MPI_LOCK_EXCLUSIVE, lrank, MPI_MODE_NOCHECK, win);
+            MPI_Put(&val, TupleSz, MPIType<char>(), lrank, i-lOffset, TupleSz, MPIType<char>(), win);
+            MPI_Win_unlock(lrank, win);
         }
     }
 
@@ -111,7 +81,6 @@ class Uniray
         {
             std::tuple<T...> empty;
             return empty;
-            //return std::make_tuple<T...>();
         }
         size_t lrank = 0;
         size_t lOffset = 0;
@@ -123,14 +92,13 @@ class Uniray
             return vec[i-lOffset];
         else
         {
-            for (size_t j = 0; j < sizeof...(T); j++)
-                MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[j]);
-            winGet<0, T...>(val, lrank, i-lOffset, win);
-            for (size_t j = 0; j < sizeof...(T); j++)
-                MPI_Win_unlock(lrank, win[j]);
+            MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win);
+            MPI_Get(&val, TupleSz, MPIType<char>(), lrank, i-lOffset, TupleSz, MPIType<char>(), win);
+            MPI_Win_unlock(lrank, win);
             return val;
         }
     }
+
     std::tuple<T...> operator[](size_t i)
     {
         return get(i);
@@ -144,8 +112,13 @@ class Uniray
 
 Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, File::Param * prm)
 {
+    size_t rank = piol->comm->getRank();
+    size_t last = rank == piol->comm->getNumRank()-1;
     std::vector<std::tuple<size_t, llint, llint>> lline;
-    for (size_t i = 1; i < prm->size()-1U; i++)
+    lline.emplace_back(0U, File::getPrm<llint>(0, Meta::il, prm), File::getPrm<llint>(0, Meta::xl, prm));
+    ++std::get<0>(lline.back());
+
+    for (size_t i = 1; i < prm->size()-(last ? 0U : 1U); i++)
     {
         llint il = File::getPrm<llint>(i, Meta::il, prm);
         llint xl = File::getPrm<llint>(i, Meta::xl, prm);
@@ -158,18 +131,23 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, File::Param * prm)
 
     //If the last element is on the same gather, then the gather has already been picked up
     //by the process one rank higher.
-    size_t gatherB = File::getPrm<llint>(prm->size()-1U, Meta::il, prm) == File::getPrm<llint>(prm->size()-2U, Meta::il, prm)
-                  && File::getPrm<llint>(prm->size()-1U, Meta::xl, prm) == File::getPrm<llint>(prm->size()-2U, Meta::xl, prm);
+    size_t gatherB = !last
+           && File::getPrm<llint>(prm->size()-1U, Meta::il, prm) == File::getPrm<llint>(prm->size()-2U, Meta::il, prm)
+           && File::getPrm<llint>(prm->size()-1U, Meta::xl, prm) == File::getPrm<llint>(prm->size()-2U, Meta::xl, prm);
 
-    size_t numGather = piol->comm->sum(lline.size() - gatherB);
-    size_t offset = piol->comm->offset(lline.size() - gatherB);
+    std::cout << "gatherB " << gatherB << std::endl;
+    size_t lSz = lline.size() - gatherB;
+    size_t offset = piol->comm->offset(lSz);
 
-    Uniray<size_t, llint, llint> line(piol, numGather);
-    for (size_t i = 0; i < lline.size() - gatherB; i++)
-            line.set(i + offset, lline[i]);
+    //Nearest neighbour pass would be more appropriate
+    auto left = piol->comm->gather<size_t>(gatherB ? std::get<0>(lline.back()) : 0U);
+    std::get<0>(lline.front()) += (rank ? left[rank-1] : 0U);
 
-    std::cout << numGather << " il/xl gathers have been detected\n";
+    Uniray<size_t, llint, llint> line(piol, piol->comm->sum(lSz));
+    for (size_t i = 0; i < lSz; i++)
+        line.set(i + offset, lline[i]);
 
+    piol->comm->barrier();
     return line;
 }
 
@@ -181,14 +159,14 @@ int main(int argc, char ** argv)
 
     std::string rname = "radon.segy";
     std::string vname = "vm.segy";
-    std::string dname = "dname.segy";
-    std::string aname = "aname.segy";
+//    std::string dname = "dip.segy";
+    std::string aname = "angle.segy";
+    size_t agSz = 60;
 
     //Assume the files are structured as 3d volumes.
     File::ReadDirect radon(piol, rname);
     File::ReadDirect vm(piol, vname);
-    File::ReadDirect dip(piol, dname);
-    File::WriteDirect angle(piol, aname);
+//    File::ReadDirect dip(piol, dname);
     piol.isErr();
 
     //Locate gather boundaries.
@@ -198,29 +176,46 @@ int main(int argc, char ** argv)
     auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
     File::Param rprm(rule, dec.second);
     radon.readParam(dec.first, dec.second, &rprm);
-
     Uniray<size_t, llint, llint> gather = getGathers(piol, &rprm);
+
+    piol.barrier();
+
+    for (size_t i = 0; i < numRank; i++)
+    {
+        if (i == rank)
+        {
+            for (size_t j = 0; j < gather.size(); j++)
+                std::cerr << j << " get "<<  std::get<0>(gather[j]) << " " << std::get<1>(gather[j]) << " " << std::get<2>(gather[j]) << "\n";
+            std::cout << std::endl;
+        }
+        piol.barrier();
+    }
+    return 0;
 
     auto gdec = decompose(gather.size(), numRank, rank);
     size_t numGather = gdec.second;
     size_t gOffset = gdec.first;
 
-    size_t aNs; //Input
-    size_t agSz;
     size_t vNs = vm->readNs();
 
     std::vector<trace_t> vtrc(numGather * vNs);
     vm.readTrace(gOffset, numGather, vtrc.data());
 
     size_t rNs = radon->readNs();
+    size_t aNs = rNs;//TODO: Check what gareth does
 
     geom_t vinc = vm->readInc();
     geom_t rinc = radon->readInc();
-    geom_t ainc = pi / geom_t(180.0);   //1 degree
+    geom_t ainc = pi / geom_t(180);   //1 degree in radians
 
     size_t lOffset = gOffset;
     size_t extra = piol.max(numGather) - numGather;
+    File::WriteDirect angle(piol, aname);
+    angle.writeNs(aNs);
+    angle.writeNt(radon.readNt());
+    angle.writeInc(ainc);
 
+    std::cout << "Reac numGather loop" << std::endl;
     for (size_t i = 0; i < numGather; i++)
     {
         const size_t rgSz = std::get<0>(gather[gOffset + i]);
@@ -259,5 +254,6 @@ int main(int argc, char ** argv)
         radon->readTrace(size_t(0), size_t(0), (trace_t *)(nullptr));
         angle->writeTrace(size_t(0), size_t(0), (trace_t *)(nullptr), (File::Param *)(nullptr));
     }
+    return 0;
 }
 
