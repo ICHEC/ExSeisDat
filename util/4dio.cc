@@ -13,7 +13,7 @@
 namespace PIOL { namespace FOURD {
 //TODO: Integration candidate
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
-std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
+std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 {
     auto time = MPI_Wtime();
     File::ReadDirect file(piol, name);
@@ -22,7 +22,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
-    auto coords = std::make_unique<Coords>(lnt);
+    auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());
     auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::gtn, Meta::xSrc});
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
@@ -64,10 +64,12 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
 
 /////////////////////////////////////////////////////////////////////////////
 
-    //This makes a rule about what data we will access. In this particular case it's xsrc, ysrc, xrcv, yrcv.
-    //Unfortunately shared pointers make things ugly in C++.
-    //TODO: use option to make il/xl optional
-    auto crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
+    std::shared_ptr<File::Rule> crule;
+    if (ixline)
+        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
+    else
+        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
 
     {
@@ -89,10 +91,14 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
             coords->ySrc[i+orig[j]] = File::getPrm<geom_t>(j, Meta::ySrc, &prm2);
             coords->xRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::xRcv, &prm2);
             coords->yRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::yRcv, &prm2);
-            coords->il[i+orig[j]] = File::getPrm<llint>(j, Meta::il, &prm2);
-            coords->xl[i+orig[j]] = File::getPrm<llint>(j, Meta::xl, &prm2);
             coords->tn[i+orig[j]] = trlist[i+orig[j]];
         }
+        for (size_t j = 0; ixline && j < rblock; j++)
+        {
+            coords->il[i+orig[j]] = File::getPrm<llint>(j, Meta::il, &prm2);
+            coords->xl[i+orig[j]] = File::getPrm<llint>(j, Meta::xl, &prm2);
+        }
+
     }
     }
 

@@ -109,7 +109,7 @@ vec<MPI_Win> createCoordsWin(const Coords * crd, const bool ixline)
  */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
-    auto crd = std::make_unique<Coords>(sz);
+    auto crd = std::make_unique<Coords>(sz, ixline);
     for (size_t i = 0; i < win.size(); i++)
         MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
 
@@ -283,7 +283,7 @@ vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
 
 std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
 {
-    auto crd = std::make_unique<Coords>(sz);
+    auto crd = std::make_unique<Coords>(sz, ixline);
     vec<MPI_Request> request(5);
     MPIErr(MPI_Irecv(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[0]));
     MPIErr(MPI_Irecv(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD, &request[1]));
