@@ -439,7 +439,7 @@ void InternalSet::taper(std::function<trace_t(trace_t weight, trace_t ramp)> fun
     mod(modify_);
 }
 
-void InternalSet::agc(std::function<trace_t(size_t win, trace_t * trcWin, trace_t normR)> func, size_t window, trace_t normR)
+void InternalSet::agc(std::function<trace_t(trace_t * trc, size_t strt, size_t win, trace_t normR, size_t winCntr)> func, size_t window, trace_t normR)
 {
     Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::agc(p->size(), ns, t, func, window, normR);};
     mod(modify_);

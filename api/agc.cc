@@ -20,7 +20,7 @@
 
 namespace PIOL { namespace File {
 
-std::function<trace_t(size_t, trace_t * , trace_t)> agcFunc(AGCType type)
+std::function<trace_t(trace_t *, size_t, size_t, trace_t, size_t)> agcFunc(AGCType type)
 {
     switch (type)
     {

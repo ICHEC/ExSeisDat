@@ -24,7 +24,7 @@ extern Compare<Param> getComp(SortType type);
 /* Chooses the type of agc function
  * \param[in] type The statistical fucntion type
  */
-extern std::function<trace_t(size_t, trace_t *, trace_t)> agcFunc(AGCType type);
+extern std::function<trace_t(trace_t *, size_t, size_t, trace_t, size_t)> agcFunc(AGCType type);
 
 /*! Choose the window type for taper function
  * \param[in] type The window type

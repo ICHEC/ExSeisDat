@@ -170,7 +170,7 @@ struct SetTest : public Test
                 EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
             }
     }
-    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *)> func, size_t window, trace_t normR)
+    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> func, size_t window, trace_t normR)
     {
         if (set.get() != nullptr)
             set.release();
@@ -182,23 +182,36 @@ struct SetTest : public Test
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
             {
-                trc[i*ns + j] = j*pow(-1.0f,j);
+                trc[i*ns + j] = j;//*pow(-1.0f,j);
             }
        trcMan = trc;
        set->agc(type, window, normR);
        set->modify(ns, &p, trc.data());
        size_t win;
+       size_t winCntr;
        for (size_t i = 0; i < nt; i++)
            for (size_t j = 0; j < ns; j++)
            {
-               if (j < (window/2)+1)
-                   win = 2*j + 1;
-               else if ((ns - j) < (window/2) + 1)
-                   win = 2*(ns - j)-1;
+               if (j < (window/2U)+1)
+               {
+                   win = j + 1 + (window/2U);
+                   winStr = i*ns
+                   winCntr = j;
+               }
+               else if ((ns - j) < (window/2U) + 1)
+               {
+                   win = ns - j+ (window/2U);
+                   winStr = i*ns + j -  window/2U;
+                   winCntr = window/2U;
+               }
                else
+               {
                    win = window;
-               std::vector<trace_t> trcWin(trcMan.begin() + (i*ns +j-(win/2)), trcMan.begin() + (i*ns + j + (win/2)+1));
-               EXPECT_FLOAT_EQ(trc[i*ns+j], normR/func(win,trcWin.data()));
+                   winStr = i*ns + j - window/2U;
+                   winCntr = window/2U;
+               }
+               std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
+               EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr);
            }
     }
 };
