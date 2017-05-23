@@ -188,6 +188,7 @@ struct SetTest : public Test
        set->agc(type, window, normR);
        set->modify(ns, &p, trc.data());
        size_t win;
+       size_t winStr;
        size_t winCntr;
        for (size_t i = 0; i < nt; i++)
            for (size_t j = 0; j < ns; j++)
@@ -195,7 +196,7 @@ struct SetTest : public Test
                if (j < (window/2U)+1)
                {
                    win = j + 1 + (window/2U);
-                   winStr = i*ns
+                   winStr = i*ns;
                    winCntr = j;
                }
                else if ((ns - j) < (window/2U) + 1)
@@ -211,7 +212,7 @@ struct SetTest : public Test
                    winCntr = window/2U;
                }
                std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
-               EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr);
+               EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
            }
     }
 };

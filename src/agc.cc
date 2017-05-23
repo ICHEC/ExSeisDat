@@ -31,8 +31,9 @@ trace_t rms(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t win
 trace_t rmsTri(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr)
 {
     trace_t amp = 0.0f;
+    trace_t winFullTail = std::max(fabs(winCntr - strt), fabs(window - winCntr + strt - 1.0f));
     for (size_t j = strt; j < strt + window; j++)
-        amp += pow(trc[j] * (1.0f - abs(((2.0f * j)+4.0f*(winCntr-window-strt+1))/(window-winCntr+strt-1))), 2.0f);
+        amp += pow(trc[j] * (1.0f - fabs((float(j)-float(winCntr))/winFullTail)), 2.0f);
     size_t num = std::count_if(&trc[strt], &trc[strt+window], [](trace_t i){return i != 0.0f;});
     if (num < 1)
         num = 1;
@@ -52,8 +53,12 @@ trace_t meanAbs(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t
 
 trace_t median(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr)
 {
-    std::sort(&trc[strt], &trc[strt+window]);
-    return normR/trc[winCntr];
+    std::vector<trace_t> trcTmp(&trc[strt], &trc[strt+window]);
+    std::sort(trcTmp.begin(), trcTmp.end());
+    if (window % 2 == 0)
+        return normR/((trcTmp[window/2U]+trcTmp[(window/2U)+1U])/2.0f);
+    else
+        return normR/trcTmp[window/2U];
 }
 
 void agc(size_t nt, size_t ns, trace_t * trc, const std::function<trace_t(trace_t * trcWin, size_t strt,
@@ -66,11 +71,11 @@ void agc(size_t nt, size_t ns, trace_t * trc, const std::function<trace_t(trace_
     {
         std::vector<trace_t> trcAGC(ns);
         for (size_t j = 0;  j < window/2U + 1; j++)
-            trcAGC[j]=func(trc, i*ns, (window/2U)+j+1, normR, j);
+            trcAGC[j]=func(trc, i*ns, (window/2U)+j+1, normR, i*ns+j);
         for (size_t j = window/2U + 1 ; j < ns - window/2U; j++)
-            trcAGC[j]=func(trc, i*ns+j - window/2U, window, normR, j);
+            trcAGC[j]=func(trc, i*ns+j - window/2U, window, normR, i*ns+j);
         for (size_t j = ns - window/2U; j < ns; j++)
-            trcAGC[j]= func(trc, i*ns + j - (window/2U), ns - j + (window/2U), normR, j+(window/2U));
+            trcAGC[j]= func(trc, i*ns + j - (window/2U), ns - j + (window/2U), normR, i*ns+j);
         for (size_t j = 0; j < ns; j++)
             trc[i*ns+j] *= trcAGC[j];
     }

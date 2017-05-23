@@ -321,7 +321,7 @@ TEST_F(SetTest, Taper1TailLinMute)
 
 TEST_F(SetTest, agcRMS)
 {
-    std::function<trace_t(size_t, trace_t *)> func = [](size_t window, trace_t * trc, size_t winCntr) {
+    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr) {
           trace_t amp = 0.0f;
           for (size_t i = 0; i < window; i++)
               amp += pow(trc[i], 2.0f);
@@ -329,25 +329,26 @@ TEST_F(SetTest, agcRMS)
           if (num < 1)
               num = 1;
           return std::sqrt(amp/num);};
-     agcTest(1, 20, AGCType::RMS, func, 5, 1.0f);
+     agcTest(100, 1000, AGCType::RMS, func, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcRMSTri)
 {
-    std::function<trace_t(size_t, trace_t *)> func = [](size_t window, trace_t * trc, size_t winCntr){
-          trace_t amp = 0.0f;
-          for (size_t j = 0; j < window; j++)
-              amp += pow(trc[j] * (1.0f - abs((2.0f * (j - winCntr) / (window-winCntr-1)), 2.0f);
+    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr){
+        trace_t amp = 0.0f;
+        trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
+        for (size_t j = 0; j < window; j++)
+            amp += pow(trc[j] * (1.0f - float(abs(j - winCntr))/winFullTail),2.0f);
           size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){return i != 0.0f;});
           if (num < 1)
               num = 1;
           return std::sqrt(amp/num);};
-    agcTest(1, 20, AGCType::RMSTri, func, 5, 1.0f);
+    agcTest(100, 1000, AGCType::RMSTri, func, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMeanAbs)
 {
-    std::function<trace_t(size_t, trace_t *)> func = [](size_t window, trace_t * trc, size_t winCntr) {
+    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr) {
           trace_t amp = 0.0f;
           for (size_t i = 0; i < window; i++)
               amp += trc[i];
@@ -355,13 +356,16 @@ TEST_F(SetTest, agcMeanAbs)
           if (num < 1)
               num = 1;
           return std::abs(amp)/num;};
-     agcTest(1, 20, AGCType::MeanAbs, func, 5, 1.0f);
+     agcTest(100, 1000, AGCType::MeanAbs, func, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMedian)
 {
-    std::function<trace_t(size_t, trace_t *)> func = [](size_t window, trace_t * trc, size_t winCntr) {
+    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr) {
          std::sort(&trc[0], &trc[window]);
-         return trc[(window/2) + 1];};
-     agcTest(1, 20, AGCType::Median, func, 5, 1.0f);
+        if (window % 2 == 0)
+            return (trc[window/2U]+trc[(window/2U)+1U])/2.0f;
+        else
+            return trc[window/2U]; };
+     agcTest(100, 1000, AGCType::Median, func, 25, 1.0f);
 }
