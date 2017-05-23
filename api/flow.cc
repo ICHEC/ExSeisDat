@@ -6,7 +6,7 @@
  *   \brief The Set layer interface
 *//*******************************************************************************************/
 #include "global.hh"
-#include "set.hh"
+#include "flow.hh"
 #include "file/dynsegymd.hh"
 namespace PIOL {
 std::shared_ptr<File::Rule> getMaxRules(void)

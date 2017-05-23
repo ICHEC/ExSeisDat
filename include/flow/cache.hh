@@ -8,7 +8,7 @@
 #ifndef PIOLSETCACHE_INCLUDE_GUARD
 #define PIOLSETCACHE_INCLUDE_GUARD
 #include <algorithm>
-#include "set/share.hh"
+#include "flow/share.hh"
 #include "share/misc.hh"
 
 #warning Move to cache.cc

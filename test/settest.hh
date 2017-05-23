@@ -4,8 +4,8 @@
 #define private public
 #define protected public
 #include "file/file.hh"
-#include "set/set.hh"
-#include "set.hh"
+#include "flow/set.hh"
+#include "flow.hh"
 #undef private
 #undef protected
 

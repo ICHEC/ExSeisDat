@@ -7,8 +7,8 @@
 *//*******************************************************************************************/
 #ifndef PIOLSET_INCLUDE_GUARD
 #define PIOLSET_INCLUDE_GUARD
-#include "set/share.hh"
-#include "set/cache.hh"
+#include "flow/share.hh"
+#include "flow/cache.hh"
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
 #include <functional>
@@ -145,6 +145,13 @@ class InternalSet
      */
     void add(std::unique_ptr<File::ReadInterface> in);
 
+    void drop(void)
+    {
+        file.resize(0);
+        fmap.clear();
+        offmap.clear();
+    }
+
     /*! Add a file to the set based on the pattern/name given
      *  \param[in] name The input name
      */
@@ -155,6 +162,8 @@ class InternalSet
      */
     void calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
     FuncLst::iterator calcFunc(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
+
+    void RadonToAngle(std::string vmName);
 };
 }
 #endif

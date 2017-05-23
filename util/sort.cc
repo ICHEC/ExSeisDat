@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <iostream>
-#include "set.hh"
+#include "flow.hh"
 using namespace PIOL;
 int main(int argc, char ** argv)
 {

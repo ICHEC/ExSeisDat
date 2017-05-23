@@ -6,6 +6,10 @@ include ../compiler.cfg
 .PHONY: all
 all: libgmock.a test
 
+GCOMP=g++
+GTEST_DIR=../googletest/googletest
+GMOCK_DIR=../googletest/googlemock
+
 libgmock.a:
 	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \

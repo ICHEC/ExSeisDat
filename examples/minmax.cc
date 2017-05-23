@@ -6,7 +6,7 @@
  *   \brief This is an example of using minmax through the Set API
  *   is complete.
 *//*******************************************************************************************/
-#include "set.hh"
+#include "flow.hh"
 #include <iostream>
 #include <algorithm>
 #include <unistd.h>

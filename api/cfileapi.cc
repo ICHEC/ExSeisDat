@@ -16,8 +16,8 @@
 #include "share/segy.hh"
 #include "share/api.hh"
 #include "fileops.hh"
-#include "set.hh"
-#include "set.h"
+#include "flow.hh"
+#include "flow.h"
 
 using namespace PIOL;
 

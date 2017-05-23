@@ -12,7 +12,7 @@
 #include <numeric>
 #include <map>
 #include "share/misc.hh"    //For getSort..
-#include "set/set.hh"
+#include "flow/set.hh"
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
@@ -168,36 +168,35 @@ void InternalSet::sort(File::Compare<File::Param> sortFunc)
         });
 }
 
-/*
-void InternalSet::RadonToAngle(File::Compare<File::Param> sortFunc)
+void InternalSet::RadonToAngle(std::string vmName)
 {
-    sort([](const File::Param & prm1, const File::Param & prm2)
+    sort([](const File::Param & e1, const File::Param & e2)
         {
-            auto e1il = getPrm<llint>(0U, Meta::il, &e1);
-            auto e2il = getPrm<llint>(0U, Meta::il, &e2);
+            auto e1il = File::getPrm<llint>(0U, Meta::il, &e1);
+            auto e2il = File::getPrm<llint>(0U, Meta::il, &e2);
 
             if (e1il < e2il)
                 return true;
             else if (e1il == e2il)
             {
-                auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
-                auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
+                auto e1xl = File::getPrm<llint>(0U, Meta::xl, &e1);
+                auto e2xl = File::getPrm<llint>(0U, Meta::xl, &e2);
                 if (e1xl < e2xl)
                     return true;
                 else if (e1xl == e2xl)
-                    return getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2);
+                    return File::getPrm<llint>(0U, Meta::ltn, &e1) < File::getPrm<llint>(0U, Meta::ltn, &e2);
             }
             return false;
         });
 
     OpOpt opt = {FuncOpt::NeedAll, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
 
-    func.emplace_back(opt, rule, [this, sortFunc] (size_t ns, File::Param * prm, trace_t * trc) -> std::vector<size_t>
+    func.emplace_back(opt, rule, [] (size_t ns, File::Param * prm, trace_t * trc) -> std::vector<size_t>
         {
-
+#warning Continue here!
+//...
         });
 }
-*/
 
 std::string InternalSet::output(FileDeque & fQue)
 {
@@ -286,10 +285,23 @@ std::string InternalSet::output(FileDeque & fQue)
     return name;
 }
 
-/*FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, File::Param * prm, File::ReadInterface * in, File::WriteInterface * out)
+struct Gather
 {
+    size_t offset;
+    const size_t ns;
+    File::Param prm;
+    std::vector<trace_t> trc;
+};
+
+
+#warning continue
+/*
+FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, File::Param * prm, const Gather * in, Gather * out)
+{
+    
 
 }*/
+
 
 //calc for subsets only
 FuncLst::iterator InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
@@ -327,6 +339,7 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
     if (fCurr != fEnd)
     {
         OpOpt & opt = std::get<0>(*fCurr);
+        //TODO: Switch?
         if (opt.check(FuncOpt::SubSetOnly))
         {
             std::vector<FuncLst::iterator> flist;
@@ -337,6 +350,20 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
             std::equal(flist.begin() + 1U, flist.end(), flist.begin());
 
             fCurr = flist.front();
+        }
+        else if (opt.check(FuncOpt::Gather))
+        {
+            //Note it isn't necessary to use a temporary file here.
+            //It's just a choice for simplicity
+            std::vector<std::string> names = InternalSet::output("temp");
+            drop();
+            for (std::string n : names)
+                add(n);
+
+#warning contnue
+
+//            for (auto & o : fmap)
+//                calcFuncG(fCurr, fEnd, fQue);
         }
         else
         {

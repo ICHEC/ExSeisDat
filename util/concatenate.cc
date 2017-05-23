@@ -7,7 +7,7 @@
  *            which contain all traces with identical ns and increment.
  *//*******************************************************************************************/
 #include <assert.h>
-#include "set.hh"
+#include "flow.hh"
 #include "sglobal.hh"
 #include <iostream>
 using namespace PIOL;

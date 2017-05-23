@@ -147,106 +147,130 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, File::Param * prm)
     for (size_t i = 0; i < lSz; i++)
         line.set(i + offset, lline[i]);
 
+    std::cout << "NumGathers " << line.size() << std::endl;
+
     piol->comm->barrier();
     return line;
 }
 
+Uniray<size_t, llint, llint> getIlXlGathers(ExSeis piol, File::ReadInterface * radon)
+{
+    auto dec = decompose(piol, radon);
+    dec.second += (piol.getRank() < piol.getNumRank()-1U);   //Each process should read an overlapping entry, except last
+
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
+    File::Param rprm(rule, dec.second);
+    radon->readParam(dec.first, dec.second, &rprm);
+
+    return getGathers(piol, &rprm);
+}
+
+std::vector<trace_t> readTrace(File::ReadInterface * vm, size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather)
+{
+    std::vector<trace_t> vtrc(numGather * vm->readNs());
+    std::vector<size_t> vlist = {0U, 1U, vm->readNt() - 1U};
+    File::Param vprm(vlist.size());
+    vm->readParam(vlist.size(), vlist.data(), &vprm);
+
+    size_t ilInc = File::getPrm<llint>(1U, Meta::il, &vprm) - File::getPrm<llint>(0U, Meta::il, &vprm);
+    size_t ilWid = (ilInc ? File::getPrm<llint>(2U, Meta::il, &vprm) / ilInc : 0U);
+    size_t xlInc = File::getPrm<llint>(2U, Meta::xl, &vprm) / (vm->readNt() / (ilWid ? ilWid : 1U));
+    size_t xlWid = (xlInc ? vm->readNt() / (ilWid ? ilWid : 1U) / xlInc : 0U);
+
+    ilInc = (ilInc ? ilInc : 1U);
+    xlInc = (xlInc ? xlInc : 1U);
+
+    std::vector<size_t> offset(numGather);
+    for (size_t i = 0; i < numGather; i++)
+    {
+        auto val = gather[gOffset + i];
+        const size_t il = std::get<1>(val);
+        const size_t xl = std::get<2>(val);
+        offset[i] = ((il - File::getPrm<llint>(0U, Meta::il, &vprm)) / ilInc) * xlWid + ((xl - File::getPrm<llint>(0U, Meta::xl, &vprm)) / xlInc);
+    }
+
+    vm->readTrace(offset.size(), offset.data(), vtrc.data());
+    return vtrc;
+}
+
 int main(int argc, char ** argv)
 {
+    const size_t aGSz = 60;
+    const size_t vBin = 20;
+
     ExSeis piol;
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
     std::string rname = "radon.segy";
     std::string vname = "vm.segy";
-//    std::string dname = "dip.segy";
     std::string aname = "angle.segy";
-    size_t agSz = 60;
 
     //Assume the files are structured as 3d volumes.
     File::ReadDirect radon(piol, rname);
     File::ReadDirect vm(piol, vname);
-//    File::ReadDirect dip(piol, dname);
     piol.isErr();
 
     //Locate gather boundaries.
-    auto dec = decompose(piol, radon);
-    dec.second += (piol.getRank() < piol.getNumRank()-1U);   //Each process should read an overlapping entry, except last
-
-    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
-    File::Param rprm(rule, dec.second);
-    radon.readParam(dec.first, dec.second, &rprm);
-    Uniray<size_t, llint, llint> gather = getGathers(piol, &rprm);
-
-    piol.barrier();
-
-    for (size_t i = 0; i < numRank; i++)
-    {
-        if (i == rank)
-        {
-            for (size_t j = 0; j < gather.size(); j++)
-                std::cerr << j << " get "<<  std::get<0>(gather[j]) << " " << std::get<1>(gather[j]) << " " << std::get<2>(gather[j]) << "\n";
-            std::cout << std::endl;
-        }
-        piol.barrier();
-    }
-    return 0;
+    auto gather = getIlXlGathers(piol, radon);
 
     auto gdec = decompose(gather.size(), numRank, rank);
     size_t numGather = gdec.second;
     size_t gOffset = gdec.first;
-
     size_t vNs = vm->readNs();
 
-    std::vector<trace_t> vtrc(numGather * vNs);
-    vm.readTrace(gOffset, numGather, vtrc.data());
+    std::vector<trace_t> vtrc = readTrace(vm, gOffset, numGather, gather);
 
     size_t rNs = radon->readNs();
-    size_t aNs = rNs;//TODO: Check what gareth does
+    size_t aNs = rNs; //TODO: Check what gareth does
 
-    geom_t vinc = vm->readInc();
-    geom_t rinc = radon->readInc();
-    geom_t ainc = pi / geom_t(180);   //1 degree in radians
+    geom_t vInc = vm->readInc();
+    geom_t rInc = radon->readInc();
+    geom_t aInc = pi / geom_t(180);   //1 degree in radians
 
-    size_t lOffset = gOffset;
+    size_t lOffset = 0U;
     size_t extra = piol.max(numGather) - numGather;
     File::WriteDirect angle(piol, aname);
     angle.writeNs(aNs);
-    angle.writeNt(radon.readNt());
-    angle.writeInc(ainc);
+    angle.writeNt(aGSz * numGather);
+    angle.writeInc(aInc);
 
-    std::cout << "Reac numGather loop" << std::endl;
+    std::cout << "Reach numGather loop" << std::endl;
+    for (size_t i = 0; i < gOffset; i++)
+        lOffset += std::get<0>(gather[i]);
+
     for (size_t i = 0; i < numGather; i++)
     {
-        const size_t rgSz = std::get<0>(gather[gOffset + i]);
-        std::vector<trace_t> rtrc(rgSz * rNs);
-        std::vector<trace_t> atrc(agSz * aNs);
+        auto gval = gather[gOffset + i];
+        const size_t rGSz = std::get<0>(gval);
+        const size_t aOffset = aGSz * (i + gOffset);
+        std::vector<trace_t> rtrc(rGSz * rNs);
+        std::vector<trace_t> atrc(aGSz * aNs);
 
-        radon.readTrace(lOffset, rgSz, rtrc.data());
+        radon.readTrace(lOffset, rGSz, rtrc.data());
 
-        for (size_t j = 0; j < agSz; j++)       //For each angle in the angle gather
+        for (size_t j = 0; j < aGSz; j++)       //For each angle in the angle gather
             for (size_t z = 0; z < rNs; z++)    //For each sample (angle + radon)
             {
-                geom_t vmModel = vtrc[i * vNs + std::min(size_t(geom_t(z * rinc) / vinc), vNs)];
-                llint k = llround(vmModel / (cos(j * ainc) * geom_t(rgSz)));
-                if (k > 0 && k < rgSz)
-                    atrc[j * agSz + z] = rtrc[k * rgSz + z];
+                geom_t vmModel = vtrc[i * vNs + std::min(size_t(geom_t(z * rInc) / vInc), vNs)];
+                //llint k = llround(vmModel / (cos(j * aInc) * geom_t(vBin)));
+                llint k = llround(vmModel / cos(j * aInc)) / vBin;
+                if (k > 0 && k < rGSz)
+                    atrc[j * aNs + z] = rtrc[k * rNs + z];
             }
 
-        auto rule = std::make_shared<File::Rule>(true, true);
-
-        File::Param aprm(rule, agSz);
-        for (size_t j = 0; j < agSz; j++)
+        auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
+        File::Param aprm(rule, aGSz);
+        for (size_t j = 0; j < aGSz; j++)
         {
             //TODO: Set the rest of the parameters
             //TODO: Check the get numbers
-            File::setPrm(j, Meta::il, std::get<1>(gather[i]), &aprm);
-            File::setPrm(j, Meta::xl, std::get<2>(gather[i]), &aprm);
+            File::setPrm(j, Meta::il, std::get<1>(gval), &aprm);
+            File::setPrm(j, Meta::xl, std::get<2>(gval), &aprm);
         }
 
-        angle->writeTrace(lOffset, agSz, atrc.data(), &aprm);
-
-        lOffset += rgSz;
+        angle->writeTrace(aOffset, aGSz, atrc.data(), &aprm);
+        lOffset += rGSz;
     }
 
     for (size_t j = 0; j < extra; j++)
@@ -254,6 +278,7 @@ int main(int argc, char ** argv)
         radon->readTrace(size_t(0), size_t(0), (trace_t *)(nullptr));
         angle->writeTrace(size_t(0), size_t(0), (trace_t *)(nullptr), (File::Param *)(nullptr));
     }
+
     return 0;
 }
 

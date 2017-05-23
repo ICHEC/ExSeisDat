@@ -7,7 +7,7 @@
 *//*******************************************************************************************/
 #ifndef APIPIOLSET_INCLUDE_GUARD
 #define APIPIOLSET_INCLUDE_GUARD
-#include "set/set.hh"
+#include "flow/set.hh"
 #include "fileops.hh"
 namespace PIOL
 {

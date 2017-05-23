@@ -131,7 +131,6 @@ void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T o
     }
 }
 
-
 void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trc, Param * prm, csize_t skip) const
 {
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
