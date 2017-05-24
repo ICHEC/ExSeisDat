@@ -18,7 +18,8 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name)
     auto time = MPI_Wtime();
     File::ReadDirect file(piol, name);
     piol->isErr();
-    auto dec = decompose(file.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+
+    auto dec = decompose(piol.get(), file);
     size_t offset = dec.first;
     size_t lnt = dec.second;
 

@@ -11,6 +11,7 @@
 #define PIOLFILE_INCLUDE_GUARD
 #include "global.hh"
 #include "share/param.hh"
+#include "share/uniray.hh"
 
 namespace PIOL { namespace File {
 extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
@@ -39,7 +40,6 @@ class Interface
      */
     virtual ~Interface(void) { }
 };
-
 
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
@@ -221,6 +221,15 @@ class WriteInterface : public Interface
      *  contents of the trace header will be overwritten.
      */
     virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
+};
+
+class Model3dInterface
+{
+    public :
+    //Start, number, increment
+    std::tuple<size_t, size_t, size_t> il;  //!< Parameters for the inline coordinate
+    std::tuple<size_t, size_t, size_t> xl;  //!< Parameters for the crossline coordinate
+    virtual std::vector<trace_t> readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather) = 0;
 };
 }}
 #endif

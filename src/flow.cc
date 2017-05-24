@@ -16,6 +16,7 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
+#include "share/decomp.hh"
 #warning
 #include <iostream>
 
@@ -31,21 +32,6 @@ std::unique_ptr<File::WriteInterface> makeSEGYFile(Piol piol, std::string name, 
     out->writeText(text);
 
     return std::move(out);
-}
-
-/*! Perform a 1d decomposition so that the load is optimally balanced.
- *  \param[in] sz The sz of the 1d domain
- *  \param[in] numRank The number of ranks to perform the decomposition over
- *  \param[in] rank The rank of the local process
- *  \return Return a pair, the first element is the offset for the local process,
- *          the second is the size for the local process.
- */
-std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
-{
-    size_t q = sz/numRank;
-    size_t r = sz%numRank;
-    size_t start = q * rank + std::min(rank, r);
-    return std::make_pair(start, std::min(sz - start, q + (rank < r)));
 }
 
 /*! For CoordElem. Update the dst element based on if the operation gives true.
@@ -96,7 +82,7 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
     auto & f = file.back();
     f->ifc = std::move(in);
 
-    auto dec = decompose(f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+    auto dec = decompose(piol.get(), f->ifc.get());
     f->ilst.resize(dec.second);
     f->olst.resize(dec.second);
     std::iota(f->ilst.begin(), f->ilst.end(), dec.first);

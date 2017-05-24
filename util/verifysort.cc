@@ -40,7 +40,7 @@ int main(int argc, char ** argv)
     File::ReadDirect src(piol, name1);
 
     //Perform the decomposition and read coordinates of interest.
-    auto dec = decompose(src.readNt(), numRank, rank);
+    auto dec = decompose(piol, src);
 
     if (checkOrder(src, dec, type))
         std::cout << "Success\n";

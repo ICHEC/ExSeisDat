@@ -95,7 +95,7 @@ namespace File {
  */
 class ReadDirect
 {
-    private :
+    protected :
     std::shared_ptr<ReadInterface> file;      //!< The pointer to the base class (polymorphic)
 
     public :
@@ -210,7 +210,7 @@ class ReadDirect
  */
 class WriteDirect
 {
-    private :
+    protected :
     std::shared_ptr<WriteInterface> file;      //!< The pointer to the base class (polymorphic)
 
     public :
@@ -327,5 +327,14 @@ class WriteDirect
      */
     void writeParam(csize_t sz, csize_t * offset, const Param * prm);
 };
+
+
+class ReadModel : public ReadDirect
+{
+    public :
+    ReadModel(const Piol piol_, const std::string name_);
+    std::vector<trace_t> readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather);
+};
+
 }}
 #endif
