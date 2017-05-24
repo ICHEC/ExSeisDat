@@ -6,7 +6,8 @@
  *   \date February 2017
  *   \brief Sort a file in 9 lines
 *//*******************************************************************************************/
-#include "set.hh"
+#include "cppfileapi.hh"
+#include "set/set.hh"
 using namespace PIOL;
 int main(void)
 {

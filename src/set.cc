@@ -19,6 +19,7 @@
 #include "object/objsegy.hh"
 #include "ops/sort.hh"
 #include "ops/agc.hh"
+#include "ops/taper.hh"
 #include "ops/minmax.hh"
 namespace PIOL {
 typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
@@ -157,19 +158,19 @@ void updateElem(CoordElem * src, CoordElem * dst)
 
 //////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
 
-InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) : piol(piol_), outfix(outfix_), rule(rule_)
+Set::Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) : piol(piol_), outfix(outfix_), rule(rule_)
 {
     fillDesc(piol, pattern);
 }
 
-InternalSet::~InternalSet(void)
+Set::~Set(void)
 {
     if (outfix != "")
         output(outfix);
 }
 
 //TODO: Make multi-file
-void InternalSet::add(std::string name)
+void Set::add(std::string name)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
     auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
@@ -178,7 +179,7 @@ void InternalSet::add(std::string name)
 }
 
 //TODO: Combine this with fillDesc?
-void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
+void Set::add(std::unique_ptr<File::ReadInterface> in)
 {
     file.emplace_back(std::make_unique<FileDesc>());
     auto & f = file.back();
@@ -201,7 +202,7 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
     off += f->ifc->readNt();
 }
 
-void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
+void Set::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
     outmsg = "ExSeisPIOL: Set layer output\n";
     //TODO: Regexes might be more useful for pattern matching instead of globbing
@@ -252,7 +253,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
     piol->isErr();
 }
 
-size_t InternalSet::getInNt(void)
+size_t Set::getInNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
@@ -260,7 +261,7 @@ size_t InternalSet::getInNt(void)
     return nt;
 }
 
-size_t InternalSet::getLNt(void)
+size_t Set::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
@@ -269,7 +270,7 @@ size_t InternalSet::getLNt(void)
     return nt;
 }
 
-void InternalSet::summary(void) const
+void Set::summary(void) const
 {
     for (auto & f : file)
     {
@@ -291,7 +292,7 @@ void InternalSet::summary(void) const
     }
 }
 
-void InternalSet::sort(File::Compare<File::Param> func)
+void Set::sort(File::Compare<File::Param> func)
 {
     for (auto & o : fmap)   //Per target output file
     {
@@ -349,7 +350,7 @@ void InternalSet::sort(File::Compare<File::Param> func)
     }
 }
 
-std::vector<std::string> InternalSet::output(std::string oname)
+std::vector<std::string> Set::output(std::string oname)
 {
     std::vector<std::string> names;
     for (auto & o : fmap)
@@ -384,7 +385,7 @@ std::vector<std::string> InternalSet::output(std::string oname)
     return names;
 }
 
-void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
+void Set::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
 {
     minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
@@ -420,40 +421,53 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     }
 }
 
-/*! Apply a taper to a set of traces --> used for acutal operation during output
- * \param[in] nt The number of traces
- * \parma[in] ns The number of samples in a trace
- * \param[in] trc Vector of all traces
- * \param[in] func Weight function for the taper ramp
- * \param[in] ntpstr Length of left tail of taper
- * \param[in] ntpend Length of right tail of taper
- * \return Vector of tapered traces
- */
-void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+void Set::taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
 {
-    assert(ns > nTailLft && ns > nTailRt);
-    for (size_t i = 0; i < sz; i++)
-    {
-        size_t jstart;
-        for (jstart = 0; jstart < ns && trc[i*ns+jstart] == 0.0f; jstart++);
-
-        for (size_t j = jstart; j < std::min(jstart+nTailLft, ns); j++)
-            trc[i*ns+j] *= func(j-jstart+1, nTailLft);
-
-        for (size_t j = ns - nTailRt; j < ns; j++)
-            trc[i*ns+j] *= func(ns - j - 1U, nTailRt);
-    }
-}
-
-void InternalSet::taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
-{
-    Mod modify_ = [func, nTailLft, nTailRt] (size_t ns, File::Param * p, trace_t * t) { PIOL::taper(p->size(), ns, t, func, nTailLft, nTailRt); };
+    Mod modify_ = [func, nTailLft, nTailRt] (size_t ns, File::Param * p, trace_t * t) { File::taper(p->size(), ns, t, func, nTailLft, nTailRt); };
     mod(modify_);
 }
 
-void InternalSet::agc(std::function<trace_t(trace_t * trc, size_t strt, size_t win, trace_t normR, size_t winCntr)> func, size_t window, trace_t normR)
+void Set::agc(std::function<trace_t(trace_t * trc, size_t strt, size_t win, trace_t normR, size_t winCntr)> func, size_t window, trace_t normR)
 {
     Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::agc(p->size(), ns, t, func, window, normR);};
     mod(modify_);
 }
+
+/********************************************** Non-Core **************************************************************/
+std::shared_ptr<File::Rule> getMaxRules(void)
+{
+    auto rule = std::make_shared<File::Rule>(true, true, true);
+    rule->addLong(Meta::Misc1, File::Tr::TransConst);
+    rule->addShort(Meta::Misc2, File::Tr::TransExp);
+    //Override the default behaviour of ShotNum
+    rule->addLong(Meta::ShotNum, File::Tr::ShotNum);
+    rule->addShort(Meta::Misc3, File::Tr::ShotScal);
+    return rule;
+}
+
+void Set::sort(SortType type)
+{
+    Set::sort(File::getComp(type));
+}
+
+void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
+{
+    Set::getMinMax([m1](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m1, &a); },
+                           [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
+
+}
+
+void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
+{
+    Set::taper(File::getTap(type), nTailLft, nTailRt);
+}
+
+void Set::agc(AGCType type, size_t window, trace_t normR)
+{
+    Set::agc(File::agcFunc(type), window,  normR);
+}
+
+
+
+
 }

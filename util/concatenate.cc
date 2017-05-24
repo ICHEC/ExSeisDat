@@ -7,7 +7,8 @@
  *            which contain all traces with identical ns and increment.
  *//*******************************************************************************************/
 #include <assert.h>
-#include "set.hh"
+#include "cppfileapi.hh"
+#include "set/set.hh"
 #include "sglobal.hh"
 #include <iostream>
 using namespace PIOL;

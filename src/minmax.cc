@@ -16,10 +16,8 @@
 
 #include "global.hh"
 #include "file/dynsegymd.hh"
-#include "fileops.hh"
 #include "ops/minmax.hh"
 
-#include <cstring>
 namespace PIOL { namespace File {
 void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, Meta m1, Meta m2, const Param * prm, CoordElem * minmax)
 {

@@ -6,10 +6,12 @@
  *   \brief This is an example of using minmax through the Set API
  *   is complete.
 *//*******************************************************************************************/
-#include "set.hh"
+#include <assert.h>
+#include <unistd.h>
 #include <iostream>
 #include <algorithm>
-#include <unistd.h>
+#include "cppfileapi.hh"
+#include "set/set.hh"
 using namespace PIOL;
 int main(int argc, char ** argv)
 {

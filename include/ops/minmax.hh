@@ -15,6 +15,7 @@
 
 namespace PIOL { namespace File {
 
+/******************************************* Core *****************************************************/
 template <typename T>
 using Func = std::function<geom_t(const T &)>;  //!< Return the value associated with a particular parameter
 
@@ -94,5 +95,21 @@ void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Fun
         std::copy(y.begin(), y.end(), minmax + x.size());
     }
 }
+
+/******************************************* Non-Core *****************************************************/
+
+//TODO: Write a test for this function
+/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+ *  the collective min and max across all processes (which also must all call this file).
+ *  \param[in, out] piol The PIOL object
+ *  \param[in] offset The starting trace number (local).
+ *  \param[in] lnt The local number of traces to process.
+ *  \param[in] item The coordinate item of interest.
+ *  \param[in] prm An array of trace parameter structures
+ *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+ *  and their respective trace numbers.
+ */
+extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, Meta m1, Meta m2, const Param * prm, CoordElem * minmax);
+
 }}
 #endif

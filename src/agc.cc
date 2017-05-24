@@ -80,5 +80,24 @@ void agc(size_t nt, size_t ns, trace_t * trc, const std::function<trace_t(trace_
             trc[i*ns+j] *= trcAGC[j];
     }
 }
+
+std::function<trace_t(trace_t *, size_t, size_t, trace_t, size_t)> agcFunc(AGCType type)
+{
+    switch (type)
+    {
+        default :
+        case AGCType::RMS :
+            return rms;
+        break;
+        case AGCType::RMSTri :
+            return rmsTri;
+        break;
+        case AGCType::MeanAbs :
+            return meanAbs;
+        break;
+        case AGCType::Median :
+            return median;
+        break;
+    }
 }
-}
+}}

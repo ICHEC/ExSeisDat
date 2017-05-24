@@ -5,10 +5,11 @@
  *   \brief
  *   \details This file contains the I/O related portions of the 4d Binning utility.
  *//*******************************************************************************************/
+#include <assert.h>
 #include <numeric>
 #include "4dio.hh"
 #include "sglobal.hh"
-#include "fileops.hh"   //For sort
+#include "ops/sort.hh"   //For sort
 #include "share/misc.hh"
 namespace PIOL { namespace FOURD {
 //TODO: Integration candidate

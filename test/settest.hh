@@ -1,13 +1,13 @@
+#include <cmath>
+#include <vector>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-#include <cmath>
-#include <vector>
+#include "file/dynsegymd.hh"
 #define private public
 #define protected public
 #include "file/file.hh"
 #include "set/set.hh"
-#include "set.hh"
 #undef private
 #undef protected
 

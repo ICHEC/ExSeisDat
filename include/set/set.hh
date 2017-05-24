@@ -32,7 +32,7 @@ typedef std::function<void(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef
 
 /*! The internal set class
  */
-class InternalSet
+class Set
 {
     private :
     Piol piol;                                                          //!< The PIOL object.
@@ -58,17 +58,29 @@ class InternalSet
      *  \param[in] outfix_ The output file-name prefix
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_);
+    Set(Piol piol_, std::string pattern, std::string outfix_,
+                std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
+
+    /*! Constructor
+     *  \param[in] piol_ The PIOL object.
+     *  \param[in] pattern The file-matching pattern
+     *  \param[in] outfix_ The output file-name prefix
+     *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
+     */
+    Set(Piol piol_, std::string pattern,
+                std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}))
+                : Set(piol_, pattern, "", rule_) {  }
 
     /*! Constructor overload
      *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    InternalSet(Piol piol_, std::shared_ptr<File::Rule> rule_) : piol(piol_), rule(rule_) { }
+    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}))
+                : piol(piol_), rule(rule_) { }
 
     /*! Destructor
      */
-    ~InternalSet(void);
+    ~Set(void);
 
     /*! Sort the set using the given comparison function
      *  \param[in] func The comparison function
@@ -143,6 +155,39 @@ class InternalSet
     {
         modify = [oldmod = modify, modify_] (size_t ns, File::Param * p, trace_t * t) { oldmod(ns, p, t); modify_(ns, p, t); };
     }
+
+    /************************************* Non-Core *****************************************************/
+    /*! Sort the set by the specified sort type.
+     *  \param[in] s The set handle
+     *  \param[in] type The sort type
+     */
+    void sort(SortType type);
+
+    /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+     *  the collective min and max across all processes (which also must all call this file).
+     *  \param[in] m1 The first parameter type
+     *  \param[in] m2 The second parameter type
+     *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+     *  and their respective trace numbers.
+     */
+    void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
+
+    /*! Perform tailed taper on a set of traces
+     * \param[in] s The set handle
+     * \param[in] type The type of taper to be applied to traces.
+     * \param[in] nTailLft The length of left-tail taper ramp.
+     * \param[in] nTailRt The length of right-tail taper ramp.
+     */
+    void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
+
+    /*! Scale traces using automatic gain control for visualization
+     * \param[in] type They type of agc scaling function used
+     * \param[in] window Length of the agc window
+     * \param[in] normR Normalization value
+     */
+    void agc(AGCType type, size_t window, trace_t normR);
+
+
 };
 }
 #endif

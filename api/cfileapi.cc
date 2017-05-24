@@ -15,8 +15,7 @@
 #include "file/dynsegymd.hh"
 #include "share/segy.hh"
 #include "share/api.hh"
-#include "fileops.hh"
-#include "set.hh"
+#include "set/set.hh"
 #include "set.h"
 
 using namespace PIOL;
