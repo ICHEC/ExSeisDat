@@ -70,7 +70,7 @@ const std::vector<size_t> sortOffLine = {
 void testRcvPattern(std::deque<std::unique_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
-   {
+    {
         size_t l = 1;
         for (size_t j = 1; j < file[i]->lst.size(); j++, l++)
             EXPECT_EQ(file[i]->lst[j] - 1, file[i]->lst[j-1]);
@@ -119,6 +119,7 @@ void muting(size_t nt, size_t ns, trace_t * trc, size_t mute)
         for (size_t j = 0; j < mute; j++)
             trc[i*ns+j] = 0.0f;
 }
+
 void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
 {
     for (size_t i = 0; i < nt; i++)
@@ -145,6 +146,7 @@ void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t
         }
     }
 }
+
 TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);

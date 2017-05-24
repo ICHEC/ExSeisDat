@@ -389,25 +389,14 @@ void sortSet(ExSeisSet s, SortType type)
     s->set->sort(type);
 }
 
-extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
-{
-    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
-    {
-        ParamWrapper awrap = { const_cast<File::Param *>(&a) };
-        ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
-        return func(&awrap, &bwrap);
-    };
-    s->set->sort(lam);
-}
-
-extern void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
+void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
 {
     s->set->taper(type, ntpstr, ntpend);
 }
 
-extern void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
+void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
 {
-    s->set->taper(type, ntpstr, 0);
+    s->set->taper(type, ntpstr);
 }
 
 extern void agc(ExSeisSet s, AGCType type, size_t window, float normR)
@@ -442,5 +431,16 @@ void summarySet(ExSeisSet s)
 void addSet(ExSeisSet s, const char * name)
 {
     s->set->add(name);
+}
+
+void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
+{
+    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
+        {
+            ParamWrapper awrap = { const_cast<File::Param *>(&a) };
+            ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
+            return func(&awrap, &bwrap);
+    };
+    s->set->sort(lam);
 }
 }

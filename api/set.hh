@@ -61,13 +61,12 @@ class Set : public InternalSet
     /*! Perform tailed taper on a set of traces
      * \param[in] s The set handle
      * \param[in] type The type of taper to be applied to traces.
-     * \param[in] ntpstr The length of left-tail taper ramp.
-     * \param[in] ntpend The length of right-tail taper ramp.
+     * \param[in] nTailLft The length of left-tail taper ramp.
+     * \param[in] nTailRt The length of right-tail taper ramp.
      */
     void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
 
     /*! Scale traces using automatic gain control for visualization
-     * \param[in] s The set handle
      * \param[in] type They type of agc scaling function used
      * \param[in] window Length of the agc window
      * \param[in] normR Normalization value

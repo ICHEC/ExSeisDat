@@ -10,6 +10,7 @@
 #include "set.hh"
 #undef private
 #undef protected
+
 namespace PIOL {
 extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);     //TODO: TEMP!
 }
@@ -42,7 +43,8 @@ ACTION_P(cpyprm, src)
 }
 
 extern void muting(size_t nt, size_t ns, trace_t * trc, size_t mute);
-extern void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
+extern void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func,
+                                                                                size_t nTailLft, size_t nTailRt);
 
 struct SetTest : public Test
 {
@@ -151,24 +153,19 @@ struct SetTest : public Test
         set = std::make_unique<Set>(piol);
         std::vector<trace_t> trc(nt * ns);
         std::vector<trace_t> trcMan(nt * ns);
-        File::Param p(nt);
+        File::Param prm(nt);
         std::fill(trc.begin(), trc.end(), 1.0f);
         if (mute != 0)
-            muting(nt, ns, trc.data(),  mute);
+            muting(nt, ns, trc.data(), mute);
         trcMan = trc;
 
-        if (nTailRt == 0)
-            set->taper(type, nTailLft);
-        else
-            set->taper(type, nTailLft, nTailRt);
-        set->modify(ns, &p, trc.data());
+        set->taper(type, nTailLft, nTailRt);
+        set->modify(ns, &prm, trc.data());
 
         taperMan(nt, ns, trcMan.data(), func, nTailLft, nTailRt);
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-            {
                 EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
-            }
     }
     void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> func, size_t window, trace_t normR)
     {

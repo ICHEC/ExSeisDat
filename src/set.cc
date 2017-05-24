@@ -17,6 +17,9 @@
 #include "data/datampiio.hh"
 #include "file/filesegy.hh"
 #include "object/objsegy.hh"
+#include "ops/sort.hh"
+#include "ops/agc.hh"
+#include "ops/minmax.hh"
 namespace PIOL {
 typedef std::pair<std::vector<size_t>, std::vector<size_t>> iolst;      //!< Type to link input to output
 
@@ -261,7 +264,7 @@ size_t InternalSet::getLNt(void)
 {
     size_t nt = 0U;
     for (auto & f : file)
-      for (auto & l : f->lst)
+        for (auto & l : f->lst)
             nt += (l != NOT_IN_OUTPUT);
     return nt;
 }
@@ -417,6 +420,15 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
     }
 }
 
+/*! Apply a taper to a set of traces --> used for acutal operation during output
+ * \param[in] nt The number of traces
+ * \parma[in] ns The number of samples in a trace
+ * \param[in] trc Vector of all traces
+ * \param[in] func Weight function for the taper ramp
+ * \param[in] ntpstr Length of left tail of taper
+ * \param[in] ntpend Length of right tail of taper
+ * \return Vector of tapered traces
+ */
 void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
 {
     assert(ns > nTailLft && ns > nTailRt);

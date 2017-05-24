@@ -116,9 +116,9 @@ enum class AGCType : int
 typedef enum
 #endif
 {
-    RMS,       //!< AGC using Root Mean Square with rectangular window
-    RMSTri,    //!< AGC using Root Mean Square with triangular window
-    MeanAbs,   //!< AGC using Mean Ablsolute Value with rectangular window
+    RMS,       //!< AGC using RMS with rectangular window
+    RMSTri,    //!< AGC using RMS with triangular window
+    MeanAbs,   //!< AGC using mean absolute value with rectangular window
     Median     //!< AGC using the median value
 #ifdef __cplusplus
 };

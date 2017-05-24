@@ -7,15 +7,14 @@
 *//*******************************************************************************************/
 #ifndef PIOLSET_INCLUDE_GUARD
 #define PIOLSET_INCLUDE_GUARD
-#include "global.hh"
-#include "file/file.hh"
-#include "ops/minmax.hh"
-#include "ops/sort.hh"
-#include "ops/agc.hh"
 #include <functional>
 #include <memory>
 #include <deque>
 #include <map>
+#include "global.hh"
+#include "file/file.hh"
+#include "ops/sort.hh"
+#include "ops/minmax.hh"
 
 namespace PIOL {
 /*! A file-descriptor structure which describes an input file and the decomposition for the set layer
@@ -31,27 +30,6 @@ struct FileDesc
 
 typedef std::function<void(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 
-/*! Apply a taper to a set of traces --> used for acutal operation during output
- * \param[in] nt The number of traces
- * \parma[in] ns The number of samples in a trace
- * \param[in] trc Vector of all traces
- * \param[in] func Weight function for the taper ramp
- * \param[in] ntpstr Length of left tail of taper
- * \param[in] ntpend Length of right tail of taper
- * \return Vector of tapered traces
- */
-void taper(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
-
-/*! Apply automatic gain control to a set of tapers --> used for actual operation during output
- * \param[in] nt The number of traces
- * \parma[in] ns The number of samples in a trace
- * \param[in] trc Vector of all traces
- * \param[in] func Staistical function used to modulate traces
- * \param[in] window Length of the agc window
- * \param[in] normR Value to which traces are normalized
- */
-extern void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t * trc,size_t strt,
-                size_t window, trace_t normR)> func, size_t window, trace_t normR, size_t winCntr);
 /*! The internal set class
  */
 class InternalSet
