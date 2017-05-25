@@ -65,7 +65,6 @@ class Set
     /*! Constructor
      *  \param[in] piol_ The PIOL object.
      *  \param[in] pattern The file-matching pattern
-     *  \param[in] outfix_ The output file-name prefix
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     Set(Piol piol_, std::string pattern,
@@ -114,8 +113,8 @@ class Set
 
     /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
      * \param[in] func Weight function for the taper ramp
-     * \param[in] ntpstr Length of left tail of taper
-     * \param[in] ntpend Length of right tail of taper
+     * \param[in] nTailLft Length of left tail of taper
+     * \param[in] nTailRt Length of right tail of taper
      */
     void taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt = 0);
 
@@ -158,7 +157,6 @@ class Set
 
     /************************************* Non-Core *****************************************************/
     /*! Sort the set by the specified sort type.
-     *  \param[in] s The set handle
      *  \param[in] type The sort type
      */
     void sort(SortType type);
@@ -173,7 +171,6 @@ class Set
     void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
 
     /*! Perform tailed taper on a set of traces
-     * \param[in] s The set handle
      * \param[in] type The type of taper to be applied to traces.
      * \param[in] nTailLft The length of left-tail taper ramp.
      * \param[in] nTailRt The length of right-tail taper ramp.
@@ -186,8 +183,6 @@ class Set
      * \param[in] normR Normalization value
      */
     void AGC(AGCType type, size_t window, trace_t normR);
-
-
 };
 }
 #endif

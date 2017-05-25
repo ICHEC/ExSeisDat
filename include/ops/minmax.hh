@@ -103,8 +103,9 @@ void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Fun
  *  the collective min and max across all processes (which also must all call this file).
  *  \param[in, out] piol The PIOL object
  *  \param[in] offset The starting trace number (local).
- *  \param[in] lnt The local number of traces to process.
- *  \param[in] item The coordinate item of interest.
+ *  \param[in] sz The local number of traces to process.
+ *  \param[in] m1 The first coordinate item of interest.
+ *  \param[in] m2 The second coordinate item of interest.
  *  \param[in] prm An array of trace parameter structures
  *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
  *  and their respective trace numbers.

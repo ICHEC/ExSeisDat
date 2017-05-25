@@ -14,19 +14,19 @@
 #include "global.hh"
 
 namespace PIOL {
-namespace SI                        //!< This namespace is being used like an enum
+namespace SI                            //!< This namespace is being used like an enum
 {
     constexpr unit_t Micro = 1e-6L;     //!< Micro in SI units
 }
 
-namespace Physics                  //!< For physical constants
+namespace Physics                       //!< For physical constants
 {
 
 }
 
-namespace Math
+namespace Math                          //!< Mathematical constants
 {
-    constexpr unit_t pi = M_PI;
+    constexpr unit_t pi = M_PI;         //!< Pi
 }
 
 }

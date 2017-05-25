@@ -55,11 +55,16 @@ extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, Param * prm);
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.
  *  \param[in] dec The decomposition: a pair which contains the offset (first) and the number of traces for the local process.
+ *  \param[in] type The sort type
  *  \return Return true if the local ordering is correct.
  */
 extern bool checkOrder(ReadInterface * src, std::pair<size_t, size_t> dec, SortType type);
 
-#warning document
+/*! Return the comparison function for the particular sort type.
+ *  \param[in] type The sort type
+ *  \return A std::function object with the correct comparison for
+ *          the sort type.
+ */
 extern Compare<Param> getComp(SortType type);
 }}
 #endif

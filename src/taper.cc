@@ -12,15 +12,6 @@
 namespace PIOL { namespace File {
 
 /******************************************** Core *********************************************/
-/*! Apply a taper to a set of traces --> used for acutal operation during output
- * \param[in] nt The number of traces
- * \parma[in] ns The number of samples in a trace
- * \param[in] trc Vector of all traces
- * \param[in] func Weight function for the taper ramp
- * \param[in] ntpstr Length of left tail of taper
- * \param[in] ntpend Length of right tail of taper
- * \return Vector of tapered traces
- */
 void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
 {
     assert(ns > nTailLft && ns > nTailRt);

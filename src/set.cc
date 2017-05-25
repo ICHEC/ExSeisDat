@@ -434,17 +434,6 @@ void Set::AGC(File::AGCFunc func, size_t window, trace_t normR)
 }
 
 /********************************************** Non-Core **************************************************************/
-std::shared_ptr<File::Rule> getMaxRules(void)
-{
-    auto rule = std::make_shared<File::Rule>(true, true, true);
-    rule->addLong(Meta::Misc1, File::Tr::TransConst);
-    rule->addShort(Meta::Misc2, File::Tr::TransExp);
-    //Override the default behaviour of ShotNum
-    rule->addLong(Meta::ShotNum, File::Tr::ShotNum);
-    rule->addShort(Meta::Misc3, File::Tr::ShotScal);
-    return rule;
-}
-
 void Set::sort(SortType type)
 {
     Set::sort(File::getComp(type));

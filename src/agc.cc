@@ -16,7 +16,6 @@
 #include "ops/agc.hh"
 #include "share/api.hh"
 namespace PIOL { namespace File {
-
 trace_t AGCRMS(trace_t * trc, size_t window, trace_t normR, llint winCntr)
 {
     trace_t amp = trace_t(0);
@@ -50,11 +49,12 @@ trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint winCntr)
     return normR/(std::abs(amp)/(!num ? 1U : num));
 }
 
+//This can be optimised with std::nth_element if required.
 trace_t AGCMedian(trace_t * trc, size_t window, trace_t normR, llint winCntr)
 {
     std::vector<trace_t> trcTmp(trc, &trc[window]);
     std::sort(trcTmp.begin(), trcTmp.end());
-    return normR/(window % 2U == 0U ? ((trcTmp[window/2U]+trcTmp[window/2U+1U])/trace_t(2)) : trcTmp[window/2U]);;
+    return normR/(window % 2U == 0U ? ((trcTmp[window/2U]+trcTmp[window/2U+1U])/trace_t(2)) : trcTmp[window/2U]);
 }
 
 void AGC(csize_t nt, csize_t ns, trace_t * trc, const AGCFunc func, size_t window, trace_t normR)

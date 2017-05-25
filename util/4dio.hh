@@ -25,8 +25,8 @@ struct Coords
     size_t * tn = NULL;     //!< The trace number
     size_t allocSz;         //!< The size which was actually allocated
 
-    llint * il = NULL;  //!< The y rcv coordinates
-    llint * xl = NULL;  //!< The y rcv coordinates
+    llint * il = NULL;      //!< The inline number
+    llint * xl = NULL;      //!< The crossline number
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
