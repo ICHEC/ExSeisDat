@@ -398,10 +398,11 @@ void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
     s->set->taper(type, ntpstr);
 }
 
-extern void agc(ExSeisSet s, AGCType type, size_t window, float normR)
+extern void AGC(ExSeisSet s, AGCType type, size_t window, float normR)
 {
-    s->set->agc(type, window, normR);
+    s->set->AGC(type, window, normR);
 }
+
 size_t getInNt(ExSeisSet s)
 {
     return s->set->getInNt();

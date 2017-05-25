@@ -15,6 +15,7 @@
 #include "file/file.hh"
 #include "ops/sort.hh"
 #include "ops/minmax.hh"
+#include "ops/agc.hh"
 
 namespace PIOL {
 /*! A file-descriptor structure which describes an input file and the decomposition for the set layer
@@ -123,8 +124,7 @@ class Set
      * \param[in] window Length of the agc window
      * \param[in] normR Value to which traces are normalized
      */
-    void agc(std::function<trace_t(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr)> func,
-             size_t window, trace_t normR);
+    void AGC(File::AGCFunc func, size_t window, trace_t normR);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message
@@ -185,7 +185,7 @@ class Set
      * \param[in] window Length of the agc window
      * \param[in] normR Normalization value
      */
-    void agc(AGCType type, size_t window, trace_t normR);
+    void AGC(AGCType type, size_t window, trace_t normR);
 
 
 };

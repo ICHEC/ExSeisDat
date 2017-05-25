@@ -178,11 +178,10 @@ struct SetTest : public Test
 
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-            {
                 trc[i*ns + j] = j;//*pow(-1.0f,j);
-            }
+
        trcMan = trc;
-       set->agc(type, window, normR);
+       set->AGC(type, window, normR);
        set->modify(ns, &p, trc.data());
        size_t win;
        size_t winStr;

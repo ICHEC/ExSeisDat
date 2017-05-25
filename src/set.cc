@@ -427,9 +427,9 @@ void Set::taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_
     mod(modify_);
 }
 
-void Set::agc(std::function<trace_t(trace_t * trc, size_t strt, size_t win, trace_t normR, size_t winCntr)> func, size_t window, trace_t normR)
+void Set::AGC(File::AGCFunc func, size_t window, trace_t normR)
 {
-    Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::agc(p->size(), ns, t, func, window, normR);};
+    Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::AGC(p->size(), ns, t, func, window, normR);};
     mod(modify_);
 }
 
@@ -453,7 +453,7 @@ void Set::sort(SortType type)
 void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
 {
     Set::getMinMax([m1](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m1, &a); },
-                           [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
+                   [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
 
 }
 
@@ -462,12 +462,8 @@ void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
     Set::taper(File::getTap(type), nTailLft, nTailRt);
 }
 
-void Set::agc(AGCType type, size_t window, trace_t normR)
+void Set::AGC(AGCType type, size_t window, trace_t normR)
 {
-    Set::agc(File::agcFunc(type), window,  normR);
+    Set::AGC(File::getAGCFunc(type), window,  normR);
 }
-
-
-
-
 }

@@ -18,6 +18,8 @@
 #include "share/api.hh"
 
 namespace PIOL { namespace File {
+
+typedef std::function<trace_t(trace_t *, size_t, trace_t, llint)> AGCFunc;
 /************************************** Core ***********************************************************/
 /*! Apply automatic gain control to a set of tapers --> used for actual operation during output
  * \param[in] nt The number of traces
@@ -27,8 +29,7 @@ namespace PIOL { namespace File {
  * \param[in] window Length of the agc window
  * \param[in] normR Value to which traces are normalized
  */
-extern void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t * trc, size_t strt, size_t win,
-                trace_t normR, size_t winCntr)> func, size_t window, trace_t normR);
+extern void AGC(size_t nt, size_t ns, trace_t * trc, AGCFunc func, size_t window, trace_t normR);
 
 /************************************** Non-core ***********************************************************/
 /*! Find the normalized root mean square (RMS) of traces in a rectangualr window
@@ -39,42 +40,39 @@ extern void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace
  * \param[in] winCntr Window center iterator
  * \return The normalized trace value using RMS
  */
-extern trace_t rms(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr);
+extern trace_t AGCRMS(trace_t * trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Find the normalized root mean square (RMS) of traces in a triangular window
  * \param[in] trc Trace amplitudes
- * \param[in] strt Starting iterator for traces in window
  * \param[in] window Window length
  * \param[in] normR Value to which traces are normalized
  * \param[in] winCntr Window center iterator
  * \return The normalized trace value using RMS with a triangular window
  */
-extern trace_t rmsTri(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr);
+extern trace_t AGCRMSTri(trace_t * trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Find the normalized mean absolute value (MAV) of traces in a rectangualr window
  * \param[in] trc Trace amplitudes
- * \param[in] strt Starting iterator for traces in window
  * \param[in] window Window length
  * \param[in] normR Value to which traces are normalized
  * \param[in] winCntr Window center iterator
  * \return The normalized trace value using MAV
  */
-extern trace_t meanAbs(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr);
+extern trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Find the normalized median value inside a window trace amplitude
  * \param[in] trc Trace amplitudes
- * \param[in] strt Starting iterator for traces in window
  * \param[in] window Window length
  * \param[in] normR Value to which traces are normalized
  * \param[in] winCntr Window center iterator
  * \return The normalized median trace value
  */
-extern trace_t median(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr);
+extern trace_t AGCMedian(trace_t * trc, size_t window, trace_t normR, llint winCntr);
 
 /* Chooses the type of agc function
  * \param[in] type The statistical fucntion type
  */
-extern std::function<trace_t(trace_t *, size_t, size_t, trace_t, size_t)> agcFunc(AGCType type);
+extern AGCFunc getAGCFunc(AGCType type);
 
 }}
 #endif
