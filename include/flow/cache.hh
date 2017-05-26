@@ -64,14 +64,14 @@ class Cache
 
     std::vector<size_t> getOutputTrace(FileDeque & desc, size_t offset, size_t sz, File::Param * prm)
     {
-        std::vector<size_t> final(sz);
+        std::vector<size_t> final;
 
         auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc && elem.prm != nullptr; });
         if (it != cache.end())
         {
             auto iprm = it->prm.get();
-
             size_t loc = 0;
+            final.resize(sz);
             for (size_t i = 0; i < desc.size() && loc < offset+sz; i++)
             {
                 size_t fsz = desc[i]->olst.size();

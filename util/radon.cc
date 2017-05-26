@@ -27,8 +27,8 @@ const geom_t pi = M_PI;
 
 int main(int argc, char ** argv)
 {
-    const size_t aGSz = 60;
-    const size_t vBin = 20;
+    csize_t aGSz = 60;
+    csize_t vBin = 20;
 
     ExSeis piol;
     size_t rank = piol.getRank();
@@ -44,43 +44,37 @@ int main(int argc, char ** argv)
     piol.isErr();
 
     //Locate gather boundaries.
-    auto gather = File::getIlXlGathers(piol, radon);
-
-    auto gdec = decompose(gather.size(), numRank, rank);
-    size_t numGather = gdec.second;
-    size_t gOffset = gdec.first;
-    size_t vNs = vm->readNs();
-
-    std::vector<trace_t> vtrc = vm.readModel(gOffset, numGather, gather);
-
     size_t rNs = radon->readNs();
     size_t aNs = rNs; //TODO: Check what gareth does
+    size_t vNs = vm->readNs();
 
     geom_t vInc = vm->readInc();
     geom_t rInc = radon->readInc();
     geom_t aInc = pi / geom_t(180);   //1 degree in radians
+    File::WriteDirect angle(piol, aname);
+
+    auto gather = File::getIlXlGathers(piol, radon);
+    auto gdec = decompose(gather.size(), numRank, rank);
+    size_t numGather = gdec.second;
+    size_t gOffset = gdec.first;
+
+    std::vector<trace_t> vtrc = vm.readModel(gOffset, numGather, gather);
 
     size_t lOffset = 0U;
     size_t extra = piol.max(numGather) - numGather;
-
-    File::WriteDirect angle(piol, aname);
-    angle.writeNs(aNs);
-    angle.writeNt(aGSz * numGather);
-    angle.writeInc(aInc);
-
-    std::cout << "Reach numGather loop" << std::endl;
     for (size_t i = 0; i < gOffset; i++)
         lOffset += std::get<0>(gather[i]);
 
+    std::cout << "Reach numGather loop" << std::endl;
     for (size_t i = 0; i < numGather; i++)
     {
         auto gval = gather[gOffset + i];
-        const size_t rGSz = std::get<0>(gval);
-        const size_t aOffset = aGSz * (i + gOffset);
+        csize_t rGSz = std::get<0>(gval);
         std::vector<trace_t> rtrc(rGSz * rNs);
-        std::vector<trace_t> atrc(aGSz * aNs);
-
         radon.readTrace(lOffset, rGSz, rtrc.data());
+
+        csize_t aOffset = aGSz * (i + gOffset);
+        std::vector<trace_t> atrc(aGSz * aNs);
 
         for (size_t j = 0; j < aGSz; j++)       //For each angle in the angle gather
             for (size_t z = 0; z < rNs; z++)    //For each sample (angle + radon)
@@ -112,6 +106,9 @@ int main(int argc, char ** argv)
         radon->readTrace(size_t(0), size_t(0), (trace_t *)(nullptr));
         angle->writeTrace(size_t(0), size_t(0), (trace_t *)(nullptr), (File::Param *)(nullptr));
     }
+    angle.writeNs(aNs);
+    angle.writeNt(aGSz * numGather);
+    angle.writeInc(aInc);
 
     return 0;
 }

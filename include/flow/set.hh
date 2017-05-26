@@ -16,7 +16,18 @@
 #include <map>
 
 namespace PIOL {
-typedef std::function<std::vector<size_t>(size_t, File::Param *, trace_t *)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+
+struct TraceBlock
+{
+    size_t nt;
+    size_t ns;
+    geom_t inc;
+    std::unique_ptr<File::Param> prm;
+    std::vector<trace_t> trc;
+};
+
+typedef std::function<std::vector<size_t>(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< Typedef for functions that modify traces and associated parameters
 enum class FuncOpt : size_t
 {
 //Data type dependencies
@@ -64,8 +75,24 @@ struct OpOpt
     }
 };
 
-typedef std::list<std::tuple<OpOpt, std::shared_ptr<File::Rule>, Mod>> FuncLst;
 
+struct OpParent
+{
+    OpOpt opt;
+    std::shared_ptr<File::Rule> rule;
+};
+
+struct InPlaceOp : public OpParent
+{
+    InPlaceMod func;
+};
+
+struct Op  : public OpParent
+{
+    Mod func;
+};
+
+typedef std::list<OpParent> FuncLst;
 
 /*! The internal set class
  */
@@ -161,7 +188,8 @@ class InternalSet
      *  \param[in] modify_ Function to modify traces and parameters
      */
     void calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
-    FuncLst::iterator calcFunc(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
+    FuncLst::iterator calcFuncS(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
+//    TraceBlock * calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, const TraceBlock * in);
 
     void RadonToAngle(std::string vmName);
 };
