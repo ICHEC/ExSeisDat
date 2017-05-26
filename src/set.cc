@@ -292,7 +292,7 @@ void Set::summary(void) const
     }
 }
 
-void Set::sort(File::Compare<File::Param> func)
+void Set::sort(Compare<File::Param> func)
 {
     for (auto & o : fmap)   //Per target output file
     {
@@ -385,7 +385,7 @@ std::vector<std::string> Set::output(std::string oname)
     return names;
 }
 
-void Set::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
+void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax)
 {
     minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
@@ -421,13 +421,13 @@ void Set::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, 
     }
 }
 
-void Set::taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+void Set::taper(TaperFunc func, size_t nTailLft, size_t nTailRt)
 {
     Mod modify_ = [func, nTailLft, nTailRt] (size_t ns, File::Param * p, trace_t * t) { File::taper(p->size(), ns, t, func, nTailLft, nTailRt); };
     mod(modify_);
 }
 
-void Set::AGC(File::AGCFunc func, size_t window, trace_t normR)
+void Set::AGC(AGCFunc func, size_t window, trace_t normR)
 {
     Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::AGC(p->size(), ns, t, func, window, normR);};
     mod(modify_);

@@ -43,7 +43,7 @@ ACTION_P(cpyprm, src)
 }
 
 extern void muting(size_t nt, size_t ns, trace_t * trc, size_t mute);
-extern void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func,
+extern void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func,
                                                                                 size_t nTailLft, size_t nTailRt);
 
 struct SetTest : public Test
@@ -146,7 +146,7 @@ struct SetTest : public Test
         }
     }
 
-    void taperTest(size_t nt, size_t ns, size_t mute, std::function<trace_t(trace_t, trace_t)> func, TaperType type, size_t nTailLft, size_t nTailRt)
+    void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc func, TaperType type, size_t nTailLft, size_t nTailRt)
     {
        if (set.get() != nullptr)
             set.release();
@@ -208,7 +208,7 @@ struct SetTest : public Test
                    winCntr = window/2U;
                }
                std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
-               EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
+               ASSERT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
            }
     }
 };

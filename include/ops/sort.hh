@@ -17,12 +17,6 @@
 #include "share/api.hh"
 namespace PIOL { namespace File {
 /******************************************* Core *****************************************************/
-
-/*! A template for the Compare less-than function
- */
-template <class T>
-using Compare = std::function<bool(const T &, const T &)>;
-
 /*! Function to sort the metadata in a Param struct. The returned vector is the location where the nth parameter
  *  is located in the sorted list. Implementation note: the Param vector is used internally
  *  to allow random-access iterator support.

@@ -12,7 +12,7 @@
 namespace PIOL { namespace File {
 
 /******************************************** Core *********************************************/
-void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+void taper(size_t sz, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt)
 {
     assert(ns > nTailLft && ns > nTailRt);
     for (size_t i = 0; i < sz; i++)
@@ -29,7 +29,7 @@ void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t we
 }
 
 /******************************************** Non-Core *********************************************/
-std::function<trace_t(trace_t, trace_t)> getTap(TaperType type)
+TaperFunc getTap(TaperType type)
 {
     switch(type)
     {

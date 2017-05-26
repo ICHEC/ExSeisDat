@@ -19,13 +19,13 @@ namespace PIOL { namespace File {
  * \param[in] nTailRt Length of right tail of taper
  * \return Vector of tapered traces
  */
-extern void taper(size_t sz, size_t ns, trace_t * trc, std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
+extern void taper(size_t sz, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt);
 
 /******************************************** Non-core *********************************************/
 /*! Choose the window type for taper function
  *  \param[in] type The window type
  *  \return Return the appropriate taper function
  */
-extern std::function<trace_t(trace_t, trace_t)> getTap(TaperType type);
+extern TaperFunc getTap(TaperType type);
 }}
 #endif
