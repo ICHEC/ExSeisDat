@@ -85,7 +85,7 @@ class Set
     /*! Sort the set using the given comparison function
      *  \param[in] func The comparison function
      */
-    void sort(File::Compare<File::Param> func);
+    void sort(Compare<File::Param> func);
 
     /*! The number of traces in the input files
      *  \return The number of traces in the input files
@@ -109,21 +109,21 @@ class Set
      *  \param[in] ylam The function for returning the second parameter
      *  \param[out] minmax The array of structures to hold the ouput
      */
-    void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax);
+    void getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
      * \param[in] func Weight function for the taper ramp
      * \param[in] nTailLft Length of left tail of taper
      * \param[in] nTailRt Length of right tail of taper
      */
-    void taper(std::function<trace_t(trace_t weight, trace_t ramp)> func, size_t nTailLft, size_t nTailRt = 0);
+    void taper(TaperFunc func, size_t nTailLft, size_t nTailRt = 0);
 
     /*! Function to add to modify function that applies automatic gain control to a set of traces
      * \param[in] func Staistical function used to scale traces
      * \param[in] window Length of the agc window
      * \param[in] normR Value to which traces are normalized
      */
-    void AGC(File::AGCFunc func, size_t window, trace_t normR);
+    void AGC(AGCFunc func, size_t window, trace_t normR);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message

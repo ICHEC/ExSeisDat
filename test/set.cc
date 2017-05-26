@@ -120,7 +120,7 @@ void muting(size_t nt, size_t ns, trace_t * trc, size_t mute)
             trc[i*ns+j] = 0.0f;
 }
 
-void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt)
 {
     for (size_t i = 0; i < nt; i++)
     {
@@ -327,7 +327,7 @@ TEST_F(SetTest, agcRMS)
         trace_t amp = 0.0f;
         for (size_t i = 0; i < window; i++)
             amp += pow(trc[i], 2.0f);
-        size_t num = std::count_if(&trc[0], &trc[window],[](trace_t j){return j != 0.0f;});
+        size_t num = std::count_if(&trc[0], &trc[window],[](trace_t j){ return j != 0.0f; });
         if (num < 1)
             num = 1;
         return std::sqrt(amp/num);
@@ -342,8 +342,8 @@ TEST_F(SetTest, agcRMSTri)
         trace_t amp = 0.0f;
         trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
         for (size_t j = 0; j < window; j++)
-            amp += pow(trc[j] * (1.0f - trace_t(abs(j - winCntr))/winFullTail),2.0f);
-        size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){return i != 0.0f;});
+            amp += pow(trc[j] * (1.0f - trace_t(abs(llint(j - winCntr)))/winFullTail), 2.0f);
+        size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){ return i != 0.0f; });
         if (num < 1)
             num = 1;
         return std::sqrt(amp/num);
