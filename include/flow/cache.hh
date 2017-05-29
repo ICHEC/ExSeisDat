@@ -18,18 +18,30 @@ namespace PIOL {
 struct CacheElem
 {
     FileDeque desc;
-    std::unique_ptr<File::Param> prm;
-    std::vector<trace_t> trc;
+    std::shared_ptr<TraceBlock> block;
+
     CacheElem(FileDeque & desc_, std::unique_ptr<File::Param> prm_)
     {
         desc = desc_;
-        prm = std::move(prm_);
+        block = std::make_shared<TraceBlock>();
+        block->prm = std::move(prm_);
     }
     CacheElem(FileDeque & desc_, std::vector<trace_t> & trc_, std::unique_ptr<File::Param> prm_ = nullptr)
     {
-        trc = std::move(trc_);
         desc = desc_;
-        prm = std::move(prm_);
+        block = std::make_shared<TraceBlock>();
+        block->trc = std::move(trc_);
+        block->prm = std::move(prm_);
+    }
+
+    bool checkPrm(const FileDeque & desc_) const
+    {
+        return desc == desc_ && !block && block->prm;
+    }
+
+    bool checkTrc(const FileDeque & desc_) const
+    {
+        return desc == desc_ && !block && block->trc.size();
     }
 };
 
@@ -40,19 +52,27 @@ class Cache
     public :
     Cache(Piol piol_) : piol(piol_) {}
 
-    File::Param * cachePrm(std::shared_ptr<File::Rule> rule, FileDeque & desc);
+    std::shared_ptr<TraceBlock> getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool cPrm, bool cTrc);
 
-    trace_t * cacheTrc(FileDeque & desc);
+    std::shared_ptr<TraceBlock> cachePrm(std::shared_ptr<File::Rule> rule, FileDeque & desc)
+    {
+        return getCache(rule, desc, true, false);
+    }
+
+    std::shared_ptr<TraceBlock> cacheTrc(FileDeque & desc)
+    {
+        return getCache(nullptr, desc, false, true);
+    }
 
     bool checkPrm(FileDeque & desc)
     {
-        auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc && elem.prm != nullptr; });
+        auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.checkPrm(desc); });
         return it != cache.end();
     }
 
     bool checkTrc(FileDeque & desc)
     {
-        auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc && elem.trc.size(); });
+        auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.checkTrc(desc); });
         return it != cache.end();
     }
 
@@ -66,10 +86,10 @@ class Cache
     {
         std::vector<size_t> final;
 
-        auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc && elem.prm != nullptr; });
+        auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.checkPrm(desc); });
         if (it != cache.end())
         {
-            auto iprm = it->prm.get();
+            auto iprm = it->block->prm.get();
             size_t loc = 0;
             final.resize(sz);
             for (size_t i = 0; i < desc.size() && loc < offset+sz; i++)

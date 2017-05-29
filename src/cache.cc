@@ -11,11 +11,11 @@
 #include "file/dynsegymd.hh"
 namespace PIOL {
 #warning TODO: can this be made to handle optionally prm and trc?
-File::Param * Cache::cachePrm(std::shared_ptr<File::Rule> rule, FileDeque & desc)
+std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool cPrm, bool cTrc)
 {
     auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc; });
 
-    if (it == cache.end() || !it->prm)
+    if (it == cache.end() || !it->block || !it->block->prm)
     {
         size_t lsnt = 0U;
         for (auto & f : desc)
@@ -49,13 +49,20 @@ File::Param * Cache::cachePrm(std::shared_ptr<File::Rule> rule, FileDeque & desc
             it = cache.end() - 1U;
         }
         else
-            it->prm = std::move(prm);
+        {
+            if (!it->block)
+                it->block = std::make_shared<TraceBlock>();
+            it->block->prm = std::move(prm);
+            it->block->nt = nt;
+            it->block->ns = desc[0]->ifc->readNs();
+            it->block->inc = desc[0]->ifc->readInc();
+        }
     }
     else
     {
 #warning Check if prm is cached and same rules
     }
-    return it->prm.get();
+    return it->block;
 }
 }
 

@@ -7,26 +7,18 @@
 *//*******************************************************************************************/
 #ifndef PIOLSET_INCLUDE_GUARD
 #define PIOLSET_INCLUDE_GUARD
+#include <functional>
+#include <list>
+#include <map>
 #include "flow/share.hh"
 #include "flow/cache.hh"
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
-#include <functional>
-#include <list>
-#include <map>
 
+#warning temp
+#include "file/filesegy.hh"
 namespace PIOL {
-
-struct TraceBlock
-{
-    size_t nt;
-    size_t ns;
-    geom_t inc;
-    std::unique_ptr<File::Param> prm;
-    std::vector<trace_t> trc;
-};
-
-typedef std::function<std::vector<size_t>(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that modify traces and associated parameters
+typedef std::function<void(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< Typedef for functions that modify traces and associated parameters
 enum class FuncOpt : size_t
 {
@@ -70,29 +62,76 @@ struct OpOpt
     {
         optList.push_back(opt);
     }
+    OpOpt(void) { }
     OpOpt(std::initializer_list<FuncOpt> list) : optList(list)
     {
     }
 };
 
+struct gState
+{
+    virtual void makeState(csize_t gOffset, csize_t numGather, Uniray<size_t, llint, llint> & gather) { }
+};
+
+extern std::unique_ptr<File::ReadSEGYModel> makeModelFile(Piol piol, std::string name);
+
+struct RadonState : public gState
+{
+    Piol piol;
+    std::vector<trace_t> vtrc;
+    std::vector<llint> il;
+    std::vector<llint> xl;
+
+    size_t vNs;
+    size_t vBin;
+    size_t oGSz;
+    geom_t vInc;
+    trace_t oInc;   //1 degree in radians
+
+    RadonState(Piol piol_) : piol(piol_), vNs(0U), vBin(20U), oGSz(60U),
+                             vInc(geom_t(0)), oInc(M_PI / geom_t(180U))
+    {}
+
+    void makeState(csize_t gOffset, csize_t numGather, Uniray<size_t, llint, llint> & gather)
+    {
+        auto vm = makeModelFile(piol, "vm.segy");   //TODO:DON'T USE MAGIC NAME
+        vtrc = vm->readModel(gOffset, numGather, gather);
+        il.resize(numGather);
+        xl.resize(numGather);
+        for (size_t i = 0; i < numGather; i++)
+        {
+            auto gval = gather[gOffset + i];
+            il[i] = std::get<1>(gval);
+            xl[i] = std::get<2>(gval);
+        }
+
+        vNs = vm->readNs();
+        vInc = vm->readInc();
+    }
+};
 
 struct OpParent
 {
     OpOpt opt;
     std::shared_ptr<File::Rule> rule;
+    std::shared_ptr<gState> state;
+    OpParent(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_) : opt(opt_), rule(rule_), state(state_) { }
+    OpParent(void) { }
+    virtual ~OpParent(void) {}
 };
 
-struct InPlaceOp : public OpParent
+template <typename T>
+struct Op : public OpParent
 {
-    InPlaceMod func;
+    T func;
+    Op(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_, T func_) : OpParent(opt_, rule_, state_), func(func_)
+    {
+
+    }
 };
 
-struct Op  : public OpParent
-{
-    Mod func;
-};
-
-typedef std::list<OpParent> FuncLst;
+//If this was C++17 then a std::variant could be used
+typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 
 /*! The internal set class
  */
@@ -145,6 +184,7 @@ class InternalSet
      *  \return Return a vector of the actual output names.
      */
     std::vector<std::string> output(std::string oname);
+
     std::string output(FileDeque & fQue);
 
     /*! Find the min and max of two given parameters (e.g x and y source coordinates) and return
@@ -189,9 +229,9 @@ class InternalSet
      */
     void calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
     FuncLst::iterator calcFuncS(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
-//    TraceBlock * calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, const TraceBlock * in);
+    std::unique_ptr<TraceBlock> calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, const std::unique_ptr<TraceBlock> bIn);
 
-    void RadonToAngle(std::string vmName);
+    void toAngle(std::string vmName);
 };
 }
 #endif

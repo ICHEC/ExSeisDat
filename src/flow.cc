@@ -151,43 +151,53 @@ void InternalSet::summary(void) const
 void InternalSet::sort(File::Compare<File::Param> sortFunc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
-
-    func.emplace_back(opt, rule, [this, sortFunc] (size_t ns, File::Param * prm, trace_t * trc) -> std::vector<size_t>
+    func.push_back(std::make_shared<Op<InPlaceMod>>(opt, rule, nullptr, [this, sortFunc] (TraceBlock * in) -> std::vector<size_t>
+    {
+        if (piol->comm->min(in->prm->size()) < 3U) //TODO: It will eventually be necessary to support this use case.
         {
-            if (piol->comm->min(prm->size()) < 3U) //TODO: It will eventually be necessary to support this use case.
-            {
-                piol->log->record("", Log::Layer::Set, Log::Status::Error,
-                    "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
-                return std::vector<size_t>();
-            }
-            else
-            {
-                return File::sort(piol.get(), prm, sortFunc);
-            }
-        });
+            piol->log->record("", Log::Layer::Set, Log::Status::Error,
+                "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
+            return std::vector<size_t>();
+        }
+        else
+        {
+            return File::sort(piol.get(), in->prm.get(), sortFunc);
+        }
+    }));
 }
 
-void InternalSet::RadonToAngle(std::string vmName)
+void InternalSet::toAngle(std::string vmName)
 {
     OpOpt opt = {FuncOpt::NeedAll, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
-/*
-    func.emplace_back(opt, rule, [] (const TraceBlock * in, const TraceBlock * out) -> std::vector<size_t>
-//    func.emplace_back(opt, rule, [] (size_t ns, File::Param * prm, trace_t * trc) -> std::vector<size_t>
+
+    auto state = std::make_shared<RadonState>(piol);
+    func.emplace_back(std::make_shared<Op<Mod>>(opt, rule, state, [state] (const TraceBlock * in, TraceBlock * out)
+    {
+        csize_t iGSz = in->prm->size();
+        out->trc.resize(state->oGSz * in->ns);
+
+        for (size_t j = 0; j < state->oGSz; j++)       //For each angle in the angle gather
+            for (size_t z = 0; z < in->ns; z++)    //For each sample (angle + radon)
+            {
+                //We are using coordinate level accuracy when its not performance critical.
+                geom_t vmModel = state->vtrc[in->gNum * state->vNs + std::min(size_t(geom_t(z * in->inc) / state->vInc), state->vNs)];
+                llint k = llround(vmModel / cos(geom_t(j * out->inc))) / state->vBin;
+                if (k > 0 && k < iGSz)
+                    out->trc[j * out->ns + z] += in->trc[k * in->ns + z];
+            }
+
+        for (size_t j = 0; j < state->oGSz; j++)
         {
-                for (size_t j = 0; j < oGSz; j++)       //For each angle in the angle gather
-                    for (size_t z = 0; z < iNs; z++)    //For each sample (angle + radon)
-                    {
-                        //We are using coordinate level accuracy when its not performance critical.
-                        geom_t vmModel = vtrc[i * vNs + std::min(size_t(geom_t(z * iInc) / vInc), vNs)];
-                        llint k = llround(vmModel / cos(geom_t(j * oInc))) / vBin;
-                        if (k > 0 && k < rGSz)
-                            otrc[j * oNs + z] += itrc[k * iNs + z];
-                    }
-        });*/
+            //TODO: Set the rest of the parameters
+            //TODO: Check the get numbers
+            File::setPrm(j, Meta::il, state->il[in->gNum], out->prm.get());
+            File::setPrm(j, Meta::xl, state->xl[in->gNum], out->prm.get());
+        }
+
+        out->inc = state->oInc;   //1 degree in radians
+        out->ns = in->ns;
+    }));
 }
-
-
-
 
 std::string InternalSet::output(FileDeque & fQue)
 {
@@ -277,38 +287,53 @@ std::string InternalSet::output(FileDeque & fQue)
 }
 
 #warning continue
-/*TraceBlock * InternalSet::calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, const TraceBlock * in)
+std::unique_ptr<TraceBlock> InternalSet::calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, std::unique_ptr<TraceBlock> bIn)
 {
-    
-    return nullptr;
+    if (fCurr == fEnd || !(*fCurr)->opt.check(FuncOpt::Gather))
+        return std::move(bIn);
+
+    std::unique_ptr<TraceBlock> bOut;
+    if ((*fCurr)->opt.check(FuncOpt::Gather))
+        dynamic_cast<Op<Mod> *>(fCurr->get())->func(bIn.get(), bOut.get());
+
+    bIn.reset();
+
+    return calcFuncG(++fCurr, fEnd, std::move(bOut));
 }
-*/
 
 //calc for subsets only
 FuncLst::iterator InternalSet::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
 {
-    if (!fCurr->opt.check(FuncOpt::NeedTrcVal))
+    size_t ns = fQue[0]->ifc->readNs();
+
+    std::shared_ptr<TraceBlock> block;
+
+    if ((*fCurr)->opt.check(FuncOpt::NeedMeta))
     {
-        size_t ns = fQue[0]->ifc->readNs();
-        File::Param * prm = cache.cachePrm(fCurr->rule, fQue);
-
-        std::vector<size_t> trlist = dynamic_cast<InPlaceOp *>(*fCurr)->mod(ns, prm, (trace_t *)nullptr);    //The actual function call
-
-        size_t j = 0;
-        for (auto & f : fQue)
+        if (!(*fCurr)->opt.check(FuncOpt::NeedTrcVal))
+            block= cache.cachePrm((*fCurr)->rule, fQue);
+        else
         {
-            std::copy(&trlist[j], &trlist[j + f->olst.size()], f->olst.begin());
-            j += f->olst.size();
+            std::cerr << "Not implemented yet\n";
+#warning Both traces and gathers are problematic
         }
     }
-    else
-        std::cerr << "TODO: Code currently does not process traces\n";
+    else if ((*fCurr)->opt.check(FuncOpt::NeedTrcVal))
+        block = cache.cacheTrc(fQue);
+
+    //The operation call
+    std::vector<size_t> trlist = dynamic_cast<Op<InPlaceMod> *>(fCurr->get())->func(block.get());
+
+    size_t j = 0;
+    for (auto & f : fQue)
+    {
+        std::copy(&trlist[j], &trlist[j + f->olst.size()], f->olst.begin());
+        j += f->olst.size();
+    }
 
     if (++fCurr != fEnd)
-    {
-        if (fCurr->opt.check(FuncOpt::SubSetOnly))
+        if ((*fCurr)->opt.check(FuncOpt::SubSetOnly))
             return calcFuncS(fCurr, fEnd, fQue);
-    }
     return fCurr;
 }
 
@@ -316,7 +341,7 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
 {
     if (fCurr != fEnd)
     {
-        if (fCurr->opt.check(FuncOpt::SubSetOnly))
+        if ((*fCurr)->opt.check(FuncOpt::SubSetOnly))
         {
             std::vector<FuncLst::iterator> flist;
 
@@ -327,7 +352,7 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
 
             fCurr = flist.front();
         }
-        else if (fCurr->opt.check(FuncOpt::Gather))
+        else if ((*fCurr)->opt.check(FuncOpt::Gather))
         {
             //Note it isn't necessary to use a temporary file here.
             //It's just a choice for simplicity
@@ -350,20 +375,25 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
                     lOffset += std::get<0>(gather[i]);
 
                 #warning This can not be here
-                auto vm = makeModelFile(piol, "vm.segy");   //TODO:DON'T USE MAGIC NAME
-                csize_t vBin = 20;
-                geom_t pi = M_PI;
 
-                std::vector<trace_t> vtrc = vm->readModel(gOffset, numGather, gather);
-                csize_t vNs = vm->readNs();
-                geom_t vInc = vm->readInc();
+
+                auto fTemp = fCurr;
+                while ((*fTemp++)->opt.check(FuncOpt::Gather))
+                    dynamic_cast<Op<Mod> *>(fTemp->get())->state->makeState(gOffset, numGather, gather);
+
                 #warning need better rule handling, create rule of all rules in gather functions
                 auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
 
                 #warning set output name
                 //Use inputs as default values. These can be changed later
-                auto out = makeSEGYFile(piol, "temp.segy", 0U, 0.0, "");
+                auto out = makeSEGYFile(piol, "temp.segy", 0U, geom_t(0), "");
 
+#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
+#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
+#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
+#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
+#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
+                size_t offset = 0U;
                 for (size_t i = 0; i < numGather; i++)
                 {
                     auto gval = gather[gOffset + i];
@@ -371,58 +401,23 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
 
                     //Initialise the blocks
                     auto bIn = std::make_unique<TraceBlock>();
-                    auto bOut = std::make_unique<TraceBlock>();
                     bIn->prm.reset(new File::Param(rule, iGSz));
                     bIn->trc.resize(iGSz * o->ifc->readNs());
                     bIn->ns = o->ifc->readNs();
                     bIn->nt = o->ifc->readNt();
                     bIn->inc = o->ifc->readInc();
+                    bIn->gNum = i;
+                    bIn->numG = numGather;
 
 #warning We will have to decompose this the other way to allow correct write output
 
                     o->ifc->readTrace(lOffset, bIn->prm->size(), bIn->trc.data(), bIn->prm.get());
                     #warning should be no offset in the end
-                    size_t offset = 0U;
-                    fTemp = fCurr;
-                    for (; fTemp->opt.check(FuncOpt::Gather); ++fTemp)
-                    {
-                        csize_t iNs = bIn->ns;
-                        trace_t iInc = bIn->inc;
-                        trace_t * itrc = bIn->trc.data();
-                        const size_t oGSz = 60; //TODO:WARNING MAGIC NUMBER!
-                        csize_t rGSz = bIn->prm->size();
 
-                        csize_t oNs = iNs;
-                        offset = oGSz * (i + gOffset);
-                        trace_t oInc = pi / geom_t(180);   //1 degree in radians
+                    auto bOut = calcFuncG(fCurr, fEnd, std::move(bIn));
 
-                        bOut->trc.resize(oGSz * oNs);
-
-                        for (size_t j = 0; j < oGSz; j++)       //For each angle in the angle gather
-                            for (size_t z = 0; z < iNs; z++)    //For each sample (angle + radon)
-                            {
-                                //We are using coordinate level accuracy when its not performance critical.
-                                geom_t vmModel = vtrc[i * vNs + std::min(size_t(geom_t(z * iInc) / vInc), vNs)];
-                                llint k = llround(vmModel / cos(geom_t(j * oInc))) / vBin;
-                                if (k > 0 && k < rGSz)
-                                    bOut->trc[j * oNs + z] += itrc[k * oNs + z];
-                            }
-
-                        for (size_t j = 0; j < oGSz; j++)
-                        {
-                            //TODO: Set the rest of the parameters
-                            //TODO: Check the get numbers
-                            File::setPrm(j, Meta::il, std::get<1>(gval), bOut->prm.get());
-                            File::setPrm(j, Meta::xl, std::get<2>(gval), bOut->prm.get());
-                        }
-
-                        bOut->inc = oInc;   //1 degree in radians
-                        bOut->ns = oNs;   //1 degree in radians
-
-                        std::swap(bIn, bOut);
-                    }
                     //For simplicity, the output is now
-                    out->writeTrace(offset, bIn->prm->size(), (bIn->prm->size() ? bIn->trc.data() : nullptr), bIn->prm.get());
+                    out->writeTrace(offset, bOut->prm->size(), (bOut->prm->size() ? bOut->trc.data() : nullptr), bOut->prm.get());
                     lOffset += iGSz;
     //TODO: Call only once
                     out->writeNs(bOut->ns);
@@ -430,7 +425,7 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
                     out->writeInc(bOut->inc);
                 }
             }
-            fCurr = fTemp;
+            while ((*++fCurr)->opt.check(FuncOpt::Gather));
         }
         else
         {

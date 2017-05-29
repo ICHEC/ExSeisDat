@@ -29,6 +29,17 @@ struct FileDesc
     }
 };
 
+struct TraceBlock
+{
+    size_t nt;
+    size_t ns;
+    geom_t inc;
+    size_t gNum;
+    size_t numG;
+    std::unique_ptr<File::Param> prm;
+    std::vector<trace_t> trc;
+};
+
 typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
 }
 #endif
