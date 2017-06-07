@@ -58,55 +58,55 @@ Rule::Rule(RuleMap translate_, bool full)
 
 bool Rule::addRule(Meta m)
 {
-    RuleEntry * r = NULL;
+    if (translate.find(m) != translate.end())
+        return false;
+
     switch (m)
     {
         case Meta::WtrDepSrc :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
         break;
         case Meta::WtrDepRcv :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
         break;
         case Meta::xSrc :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
         break;
         case Meta::ySrc :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
         break;
         case Meta::xRcv :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
         break;
         case Meta::yRcv :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
         break;
         case Meta::xCmp :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
         break;
         case Meta::yCmp :
-            r = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
+            translate[m] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
         break;
         case Meta::il :
-            r = new SEGYLongRuleEntry(numLong++, Tr::il);
+            translate[m] = new SEGYLongRuleEntry(numLong++, Tr::il);
         break;
         case Meta::xl :
-            r = new SEGYLongRuleEntry(numLong++, Tr::xl);
+            translate[m] = new SEGYLongRuleEntry(numLong++, Tr::xl);
         break;
         case Meta::Offset :
-            r = new SEGYLongRuleEntry(numLong++, Tr::CDist);
+            translate[m] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
         break;
         case Meta::tn :
-            r = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
+            translate[m] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
         break;
         case Meta::Copy :
-            r = new SEGYCopyRuleEntry();
+            translate[m] = new SEGYCopyRuleEntry();
             numCopy++;
         break;
         default :
             return false;
         break;    //Non-default
     }
-    if (r)
-        translate[m] = r;
     return true;
 }
 

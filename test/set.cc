@@ -344,7 +344,7 @@ TEST_F(SetTest, Taper1TailLinMute)
 
 TEST_F(SetTest, agcRMS)
 {
-    auto func = [](size_t window, trace_t * trc, size_t winCntr) {
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr) {
         trace_t amp = 0.0f;
         for (size_t i = 0; i < window; i++)
             amp += pow(trc[i], 2.0f);
@@ -353,12 +353,12 @@ TEST_F(SetTest, agcRMS)
             num = 1;
         return std::sqrt(amp/num);
     };
-     agcTest(100, 1000, AGCType::RMS, func, 25, 1.0f);
+    agcTest(100, 1000, AGCType::RMS, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcRMSTri)
 {
-    auto func = [](size_t window, trace_t * trc, size_t winCntr)
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
     {
         trace_t amp = 0.0f;
         trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
@@ -369,12 +369,12 @@ TEST_F(SetTest, agcRMSTri)
             num = 1;
         return std::sqrt(amp/num);
     };
-    agcTest(100, 1000, AGCType::RMSTri, func, 25, 1.0f);
+    agcTest(100, 1000, AGCType::RMSTri, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMeanAbs)
 {
-    auto func = [](size_t window, trace_t * trc, size_t winCntr)
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
     {
         trace_t amp = 0.0f;
         for (size_t i = 0; i < window; i++)
@@ -384,12 +384,12 @@ TEST_F(SetTest, agcMeanAbs)
             num = 1;
         return std::abs(amp)/num;
     };
-    agcTest(100, 1000, AGCType::MeanAbs, func, 25, 1.0f);
+    agcTest(100, 1000, AGCType::MeanAbs, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMedian)
 {
-    auto func = [](size_t window, trace_t * trc, size_t winCntr)
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
     {
         std::sort(&trc[0], &trc[window]);
         if (window % 2 == 0)
@@ -397,5 +397,5 @@ TEST_F(SetTest, agcMedian)
         else
             return trc[window/2U];
     };
-    agcTest(100, 1000, AGCType::Median, func, 25, 1.0f);
+    agcTest(100, 1000, AGCType::Median, agcFunc, 25, 1.0f);
 }

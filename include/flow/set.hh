@@ -32,6 +32,7 @@ enum class FuncOpt : size_t
     AddTrc,
     DelTrc,
     ModTrcVal,
+    ModTrcLen,
     ModMetaVal,
     ReorderTrc,
     ModAll,
@@ -149,11 +150,16 @@ class Set
     Set(Piol piol_, std::string pattern, std::string outfix_,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
 
+    Set(Piol piol_, std::string pattern,
+        std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy})) :
+        Set(piol_, pattern, "", rule_)
+    {}
+
     /*! Constructor overload
      *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy})
+    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}))
         : piol(piol_), rule(rule_), cache(piol_)
     {
         rank = piol->comm->getRank();
@@ -167,7 +173,7 @@ class Set
     /*! Sort the set using the given comparison function
      *  \param[in] func The comparison function
      */
-    void sort(File::Compare<File::Param> func);
+    void sort(Compare<File::Param> sortFunc);
 
     /*! Output using the given output prefix
      *  \param[in] oname The output prefix
@@ -190,14 +196,14 @@ class Set
      * \param[in] nTailLft Length of left tail of taper
      * \param[in] nTailRt Length of right tail of taper
      */
-    void taper(TaperFunc func, size_t nTailLft, size_t nTailRt = 0);
+    void taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt = 0);
 
     /*! Function to add to modify function that applies automatic gain control to a set of traces
      * \param[in] func Staistical function used to scale traces
      * \param[in] window Length of the agc window
      * \param[in] normR Value to which traces are normalized
      */
-    void AGC(AGCFunc func, size_t window, trace_t normR);
+    void AGC(AGCFunc agcFunc, size_t window, trace_t normR);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message
@@ -227,6 +233,9 @@ class Set
      *  \param[in] name The input name
      */
     void add(std::string name);
+
+    FuncLst::iterator startSubset(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+    std::string startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
     std::string calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
     FuncLst::iterator calcFuncS(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);

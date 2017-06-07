@@ -5,7 +5,6 @@
 #define protected public
 #include "file/file.hh"
 #include "flow/set.hh"
-#include "flow.hh"
 #undef private
 #undef protected
 
@@ -41,8 +40,7 @@ ACTION_P(cpyprm, src)
 }
 
 extern void muting(size_t nt, size_t ns, trace_t * trc, size_t mute);
-extern void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func,
-                                                                                size_t nTailLft, size_t nTailRt);
+extern void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt);
 
 struct SetTest : public Test
 {
@@ -136,17 +134,19 @@ struct SetTest : public Test
             set->add(std::move(mock));
 
             llint range = (nt / inactive);
-            for (size_t j = 0; j < inactive; j++)
+
+#warning Randomly delete traces from the lists
+/*            for (size_t j = 0; j < inactive; j++)
             {
                 size_t randj = range*j + (rand() % range);
                 set->file[i]->lst[randj] = NOT_IN_OUTPUT;
-            }
+            }*/
         }
     }
 
-    void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc func, TaperType type, size_t nTailLft, size_t nTailRt)
+    void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc tapFunc, TaperType type, size_t nTailLft, size_t nTailRt)
     {
-       if (set.get() != nullptr)
+        if (set.get() != nullptr)
             set.release();
         set = std::make_unique<Set>(piol);
         std::vector<trace_t> trc(nt * ns);
@@ -158,14 +158,15 @@ struct SetTest : public Test
         trcMan = trc;
 
         set->taper(type, nTailLft, nTailRt);
-        set->modify(ns, &prm, trc.data());
+        set->calcFunc(set->func.begin(), set->func.end());
 
-        taperMan(nt, ns, trcMan.data(), func, nTailLft, nTailRt);
+        taperMan(nt, ns, trcMan.data(), tapFunc, nTailLft, nTailRt);
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
                 EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
     }
-    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> func, size_t window, trace_t normR)
+
+    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> agcFunc, size_t window, trace_t normR)
     {
         if (set.get() != nullptr)
             set.release();
@@ -178,36 +179,36 @@ struct SetTest : public Test
             for (size_t j = 0; j < ns; j++)
                 trc[i*ns + j] = j;//*pow(-1.0f,j);
 
-       trcMan = trc;
-       set->AGC(type, window, normR);
-       set->modify(ns, &p, trc.data());
-       size_t win;
-       size_t winStr;
-       size_t winCntr;
-       for (size_t i = 0; i < nt; i++)
-           for (size_t j = 0; j < ns; j++)
-           {
-               if (j < (window/2U)+1)
-               {
-                   win = j + 1 + (window/2U);
-                   winStr = i*ns;
-                   winCntr = j;
-               }
-               else if ((ns - j) < (window/2U) + 1)
-               {
-                   win = ns - j+ (window/2U);
-                   winStr = i*ns + j -  window/2U;
-                   winCntr = window/2U;
-               }
-               else
-               {
-                   win = window;
-                   winStr = i*ns + j - window/2U;
-                   winCntr = window/2U;
-               }
-               std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
-               ASSERT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
-           }
+        trcMan = trc;
+        set->AGC(type, window, normR);
+        set->calcFunc(set->func.begin(), set->func.end());
+        size_t win;
+        size_t winStr;
+        size_t winCntr;
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+            {
+                if (j < (window/2U)+1)
+                {
+                    win = j + 1 + (window/2U);
+                    winStr = i*ns;
+                    winCntr = j;
+                }
+                else if ((ns - j) < (window/2U) + 1)
+                {
+                    win = ns - j+ (window/2U);
+                    winStr = i*ns + j -  window/2U;
+                    winCntr = window/2U;
+                }
+                else
+                {
+                    win = window;
+                    winStr = i*ns + j - window/2U;
+                    winCntr = window/2U;
+                }
+                std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
+                ASSERT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/agcFunc(win,trcWin.data(),winCntr));
+            }
     }
 };
 
