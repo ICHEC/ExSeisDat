@@ -38,7 +38,7 @@ typedef enum
     ShotNum,    //!< Shot number
     VStack,     //!< Number of traces stacked for this trace (vertical)
     HStack,     //!< Number of traces stacked for this trace (horizontal)
-    Offset,      //!< Distance from source to receiver
+    Offset,     //!< Distance from source to receiver
     RGElev,     //!< Receiver group elevation
     SSElev,     //!< Source surface elevation
     SDElev,     //!< Source depth
@@ -89,6 +89,41 @@ typedef enum
 };
 #else
 } SortType;
+#endif
+
+/*! An enum class of the different types of tapering windows.
+ */
+#ifdef __cplusplus
+enum class TaperType : int
+#else
+typedef enum
+#endif
+{
+    Linear,     //!< Taper using a linear ramp
+    Cos,        //!< Taper using a cos ramp
+    CosSqr      //!< Taper using a cos^2 ramp
+#ifdef __cplusplus
+};
+#else
+} TaperType;
+#endif
+
+/*! An enum class of the different types of automatic gain control functions.
+ */
+#ifdef __cplusplus
+enum class AGCType : int
+#else
+typedef enum
+#endif
+{
+    RMS,       //!< AGC using RMS with rectangular window
+    RMSTri,    //!< AGC using RMS with triangular window
+    MeanAbs,   //!< AGC using mean absolute value with rectangular window
+    Median     //!< AGC using the median value
+#ifdef __cplusplus
+};
+#else
+} AGCType;
 #endif
 
 /*! A structure to hold a reference to a single coordinate and

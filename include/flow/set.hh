@@ -14,6 +14,7 @@
 #include "flow/cache.hh"
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
+#include "ops/agc.hh"
 
 #warning temp
 #include "file/filesegy.hh"
@@ -70,10 +71,8 @@ struct OpOpt
 
 struct gState
 {
-    virtual void makeState(csize_t gOffset, csize_t numGather, Uniray<size_t, llint, llint> & gather) { }
+    virtual void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather) { }
 };
-
-extern std::unique_ptr<File::ReadSEGYModel> makeModelFile(Piol piol, std::string name);
 
 struct RadonState : public gState
 {
@@ -86,28 +85,11 @@ struct RadonState : public gState
     size_t vBin;
     size_t oGSz;
     geom_t vInc;
-    trace_t oInc;   //1 degree in radians
 
-    RadonState(Piol piol_) : piol(piol_), vNs(0U), vBin(20U), oGSz(60U),
-                             vInc(geom_t(0)), oInc(M_PI / geom_t(180U))
+    RadonState(Piol piol_) : piol(piol_), vNs(0U), vBin(20U), oGSz(60U), vInc(geom_t(0))
     {}
 
-    void makeState(csize_t gOffset, csize_t numGather, Uniray<size_t, llint, llint> & gather)
-    {
-        auto vm = makeModelFile(piol, "vm.segy");   //TODO:DON'T USE MAGIC NAME
-        vtrc = vm->readModel(gOffset, numGather, gather);
-        il.resize(numGather);
-        xl.resize(numGather);
-        for (size_t i = 0; i < numGather; i++)
-        {
-            auto gval = gather[gOffset + i];
-            il[i] = std::get<1>(gval);
-            xl[i] = std::get<2>(gval);
-        }
-
-        vNs = vm->readNs();
-        vInc = vm->readInc();
-    }
+    void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather);
 };
 
 struct OpParent
@@ -116,7 +98,7 @@ struct OpParent
     std::shared_ptr<File::Rule> rule;
     std::shared_ptr<gState> state;
     OpParent(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_) : opt(opt_), rule(rule_), state(state_) { }
-    OpParent(void) { }
+    //OpParent(void) { }
     virtual ~OpParent(void) {}
 };
 
@@ -135,7 +117,7 @@ typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 
 /*! The internal set class
  */
-class InternalSet
+class Set
 {
     private :
     Piol piol;                                                  //!< The PIOL object.
@@ -147,6 +129,8 @@ class InternalSet
     std::shared_ptr<File::Rule> rule;                           //!< Contains a pointer to the Rules for parameters
     Cache cache;
     FuncLst func;
+    size_t rank;
+    size_t numRank;
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
@@ -162,17 +146,23 @@ class InternalSet
      *  \param[in] outfix_ The output file-name prefix
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_);
+    Set(Piol piol_, std::string pattern, std::string outfix_,
+        std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
 
     /*! Constructor overload
      *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    InternalSet(Piol piol_, std::shared_ptr<File::Rule> rule_) : piol(piol_), rule(rule_), cache(piol_) { }
+    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy})
+        : piol(piol_), rule(rule_), cache(piol_)
+    {
+        rank = piol->comm->getRank();
+        numRank = piol->comm->getNumRank();
+    }
 
     /*! Destructor
      */
-    ~InternalSet(void);
+    ~Set(void);
 
     /*! Sort the set using the given comparison function
      *  \param[in] func The comparison function
@@ -193,7 +183,21 @@ class InternalSet
      *  \param[in] ylam The function for returning the second parameter
      *  \param[out] minmax The array of structures to hold the ouput
      */
-    void getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax);
+    void getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax);
+
+    /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
+     * \param[in] func Weight function for the taper ramp
+     * \param[in] nTailLft Length of left tail of taper
+     * \param[in] nTailRt Length of right tail of taper
+     */
+    void taper(TaperFunc func, size_t nTailLft, size_t nTailRt = 0);
+
+    /*! Function to add to modify function that applies automatic gain control to a set of traces
+     * \param[in] func Staistical function used to scale traces
+     * \param[in] window Length of the agc window
+     * \param[in] normR Value to which traces are normalized
+     */
+    void AGC(AGCFunc func, size_t window, trace_t normR);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message
@@ -224,14 +228,40 @@ class InternalSet
      */
     void add(std::string name);
 
-    /*! Modify traces and parameters. Multiple modifies can be called.
-     *  \param[in] modify_ Function to modify traces and parameters
-     */
-    void calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+    std::string calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
     FuncLst::iterator calcFuncS(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
     std::unique_ptr<TraceBlock> calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, const std::unique_ptr<TraceBlock> bIn);
 
     void toAngle(std::string vmName);
+
+    /************************************* Non-Core *****************************************************/
+    /*! Sort the set by the specified sort type.
+     *  \param[in] type The sort type
+     */
+    void sort(SortType type);
+
+    /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+     *  the collective min and max across all processes (which also must all call this file).
+     *  \param[in] m1 The first parameter type
+     *  \param[in] m2 The second parameter type
+     *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+     *  and their respective trace numbers.
+     */
+    void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
+
+    /*! Perform tailed taper on a set of traces
+     * \param[in] type The type of taper to be applied to traces.
+     * \param[in] nTailLft The length of left-tail taper ramp.
+     * \param[in] nTailRt The length of right-tail taper ramp.
+     */
+    void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
+
+    /*! Scale traces using automatic gain control for visualization
+     * \param[in] type They type of agc scaling function used
+     * \param[in] window Length of the agc window
+     * \param[in] normR Normalization value
+     */
+    void AGC(AGCType type, size_t window, trace_t normR);
 };
 }
 #endif

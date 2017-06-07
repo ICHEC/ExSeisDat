@@ -389,6 +389,21 @@ void sortSet(ExSeisSet s, SortType type)
     s->set->sort(type);
 }
 
+void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
+{
+    s->set->taper(type, ntpstr, ntpend);
+}
+
+void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
+{
+    s->set->taper(type, ntpstr);
+}
+
+extern void AGC(ExSeisSet s, AGCType type, size_t window, float normR)
+{
+    s->set->AGC(type, window, normR);
+}
+
 void outputSet(ExSeisSet s, const char * oname)
 {
     s->set->output(oname);

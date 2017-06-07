@@ -381,20 +381,11 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
 
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
 {
-    if (bsz > getFabricPacketSz())
-        for (size_t i = 0; i < sz; i++)
-            read(offset[i], bsz, d);
-
    listIO((coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d, "list read failure");
 }
 
 void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
 {
-    if (bsz > getFabricPacketSz())
-        for (size_t i = 0; i < sz; i++)
-            write(offset[i], bsz, d);
-
-
     listIO((coll ? mpiio_write_at_all : mpiio_write_at), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
 }
 

@@ -227,9 +227,11 @@ class Model3dInterface
 {
     public :
     //Start, number, increment
-    std::tuple<size_t, size_t, size_t> il;  //!< Parameters for the inline coordinate
-    std::tuple<size_t, size_t, size_t> xl;  //!< Parameters for the crossline coordinate
-    virtual std::vector<trace_t> readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather) = 0;
+    std::tuple<llint, llint, llint> il;  //!< Parameters for the inline coordinate
+    std::tuple<llint, llint, llint> xl;  //!< Parameters for the crossline coordinate
+    virtual std::vector<trace_t> readModel(size_t gOffset, size_t numGather, const Uniray<size_t, llint, llint> & gather) = 0;
+    virtual std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
+
 };
 }}
 #endif

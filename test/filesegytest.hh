@@ -297,7 +297,7 @@ struct FileReadSEGYTest : public Test
         }
     }
 
-    template <bool readPrm = false, bool MOCK = true>
+    template <bool readPrm = false, bool MOCK = true, bool RmRule = false>
     void readTraceTest(csize_t offset, size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
@@ -333,7 +333,23 @@ struct FileReadSEGYTest : public Test
         }
 
         std::vector<trace_t> bufnew(tn * ns);
-        File::Param prm(tn);
+        auto rule = std::make_shared<File::Rule>(true, true);
+        if (RmRule)
+        {
+            rule->rmRule(Meta::xSrc);
+            rule->addSEGYFloat(Meta::ShotNum, File::Tr::UpSrc, File::Tr::UpRcv);
+            rule->addLong(Meta::Misc1, File::Tr::TORF);
+            rule->addShort(Meta::Misc2, File::Tr::ShotNum);
+            rule->addShort(Meta::Misc3, File::Tr::ShotScal);
+            rule->rmRule(Meta::ShotNum);
+            rule->rmRule(Meta::Misc1);
+            rule->rmRule(Meta::Misc2);
+            rule->rmRule(Meta::Misc3);
+            rule->rmRule(Meta::ySrc);
+            rule->addSEGYFloat(Meta::xSrc, File::Tr::xSrc, File::Tr::ScaleCoord);
+            rule->addSEGYFloat(Meta::ySrc, File::Tr::ySrc, File::Tr::ScaleCoord);
+        }
+        File::Param prm(rule, tn);
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
@@ -461,12 +477,6 @@ struct FileWriteSEGYTest : public Test
             file.reset();
         piol->isErr();
 
-/*        file = std::make_unique<File::WriteDirect>(piol, name);
-
-        writeHO<false>();
-
-        delete file.release();*/
-
         File::WriteSEGY::Opt f;
         File::ReadSEGY::Opt rf;
         Obj::SEGY::Opt o;
@@ -513,9 +523,10 @@ struct FileWriteSEGYTest : public Test
         else
         {
             file->file->nt = nt;
-            file->file->ns = ns;
+            file->file->writeNs(ns);
         }
     }
+
     void initTrBlock()
     {
         tr.resize(nt * SEGSz::getMDSz());

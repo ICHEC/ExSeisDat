@@ -12,6 +12,7 @@
 #include "global.hh"
 
 namespace PIOL { namespace Obj {
+std::shared_ptr<Obj::Interface> makeDefaultObj(Piol piol, std::string name, FileMode mode);
 /*! \brief The Obj layer interface. Specific Obj implementations
  *  work off this base class.
  */

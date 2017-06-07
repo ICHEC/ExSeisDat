@@ -112,6 +112,39 @@ void testSrcOffPattern(std::deque<std::shared_ptr<FileDesc>> & file)
     }
 }
 
+void muting(size_t nt, size_t ns, trace_t * trc, size_t mute)
+{
+    for (size_t i = 0; i < nt; i++)
+        for (size_t j = 0; j < mute; j++)
+            trc[i*ns+j] = 0.0f;
+}
+
+void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt)
+{
+    for (size_t i = 0; i < nt; i++)
+    {
+        size_t wtLft = 0;
+        size_t wtRt = nTailRt;
+        for (size_t j = 0; j < ns; j++)
+        {
+            if ((wtLft < 1) && (trc[i*ns+j] != 0.0f))
+            {
+                ++wtLft;
+                trc[i*ns+j] = trc[i*ns+j] * func(wtLft, nTailLft);
+            }
+            else if ((wtLft > 0) && (wtLft < nTailLft))
+            {
+                ++wtLft;
+                trc[i*ns+j] *= func(wtLft, nTailLft);
+            }
+            else if ((ns - j) <= nTailRt)
+            {
+                --wtRt;
+                trc[i*ns+j] *= func(wtRt, nTailRt);
+            }
+        }
+    }
+}
 
 TEST_F(SetTest, SortSrcX)
 {
@@ -238,8 +271,6 @@ TEST_F(SetTest, getMinMax)
     EXPECT_EQ(minmax[3].num, 0);
 }
 
-#warning These active tests need to be replaced with something suitable
-
 TEST_F(SetTest, getActive)
 {
     init(1, 1000U, 10);
@@ -272,4 +303,99 @@ TEST_F(SetTest, getActive3)
         nt += f->ifc->readNt();
     EXPECT_EQ(nt, 2U*3333U);
     //EXPECT_EQ(set->getLNt(), 2U*2222U);
+}
+
+TEST_F(SetTest, Taper2TailLin)
+{
+    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50, 60);
+}
+
+TEST_F(SetTest, Taper1TailLin)
+{
+    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
+}
+TEST_F(SetTest, Taper2TailCos)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, TaperType::Cos, 50, 60);
+}
+
+TEST_F(SetTest, Taper1TailCos)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, TaperType::Cos, 50,0);
+}
+TEST_F(SetTest, Taper2TailCosSq)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, TaperType::CosSqr, 50, 60);
+}
+TEST_F(SetTest, Taper1TailCosSq)
+{
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, TaperType::CosSqr, 50, 0);
+}
+
+TEST_F(SetTest, Taper2TailLinMute)
+{
+    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 25, 30);
+}
+
+TEST_F(SetTest, Taper1TailLinMute)
+{
+    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
+}
+
+TEST_F(SetTest, agcRMS)
+{
+    auto func = [](size_t window, trace_t * trc, size_t winCntr) {
+        trace_t amp = 0.0f;
+        for (size_t i = 0; i < window; i++)
+            amp += pow(trc[i], 2.0f);
+        size_t num = std::count_if(&trc[0], &trc[window],[](trace_t j){ return j != 0.0f; });
+        if (num < 1)
+            num = 1;
+        return std::sqrt(amp/num);
+    };
+     agcTest(100, 1000, AGCType::RMS, func, 25, 1.0f);
+}
+
+TEST_F(SetTest, agcRMSTri)
+{
+    auto func = [](size_t window, trace_t * trc, size_t winCntr)
+    {
+        trace_t amp = 0.0f;
+        trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
+        for (size_t j = 0; j < window; j++)
+            amp += pow(trc[j] * (1.0f - trace_t(abs(llint(j - winCntr)))/winFullTail), 2.0f);
+        size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){ return i != 0.0f; });
+        if (num < 1)
+            num = 1;
+        return std::sqrt(amp/num);
+    };
+    agcTest(100, 1000, AGCType::RMSTri, func, 25, 1.0f);
+}
+
+TEST_F(SetTest, agcMeanAbs)
+{
+    auto func = [](size_t window, trace_t * trc, size_t winCntr)
+    {
+        trace_t amp = 0.0f;
+        for (size_t i = 0; i < window; i++)
+            amp += trc[i];
+        size_t num = std::count_if(&trc[0], &trc[window], [] (trace_t j){return j != 0.0f;});
+        if (num < 1)
+            num = 1;
+        return std::abs(amp)/num;
+    };
+    agcTest(100, 1000, AGCType::MeanAbs, func, 25, 1.0f);
+}
+
+TEST_F(SetTest, agcMedian)
+{
+    auto func = [](size_t window, trace_t * trc, size_t winCntr)
+    {
+        std::sort(&trc[0], &trc[window]);
+        if (window % 2 == 0)
+            return (trc[window/2U] + trc[(window/2U)+1U])/2.0f;
+        else
+            return trc[window/2U];
+    };
+    agcTest(100, 1000, AGCType::Median, func, 25, 1.0f);
 }

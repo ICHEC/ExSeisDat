@@ -42,6 +42,21 @@ extern void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax);
  */
 extern void sortSet(ExSeisSet s, SortType type);
 
+/*! Preform 2 tailed taper on a set of traces
+ * \param[in] s A handle for the set
+ * \param[in] type The type of taper to be applied to traces.
+ * \param[in] ntpstr The length of left-tail taper ramp.
+ * \param[in] ntpend The length of right-tail taper ramp.
+ */
+extern void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend);
+
+/*! Preform 1 tailed taper on a set of traces
+ * \param[in] s A handle for the set
+ * \param[in] type The type of taper to be applied to traces.
+ * \param[in] ntpstr The length of taper ramp.
+ */
+extern void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr);
+
 /*! The number of traces in the input files
  *  \param[in] s The set handle
  *  \return The number of traces in the input files
@@ -82,6 +97,14 @@ extern void addSet(ExSeisSet s, const char * name);
  *  \param[in] func The custom comparison function to sort set
  */
 extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
+
+/*! Scale traces using automatic gain control for visualization
+ * \param[in] s The set handle
+ * \param[in] type They type of agc scaling function used
+ * \param[in] window Length of the agc window
+ * \param[in] normR Normalization value
+ */
+extern void AGC(ExSeisSet s, AGCType type, size_t window, float normR);
 
 #ifdef __cplusplus
 }

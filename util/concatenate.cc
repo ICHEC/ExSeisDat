@@ -9,6 +9,7 @@
 #include <assert.h>
 #include "flow.hh"
 #include "sglobal.hh"
+#include "share/api.hh"
 #include <iostream>
 using namespace PIOL;
 
@@ -83,7 +84,7 @@ int main(int argc, char ** argv)
         }
     assert(pattern != "" && outprefix != "");
 
-    Set set(piol, pattern, std::make_shared<File::Rule>(true, true));
+    Set set(piol, pattern);
     set.text(msg);
     if (prompt)
     {

@@ -7,12 +7,18 @@
  *   \details
  *//*******************************************************************************************/
 #include "object/objsegy.hh"
+#include "data/datampiio.hh"
 #include "share/segy.hh"
 #include "data/data.hh"
 namespace PIOL { namespace Obj {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Obj::Interface> makeDefaultObj(Piol piol, std::string name, FileMode mode)
+{
+    auto data = std::make_shared<Data::MPIIO>(piol, name, mode);
+    return std::make_shared<Obj::SEGY>(piol, name, data, mode);
+}
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 

@@ -10,6 +10,7 @@
 #include <tuple>
 #include "global.hh"
 #include "share/mpi.hh"
+#include "share/decomp.hh"
 namespace PIOL {
 template <class ... T>
 class Uniray
@@ -60,7 +61,7 @@ class Uniray
         }
     }
 
-    std::tuple<T...> get(size_t i)
+    std::tuple<T...> get(size_t i) const
     {
         if (i > sz)
         {
@@ -84,12 +85,12 @@ class Uniray
         }
     }
 
-    std::tuple<T...> operator[](size_t i)
+    std::tuple<T...> operator[](size_t i) const
     {
         return get(i);
     }
 
-    size_t size(void)
+    size_t size(void) const
     {
         return sz;
     }

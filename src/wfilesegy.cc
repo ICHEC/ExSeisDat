@@ -35,7 +35,7 @@ WriteSEGY::WriteSEGY(const Piol piol_, const std::string name_, std::shared_ptr<
 
 WriteSEGY::~WriteSEGY(void)
 {
-    if (!piol->log->isErr())
+    if (!piol->log->isErr())    //TODO: On error this can be a source of a deadlock
     {
         calcNt();
         if (state.resize)
@@ -118,6 +118,7 @@ void WriteSEGY::writeNs(csize_t ns_)
         state.resize = true;
         state.writeHO = true;
     }
+    nsSet = true;
 }
 
 void WriteSEGY::writeNt(csize_t nt_)
@@ -181,6 +182,10 @@ void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t
 
 void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Param * prm, csize_t skip)
 {
+    if (!nsSet)
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", Log::Verb::None);
+
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
     nt = std::max(offset + sz, nt);
@@ -188,6 +193,10 @@ void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Para
 
 void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trc, const Param * prm, csize_t skip)
 {
+    if (!nsSet)
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", Log::Verb::None);
+
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
     if (sz)

@@ -109,7 +109,7 @@ vec<MPI_Win> createCoordsWin(const Coords * crd, const bool ixline)
  */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
-    auto crd = std::make_unique<Coords>(sz);
+    auto crd = std::make_unique<Coords>(sz, ixline);
     for (size_t i = 0; i < win.size(); i++)
         MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
 
@@ -263,6 +263,13 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
     return lsz * rsz;
 }
 
+/*! Send coordinate data. An alternative but largely untested alternative
+ *  to the one-sided communication mechanism.
+ *  \param[in] lrank The target rank to communicate with
+ *  \param[in] crd The coordinate data
+ *  \param[in] ixline Whether line numbers are also being sent
+ *  \return A vector of MPI_Request objects for performing a MPI_Waitall
+ */
 vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
 {
     vec<MPI_Request> request(5);
@@ -281,9 +288,16 @@ vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
     return request;
 }
 
+/*! Reive coordinate data. An alternative but largely untested alternative
+ *  to the one-sided communication mechanism.
+ *  \param[in] lrank The target rank to communicate with
+ *  \param[in] sz The number of entries to recv
+ *  \param[in] ixline Whether line numbers are also being received
+ *  \return The coordinate data
+ */
 std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
 {
-    auto crd = std::make_unique<Coords>(sz);
+    auto crd = std::make_unique<Coords>(sz, ixline);
     vec<MPI_Request> request(5);
     MPIErr(MPI_Irecv(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[0]));
     MPIErr(MPI_Irecv(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD, &request[1]));
@@ -302,7 +316,6 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
 
     return std::move(crd);
 }
-
 
 void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, const Coords * crd2,
                                   const FourDOpt opt, vec<size_t> & min, vec<fourd_t> & minrs)

@@ -17,10 +17,10 @@ UTIL_INC=-I../util
 	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(UTIL_INC) $(CXXINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.cpo: %.cc
-	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) $(UTIL_INC) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) $(API_FOLDER) $(UTIL_INC) -c $< -o $@
 
 $(OBJDIR)/%.co: %.c
-	$(CC) $(CFLAGS) $(CINC_FOLDER) $(UTIL_INC) -c $< -o $@
+	$(CC) $(CFLAGS) $(CINC_FOLDER) $(API_FOLDER) $(UTIL_INC) -c $< -o $@
 
 .PHONY: all
 all: $(BIN)

@@ -46,6 +46,8 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
     for (size_t i = 0; i < lSz; i++)
         line.set(i + offset, lline[i]);
 
+#warning TODO: Check if a gather extends over three processes
+
     piol->comm->barrier();
     return line;
 }

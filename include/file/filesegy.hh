@@ -13,11 +13,27 @@
 #include "file/file.hh"
 #include "file/segymd.hh"
 #include "file/dynsegymd.hh"
-#warning here
-#include <iostream>
+#include "object/object.hh" //For the makes
 
 namespace PIOL { namespace File {
 enum class Format : int16_t;    //!< Data Format options
+
+template <class T>
+std::unique_ptr<T> makeReadSEGYFile(Piol piol, std::string name)
+{
+    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
+    auto file = std::make_unique<T>(piol, name, obj);
+    return std::move(file);
+}
+
+template <class T>
+std::unique_ptr<T> makeWriteSEGYFile(Piol piol, std::string name)
+{
+    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
+    auto file = std::make_unique<T>(piol, name, obj);
+    return std::move(file);
+}
+
 
 /*! The SEG-Y implementation of the file layer
  */
@@ -46,9 +62,6 @@ class ReadSEGY : public ReadInterface
      *  \param[in, out] buf The buffer to parse. The buffer is destructively modified
      */
     void procHeader(csize_t fsz, uchar * buf);
-
-    void procTrace(size_t sz, std::function<size_t(size_t)> off, const std::vector<uchar> & buf,
-                   trace_t * trace, Param * prm, csize_t skip) const;
 
     /*! \brief This function initialises the SEGY specific portions of the class.
      *  \param[in] segyOpt The SEGY-File options
@@ -83,38 +96,9 @@ class ReadSEGY : public ReadInterface
 class ReadSEGYModel : public Model3dInterface, public ReadSEGY
 {
     public :
-    ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, obj_)
-    {
-        std::vector<size_t> vlist = {0U, 1U, readNt() - 1U};
-        File::Param prm(vlist.size());
-        readParam(vlist.size(), vlist.data(), &prm);
-
-        llint ilInc = File::getPrm<llint>(1U, Meta::il, &prm) - File::getPrm<llint>(0U, Meta::il, &prm);
-        llint ilNum = (ilInc ? File::getPrm<llint>(2U, Meta::il, &prm) / ilInc : 0U);
-        llint xlInc = File::getPrm<llint>(2U, Meta::xl, &prm) / (readNt() / (ilNum ? ilNum : 1U));
-        llint xlNum = (xlInc ? readNt() / (ilNum ? ilNum : 1U) / xlInc : 0U);
-
-        ilInc = (ilInc ? ilInc : 1U);
-        xlInc = (xlInc ? xlInc : 1U);
-
-        il = std::make_tuple<size_t, size_t, size_t>(File::getPrm<llint>(0U, Meta::il, &prm), ilNum, ilInc);
-        xl = std::make_tuple<size_t, size_t, size_t>(File::getPrm<llint>(0U, Meta::xl, &prm), xlNum, xlInc);
-    }
-
-    std::vector<trace_t> readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather)
-    {
-        std::vector<trace_t> trc(numGather * readNs());
-        std::vector<size_t> offset(numGather);
-        for (size_t i = 0; i < numGather; i++)
-        {
-            auto val = gather[gOffset + i];
-            offset[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
-                      + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
-        }
-
-        readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0U);
-        return trc;
-    }
+    ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+    std::vector<trace_t> readModel(size_t gOffset, size_t numGather, const Uniray<size_t, llint, llint> & gather);
+    std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather);
 };
 
 /*! The SEG-Y implementation of the file layer
@@ -135,6 +119,8 @@ class WriteSEGY : public WriteInterface
     };
 
     private :
+    bool nsSet = false;
+
     Format format;              //<! Type formats
 
     /*! State flags structure for SEGY

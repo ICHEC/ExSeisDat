@@ -20,32 +20,12 @@
 #include "share/decomp.hh"
 #include "ops/gather.hh"
 #include "share/uniray.hh"
+
 #warning
 #include <iostream>
+#include <assert.h>
 
 namespace PIOL {
-std::unique_ptr<File::WriteInterface> makeSEGYFile(Piol piol, std::string name, csize_t ns, const geom_t inc, const std::string text)
-{
-    auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Write);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Write);
-    auto out = std::make_unique<File::WriteSEGY>(piol, name, obj);
-
-    out->writeNs(ns);
-    out->writeInc(inc);
-    out->writeText(text);
-
-    return std::move(out);
-}
-
-std::unique_ptr<File::ReadSEGYModel> makeModelFile(Piol piol, std::string name)
-{
-    const Obj::SEGY::Opt o;
-    const Data::MPIIO::Opt d;
-    auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
-    auto file = std::make_unique<File::ReadSEGYModel>(piol, name, obj);
-    return std::move(file);
-}
 
 /*! For CoordElem. Update the dst element based on if the operation gives true.
  *  If the elements have the same value, set the trace number to the
@@ -69,27 +49,29 @@ void updateElem(CoordElem * src, CoordElem * dst)
 
 //////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
 
-InternalSet::InternalSet(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
+Set::Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
                                                             piol(piol_), outfix(outfix_), rule(rule_), cache(piol_)
 {
+    rank = piol->comm->getRank();
+    numRank = piol->comm->getNumRank();
     fillDesc(piol, pattern);
 }
 
-InternalSet::~InternalSet(void)
+Set::~Set(void)
 {
     if (outfix != "")
         output(outfix);
 }
 
 //TODO: Make multi-file
-void InternalSet::add(std::string name)
+void Set::add(std::string name)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
     auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
     add(std::move(std::make_unique<File::ReadSEGY>(piol, name, obj)));
 }
 
-void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
+void Set::add(std::unique_ptr<File::ReadInterface> in)
 {
     file.emplace_back(std::make_shared<FileDesc>());
     auto & f = file.back();
@@ -108,7 +90,7 @@ void InternalSet::add(std::unique_ptr<File::ReadInterface> in)
     off += f->ifc->readNt();
 }
 
-void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
+void Set::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 {
     outmsg = "ExSeisPIOL: Set layer output\n";
     glob_t globs;
@@ -126,7 +108,7 @@ void InternalSet::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern
     piol->isErr();
 }
 
-void InternalSet::summary(void) const
+void Set::summary(void) const
 {
     for (auto & f : file)
     {
@@ -138,7 +120,7 @@ void InternalSet::summary(void) const
         piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , Log::Verb::None);
     }
 
-    if (!piol->comm->getRank())
+    if (!rank)
     {
         for (auto & m : fmap)
             piol->log->record("", Log::Layer::Set, Log::Status::Request,
@@ -148,9 +130,11 @@ void InternalSet::summary(void) const
     }
 }
 
-void InternalSet::sort(File::Compare<File::Param> sortFunc)
+void Set::sort(Compare<File::Param> sortFunc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
+    rule->addRule(Meta::il);
+    rule->addRule(Meta::xl);
     func.push_back(std::make_shared<Op<InPlaceMod>>(opt, rule, nullptr, [this, sortFunc] (TraceBlock * in) -> std::vector<size_t>
     {
         if (piol->comm->min(in->prm->size()) < 3U) //TODO: It will eventually be necessary to support this use case.
@@ -166,15 +150,39 @@ void InternalSet::sort(File::Compare<File::Param> sortFunc)
     }));
 }
 
-void InternalSet::toAngle(std::string vmName)
+
+void RadonState::makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather)
+{
+    std::unique_ptr<File::ReadSEGYModel> vm = File::makeReadSEGYFile<File::ReadSEGYModel>(piol, "vm.segy");   //TODO:DON'T USE MAGIC NAME
+    vNs = vm->readNs();
+    vInc = vm->readInc();
+
+    vtrc = vm->readModel(offset.size(), offset.data(), gather);
+
+    il.resize(offset.size());
+    xl.resize(offset.size());
+
+    for (size_t i = 0; i < offset.size(); i++)
+    {
+        auto gval = gather[offset[i]];
+        il[i] = std::get<1>(gval);
+        xl[i] = std::get<2>(gval);
+    }
+}
+
+void Set::toAngle(std::string vmName)
 {
     OpOpt opt = {FuncOpt::NeedAll, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
-
     auto state = std::make_shared<RadonState>(piol);
     func.emplace_back(std::make_shared<Op<Mod>>(opt, rule, state, [state] (const TraceBlock * in, TraceBlock * out)
     {
         csize_t iGSz = in->prm->size();
-        out->trc.resize(state->oGSz * in->ns);
+        out->ns = in->ns;
+        out->inc = M_PI / geom_t(180U);   //1 degree in radians
+        out->trc.resize(state->oGSz * out->ns);
+        out->prm.reset(new File::Param(in->prm->r, state->oGSz));
+        if (!in->prm->size())
+            return;
 
         for (size_t j = 0; j < state->oGSz; j++)       //For each angle in the angle gather
             for (size_t z = 0; z < in->ns; z++)    //For each sample (angle + radon)
@@ -183,7 +191,7 @@ void InternalSet::toAngle(std::string vmName)
                 geom_t vmModel = state->vtrc[in->gNum * state->vNs + std::min(size_t(geom_t(z * in->inc) / state->vInc), state->vNs)];
                 llint k = llround(vmModel / cos(geom_t(j * out->inc))) / state->vBin;
                 if (k > 0 && k < iGSz)
-                    out->trc[j * out->ns + z] += in->trc[k * in->ns + z];
+                    out->trc[j * out->ns + z] = in->trc[k * in->ns + z];
             }
 
         for (size_t j = 0; j < state->oGSz; j++)
@@ -194,12 +202,10 @@ void InternalSet::toAngle(std::string vmName)
             File::setPrm(j, Meta::xl, state->xl[in->gNum], out->prm.get());
         }
 
-        out->inc = state->oInc;   //1 degree in radians
-        out->ns = in->ns;
     }));
 }
 
-std::string InternalSet::output(FileDeque & fQue)
+std::string Set::output(FileDeque & fQue)
 {
     std::string name;
     if (!fQue.size())
@@ -207,16 +213,21 @@ std::string InternalSet::output(FileDeque & fQue)
 
     size_t ns = fQue[0]->ifc->readNs();
     geom_t inc = fQue[0]->ifc->readInc();
+
     if (fQue.size() == 1)
         name = outfix + ".segy";
     else
         name = outfix + std::to_string(ns) + "_" + std::to_string(inc) + ".segy";
-    std::unique_ptr<File::WriteInterface> out = makeSEGYFile(piol, name, ns, inc, outmsg);
+
+    //TODO: Add mechanism for selection later
+    std::unique_ptr<File::WriteInterface> out = File::makeWriteSEGYFile<File::WriteSEGY>(piol, name);
+    out->writeNs(ns);
+    out->writeInc(inc);
+    out->writeText(outmsg);
 
     //Assume the process can hold the list
     const size_t memlim = 2U*1024U*1024U*1024U;
     size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
-
 
     size_t lnt = 0;
     for (auto f : fQue)
@@ -231,6 +242,7 @@ std::string InternalSet::output(FileDeque & fQue)
 
     if (cacheFlush) //TODO: Improve this so that it also flushes traces
     {
+        std::cout << "Flushing cache.\n";
         for (size_t i = 0; i < lnt; i += max)
         {
             size_t rblock = (i + max < lnt ? max : lnt - i);
@@ -251,10 +263,10 @@ std::string InternalSet::output(FileDeque & fQue)
         size_t fmax = std::min(lnt, max);
         size_t ns = in->readNs();
 
-        File::Param iprm(rule, (cacheFlush ? fmax : 0));
-        File::Param oprm(rule, (cacheFlush ? fmax : 0));
-        File::Param * itprm = const_cast<File::Param *>(cacheFlush ? &iprm : File::PARAM_NULL);
-        File::Param * otprm = const_cast<File::Param *>(cacheFlush ? &oprm : File::PARAM_NULL);
+        File::Param iprm(rule, (!cacheFlush ? fmax : 0));
+        File::Param oprm(rule, (!cacheFlush ? fmax : 0));
+        File::Param * itprm = const_cast<File::Param *>(!cacheFlush ? &iprm : File::PARAM_NULL);
+        File::Param * otprm = const_cast<File::Param *>(!cacheFlush ? &oprm : File::PARAM_NULL);
 
         std::vector<trace_t> itrc(fmax * ns);
         std::vector<trace_t> otrc(fmax * ns);
@@ -279,20 +291,19 @@ std::string InternalSet::output(FileDeque & fQue)
 
         for (size_t i = 0; i < extra; i++)
         {
-            in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(cacheFlush ? nullptr : File::PARAM_NULL));
-            out->writeTrace(0, nullptr, nullptr, (cacheFlush ? nullptr : File::PARAM_NULL));
+            in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(!cacheFlush ? nullptr : File::PARAM_NULL));
+            out->writeTrace(0, nullptr, nullptr, (!cacheFlush ? nullptr : File::PARAM_NULL));
         }
     }
     return name;
 }
 
-#warning continue
-std::unique_ptr<TraceBlock> InternalSet::calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, std::unique_ptr<TraceBlock> bIn)
+std::unique_ptr<TraceBlock> Set::calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, std::unique_ptr<TraceBlock> bIn)
 {
     if (fCurr == fEnd || !(*fCurr)->opt.check(FuncOpt::Gather))
         return std::move(bIn);
 
-    std::unique_ptr<TraceBlock> bOut;
+    auto bOut = std::make_unique<TraceBlock>();
     if ((*fCurr)->opt.check(FuncOpt::Gather))
         dynamic_cast<Op<Mod> *>(fCurr->get())->func(bIn.get(), bOut.get());
 
@@ -302,7 +313,7 @@ std::unique_ptr<TraceBlock> InternalSet::calcFuncG(FuncLst::iterator fCurr, cons
 }
 
 //calc for subsets only
-FuncLst::iterator InternalSet::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
+FuncLst::iterator Set::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
 {
     size_t ns = fQue[0]->ifc->readNs();
 
@@ -337,7 +348,7 @@ FuncLst::iterator InternalSet::calcFuncS(FuncLst::iterator fCurr, const FuncLst:
     return fCurr;
 }
 
-void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd)
+std::string Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd)
 {
     if (fCurr != fEnd)
     {
@@ -356,47 +367,57 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
         {
             //Note it isn't necessary to use a temporary file here.
             //It's just a choice for simplicity
-#warning Pre-sort!
-            std::vector<std::string> names = InternalSet::output("temp");
-            drop();
-            for (std::string n : names)
-                add(n);
-
-            FuncLst::iterator fTemp;
+            if (file.size() > 1U)
+            {
+                std::vector<std::string> names;
+                std::string tOutfix = outfix;
+                outfix = "temp";
+                for (auto & o : fmap)
+                    names.push_back(output(o.second));
+                outfix = tOutfix;
+                drop();
+                for (std::string n : names)
+                    add(n);     //TODO: Open with delete on close?
+            }
+            std::string gname;
             for (auto & o : file)
             {
                 //Locate gather boundaries.
                 auto gather = File::getIlXlGathers(piol.get(), o->ifc.get());
-                auto gdec = decompose(gather.size(), piol->comm->getNumRank(), piol->comm->getRank());
+                auto gdec = decompose(gather.size(), numRank, rank);
+
                 size_t numGather = gdec.second;
                 size_t gOffset = gdec.first;
-                size_t lOffset = 0U;
-                for (size_t i = 0; i < gOffset; i++)
-                    lOffset += std::get<0>(gather[i]);
 
-                #warning This can not be here
+                std::vector<size_t> gNums;
+                for (auto fTemp = fCurr; fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather); fTemp++)
+                {
+                    auto * p = dynamic_cast<Op<Mod> *>(fTemp->get());
+                    assert(p);
+                    for (size_t i = 0; i < numGather; i++)
+                        gNums.push_back(i * numRank + rank);
 
+                    p->state->makeState(gNums, gather);
+                }
 
-                auto fTemp = fCurr;
-                while ((*fTemp++)->opt.check(FuncOpt::Gather))
-                    dynamic_cast<Op<Mod> *>(fTemp->get())->state->makeState(gOffset, numGather, gather);
-
+                //TODO: Loop and add rules
                 #warning need better rule handling, create rule of all rules in gather functions
                 auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
 
-                #warning set output name
-                //Use inputs as default values. These can be changed later
-                auto out = makeSEGYFile(piol, "temp.segy", 0U, geom_t(0), "");
+                auto fTemp = fCurr;
+                while (++fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather));
+                gname = (fTemp != fEnd ? "gtemp.segy" : outfix + ".segy");
 
-#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
-#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
-#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
-#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
-#warning THIS WONT WORK WITHOUT OFFSET SUPPORT
-                size_t offset = 0U;
-                for (size_t i = 0; i < numGather; i++)
+                //Use inputs as default values. These can be changed later
+                std::unique_ptr<File::WriteInterface> out = File::makeWriteSEGYFile<File::WriteSEGY>(piol, gname);
+
+                size_t wOffset = 0U;
+                size_t iOffset = 0U;
+                size_t extra = piol->comm->max(numGather) - numGather;
+                size_t ig = 0;
+                for (size_t gNum : gNums)
                 {
-                    auto gval = gather[gOffset + i];
+                    auto gval = gather[gNum];
                     const size_t iGSz = std::get<0>(gval);
 
                     //Initialise the blocks
@@ -406,26 +427,56 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
                     bIn->ns = o->ifc->readNs();
                     bIn->nt = o->ifc->readNt();
                     bIn->inc = o->ifc->readInc();
-                    bIn->gNum = i;
                     bIn->numG = numGather;
+                    bIn->gNum = ig++;
 
-#warning We will have to decompose this the other way to allow correct write output
-
-                    o->ifc->readTrace(lOffset, bIn->prm->size(), bIn->trc.data(), bIn->prm.get());
-                    #warning should be no offset in the end
+                    size_t ioff = piol->comm->offset(iGSz);
+                    o->ifc->readTrace(iOffset+ioff, bIn->prm->size(), bIn->trc.data(), bIn->prm.get());
+                    iOffset += piol->comm->sum(iGSz);
 
                     auto bOut = calcFuncG(fCurr, fEnd, std::move(bIn));
 
+                    size_t woff = piol->comm->offset(bOut->prm->size());
                     //For simplicity, the output is now
-                    out->writeTrace(offset, bOut->prm->size(), (bOut->prm->size() ? bOut->trc.data() : nullptr), bOut->prm.get());
-                    lOffset += iGSz;
-    //TODO: Call only once
                     out->writeNs(bOut->ns);
-                    out->writeNt(lOffset);
                     out->writeInc(bOut->inc);
+
+                    std::cout << "rank " << rank << " gNum " << gNum << " xl " << std::get<2>(gval) << " offset " << wOffset + woff << std::endl;
+
+                    out->writeTrace(wOffset + woff, bOut->prm->size(), (bOut->prm->size() ? bOut->trc.data() : nullptr), bOut->prm.get());
+                    wOffset += piol->comm->sum(bOut->prm->size());
+                }
+                for (size_t i = 0; i < extra; i++)
+                {
+                   piol->comm->offset(0U);
+                   o->ifc->readTrace(size_t(0), size_t(0), nullptr, nullptr);
+                   piol->comm->sum(0U);
+
+                   auto bIn = std::make_unique<TraceBlock>();
+                   bIn->prm.reset(new File::Param(rule, 0U));
+                   bIn->trc.resize(0U);
+                   bIn->ns = o->ifc->readNs();
+                   bIn->nt = o->ifc->readNt();
+                   bIn->inc = o->ifc->readInc();
+
+                   auto bOut = calcFuncG(fCurr, fEnd, std::move(bIn));
+                   out->writeNs(bOut->ns);
+                   out->writeInc(bOut->inc);
+
+                   piol->comm->offset(0U);
+                   out->writeTrace(size_t(0), size_t(0), nullptr, nullptr);
+                   piol->comm->sum(0U);
                 }
             }
-            while ((*++fCurr)->opt.check(FuncOpt::Gather));
+
+            while (++fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather));
+            if (fCurr != fEnd)
+            {
+                drop();
+                add(gname);
+            }
+            else
+                return gname;
         }
         else
         {
@@ -434,21 +485,25 @@ void InternalSet::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd
         }
         calcFunc(fCurr, fEnd);
     }
+    return "";
 }
 
-std::vector<std::string> InternalSet::output(std::string oname)
+std::vector<std::string> Set::output(std::string oname)
 {
     outfix = oname;
-    calcFunc(func.begin(), func.end());
+    std::string out = calcFunc(func.begin(), func.end());
     func.clear();
-
-    std::vector<std::string> names;
-    for (auto & o : fmap)
-        names.push_back(output(o.second));
-    return names;
+    if (out == "")
+    {
+        std::vector<std::string> names;
+        for (auto & o : fmap)
+            names.push_back(output(o.second));
+        return names;
+    }
+    return std::vector<std::string>{out};
 }
 
-void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param> ylam, CoordElem * minmax)
+void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax)
 {
     minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
@@ -480,5 +535,40 @@ void InternalSet::getMinMax(File::Func<File::Param> xlam, File::Func<File::Param
             updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
         }
     }
+}
+
+void Set::taper(TaperFunc func, size_t nTailLft, size_t nTailRt)
+{
+    Mod modify_ = [func, nTailLft, nTailRt] (size_t ns, File::Param * p, trace_t * t) { File::taper(p->size(), ns, t, func, nTailLft, nTailRt); };
+    mod(modify_);
+}
+
+void Set::AGC(AGCFunc func, size_t window, trace_t normR)
+{
+    Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::AGC(p->size(), ns, t, func, window, normR);};
+    mod(modify_);
+}
+
+/********************************************** Non-Core **************************************************************/
+void Set::sort(SortType type)
+{
+    Set::sort(File::getComp(type));
+}
+
+void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
+{
+    Set::getMinMax([m1](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m1, &a); },
+                   [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
+
+}
+
+void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
+{
+    Set::taper(File::getTap(type), nTailLft, nTailRt);
+}
+
+void Set::AGC(AGCType type, size_t window, trace_t normR)
+{
+    Set::AGC(File::getAGCFunc(type), window,  normR);
 }
 }

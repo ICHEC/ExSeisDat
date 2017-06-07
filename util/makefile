@@ -17,10 +17,10 @@ CURR_BIN=$(wildcard $(BIN))
 	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(CXXINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.cpo: %.cc
-	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) $(API_FOLDER) -c $< -o $@
 
 $(OBJDIR)/%.co: %.c
-	$(CC) $(CFLAGS) $(CINC_FOLDER) -c $< -o $@
+	$(CC) $(CFLAGS) $(CINC_FOLDER) $(API_FOLDER) -c $< -o $@
 
 .PHONY: all
 all: $(BIN)
@@ -34,6 +34,8 @@ cropen: obj/cropen.co obj/sglobal.co obj/ctest.co
 traceanalysis: obj/traceanalysis.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 radon: obj/radon.cpo obj/sglobal.cpo
+	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
+radon_file: obj/radon_file.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 assess: obj/assess.cpo obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)

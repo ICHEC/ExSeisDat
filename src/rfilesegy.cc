@@ -31,6 +31,55 @@ ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Ob
     Init(opt);
 }
 ///////////////////////////////////       Member functions      ///////////////////////////////////
+
+ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, obj_)
+{
+    std::vector<size_t> vlist = {0U, 1U, readNt() - 1U};
+    File::Param prm(vlist.size());
+    readParam(vlist.size(), vlist.data(), &prm);
+
+    llint ilInc = File::getPrm<llint>(1U, Meta::il, &prm) - File::getPrm<llint>(0U, Meta::il, &prm);
+    llint ilNum = (ilInc ? File::getPrm<llint>(2U, Meta::il, &prm) / ilInc : 0U);
+    llint xlInc = File::getPrm<llint>(2U, Meta::xl, &prm) / (readNt() / (ilNum ? ilNum : 1U));
+    llint xlNum = (xlInc ? readNt() / (ilNum ? ilNum : 1U) / xlInc : 0U);
+
+    ilInc = (ilInc ? ilInc : 1U);
+    xlInc = (xlInc ? xlInc : 1U);
+
+    il = std::make_tuple(File::getPrm<llint>(0U, Meta::il, &prm), ilNum, ilInc);
+    xl = std::make_tuple(File::getPrm<llint>(0U, Meta::xl, &prm), xlNum, xlInc);
+}
+
+std::vector<trace_t> ReadSEGYModel::readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather)
+{
+    std::vector<trace_t> trc(numGather * readNs());
+    std::vector<size_t> offset(numGather);
+    for (size_t i = 0; i < numGather; i++)
+    {
+        auto val = gather[gOffset + i];
+        offset[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
+                  + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
+    }
+
+    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0U);
+    return trc;
+}
+
+std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * goffset, const Uniray<size_t, llint, llint> & gather)
+{
+    std::vector<trace_t> trc(sz * readNs());
+    std::vector<size_t> offset(sz);
+    for (size_t i = 0; i < sz; i++)
+    {
+        auto val = gather[goffset[i]];
+        offset[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
+                  + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
+    }
+
+    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0U);
+    return trc;
+}
+
 void ReadSEGY::procHeader(size_t fsz, uchar * buf)
 {
     ns = getMd(Hdr::NumSample, buf);
@@ -68,28 +117,6 @@ void ReadSEGY::Init(const ReadSEGY::Opt & opt)
 size_t ReadSEGY::readNt(void)
 {
     return nt;
-}
-
-void ReadSEGY::procTrace(size_t sz, std::function<size_t(size_t)> offset, const std::vector<uchar> & buf,
-                         trace_t * trc, Param * prm, csize_t skip) const
-{
-    uchar * tbuf = reinterpret_cast<uchar *>(trc);
-    if (prm != PARAM_NULL)
-    {
-        extractParam(sz, buf.data(), prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0U), skip);
-        for (size_t i = 0; i < sz; i++)
-            setPrm(i, Meta::ltn, offset(i), prm);
-    }
-
-    if (trc != NULL && trc != TRACE_NULL)
-    {
-        if (format == Format::IBM)
-            for (size_t i = 0; i < ns * sz; i ++)
-                trc[i] = convertIBMtoIEEE(trc[i], true);
-        else
-            for (size_t i = 0; i < ns * sz; i++)
-                reverse4Bytes(&tbuf[i*sizeof(float)]);
-    }
 }
 
 template <typename T>

@@ -40,12 +40,18 @@ ACTION_P(cpyprm, src)
    *arg3 = *src;
 }
 
+extern void muting(size_t nt, size_t ns, trace_t * trc, size_t mute);
+extern void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func,
+                                                                                size_t nTailLft, size_t nTailRt);
+
 struct SetTest : public Test
 {
     std::shared_ptr<ExSeisPIOL> piol;
     std::unique_ptr<Set> set;
     std::deque<File::Param> prm;
     Comm::MPI::Opt opt;
+    const double pi = M_PI;
+
     SetTest(void)
     {
         opt.initMPI = false;
@@ -115,8 +121,8 @@ struct SetTest : public Test
 
     void init(size_t numFile, size_t nt, size_t inactive)
     {
-//        constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
- //       srand(1337);
+        constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
+        srand(1337);
         if (set.get() != nullptr)
             set.release();
         set = std::make_unique<Set>(piol);
@@ -129,13 +135,79 @@ struct SetTest : public Test
 
             set->add(std::move(mock));
 
-/*            llint range = (nt / inactive);
+            llint range = (nt / inactive);
             for (size_t j = 0; j < inactive; j++)
             {
                 size_t randj = range*j + (rand() % range);
-                set->file[i]->olst[randj] = NOT_IN_OUTPUT;
-            }*/
+                set->file[i]->lst[randj] = NOT_IN_OUTPUT;
+            }
         }
+    }
+
+    void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc func, TaperType type, size_t nTailLft, size_t nTailRt)
+    {
+       if (set.get() != nullptr)
+            set.release();
+        set = std::make_unique<Set>(piol);
+        std::vector<trace_t> trc(nt * ns);
+        std::vector<trace_t> trcMan(nt * ns);
+        File::Param prm(nt);
+        std::fill(trc.begin(), trc.end(), 1.0f);
+        if (mute != 0)
+            muting(nt, ns, trc.data(), mute);
+        trcMan = trc;
+
+        set->taper(type, nTailLft, nTailRt);
+        set->modify(ns, &prm, trc.data());
+
+        taperMan(nt, ns, trcMan.data(), func, nTailLft, nTailRt);
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+                EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
+    }
+    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> func, size_t window, trace_t normR)
+    {
+        if (set.get() != nullptr)
+            set.release();
+        set = std::make_unique<Set>(piol);
+        std::vector<trace_t> trc(nt*ns);
+        std::vector<trace_t> trcMan(nt*ns);
+        File::Param p(nt);
+
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+                trc[i*ns + j] = j;//*pow(-1.0f,j);
+
+       trcMan = trc;
+       set->AGC(type, window, normR);
+       set->modify(ns, &p, trc.data());
+       size_t win;
+       size_t winStr;
+       size_t winCntr;
+       for (size_t i = 0; i < nt; i++)
+           for (size_t j = 0; j < ns; j++)
+           {
+               if (j < (window/2U)+1)
+               {
+                   win = j + 1 + (window/2U);
+                   winStr = i*ns;
+                   winCntr = j;
+               }
+               else if ((ns - j) < (window/2U) + 1)
+               {
+                   win = ns - j+ (window/2U);
+                   winStr = i*ns + j -  window/2U;
+                   winCntr = window/2U;
+               }
+               else
+               {
+                   win = window;
+                   winStr = i*ns + j - window/2U;
+                   winCntr = window/2U;
+               }
+               std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
+               ASSERT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
+           }
     }
 };
 
