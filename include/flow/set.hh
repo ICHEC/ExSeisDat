@@ -181,7 +181,7 @@ class Set
      */
     std::vector<std::string> output(std::string oname);
 
-    std::string output(FileDeque & fQue);
+//    std::string output(FileDeque & fQue);
 
     /*! Find the min and max of two given parameters (e.g x and y source coordinates) and return
      *  the associated values and trace numbers in the given structure
@@ -236,10 +236,11 @@ class Set
 
     FuncLst::iterator startSubset(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
     std::string startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+    std::vector<std::string> startSingle(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
-    std::string calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+    std::vector<std::string> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+    std::unique_ptr<TraceBlock> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, const std::unique_ptr<TraceBlock> bIn);
     FuncLst::iterator calcFuncS(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
-    std::unique_ptr<TraceBlock> calcFuncG(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, const std::unique_ptr<TraceBlock> bIn);
 
     void toAngle(std::string vmName);
 
