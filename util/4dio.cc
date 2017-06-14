@@ -30,12 +30,12 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
       handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
       parameters in batches because of this memory limit.*/
-    size_t memlim = 2U*1024U*1024U*1024U - 4U * coords->sz * sizeof(geom_t);
+    size_t biggest = piol->comm->max(lnt);
+    size_t memlim = 2U*1024U*1024U*1024U - 4U * biggest * sizeof(geom_t);
     size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
 
     //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
     //If not, the code will deadlock. Communication is done to ensure we balance out the correct number of redundant calls
-    size_t biggest = piol->comm->max(lnt);
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
     File::Param prm(rule, lnt);
@@ -146,10 +146,8 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
         }
     }
 
-    size_t memused = lnt * (sizeof(size_t) + sizeof(geom_t));
-    size_t memlim = 2U*1024U*1024U*1024U;
-    assert(memlim > memused);
-    size_t max = (memlim - memused) / (4U*SEGSz::getDOSz(ns) + 4U*rule->extent());
+    size_t memlim = 1024U*1024U*1024U;
+    size_t max = memlim / (4U*SEGSz::getDOSz(ns) + 4U*rule->extent());
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
     dst.writeText("ExSeisDat 4d-bin file.\n");
@@ -159,6 +157,14 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
 
     File::Param prm(rule, std::min(lnt, max));
     vec<trace_t> trc(ns * std::min(lnt, max));
+
+    piol->comm->barrier();
+    for (size_t i = 0; i < piol->comm->getNumRank(); i++)
+    {
+        if (i == piol->comm->getRank())
+            std::cout << "rank " <<  piol->comm->getRank() << " loops " << lnt / max + + extra << std::endl;
+        piol->comm->barrier();
+    }
 
     for (size_t i = 0; i < lnt; i += max)
     {
@@ -172,7 +178,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
 
     for (size_t i = 0; i < extra; i++)
     {
-        src.readTrace(0, nullptr, nullptr, nullptr);
+        src.readTrace(size_t(0), nullptr, nullptr, nullptr);
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 
