@@ -36,15 +36,15 @@ SEGY::SEGY(Piol piol_, std::string name_, std::shared_ptr<Data::Interface> data_
 ///////////////////////////////////       Member functions      ///////////////////////////////////
 void SEGY::readHO(uchar * ho) const
 {
-    data->read(0U, SEGSz::getHOSz(), ho);
+    data->read(0LU, SEGSz::getHOSz(), ho);
 }
 
 void SEGY::writeHO(const uchar * ho) const
 {
     if (ho)
-        data->write(0U, SEGSz::getHOSz(), ho);
+        data->write(0LU, SEGSz::getHOSz(), ho);
     else
-        data->write(0U, 0, ho);
+        data->write(0LU, 0U, ho);
 }
 
 void SEGY::readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const

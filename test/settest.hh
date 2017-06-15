@@ -211,7 +211,6 @@ struct SetTest : public Test
 
         std::vector<trace_t> trc(nt*ns);
         std::vector<trace_t> trcMan(nt*ns);
-        File::Param p(nt);
 
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)

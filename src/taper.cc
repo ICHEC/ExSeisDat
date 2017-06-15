@@ -24,7 +24,7 @@ void taper(size_t sz, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft,
             trc[i*ns+j] *= func(j-jstart+1, nTailLft);
 
         for (size_t j = ns - nTailRt; j < ns; j++)
-            trc[i*ns+j] *= func(ns - j - 1U, nTailRt);
+            trc[i*ns+j] *= func(ns - j - 1LU, nTailRt);
     }
 }
 

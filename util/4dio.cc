@@ -31,7 +31,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
       handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
       parameters in batches because of this memory limit.*/
     size_t biggest = piol->comm->max(lnt);
-    size_t memlim = 2U*1024U*1024U*1024U - 4U * biggest * sizeof(geom_t);
+    size_t memlim = 2LU*1024LU*1024LU*1024LU - 4LU * biggest * sizeof(geom_t);
     size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
 
     //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
@@ -57,9 +57,9 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 
     auto trlist = File::sort(piol.get(), &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
             {
-                return (File::getPrm<geom_t>(0U, Meta::xSrc, &e1) < File::getPrm<geom_t>(0U, Meta::xSrc, &e2) ? true :
-                        File::getPrm<geom_t>(0U, Meta::xSrc, &e1) == File::getPrm<geom_t>(0U, Meta::xSrc, &e2) &&
-                        File::getPrm<size_t>(0U, Meta::gtn, &e1) < File::getPrm<size_t>(0U, Meta::gtn, &e2));
+                return (File::getPrm<geom_t>(0LU, Meta::xSrc, &e1) < File::getPrm<geom_t>(0LU, Meta::xSrc, &e2) ? true :
+                        File::getPrm<geom_t>(0LU, Meta::xSrc, &e1) == File::getPrm<geom_t>(0LU, Meta::xSrc, &e2) &&
+                        File::getPrm<size_t>(0LU, Meta::gtn, &e1) < File::getPrm<size_t>(0LU, Meta::gtn, &e2));
             }, false);
 
     cmsg(piol.get(), "getCoords post-sort I/O");
@@ -72,7 +72,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
     else
         crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
 
-    max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2U*sizeof(size_t));
+    max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2LU*sizeof(size_t));
 
     {
     File::Param prm2(crule, std::min(lnt, max));
@@ -105,7 +105,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
-        file.readParam(0U, nullptr, nullptr);
+        file.readParam(0LU, nullptr, nullptr);
 
     piol->comm->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
@@ -146,8 +146,8 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
         }
     }
 
-    size_t memlim = 1024U*1024U*1024U;
-    size_t max = memlim / (4U*SEGSz::getDOSz(ns) + 4U*rule->extent());
+    size_t memlim = 1024LU*1024LU*1024LU;
+    size_t max = memlim / (4LU*SEGSz::getDOSz(ns) + 4LU*rule->extent());
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
 
     dst.writeText("ExSeisDat 4d-bin file.\n");

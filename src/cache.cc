@@ -17,12 +17,12 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
 
     if (it == cache.end() || !it->block || !it->block->prm)
     {
-        size_t lsnt = 0U;
+        size_t lsnt = 0LU;
         for (auto & f : desc)
             lsnt += f->olst.size();
         size_t off = piol->comm->offset(lsnt);
 
-        size_t nt = 0U;
+        size_t nt = 0LU;
         for (auto & f : desc)
             nt += f->ifc->readNt();
 
@@ -46,17 +46,17 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
         if (it == cache.end())
         {
             cache.emplace_back(desc, std::move(prm));
-            it = cache.end() - 1U;
+            it = cache.end() - 1LU;
         }
         else
         {
             if (!it->block)
                 it->block = std::make_shared<TraceBlock>();
             it->block->prm = std::move(prm);
-            it->block->nt = nt;
-            it->block->ns = desc[0]->ifc->readNs();
-            it->block->inc = desc[0]->ifc->readInc();
         }
+        it->block->nt = nt;
+        it->block->ns = desc[0]->ifc->readNs();
+        it->block->inc = desc[0]->ifc->readInc();
     }
     else
     {

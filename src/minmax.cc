@@ -25,11 +25,11 @@ void getMinMax(ExSeisPIOL * piol, size_t offset, size_t lnt, Meta m1, Meta m2, c
     //TODO: Just add the two meta options to the rules with defaults?
     for (size_t i = 0; i < lnt; i++)
     {
-        vprm.emplace_back(prm->r, 1U);
+        vprm.emplace_back(prm->r, 1LU);
         cpyPrm(i, prm, 0, &vprm.back());
     }
 
-    getMinMax<Param>(piol, offset, lnt, vprm.data(), [m1](const Param & a) -> geom_t { return getPrm<geom_t>(0U, m1, &a); },
-                                                     [m2](const Param & a) -> geom_t { return getPrm<geom_t>(0U, m2, &a); }, minmax);
+    getMinMax<Param>(piol, offset, lnt, vprm.data(), [m1](const Param & a) -> geom_t { return getPrm<geom_t>(0LU, m1, &a); },
+                                                     [m2](const Param & a) -> geom_t { return getPrm<geom_t>(0LU, m2, &a); }, minmax);
 }
 }}

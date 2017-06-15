@@ -19,7 +19,7 @@ geom_t scaleConv(int16_t scale)
 
 int16_t deScale(const geom_t val)
 {
-    constexpr llint tenk = 10000;
+    constexpr llint tenk = 10000LL;
     //First we need to determine what scale is required to store the
     //biggest decimal value of the int.
     llint llintpart = llint(val);

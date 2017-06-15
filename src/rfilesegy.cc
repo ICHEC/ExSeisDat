@@ -34,20 +34,20 @@ ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Ob
 
 ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, obj_)
 {
-    std::vector<size_t> vlist = {0U, 1U, readNt() - 1U};
+    std::vector<size_t> vlist = {0LU, 1LU, readNt() - 1LU};
     File::Param prm(vlist.size());
     readParam(vlist.size(), vlist.data(), &prm);
 
-    llint ilInc = File::getPrm<llint>(1U, Meta::il, &prm) - File::getPrm<llint>(0U, Meta::il, &prm);
-    llint ilNum = (ilInc ? File::getPrm<llint>(2U, Meta::il, &prm) / ilInc : 0U);
-    llint xlInc = File::getPrm<llint>(2U, Meta::xl, &prm) / (readNt() / (ilNum ? ilNum : 1U));
-    llint xlNum = (xlInc ? readNt() / (ilNum ? ilNum : 1U) / xlInc : 0U);
+    llint ilInc = File::getPrm<llint>(1LU, Meta::il, &prm) - File::getPrm<llint>(0LU, Meta::il, &prm);
+    llint ilNum = (ilInc ? File::getPrm<llint>(2LU, Meta::il, &prm) / ilInc : 0LU);
+    llint xlInc = File::getPrm<llint>(2LU, Meta::xl, &prm) / (readNt() / (ilNum ? ilNum : 1LU));
+    llint xlNum = (xlInc ? readNt() / (ilNum ? ilNum : 1LU) / xlInc : 0LU);
 
-    ilInc = (ilInc ? ilInc : 1U);
-    xlInc = (xlInc ? xlInc : 1U);
+    ilInc = (ilInc ? ilInc : 1LU);
+    xlInc = (xlInc ? xlInc : 1LU);
 
-    il = std::make_tuple(File::getPrm<llint>(0U, Meta::il, &prm), ilNum, ilInc);
-    xl = std::make_tuple(File::getPrm<llint>(0U, Meta::xl, &prm), xlNum, xlInc);
+    il = std::make_tuple(File::getPrm<llint>(0LU, Meta::il, &prm), ilNum, ilInc);
+    xl = std::make_tuple(File::getPrm<llint>(0LU, Meta::xl, &prm), xlNum, xlInc);
 }
 
 std::vector<trace_t> ReadSEGYModel::readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather)
@@ -61,7 +61,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t gOffset, csize_t numGather
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0U);
+    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
     return trc;
 }
 
@@ -76,7 +76,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * goffset, con
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0U);
+    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
     return trc;
 }
 
@@ -88,7 +88,7 @@ void ReadSEGY::procHeader(size_t fsz, uchar * buf)
     format = static_cast<Format>(getMd(Hdr::Type, buf));
 
     getAscii(piol.get(), name, SEGSz::getTextSz(), buf);
-    for (size_t i = 0U; i < SEGSz::getTextSz(); i++)
+    for (size_t i = 0LU; i < SEGSz::getTextSz(); i++)
         text.push_back(buf[i]);
 }
 
@@ -107,8 +107,8 @@ void ReadSEGY::Init(const ReadSEGY::Opt & opt)
     else
     {
         format = Format::IEEE;
-        ns = 0U;
-        nt = 0U;
+        ns = 0LU;
+        nt = 0LU;
         inc = geom_t(0);
         text = "";
     }
@@ -142,7 +142,7 @@ void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T o
                             &tbuf[i * SEGSz::getDFSz(ns)]);
         }
 
-        extractParam(sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0U), skip);
+        extractParam(sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0LU), skip);
         for (size_t i = 0; i < sz; i++)
             setPrm(i, Meta::ltn, offunc(i), prm);
     }
@@ -185,11 +185,11 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trc, Par
         if (offset[idx[j-1]] != offset[idx[j]])
             nodups.push_back(offset[idx[j]]);
 
-    File::Param sprm(prm->r, (prm != PARAM_NULL ? nodups.size() : 0U));
-    std::vector<trace_t> strc(ns * (trc != TRACE_NULL ? nodups.size() : 0U));
+    File::Param sprm(prm->r, (prm != PARAM_NULL ? nodups.size() : 0LU));
+    std::vector<trace_t> strc(ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
 
     readTrace(nodups.size(), nodups.data(), (trc != TRACE_NULL ? strc.data() : trc),
-                                            (prm != PARAM_NULL ? &sprm : prm), 0U);
+                                            (prm != PARAM_NULL ? &sprm : prm), 0LU);
 
     if (prm != PARAM_NULL)
         for (size_t n = 0, j = 0; j < sz; ++j)

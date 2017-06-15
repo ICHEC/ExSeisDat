@@ -76,8 +76,8 @@ void WriteSEGY::Init(const WriteSEGY::Opt & opt)
     incFactor = opt.incFactor;
     memset(&state, 0, sizeof(Flags));
     format = Format::IEEE;
-    ns = 0U;
-    nt = 0U;
+    ns = 0LU;
+    nt = 0LU;
     inc = geom_t(0);
     text = "";
     state.writeHO = true;
@@ -200,6 +200,6 @@ void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trc, const Pa
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
     if (sz)
-        nt = std::max(offset[sz-1]+1U, nt);
+        nt = std::max(offset[sz-1LU]+1LU, nt);
 }
 }}

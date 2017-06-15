@@ -38,34 +38,34 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
  */
 bool lessSrcRcv(const Param & e1, const Param & e2)
 {
-    auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-    auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+    auto e1sx = getPrm<geom_t>(0LU, Meta::xSrc, &e1);
+    auto e2sx = getPrm<geom_t>(0LU, Meta::xSrc, &e2);
 
     if (e1sx < e2sx)
         return true;
     else if (e1sx == e2sx)
     {
-        auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-        auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+        auto e1sy = getPrm<geom_t>(0LU, Meta::ySrc, &e1);
+        auto e2sy = getPrm<geom_t>(0LU, Meta::ySrc, &e2);
 
         if (e1sy < e2sy)
             return true;
         else if (e1sy == e2sy)
         {
-            auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-            auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+            auto e1rx = getPrm<geom_t>(0LU, Meta::xRcv, &e1);
+            auto e2rx = getPrm<geom_t>(0LU, Meta::xRcv, &e2);
 
             if (e1rx < e2rx)
                 return true;
             else if (e1rx == e2rx)
             {
-                auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-                auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+                auto e1ry = getPrm<geom_t>(0LU, Meta::yRcv, &e1);
+                auto e2ry = getPrm<geom_t>(0LU, Meta::yRcv, &e2);
 
                 if (e1ry < e2ry)
                     return true;
                 else if (e1ry == e2ry)
-                    return (getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2));
+                    return (getPrm<llint>(0LU, Meta::ltn, &e1) < getPrm<llint>(0LU, Meta::ltn, &e2));
             }
         }
     }
@@ -81,29 +81,29 @@ bool lessSrcRcv(const Param & e1, const Param & e2)
 template <bool CalcOff>
 bool lessSrcOff(const Param & e1, const Param & e2)
 {
-    auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-    auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
+    auto e1sx = getPrm<geom_t>(0LU, Meta::xSrc, &e1);
+    auto e2sx = getPrm<geom_t>(0LU, Meta::xSrc, &e2);
 
     if (e1sx < e2sx)
         return true;
     else if (e1sx == e2sx)
     {
-        auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-        auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
+        auto e1sy = getPrm<geom_t>(0LU, Meta::ySrc, &e1);
+        auto e2sy = getPrm<geom_t>(0LU, Meta::ySrc, &e2);
 
         if (e1sy < e2sy)
             return true;
         else if (e1sy == e2sy)
         {
-            auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-            auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
+            auto e1rx = getPrm<geom_t>(0LU, Meta::xRcv, &e1);
+            auto e1ry = getPrm<geom_t>(0LU, Meta::yRcv, &e1);
+            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0LU, Meta::Offset, &e1));
 
-            auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
-            auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
-            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
+            auto e2rx = getPrm<geom_t>(0LU, Meta::xRcv, &e2);
+            auto e2ry = getPrm<geom_t>(0LU, Meta::yRcv, &e2);
+            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0LU, Meta::Offset, &e2));
 
-            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0LU, Meta::ltn, &e1) < getPrm<llint>(0LU, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -118,29 +118,29 @@ bool lessSrcOff(const Param & e1, const Param & e2)
 template <bool CalcOff>
 bool lessRcvOff(const Param & e1, const Param & e2)
 {
-    auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-    auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
+    auto e1rx = getPrm<geom_t>(0LU, Meta::xRcv, &e1);
+    auto e2rx = getPrm<geom_t>(0LU, Meta::xRcv, &e2);
 
     if (e1rx < e2rx)
         return true;
     else if (e1rx == e2rx)
     {
-        auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-        auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+        auto e1ry = getPrm<geom_t>(0LU, Meta::yRcv, &e1);
+        auto e2ry = getPrm<geom_t>(0LU, Meta::yRcv, &e2);
 
         if (e1ry < e2ry)
             return true;
         else if (e1ry == e2ry)
         {
-            auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-            auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
+            auto e1sx = getPrm<geom_t>(0LU, Meta::xSrc, &e1);
+            auto e1sy = getPrm<geom_t>(0LU, Meta::ySrc, &e1);
+            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0LU, Meta::Offset, &e1));
 
-            auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
-            auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
-            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
+            auto e2sx = getPrm<geom_t>(0LU, Meta::xSrc, &e2);
+            auto e2sy = getPrm<geom_t>(0LU, Meta::ySrc, &e2);
+            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0LU, Meta::Offset, &e2));
 
-            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0LU, Meta::ltn, &e1) < getPrm<llint>(0LU, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -155,32 +155,32 @@ bool lessRcvOff(const Param & e1, const Param & e2)
 template <bool CalcOff>
 bool lessLineOff(const Param & e1, const Param & e2)
 {
-    auto e1il = getPrm<llint>(0U, Meta::il, &e1);
-    auto e2il = getPrm<llint>(0U, Meta::il, &e2);
+    auto e1il = getPrm<llint>(0LU, Meta::il, &e1);
+    auto e2il = getPrm<llint>(0LU, Meta::il, &e2);
 
     if (e1il < e2il)
         return true;
     else if (e1il == e2il)
     {
-        auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
-        auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
+        auto e1xl = getPrm<llint>(0LU, Meta::xl, &e1);
+        auto e2xl = getPrm<llint>(0LU, Meta::xl, &e2);
         if (e1xl < e2xl)
             return true;
         else if (e1xl == e2xl)
         {
-            auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-            auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-            auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-            auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
+            auto e1sx = getPrm<geom_t>(0LU, Meta::xSrc, &e1);
+            auto e1sy = getPrm<geom_t>(0LU, Meta::ySrc, &e1);
+            auto e1rx = getPrm<geom_t>(0LU, Meta::xRcv, &e1);
+            auto e1ry = getPrm<geom_t>(0LU, Meta::yRcv, &e1);
 
-            auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
-            auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
-            auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
-            auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
+            auto e2sx = getPrm<geom_t>(0LU, Meta::xSrc, &e2);
+            auto e2sy = getPrm<geom_t>(0LU, Meta::ySrc, &e2);
+            auto e2rx = getPrm<geom_t>(0LU, Meta::xRcv, &e2);
+            auto e2ry = getPrm<geom_t>(0LU, Meta::yRcv, &e2);
 
-            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
-            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
-            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
+            auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0LU, Meta::Offset, &e1));
+            auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0LU, Meta::Offset, &e2));
+            return (off1 < off2 || (off1 == off2 && getPrm<llint>(0LU, Meta::ltn, &e1) < getPrm<llint>(0LU, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -195,31 +195,31 @@ bool lessLineOff(const Param & e1, const Param & e2)
 template <bool CalcOff>
 bool lessOffLine(const Param & e1, const Param & e2)
 {
-    auto e1sx = getPrm<geom_t>(0U, Meta::xSrc, &e1);
-    auto e1sy = getPrm<geom_t>(0U, Meta::ySrc, &e1);
-    auto e1rx = getPrm<geom_t>(0U, Meta::xRcv, &e1);
-    auto e1ry = getPrm<geom_t>(0U, Meta::yRcv, &e1);
-    auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0U, Meta::Offset, &e1));
+    auto e1sx = getPrm<geom_t>(0LU, Meta::xSrc, &e1);
+    auto e1sy = getPrm<geom_t>(0LU, Meta::ySrc, &e1);
+    auto e1rx = getPrm<geom_t>(0LU, Meta::xRcv, &e1);
+    auto e1ry = getPrm<geom_t>(0LU, Meta::yRcv, &e1);
+    auto off1 = (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) : getPrm<size_t>(0LU, Meta::Offset, &e1));
 
-    auto e2sx = getPrm<geom_t>(0U, Meta::xSrc, &e2);
-    auto e2sy = getPrm<geom_t>(0U, Meta::ySrc, &e2);
-    auto e2rx = getPrm<geom_t>(0U, Meta::xRcv, &e2);
-    auto e2ry = getPrm<geom_t>(0U, Meta::yRcv, &e2);
-    auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0U, Meta::Offset, &e2));
+    auto e2sx = getPrm<geom_t>(0LU, Meta::xSrc, &e2);
+    auto e2sy = getPrm<geom_t>(0LU, Meta::ySrc, &e2);
+    auto e2rx = getPrm<geom_t>(0LU, Meta::xRcv, &e2);
+    auto e2ry = getPrm<geom_t>(0LU, Meta::yRcv, &e2);
+    auto off2 = (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) : getPrm<size_t>(0LU, Meta::Offset, &e2));
 
     if (off1 < off2)
         return true;
     else if (off1 == off2)
     {
-        auto e1il = getPrm<llint>(0U, Meta::il, &e1);
-        auto e2il = getPrm<llint>(0U, Meta::il, &e2);
+        auto e1il = getPrm<llint>(0LU, Meta::il, &e1);
+        auto e2il = getPrm<llint>(0LU, Meta::il, &e2);
         if (e1il < e2il)
             return true;
         else if (e1il == e2il)
         {
-            auto e1xl = getPrm<llint>(0U, Meta::xl, &e1);
-            auto e2xl = getPrm<llint>(0U, Meta::xl, &e2);
-            return (e1xl < e2xl || (e1xl == e2xl && getPrm<llint>(0U, Meta::ltn, &e1) < getPrm<llint>(0U, Meta::ltn, &e2)));
+            auto e1xl = getPrm<llint>(0LU, Meta::xl, &e1);
+            auto e2xl = getPrm<llint>(0LU, Meta::xl, &e2);
+            return (e1xl < e2xl || (e1xl == e2xl && getPrm<llint>(0LU, Meta::ltn, &e1) < getPrm<llint>(0LU, Meta::ltn, &e2)));
         }
     }
     return false;
@@ -274,7 +274,7 @@ bool checkOrder(ReadInterface * src, std::pair<size_t , size_t> dec, SortType ty
     Param next(prm.r, 1);
     for (size_t i = 0; i < dec.second; i++)
     {
-        cpyPrm(i, &prm, 0U, &next);
+        cpyPrm(i, &prm, 0LU, &next);
 
         if (i && !comp(prev, next))
             return false;
@@ -401,7 +401,7 @@ void sendRight<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & d
     if (rank != piol->comm->getNumRank()-1)
     {
         for (size_t i = 0; i < regionSz; i++)
-            cpyPrm(0U, &dat[i+dat.size()-regionSz], i, &sprm);
+            cpyPrm(0LU, &dat[i+dat.size()-regionSz], i, &sprm);
 
         std::string msg = "Sort right MPI_Isend error ";
         err(MPI_Isend(sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank+1, 0, MPI_COMM_WORLD, &rsnd[0]), msg, 1);
@@ -413,7 +413,7 @@ void sendRight<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & d
 
     if (rank)
         for (size_t i = 0; i < regionSz; i++)
-            cpyPrm(i, &rprm, 0U, &dat[i]);
+            cpyPrm(i, &rprm, 0LU, &dat[i]);
 }
 
 /*! Send objects from the current processes to the process one rank lower if
@@ -443,7 +443,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
     if (rank)
     {
         for (size_t i = 0; i < regionSz; i++)
-            cpyPrm(0U, &dat[i], i, &sprm);
+            cpyPrm(0LU, &dat[i], i, &sprm);
 
         std::string msg = "Sort left MPI_Irecv error ";
         err(MPI_Isend(sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rsnd[0]), msg, 1);
@@ -464,7 +464,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
 
     if (rank != piol->comm->getNumRank()-1)
         for (size_t i = 0; i < regionSz; i++)
-            cpyPrm(i, &rprm, 0U, &dat[i+dat.size()-regionSz]);
+            cpyPrm(i, &rprm, 0LU, &dat[i+dat.size()-regionSz]);
 }
 
 /*! Calculate an offset based on local size and implied ordering of left to right.
@@ -477,8 +477,8 @@ static size_t offcalc(ExSeisPIOL * piol, size_t sz)
     size_t rank = piol->comm->getRank();
     auto szall = piol->comm->gather(std::vector<size_t>{sz});
 
-    szall[rank] = 0U;
-    for (size_t i = 0U; i < rank; i++)
+    szall[rank] = 0LU;
+    for (size_t i = 0LU; i < rank; i++)
         szall[rank] += szall[i];
     return szall[rank];
 }
@@ -498,8 +498,8 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
     size_t lnt = dat.size();
     size_t numRank = piol->comm->getNumRank();
     size_t rank = piol->comm->getRank();
-    size_t edge1 = (rank ? regionSz : 0U);
-    size_t edge2 = (rank != numRank-1 ? regionSz : 0U);
+    size_t edge1 = (rank ? regionSz : 0LU);
+    size_t edge2 = (rank != numRank-1 ? regionSz : 0LU);
 
     if (comp != nullptr)
         std::sort(dat.begin(), dat.begin() + lnt, [comp](auto & a, auto & b) -> bool { return comp(a, b); });
@@ -548,8 +548,8 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
 std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 {
     csize_t lnt = list.size();
-    csize_t regionSz = piol->comm->min(lnt) / 4U;
-    csize_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
+    csize_t regionSz = piol->comm->min(lnt) / 4LU;
+    csize_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0LU);
     csize_t offset = offcalc(piol, lnt);
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
@@ -582,27 +582,27 @@ std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bool FileOrder)
 {
     size_t lnt = prm->size();
-    size_t regionSz = piol->comm->min(lnt) / 4U;
-    size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0U);
+    size_t regionSz = piol->comm->min(lnt) / 4LU;
+    size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0LU);
 
     std::vector<Param> vprm;
     for (size_t i = 0; i < lnt; i++)
     {
-        vprm.emplace_back(prm->r, 1U);
+        vprm.emplace_back(prm->r, 1LU);
         cpyPrm(i, prm, 0, &vprm.back());
     }
 
     {
         std::vector<Param> temp1; //The extra vector temp1 is needed to be larger than vprm for passing values to neighbours
         for (size_t i = 0; i < lnt+edge2; i++)
-            temp1.emplace_back(prm->r, 1U);
+            temp1.emplace_back(prm->r, 1LU);
 
         sort(piol, regionSz, temp1, vprm, comp);
     }
 
     std::vector<size_t> list(lnt);
     for (size_t i = 0; i < lnt; i++)
-        list[i] = getPrm<size_t>(0U, Meta::gtn, &vprm[i]);
+        list[i] = getPrm<size_t>(0LU, Meta::gtn, &vprm[i]);
 
     return (FileOrder ? sort(piol, list): list);
 }

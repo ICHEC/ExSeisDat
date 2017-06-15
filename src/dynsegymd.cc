@@ -45,7 +45,7 @@ Rule::Rule(RuleMap translate_, bool full)
 
     if (full)
     {
-        start = 0U;
+        start = 0LU;
         end = SEGSz::getMDSz();
         flag.badextent = false;
     }
@@ -128,7 +128,7 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
 
     if (flag.fullextent)
     {
-        start = 0U;
+        start = 0LU;
         end = SEGSz::getMDSz();
         flag.badextent = false;
     }
@@ -187,7 +187,7 @@ Rule::Rule(bool full, bool defaults, bool extra)
 
     if (full)
     {
-        start = 0U;
+        start = 0LU;
         end = SEGSz::getMDSz();
         flag.badextent = false;
     }
@@ -211,7 +211,7 @@ size_t Rule::extent(void)
     if (flag.badextent)
     {
         start = SEGSz::getMDSz();
-        end = 0U;
+        end = 0LU;
         for (const auto r : translate)
             if (r.second->type() != MdType::Index)
             {
@@ -367,7 +367,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
     Rule * drule = dst->r.get();
 
     if (srule->numCopy)
-        extractParam(1U, &src->c[j * SEGSz::getMDSz()], dst, 0U, k);
+        extractParam(1LU, &src->c[j * SEGSz::getMDSz()], dst, 0LU, k);
 
     if (srule == drule)
     {
@@ -423,7 +423,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
             std::copy(&prm->c[skip * SEGSz::getMDSz()], &prm->c[(skip + sz) * SEGSz::getMDSz()], buf);
         else
             for (size_t i = 0; i < sz; i++)
-                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1U) * SEGSz::getMDSz()],
+                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1LU) * SEGSz::getMDSz()],
                           &buf[i * (stride + SEGSz::getMDSz())]);
     }
 
@@ -439,7 +439,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
         for (const auto v : r->translate)
         {
             const auto t = v.second;
-            size_t loc = t->loc - start-1U;
+            size_t loc = t->loc - start-1LU;
             switch (t->type())
             {
                 case MdType::Float :
@@ -467,12 +467,12 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
 
         //Finish off the floats. Floats are inherently annoying in SEG-Y
         for (const auto & s : scal)
-            getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
+            getBigEndian(s.second, &md[size_t(s.first)-start-1LU]);
 
         for (size_t j = 0; j < rule.size(); j++)
         {
             geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
-            getBigEndian(int32_t(std::lround(prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
+            getBigEndian(int32_t(std::lround(prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1LU]);
         }
     }
 }
@@ -502,11 +502,11 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
         for (const auto v : r->translate)
         {
             const auto t = v.second;
-            size_t loc = t->loc - r->start - 1U;
+            size_t loc = t->loc - r->start - 1LU;
             switch (t->type())
             {
                 case MdType::Float :
-                prm->f[(i + skip) * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
+                prm->f[(i + skip) * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1LU]))
                                                    * geom_t(getHost<int32_t>(&md[loc]));
                 break;
                 case MdType::Short :

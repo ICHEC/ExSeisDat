@@ -199,9 +199,9 @@ template <const bool ixline>
 size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, const fourd_t dsrmax)
 {
     //For the vectorisation
-    size_t lstart = 0U;
+    size_t lstart = 0LU;
     size_t lend = crd1->sz;
-    size_t rstart = 0U;
+    size_t rstart = 0LU;
     size_t rend = crd2->sz;
 
     //Ignore all file2 traces that can not possibly match our criteria within the min/max
@@ -326,12 +326,12 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     auto szall = piol->comm->gather(vec<size_t>{crd2->sz});
 
     //The File2 min/max from every process
-    auto xsmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0U]});
-    auto xsmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz-1U]});
+    auto xsmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0LU]});
+    auto xsmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz-1LU]});
 
     //The File1 local min and local maximum for the particular process
-    auto xslmin = crd1->xSrc[0U];
-    auto xslmax = crd1->xSrc[crd1->sz-1U];
+    auto xslmin = crd1->xSrc[0LU];
+    auto xslmax = crd1->xSrc[crd1->sz-1LU];
 
     //Perform a local initialisation update of min and minrs
     if (opt.ixline)
@@ -341,7 +341,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
     //This for loop determines the processes the local process will need to be communicating with.
     vec<size_t> active;
-    for (size_t i = 0U; i < numRank; i++)
+    for (size_t i = 0LU; i < numRank; i++)
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
             active.push_back(i);
 
@@ -361,7 +361,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         auto xsfmin = piol->comm->gather<fourd_t>(xslmin);
         auto xsfmax = piol->comm->gather<fourd_t>(xslmax);
 
-        for (size_t i = 0U; i < numRank; i++)
+        for (size_t i = 0LU; i < numRank; i++)
             if ((xsmin[rank] - dsrmax <= xsfmax[i]) && (xsmax[rank] + dsrmax >= xsfmin[i]))
             {
                 vec<MPI_Request> rq = sendCrd(i, crd1, opt.ixline);
@@ -386,7 +386,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         auto proc = recvCrd(lrank, szall[lrank], opt.ixline);
 #endif
         double wtime = MPI_Wtime() - ltime;
-        double sent = szall[lrank] * (4U*sizeof(fourd_t) + sizeof(size_t) + 2U*sizeof(llint));
+        double sent = szall[lrank] * (4LU*sizeof(fourd_t) + sizeof(size_t) + 2LU*sizeof(llint));
         size_t ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
                                   update<false>(crd1, proc.get(), min, minrs, dsrmax));
 

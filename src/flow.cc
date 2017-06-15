@@ -206,90 +206,57 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
         out->writeInc(inc);
         out->writeText(outmsg);
 
-        const size_t memlim = 2U*1024U*1024U*1024U;
-        size_t max = memlim / (10U*sizeof(size_t) + SEGSz::getDOSz(ns) + 2U*rule->paramMem() + 2U*rule->memUsage()+ 2U*SEGSz::getDFSz(ns));
-
-        size_t lnt = 0;
-        for (auto f : fQue)
-            lnt += f->olst.size();
-
-        size_t fmax = std::min(lnt, max);
-
-        auto biggest = piol->comm->max(lnt);
-        size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
-
-        bool cacheFlush = false;
-    /*    bool cacheFlush = cache.checkPrm(fQue);
-        if (cacheFlush) //TODO: Improve this so that it also flushes traces
-        {
-            std::cout << "Flushing cache.\n";
-            for (size_t i = 0; i < lnt; i += max)
-            {
-                size_t rblock = (i + max < lnt ? max : lnt - i);
-                File::Param prm(rule, fmax);
-                auto outlist = cache.getOutputTrace(fQue, i, rblock,  &prm);
-
-                cacheFlush = 1;
-                out->writeParam(outlist.size(), outlist.data(), &prm);
-            }
-            for (size_t i = 0; i < extra; i++)
-                out->writeParam(0, nullptr, nullptr);
-        }*/
+        const size_t memlim = (60LU*1024LU*1024LU*1024LU) / piol->comm->getNumRank();
+        size_t max = memlim / (5LU*sizeof(size_t) + SEGSz::getDOSz(ns) + 2LU*rule->paramMem() + 2LU*SEGSz::getDFSz(ns));
 
         for (auto & f : fQue)
         {
             File::ReadInterface * in = f->ifc.get();
             size_t lnt = f->ilst.size();
-            size_t fmax = std::min(lnt, max);
             size_t ns = in->readNs();
-
             //Initialise the blocks
-            auto bIn = std::make_unique<TraceBlock>();
-            bIn->prm.reset(new File::Param(rule, (!cacheFlush ? fmax : 0)));
-            bIn->trc.resize(fmax * ns);
-            bIn->ns = ns;
-
-            auto bOut = std::make_unique<TraceBlock>();
-            bOut->prm.reset(new File::Param(rule, (!cacheFlush ? fmax : 0)));
-            bOut->trc.resize(fmax * ns);
-            bOut->ns = ns;
-
-            File::Param * itprm = const_cast<File::Param *>(!cacheFlush ? bIn->prm.get() : File::PARAM_NULL);
-            File::Param * otprm = const_cast<File::Param *>(!cacheFlush ? bOut->prm.get() : File::PARAM_NULL);
-
             auto biggest = piol->comm->max(lnt);
             size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
             for (size_t i = 0; i < lnt; i += max)
             {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
-                in->readTrace(rblock, f->ilst.data() + i, bIn->trc.data(), itprm);
-                std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
-                for (size_t j = 0U; j < rblock; j++)
-                {
-                    cpyPrm(sortlist[j], itprm, j, otprm);
+                std::vector<trace_t> trc(rblock * ns);
+                File::Param prm(rule, rblock);
 
-                    for (size_t k = 0U; k < ns; k++)
-                        bOut->trc[j*ns + k] = bIn->trc[sortlist[j]*ns + k];
+                in->readTrace(rblock, f->ilst.data() + i, trc.data(), &prm);
+                std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
+
+                auto bIn = std::make_unique<TraceBlock>();
+                bIn->prm.reset(new File::Param(rule, rblock));
+                bIn->trc.resize(rblock * ns);
+                bIn->ns = ns;
+
+                for (size_t j = 0LU; j < rblock; j++)
+                {
+                    cpyPrm(sortlist[j], &prm, j, bIn->prm.get());
+
+                    for (size_t k = 0LU; k < ns; k++)
+                        bIn->trc[j*ns + k] = trc[sortlist[j]*ns + k];
                     sortlist[j] = f->olst[i+sortlist[j]];
                 }
 
-                auto bFinal = calcFunc(fCurr, fEnd, FuncOpt::SingleTrace, std::move(bOut));
+                auto bFinal = calcFunc(fCurr, fEnd, FuncOpt::SingleTrace, std::move(bIn));
                 out->writeTrace(rblock, sortlist.data(), bFinal->trc.data(), bFinal->prm.get());
             }
 
             for (size_t i = 0; i < extra; i++)
             {
-                in->readTrace(0, nullptr, nullptr, const_cast<File::Param *>(!cacheFlush ? nullptr : File::PARAM_NULL));
+                in->readTrace(0, nullptr, nullptr, nullptr);
 
                 auto bIn = std::make_unique<TraceBlock>();
-                bIn->prm.reset(new File::Param(rule, 0U));
-                bIn->trc.resize(0U);
+                bIn->prm.reset(new File::Param(rule, 0LU));
+                bIn->trc.resize(0LU);
                 bIn->ns = f->ifc->readNs();
                 bIn->nt = f->ifc->readNt();
                 bIn->inc = f->ifc->readInc();
 
-                calcFunc(fCurr, fEnd, FuncOpt::Gather, std::move(bOut));
-                out->writeTrace(0, nullptr, nullptr, (!cacheFlush ? nullptr : File::PARAM_NULL));
+                calcFunc(fCurr, fEnd, FuncOpt::Gather, std::move(bIn));
+                out->writeTrace(0, nullptr, nullptr, nullptr);
             }
         }
     }
@@ -298,7 +265,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
 
 std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd)
 {
-    if (file.size() > 1U)
+    if (file.size() > 1LU)
     {
 /*        std::vector<std::string> names;
         std::string tOutfix = outfix;
@@ -358,8 +325,8 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
         //Use inputs as default values. These can be changed later
         std::unique_ptr<File::WriteInterface> out = File::makeWriteSEGYFile<File::WriteSEGY>(piol, gname);
 
-        size_t wOffset = 0U;
-        size_t iOffset = 0U;
+        size_t wOffset = 0LU;
+        size_t iOffset = 0LU;
         size_t extra = piol->comm->max(numGather) - numGather;
         size_t ig = 0;
         for (size_t gNum : gNums)
@@ -393,13 +360,13 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
         }
         for (size_t i = 0; i < extra; i++)
         {
-           piol->comm->offset(0U);
+           piol->comm->offset(0LU);
            o->ifc->readTrace(size_t(0), size_t(0), nullptr, nullptr);
-           piol->comm->sum(0U);
+           piol->comm->sum(0LU);
 
            auto bIn = std::make_unique<TraceBlock>();
-           bIn->prm.reset(new File::Param(rule, 0U));
-           bIn->trc.resize(0U);
+           bIn->prm.reset(new File::Param(rule, 0LU));
+           bIn->trc.resize(0LU);
            bIn->ns = o->ifc->readNs();
            bIn->nt = o->ifc->readNt();
            bIn->inc = o->ifc->readInc();
@@ -408,9 +375,9 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
            out->writeNs(bOut->ns);
            out->writeInc(bOut->inc);
 
-           piol->comm->offset(0U);
+           piol->comm->offset(0LU);
            out->writeTrace(size_t(0), size_t(0), nullptr, nullptr);
-           piol->comm->sum(0U);
+           piol->comm->sum(0LU);
         }
     }
 
@@ -435,7 +402,7 @@ FuncLst::iterator Set::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterato
     if ((*fCurr)->opt.check(FuncOpt::NeedMeta))
     {
         if (!(*fCurr)->opt.check(FuncOpt::NeedTrcVal))
-            block= cache.cachePrm((*fCurr)->rule, fQue);
+            block = cache.cachePrm((*fCurr)->rule, fQue);
         else
         {
             std::cerr << "Not implemented yet\n";
@@ -455,6 +422,8 @@ FuncLst::iterator Set::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterato
         j += f->olst.size();
     }
 
+    std::cout << "Done\n";
+
     if (++fCurr != fEnd)
         if ((*fCurr)->opt.check(FuncOpt::SubSetOnly))
             return calcFuncS(fCurr, fEnd, fQue);
@@ -468,7 +437,7 @@ FuncLst::iterator Set::startSubset(FuncLst::iterator fCurr, const FuncLst::itera
     for (auto & o : fmap)                        //TODO: Parallelisable
         flist.push_back(calcFuncS(fCurr, fEnd, o.second));     //Iterate across the full function list
 
-    std::equal(flist.begin() + 1U, flist.end(), flist.begin());
+    assert(std::equal(flist.begin() + 1LU, flist.end(), flist.begin()));
 
     return flist.front();
 }
@@ -538,7 +507,7 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
     for (size_t i = 0 ; i < 4; i++)
         minmax[i].num = std::numeric_limits<size_t>::max();
 
-    CoordElem tminmax[4U];
+    CoordElem tminmax[4LU];
 
     for (auto & f : file)
     {
@@ -549,16 +518,16 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
 
         for (size_t i = 0; i < f->ilst.size(); i++)
         {
-            vprm.emplace_back(rule, 1U);
+            vprm.emplace_back(rule, 1LU);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
 #warning Minmax can't assume ordered data! Fix this!
         size_t offset = piol->comm->offset(f->ilst.size());
         File::getMinMax(piol.get(), offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
-        for (size_t i = 0U; i < 2U; i++)
+        for (size_t i = 0LU; i < 2LU; i++)
         {
-            updateElem<std::less<geom_t>>(&tminmax[2U*i], &minmax[2U*i]);
-            updateElem<std::greater<geom_t>>(&tminmax[2U*i+1U], &minmax[2U*i+1U]);
+            updateElem<std::less<geom_t>>(&tminmax[2LU*i], &minmax[2LU*i]);
+            updateElem<std::greater<geom_t>>(&tminmax[2LU*i+1LU], &minmax[2LU*i+1LU]);
         }
     }
 }
@@ -568,9 +537,13 @@ void Set::sort(Compare<File::Param> sortFunc)
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
     rule->addRule(Meta::il);
     rule->addRule(Meta::xl);
+    rule->addRule(Meta::xSrc);
+    rule->addRule(Meta::ySrc);
+    rule->addRule(Meta::xRcv);
+    rule->addRule(Meta::yRcv);
     func.push_back(std::make_shared<Op<InPlaceMod>>(opt, rule, nullptr, [this, sortFunc] (TraceBlock * in) -> std::vector<size_t>
     {
-        if (piol->comm->min(in->prm->size()) < 3U) //TODO: It will eventually be necessary to support this use case.
+        if (piol->comm->min(in->prm->size()) < 3LU) //TODO: It will eventually be necessary to support this use case.
         {
             piol->log->record("", Log::Layer::Set, Log::Status::Error,
                 "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
@@ -591,7 +564,7 @@ void Set::toAngle(std::string vmName)
     {
         csize_t iGSz = in->prm->size();
         out->ns = in->ns;
-        out->inc = M_PI / geom_t(180U);   //1 degree in radians
+        out->inc = M_PI / geom_t(180LU);   //1 degree in radians
         out->trc.resize(state->oGSz * out->ns);
         out->prm.reset(new File::Param(in->prm->r, state->oGSz));
         if (!in->prm->size())
@@ -650,8 +623,8 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
     bool m1Add = rule->addRule(m1);
     bool m2Add = rule->addRule(m2);
 
-    Set::getMinMax([m1](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m1, &a); },
-                   [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0U, m2, &a); }, minmax);
+    Set::getMinMax([m1](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0LU, m1, &a); },
+                   [m2](const File::Param & a) -> geom_t { return File::getPrm<geom_t>(0LU, m2, &a); }, minmax);
 
     if (m1Add)
         rule->rmRule(m1);
