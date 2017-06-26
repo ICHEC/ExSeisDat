@@ -9,7 +9,14 @@
 #include "ops/gather.hh"
 #include "file/dynsegymd.hh"
 namespace PIOL { namespace File {
-//TODO: This can be generalised
+/*! Find the inline/crossline for each il/xl gather and the number of traces per gather
+ *  based on the parameters provided and assuming this is collectively called.
+ * \param[in] piol The piol object.
+ * \param[in] prm The parameter structure.
+ * \return Return an 'array' of tuples. Each tuple corresponds to each gather. Tuple elements:
+ *         1) Number of traces in the gather, 2) inline, 3) crossline.
+ * \todo TODO: This can be generalised
+ */
 Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
 {
     size_t rank = piol->comm->getRank();
@@ -46,7 +53,7 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
     for (size_t i = 0; i < lSz; i++)
         line.set(i + offset, lline[i]);
 
-#warning TODO: Check if a gather extends over three processes
+//TODO: Check if a gather extends over three processes and compensate accordingly
 
     piol->comm->barrier();
     return line;

@@ -16,8 +16,8 @@
 #include "ops/sort.hh"
 #include "ops/agc.hh"
 
-#warning temp
-#include "file/filesegy.hh"
+//#warning temp
+//#include "file/filesegy.hh"
 namespace PIOL {
 typedef std::function<void(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that modify traces and associated parameters
 typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< Typedef for functions that modify traces and associated parameters
@@ -128,10 +128,10 @@ class Set
     std::map<std::pair<size_t, geom_t>, FileDeque> fmap;        //!< A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, size_t> offmap;         //!< A map of (ns, inc) key to the current offset
     std::shared_ptr<File::Rule> rule;                           //!< Contains a pointer to the Rules for parameters
-    Cache cache;
-    FuncLst func;
-    size_t rank;
-    size_t numRank;
+    Cache cache;                                                //!< The cache of parameters and traces
+    FuncLst func;                                               //!< The list of functions and related data
+    size_t rank;                                                //!< The rank of the particular process
+    size_t numRank;                                             //!< The number of ranks
 
     /*! Fill the file descriptors using the given pattern
      *  \param[in] piol The PIOL object.
@@ -150,6 +150,11 @@ class Set
     Set(Piol piol_, std::string pattern, std::string outfix_,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
 
+    /*! Constructor
+     *  \param[in] piol_ The PIOL object.
+     *  \param[in] pattern The file-matching pattern
+     *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
+     */
     Set(Piol piol_, std::string pattern,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy})) :
         Set(piol_, pattern, "", rule_)
@@ -171,17 +176,21 @@ class Set
     ~Set(void);
 
     /*! Sort the set using the given comparison function
-     *  \param[in] func The comparison function
+     *  \param[in] sortFunc The comparison function
      */
     void sort(Compare<File::Param> sortFunc);
+
+    /*! Sort the set using the given comparison function
+     *  \param[in] r The rules necessary for the sort.
+     *  \param[in] sortFunc The comparison function.
+     */
+    void sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc);
 
     /*! Output using the given output prefix
      *  \param[in] oname The output prefix
      *  \return Return a vector of the actual output names.
      */
     std::vector<std::string> output(std::string oname);
-
-//    std::string output(FileDeque & fQue);
 
     /*! Find the min and max of two given parameters (e.g x and y source coordinates) and return
      *  the associated values and trace numbers in the given structure
@@ -234,14 +243,56 @@ class Set
      */
     void add(std::string name);
 
+    /*! Start unwinding the function list for subset-only operations based on the given iterators.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return the final iterator reached by the last deque.
+     */
+
     FuncLst::iterator startSubset(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+
+    /*! Start unwinding the function list for gather operations on the given iterators.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return a file name if fEnd is reached. Otherwise return "".
+     */
     std::string startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+
+    /*! Start unwinding the function list for single-trace operations on the given iterators.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return a list of all file names. Files are currently always created.
+     */
     std::vector<std::string> startSingle(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
+    /*! The entry point for unwinding the function list for all use-cases.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return a list of all file names.
+     */
     std::vector<std::string> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
-    std::unique_ptr<TraceBlock> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, const std::unique_ptr<TraceBlock> bIn);
-    FuncLst::iterator calcFuncS(const FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
 
+    /*! The entry point for unwinding the function list for single-traces and gathers only.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \param[in] type The type of function currently being processed. Either single trace or gather.
+     *  \return Return a traceblock which contains the output from the operation.
+     *
+     *  \description Transitions from gather to single trace are allowed but not the inverse.
+     */
+    std::unique_ptr<TraceBlock> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, const std::unique_ptr<TraceBlock> bIn);
+
+    /*! The entry point for unwinding the function list for subsets.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \param[in] fQue A deque of unique pointers to file descriptors.
+     *  \return Return the final iterator reached.
+     */
+    FuncLst::iterator calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
+
+    /*! Perform the radon to angle conversion. This assumes the input set is a radon transform file.
+     *  \param[in] vmName The name of the velocity model file.
+     */
     void toAngle(std::string vmName);
 
     /************************************* Non-Core *****************************************************/

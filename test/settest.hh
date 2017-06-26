@@ -7,6 +7,7 @@
 #include "flow/set.hh"
 #undef private
 #undef protected
+#include "file/filesegy.hh"
 #include "cppfileapi.hh"
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
@@ -131,7 +132,6 @@ struct SetTest : public Test
                     set->add(std::move(mock));
                 }
     }
-
 
     void init(size_t numFile, size_t nt, size_t inactive)
     {

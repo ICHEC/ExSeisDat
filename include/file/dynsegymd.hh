@@ -373,8 +373,15 @@ struct Rule
 
     /*! Add a pre-defined rule.
      *  \param[in] m The Meta entry.
+     *  \return Return true if the rule was added, otherwise false
      */
     bool addRule(Meta m);
+
+    /*! Add all rules from the given argument
+     *  \param[in] r Another rule pointer.
+     *  \return Return true if no errors
+     */
+    bool addRule(Rule * r);
 
     /*! Add a rule for longs.
      *  \param[in] m The Meta entry.
@@ -399,6 +406,8 @@ struct Rule
      *  \param[in] m The Meta entry.
      */
     void addIndex(Meta m);
+
+    void addCopy(void);
 
     /*! Remove a rule based on the meta entry.
      *  \param[in] m The meta entry.

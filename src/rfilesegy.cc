@@ -144,7 +144,7 @@ void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T o
 
         extractParam(sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0LU), skip);
         for (size_t i = 0; i < sz; i++)
-            setPrm(i, Meta::ltn, offunc(i), prm);
+            setPrm(i+skip, Meta::ltn, offunc(i), prm);
     }
 
     if (trc != TRACE_NULL && trc != nullptr)

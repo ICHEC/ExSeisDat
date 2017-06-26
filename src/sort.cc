@@ -450,6 +450,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
         err(MPI_Isend(sprm.i.data(), sprm.i.size() * sizeof(llint),  MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rsnd[1]), msg, 2);
         err(MPI_Isend(sprm.s.data(), sprm.s.size() * sizeof(short),  MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rsnd[2]), msg, 3);
         err(MPI_Isend(sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rsnd[3]), msg, 4);
+  //      err(MPI_Isend(sprm.c.data(), sprm.c.size() * sizeof(char), MPI_CHAR, rank-1, 1, MPI_COMM_WORLD, &rsnd[4]), msg, 5);
     }
     if (rank != piol->comm->getNumRank()-1)
     {
@@ -458,6 +459,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
         err(MPI_Irecv(rprm.i.data(), rprm.i.size() * sizeof(llint),  MPI_CHAR, rank+1, 1, MPI_COMM_WORLD, &rrcv[1]), msg, 2);
         err(MPI_Irecv(rprm.s.data(), rprm.s.size() * sizeof(short),  MPI_CHAR, rank+1, 1, MPI_COMM_WORLD, &rrcv[2]), msg, 3);
         err(MPI_Irecv(rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank+1, 1, MPI_COMM_WORLD, &rrcv[3]), msg, 4);
+//        err(MPI_Irecv(rprm.c.data(), rprm.c.size() * sizeof(char), MPI_CHAR, rank+1, 1, MPI_COMM_WORLD, &rrcv[4]), msg, 5);
     }
 
     Wait(piol, rrcv, rsnd);
@@ -471,7 +473,7 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
  *  \param[in] piol The piol handle
  *  \param[in] sz The local size
  *  \return The associated offset
- */
+ *//*
 static size_t offcalc(ExSeisPIOL * piol, size_t sz)
 {
     size_t rank = piol->comm->getRank();
@@ -481,7 +483,7 @@ static size_t offcalc(ExSeisPIOL * piol, size_t sz)
     for (size_t i = 0LU; i < rank; i++)
         szall[rank] += szall[i];
     return szall[rank];
-}
+}*/
 
 /*! Function to sort a given vector by a nearest neighbour approach.
  *  \tparam T Type of vector
@@ -550,7 +552,8 @@ std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
     csize_t lnt = list.size();
     csize_t regionSz = piol->comm->min(lnt) / 4LU;
     csize_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0LU);
-    csize_t offset = offcalc(piol, lnt);
+    //csize_t offset = offcalc(piol, lnt);
+    csize_t offset = piol->comm->offset(lnt);
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)

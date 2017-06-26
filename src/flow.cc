@@ -7,11 +7,14 @@
  *   \details
  *//*******************************************************************************************/
 #include <glob.h>
-#include "global.hh"
+#include <assert.h>
 #include <regex>
 #include <numeric>
 #include <map>
 #include <tuple>
+//TODO: remove this when all errors are addressed
+#include <iostream>
+#include "global.hh"
 #include "share/misc.hh"    //For getSort..
 #include "flow/set.hh"
 #include "data/datampiio.hh"
@@ -24,10 +27,6 @@
 #include "ops/agc.hh"
 #include "ops/taper.hh"
 #include "share/uniray.hh"
-
-#warning
-#include <iostream>
-#include <assert.h>
 
 namespace PIOL {
 
@@ -158,11 +157,10 @@ std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst
 {
     if (fCurr == fEnd || !(*fCurr)->opt.check(type))
         return std::move(bIn);
-
     switch (type)
     {
         case FuncOpt::Gather :
-            if (type == FuncOpt::Gather && (*fCurr)->opt.check(FuncOpt::Gather))
+            if ((*fCurr)->opt.check(FuncOpt::Gather))
             {
                 auto bOut = std::make_unique<TraceBlock>();
                 dynamic_cast<Op<Mod> *>(fCurr->get())->func(bIn.get(), bOut.get());
@@ -170,11 +168,12 @@ std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst
             }
             ++fCurr;
         case FuncOpt::SingleTrace :
-            type = FuncOpt::SingleTrace;
             if ((*fCurr)->opt.check(FuncOpt::SingleTrace))
+            {
+                type = FuncOpt::SingleTrace;
                 dynamic_cast<Op<InPlaceMod> *>(fCurr->get())->func(bIn.get());
-        default :
-        break;
+            }
+        default : break;
     }
     return calcFunc(++fCurr, fEnd, type, std::move(bIn));
 }
@@ -221,6 +220,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
             {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
                 std::vector<trace_t> trc(rblock * ns);
+//TODO: Rule should be made of rules stored in function list
                 File::Param prm(rule, rblock);
 
                 in->readTrace(rblock, f->ilst.data() + i, trc.data(), &prm);
@@ -230,11 +230,11 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 bIn->prm.reset(new File::Param(rule, rblock));
                 bIn->trc.resize(rblock * ns);
                 bIn->ns = ns;
+                bIn->inc = inc;
 
                 for (size_t j = 0LU; j < rblock; j++)
                 {
                     cpyPrm(sortlist[j], &prm, j, bIn->prm.get());
-
                     for (size_t k = 0LU; k < ns; k++)
                         bIn->trc[j*ns + k] = trc[sortlist[j]*ns + k];
                     sortlist[j] = f->olst[i+sortlist[j]];
@@ -252,7 +252,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 bIn->prm.reset(new File::Param(rule, 0LU));
                 bIn->trc.resize(0LU);
                 bIn->ns = f->ifc->readNs();
-                bIn->nt = f->ifc->readNt();
+                bIn->nt = 0LU;
                 bIn->inc = f->ifc->readInc();
 
                 calcFunc(fCurr, fEnd, FuncOpt::Gather, std::move(bIn));
@@ -267,18 +267,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
 {
     if (file.size() > 1LU)
     {
-/*        std::vector<std::string> names;
-        std::string tOutfix = outfix;
-        outfix = "temp";
-        for (auto & o : fmap)
-            names.push_back(output(o.second));
-        outfix = tOutfix;
-        drop();
-        for (std::string n : names)
-            add(n);     //TODO: Open with delete on close?
-*/
-
-        OpOpt opt = {FuncOpt::NeedAll, FuncOpt::SingleTrace};
+        OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
         FuncLst tFunc;
         tFunc.push_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock * in) -> std::vector<size_t>
         {
@@ -315,7 +304,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
         }
 
         //TODO: Loop and add rules
-        #warning need better rule handling, create rule of all rules in gather functions
+        //TODO: need better rule handling, create rule of all rules in gather functions
         auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
 
         auto fTemp = fCurr;
@@ -355,7 +344,8 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
             out->writeNs(bOut->ns);
             out->writeInc(bOut->inc);
 
-            out->writeTrace(wOffset + woff, bOut->prm->size(), (bOut->prm->size() ? bOut->trc.data() : nullptr), bOut->prm.get());
+            out->writeTrace(wOffset + woff, bOut->prm->size(),
+                           (bOut->prm->size() ? bOut->trc.data() : nullptr), bOut->prm.get());
             wOffset += piol->comm->sum(bOut->prm->size());
         }
         for (size_t i = 0; i < extra; i++)
@@ -404,10 +394,7 @@ FuncLst::iterator Set::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterato
         if (!(*fCurr)->opt.check(FuncOpt::NeedTrcVal))
             block = cache.cachePrm((*fCurr)->rule, fQue);
         else
-        {
-            std::cerr << "Not implemented yet\n";
-#warning Both traces and gathers are problematic
-        }
+            std::cerr << "Not implemented both trace + parameters yet\n";
     }
     else if ((*fCurr)->opt.check(FuncOpt::NeedTrcVal))
         block = cache.cacheTrc(fQue);
@@ -421,8 +408,6 @@ FuncLst::iterator Set::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterato
         std::copy(&trlist[j], &trlist[j + f->olst.size()], f->olst.begin());
         j += f->olst.size();
     }
-
-    std::cout << "Done\n";
 
     if (++fCurr != fEnd)
         if ((*fCurr)->opt.check(FuncOpt::SubSetOnly))
@@ -477,7 +462,7 @@ std::vector<std::string> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::i
 
 std::vector<std::string> Set::output(std::string oname)
 {
-    OpOpt opt = {FuncOpt::NeedAll, FuncOpt::SingleTrace};
+    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
     func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock * in) -> std::vector<size_t>
     {
         return std::vector<size_t>{};
@@ -486,14 +471,6 @@ std::vector<std::string> Set::output(std::string oname)
     outfix = oname;
     std::vector<std::string> out = calcFunc(func.begin(), func.end());
     func.clear();
-
-/*    if (!out.size())
-    {
-        std::vector<std::string> names;
-        for (auto & o : fmap)
-            names.push_back(output(o.second));
-        return names;
-    }*/
 
     return out;
 }
@@ -521,7 +498,7 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
             vprm.emplace_back(rule, 1LU);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
-#warning Minmax can't assume ordered data! Fix this!
+//TODO: Minmax can't assume ordered data! Fix this!
         size_t offset = piol->comm->offset(f->ilst.size());
         File::getMinMax(piol.get(), offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
         for (size_t i = 0LU; i < 2LU; i++)
@@ -534,14 +511,33 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
 
 void Set::sort(Compare<File::Param> sortFunc)
 {
+    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy, Meta::il, Meta::xl, Meta::xSrc,
+                                                                         Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::xCmp,
+                                                                         Meta::yCmp, Meta::Offset, Meta::WtrDepRcv, Meta::tn});
+
+    //TODO: This is not the ideal mechanism, hack for now. See the note in the calcFunc for single traces
+    rule->addRule(r.get());
+    sort(r, sortFunc);
+}
+
+void Set::sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc)
+{
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
-    rule->addRule(Meta::il);
+
+/*    rule->addRule(Meta::il);
     rule->addRule(Meta::xl);
     rule->addRule(Meta::xSrc);
     rule->addRule(Meta::ySrc);
     rule->addRule(Meta::xRcv);
     rule->addRule(Meta::yRcv);
-    func.push_back(std::make_shared<Op<InPlaceMod>>(opt, rule, nullptr, [this, sortFunc] (TraceBlock * in) -> std::vector<size_t>
+    rule->addRule(Meta::xCmp);
+    rule->addRule(Meta::yCmp);
+
+//    rule->addRule(Meta::Offset);
+//    rule->addRule(Meta::WtrDepRcv);
+    rule->addRule(Meta::tn);*/
+
+    func.push_back(std::make_shared<Op<InPlaceMod>>(opt, r, nullptr, [this, sortFunc] (TraceBlock * in) -> std::vector<size_t>
     {
         if (piol->comm->min(in->prm->size()) < 3LU) //TODO: It will eventually be necessary to support this use case.
         {
@@ -558,7 +554,7 @@ void Set::sort(Compare<File::Param> sortFunc)
 
 void Set::toAngle(std::string vmName)
 {
-    OpOpt opt = {FuncOpt::NeedAll, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
+    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
     auto state = std::make_shared<RadonState>(piol);
     func.emplace_back(std::make_shared<Op<Mod>>(opt, rule, state, [state] (const TraceBlock * in, TraceBlock * out)
     {
@@ -587,7 +583,6 @@ void Set::toAngle(std::string vmName)
             File::setPrm(j, Meta::il, state->il[in->gNum], out->prm.get());
             File::setPrm(j, Meta::xl, state->xl[in->gNum], out->prm.get());
         }
-
     }));
 }
 

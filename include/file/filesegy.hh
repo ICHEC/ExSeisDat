@@ -14,26 +14,36 @@
 #include "file/segymd.hh"
 #include "file/dynsegymd.hh"
 #include "object/object.hh" //For the makes
-
 namespace PIOL { namespace File {
 enum class Format : int16_t;    //!< Data Format options
 
+/*! A template function to create a read-only file object with default object & data layer settings
+ * \tparam T The type of the file layer
+ * \param[in] piol The piol shared object
+ * \param[in] name The name of the file
+ * \return Return a pointer of the respective file type.
+ */
 template <class T>
-std::unique_ptr<T> makeReadSEGYFile(Piol piol, std::string name)
+std::unique_ptr<T> makeReadSEGYFile(Piol piol, const std::string name)
 {
     auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
     auto file = std::make_unique<T>(piol, name, obj);
     return std::move(file);
 }
 
+/*! A template function to create a write-only file object with default object & data layer settings
+ * \tparam T The type of the file layer
+ * \param[in] piol The piol shared object
+ * \param[in] name The name of the file
+ * \return Return a pointer of the respective file type.
+ */
 template <class T>
-std::unique_ptr<T> makeWriteSEGYFile(Piol piol, std::string name)
+std::unique_ptr<T> makeWriteSEGYFile(Piol piol, const std::string name)
 {
     auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
     auto file = std::make_unique<T>(piol, name, obj);
     return std::move(file);
 }
-
 
 /*! The SEG-Y implementation of the file layer
  */
@@ -54,7 +64,6 @@ class ReadSEGY : public ReadInterface
 
     private :
     Format format;              //<! Type formats
-
     unit_t incFactor;           //!< The increment factor
 
     /*! \brief Read the text and binary header and store the metadata variables in this SEGY object.
@@ -93,9 +102,16 @@ class ReadSEGY : public ReadInterface
     void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
 };
 
+/*! A SEGY class for velocity models
+ */
 class ReadSEGYModel : public Model3dInterface, public ReadSEGY
 {
     public :
+    /*!
+     \param[in] piol_ The piol object.
+     \param[in] name The name of the file.
+     \param[in] obj_ A shared pointer for the object layer object.
+     */
     ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
     std::vector<trace_t> readModel(size_t gOffset, size_t numGather, const Uniray<size_t, llint, llint> & gather);
     std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather);

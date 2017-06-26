@@ -12,7 +12,6 @@
 #include "global.hh"
 #include "share/param.hh"
 #include "share/uniray.hh"
-
 namespace PIOL { namespace File {
 extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
 extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
@@ -223,15 +222,29 @@ class WriteInterface : public Interface
     virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
 };
 
+/*! \brief An intitial class for 3d volumes
+ */
 class Model3dInterface
 {
     public :
-    //Start, number, increment
-    std::tuple<llint, llint, llint> il;  //!< Parameters for the inline coordinate
-    std::tuple<llint, llint, llint> xl;  //!< Parameters for the crossline coordinate
-    virtual std::vector<trace_t> readModel(size_t gOffset, size_t numGather, const Uniray<size_t, llint, llint> & gather) = 0;
-    virtual std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
+    std::tuple<llint, llint, llint> il;  //!< Parameters for the inline coordinate (start, count, increment)
+    std::tuple<llint, llint, llint> xl;  //!< Parameters for the crossline coordinate (start, count, increment)
 
+    /*! Read the 3d file based on il and xl that match those in the given \c gather array.
+     *  \param[in] gOffset The offset into the gathers
+     *  \param[in] numGather The number of gathers for the local process
+     *  \param[in] gather A structure which contains the il and xl coordinates of interest
+     *  \return Return a vector of traces containing the trace values requested
+     */
+    virtual std::vector<trace_t> readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather) = 0;
+
+    /*! Read the 3d file based on il and xl that match those in the given \c gather array.
+     *  \param[in] sz The number of offsets for the local process
+     *  \param[in] offset An array of local offsets
+     *  \param[in] gather A structure which contains the il and xl coordinates of interest
+     *  \return Return a vector of traces containing the trace values requested
+     */
+    virtual std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
 };
 }}
 #endif
