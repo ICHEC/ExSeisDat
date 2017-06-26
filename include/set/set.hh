@@ -136,6 +136,35 @@ class InternalSet
     void agc(std::function<trace_t(trace_t * trc, size_t strt, size_t window, trace_t normR, size_t winCntr)> func,
              size_t window, trace_t normR);
 
+    /*! Adds the trace filting functionality to modify function
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] corners Passband and stopband frequency in Hz
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t nw , size_t winCntr);
+
+   /*! Adds the trace filting functionality to modify function
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] corners Passband frequency in Hz
+     * \param[in] N Filter order
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t N, size_t nw, size_t winCntr);
+
+   /*! Adds the trace filting functionality to modify function
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] corners Passband frequency in Hz
+     * \param[in] N Filter order
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void bandpass(FltrType type, FltrDmn domain, trace_t corners, size_t N, size_t nw, size_t winCntr);
+
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message
      */
