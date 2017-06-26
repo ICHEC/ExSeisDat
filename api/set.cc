@@ -41,4 +41,16 @@ void Set::agc(AGCType type, size_t window, trace_t normR)
 {
     InternalSet::agc(File::agcFunc(type), window,  normR);
 }
+void Set::bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t nw, size_t winCntr)
+{
+    InternalSet::bandpass(type, domain, corners, nw, winCntr);
+}
+void Set::bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t N, size_t nw, size_t winCntr)
+{
+    InternalSet::bandpass(type, domain, corners, N, nw, winCntr);
+}
+void Set::bandpass(FltrType type, FltrDmn domain, trace_t corners, size_t N, size_t nw, size_t winCntr)
+{
+    InternalSet::bandpass(type, domain, corners, N, nw, winCntr);
+}
 }

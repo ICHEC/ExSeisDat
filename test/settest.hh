@@ -216,4 +216,25 @@ struct SetTest : public Test
            }
     }
 };
+void bandpassTest(size_t nt, size_t ns, FltrTyp type, FltrDomain domain, trace_t cutoff, size_t window, size_t winCntr, trace_t * manFilter)
+    {
+        if (set.get() != nullptr)
+            set.release();
+        set = std::make_unique<Set>(piol);
+        std::vector<trace_t> trc(nt*ns);
+        std::vector<trace_t> trcMan(nt*ns);
+        File::Param p(nt);
 
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+            {
+                trc[i*ns + j] = std::cos(12*2*PI*j/20)+std::cos(6*2*PI*j/20)
+            }
+       set->bandpass(type,domain,cutoff, window, winCntr);
+       set->modify(ns, &p, trc.data());
+       for (size_t i =0; i<nt; i++)
+            for (size_t j = 0; j<ns; j++)
+            {
+                EXPECT_FLOAT_EQ(trc[i*ns+j], manFilter);
+            }
+};
