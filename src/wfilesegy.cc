@@ -147,6 +147,16 @@ void WriteSEGY::writeInc(const geom_t inc_)
     }
 }
 
+/*! Template function for writing SEG-Y traces and parameters, random and contiguous.
+ *  \tparam T The type of offset (pointer or size_t)
+ *  \param[in] obj The object-layer object.
+ *  \param[in] ns The number of samples per trace.
+ *  \param[in] offset The offset(s). If T == size_t * this is an array, otherwise its a single offset.
+ *  \param[in] sz The number of traces to write
+ *  \param[in] trc Pointer to trace array.
+ *  \param[in] prm Pointer to parameter structure.
+ *  \param[in] skip Skip \c skip entries in the parameter structure
+ */
 template <typename T>
 void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t * trc, const Param * prm, csize_t skip)
 {

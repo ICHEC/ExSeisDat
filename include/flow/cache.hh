@@ -77,7 +77,7 @@ class Cache
 
     /*! Get a given cache of parameters or traces. Perform I/O and cache the result if not already done so.
      *  \param[in] rule The rule to use for the parameters.
-     *  \param[in] desc_ A deque of unique pointers to file descriptors.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      *  \param[in] cPrm if True, get the parameters.
      *  \param[in] cTrc if True, get the traces.
      *  \return Return a block with the traces and/or parameters.
@@ -86,7 +86,7 @@ class Cache
 
     /*! Get a given cache of parameters. Perform I/O and cache the result if not already done so.
      *  \param[in] rule The rule to use for the parameters.
-     *  \param[in] desc_ A deque of unique pointers to file descriptors.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      *  \return Return a block with the parameters.
      */
     std::shared_ptr<TraceBlock> cachePrm(std::shared_ptr<File::Rule> rule, FileDeque & desc)
@@ -95,6 +95,7 @@ class Cache
     }
 
     /*! Get a given cache of traces. Perform I/O and cache the result if not already done so.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      *  \return Return a block with the traces.
      */
     std::shared_ptr<TraceBlock> cacheTrc(FileDeque & desc)
@@ -103,7 +104,7 @@ class Cache
     }
 
     /*! Check if any of elements have cached parameters
-     *  \param[in] desc_ A deque of unique pointers to file descriptors.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      *  \return Return true if the parameters are cached.
      */
     bool checkPrm(FileDeque & desc)
@@ -113,7 +114,7 @@ class Cache
     }
 
     /*! Check if any of elements have cached traces
-     *  \param[in] desc_ A deque of unique pointers to file descriptors.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      *  \return Return true if the traces are cached.
      */
     bool checkTrc(FileDeque & desc)
@@ -123,7 +124,7 @@ class Cache
     }
 
     /*! Erase the cache corresponding to the descriptor
-     *  \param[in] desc_ A deque of unique pointers to file descriptors.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      */
     void flush(FileDeque & desc)
     {
@@ -132,7 +133,7 @@ class Cache
     }
 
     /*! Get a subset of parameters from a cache.
-     *  \param[in] desc_ A deque of unique pointers to file descriptors.
+     *  \param[in] desc A deque of unique pointers to file descriptors.
      *  \param[in] offset The offset in the file subset.
      *  \param[in] sz The number of traces from the file subset.
      *  \param[out] prm The parameter structure to fill.

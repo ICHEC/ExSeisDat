@@ -34,9 +34,6 @@ int main(int argc, char ** argv)
 
     assert(name1.size());
 
-    size_t rank = piol.getRank();
-    size_t numRank = piol.getNumRank();
-
     File::ReadDirect src(piol, name1);
 
     //Perform the decomposition and read coordinates of interest.

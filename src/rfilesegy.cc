@@ -119,6 +119,18 @@ size_t ReadSEGY::readNt(void)
     return nt;
 }
 
+/*! Template function for reading SEG-Y traces and parameters, random and contiguous.
+ *  \tparam T The type of offset (pointer or size_t)
+ *  \param[in] obj The object-layer object.
+ *  \param[in] format The format of the trace data.
+ *  \param[in] ns The number of samples per trace.
+ *  \param[in] offset The offset(s). If T == size_t * this is an array, otherwise its a single offset.
+ *  \param[in] offunc A function which given the ith trace of the local process, returns the associated trace offset.
+ *  \param[in] sz The number of traces to read
+ *  \param[in] trc Pointer to trace array.
+ *  \param[in] prm Pointer to parameter structure.
+ *  \param[in] skip Skip \c skip entries in the parameter structure
+ */
 template <typename T>
 void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T offset, std::function<size_t(size_t)> offunc,
                                       csize_t sz, trace_t * trc, Param * prm, csize_t skip)

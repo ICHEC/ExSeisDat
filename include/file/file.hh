@@ -39,6 +39,11 @@ class Interface
     std::string text;                     //!< Human readable text extracted from the file
     geom_t inc;                           //!< The increment between samples in a trace
 
+    /*! \brief The constructor.
+     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name_ The name of the file associated with the instantiation.
+     *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
+     */
     Interface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
     {
     }
@@ -58,6 +63,7 @@ class Interface
 class ReadInterface : public Interface
 {
     public :
+
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
@@ -242,11 +248,11 @@ class Model3dInterface
     std::tuple<llint, llint, llint> il;  //!< Parameters for the inline coordinate (start, count, increment)
     std::tuple<llint, llint, llint> xl;  //!< Parameters for the crossline coordinate (start, count, increment)
 
-    /*! Read the 3d file based on il and xl that match those in the given \c gather array.
-     *  \param[in] gOffset The offset into the gathers
-     *  \param[in] numGather The number of gathers for the local process
-     *  \param[in] gather A structure which contains the il and xl coordinates of interest
-     *  \return Return a vector of traces containing the trace values requested
+    /*! read the 3d file based on il and xl that match those in the given \c gather array.
+     *  \param[in] gOffset the offset into the gathers
+     *  \param[in] numGather the number of gathers for the local process
+     *  \param[in] gather a structure which contains the il and xl coordinates of interest
+     *  \return return a vector of traces containing the trace values requested
      */
     virtual std::vector<trace_t> readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather) = 0;
 

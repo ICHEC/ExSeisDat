@@ -36,6 +36,7 @@ Rule::Rule(RuleMap translate_, bool full)
             break;
             case MdType::Index :
             numIndex++;
+            break;
             case MdType::Copy :
             numCopy++;
             break;

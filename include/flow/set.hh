@@ -10,6 +10,8 @@
 #include <functional>
 #include <list>
 #include <map>
+#include "global.hh"
+#include "share/units.hh"
 #include "flow/share.hh"
 #include "flow/cache.hh"
 #include "ops/minmax.hh"
@@ -21,6 +23,48 @@
 namespace PIOL {
 typedef std::function<void(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that have separate input and output of traces/parameters
 typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< Typedef for functions that have the same input and output of traces/parameters
+
+/*! A parent class to allow gather operations to maintain a state.
+ */
+struct gState
+{
+    /*! A virtual function which can be overridden to create the gather-operation state.
+     *  \param[in] offset A list of gather-numbers to be processed by the local process.
+     *  \param[in] gather The global array of gathers.
+     */
+    virtual void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather) = 0;
+};
+
+/*! The radon state structure.
+ */
+struct RadonState : public gState
+{
+    Piol piol;                  //!< The piol object.
+    std::string vmname;         //!< The name of the Velocity Model (VM) file.
+    std::vector<trace_t> vtrc;  //!< Trace data read from the VM file.
+    std::vector<llint> il;      //!< A list of inlines corresponding to the VM data read.
+    std::vector<llint> xl;      //!< A list of crosslines corresponding to the VM data read.
+
+    size_t vNs;                 //!< The number of samples per trace for the VM.
+    size_t vBin;                //!< The binning factor to be used.
+    size_t oGSz;                //!< The number of traces per gather in the angle output.
+    geom_t vInc;                //!< The increment between samples in the VM file.
+    geom_t oInc;                //!< The increment between samples in the output file (radians).
+    /*! Constructor for the radon state.
+     * \param[in] piol_ The piol object.
+     * \param[in] vmname_ The VM file.
+     * \param[in] vBin_ The velocity model bin parameter
+     * \param[in] oGSz_  The number of traces in the angle output.
+     * \param[in] oInc_ The number of increments.
+     */
+    RadonState(Piol piol_, std::string vmname_, csize_t vBin_, csize_t oGSz_, const geom_t oInc_)
+                          : piol(piol_), vmname(vmname_), vNs(0U), vBin(vBin_), oGSz(oGSz_), vInc(geom_t(0)), oInc(oInc_) {}
+
+    void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather);
+};
+
+/*! Enum class for the various function options.
+ */
 enum class FuncOpt : size_t
 {
 //Data type dependencies
@@ -69,6 +113,7 @@ class OpOpt
 
     /*! Check if an option is present in the list.
      *  \param[in] opt The function option.
+     *  \return Return true if the option is present in the list.
      */
     bool check(FuncOpt opt)
     {
@@ -86,65 +131,45 @@ class OpOpt
 
 };
 
-/*! A parent class to allow gather operations to maintain a state.
+/*! Operations parents. Specific classes of operations inherit from this parent
  */
-struct gState
-{
-    /*! A virtual function which can be overridden to create the gather-operation state.
-     *  \param[in] offset A list of gather-numbers to be processed by the local process.
-     *  \param[in] gather The global array of gathers.
-     */
-    virtual void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather) { }
-};
-
-/*! The radon state structure.
- */
-struct RadonState : public gState
-{
-    Piol piol;                  //!< The piol object.
-    std::string vmname;         //!< The name of the Velocity Model (VM) file.
-    std::vector<trace_t> vtrc;  //!< Trace data read from the VM file.
-    std::vector<llint> il;      //!< A list of inlines corresponding to the VM data read.
-    std::vector<llint> xl;      //!< A list of crosslines corresponding to the VM data read.
-
-    size_t vNs;                 //!< The number of samples per trace for the VM.
-    size_t vBin;                //!< The binning factor to be used.
-    size_t oGSz;                //!< The number of traces per gather in the angle output.
-    geom_t vInc;                //!< The increment between samples in the VM file.
-    geom_t oInc;                //!< The increment between samples in the output file (radians).
-    /*! Constructor for the radon state.
-     * \param[in] piol_ The piol object.
-     * \param[in] vmname_ The VM file.
-     * \param[in] oGSz_  The number of traces in the angle output.
-     */
-    RadonState(Piol piol_, std::string vmname_, csize_t vBin_, csize_t oGSz_, const geom_t oInc_)
-                          : piol(piol_), vNs(0U), vBin(vBin_), oGSz(oGSz_), vInc(geom_t(0)), oInc(oInc_) {}
-
-    void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather);
-};
-
 struct OpParent
 {
-    OpOpt opt;
-    std::shared_ptr<File::Rule> rule;
-    std::shared_ptr<gState> state;
+    OpOpt opt;                          //!< Operation options.
+    std::shared_ptr<File::Rule> rule;   //!< Relevant parameter rules for the operation.
+    std::shared_ptr<gState> state;      //!< Gather state if applicable.
+
+    /*! Construct.
+     *  \param[in] opt_ Operation options.
+     *  \param[in] rule_ Rules parameter rules for the operation
+     *  \param[in] state_ Gather state object if applicable.
+     */
     OpParent(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_) : opt(opt_), rule(rule_), state(state_) { }
-    //OpParent(void) { }
+
+    /*! Virtual destructor for unique_ptr polymorphism.
+     */
     virtual ~OpParent(void) {}
 };
 
+/*! Template for creating a structure for a particular operation type.
+ */
 template <typename T>
 struct Op : public OpParent
 {
-    T func;
-    Op(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_, T func_) : OpParent(opt_, rule_, state_), func(func_)
-    {
+    T func;     //!< The particular std::function object for the operaton
 
-    }
+    /*! Construct.
+     *  \param[in] opt_ Operation options.
+     *  \param[in] rule_ Rules parameter rules for the operation
+     *  \param[in] state_ Gather state object if applicable.
+     *  \param[in] func_ The particular std::function implementation.
+     */
+    Op(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_, T func_) : OpParent(opt_, rule_, state_), func(func_)
+    { }
 };
 
 //If this was C++17 then a std::variant could be used
-typedef std::list<std::shared_ptr<OpParent>> FuncLst;
+typedef std::list<std::shared_ptr<OpParent>> FuncLst;           //!< The function list type for the set layer
 
 /*! The internal set class
  */
@@ -177,6 +202,53 @@ class Set
         fmap.clear();
         offmap.clear();
     }
+
+    /*! Start unwinding the function list for subset-only operations based on the given iterators.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return the final iterator reached by the last deque.
+     */
+    FuncLst::iterator startSubset(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+
+    /*! Start unwinding the function list for gather operations on the given iterators.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return a file name if fEnd is reached. Otherwise return "".
+     */
+    std::string startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+
+    /*! Start unwinding the function list for single-trace operations on the given iterators.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return a list of all file names. Files are currently always created.
+     */
+    std::vector<std::string> startSingle(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+
+    /*! The entry point for unwinding the function list for all use-cases.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \return Return a list of all file names.
+     */
+    std::vector<std::string> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+
+    /*! The entry point for unwinding the function list for single-traces and gathers only.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \param[in] type The type of function currently being processed. Either single trace or gather.
+     *  \param[in] bIn The input trace block which can contain traces and trace parameters.
+     *  \return Return a traceblock which contains the output from the operation.
+     *
+     *  Transitions from gather to single trace are allowed but not the inverse.
+     */
+    std::unique_ptr<TraceBlock> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, const std::unique_ptr<TraceBlock> bIn);
+
+    /*! The entry point for unwinding the function list for subsets.
+     *  \param[in] fCurr The iterator for the current function to process.
+     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  \param[in] fQue A deque of unique pointers to file descriptors.
+     *  \return Return the final iterator reached.
+     */
+    FuncLst::iterator calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
 
     public :
 
@@ -240,14 +312,14 @@ class Set
     void getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
-     * \param[in] func Weight function for the taper ramp
+     * \param[in] tapFunc Weight function for the taper ramp
      * \param[in] nTailLft Length of left tail of taper
      * \param[in] nTailRt Length of right tail of taper
      */
     void taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt = 0);
 
     /*! Function to add to modify function that applies automatic gain control to a set of traces
-     * \param[in] func Staistical function used to scale traces
+     * \param[in] agcFunc Staistical function used to scale traces
      * \param[in] window Length of the agc window
      * \param[in] normR Value to which traces are normalized
      */
@@ -275,60 +347,13 @@ class Set
      */
     void add(std::string name);
 
-    /*! Start unwinding the function list for subset-only operations based on the given iterators.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return the final iterator reached by the last deque.
-     */
-
-    FuncLst::iterator startSubset(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
-
-    /*! Start unwinding the function list for gather operations on the given iterators.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return a file name if fEnd is reached. Otherwise return "".
-     */
-    std::string startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
-
-    /*! Start unwinding the function list for single-trace operations on the given iterators.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return a list of all file names. Files are currently always created.
-     */
-    std::vector<std::string> startSingle(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
-
-    /*! The entry point for unwinding the function list for all use-cases.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return a list of all file names.
-     */
-    std::vector<std::string> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
-
-    /*! The entry point for unwinding the function list for single-traces and gathers only.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \param[in] type The type of function currently being processed. Either single trace or gather.
-     *  \return Return a traceblock which contains the output from the operation.
-     *
-     *  \description Transitions from gather to single trace are allowed but not the inverse.
-     */
-    std::unique_ptr<TraceBlock> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, const std::unique_ptr<TraceBlock> bIn);
-
-    /*! The entry point for unwinding the function list for subsets.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \param[in] fQue A deque of unique pointers to file descriptors.
-     *  \return Return the final iterator reached.
-     */
-    FuncLst::iterator calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
-
     /*! Perform the radon to angle conversion. This assumes the input set is a radon transform file.
      *  \param[in] vmName The name of the velocity model file.
      *  \param[in] vBin The velocity model bin value.
      *  \param[in] oGSz The number of traces in the output gather.
      *  \param[in] oInc The samples per trace for the output (i.e the angle increment between samples.
      */
-    void toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc = M_PI / geom_t(180LU));
+    void toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc = Math::pi / geom_t(180LU));
 
     /************************************* Non-Core *****************************************************/
     /*! Sort the set by the specified sort type.

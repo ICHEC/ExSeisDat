@@ -14,6 +14,7 @@
 namespace PIOL {
 
 /*! A structure for MPI-free accessing using global arrays.
+ *  \tparam T Template parameter pack
  */
 template <class ... T>
 class Uniray
@@ -26,12 +27,13 @@ class Uniray
     std::vector<std::tuple<T...>> vec;                  //!< The underlying local storage.
 
     MPI_Win win;                                        //!< The memory window.
-    size_t rank, numRank;                               //!< Store rank and number of ranks.
+    size_t rank;                                        //!< The rank of the local process.
+    size_t numRank;                                     //!< The number of ranks.
     public :
 
     /*! Construct the global array. This operation is collective across all processes.
      * \param[in] piol_ The PIOL object.
-     * \param[in] sz The number of elements in the global array.
+     * \param[in] sz_ The number of elements in the global array.
      */
     Uniray(ExSeisPIOL * piol_, csize_t sz_) : piol(piol_), sz(sz_)
     {

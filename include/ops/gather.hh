@@ -16,7 +16,7 @@ namespace PIOL { namespace File {
 /*! Find the inline/crossline for each il/xl gather and the number of traces per gather using
  *  the parameters from the file provided.
  * \param[in] piol The piol object.
- * \param[in] prm The parameter structure.
+ * \param[in] file The file which has il/xl gathers.
  * \return Return an 'array' of tuples. Each tuple corresponds to each gather. Tuple elements:
  *         1) Number of traces in the gather, 2) inline, 3) crossline.
  */

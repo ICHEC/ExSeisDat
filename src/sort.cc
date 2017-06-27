@@ -469,27 +469,11 @@ void sendLeft<Param>(ExSeisPIOL * piol, size_t regionSz, std::vector<Param> & da
             cpyPrm(i, &rprm, 0LU, &dat[i+dat.size()-regionSz]);
 }
 
-/*! Calculate an offset based on local size and implied ordering of left to right.
- *  \param[in] piol The piol handle
- *  \param[in] sz The local size
- *  \return The associated offset
- *//*
-static size_t offcalc(ExSeisPIOL * piol, size_t sz)
-{
-    size_t rank = piol->comm->getRank();
-    auto szall = piol->comm->gather(std::vector<size_t>{sz});
-
-    szall[rank] = 0LU;
-    for (size_t i = 0LU; i < rank; i++)
-        szall[rank] += szall[i];
-    return szall[rank];
-}*/
-
 /*! Function to sort a given vector by a nearest neighbour approach.
  *  \tparam T Type of vector
  *  \param[in] piol The PIOL object.
  *  \param[in] regionSz The size of the region which will be shared
- *  \param[in] temp1 Temporary vector which is the dat.size()+regionSz.
+ *  \param[in, out] temp1 Temporary vector which is the dat.size()+regionSz.
  *  \param[in,out] dat The vector to sort
  *  \param[in] comp The function to use for less-than comparisons between objects in the
  *                  vector.

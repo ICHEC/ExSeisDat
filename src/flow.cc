@@ -166,7 +166,9 @@ std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst
                 dynamic_cast<Op<Mod> *>(fCurr->get())->func(bIn.get(), bOut.get());
                 bIn = std::move(bOut);
             }
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
             ++fCurr;
+#pragma GCC diagnostic pop
         case FuncOpt::SingleTrace :
             if ((*fCurr)->opt.check(FuncOpt::SingleTrace))
             {
@@ -290,7 +292,6 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
         auto gdec = decompose(gather.size(), numRank, rank);
 
         size_t numGather = gdec.second;
-        size_t gOffset = gdec.first;
 
         std::vector<size_t> gNums;
         for (auto fTemp = fCurr; fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather); fTemp++)
@@ -385,8 +386,6 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
 //calc for subsets only
 FuncLst::iterator Set::calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue)
 {
-    size_t ns = fQue[0]->ifc->readNs();
-
     std::shared_ptr<TraceBlock> block;
 
     if ((*fCurr)->opt.check(FuncOpt::NeedMeta))
@@ -574,7 +573,7 @@ void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
                 //We are using coordinate level accuracy when its not performance critical.
                 geom_t vmModel = state->vtrc[in->gNum * state->vNs + std::min(size_t(geom_t(z * in->inc) / state->vInc), state->vNs)];
                 llint k = llround(vmModel / cos(geom_t(j * out->inc))) / state->vBin;
-                if (k > 0 && k < iGSz)
+                if (k > 0 && size_t(k) < iGSz)
                     out->trc[j * out->ns + z] = in->trc[k * in->ns + z];
             }
 

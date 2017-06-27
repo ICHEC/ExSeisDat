@@ -90,11 +90,13 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY
     public :
     /*!
      \param[in] piol_ The piol object.
-     \param[in] name The name of the file.
+     \param[in] name_ The name of the file.
      \param[in] obj_ A shared pointer for the object layer object.
      */
     ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
-    std::vector<trace_t> readModel(size_t gOffset, size_t numGather, const Uniray<size_t, llint, llint> & gather);
+
+    std::vector<trace_t> readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather);
+
     std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather);
 };
 
