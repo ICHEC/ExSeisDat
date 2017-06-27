@@ -407,6 +407,8 @@ struct Rule
      */
     void addIndex(Meta m);
 
+    /*! Add a rule to buffer the original trace header.
+     */
     void addCopy(void);
 
     /*! Remove a rule based on the meta entry.

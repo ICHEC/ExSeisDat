@@ -12,10 +12,22 @@
 #include "global.hh"
 #include "share/param.hh"
 #include "share/uniray.hh"
-namespace PIOL { namespace File {
+namespace PIOL {
+namespace Obj {
+/*! Make the default object layer object.
+ * \param[in] piol The piol shared object.
+ * \param[in] name The name of the file.
+ * \param[in] mode The filemode.
+ * \return Return a shared_ptr to the obj layer object.
+ * \todo TODO: This hack needs a further tidyup.
+ */
+std::shared_ptr<Obj::Interface> makeDefaultObj(PIOL::Piol piol, std::string name, FileMode mode);
+}
+namespace File {
 extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
 extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
-
+/*! Class for all file interfaces
+ */
 class Interface
 {
     protected :
@@ -246,5 +258,35 @@ class Model3dInterface
      */
     virtual std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
 };
+
+/*! Construct ReadSEGY objects with default object and MPI-IO layers.
+ * \tparam T The type of the file layer.
+ * \param[in] piol The piol shared object.
+ * \param[in] name The name of the file.
+ * \return Return a pointer of the respective file type.
+ */
+template <class T>
+std::unique_ptr<typename std::enable_if<std::is_base_of<File::ReadInterface, T>::value, T>::type>
+makeFile(Piol piol, const std::string name)
+{
+    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
+    auto file = std::make_unique<T>(piol, name, obj);
+    return std::move(file);
+}
+
+/*! Construct WriteSEGY objects with default object and MPI-IO layers
+ * \tparam T The type of the file layer
+ * \param[in] piol The piol shared object
+ * \param[in] name The name of the file
+ * \return Return a pointer of the respective file type.
+ */
+template <class T>
+std::unique_ptr<typename std::enable_if<std::is_base_of<File::WriteInterface, T>::value, T>::type>
+makeFile(Piol piol, const std::string name)
+{
+    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
+    auto file = std::make_unique<T>(piol, name, obj);
+    return std::move(file);
+}
 }}
 #endif

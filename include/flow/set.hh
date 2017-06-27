@@ -19,76 +19,106 @@
 //#warning temp
 //#include "file/filesegy.hh"
 namespace PIOL {
-typedef std::function<void(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that modify traces and associated parameters
-typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< Typedef for functions that modify traces and associated parameters
+typedef std::function<void(const TraceBlock * in, TraceBlock * out)> Mod;  //!< Typedef for functions that have separate input and output of traces/parameters
+typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< Typedef for functions that have the same input and output of traces/parameters
 enum class FuncOpt : size_t
 {
 //Data type dependencies
-    NeedMeta,
-    NeedTrcVal,
-    NeedAll,
+    NeedMeta,       //!< Metadata required to be read.
+    NeedTrcVal,     //!< Trace values required to be read.
 
 //Modification level:
-    AddTrc,
-    DelTrc,
-    ModTrcVal,
-    ModTrcLen,
-    ModMetaVal,
-    ReorderTrc,
-    ModAll,
+    AddTrc,         //!< Traces are added by the operation.
+    DelTrc,         //!< Traces are deleted by the operation.
+    ModTrcVal,      //!< Trace values are modified by the operation.
+    ModTrcLen,      //!< Trace lengths are modified by the operation.
+    ModMetaVal,     //!< Metadata values are modified by the operation.
+    ReorderTrc,     //!< Traces are reordered by the operation.
 
 //Modification dependencies
-    DepTrcCnt,
-    DepTrcOrder,
-    DepTrcVal,
-    DepMetaVal,
-    DepAll,
+    DepTrcCnt,      //!< There is a dependency on the number of traces.
+    DepTrcOrder,    //!< There is a dependency on the order of traces.
+    DepTrcVal,      //!< There is a dependency on the value of traces.
+    DepMetaVal,     //!< There is a dependency on the metadata values.
 
 //Comms level:
-    SingleTrace,
-    Gather,
-    SubSetOnly,
-    AllTraces,
-    OwnIO
+    SingleTrace,    //!< Each output trace requires info from one input trace.
+    Gather,         //!< Each output trace requires info from traces in the same gather.
+    SubSetOnly,     //!< Each output trace requires info from all traces in a subset of files.
+    AllTraces,      //!< Each output trace requires info from all traces in the set.
+    OwnIO           //!< Management of traces is complicated and custom.
 };
 
-struct OpOpt
+/*! A structure to hold operation options.
+ */
+class OpOpt
 {
-    std::vector<FuncOpt> optList;
+    std::vector<FuncOpt> optList;       //!< A list of the function options.
+    public :
+
+    /*! Empty constructor.
+     */
+    OpOpt(void) { }
+
+    /*! Initialise the options list with an initialiser list.
+     *  \param[in] list An initialiser list of options.
+     */
+    OpOpt(std::initializer_list<FuncOpt> list) : optList(list)
+    {
+    }
+
+    /*! Check if an option is present in the list.
+     *  \param[in] opt The function option.
+     */
     bool check(FuncOpt opt)
     {
         auto it = std::find(optList.begin(), optList.end(), opt);
         return it != optList.end();
     }
+
+    /*! Add an option to the list.
+     *  \param[in] opt The function option.
+     */
     void add(FuncOpt opt)
     {
         optList.push_back(opt);
     }
-    OpOpt(void) { }
-    OpOpt(std::initializer_list<FuncOpt> list) : optList(list)
-    {
-    }
+
 };
 
+/*! A parent class to allow gather operations to maintain a state.
+ */
 struct gState
 {
+    /*! A virtual function which can be overridden to create the gather-operation state.
+     *  \param[in] offset A list of gather-numbers to be processed by the local process.
+     *  \param[in] gather The global array of gathers.
+     */
     virtual void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather) { }
 };
 
+/*! The radon state structure.
+ */
 struct RadonState : public gState
 {
-    Piol piol;
-    std::vector<trace_t> vtrc;
-    std::vector<llint> il;
-    std::vector<llint> xl;
+    Piol piol;                  //!< The piol object.
+    std::string vmname;         //!< The name of the Velocity Model (VM) file.
+    std::vector<trace_t> vtrc;  //!< Trace data read from the VM file.
+    std::vector<llint> il;      //!< A list of inlines corresponding to the VM data read.
+    std::vector<llint> xl;      //!< A list of crosslines corresponding to the VM data read.
 
-    size_t vNs;
-    size_t vBin;
-    size_t oGSz;
-    geom_t vInc;
-
-    RadonState(Piol piol_) : piol(piol_), vNs(0U), vBin(20U), oGSz(60U), vInc(geom_t(0))
-    {}
+    size_t vNs;                 //!< The number of samples per trace for the VM.
+    size_t vBin;                //!< The binning factor to be used.
+    size_t oGSz;                //!< The number of traces per gather in the angle output.
+    geom_t vInc;                //!< The increment between samples in the VM file.
+    geom_t oInc;                //!< The increment between samples in the output file (radians).
+    /*! Constructor for the radon state.
+     * \param[in] piol_ The piol object.
+     * \param[in] vmname_ The VM file.
+     * \param[in] oGSz_  The number of traces in the angle output.
+     */
+    RadonState(Piol piol_, std::string vmname_, csize_t vBin_, csize_t oGSz_, const geom_t oInc_)
+                          : piol(piol_), vNs(0U), vBin(vBin_), oGSz(oGSz_), vInc(geom_t(0)), oInc(oInc_) {}
 
     void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather);
 };
@@ -138,6 +168,15 @@ class Set
      *  \param[in] pattern The file-matching pattern
      */
     void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);
+
+    /*! Drop all file descriptors without output.
+     */
+    void drop(void)
+    {
+        file.resize(0);
+        fmap.clear();
+        offmap.clear();
+    }
 
     public :
 
@@ -231,13 +270,6 @@ class Set
      */
     void add(std::unique_ptr<File::ReadInterface> in);
 
-    void drop(void)
-    {
-        file.resize(0);
-        fmap.clear();
-        offmap.clear();
-    }
-
     /*! Add a file to the set based on the pattern/name given
      *  \param[in] name The input name
      */
@@ -292,8 +324,11 @@ class Set
 
     /*! Perform the radon to angle conversion. This assumes the input set is a radon transform file.
      *  \param[in] vmName The name of the velocity model file.
+     *  \param[in] vBin The velocity model bin value.
+     *  \param[in] oGSz The number of traces in the output gather.
+     *  \param[in] oInc The samples per trace for the output (i.e the angle increment between samples.
      */
-    void toAngle(std::string vmName);
+    void toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc = M_PI / geom_t(180LU));
 
     /************************************* Non-Core *****************************************************/
     /*! Sort the set by the specified sort type.

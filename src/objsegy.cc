@@ -21,7 +21,6 @@ std::shared_ptr<Obj::Interface> makeDefaultObj(Piol piol, std::string name, File
 }
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-
 //pragma to ignore unusued-paramter warnings here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"

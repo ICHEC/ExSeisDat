@@ -27,11 +27,10 @@ int main(int argc, char ** argv)
             break;
         }
 
-    assert(radon.size() && angle.size());
+    assert(radon.size() && angle.size() && velocity.size());
 
     Set set(piol, radon, angle);
-    //TODO: set.toAngle(velocity, 60U, 20U);
-    set.toAngle(velocity);
+    set.toAngle(velocity, 60U, 20U);
 
     piol.isErr();
     if (!piol.getRank())

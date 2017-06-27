@@ -135,7 +135,7 @@ void Set::summary(void) const
 
 void RadonState::makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather)
 {
-    std::unique_ptr<File::ReadSEGYModel> vm = File::makeReadSEGYFile<File::ReadSEGYModel>(piol, "vm.segy");   //TODO:DON'T USE MAGIC NAME
+    std::unique_ptr<File::ReadSEGYModel> vm = File::makeFile<File::ReadSEGYModel>(piol, vmname);   //TODO:DON'T USE MAGIC NAME
     vNs = vm->readNs();
     vInc = vm->readInc();
 
@@ -199,7 +199,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
 
         names.push_back(name);
 
-        std::unique_ptr<File::WriteInterface> out = File::makeWriteSEGYFile<File::WriteSEGY>(piol, name);
+        std::unique_ptr<File::WriteInterface> out = File::makeFile<File::WriteSEGY>(piol, name);
         //TODO: Will need to delay ns call depending for operations that modify the number of samples per trace
         out->writeNs(ns);
         out->writeInc(inc);
@@ -312,7 +312,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
         gname = (fTemp != fEnd ? "gtemp.segy" : outfix + ".segy");
 
         //Use inputs as default values. These can be changed later
-        std::unique_ptr<File::WriteInterface> out = File::makeWriteSEGYFile<File::WriteSEGY>(piol, gname);
+        std::unique_ptr<File::WriteInterface> out = File::makeFile<File::WriteSEGY>(piol, gname);
 
         size_t wOffset = 0LU;
         size_t iOffset = 0LU;
@@ -552,15 +552,17 @@ void Set::sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc)
     }));
 }
 
-void Set::toAngle(std::string vmName)
+void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
 {
-    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::ModAll, FuncOpt::DepAll, FuncOpt::Gather};
-    auto state = std::make_shared<RadonState>(piol);
+    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::ModMetaVal,
+                 FuncOpt::DepTrcVal, FuncOpt::DepTrcOrder, FuncOpt::DepTrcCnt, FuncOpt::DepMetaVal,
+                 FuncOpt::Gather};
+    auto state = std::make_shared<RadonState>(piol, vmName, vBin, oGSz, oInc);
     func.emplace_back(std::make_shared<Op<Mod>>(opt, rule, state, [state] (const TraceBlock * in, TraceBlock * out)
     {
         csize_t iGSz = in->prm->size();
         out->ns = in->ns;
-        out->inc = M_PI / geom_t(180LU);   //1 degree in radians
+        out->inc = state->oInc;   //1 degree in radians
         out->trc.resize(state->oGSz * out->ns);
         out->prm.reset(new File::Param(in->prm->r, state->oGSz));
         if (!in->prm->size())

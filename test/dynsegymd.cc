@@ -32,7 +32,7 @@ TEST_F(RuleFixList, List)
         int match = 0;
         for (auto & me : meta)
             match += (me == m.first);
-        ASSERT_EQ(match, 1) << i;
+        EXPECT_EQ(match, 1) << i;
 
         match = 0;
         for (auto loc : locs)

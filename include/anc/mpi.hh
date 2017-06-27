@@ -11,7 +11,6 @@
 #ifndef PIOLANCCMPI_INCLUDE_GUARD
 #define PIOLANCCMPI_INCLUDE_GUARD
 #include <mpi.h>
-#include "global.hh"
 #include "anc/comm.hh"
 namespace PIOL { namespace Comm {
 /*! \brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.

@@ -9,6 +9,7 @@
 #ifndef PIOLFILESEGY_INCLUDE_GUARD
 #define PIOLFILESEGY_INCLUDE_GUARD
 #include <memory>
+#include <type_traits>
 #include "global.hh"
 #include "file/file.hh"
 #include "file/segymd.hh"
@@ -17,33 +18,13 @@
 namespace PIOL { namespace File {
 enum class Format : int16_t;    //!< Data Format options
 
-/*! A template function to create a read-only file object with default object & data layer settings
- * \tparam T The type of the file layer
- * \param[in] piol The piol shared object
- * \param[in] name The name of the file
- * \return Return a pointer of the respective file type.
- */
-template <class T>
-std::unique_ptr<T> makeReadSEGYFile(Piol piol, const std::string name)
-{
-    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
-    auto file = std::make_unique<T>(piol, name, obj);
-    return std::move(file);
-}
-
-/*! A template function to create a write-only file object with default object & data layer settings
- * \tparam T The type of the file layer
- * \param[in] piol The piol shared object
- * \param[in] name The name of the file
- * \return Return a pointer of the respective file type.
- */
-template <class T>
+/*template <class T>
 std::unique_ptr<T> makeWriteSEGYFile(Piol piol, const std::string name)
 {
     auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
     auto file = std::make_unique<T>(piol, name, obj);
     return std::move(file);
-}
+}*/
 
 /*! The SEG-Y implementation of the file layer
  */
