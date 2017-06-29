@@ -103,8 +103,53 @@ bool Rule::addRule(Meta m)
         case Meta::Copy :
             addCopy();
         break;
+        case Meta::tnl :
+            addLong(Meta::tnl, Tr::SeqNum);
+        break;
+        case Meta::tnr :
+            addLong(Meta::tnr, Tr::TORF);
+        break;
+        case Meta::tne :
+            addLong(Meta::tne, Tr::SeqNumEns);
+        break;
+        case Meta::SrcNum :
+            addLong(Meta::SrcNum, Tr::ENSrcNum);
+        break;
+        case Meta::Tic :
+            addShort(Meta::Tic, Tr::TIC);
+        break;
+        case Meta::VStack :
+            addShort(Meta::VStack, Tr::VStackCnt);
+        break;
+        case Meta::HStack :
+            addShort(Meta::HStack, Tr::HStackCnt);
+        break;
+        case Meta::RGElev :
+            addSEGYFloat(Meta::RGElev, Tr::RcvElv, Tr::ScaleElev);
+        break;
+        case Meta::SSElev :
+            addSEGYFloat(Meta::SSElev, Tr::SurfElvSrc, Tr::ScaleElev);
+        break;
+        case Meta::SDElev :
+            addSEGYFloat(Meta::SDElev, Tr::SrcDpthSurf, Tr::ScaleElev);
+        break;
+        case Meta::ns :
+            addShort(Meta::ns, Tr::Ns);
+        break;
+        case Meta::inc :
+            addShort(Meta::inc, Tr::Inc);
+        break;
+        case Meta::ShotNum :
+            addSEGYFloat(Meta::ShotNum, Tr::ShotNum, Tr::ShotScal);
+        break;
+        case Meta::TraceUnit :
+            addShort(Meta::TraceUnit, Tr::ValMeas);
+        break;
+        case Meta::TransUnit :
+            addShort(Meta::TransUnit, Tr::TransUnit);
+        break;
         default :
-            return false;
+        return false;
         break;    //Non-default
     }
     return true;
@@ -120,8 +165,8 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
 
     //TODO: Change this when extents are flexible
     flag.fullextent = full;
-    translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
-    translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
+    addIndex(Meta::gtn);
+    addIndex(Meta::ltn);
 
     for (auto m : mlist)
         addRule(m);
@@ -149,40 +194,40 @@ Rule::Rule(bool full, bool defaults, bool extra)
 
     flag.fullextent = full;
 
-    translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
-    translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
+    addIndex(Meta::gtn);
+    addIndex(Meta::ltn);
 
     if (defaults)
     {
-        translate[Meta::xSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
-        translate[Meta::ySrc] = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
-        translate[Meta::xRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
-        translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
-        translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
-        translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
-        translate[Meta::Offset] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
-        translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
-        translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
-        translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
+        addRule(Meta::xSrc);
+        addRule(Meta::ySrc);
+        addRule(Meta::xRcv);
+        addRule(Meta::yRcv);
+        addRule(Meta::xCmp);
+        addRule(Meta::yCmp);
+        addRule(Meta::Offset);
+        addRule(Meta::il);
+        addRule(Meta::xl);
+        addRule(Meta::tn);
     }
 
     if (extra)
     {
-        translate[Meta::tnl] = new SEGYLongRuleEntry(numLong++, Tr::SeqNum);
-        translate[Meta::tnr] = new SEGYLongRuleEntry(numLong++, Tr::TORF);
-        translate[Meta::tne] = new SEGYLongRuleEntry(numLong++, Tr::SeqNumEns);
-        translate[Meta::SrcNum] = new SEGYLongRuleEntry(numLong++, Tr::ENSrcNum);
-        translate[Meta::Tic] = new SEGYShortRuleEntry(numShort++, Tr::TIC);
-        translate[Meta::VStack] = new SEGYShortRuleEntry(numShort++, Tr::VStackCnt);
-        translate[Meta::HStack] = new SEGYShortRuleEntry(numShort++, Tr::HStackCnt);
-        translate[Meta::RGElev] = new SEGYFloatRuleEntry(numFloat++, Tr::RcvElv, Tr::ScaleElev);
-        translate[Meta::SSElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SurfElvSrc, Tr::ScaleElev);
-        translate[Meta::SDElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SrcDpthSurf, Tr::ScaleElev);
-        translate[Meta::ns] = new SEGYShortRuleEntry(numShort++, Tr::Ns);
-        translate[Meta::inc] = new SEGYShortRuleEntry(numShort++, Tr::Inc);
-        translate[Meta::ShotNum] = new SEGYFloatRuleEntry(numFloat++, Tr::ShotNum, Tr::ShotScal);
-        translate[Meta::TraceUnit] = new SEGYShortRuleEntry(numShort++, Tr::ValMeas);
-        translate[Meta::TransUnit] = new SEGYShortRuleEntry(numShort++, Tr::TransUnit);
+        addRule(Meta::tnl);
+        addRule(Meta::tnr);
+        addRule(Meta::tne);
+        addRule(Meta::SrcNum);
+        addRule(Meta::Tic);
+        addRule(Meta::VStack);
+        addRule(Meta::HStack);
+        addRule(Meta::RGElev);
+        addRule(Meta::SSElev);
+        addRule(Meta::SDElev);
+        addRule(Meta::ns);
+        addRule(Meta::inc);
+        addRule(Meta::ShotNum);
+        addRule(Meta::TraceUnit);
+        addRule(Meta::TransUnit);
     }
 
     if (full)

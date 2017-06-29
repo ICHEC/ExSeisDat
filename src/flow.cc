@@ -523,19 +523,6 @@ void Set::sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
 
-/*    rule->addRule(Meta::il);
-    rule->addRule(Meta::xl);
-    rule->addRule(Meta::xSrc);
-    rule->addRule(Meta::ySrc);
-    rule->addRule(Meta::xRcv);
-    rule->addRule(Meta::yRcv);
-    rule->addRule(Meta::xCmp);
-    rule->addRule(Meta::yCmp);
-
-//    rule->addRule(Meta::Offset);
-//    rule->addRule(Meta::WtrDepRcv);
-    rule->addRule(Meta::tn);*/
-
     func.push_back(std::make_shared<Op<InPlaceMod>>(opt, r, nullptr, [this, sortFunc] (TraceBlock * in) -> std::vector<size_t>
     {
         if (piol->comm->min(in->prm->size()) < 3LU) //TODO: It will eventually be necessary to support this use case.
@@ -567,7 +554,7 @@ void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
         if (!in->prm->size())
             return;
 
-        for (size_t j = 0; j < state->oGSz; j++)       //For each angle in the angle gather
+        for (size_t j = 0; j < state->oGSz; j++)   //For each angle in the angle gather
             for (size_t z = 0; z < in->ns; z++)    //For each sample (angle + radon)
             {
                 //We are using coordinate level accuracy when its not performance critical.

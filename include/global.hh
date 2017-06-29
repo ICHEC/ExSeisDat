@@ -14,7 +14,7 @@
 #include <memory>
 #include <functional>
 typedef unsigned char uchar;        //!< The type to use for accessing individual bytes
-typedef ptrdiff_t llint;              //!< A large signed integer type.
+typedef std::ptrdiff_t llint;              //!< A large signed integer type.
 typedef float trace_t;              //!< Real type for traces, use "*_t" convention
 typedef double geom_t;               //!< Real type for geometry
 typedef double unit_t;               //!< Real type for physical, SI and math units

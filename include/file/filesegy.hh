@@ -17,15 +17,6 @@
 #include "object/object.hh" //For the makes
 namespace PIOL { namespace File {
 enum class Format : int16_t;    //!< Data Format options
-
-/*template <class T>
-std::unique_ptr<T> makeWriteSEGYFile(Piol piol, const std::string name)
-{
-    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
-    auto file = std::make_unique<T>(piol, name, obj);
-    return std::move(file);
-}*/
-
 /*! The SEG-Y implementation of the file layer
  */
 class ReadSEGY : public ReadInterface

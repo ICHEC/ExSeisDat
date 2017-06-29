@@ -28,14 +28,19 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
         //TODO: Do not make assumptions about Parameter sizes fitting in memory.
         size_t nt = 0LU;
         size_t loff = 0LU;
+        size_t c = 0LU;
         for (auto & f : desc)
         {
             f->ifc->readParam(f->ilst.size(), f->ilst.data(), prm.get(), loff);
+            for (size_t i = 0LU; i < f->ilst.size(); i++)
+            {
+                File::setPrm(loff+i, Meta::gtn, nt + f->ilst[i], prm.get());
+                File::setPrm(loff+i, Meta::ltn, f->ilst[i] * desc.size() + c, prm.get());
+            }
+            c++;
             loff += f->ilst.size();
             nt += f->ifc->readNt();
         }
-        for (size_t i = 0LU; i < lsnt; i++)
-            File::setPrm(i, Meta::gtn, off + i, prm.get());
 
         if (it == cache.end())
         {
