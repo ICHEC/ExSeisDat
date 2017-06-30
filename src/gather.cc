@@ -20,12 +20,10 @@ namespace PIOL { namespace File {
 Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
 {
     size_t rank = piol->comm->getRank();
-    size_t last = rank == piol->comm->getNumRank()-1;
     std::vector<std::tuple<size_t, llint, llint>> lline;
-    lline.emplace_back(0LU, getPrm<llint>(0, Meta::il, prm), getPrm<llint>(0, Meta::xl, prm));
-    ++std::get<0>(lline.back());
+    lline.emplace_back(1LU, getPrm<llint>(0LU, Meta::il, prm), getPrm<llint>(0LU, Meta::xl, prm));
 
-    for (size_t i = 1; i < prm->size()-(last ? 0LU : 1LU); i++)
+    for (size_t i = 1; i < prm->size(); i++)
     {
         llint il = getPrm<llint>(i, Meta::il, prm);
         llint xl = getPrm<llint>(i, Meta::xl, prm);
@@ -36,7 +34,22 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
         ++std::get<0>(lline.back());
     }
 
-    //If the last element is on the same gather, then the gather has already been picked up
+    auto trcnum = piol->comm->gather<size_t>(std::get<0>(lline.back()));
+    auto il = piol->comm->gather<size_t>(std::get<0>(lline.back()));
+    auto xl = piol->comm->gather<size_t>(std::get<0>(lline.back()));
+
+    size_t start = 0LU;
+    size_t end = prm->size();
+    start += (il[rank-1LU] == il[rank] && xl[rank-1LU] == xl[rank]);
+
+    if (end != 1LU)
+    {
+        
+    }
+
+
+
+/*    //If the last element is on the same gather, then the gather has already been picked up
     //by the process one rank higher.
     size_t gatherB = !last
            && getPrm<llint>(prm->size()-1LU, Meta::il, prm) == getPrm<llint>(prm->size()-2LU, Meta::il, prm)
@@ -45,14 +58,16 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
     size_t lSz = lline.size() - gatherB;
     size_t offset = piol->comm->offset(lSz);
 
+#warning redo this logic by doing the gather first.
     //Nearest neighbour pass would be more appropriate
     auto left = piol->comm->gather<size_t>(gatherB ? std::get<0>(lline.back()) : 0LU);
     std::get<0>(lline.front()) += (rank ? left[rank-1] : 0LU);
+*/
 
     Uniray<size_t, llint, llint> line(piol, piol->comm->sum(lSz));
     for (size_t i = 0; i < lSz; i++)
         line.set(i + offset, lline[i]);
-
+#warning Do this
 //TODO: Check if a gather extends over three processes and compensate accordingly
 
     piol->comm->barrier();
