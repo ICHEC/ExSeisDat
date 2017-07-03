@@ -43,14 +43,17 @@ class Uniray
         offset = dec.first;
         szall = piol->comm->gather(dec.second);
         vec.resize(dec.second);
-        MPI_Win_create(vec.data(), vec.size(), TupleSz, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+        if (numRank > 1)
+            MPI_Win_create(vec.data(), vec.size(), TupleSz, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
     }
 
     /*! Destruct the global array, free the associated window.
      */
     ~Uniray(void)
     {
-        MPI_Win_free(&win);
+        if (numRank > 1)
+            MPI_Win_free(&win);
     }
 
     /*! Set the global ith element with the given tuple.

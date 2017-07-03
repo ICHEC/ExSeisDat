@@ -8,8 +8,10 @@ using namespace PIOL;
 int main(int argc, char ** argv)
 {
     ExSeis piol;
-    std::string opt = "i:o:v:";  //TODO: uses a GNU extension
+    std::string opt = "i:o:v:b:a:";  //TODO: uses a GNU extension
     std::string radon = "", angle = "", velocity = "";
+    auto vBin = 20LU;
+    auto oInc = 60LU;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -22,6 +24,12 @@ int main(int argc, char ** argv)
             case 'o' :
                 angle = optarg;
             break;
+            case 'b' :
+                vBin = std::stoul(optarg);
+            break;
+            case 'a' :
+                oInc = std::stoul(optarg);
+            break;
             default :
                 std::cerr << "One of the command line arguments is invalid\n";
             break;
@@ -29,8 +37,15 @@ int main(int argc, char ** argv)
 
     assert(radon.size() && angle.size() && velocity.size());
 
+    std::cout << "Radon to Angle Transformation"
+              << "\n-\tInput radon file:\t" << radon
+              << "\n-\tVelocity model file:\t" << velocity
+              << "\n-\tOutput angle file:\t" << angle
+              << "\n-\tIncrement:\t\t" << oInc
+              << "\n-\tvBin:\t\t\t" << vBin << std::endl;
     Set set(piol, radon, angle);
-    set.toAngle(velocity, 60U, 20U);
+    piol.isErr();
+    set.toAngle(velocity, vBin, oInc);
 
     piol.isErr();
     if (!piol.getRank())

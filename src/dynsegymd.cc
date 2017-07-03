@@ -17,10 +17,7 @@
 namespace PIOL { namespace File {
 Rule::Rule(RuleMap translate_, bool full)
 {
-    numLong = 0;
-    numShort = 0;
-    numFloat = 0;
-    numIndex = 0;
+    numLong = numShort = numFloat = numIndex = 0;
     translate = translate_;
     for (const auto & t : translate)
         switch (t.second->type())
@@ -65,88 +62,88 @@ bool Rule::addRule(Meta m)
     switch (m)
     {
         case Meta::WtrDepSrc :
-            addSEGYFloat(Meta::WtrDepSrc, Tr::WtrDepSrc, Tr::ScaleElev);
+            addSEGYFloat(m, Tr::WtrDepSrc, Tr::ScaleElev);
         break;
         case Meta::WtrDepRcv :
-            addSEGYFloat(Meta::WtrDepRcv, Tr::WtrDepRcv, Tr::ScaleElev);
+            addSEGYFloat(m, Tr::WtrDepRcv, Tr::ScaleElev);
         break;
         case Meta::xSrc :
-            addSEGYFloat(Meta::xSrc, Tr::xSrc, Tr::ScaleCoord);
+            addSEGYFloat(m, Tr::xSrc, Tr::ScaleCoord);
         break;
         case Meta::ySrc :
-            addSEGYFloat(Meta::ySrc, Tr::ySrc, Tr::ScaleCoord);
+            addSEGYFloat(m, Tr::ySrc, Tr::ScaleCoord);
         break;
         case Meta::xRcv :
-            addSEGYFloat(Meta::xRcv, Tr::xRcv, Tr::ScaleCoord);
+            addSEGYFloat(m, Tr::xRcv, Tr::ScaleCoord);
         break;
         case Meta::yRcv :
-            addSEGYFloat(Meta::yRcv, Tr::yRcv, Tr::ScaleCoord);
+            addSEGYFloat(m, Tr::yRcv, Tr::ScaleCoord);
         break;
         case Meta::xCmp :
-            addSEGYFloat(Meta::xCmp, Tr::xCmp, Tr::ScaleCoord);
+            addSEGYFloat(m, Tr::xCmp, Tr::ScaleCoord);
         break;
         case Meta::yCmp :
-            addSEGYFloat(Meta::yCmp, Tr::yCmp, Tr::ScaleCoord);
+            addSEGYFloat(m, Tr::yCmp, Tr::ScaleCoord);
         break;
         case Meta::il :
-            addLong(Meta::il, Tr::il);
+            addLong(m, Tr::il);
         break;
         case Meta::xl :
-            addLong(Meta::xl, Tr::xl);
+            addLong(m, Tr::xl);
         break;
         case Meta::Offset :
-            addLong(Meta::Offset, Tr::CDist);
+            addLong(m, Tr::CDist);
         break;
         case Meta::tn :
-            addLong(Meta::tn, Tr::SeqFNum);
+            addLong(m, Tr::SeqFNum);
         break;
         case Meta::Copy :
             addCopy();
         break;
         case Meta::tnl :
-            addLong(Meta::tnl, Tr::SeqNum);
+            addLong(m, Tr::SeqNum);
         break;
         case Meta::tnr :
-            addLong(Meta::tnr, Tr::TORF);
+            addLong(m, Tr::TORF);
         break;
         case Meta::tne :
-            addLong(Meta::tne, Tr::SeqNumEns);
+            addLong(m, Tr::SeqNumEns);
         break;
         case Meta::SrcNum :
-            addLong(Meta::SrcNum, Tr::ENSrcNum);
+            addLong(m, Tr::ENSrcNum);
         break;
         case Meta::Tic :
-            addShort(Meta::Tic, Tr::TIC);
+            addShort(m, Tr::TIC);
         break;
         case Meta::VStack :
-            addShort(Meta::VStack, Tr::VStackCnt);
+            addShort(m, Tr::VStackCnt);
         break;
         case Meta::HStack :
-            addShort(Meta::HStack, Tr::HStackCnt);
+            addShort(m, Tr::HStackCnt);
         break;
         case Meta::RGElev :
-            addSEGYFloat(Meta::RGElev, Tr::RcvElv, Tr::ScaleElev);
+            addSEGYFloat(m, Tr::RcvElv, Tr::ScaleElev);
         break;
         case Meta::SSElev :
-            addSEGYFloat(Meta::SSElev, Tr::SurfElvSrc, Tr::ScaleElev);
+            addSEGYFloat(m, Tr::SurfElvSrc, Tr::ScaleElev);
         break;
         case Meta::SDElev :
-            addSEGYFloat(Meta::SDElev, Tr::SrcDpthSurf, Tr::ScaleElev);
+            addSEGYFloat(m, Tr::SrcDpthSurf, Tr::ScaleElev);
         break;
         case Meta::ns :
-            addShort(Meta::ns, Tr::Ns);
+            addShort(m, Tr::Ns);
         break;
         case Meta::inc :
-            addShort(Meta::inc, Tr::Inc);
+            addShort(m, Tr::Inc);
         break;
         case Meta::ShotNum :
-            addSEGYFloat(Meta::ShotNum, Tr::ShotNum, Tr::ShotScal);
+            addSEGYFloat(m, Tr::ShotNum, Tr::ShotScal);
         break;
         case Meta::TraceUnit :
-            addShort(Meta::TraceUnit, Tr::ValMeas);
+            addShort(m, Tr::ValMeas);
         break;
         case Meta::TransUnit :
-            addShort(Meta::TransUnit, Tr::TransUnit);
+            addShort(m, Tr::TransUnit);
         break;
         default :
         return false;
@@ -306,8 +303,7 @@ void Rule::addIndex(Meta m)
 
 void Rule::addCopy(void)
 {
-    auto ent = translate.find(Meta::Copy);
-    if (ent == translate.end())
+    if (!numCopy)
     {
         translate[Meta::Copy] = new SEGYCopyRuleEntry();
         numCopy++;

@@ -20,50 +20,52 @@ namespace PIOL { namespace File {
 Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
 {
     size_t rank = piol->comm->getRank();
-    size_t last = rank == piol->comm->getNumRank()-1;
+    size_t numRank = piol->comm->getNumRank();
     std::vector<std::tuple<size_t, llint, llint>> lline;
-    lline.emplace_back(0LU, getPrm<llint>(0, Meta::il, prm), getPrm<llint>(0, Meta::xl, prm));
-    ++std::get<0>(lline.back());
 
-    for (size_t i = 1; i < prm->size()-(last ? 0LU : 1LU); i++)
+    llint ill = getPrm<llint>(0LU, Meta::il, prm);
+    llint xll = getPrm<llint>(0LU, Meta::xl, prm);
+    lline.emplace_back(1LU, ill, xll);
+
+    for (size_t i = 1; i < prm->size(); i++)
     {
         llint il = getPrm<llint>(i, Meta::il, prm);
         llint xl = getPrm<llint>(i, Meta::xl, prm);
 
-        if (il != getPrm<llint>(i-1LU, Meta::il, prm) ||
-            xl != getPrm<llint>(i-1LU, Meta::xl, prm))
+        if (il != ill || xl != xll)
+        {
             lline.emplace_back(0LU, il, xl);
+            ill = il;
+            xll = xl;
+        }
         ++std::get<0>(lline.back());
     }
 
-    //If the last element is on the same gather, then the gather has already been picked up
-    //by the process one rank higher.
-    size_t gatherB = !last
-           && getPrm<llint>(prm->size()-1LU, Meta::il, prm) == getPrm<llint>(prm->size()-2LU, Meta::il, prm)
-           && getPrm<llint>(prm->size()-1LU, Meta::xl, prm) == getPrm<llint>(prm->size()-2LU, Meta::xl, prm);
+    auto trcnum = piol->comm->gather<size_t>(std::get<0>(lline.front()));
+    auto ilb = piol->comm->gather<size_t>(std::get<1>(lline.back()));
+    auto xlb = piol->comm->gather<size_t>(std::get<2>(lline.back()));
+    auto ilf = piol->comm->gather<size_t>(std::get<1>(lline.front()));
+    auto xlf = piol->comm->gather<size_t>(std::get<2>(lline.front()));
 
-    size_t lSz = lline.size() - gatherB;
-    size_t offset = piol->comm->offset(lSz);
+    size_t start = (rank ? ilb[rank-1LU] == ilf[rank] && xlb[rank-1LU] == xlf[rank] : 0U);
+    if (start < lline.size())
+        if (ilf[rank+1LU] == ilb[rank] && xlf[rank+1LU] == xlb[rank])
+            for (size_t i = rank+1LU; i < numRank && ilb[rank] == ilf[i] && xlb[rank] == xlf[i]; i++)
+                std::get<0>(lline.back()) += trcnum[i];
 
-    //Nearest neighbour pass would be more appropriate
-    auto left = piol->comm->gather<size_t>(gatherB ? std::get<0>(lline.back()) : 0LU);
-    std::get<0>(lline.front()) += (rank ? left[rank-1] : 0LU);
+    size_t sz = lline.size()-start;
+    size_t offset = piol->comm->offset(sz);
 
-    Uniray<size_t, llint, llint> line(piol, piol->comm->sum(lSz));
-    for (size_t i = 0; i < lSz; i++)
-        line.set(i + offset, lline[i]);
+    Uniray<size_t, llint, llint> line(piol, piol->comm->sum(sz));
+    for (size_t i = 0; i < sz; i++)
+        line.set(i + offset, lline[i+start]);
 
-//TODO: Check if a gather extends over three processes and compensate accordingly
-
-    piol->comm->barrier();
     return line;
 }
 
 Uniray<size_t, llint, llint> getIlXlGathers(ExSeisPIOL * piol, ReadInterface * file)
 {
     auto dec = decompose(piol, file);
-    dec.second += (piol->comm->getRank() < piol->comm->getNumRank()-1LU);   //Each process should read an overlapping entry, except last
-
     auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
     Param prm(rule, dec.second);
     file->readParam(dec.first, dec.second, &prm);

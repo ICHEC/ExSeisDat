@@ -34,7 +34,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
             f->ifc->readParam(f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++)
             {
-                File::setPrm(loff+i, Meta::gtn, nt + f->ilst[i], prm.get());
+                File::setPrm(loff+i, Meta::gtn, off + loff + f->ilst[i], prm.get());
                 File::setPrm(loff+i, Meta::ltn, f->ilst[i] * desc.size() + c, prm.get());
             }
             c++;
