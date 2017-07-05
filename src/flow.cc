@@ -57,21 +57,13 @@ Set::Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<F
 {
     rank = piol->comm->getRank();
     numRank = piol->comm->getNumRank();
-    fillDesc(piol, pattern);
+    add(pattern);
 }
 
 Set::~Set(void)
 {
     if (outfix != "")
         output(outfix);
-}
-
-//TODO: Make multi-file
-void Set::add(std::string name)
-{
-    auto data = std::make_shared<Data::MPIIO>(piol, name, FileMode::Read);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, data, FileMode::Read);
-    add(std::move(std::make_unique<File::ReadSEGY>(piol, name, obj)));
 }
 
 void Set::add(std::unique_ptr<File::ReadInterface> in)
@@ -93,7 +85,7 @@ void Set::add(std::unique_ptr<File::ReadInterface> in)
     off += f->ifc->readNt();
 }
 
-void Set::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
+void Set::add(std::string pattern)
 {
     outmsg = "ExSeisPIOL: Set layer output\n";
     glob_t globs;
@@ -105,8 +97,7 @@ void Set::fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern)
 
     for (size_t i = 0; i < globs.gl_pathc; i++)
         if (std::regex_match(globs.gl_pathv[i], reg))   //For each input file which matches the regex
-            add(globs.gl_pathv[i]);
-
+            add(std::move(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i])));
     globfree(&globs);
     piol->isErr();
 }
@@ -207,7 +198,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
         out->writeInc(inc);
         out->writeText(outmsg);
 
-        const size_t memlim = (60LU*1024LU*1024LU*1024LU) / piol->comm->getNumRank();
+        const size_t memlim = 2LU*1024LU*1024LU*1024LU;
         size_t max = memlim / (5LU*sizeof(size_t) + SEGSz::getDOSz(ns) + 2LU*rule->paramMem() + 2LU*SEGSz::getDFSz(ns));
 
         for (auto & f : fQue)
@@ -223,6 +214,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 size_t rblock = (i + max < lnt ? max : lnt - i);
                 std::vector<trace_t> trc(rblock * ns);
 //TODO: Rule should be made of rules stored in function list
+#warning Use non-monotonic call here
                 File::Param prm(rule, rblock);
 
                 in->readTrace(rblock, f->ilst.data() + i, trc.data(), &prm);
@@ -435,18 +427,20 @@ std::vector<std::string> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::i
         else if ((*fCurr)->opt.check(FuncOpt::Gather))
         {
             std::string gname = startGather(fCurr, fEnd);
-            if (gname != "")
+            if (gname != "")        //If startGather returned an empty string, then fCurr == fEnd was reached.
                 return std::vector<std::string>{gname};
 
             //TODO: Later this will need to be changed when the gather also continues with single trace cases
-            for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather); fCurr++);
+            auto type = FuncOpt::Gather;
+            #warning Trick goes here
+            for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather); ++fCurr);
         }
         else if ((*fCurr)->opt.check(FuncOpt::SingleTrace))
         {
             std::vector<std::string> sname = startSingle(fCurr, fEnd);
             if (sname.size())
-                return std::vector<std::string>{sname};
-            for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::SingleTrace); fCurr++);
+                return sname;
+            for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::SingleTrace); ++fCurr);
         }
         else
         {
@@ -476,6 +470,7 @@ std::vector<std::string> Set::output(std::string oname)
 
 void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax)
 {
+//TODO: This needs to be changed to be compatible with ExSeisFlow
     minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
     minmax[2].val = std::numeric_limits<geom_t>::max();
@@ -529,7 +524,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc)
         {
             piol->log->record("", Log::Layer::Set, Log::Status::Error,
                 "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
-            return std::vector<size_t>();
+            return std::vector<size_t>{};
         }
         else
         {

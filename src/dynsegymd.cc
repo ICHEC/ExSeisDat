@@ -367,13 +367,20 @@ size_t Rule::paramMem(void) const
 
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
 {
-    f.resize(sz * r->numFloat);
-    i.resize(sz * r->numLong);
-    s.resize(sz * r->numShort);
-    t.resize(sz * r->numIndex);
+    if (r->numFloat)
+        f.resize(sz * r->numFloat);
 
-    //TODO: This must be file format agnostic
-    c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
+    if (r->numLong)
+        i.resize(sz * r->numLong);
+
+    if (r->numShort)
+        s.resize(sz * r->numShort);
+
+    if (r->numIndex)
+        t.resize(sz * r->numIndex);
+
+    if (r->numCopy) //TODO: This must be file format agnostic
+        c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
 Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)

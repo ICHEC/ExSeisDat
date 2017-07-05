@@ -67,6 +67,7 @@ void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xs
 fourd_t hypot(const fourd_t x, const fourd_t y)
 {
     return sqrtf(x*x + y*y);
+   // return std::hypot(x, y);
 }
 
 /*! Create windows for one-sided communication of coordinates
@@ -238,12 +239,12 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
     #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) aligned(yR2:ALIGN) \
                      aligned(xS1:ALIGN) aligned(yS1:ALIGN) aligned(xR1:ALIGN) aligned(yR1:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (size_t i = lstart; i < lend; i++)                         //Loop through every file1 trace
+    for (llint i = lstart; i < lend; i++)                         //Loop through every file1 trace
     {
         const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
         size_t lm = lmin[i];
         fourd_t lmrs = lminrs[i];
-        for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
+        for (llint j = rstart; j < rend; j++)        //loop through a multiple of the alignment
         {
             const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j], yr2 = yR2[j];
             fourd_t dval = (!ixline || (crd1->il[i] == crd2->il[j] && crd1->xl[i] == crd2->xl[j]) ?

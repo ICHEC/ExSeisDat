@@ -188,12 +188,6 @@ class Set
     size_t rank;                                                //!< The rank of the particular process
     size_t numRank;                                             //!< The number of ranks
 
-    /*! Fill the file descriptors using the given pattern
-     *  \param[in] piol The PIOL object.
-     *  \param[in] pattern The file-matching pattern
-     */
-    void fillDesc(std::shared_ptr<ExSeisPIOL> piol, std::string pattern);
-
     /*! Drop all file descriptors without output.
      */
     void drop(void)
@@ -343,7 +337,7 @@ class Set
     void add(std::unique_ptr<File::ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
-     *  \param[in] name The input name
+     *  \param[in] name The input name or pattern
      */
     void add(std::string name);
 
