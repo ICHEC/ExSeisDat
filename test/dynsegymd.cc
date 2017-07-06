@@ -1,4 +1,7 @@
 #include "dynsegymdtest.hh"
+
+//TODO: Add test for cpyPrm called with different sets of rules, i.e dst and src disagree on rules
+
 TEST(RuleEntry, SEGYFloat)
 {
     SEGYFloatRuleEntry entry(2U, Tr::xSrc, Tr::ScaleCoord);

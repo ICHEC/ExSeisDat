@@ -15,10 +15,9 @@
 #include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
-Rule::Rule(RuleMap translate_, bool full)
+Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
 {
-    numLong = numShort = numFloat = numIndex = 0;
-    translate = translate_;
+    numLong = numShort = numFloat = numIndex = numCopy = 0;
     for (const auto & t : translate)
         switch (t.second->type())
         {
@@ -446,10 +445,13 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
         {
             //Check for a rule in destination
             auto valit = drule->translate.find(m.first);
-            RuleEntry * dent = valit->second;
-            RuleEntry * sent = m.second;
+
             //if the rule is in the destination and the types match
-            if (valit != drule->translate.end() && dent->type() == sent->type())
+            if (valit != drule->translate.end())
+            {
+                RuleEntry * dent = valit->second;
+                RuleEntry * sent = m.second;
+                if (dent->type() == sent->type())
                 switch (m.second->type())
                 {
                     case MdType::Float :
@@ -465,6 +467,7 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
                     dst->t[drule->numIndex*k + dent->num] = src->t[srule->numIndex*j + sent->num];
                     default : break;
                 }
+            }
         }
 }
 
