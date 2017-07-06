@@ -27,7 +27,7 @@ namespace PIOL { namespace File {
  *  \param[in] FileOrder Do we wish to have the sort in the sorted input order (true) or sorted order (false)
  *  \return Return the correct order of traces from those which are smallest with respect to the comp function.
  */
-std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, Compare<Param> comp, bool FileOrder = true);
+std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, CompareP comp, bool FileOrder = true);
 
 /*! Check that the file obeys the expected ordering.
  *  \param[in] src The input file.
@@ -59,6 +59,6 @@ extern bool checkOrder(ReadInterface * src, std::pair<size_t, size_t> dec, SortT
  *  \return A std::function object with the correct comparison for
  *          the sort type.
  */
-extern Compare<Param> getComp(SortType type);
+extern CompareP getComp(SortType type);
 }}
 #endif

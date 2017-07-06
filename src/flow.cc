@@ -198,7 +198,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
         out->writeInc(inc);
         out->writeText(outmsg);
 
-        const size_t memlim = 2LU*1024LU*1024LU*1024LU;
+        const size_t memlim = 1024LU*1024LU*1024LU;
         size_t max = memlim / (5LU*sizeof(size_t) + SEGSz::getDOSz(ns) + 2LU*rule->paramMem() + 2LU*SEGSz::getDFSz(ns));
 
         for (auto & f : fQue)
@@ -503,9 +503,9 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
     }
 }
 
-void Set::sort(Compare<File::Param> sortFunc)
+void Set::sort(CompareP sortFunc)
 {
-    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy, Meta::il, Meta::xl, Meta::xSrc,
+    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl, Meta::xSrc,
                                                                          Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::xCmp,
                                                                          Meta::yCmp, Meta::Offset, Meta::WtrDepRcv, Meta::tn});
 
@@ -514,7 +514,7 @@ void Set::sort(Compare<File::Param> sortFunc)
     sort(r, sortFunc);
 }
 
-void Set::sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc)
+void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal, FuncOpt::SubSetOnly};
 

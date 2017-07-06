@@ -283,13 +283,13 @@ class Set
     /*! Sort the set using the given comparison function
      *  \param[in] sortFunc The comparison function
      */
-    void sort(Compare<File::Param> sortFunc);
+    void sort(CompareP sortFunc);
 
     /*! Sort the set using the given comparison function
      *  \param[in] r The rules necessary for the sort.
      *  \param[in] sortFunc The comparison function.
      */
-    void sort(std::shared_ptr<File::Rule> r, Compare<File::Param> sortFunc);
+    void sort(std::shared_ptr<File::Rule> r, CompareP sortFunc);
 
     /*! Output using the given output prefix
      *  \param[in] oname The output prefix

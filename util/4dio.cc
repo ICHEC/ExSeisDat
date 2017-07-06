@@ -55,11 +55,11 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
         file.readParam(size_t(0), size_t(0), nullptr);
     cmsg(piol.get(), "getCoords sort");
 
-    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param & e1, const File::Param & e2) -> bool
+    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param * prm, csize_t i, csize_t j) -> bool
             {
-                return (File::getPrm<geom_t>(0LU, Meta::xSrc, &e1) < File::getPrm<geom_t>(0LU, Meta::xSrc, &e2) ? true :
-                        File::getPrm<geom_t>(0LU, Meta::xSrc, &e1) == File::getPrm<geom_t>(0LU, Meta::xSrc, &e2) &&
-                        File::getPrm<size_t>(0LU, Meta::gtn, &e1) < File::getPrm<size_t>(0LU, Meta::gtn, &e2));
+                return (File::getPrm<geom_t>(i, Meta::xSrc, prm) <  File::getPrm<geom_t>(j, Meta::xSrc, prm) ? true :
+                        File::getPrm<geom_t>(i, Meta::xSrc, prm) == File::getPrm<geom_t>(j, Meta::xSrc, prm) &&
+                        File::getPrm<size_t>(i, Meta::gtn, prm)  <  File::getPrm<size_t>(j, Meta::gtn, prm));
             }, false);
 
     cmsg(piol.get(), "getCoords post-sort I/O");
@@ -162,7 +162,7 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     for (size_t i = 0; i < piol->comm->getNumRank(); i++)
     {
         if (i == piol->comm->getRank())
-            std::cout << "rank " <<  piol->comm->getRank() << " loops " << lnt / max + + extra << std::endl;
+            std::cout << "rank " <<  piol->comm->getRank() << " loops " << lnt / max + extra << std::endl;
         piol->comm->barrier();
     }
 

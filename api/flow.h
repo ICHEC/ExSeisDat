@@ -96,7 +96,7 @@ extern void addSet(ExSeisSet s, const char * name);
  *  \param[in] s A handle for the set.
  *  \param[in] func The custom comparison function to sort set
  */
-extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b));
+extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam prm, const size_t i, const size_t j));
 
 /*! Scale traces using automatic gain control for visualization
  * \param[in] s The set handle

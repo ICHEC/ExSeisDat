@@ -423,13 +423,12 @@ void addSet(ExSeisSet s, const char * name)
     s->set->add(name);
 }
 
-void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
+void sortCustomSet(ExSeisSet s, bool (* func)(const CParam prm, csize_t i, csize_t j))
 {
-    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
-        {
-            ParamWrapper awrap = { const_cast<File::Param *>(&a) };
-            ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
-            return func(&awrap, &bwrap);
+    auto lam = [func] (const File::Param * prm, csize_t i, csize_t j) -> bool
+    {
+        ParamWrapper awrap = { const_cast<File::Param *>(prm) };
+        return func(&awrap, i, j);
     };
     s->set->sort(lam);
 }

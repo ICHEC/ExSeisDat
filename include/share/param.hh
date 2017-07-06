@@ -72,6 +72,8 @@ struct Param
         return !this->operator==(p);
     }
 };
-}}
+}
+typedef std::function<bool(const File::Param *, csize_t, csize_t)>  CompareP;   //!< A template for the Compare less-than function
+}
 #endif
 
