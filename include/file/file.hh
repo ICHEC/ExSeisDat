@@ -19,7 +19,7 @@ namespace Obj {
  * \param[in] name The name of the file.
  * \param[in] mode The filemode.
  * \return Return a shared_ptr to the obj layer object.
- * \todo TODO: This hack needs a further tidyup.
+ * \todo TODO: This hack needs a further tidyup and out of file.hh.
  */
 std::shared_ptr<Obj::Interface> makeDefaultObj(PIOL::Piol piol, std::string name, FileMode mode);
 }
@@ -249,16 +249,16 @@ class Model3dInterface
     std::tuple<llint, llint, llint> xl;  //!< Parameters for the crossline coordinate (start, count, increment)
 
     /*! read the 3d file based on il and xl that match those in the given \c gather array.
-     *  \param[in] gOffset the offset into the gathers
-     *  \param[in] numGather the number of gathers for the local process
+     *  \param[in] offset the offset into the global array
+     *  \param[in] sz the number of gathers for the local process
      *  \param[in] gather a structure which contains the il and xl coordinates of interest
      *  \return return a vector of traces containing the trace values requested
      */
-    virtual std::vector<trace_t> readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather) = 0;
+    virtual std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather) = 0;
 
     /*! Read the 3d file based on il and xl that match those in the given \c gather array.
      *  \param[in] sz The number of offsets for the local process
-     *  \param[in] offset An array of local offsets
+     *  \param[in] offset the offset into the global array
      *  \param[in] gather A structure which contains the il and xl coordinates of interest
      *  \return Return a vector of traces containing the trace values requested
      */

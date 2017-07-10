@@ -353,7 +353,7 @@ struct FileReadSEGYTest : public Test
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
-            if (readPrm && tnRead * ns)
+            if (readPrm && tnRead && ns)
             {
                 ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
@@ -392,7 +392,7 @@ struct FileReadSEGYTest : public Test
                 buf.resize(tn * SEGSz::getDFSz(ns));
             for (size_t i = 0U; i < tn; i++)
             {
-                if (readPrm && ns*tn)
+                if (readPrm && ns && tn)
                     std::copy(tr.begin() + offset[i] * SEGSz::getMDSz(), tr.begin() + (offset[i]+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
                 for (size_t j = 0U; j < ns; j++)
                 {
@@ -417,7 +417,7 @@ struct FileReadSEGYTest : public Test
             file->readTrace(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
-            if (readPrm && tn * ns)
+            if (readPrm && tn && ns)
             {
                 ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
@@ -717,7 +717,7 @@ struct FileWriteSEGYTest : public Test
             readfile->readTrace(offset, tn, bufnew.data());
         for (size_t i = 0U; i < tnRead; i++)
         {
-            if (readPrm && tnRead * ns)
+            if (readPrm && tnRead && ns)
             {
                 ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
@@ -820,7 +820,7 @@ struct FileWriteSEGYTest : public Test
             readfile->readTrace(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
-            if (readPrm && tn * ns)
+            if (readPrm && tn && ns)
             {
                 ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];

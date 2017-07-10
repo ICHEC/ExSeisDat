@@ -14,19 +14,23 @@
 #include <iostream>
 
 namespace PIOL {
+//TODO: Generalise this for parameters and traces
 std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool cPrm, bool cTrc)
 {
     auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc; });
     if (it == cache.end() || !it->block || !it->block->prm)
     {
-        size_t lsnt = 0LU;
-        for (auto & f : desc)
-            lsnt += f->ilst.size();
-
-        size_t off = piol->comm->offset(lsnt);
-        auto prm = std::make_unique<File::Param>(rule, lsnt);
-        //TODO: Do not make assumptions about Parameter sizes fitting in memory.
+        size_t lnt = 0LU;
         size_t nt = 0LU;
+        for (auto & f : desc)
+        {
+            lnt += f->ilst.size();
+            nt += f->ifc->readNt();
+        }
+
+        size_t off = piol->comm->offset(lnt);
+        auto prm = std::make_unique<File::Param>(rule, lnt);
+        //TODO: Do not make assumptions about Parameter sizes fitting in memory.
         size_t loff = 0LU;
         size_t c = 0LU;
         for (auto & f : desc)
@@ -39,7 +43,6 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
             }
             c++;
             loff += f->ilst.size();
-            nt += f->ifc->readNt();
         }
 
         if (it == cache.end())
@@ -72,9 +75,9 @@ std::vector<size_t> Cache::getOutputTrace(FileDeque & desc, csize_t offset, csiz
     if (it != cache.end())
     {
         auto iprm = it->block->prm.get();
-        size_t loc = 0;
+        size_t loc = 0LU;
         final.resize(sz);
-        for (size_t i = 0; i < desc.size() && loc < offset+sz; i++)
+        for (size_t i = 0LU; i < desc.size() && loc < offset+sz; i++)
         {
             size_t fsz = desc[i]->olst.size();
             size_t nloc = loc + fsz;
@@ -90,7 +93,7 @@ std::vector<size_t> Cache::getOutputTrace(FileDeque & desc, csize_t offset, csiz
         }
 
         std::vector<size_t> sortlist = getSortIndex(sz, final.data());
-        for (size_t j = 0U; j < sz; j++)
+        for (size_t j = 0LU; j < sz; j++)
             File::cpyPrm(sortlist[j], iprm, j, prm);
     }
     return final;

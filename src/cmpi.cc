@@ -95,7 +95,7 @@ size_t MPI::offset(size_t val)
 {
     size_t offset = 0LU;
     MPI_Exscan(&val, &offset, 1LU, MPIType<size_t>(), MPI_SUM, MPI_COMM_WORLD);
-    return (!rank ? 0 : offset);
+    return (!rank ? 0LU : offset);
 }
 
 std::vector<llint> MPI::gather(const std::vector<llint> & in) const

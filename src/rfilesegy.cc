@@ -38,45 +38,52 @@ ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, std::sha
     File::Param prm(vlist.size());
     readParam(vlist.size(), vlist.data(), &prm);
 
-    llint ilInc = File::getPrm<llint>(1LU, Meta::il, &prm) - File::getPrm<llint>(0LU, Meta::il, &prm);
-    llint ilNum = (ilInc ? File::getPrm<llint>(2LU, Meta::il, &prm) / ilInc : 0LU);
-    llint xlInc = File::getPrm<llint>(2LU, Meta::xl, &prm) / (readNt() / (ilNum ? ilNum : 1LU));
-    llint xlNum = (xlInc ? readNt() / (ilNum ? ilNum : 1LU) / xlInc : 0LU);
+    llint il0 = File::getPrm<llint>(0LU, Meta::il, &prm);
+    llint xl0 = File::getPrm<llint>(0LU, Meta::xl, &prm);
+
+    llint ilInc = File::getPrm<llint>(1LU, Meta::il, &prm) - il0;
+    llint ilNum = (ilInc ? (File::getPrm<llint>(2LU, Meta::il, &prm) - il0) / ilInc : 0LU);
+    llint xlNum = (readNt() / (ilNum ? ilNum : 1LU));
+    llint xlInc = (File::getPrm<llint>(2LU, Meta::xl, &prm) - xl0) / xlNum;
 
     ilInc = (ilInc ? ilInc : 1LU);
     xlInc = (xlInc ? xlInc : 1LU);
 
-    il = std::make_tuple(File::getPrm<llint>(0LU, Meta::il, &prm), ilNum, ilInc);
-    xl = std::make_tuple(File::getPrm<llint>(0LU, Meta::xl, &prm), xlNum, xlInc);
+    il = std::make_tuple(il0, ilNum, ilInc);
+    xl = std::make_tuple(xl0, xlNum, xlInc);
 }
 
-std::vector<trace_t> ReadSEGYModel::readModel(csize_t gOffset, csize_t numGather, const Uniray<size_t, llint, llint> & gather)
+std::vector<trace_t> ReadSEGYModel::readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather)
 {
-    std::vector<trace_t> trc(numGather * readNs());
-    std::vector<size_t> offset(numGather);
-    for (size_t i = 0; i < numGather; i++)
+    std::vector<trace_t> trc(sz * readNs());
+    std::vector<size_t> offsets(sz);
+    for (size_t i = 0; i < sz; i++)
     {
-        auto val = gather[gOffset + i];
-        offset[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
+        auto val = gather[offset + i];
+        /* The below can be translated to:
+         * trace number = ilNumber * xlInc + xlNumber
+         * much like indexing in a 2d array.
+         */
+        offsets[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
+    readTrace(offsets.size(), offsets.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
     return trc;
 }
 
-std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * goffset, const Uniray<size_t, llint, llint> & gather)
+std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather)
 {
     std::vector<trace_t> trc(sz * readNs());
-    std::vector<size_t> offset(sz);
+    std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++)
     {
-        auto val = gather[goffset[i]];
-        offset[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
+        auto val = gather[offset[i]];
+        offsets[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il)) * std::get<1>(xl)
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offset.size(), offset.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
+    readTrace(offsets.size(), offsets.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
     return trc;
 }
 
@@ -174,11 +181,8 @@ void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trc, Param * prm,
 {
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
     if (offset >= nt && sz)   //Nothing to be read.
-    {
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-            "readParam() was called for a zero byte read", Log::Verb::None);
-        return;
-    }
+                          "readParam() was called for a zero byte read", Log::Verb::None);
     readTraceT(obj.get(), format, ns, offset, [offset] (size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);
 }
 

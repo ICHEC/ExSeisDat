@@ -11,6 +11,7 @@
  *   is complete.
 *//*******************************************************************************************/
 #include <algorithm>
+#include <numeric>
 #include "global.hh"
 #include "ops/sort.hh"
 #include "file/dynsegymd.hh"
@@ -376,7 +377,7 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
     size_t numRank = piol->comm->getNumRank();
     size_t rank = piol->comm->getRank();
     size_t edge1 = (rank ? regionSz : 0LU);
-    size_t edge2 = (rank != numRank-1 ? regionSz : 0LU);
+    size_t edge2 = (rank != numRank-1LU ? regionSz : 0LU);
 
     if (comp != nullptr)
         std::sort(dat.begin(), dat.begin() + lnt, [comp](auto & a, auto & b) -> bool { return comp(a, b); });
@@ -619,7 +620,6 @@ void sortP(ExSeisPIOL * piol, File::Param * prm, CompareP comp = nullptr)
         cpyPrm(i, &temp1, i, prm);
 }
 
-
 std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, CompareP comp, bool FileOrder)
 {
     sortP(piol, prm, comp);
@@ -630,10 +630,4 @@ std::vector<size_t> sort(ExSeisPIOL * piol, Param * prm, CompareP comp, bool Fil
 
     return (FileOrder ? sort(piol, list): list);
 }
-
-
-
-
-
-
 }}
