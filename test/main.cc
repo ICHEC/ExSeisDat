@@ -44,7 +44,7 @@ void makeFile(std::string name, size_t sz)
 {
     static const char zero = '\0';
     FILE * fs = fopen(name.c_str(), "w");
-    assert(fs);
+
     if (sz != 0)
     {
         //Seek beyond the end of the file and write a single null byte. This ensures the file is all zeroes

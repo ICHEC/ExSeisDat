@@ -20,11 +20,6 @@ struct FileDesc
     std::unique_ptr<File::ReadInterface> ifc;   //!< The file interface
     std::vector<size_t> ilst;                   //!< The size of this corresponds to the local decomposition
     std::vector<size_t> olst;                   //!< The size of this corresponds to the local decomposition
-
-/*    ~FileDesc(void)
-    {
-        ifc.reset();
-    }*/
 };
 
 /*! The structure for holding all trace data.
