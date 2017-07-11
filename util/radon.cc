@@ -36,13 +36,13 @@ int main(int argc, char ** argv)
         }
 
     assert(radon.size() && angle.size() && velocity.size());
-
-    std::cout << "Radon to Angle Transformation"
-              << "\n-\tInput radon file:\t" << radon
-              << "\n-\tVelocity model file:\t" << velocity
-              << "\n-\tOutput angle file:\t" << angle
-              << "\n-\tIncrement:\t\t" << oInc
-              << "\n-\tvBin:\t\t\t" << vBin << std::endl;
+    if (!piol->getRank())
+        std::cout << "Radon to Angle Transformation"
+                  << "\n-\tInput radon file:\t" << radon
+                  << "\n-\tVelocity model file:\t" << velocity
+                  << "\n-\tOutput angle file:\t" << angle
+                  << "\n-\tIncrement:\t\t" << oInc
+                  << "\n-\tvBin:\t\t\t" << vBin << std::endl;
     Set set(piol, radon, angle);
     piol.isErr();
     set.toAngle(velocity, vBin, oInc);
