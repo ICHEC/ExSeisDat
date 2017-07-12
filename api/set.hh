@@ -7,6 +7,7 @@
 *//*******************************************************************************************/
 #ifndef APIPIOLSET_INCLUDE_GUARD
 #define APIPIOLSET_INCLUDE_GUARD
+#include <vector>
 #include "set/set.hh"
 #include "fileops.hh"
 namespace PIOL
@@ -19,6 +20,7 @@ class Set : public InternalSet
     using InternalSet::sort;
     using InternalSet::taper;
     using InternalSet::agc;
+    using InternalSet::temporalFilter;
     /*! Constructor
      *  \param[in] piol The PIOL object.
      *  \param[in] pattern The file-matching pattern
@@ -73,6 +75,41 @@ class Set : public InternalSet
      * \param[in] normR Normalization value
      */
     void agc(AGCType type, size_t window, trace_t normR);
+
+    /*! Filter traces or part of traces using a IIR Butterworth filter
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domaini
+     * \param[in] pad Padding pattern
+     * \param[in] fs Sampling frequency
+     * \param[in] corners Passband and stopband frequency in Hz
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw = 0U, size_t winCntr = 0U);
+
+    /*! Filter traces or part of traces using a IIR Butterworth filter
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] pad Padding pattern
+     * \param[in] fs Sampling frequency
+     * \param[in] corners Passband frequency in Hz
+     * \param[in] N Filter order
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void temporalFilter(FltrType type, FltrDmn domain,PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw = 0U, size_t winCntr = 0U);
+
+    /*! Filter traces or part of traces using a IIR Butterworth filter
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] pad Padding pattern
+     * \param[in] fs Sampling frequency
+     * \param[in] corners Passband frequency in Hz
+     * \param[in] N Filter order
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, trace_t corners, size_t nw = 0U, size_t winCntr = 0U);
 };
 }
 #endif

@@ -14,6 +14,7 @@
 #include "file/file.hh"
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
+#include "ops/temporalfilter.hh"
 #include "share/api.hh"
 
 //#warning Make redundant
@@ -62,5 +63,7 @@ extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, Param * prm);
  *  \return Return true if the local ordering is correct.
  */
 extern bool checkOrder(ReadInterface * src, std::pair<size_t, size_t> dec, SortType type);
+
+extern void makeFilter(FltrType type, trace_t * numer, trace_t * denom, size_t N, trace_t fs, trace_t cf1, trace_t cf2);
 }}
 #endif

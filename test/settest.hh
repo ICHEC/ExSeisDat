@@ -215,26 +215,25 @@ struct SetTest : public Test
                EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
            }
     }
-};
-void bandpassTest(size_t nt, size_t ns, FltrTyp type, FltrDomain domain, trace_t cutoff, size_t window, size_t winCntr, trace_t * manFilter)
+    void filterTest(size_t nt, size_t ns, FltrType type, FltrDmn domain, std::vector<trace_t> corners, const trace_t * trcRef)
     {
+        trace_t PI= std::acos(-1);
+        size_t N =3;
         if (set.get() != nullptr)
             set.release();
         set = std::make_unique<Set>(piol);
         std::vector<trace_t> trc(nt*ns);
-        std::vector<trace_t> trcMan(nt*ns);
         File::Param p(nt);
-
+        trace_t fs = 30;
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-            {
-                trc[i*ns + j] = std::cos(12*2*PI*j/20)+std::cos(6*2*PI*j/20)
-            }
-       set->bandpass(type,domain,cutoff, window, winCntr);
-       set->modify(ns, &p, trc.data());
-       for (size_t i =0; i<nt; i++)
-            for (size_t j = 0; j<ns; j++)
-            {
-                EXPECT_FLOAT_EQ(trc[i*ns+j], manFilter);
-            }
+                trc[i*ns+j]=std::sin(1.2*PI*4*(trace_t(j))/trace_t(ns))+ 1.5*std::cos(18*PI*2*(trace_t(j))/trace_t(ns)) 
+                            + 0.5*std::sin(12.0*4*PI*(trace_t(j))/trace_t(ns));
+        set ->temporalFilter(type, domain, PadType::Zero, fs,N, corners);
+        set -> modify(ns, &p, trc.data());
+
+        for (size_t i =0; i< nt; i++)
+            for (size_t j = 0; j< ns; j++)
+                EXPECT_FLOAT_EQ(trc[i*ns+j], trcRef[i*ns+j]);
+    }
 };

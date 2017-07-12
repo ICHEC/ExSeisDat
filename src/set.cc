@@ -444,43 +444,16 @@ void InternalSet::agc(std::function<trace_t(trace_t * trc, size_t strt, size_t w
     Mod modify_ = [func, window, normR] (size_t ns, File::Param * p, trace_t *t) {File::agc(p->size(), ns, t, func, window, normR);};
     mod(modify_);
 }
-void InternalSet::bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t nw, size_t winCntr)
+void InternalSet::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw, size_t winCntr)
 {
-    if (nw == 0U)
-        Mod modify_ = [type, domain, corners](size_t ns, File::Param * p, trace_t *t) {File::bandpass(p->size(), ns, t, type, domain, corners, ns, ns/2);};
-    else
-    {
-        Mod modify_ = [type, domain, corners, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
-                      {File::bandpass(p->size(), ns, t, type, domain, corners, nw, winCntr);};
-    }
+    Mod modify_ = [type, domain, corners, pad, fs, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
+                  {File::temporalFilter(p->size(), ns, t, fs, type, domain, pad, nw, winCntr, corners);};
     mod(modify_);
 }
-void InternalSet::bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t N, size_t nw, size_t winCntr)
+void InternalSet::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr)
 {
-    if (nw == 0U)
-    {
-        Mod modify_ = [type, domain, corners, N](size_t ns, File::Param * p, trace_t *t)
-                      {File::bandpass(p->size(), ns, t, type, domain, corners, N, ns, ns/2);};
-    }
-    else
-    {
-        Mod modify_ = [type, domain, corners, N, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
-                      {File::bandpass(p->size(), ns, t, type, domain, corners, N,nw, winCntr);};
-    }
-    mod(modify_);
-}
-void InternalSet::bandpass(FltrType type, FltrDmn domain, trace_t corners, size_t N, size_t nw, size_t winCntr)
-{
-    if (nw == 0U)
-    {
-        Mod modify_ = [type, domain, corners, N](size_t ns, File::Param * p, trace_t *t)
-                      {File::bandpass(p->size(), ns, t, type, domain, corners, N, ns, ns/2);};
-    }
-    else
-    {
-        Mod modify_ = [type, domain, corners, N, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
-                      {File::bandpass(p->size(), ns, t, type, domain, corners, N,nw, winCntr);};
-    }
+    Mod modify_ = [type, domain, corners, pad, fs, N, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
+                  {File::temporalFilter(p->size(), ns, t, fs, type, domain, pad, nw, winCntr,corners,N);};
     mod(modify_);
 }
 }

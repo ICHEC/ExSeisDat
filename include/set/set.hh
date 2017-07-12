@@ -12,6 +12,7 @@
 #include "ops/minmax.hh"
 #include "ops/sort.hh"
 #include "ops/agc.hh"
+#include "ops/temporalfilter.hh"
 #include <functional>
 #include <memory>
 #include <deque>
@@ -52,6 +53,35 @@ void taper(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t we
  */
 extern void agc(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t * trc,size_t strt,
                 size_t window, trace_t normR)> func, size_t window, trace_t normR, size_t winCntr);
+
+ /* Temporally filter traces when given passband and stopband frequencies
+     * \param[in] nt Number of traces
+     * \param[in] ns Number of samples per trace
+     * \param[in] trc Traces
+     * \param[in] fs Sampling frequency
+     * \param[in] type Type of filter
+     * \param[in] domain Domain to filter in (frequency or time)
+     * \param[in] pad Type of trace padding
+     * \param[in] nw Size of filter window
+     * \param[in] winCntr Center of filter window
+     * \param[in] corners Vector of corner frequencies (Hz)
+     */
+//extern void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t * fs, FltrType type, FltrDmn domain,  PadType pad,size_t nw, size_t winCntr, std::vector<trace_t> corners);
+
+    /* Temporally filter traces when given passband frequencies and filter Order
+     * \param[in] nt Number of traces
+     * \param[in] ns Number of samples per trace
+     * \param[in] trc Traces
+     * \param[in] fs Sampling frequency
+     * \param[in] type Type of filter
+     * \param[in] domain Domain to filter in (frequency or time)
+     * \param[in] pad Type of trace padding
+     * \param[in] nw Size of filter window
+     * \param[in] winCntr Center of filter window
+     * \param[in] N Filter order
+     * \param[in] corners Vector of corner frequencies (Hz)
+     */
+//extern void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain, PadType pad, size_t nw, size_t winCntr, std::vector<trace_t> corners, size_t N);
 /*! The internal set class
  */
 class InternalSet
@@ -137,33 +167,27 @@ class InternalSet
              size_t window, trace_t normR);
 
     /*! Adds the trace filting functionality to modify function
-     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] type Type of filter (i.e. lowpass, highpass, temporalFilter)
      * \param[in] domain Filtering domain
+     * \param[in] pad Type of trace padding
+     * \param[in] fs Sampling Frequency
      * \param[in] corners Passband and stopband frequency in Hz
      * \param[in] nw Size of trace filtering window
      * \param[in] winCntr Center of trace filtering window
      */
-    void bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t nw , size_t winCntr);
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw, size_t winCntr);
 
    /*! Adds the trace filting functionality to modify function
-     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] type Type of filter (i.e. lowpass, highpass, temporalFilter)
      * \param[in] domain Filtering domain
+     * \param[in] pad Type of trace padding
+     * \param[in] fs Sampling frequency
      * \param[in] corners Passband frequency in Hz
-     * \param[in] N Filter order
      * \param[in] nw Size of trace filtering window
      * \param[in] winCntr Center of trace filtering window
-     */
-    void bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t N, size_t nw, size_t winCntr);
-
-   /*! Adds the trace filting functionality to modify function
-     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * \param[in] domain Filtering domain
-     * \param[in] corners Passband frequency in Hz
      * \param[in] N Filter order
-     * \param[in] nw Size of trace filtering window
-     * \param[in] winCntr Center of trace filtering window
      */
-    void bandpass(FltrType type, FltrDmn domain, trace_t corners, size_t N, size_t nw, size_t winCntr);
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr);
 
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message

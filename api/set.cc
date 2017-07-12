@@ -41,16 +41,17 @@ void Set::agc(AGCType type, size_t window, trace_t normR)
 {
     InternalSet::agc(File::agcFunc(type), window,  normR);
 }
-void Set::bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t nw, size_t winCntr)
+void Set::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw, size_t winCntr)
 {
-    InternalSet::bandpass(type, domain, corners, nw, winCntr);
+    InternalSet::temporalFilter(type, domain, pad, fs, corners, nw, winCntr);
 }
-void Set::bandpass(FltrType type, FltrDmn domain, std::vector<trace_t> corners, size_t N, size_t nw, size_t winCntr)
+void Set::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr)
 {
-    InternalSet::bandpass(type, domain, corners, N, nw, winCntr);
+    InternalSet::temporalFilter(type, domain, pad, fs,N, corners,nw, winCntr);
 }
-void Set::bandpass(FltrType type, FltrDmn domain, trace_t corners, size_t N, size_t nw, size_t winCntr)
+void Set::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, trace_t corners, size_t nw, size_t winCntr)
 {
-    InternalSet::bandpass(type, domain, corners, N, nw, winCntr);
+    std::vector<trace_t> c ={corners, trace_t(0)};
+    InternalSet::temporalFilter(type, domain, pad, fs, N,c, nw, winCntr);
 }
 }
