@@ -231,9 +231,8 @@ struct SetTest : public Test
                             + 0.5*std::sin(12.0*4*PI*(trace_t(j))/trace_t(ns));
         set ->temporalFilter(type, domain, PadType::Zero, fs,N, corners);
         set -> modify(ns, &p, trc.data());
-
         for (size_t i =0; i< nt; i++)
             for (size_t j = 0; j< ns; j++)
-                EXPECT_FLOAT_EQ(trc[i*ns+j], trcRef[i*ns+j]);
+                EXPECT_NEAR(trc[i*ns+j], trcRef[i*ns+j], .00001);
     }
 };

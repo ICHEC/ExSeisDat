@@ -6,7 +6,6 @@
 #include "anc/mpi.hh"
 #include "file/file.hh"
 #include "segymdextra.hh"
-#include <iostream>
 using namespace testing;
 using namespace PIOL;
 using namespace File;
@@ -245,7 +244,6 @@ TEST_F(OpsTest, FilterCheckBandpass)
     std::vector<trace_t> numerRef={0.03142168, 0.0, -0.1256867, 0.0, 0.18853005, 0.0, -0.1256867, 0.0, 0.03142168};
     for (size_t i = 0; i < 2*N+1; i++)
     {
-        std::cout<<i<<std::endl;
         EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
         EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
     }
@@ -260,7 +258,6 @@ TEST_F(OpsTest, FilterCheckBandstop)
     std::vector<trace_t> numerRef= {0.21261259, -1.38519468, 4.23471188, -7.83039071, 9.54055945, -7.83039071, 4.23471188, -1.38519468, 0.21261259};
     for (size_t i = 0; i < 2*N+1; i++)
     {
-        std::cout<<i<<std::endl; 
         EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
         EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
     }
