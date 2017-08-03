@@ -32,10 +32,10 @@ const cmtrace_t I(0,1);
 
 /********************************************* Non-Core **************************************/
 
-size_t filterOrder(const trace_t cornerP, const trace_t cornerS, const trace_t fs)
+size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
 {
     //unfortunately the standard doesnt require math functions to provide constexpr functions
-    static const trace_t val = 0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0));
+    static const trace_t val = 0.5_t * std::log(99_t / (std::pow(10_t, 0.3_t) - 1_t));
     return std::ceil(val / std::log(std::tan(PI*cornerS) / std::tan(PI*cornerP)));
 }
 
@@ -72,7 +72,7 @@ trace_t lowpass(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1)
     {
         pprodBL *= 4_t - p[i]*cf1;
         p[i] = filDiv(p[i]*cf1);
-        z[i] = trace_t(-1);
+        z[i] = -1_t;
     }
 
     return std::pow(cf1, N) / pprodBL.real();
@@ -105,7 +105,7 @@ trace_t bandpass(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
         p[N+i] = p[i] -  std::sqrt(p[i]*p[i] - bndLen);
         p[i] += std::sqrt(p[i]*p[i] - bndLen);
         z[i] = 1_t;
-        z[N+i] = trace_t(-1);
+        z[N+i] = -1_t;
     }
 
     for (size_t i = 0LU; i<2LU*N; i++)
@@ -137,9 +137,9 @@ trace_t bandstop(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
 
     for (size_t i = 0LU; i<N*2LU; i++)
     {
-        zPrdct *= trace_t(4.0)-z[i];
+        zPrdct *= 4_t - z[i];
         z[i] = filDiv(z[i]);
-        pPrdct *= trace_t(4.0)-p[i];
+        pPrdct *= 4_t - p[i];
         p[i] = filDiv(p[i]);
     }
 
@@ -149,8 +149,8 @@ trace_t bandstop(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
 void makeFilter(FltrType type, trace_t * numer, trace_t * denom, llint N, trace_t fs, trace_t cf1, trace_t cf2)
 {
     size_t tN = (cf2 == 0) ? N : N*2LU;
-    trace_t Wn = 4_t * std::tan(PI*(cf1/(fs*0.5))/2_t);
-    trace_t W2 = 4_t * std::tan(PI*(cf2/(fs*0.5))/2_t);
+    trace_t Wn = 4_t * std::tan(PI*(cf1/(fs*0.5_t))/2_t);
+    trace_t W2 = 4_t * std::tan(PI*(cf2/(fs*0.5_t))/2_t);
 
     std::vector<cmtrace_t> z(tN);
     std::vector<cmtrace_t> p(tN);
@@ -193,29 +193,29 @@ void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType ty
         case FltrType::Lowpass :
         {
             std::vector<trace_t> c = {corner[0LU], 0LU};
-            size_t N = filterOrder(corner[0LU], corner[1LU], fs);
+            size_t N = filterOrder(corner[0LU], corner[1LU]);
             temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr,c,N);
         }
         break;
         case FltrType::Highpass :
         {
             std::vector<trace_t> c = {corner[1LU], 0LU};
-            size_t N = filterOrder(corner[1LU], corner[0LU],fs);
+            size_t N = filterOrder(corner[1LU], corner[0LU]);
             temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr,c, N);
         }
         break;
         case FltrType::Bandpass :
         {
             std::vector<trace_t> c = {corner[1LU], corner[2LU]};
-            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr,c, std::max(filterOrder(corner[1], corner[0], fs),
-                                                                                       filterOrder(corner[2], corner[3], fs)));
+            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr,c, std::max(filterOrder(corner[1], corner[0]),
+                                                                                       filterOrder(corner[2], corner[3])));
         }
         break;
         case FltrType::Bandstop :
         {
             std::vector<trace_t> c = {corner[0LU], corner[3LU]};
-            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, std::max(filterOrder(corner[0], corner[1], fs),
-                                                                                        filterOrder(corner[3], corner[2], fs)));
+            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, std::max(filterOrder(corner[0], corner[1]),
+                                                                                        filterOrder(corner[3], corner[2])));
         }
         break;
     }
@@ -259,7 +259,7 @@ void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * nume
             a = a + denom[j]*std::exp(-fs*trace_t(j*i)/trace_t(nss));
         }
         cmtrace_t H = b/a;
-        frequency[i] = frequency[i] * (std::abs(H.real()), std::abs(H.imag()));
+        frequency[i] *= (std::abs(H.real()), std::abs(H.imag()));
     }
 
     fftwf_plan planIFFT = fftwf_plan_dft_c2r_1d(nss, reinterpret_cast<fftwf_complex *>(frequency.data()), trcX, FFTW_MEASURE);
@@ -292,8 +292,8 @@ void filterTime(size_t nw, trace_t * trcOrgnl, size_t numTail, trace_t * numer, 
     std::vector<trace_t> trcX(nw + 6LU*(numTail+1LU));
     for (size_t i = 0LU; i < 3LU*(numTail+1LU); i++)
     {
-        trcX[i]=padding(trcOrgnl, 3LU*(numTail+1LU), nw, i);
-        trcX[i+3LU*numTail+nw]=padding(trcOrgnl, 3LU*(numTail+1LU), nw-1LU, i+3LU*numTail+nw);
+        trcX[i] = padding(trcOrgnl, 3LU*(numTail+1LU), nw, i);
+        trcX[i+3LU*numTail+nw] = padding(trcOrgnl, 3LU*(numTail+1LU), nw-1LU, i+3LU*numTail+nw);
     }
     for (size_t i = 0; i<nw; i++)
         trcX[i+3LU*(numTail+1LU)]=trcOrgnl[i];
