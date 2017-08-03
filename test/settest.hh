@@ -170,6 +170,7 @@ struct SetTest : public Test
                 EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
             }
     }
+
     void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> func, size_t window, trace_t normR)
     {
         if (set.get() != nullptr)
@@ -181,12 +182,12 @@ struct SetTest : public Test
 
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-            {
                 trc[i*ns + j] = j;//*pow(-1.0f,j);
-            }
+
        trcMan = trc;
        set->agc(type, window, normR);
        set->modify(ns, &p, trc.data());
+
        size_t win;
        size_t winStr;
        size_t winCntr;
@@ -215,24 +216,27 @@ struct SetTest : public Test
                EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
            }
     }
+
     void filterTest(size_t nt, size_t ns, FltrType type, FltrDmn domain, std::vector<trace_t> corners, const trace_t * trcRef)
     {
         trace_t PI= std::acos(-1);
         size_t N =3;
-        if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
+
         std::vector<trace_t> trc(nt*ns);
         File::Param p(nt);
-        trace_t fs = 30;
+
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-                trc[i*ns+j]=std::sin(1.2*PI*4*(trace_t(j))/trace_t(ns))+ 1.5*std::cos(18*PI*2*(trace_t(j))/trace_t(ns)) 
-                            + 0.5*std::sin(12.0*4*PI*(trace_t(j))/trace_t(ns));
-        set ->temporalFilter(type, domain, PadType::Zero, fs,N, corners);
-        set -> modify(ns, &p, trc.data());
-        for (size_t i =0; i< nt; i++)
-            for (size_t j = 0; j< ns; j++)
+                trc[i*ns+j]=std::sin(4.8 * PI * (trace_t(j))/trace_t(ns)) +
+                      1.5 * std::cos(36 * PI * (trace_t(j))/trace_t(ns)) +
+                      0.5 * std::sin(48.0 * PI * (trace_t(j))/trace_t(ns));
+
+        set->temporalFilter(type, domain, PadType::Zero, trace_t(30), N, corners);
+        set->modify(ns, &p, trc.data());
+
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
                 EXPECT_NEAR(trc[i*ns+j], trcRef[i*ns+j], .00001);
     }
 };

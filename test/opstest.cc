@@ -3,6 +3,7 @@
 #include "tglobal.hh"
 #include "cppfileapi.hh"
 #include "fileops.hh"
+#include "ops/temporalfilter.hh"
 #include "anc/mpi.hh"
 #include "file/file.hh"
 #include "segymdextra.hh"
@@ -209,7 +210,7 @@ TEST_F(OpsTest, FilterCheckLowpass)
     size_t N = 4;
     std::vector<trace_t> denomCalc(N+1);
     std::vector<trace_t> numerCalc(N+1);
-    makeFilter(FltrType::Lowpass, numerCalc.data(), denomCalc.data(), N, trace_t(30), trace_t(1.2), trace_t(0));
+    makeFilter(FltrType::Lowpass, numerCalc.data(), denomCalc.data(), N, 30.0, 1.2, 0.0);
 
     std::vector<trace_t> denomRef={1, -3.34406784,  4.23886395, -2.40934286,  0.5174782 };
     std::vector<trace_t> numerRef={0.00018321611,  0.00073286443,  0.0010992966,   0.00073286443,  0.00018321611};
@@ -224,7 +225,7 @@ TEST_F(OpsTest, FilterCheckHighpass)
     size_t N = 4;
     std::vector<trace_t> denomCalc(N+1);
     std::vector<trace_t> numerCalc(N+1);
-    makeFilter(FltrType::Highpass, numerCalc.data(), denomCalc.data(), N, trace_t(30), trace_t(1.2), trace_t(0));
+    makeFilter(FltrType::Highpass, numerCalc.data(), denomCalc.data(), N, 30, 1.2, 0);
 
     std::vector<trace_t> denomRef={1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
     std::vector<trace_t> numerRef={0.71935955, -2.87743821, 4.31615732, -2.87743821, 0.71935955};
@@ -239,7 +240,7 @@ TEST_F(OpsTest, FilterCheckBandpass)
     size_t N = 4;
     std::vector<trace_t> denomCalc(2*N+1);
     std::vector<trace_t> numerCalc(2*N+1);
-    makeFilter(FltrType::Bandpass, numerCalc.data(), denomCalc.data(), N, trace_t(30), trace_t(1.2), trace_t(6.5));
+    makeFilter(FltrType::Bandpass, numerCalc.data(), denomCalc.data(), N, 30, 1.2, 6.5);
     std::vector<trace_t> denomRef={1.0, -4.19317484, 8.01505053, -9.44595842, 7.69031281, -4.39670663, 1.68365361, -0.3953309, 0.04619144};
     std::vector<trace_t> numerRef={0.03142168, 0.0, -0.1256867, 0.0, 0.18853005, 0.0, -0.1256867, 0.0, 0.03142168};
     for (size_t i = 0; i < 2*N+1; i++)

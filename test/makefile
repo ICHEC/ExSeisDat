@@ -1,7 +1,6 @@
 GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
 GOOGLE_OBJ=gmock-all.o  gtest-all.o
-LDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS)
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
@@ -44,7 +43,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ -L$(LIB_DIR)  $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(LDFLAGS) $(OBJECTS) -l$(LIB_PIOL) -l$(LIB_IPIOL) $(FFTWFLAGS) 
+	$(CXX) -o $@ $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(GOOGLE_OBJ) $(OBJECTS) -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles
@@ -67,8 +66,8 @@ ifeq "$(CURR_DEP)" "$(DEP)"
 endif
 
 %.dep: %.cc
-	g++ $(FFTWFLAGS) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@ 
+	g++ $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(FFTWFLAGS) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
 

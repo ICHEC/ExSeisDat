@@ -19,10 +19,10 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(FFTWFLAGS) $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(FFTWFLAGS) $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -fPIC $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(CBIN)
@@ -31,7 +31,7 @@ $(LIB_DIR)/lib$(PIOLBIN).so:
 	cd ../src ; $(MAKE)
 
 $(CBIN): $(OBJECTS) $(LIB_DIR)/lib$(PIOLBIN).so
-	$(CXX) $(FFTWFLAGS) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(LDFLAGS) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)

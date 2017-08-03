@@ -64,6 +64,6 @@ extern std::vector<size_t> sort(ExSeisPIOL * piol, SortType type, Param * prm);
  */
 extern bool checkOrder(ReadInterface * src, std::pair<size_t, size_t> dec, SortType type);
 
-extern void makeFilter(FltrType type, trace_t * numer, trace_t * denom, size_t N, trace_t fs, trace_t cf1, trace_t cf2);
+//extern void makeFilter(FltrType type, trace_t * numer, trace_t * denom, size_t N, trace_t fs, trace_t cf1, trace_t cf2);
 }}
 #endif
