@@ -407,22 +407,26 @@ TEST_F(SetTest, agcMedian)
 }
 TEST_F(SetTest, FilterOneTailTime)
 {
-    std::vector<trace_t> c= {1.667};
-    filterTest(1,59, FltrType::Lowpass, FltrDmn::Time, c,lowpassTime.data());
+    std::vector<trace_t> c= {1.667, 0};
+    ASSERT_EQ(lowpassTime.size(), 59);
+    filterTest(FltrType::Lowpass, FltrDmn::Time, c, lowpassTime);
 }
 TEST_F(SetTest, FilterOneTailFreq)
 {
-    std::vector<trace_t> c= {1.667};
-    filterTest(1,59, FltrType::Lowpass, FltrDmn::Freq, c,lowpassFreq.data());
+    std::vector<trace_t> c= {1.667, 0};
+    ASSERT_EQ(lowpassFreq.size(), 59);
+    filterTest(FltrType::Lowpass, FltrDmn::Freq, c,lowpassFreq);
 }
 
 TEST_F(SetTest, FilterTwoTailTime)
 {
     std::vector<trace_t> c={1.667, 6.5};
-    filterTest(1,59, FltrType::Bandpass, FltrDmn::Time,c, bandpassTime.data());
+    ASSERT_EQ(bandpassTime.size(), 59);
+    filterTest(FltrType::Bandpass, FltrDmn::Time,c, bandpassTime);
 }
 TEST_F(SetTest, FilterTwoTailFreq)
 {
-    std::vector<trace_t> c={1.667, 6.5};
-    filterTest(1,59, FltrType::Bandpass, FltrDmn::Freq,c, bandpassFreq.data());
+    std::vector<trace_t> c = {1.667_t, 6.5_t};
+    ASSERT_EQ(bandpassFreq.size(), 59);
+    filterTest(FltrType::Bandpass, FltrDmn::Freq,c, bandpassFreq);
 }

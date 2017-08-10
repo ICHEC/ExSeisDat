@@ -26,16 +26,13 @@ const cmtrace_t I(0,1);
 
 //TODO: Use this when intel supports it
 //using namespace std::complex_literals;
-
-
 /********************************************** Core *****************************************/
 
 /********************************************* Non-Core **************************************/
-
 size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
 {
     //unfortunately the standard doesnt require math functions to provide constexpr functions
-    static const trace_t val = 0.5_t * std::log(99_t / (std::pow(10_t, 0.3_t) - 1_t));
+    static const trace_t val = geom_t(0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
     return std::ceil(val / std::log(std::tan(PI*cornerS) / std::tan(PI*cornerP)));
 }
 
@@ -57,7 +54,6 @@ void expandPoly(const cmtrace_t * coef, csize_t nvx, trace_t * poly)
     for (size_t i = 0LU; i< nvx + 1LU; i++)
         poly[i] = vecXpnd[i].real();
 }
-
 
 //(4 + x)/(4 - x)
 inline cmtrace_t filDiv(cmtrace_t x)
@@ -99,7 +95,7 @@ trace_t bandpass(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
 
     cmtrace_t pprodBL(1, 0);
 
-    for (size_t i = 0LU; i<N; i++)
+    for (size_t i = 0LU; i < N; i++)
     {
         p[i] *= bndCntr / 2_t;
         p[N+i] = p[i] -  std::sqrt(p[i]*p[i] - bndLen);
@@ -108,7 +104,7 @@ trace_t bandpass(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
         z[N+i] = -1_t;
     }
 
-    for (size_t i = 0LU; i<2LU*N; i++)
+    for (size_t i = 0LU; i < 2LU*N; i++)
     {
         pprodBL *= 4_t - p[i];
         p[i] = filDiv(p[i]);
@@ -246,6 +242,7 @@ void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * nume
 //TODO: Generalize fftwf for other data types besides floats
 //TODO: If creating + destroying plans becomes a bottleneck, re-use the plans
     std::vector<cmtrace_t> frequency(nss);
+    std::vector<cmtrace_t> frequency1(nss);
     fftwf_plan planFFT = fftwf_plan_dft_r2c_1d(nss, trcX, reinterpret_cast<fftwf_complex *>(frequency.data()), FFTW_MEASURE);
     fftwf_execute(planFFT);
     fftwf_destroy_plan(planFFT);
@@ -255,11 +252,12 @@ void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * nume
         cmtrace_t a = 0, b = 0;
         for (size_t j = 0; j < N + 1LU; j++)
         {
-            b = b + numer[j]*std::exp(-fs*trace_t(j*i)/trace_t(nss));
-            a = a + denom[j]*std::exp(-fs*trace_t(j*i)/trace_t(nss));
+            cmtrace_t val = std::exp(-I*cmtrace_t(fs*trace_t(j*i)/trace_t(nss)));
+            b += numer[j]*val;
+            a += denom[j]*val;
         }
         cmtrace_t H = b/a;
-        frequency[i] *= (std::abs(H.real()), std::abs(H.imag()));
+        frequency[i] *= cmtrace_t(std::fabs(H.real()), std::fabs(H.imag()));
     }
 
     fftwf_plan planIFFT = fftwf_plan_dft_c2r_1d(nss, reinterpret_cast<fftwf_complex *>(frequency.data()), trcX, FFTW_MEASURE);
@@ -269,6 +267,7 @@ void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * nume
     for (size_t i = 0; i < nss; i++)
         trcX[i] /= nss;
 }
+
 void IIR(size_t N, size_t ns, trace_t * b, trace_t * a, trace_t * x, trace_t * y, trace_t * zi)
 {
     y[0]= b[0]*x[0]+zi[0];
@@ -333,8 +332,9 @@ void filterTime(size_t nw, trace_t * trcOrgnl, size_t numTail, trace_t * numer, 
 
 void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain, PadType pad, size_t nw, size_t winCntr,  std::vector<trace_t> corners, size_t N)
 {
-    nw = (!nw || nw > ns ? ns - ns % 2LU: nw -  nw % 2LU);
-    winCntr = (!winCntr == 0U ?  ns/2LU : winCntr);
+    nw = (!nw || nw > ns ? ns: nw);
+    nw = (nw % 2 ? nw : nw - 1);
+    winCntr = (!winCntr ?  ns/2LU : winCntr);
 
     assert(winCntr < ns && "Window Center is larger than trace length");
     size_t tail = (!corners[1] ? 1LU : 2LU);

@@ -446,14 +446,20 @@ void InternalSet::agc(std::function<trace_t(trace_t * trc, size_t strt, size_t w
 }
 void InternalSet::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw, size_t winCntr)
 {
-    Mod modify_ = [type, domain, corners, pad, fs, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
-                  {File::temporalFilter(p->size(), ns, t, fs, type, domain, pad, nw, winCntr, corners);};
+    assert(corners.size() == 2);
+    Mod modify_ = [type, domain, corners, pad, fs, nw, winCntr] (size_t ns, File::Param * p, trace_t * t)
+                    {
+                        File::temporalFilter(p->size(), ns, t, fs, type, domain, pad, nw, winCntr, corners);
+                    };
     mod(modify_);
 }
 void InternalSet::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr)
 {
-    Mod modify_ = [type, domain, corners, pad, fs, N, nw, winCntr](size_t ns, File::Param * p, trace_t *t)
-                  {File::temporalFilter(p->size(), ns, t, fs, type, domain, pad, nw, winCntr,corners,N);};
+    assert(corners.size() == 2);
+    Mod modify_ = [type, domain, corners, pad, fs, N, nw, winCntr] (size_t ns, File::Param * p, trace_t * t)
+                  {
+                       File::temporalFilter(p->size(), ns, t, fs, type, domain, pad, nw, winCntr,corners,N);
+                  };
     mod(modify_);
 }
 }

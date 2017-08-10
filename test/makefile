@@ -43,7 +43,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(GOOGLE_OBJ) $(OBJECTS) -l$(LIB_PIOL) -l$(LIB_IPIOL)
+	$(CXX) -o $@ $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(GOOGLE_OBJ) $(OBJECTS)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles

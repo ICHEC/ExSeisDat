@@ -1,5 +1,3 @@
-INC_FOLDER = -I../include
-
 include ../compiler.cfg
 
 #CXXFLAGS = $(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
@@ -19,7 +17,7 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) -fPIC $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
@@ -31,7 +29,7 @@ $(LIB_DIR)/lib$(PIOLBIN).so:
 	cd ../src ; $(MAKE)
 
 $(CBIN): $(OBJECTS) $(LIB_DIR)/lib$(PIOLBIN).so
-	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)

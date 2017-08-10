@@ -8,6 +8,7 @@
 #include "file/file.hh"
 #include "set/set.hh"
 #include "set.hh"
+#include "ops/temporalfilter.hh"
 #undef private
 #undef protected
 namespace PIOL {
@@ -217,26 +218,27 @@ struct SetTest : public Test
            }
     }
 
-    void filterTest(size_t nt, size_t ns, FltrType type, FltrDmn domain, std::vector<trace_t> corners, const trace_t * trcRef)
+    void filterTest(FltrType type, FltrDmn domain, std::vector<trace_t> corners, const std::vector<trace_t> & trcRef, size_t nt = 1LU)
     {
-        trace_t PI= std::acos(-1);
-        size_t N =3;
+        ASSERT_EQ(trcRef.size(), 59);
+        trace_t PI = std::acos(-1);
+        size_t N = 3;
+        size_t ns = trcRef.size() / nt;
         set.reset(new Set(piol));
 
-        std::vector<trace_t> trc(nt*ns);
+        std::vector<trace_t> trc(trcRef.size());
         File::Param p(nt);
 
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-                trc[i*ns+j]=std::sin(4.8 * PI * (trace_t(j))/trace_t(ns)) +
-                      1.5 * std::cos(36 * PI * (trace_t(j))/trace_t(ns)) +
-                      0.5 * std::sin(48.0 * PI * (trace_t(j))/trace_t(ns));
+                trc[i*ns+j]=std::sin(4.8_t * PI * (trace_t(j))/trace_t(ns)) +
+                     1.5_t * std::cos(36_t * PI * (trace_t(j))/trace_t(ns)) +
+                   0.5_t * std::sin(48.0_t * PI * (trace_t(j))/trace_t(ns));
 
-        set->temporalFilter(type, domain, PadType::Zero, trace_t(30), N, corners);
+        set->temporalFilter(type, domain, PadType::Zero, 30_t, N, corners);
         set->modify(ns, &p, trc.data());
 
-        for (size_t i = 0; i < nt; i++)
-            for (size_t j = 0; j < ns; j++)
-                EXPECT_NEAR(trc[i*ns+j], trcRef[i*ns+j], .00001);
+        for (size_t i = 0; i < nt*ns; i++)
+            ASSERT_NEAR(trc[i], trcRef[i], .00001_t);
     }
 };

@@ -16,18 +16,18 @@
 typedef unsigned char uchar;        //!< The type to use for accessing individual bytes
 typedef int64_t llint;              //!< A large signed integer type.
 typedef float trace_t;              //!< Real type for traces, use "*_t" convention
-typedef std::complex<trace_t> cmtrace_t;              //!< Real type for traces, use "*_t" convention
 typedef double geom_t;               //!< Real type for geometry
 typedef double unit_t;               //!< Real type for geometry
 typedef const std::size_t csize_t;  //!< Short hand for a const size_t
 
+typedef std::complex<trace_t> cmtrace_t;              //!< Real type for traces, use "*_t" convention
 constexpr trace_t operator "" _t(long double x)
 {
-    return trace_t(x);
+    return x;
 }
 constexpr trace_t operator "" _t(unsigned long long int i)
 {
-    return trace_t(i);
+    return i;
 }
 #include "anc/piol.hh"
 
