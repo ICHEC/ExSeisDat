@@ -307,7 +307,7 @@ struct SetTest : public Test
         in->readTrace(0U, in->readNt(), trc.data());
 
         for (size_t i = 0; i < nt*ns; i++)
-            ASSERT_NEAR(trc[i], trcRef[i], .00001_t);
+            ASSERT_NEAR(trc[i], trcRef[i], (__GNUC__ ? 0.00011_t : .00001_t));
     }
 
 };
