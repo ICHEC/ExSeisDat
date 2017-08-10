@@ -21,13 +21,8 @@
 
 namespace PIOL { namespace File {
 
-//This should already be defined
-#ifdef __INTEL_COMPILER
-constexpr cmtrace_t operator""if(unsigned long long x)
-{
-    return cmtrace_t{0_t, x};
-}
-#endif
+//TODO: Use complex literals when newer compilers are available (Current is gcc (GCC) 5.3.0)
+const cmtrace_t I(0_t, 1_t);
 
 //TODO: Use this when intel supports it
 //using namespace std::complex_literals;
@@ -38,7 +33,7 @@ size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
 {
     //unfortunately the standard doesnt require math functions to provide constexpr functions
     static const trace_t val = geom_t(0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
-    return std::ceil(val / std::log(std::tan(Math::pi*cornerS) / std::tan(Math::pi*cornerP)));
+    return std::ceil(val / std::log(std::tan(Math::pi_t*cornerS) / std::tan(Math::pi_t*cornerP)));
 }
 
 void expandPoly(const cmtrace_t * coef, csize_t nvx, trace_t * poly)
@@ -129,7 +124,7 @@ trace_t bandstop(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
         p[i] = (bndCntr/2_t)/p[i];
         p[N+i] = p[i] -  std::sqrt(p[i]*p[i] - bndLen2);
         p[i] += std::sqrt(p[i]*p[i] - bndLen2);
-        z[i] = 1if*bndLen;
+        z[i] = I*bndLen;
         z[N+i] = -z[i];
     }
 
@@ -150,14 +145,14 @@ trace_t bandstop(size_t N, cmtrace_t * z, cmtrace_t * p, trace_t cf1, trace_t cf
 void makeFilter(FltrType type, trace_t * numer, trace_t * denom, llint N, trace_t fs, trace_t cf1, trace_t cf2)
 {
     size_t tN = (cf2 == 0) ? N : N*2LU;
-    trace_t Wn = 4_t * std::tan(Math::pi*(cf1/(fs*0.5_t))/2_t);
-    trace_t W2 = 4_t * std::tan(Math::pi*(cf2/(fs*0.5_t))/2_t);
+    trace_t Wn = 4_t * std::tan(Math::pi_t*(cf1/(fs*0.5_t))/2_t);
+    trace_t W2 = 4_t * std::tan(Math::pi_t*(cf2/(fs*0.5_t))/2_t);
 
     std::vector<cmtrace_t> z(tN);
     std::vector<cmtrace_t> p(tN);
 
     for (llint i = 0; i < N; i++)
-        p[i] = -exp(1if*Math::pi*trace_t(1LL+2LL*i-N)/trace_t(2LL*N));
+        p[i] = -exp(I*Math::pi_t*trace_t(1LL+2LL*i-N)/trace_t(2LL*N));
     trace_t k;
     switch (type)
     {
@@ -257,7 +252,7 @@ void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * nume
         cmtrace_t a = 0, b = 0;
         for (size_t j = 0; j < N + 1LU; j++)
         {
-            cmtrace_t val = std::exp(-1if*cmtrace_t(fs*trace_t(j*i)/trace_t(nss)));
+            cmtrace_t val = std::exp(-I*cmtrace_t(fs*trace_t(j*i)/trace_t(nss)));
             b += numer[j]*val;
             a += denom[j]*val;
         }

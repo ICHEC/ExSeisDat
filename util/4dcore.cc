@@ -61,13 +61,13 @@ void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xs
  *  \param[in] x One side.
  *  \param[in] y The other.
  *  \note The intel compiler uses an incorrect hypotenuse function when it vectorises, so this
- *        is defined.
+ *        is defined (intel 2016).
  *  \return Return the hypotenuse.
  */
 fourd_t hypot(const fourd_t x, const fourd_t y)
 {
     return sqrtf(x*x + y*y);
-   // return std::hypot(x, y);
+//    return std::hypot(x, y);
 }
 
 /*! Create windows for one-sided communication of coordinates
@@ -201,9 +201,9 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
 {
     //For the vectorisation
     size_t lstart = 0LU;
-    size_t lend = crd1->sz;
+    llint lend = crd1->sz;
     size_t rstart = 0LU;
-    size_t rend = crd2->sz;
+    llint rend = crd2->sz;
 
     //Ignore all file2 traces that can not possibly match our criteria within the min/max
     //of src x.

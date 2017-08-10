@@ -27,6 +27,7 @@ namespace Physics                       //!< For physical constants
 namespace Math                          //!< Mathematical constants
 {
     constexpr unit_t pi = M_PI;         //!< Pi
+    constexpr trace_t pi_t = M_PI;         //!< Pi
 }
 
 }
