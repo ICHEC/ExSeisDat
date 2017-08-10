@@ -377,6 +377,45 @@ class Set
      * \param[in] normR Normalization value
      */
     void AGC(AGCType type, size_t window, trace_t normR);
+
+
+    /*! Filter traces or part of traces using a IIR Butterworth filter
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domaini
+     * \param[in] pad Padding pattern
+     * \param[in] fs Sampling frequency
+     * \param[in] corners Passband and stopband frequency in Hz
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw = 0U, size_t winCntr = 0U);
+
+    /*! Filter traces or part of traces using a IIR Butterworth filter
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] pad Padding pattern
+     * \param[in] fs Sampling frequency
+     * \param[in] corners Passband frequency in Hz
+     * \param[in] N Filter order
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+     */
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw = 0U, size_t winCntr = 0U);
+
+    /*! Filter traces or part of traces using a IIR Butterworth filter
+     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * \param[in] domain Filtering domain
+     * \param[in] pad Padding pattern
+     * \param[in] fs Sampling frequency
+     * \param[in] corners Passband frequency in Hz
+     * \param[in] N Filter order
+     * \param[in] nw Size of trace filtering window
+     * \param[in] winCntr Center of trace filtering window
+    */
+    void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, trace_t corners, size_t nw = 0U, size_t winCntr = 0U)
+    {
+        temporalFilter(type, domain, pad, fs, N, std::vector<trace_t>{corners, 0_t}, nw, winCntr);
+    }
 };
 }
 #endif

@@ -1,5 +1,3 @@
-INC_FOLDER = -I../include
-
 include ../compiler.cfg
 
 OBJDIR = obj
@@ -18,10 +16,10 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(INC_FOLDER) -o $@
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -fPIC $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(CBIN)
@@ -30,7 +28,7 @@ $(LIB_DIR)/lib$(PIOLBIN).so:
 	cd ../src ; $(MAKE)
 
 $(CBIN): $(OBJECTS) $(LIB_DIR)/lib$(PIOLBIN).so
-	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(LDFLAGS) $(OBJECTS)
+	$(CXX) -o $@ -shared $(LIB_FLAG) $(CXXFLAGS) -L$(LIB_DIR) -l$(PIOLBIN) $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
@@ -42,4 +40,3 @@ endif
 .PHONY: clean
 clean:
 	rm -f $(CURR_OBJECTS) $(OBJDIR)/*.optrpt *.dep $(CURR_DEP) $(CBIN)
-

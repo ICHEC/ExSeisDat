@@ -24,6 +24,7 @@
 #include "ops/sort.hh"
 #include "ops/gather.hh"
 #include "ops/minmax.hh"
+#include "ops/temporalfilter.hh"
 #include "ops/agc.hh"
 #include "ops/taper.hh"
 #include "share/uniray.hh"
@@ -618,5 +619,29 @@ void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
 void Set::AGC(AGCType type, size_t window, trace_t normR)
 {
     Set::AGC(File::getAGCFunc(type), window,  normR);
+}
+
+void Set::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw, size_t winCntr)
+{
+    assert(corners.size() == 2);
+    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal, FuncOpt::SingleTrace};
+    func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, rule, nullptr,
+    [type, domain, corners, pad, fs, nw, winCntr]  (TraceBlock * in) -> std::vector<size_t>
+    {
+        File::temporalFilter(in->prm->size(), in->ns, in->trc.data(), fs, type, domain, pad, nw, winCntr, corners);
+        return std::vector<size_t>{};
+    }));
+}
+
+void Set::temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr)
+{
+    assert(corners.size() == 2);
+    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal, FuncOpt::SingleTrace};
+    func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, rule, nullptr,
+    [type, domain, corners, pad, fs, nw, winCntr, N]  (TraceBlock * in) -> std::vector<size_t>
+    {
+        File::temporalFilter(in->prm->size(), in->ns, in->trc.data(), fs, type, domain, pad, nw, winCntr, corners, N);
+        return std::vector<size_t>{};
+    }));
 }
 }

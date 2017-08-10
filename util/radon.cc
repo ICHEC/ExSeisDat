@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
         }
 
     assert(radon.size() && angle.size() && velocity.size());
-    if (!piol->getRank())
+    if (!piol.getRank())
         std::cout << "Radon to Angle Transformation"
                   << "\n-\tInput radon file:\t" << radon
                   << "\n-\tVelocity model file:\t" << velocity

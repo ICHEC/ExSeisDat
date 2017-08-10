@@ -1,9 +1,8 @@
 GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
 GOOGLE_OBJ=gmock-all.o  gtest-all.o
-LDFLAGS=$(GOOGLE_OBJ) $(TULLOW_LIBS)
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
-LOCAL_INC_FOLDER=-I../src/ $(API_FOLDER) $(TEST_FRAM)
+LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
 LIB_IPIOL=ipiol
 LIB_PIOL=piol
@@ -41,7 +40,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(LDFLAGS) $(OBJECTS) -l$(LIB_PIOL) -l$(LIB_IPIOL)
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(OBJECTS) $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles

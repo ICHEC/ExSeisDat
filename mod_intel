@@ -1,5 +1,6 @@
 module load dev intel/2017-u3 gcc/5.3.0
 module load doxygen
+module load libs fftw/intel/3.3.4
 export I_MPI_CXX=icpc
 export I_MPI_CC=icc
 export PIOL_SYSTEM=Fionn

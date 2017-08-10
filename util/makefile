@@ -1,6 +1,5 @@
 OBJDIR=obj
 
-#IMELD_FLAG=-Wl,--dynamic-linker=/ichec/home/staff/cathal/env/extract/lib64/ld-linux-x86-64.so.2 
 include ../compiler.cfg
 
 DEP=depend
@@ -17,10 +16,10 @@ CURR_BIN=$(wildcard $(BIN))
 	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(CXXINC_FOLDER) -o $@ 
 
 $(OBJDIR)/%.cpo: %.cc
-	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) $(API_FOLDER) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) -c $< -o $@
 
 $(OBJDIR)/%.co: %.c
-	$(CC) $(CFLAGS) $(CINC_FOLDER) $(API_FOLDER) -c $< -o $@
+	$(CC) $(CFLAGS) $(CINC_FOLDER) -c $< -o $@
 
 .PHONY: all
 all: $(BIN)

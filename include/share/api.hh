@@ -107,6 +107,57 @@ typedef enum
 #else
 } TaperType;
 #endif
+/*! An enum class of the different types of filters.
+ */
+#ifdef __cplusplus
+enum class FltrType : int
+#else
+typedef enum
+#endif
+{
+    Lowpass,    //!< Create Lowpass IIR Butterworth filter
+    Highpass,   //!< Create Highpass IIR Butterworth filter
+    Bandpass,   //!< Create Bandpass IIR Butterworth filter
+    Bandstop    //!< Create Bandstop IIR Butterworth filter
+#ifdef __cplusplus
+};
+#else
+} FltrType;
+#endif
+
+/*! An enum class of the different types of filtering domains.
+ */
+#ifdef __cplusplus
+enum class FltrDmn : int
+#else
+typedef enum
+#endif
+{
+    Time,    //!< Filter in time domain
+    Freq     //!< Filter in frequency domain
+#ifdef __cplusplus
+};
+#else
+} FltrDmn;
+#endif
+
+/*! An enum class of the different types of trace padding functions.
+ */
+#ifdef __cplusplus
+enum class PadType : int
+#else
+typedef enum
+#endif
+{
+    Zero,       //!< Pad using zeros
+    Symmetric,  //!< Pad using reflection of trace
+    Replicate,  //!< Pad using closest value in trace
+    Cyclic      //!< Pad using values from other end of trace
+#ifdef __cplusplus
+};
+#else
+} PadType;
+#endif
 
 /*! An enum class of the different types of automatic gain control functions.
  */

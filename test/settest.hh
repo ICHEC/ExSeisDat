@@ -137,9 +137,7 @@ struct SetTest : public Test
     void init(size_t numFile, size_t nt, size_t inactive)
     {
         srand(1337);
-        if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
         for (size_t i = 0; i < numFile; i++)
         {
             auto mock = std::make_unique<MockFile>();
@@ -162,9 +160,7 @@ struct SetTest : public Test
 
     void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc tapFunc, TaperType type, size_t nTailLft, size_t nTailRt)
     {
-        if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
         auto mock = std::make_unique<MockFile>();
 
         std::vector<trace_t> trc(nt * ns);
@@ -204,9 +200,7 @@ struct SetTest : public Test
 
     void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> agcFunc, size_t window, trace_t normR)
     {
-        if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
         auto mock = std::make_unique<MockFile>();
 
         std::vector<trace_t> trc(nt*ns);
@@ -268,5 +262,52 @@ struct SetTest : public Test
                 ASSERT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/agcFunc(win,trcWin.data(),winCntr)) << i << " " << j << std::endl;
             }
     }
-};
 
+    void filterTest(FltrType type, FltrDmn domain, std::vector<trace_t> corners, const std::vector<trace_t> & trcRef, size_t nt = 1LU)
+    {
+        ASSERT_EQ(trcRef.size(), 59);
+        trace_t PI = std::acos(-1);
+        size_t N = 3;
+        size_t ns = trcRef.size() / nt;
+        set.reset(new Set(piol));
+
+        std::vector<trace_t> trc(trcRef.size());
+
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+                trc[i*ns+j] = std::sin(4.8_t * PI * (trace_t(j))/trace_t(ns)) +
+                       1.5_t * std::cos(36_t * PI * (trace_t(j))/trace_t(ns)) +
+                      0.5_t * std::sin(48.0_t * PI * (trace_t(j))/trace_t(ns));
+
+
+        set.reset(new Set(piol));
+        auto mock = std::make_unique<MockFile>();
+
+        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
+
+        std::vector<size_t> offsets(nt);
+        std::iota(offsets.begin(), offsets.end(), 0U);
+
+        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+                    .Times(Exactly(1U))
+                    .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
+                                    SetArrayArgument<2>(trc.begin(), trc.end())));
+        set->add(std::move(mock));
+
+        set->temporalFilter(type, domain, PadType::Zero, 30_t, N, corners);
+        set->outfix = "tmp/temp";
+        set.reset();
+
+        std::string name = "tmp/temp.segy";
+
+        auto in = makeTest<File::ReadSEGY>(piol, name);
+
+        in->readTrace(0U, in->readNt(), trc.data());
+
+        for (size_t i = 0; i < nt*ns; i++)
+            ASSERT_NEAR(trc[i], trcRef[i], (__GNUC__ ? 0.00011_t : .00001_t));
+    }
+
+};

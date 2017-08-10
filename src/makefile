@@ -11,16 +11,16 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@ 
+	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@$ 
 
 $(OBJDIR)/%.o: %.cc
-	$(CXX) $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -fPIC $(CXXFLAGS) -c $< -o $@
 
 .PHONY: all
 all: $(DEP) $(OBJECTS) $(BIN)
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ $(IMELD_FLAG) -shared $(CXXFLAGS) $(LDFLAGS) $(OBJECTS)
+	$(CXX) $(LIB_FLAG) $(IMELD_FLAG) -shared $(CXXFLAGS) -o $@ $(OBJECTS)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
