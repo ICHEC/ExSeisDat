@@ -15,9 +15,8 @@
 #include "file/dynsegymd.hh"
 #include "share/segy.hh"
 #include "share/api.hh"
-#include "fileops.hh"
-#include "set.hh"
-#include "set.h"
+#include "flow/set.hh"
+#include "flow.h"
 
 using namespace PIOL;
 
@@ -389,39 +388,19 @@ void sortSet(ExSeisSet s, SortType type)
     s->set->sort(type);
 }
 
-extern void sortCustomSet(ExSeisSet s, bool (* func)(const CParam a, const CParam b))
-{
-    auto lam = [func] (const File::Param & a, const File::Param & b) -> bool
-    {
-        ParamWrapper awrap = { const_cast<File::Param *>(&a) };
-        ParamWrapper bwrap = { const_cast<File::Param *>(&b) };
-        return func(&awrap, &bwrap);
-    };
-    s->set->sort(lam);
-}
-
-extern void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
+void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
 {
     s->set->taper(type, ntpstr, ntpend);
 }
 
-extern void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
+void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
 {
-    s->set->taper(type, ntpstr, 0);
+    s->set->taper(type, ntpstr);
 }
 
-extern void agc(ExSeisSet s, AGCType type, size_t window, float normR)
+extern void AGC(ExSeisSet s, AGCType type, size_t window, float normR)
 {
-    s->set->agc(type, window, normR);
-}
-size_t getInNt(ExSeisSet s)
-{
-    return s->set->getInNt();
-}
-
-size_t getLNtSet(ExSeisSet s)
-{
-    return s->set->getLNt();
+    s->set->AGC(type, window, normR);
 }
 
 void outputSet(ExSeisSet s, const char * oname)
@@ -442,5 +421,15 @@ void summarySet(ExSeisSet s)
 void addSet(ExSeisSet s, const char * name)
 {
     s->set->add(name);
+}
+
+void sortCustomSet(ExSeisSet s, bool (* func)(const CParam prm, csize_t i, csize_t j))
+{
+    auto lam = [func] (const File::Param * prm, csize_t i, csize_t j) -> bool
+    {
+        ParamWrapper awrap = { const_cast<File::Param *>(prm) };
+        return func(&awrap, i, j);
+    };
+    s->set->sort(lam);
 }
 }

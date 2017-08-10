@@ -15,7 +15,6 @@
 #include <fftw3.h>
 #include <complex>
 #include "global.hh"
-#include "set/set.hh"
 #include "ops/temporalfilter.hh"
 #include "share/api.hh"
 namespace PIOL { namespace File {
@@ -190,14 +189,14 @@ void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType ty
         {
             std::vector<trace_t> c = {corner[0LU], 0LU};
             size_t N = filterOrder(corner[0LU], corner[1LU]);
-            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr,c,N);
+            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
         }
         break;
         case FltrType::Highpass :
         {
             std::vector<trace_t> c = {corner[1LU], 0LU};
             size_t N = filterOrder(corner[1LU], corner[0LU]);
-            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr,c, N);
+            temporalFilter(nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
         }
         break;
         case FltrType::Bandpass :
@@ -330,7 +329,7 @@ void filterTime(size_t nw, trace_t * trcOrgnl, size_t numTail, trace_t * numer, 
         trcOrgnl[i] = trcY[nw+3LU*(numTail+1LU) - i-1LU];
 }
 
-void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain, PadType pad, size_t nw, size_t winCntr,  std::vector<trace_t> corners, size_t N)
+void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain, PadType pad, size_t nw, size_t winCntr, std::vector<trace_t> corners, size_t N)
 {
     nw = (!nw || nw > ns ? ns: nw);
     nw = (nw % 2 ? nw : nw - 1);

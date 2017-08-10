@@ -15,13 +15,9 @@
 #include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
-Rule::Rule(RuleMap translate_, bool full)
+Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
 {
-    numLong = 0;
-    numShort = 0;
-    numFloat = 0;
-    numIndex = 0;
-    translate = translate_;
+    numLong = numShort = numFloat = numIndex = numCopy = 0;
     for (const auto & t : translate)
         switch (t.second->type())
         {
@@ -36,6 +32,7 @@ Rule::Rule(RuleMap translate_, bool full)
             break;
             case MdType::Index :
             numIndex++;
+            break;
             case MdType::Copy :
             numCopy++;
             break;
@@ -45,7 +42,7 @@ Rule::Rule(RuleMap translate_, bool full)
 
     if (full)
     {
-        start = 0U;
+        start = 0LU;
         end = SEGSz::getMDSz();
         flag.badextent = false;
     }
@@ -54,6 +51,104 @@ Rule::Rule(RuleMap translate_, bool full)
         flag.badextent = true;
         extent();
     }
+}
+
+bool Rule::addRule(Meta m)
+{
+    if (translate.find(m) != translate.end())
+        return false;
+
+    switch (m)
+    {
+        case Meta::WtrDepSrc :
+            addSEGYFloat(m, Tr::WtrDepSrc, Tr::ScaleElev);
+        break;
+        case Meta::WtrDepRcv :
+            addSEGYFloat(m, Tr::WtrDepRcv, Tr::ScaleElev);
+        break;
+        case Meta::xSrc :
+            addSEGYFloat(m, Tr::xSrc, Tr::ScaleCoord);
+        break;
+        case Meta::ySrc :
+            addSEGYFloat(m, Tr::ySrc, Tr::ScaleCoord);
+        break;
+        case Meta::xRcv :
+            addSEGYFloat(m, Tr::xRcv, Tr::ScaleCoord);
+        break;
+        case Meta::yRcv :
+            addSEGYFloat(m, Tr::yRcv, Tr::ScaleCoord);
+        break;
+        case Meta::xCmp :
+            addSEGYFloat(m, Tr::xCmp, Tr::ScaleCoord);
+        break;
+        case Meta::yCmp :
+            addSEGYFloat(m, Tr::yCmp, Tr::ScaleCoord);
+        break;
+        case Meta::il :
+            addLong(m, Tr::il);
+        break;
+        case Meta::xl :
+            addLong(m, Tr::xl);
+        break;
+        case Meta::Offset :
+            addLong(m, Tr::CDist);
+        break;
+        case Meta::tn :
+            addLong(m, Tr::SeqFNum);
+        break;
+        case Meta::Copy :
+            addCopy();
+        break;
+        case Meta::tnl :
+            addLong(m, Tr::SeqNum);
+        break;
+        case Meta::tnr :
+            addLong(m, Tr::TORF);
+        break;
+        case Meta::tne :
+            addLong(m, Tr::SeqNumEns);
+        break;
+        case Meta::SrcNum :
+            addLong(m, Tr::ENSrcNum);
+        break;
+        case Meta::Tic :
+            addShort(m, Tr::TIC);
+        break;
+        case Meta::VStack :
+            addShort(m, Tr::VStackCnt);
+        break;
+        case Meta::HStack :
+            addShort(m, Tr::HStackCnt);
+        break;
+        case Meta::RGElev :
+            addSEGYFloat(m, Tr::RcvElv, Tr::ScaleElev);
+        break;
+        case Meta::SSElev :
+            addSEGYFloat(m, Tr::SurfElvSrc, Tr::ScaleElev);
+        break;
+        case Meta::SDElev :
+            addSEGYFloat(m, Tr::SrcDpthSurf, Tr::ScaleElev);
+        break;
+        case Meta::ns :
+            addShort(m, Tr::Ns);
+        break;
+        case Meta::inc :
+            addShort(m, Tr::Inc);
+        break;
+        case Meta::ShotNum :
+            addSEGYFloat(m, Tr::ShotNum, Tr::ShotScal);
+        break;
+        case Meta::TraceUnit :
+            addShort(m, Tr::ValMeas);
+        break;
+        case Meta::TransUnit :
+            addShort(m, Tr::TransUnit);
+        break;
+        default :
+        return false;
+        break;    //Non-default
+    }
+    return true;
 }
 
 Rule::Rule(std::initializer_list<Meta> mlist, bool full)
@@ -66,69 +161,15 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
 
     //TODO: Change this when extents are flexible
     flag.fullextent = full;
+    addIndex(Meta::gtn);
+    addIndex(Meta::ltn);
 
     for (auto m : mlist)
-    {
-        RuleEntry * r = NULL;
-        switch (m)
-        {
-            case Meta::WtrDepSrc :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepSrc, Tr::ScaleElev);
-            break;
-            case Meta::WtrDepRcv :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::WtrDepRcv, Tr::ScaleElev);
-            break;
-            case Meta::xSrc :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
-            break;
-            case Meta::ySrc :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
-            break;
-            case Meta::xRcv :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
-            break;
-            case Meta::yRcv :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
-            break;
-            case Meta::xCmp :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
-            break;
-            case Meta::yCmp :
-                r = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
-            break;
-            case Meta::il :
-                r = new SEGYLongRuleEntry(numLong++, Tr::il);
-            break;
-            case Meta::xl :
-                r = new SEGYLongRuleEntry(numLong++, Tr::xl);
-            break;
-            case Meta::Offset :
-                r = new SEGYLongRuleEntry(numLong++, Tr::CDist);
-            break;
-            case Meta::tn :
-                r = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
-            break;
-            case Meta::gtn :
-                r = new SEGYIndexRuleEntry(numIndex++);
-            break;
-            case Meta::ltn :
-                r = new SEGYIndexRuleEntry(numIndex++);
-            break;
-            case Meta::Copy :
-                r = new SEGYCopyRuleEntry();
-                numCopy++;
-            break;
-            default :
-                //TODO: More systematic approach required
-                std::cerr << "Metadata not supported for switch yet." << std::endl;
-            break;    //Non-default
-        }
-        if (r)
-            translate[m] = r;
-    }
+        addRule(m);
+
     if (flag.fullextent)
     {
-        start = 0U;
+        start = 0LU;
         end = SEGSz::getMDSz();
         flag.badextent = false;
     }
@@ -149,44 +190,45 @@ Rule::Rule(bool full, bool defaults, bool extra)
 
     flag.fullextent = full;
 
+    addIndex(Meta::gtn);
+    addIndex(Meta::ltn);
+
     if (defaults)
     {
-        translate[Meta::xSrc] = new SEGYFloatRuleEntry(numFloat++, Tr::xSrc, Tr::ScaleCoord);
-        translate[Meta::ySrc] = new SEGYFloatRuleEntry(numFloat++, Tr::ySrc, Tr::ScaleCoord);
-        translate[Meta::xRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::xRcv, Tr::ScaleCoord);
-        translate[Meta::yRcv] = new SEGYFloatRuleEntry(numFloat++, Tr::yRcv, Tr::ScaleCoord);
-        translate[Meta::xCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::xCmp, Tr::ScaleCoord);
-        translate[Meta::yCmp] = new SEGYFloatRuleEntry(numFloat++, Tr::yCmp, Tr::ScaleCoord);
-        translate[Meta::Offset] = new SEGYLongRuleEntry(numLong++, Tr::CDist);
-        translate[Meta::il] = new SEGYLongRuleEntry(numLong++, Tr::il);
-        translate[Meta::xl] = new SEGYLongRuleEntry(numLong++, Tr::xl);
-        translate[Meta::tn] = new SEGYLongRuleEntry(numLong++, Tr::SeqFNum);
-        translate[Meta::gtn] = new SEGYIndexRuleEntry(numIndex++);
-        translate[Meta::ltn] = new SEGYIndexRuleEntry(numIndex++);
+        addRule(Meta::xSrc);
+        addRule(Meta::ySrc);
+        addRule(Meta::xRcv);
+        addRule(Meta::yRcv);
+        addRule(Meta::xCmp);
+        addRule(Meta::yCmp);
+        addRule(Meta::Offset);
+        addRule(Meta::il);
+        addRule(Meta::xl);
+        addRule(Meta::tn);
     }
 
     if (extra)
     {
-        translate[Meta::tnl] = new SEGYLongRuleEntry(numLong++, Tr::SeqNum);
-        translate[Meta::tnr] = new SEGYLongRuleEntry(numLong++, Tr::TORF);
-        translate[Meta::tne] = new SEGYLongRuleEntry(numLong++, Tr::SeqNumEns);
-        translate[Meta::SrcNum] = new SEGYLongRuleEntry(numLong++, Tr::ENSrcNum);
-        translate[Meta::Tic] = new SEGYShortRuleEntry(numShort++, Tr::TIC);
-        translate[Meta::VStack] = new SEGYShortRuleEntry(numShort++, Tr::VStackCnt);
-        translate[Meta::HStack] = new SEGYShortRuleEntry(numShort++, Tr::HStackCnt);
-        translate[Meta::RGElev] = new SEGYFloatRuleEntry(numFloat++, Tr::RcvElv, Tr::ScaleElev);
-        translate[Meta::SSElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SurfElvSrc, Tr::ScaleElev);
-        translate[Meta::SDElev] = new SEGYFloatRuleEntry(numFloat++, Tr::SrcDpthSurf, Tr::ScaleElev);
-        translate[Meta::ns] = new SEGYShortRuleEntry(numShort++, Tr::Ns);
-        translate[Meta::inc] = new SEGYShortRuleEntry(numShort++, Tr::Inc);
-        translate[Meta::ShotNum] = new SEGYFloatRuleEntry(numFloat++, Tr::ShotNum, Tr::ShotScal);
-        translate[Meta::TraceUnit] = new SEGYShortRuleEntry(numShort++, Tr::ValMeas);
-        translate[Meta::TransUnit] = new SEGYShortRuleEntry(numShort++, Tr::TransUnit);
+        addRule(Meta::tnl);
+        addRule(Meta::tnr);
+        addRule(Meta::tne);
+        addRule(Meta::SrcNum);
+        addRule(Meta::Tic);
+        addRule(Meta::VStack);
+        addRule(Meta::HStack);
+        addRule(Meta::RGElev);
+        addRule(Meta::SSElev);
+        addRule(Meta::SDElev);
+        addRule(Meta::ns);
+        addRule(Meta::inc);
+        addRule(Meta::ShotNum);
+        addRule(Meta::TraceUnit);
+        addRule(Meta::TransUnit);
     }
 
     if (full)
     {
-        start = 0U;
+        start = 0LU;
         end = SEGSz::getMDSz();
         flag.badextent = false;
     }
@@ -210,7 +252,7 @@ size_t Rule::extent(void)
     if (flag.badextent)
     {
         start = SEGSz::getMDSz();
-        end = 0U;
+        end = 0LU;
         for (const auto r : translate)
             if (r.second->type() != MdType::Index)
             {
@@ -258,29 +300,50 @@ void Rule::addIndex(Meta m)
     translate[m] = new SEGYIndexRuleEntry(numIndex++);
 }
 
+void Rule::addCopy(void)
+{
+    if (!numCopy)
+    {
+        translate[Meta::Copy] = new SEGYCopyRuleEntry();
+        numCopy++;
+    }
+}
+
 void Rule::rmRule(Meta m)
 {
-    switch (translate[m]->type())
+    auto iter = translate.find(m);
+    if (iter != translate.end())
     {
-        case MdType::Long :
-        numLong--;
-        break;
-        case MdType::Short :
-        numShort--;
-        break;
-        case MdType::Float :
-        numFloat--;
-        break;
-        case MdType::Index :
-        numIndex--;
-        break;
-        case MdType::Copy :
-        numCopy--;
-        break;
+        RuleEntry * entry = iter->second;
+        MdType type = entry->type();
+        size_t num = entry->num;
+
+        switch (type)
+        {
+            case MdType::Long :
+            numLong--;
+            break;
+            case MdType::Short :
+            numShort--;
+            break;
+            case MdType::Float :
+            numFloat--;
+            break;
+            case MdType::Index :
+            numIndex--;
+            break;
+            case MdType::Copy :
+            numCopy--;
+            break;
+        }
+        delete entry;
+        translate.erase(m);
+        for (auto t : translate)
+            if (t.second->type() == type && t.second->num > num)
+                t.second->num--;
+
+        flag.badextent = (!flag.fullextent);
     }
-    delete translate[m];
-    translate.erase(m);
-    flag.badextent = (!flag.fullextent);
 }
 
 RuleEntry * Rule::getEntry(Meta entry)
@@ -303,13 +366,20 @@ size_t Rule::paramMem(void) const
 
 Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
 {
-    f.resize(sz * r->numFloat);
-    i.resize(sz * r->numLong);
-    s.resize(sz * r->numShort);
-    t.resize(sz * r->numIndex);
+    if (r->numFloat)
+        f.resize(sz * r->numFloat);
 
-    //TODO: This must be file format agnostic
-    c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
+    if (r->numLong)
+        i.resize(sz * r->numLong);
+
+    if (r->numShort)
+        s.resize(sz * r->numShort);
+
+    if (r->numIndex)
+        t.resize(sz * r->numIndex);
+
+    if (r->numCopy) //TODO: This must be file format agnostic
+        c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
 Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
@@ -346,8 +416,16 @@ size_t Param::memUsage(void) const
 
 void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 {
+    if (src == File::PARAM_NULL || src == nullptr ||
+        dst == File::PARAM_NULL || dst == nullptr)
+        return;
+
     Rule * srule = src->r.get();
     Rule * drule = dst->r.get();
+
+    if (srule->numCopy)
+        extractParam(1LU, &src->c[j * SEGSz::getMDSz()], dst, 0LU, k);
+
     if (srule == drule)
     {
         Rule * r = srule;
@@ -360,8 +438,6 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
             dst->s[k * r->numShort + i] = src->s[j * r->numShort + i];
         for (size_t i = 0; i < r->numIndex; i++)
             dst->t[k * r->numIndex + i] = src->t[j * r->numIndex + i];
-        if (srule->numCopy)
-            std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
     }
     else
         //For each rule in source
@@ -369,10 +445,13 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
         {
             //Check for a rule in destination
             auto valit = drule->translate.find(m.first);
-            RuleEntry * dent = valit->second;
-            RuleEntry * sent = m.second;
+
             //if the rule is in the destination and the types match
-            if (valit != drule->translate.end() && dent->type() == sent->type())
+            if (valit != drule->translate.end())
+            {
+                RuleEntry * dent = valit->second;
+                RuleEntry * sent = m.second;
+                if (dent->type() == sent->type())
                 switch (m.second->type())
                 {
                     case MdType::Float :
@@ -386,17 +465,43 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
                     break;
                     case MdType::Index :
                     dst->t[drule->numIndex*k + dent->num] = src->t[srule->numIndex*j + sent->num];
-                    break;
-                    case MdType::Copy : //TODO: Make generic
-                    std::copy(&src->c[j * SEGSz::getMDSz()], &src->c[(j+1U) * SEGSz::getMDSz()], &dst->c[k * SEGSz::getMDSz()]);
-                    break;
+                    default : break;
                 }
+            }
         }
 }
 
+bool Rule::addRule(Rule * r)
+{
+    for (auto & m : r->translate)
+        if (translate.find(m.first) == translate.end())
+            switch (m.second->type())
+            {
+                case MdType::Float :
+                addSEGYFloat(m.first, static_cast<Tr>(m.second->loc), static_cast<Tr>(static_cast<SEGYFloatRuleEntry *>(m.second)->scalLoc));
+                break;
+                case MdType::Long :
+                addLong(m.first, static_cast<Tr>(m.second->loc));
+                break;
+                case MdType::Short :
+                addShort(m.first, static_cast<Tr>(m.second->loc));
+                break;
+                case MdType::Index :
+                addIndex(m.first);
+                break;
+                case MdType::Copy :
+                addCopy();
+                break;
+                default : break;
+            }
+    return true;
+}
+
+
+
 void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_t skip)
 {
-    if (prm == nullptr)
+    if (prm == nullptr || !sz)
         return;
     auto r = prm->r;
     size_t start = r->start;
@@ -407,7 +512,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
             std::copy(&prm->c[skip * SEGSz::getMDSz()], &prm->c[(skip + sz) * SEGSz::getMDSz()], buf);
         else
             for (size_t i = 0; i < sz; i++)
-                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1U) * SEGSz::getMDSz()],
+                std::copy(&prm->c[(i+skip) * SEGSz::getMDSz()], &prm->c[(skip+i+1LU) * SEGSz::getMDSz()],
                           &buf[i * (stride + SEGSz::getMDSz())]);
     }
 
@@ -423,7 +528,7 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
         for (const auto v : r->translate)
         {
             const auto t = v.second;
-            size_t loc = t->loc - start-1U;
+            size_t loc = t->loc - start-1LU;
             switch (t->type())
             {
                 case MdType::Float :
@@ -445,27 +550,25 @@ void insertParam(size_t sz, const Param * prm, uchar * buf, size_t stride, size_
                 break;
                 case MdType::Long :
                 getBigEndian(int32_t(prm->i[(i + skip) * r->numLong + t->num]), &md[loc]);
-                break;
-                case MdType::Copy :
-                case MdType::Index : break;
+                default : break;
             }
         }
 
         //Finish off the floats. Floats are inherently annoying in SEG-Y
         for (const auto & s : scal)
-            getBigEndian(s.second, &md[size_t(s.first)-start-1U]);
+            getBigEndian(s.second, &md[size_t(s.first)-start-1LU]);
 
         for (size_t j = 0; j < rule.size(); j++)
         {
             geom_t gscale = scaleConv(scal[static_cast<Tr>(rule[j]->scalLoc)]);
-            getBigEndian(int32_t(std::lround(prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1U]);
+            getBigEndian(int32_t(std::lround(prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)), &md[rule[j]->loc-start-1LU]);
         }
     }
 }
 
 void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size_t skip)
 {
-    if (prm == nullptr)
+    if (prm == nullptr || !sz)
         return;
     Rule * r = prm->r.get();
 
@@ -474,8 +577,11 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
         if (!stride)
             std::copy(buf, &buf[sz * SEGSz::getMDSz()], &prm->c[skip * SEGSz::getMDSz()]);
         else
-            for (size_t i = 0; i < sz; i++)
-                std::copy(&buf[i * (stride + SEGSz::getMDSz())], &buf[(i+1U) * (stride + SEGSz::getMDSz())], &prm->c[(i + skip) * SEGSz::getMDSz()]);
+        {
+             const size_t mdsz = SEGSz::getMDSz();
+             for (size_t i = 0; i < sz; i++)
+                std::copy(&buf[i * (stride + mdsz)], &buf[i * (stride + mdsz)+mdsz], &prm->c[(i + skip) * mdsz]);
+        }
     }
 
     for (size_t i = 0; i < sz; i++)
@@ -485,11 +591,11 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
         for (const auto v : r->translate)
         {
             const auto t = v.second;
-            size_t loc = t->loc - r->start - 1U;
+            size_t loc = t->loc - r->start - 1LU;
             switch (t->type())
             {
                 case MdType::Float :
-                prm->f[(i + skip) * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1U]))
+                prm->f[(i + skip) * r->numFloat + t->num] = scaleConv(getHost<int16_t>(&md[dynamic_cast<SEGYFloatRuleEntry *>(t)->scalLoc - r->start-1LU]))
                                                    * geom_t(getHost<int32_t>(&md[loc]));
                 break;
                 case MdType::Short :
@@ -497,9 +603,7 @@ void extractParam(size_t sz, const uchar * buf, Param * prm, size_t stride, size
                 break;
                 case MdType::Long :
                 prm->i[(i + skip) * r->numLong + t->num] = getHost<int32_t>(&md[loc]);
-                break;
-                case MdType::Copy :
-                case MdType::Index : break;
+                default : break;
             }
         }
     }

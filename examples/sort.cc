@@ -1,4 +1,3 @@
-
 /*******************************************************************************************//*!
  *   \file
  *   \author Cathal O Broin - cathal@ichec.ie - first commit
@@ -6,7 +5,7 @@
  *   \date February 2017
  *   \brief Sort a file in 9 lines
 *//*******************************************************************************************/
-#include "set.hh"
+#include "flow.hh"
 using namespace PIOL;
 int main(void)
 {

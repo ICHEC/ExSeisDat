@@ -73,7 +73,7 @@ T getMPIOp(Log::Logger * log, const MPI * mpi, T val, MPI_Op op)
     T result = 0;
     int err = MPI_Allreduce(&val, &result, 1, MPIType<T>(), op, mpi->getComm());
     printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Allreduce failure");
-    return (err == MPI_SUCCESS ? result : 0U);
+    return (err == MPI_SUCCESS ? result : 0LU);
 }
 
 size_t MPI::sum(size_t val)
@@ -89,6 +89,13 @@ size_t MPI::max(size_t val)
 size_t MPI::min(size_t val)
 {
     return getMPIOp(log, this, val, MPI_MIN);
+}
+
+size_t MPI::offset(size_t val)
+{
+    size_t offset = 0LU;
+    MPI_Exscan(&val, &offset, 1LU, MPIType<size_t>(), MPI_SUM, MPI_COMM_WORLD);
+    return (!rank ? 0LU : offset);
 }
 
 std::vector<llint> MPI::gather(const std::vector<llint> & in) const

@@ -4,17 +4,7 @@
 #include <unistd.h>
 #include <utility>
 #include "global.hh"
-
-/*! Function which takes the size of a problem, the number of ranks to
- *  decompose the problem over and the particular local rank for the function call.
- *  \param[in] sz The size of the problem.
- *  \param[in] numRank The total number of ranks.
- *  \param[in] rank The rank during the function call, generally the rank of the calling
- *             MPI process.
- *  \return Return an extent, a starting point (generally for a 'for' loop) and the number
- *          of iterations.
- */
-extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);
+#include "share/decomp.hh"
 
 /*! Decomposition which takes account that the data may come in logical blocks
  *  \param[in] sz The size of the problem.

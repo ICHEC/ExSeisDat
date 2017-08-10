@@ -25,14 +25,14 @@ struct Coords
     size_t * tn = NULL;     //!< The trace number
     size_t allocSz;         //!< The size which was actually allocated
 
-    llint * il = NULL;  //!< The y rcv coordinates
-    llint * xl = NULL;  //!< The y rcv coordinates
+    llint * il = NULL;      //!< The inline number
+    llint * xl = NULL;      //!< The crossline number
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
      *  \param[in] sz_ Number of traces
      */
-    Coords(size_t sz_) : sz(sz_)
+    Coords(size_t sz_, bool ixline) : sz(sz_)
     {
         allocSz = ((sz + ALIGN) / ALIGN) * ALIGN;
 
@@ -44,14 +44,15 @@ struct Coords
         posix_memalign(reinterpret_cast<void **>(&yRcv), ALIGN, allocSz * sizeof(fourd_t));
         posix_memalign(reinterpret_cast<void **>(&tn), ALIGN, allocSz * sizeof(size_t));
 
-        posix_memalign(reinterpret_cast<void **>(&il), ALIGN, allocSz * sizeof(llint));
-        posix_memalign(reinterpret_cast<void **>(&xl), ALIGN, allocSz * sizeof(llint));
-
-        for (size_t i = 0; i < allocSz; i++)
+        if (ixline)
         {
-            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<fourd_t>::max();
-            il[i] = xl[i] = std::numeric_limits<llint>::max();
+            posix_memalign(reinterpret_cast<void **>(&il), ALIGN, allocSz * sizeof(llint));
+            posix_memalign(reinterpret_cast<void **>(&xl), ALIGN, allocSz * sizeof(llint));
         }
+        for (size_t i = 0; i < allocSz; i++)
+            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<fourd_t>::max();
+        for (size_t i = 0; ixline && i < allocSz; i++)
+            il[i] = xl[i] = std::numeric_limits<llint>::max();
     }
 
     /*! Destructor. Deallocate all the memory.
@@ -79,9 +80,10 @@ struct Coords
  *  each process. The coordinates returned have been sorted into xSrc order.
  *  \param[in] piol The piol object (in a shared pointer).
  *  \param[in] name The name of the input file.
+ *  \param[in] ixline Inline/Xline enabled
  *  \return Return a unique_ptr to the structure containing the coordinates read by the local process.
  */
-extern std::unique_ptr<Coords> getCoords(Piol piol, std::string name);
+extern std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline);
 
 /*! Extract traces and coordinates from an input file \c sname according to what traces are listed in \c list.
  *  \param[in] piol The piol object (in a shared pointer).

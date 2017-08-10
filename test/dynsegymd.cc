@@ -1,4 +1,7 @@
 #include "dynsegymdtest.hh"
+
+//TODO: Add test for cpyPrm called with different sets of rules, i.e dst and src disagree on rules
+
 TEST(RuleEntry, SEGYFloat)
 {
     SEGYFloatRuleEntry entry(2U, Tr::xSrc, Tr::ScaleCoord);
@@ -32,7 +35,7 @@ TEST_F(RuleFixList, List)
         int match = 0;
         for (auto & me : meta)
             match += (me == m.first);
-        ASSERT_EQ(match, 1) << i;
+        EXPECT_EQ(match, 1) << i;
 
         match = 0;
         for (auto loc : locs)

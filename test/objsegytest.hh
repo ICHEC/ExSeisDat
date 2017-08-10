@@ -314,14 +314,14 @@ class ObjTest : public Test
         switch (Type)
         {
             case Block::DODF :
-                obj->readDODF(ns, nt, offset.data(), &trnew[extra]);
+                obj->readDODF(offset.data(), ns, nt, &trnew[extra]);
             break;
             case Block::DOMD :
-                obj->readDOMD(ns, nt, offset.data(), &trnew[extra]);
+                obj->readDOMD(offset.data(), ns, nt, &trnew[extra]);
             break;
             default :
             case Block::DO :
-                obj->readDO(ns, nt, offset.data(), &trnew[extra]);
+                obj->readDO(offset.data(), ns, nt, &trnew[extra]);
             break;
         }
 
@@ -379,14 +379,14 @@ class ObjTest : public Test
         switch (Type)
         {
             case Block::DODF :
-                obj->writeDODF(ns, nt, offset.data(), &trnew[extra]);
+                obj->writeDODF(offset.data(), ns, nt, &trnew[extra]);
             break;
             case Block::DOMD :
-                obj->writeDOMD(ns, nt, offset.data(), &trnew[extra]);
+                obj->writeDOMD(offset.data(), ns, nt, &trnew[extra]);
             break;
             default :
             case Block::DO :
-                obj->writeDO(ns, nt, offset.data(), &trnew[extra]);
+                obj->writeDO(offset.data(), ns, nt, &trnew[extra]);
             break;
         }
         if (!MOCK)

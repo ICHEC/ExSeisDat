@@ -10,10 +10,8 @@
 *//*******************************************************************************************/
 #ifndef PIOLANCCMPI_INCLUDE_GUARD
 #define PIOLANCCMPI_INCLUDE_GUARD
-#include "global.hh"
-#include "anc/comm.hh"
 #include <mpi.h>
-
+#include "anc/comm.hh"
 namespace PIOL { namespace Comm {
 /*! \brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.
  */
@@ -62,6 +60,7 @@ class MPI : public Comm::Interface
     size_t sum(size_t val);
     size_t max(size_t val);
     size_t min(size_t val);
+    size_t offset(size_t val);
     void barrier(void) const;
 };
 }}

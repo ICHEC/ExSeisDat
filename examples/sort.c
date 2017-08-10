@@ -1,4 +1,4 @@
-#include "set.h"
+#include "flow.h"
 int main(void)
 {
     ExSeisHandle piol = initMPIOL();

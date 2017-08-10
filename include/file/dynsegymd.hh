@@ -371,6 +371,18 @@ struct Rule
      */
     ~Rule(void);
 
+    /*! Add a pre-defined rule.
+     *  \param[in] m The Meta entry.
+     *  \return Return true if the rule was added, otherwise false
+     */
+    bool addRule(Meta m);
+
+    /*! Add all rules from the given argument
+     *  \param[in] r Another rule pointer.
+     *  \return Return true if no errors
+     */
+    bool addRule(Rule * r);
+
     /*! Add a rule for longs.
      *  \param[in] m The Meta entry.
      *  \param[in] loc The location in the SEG-Y DOMD (4 bytes).
@@ -394,6 +406,10 @@ struct Rule
      *  \param[in] m The Meta entry.
      */
     void addIndex(Meta m);
+
+    /*! Add a rule to buffer the original trace header.
+     */
+    void addCopy(void);
 
     /*! Remove a rule based on the meta entry.
      *  \param[in] m The meta entry.
@@ -467,22 +483,21 @@ template <typename T>
 void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
 {
     Rule * r = prm->r.get();
-    switch (r->translate[entry]->type())
+    RuleEntry * id = r->getEntry(entry);
+    switch (id->type())
     {
+        case MdType::Float :
+            prm->f[r->numFloat*i + id->num] = ret;
+        break;
         case MdType::Long :
-        prm->i[i * r->numLong + r->getEntry(entry)->num] = ret;
+            prm->i[r->numLong*i + id->num] = ret;
         break;
         case MdType::Short :
-        prm->s[i * r->numShort + r->getEntry(entry)->num] = ret;
-        break;
-        case MdType::Float :
-        prm->f[i * r->numFloat + r->getEntry(entry)->num] = ret;
+            prm->s[r->numShort*i + id->num] = ret;
         break;
         case MdType::Index :
-        prm->t[i * r->numIndex + r->getEntry(entry)->num] = ret;
-        break;
-        case MdType::Copy :
-        break;
+            prm->t[r->numIndex*i + id->num] = ret;
+        default : break;
     }
 }
 

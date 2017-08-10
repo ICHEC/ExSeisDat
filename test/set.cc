@@ -103,48 +103,48 @@ const std::vector<size_t> sortOffLine = {
 809, 819, 829, 839, 849, 859, 869, 879, 889, 899, 909, 919, 929, 939, 949, 959,
 969, 979, 989, 999};
 
-void testRcvPattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testRcvPattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
-   {
+    {
         size_t l = 1;
-        for (size_t j = 1; j < file[i]->lst.size(); j++, l++)
-            EXPECT_EQ(file[i]->lst[j] - 1, file[i]->lst[j-1]);
+        for (size_t j = 1; j < file[i]->olst.size(); j++, l++)
+            EXPECT_EQ(file[i]->olst[j] - 1, file[i]->olst[j-1]);
         EXPECT_EQ(l, 1000+i);
     }
 }
 
-void testLineOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testLineOffPattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
-        size_t total = file[i]->lst.size();
+        size_t total = file[i]->olst.size();
         size_t l = 0;
         for (llint j = 0; j < 10U; j++)
             for (llint k = 0; k < total / 10; k++, l++)
-                EXPECT_EQ(file[i]->lst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
+                EXPECT_EQ(file[i]->olst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
         EXPECT_EQ(l, 1000+i);
     }
 }
 
-void testOffLinePattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testOffLinePattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
         size_t l = 0;
-        for (size_t j = 0; j < file[i]->lst.size(); j++, l++)
-            EXPECT_EQ(sortOffLine[j], file[i]->lst[j]);
+        for (size_t j = 0; j < file[i]->olst.size(); j++, l++)
+            EXPECT_EQ(sortOffLine[j], file[i]->olst[j]);
         EXPECT_EQ(l, 1000+i);
     }
 }
 
-void testSrcOffPattern(std::deque<std::unique_ptr<FileDesc>> & file)
+void testSrcOffPattern(std::deque<std::shared_ptr<FileDesc>> & file)
 {
     for (size_t i = 0; i < file.size(); i++)
     {
         size_t l = 1;
-        for (size_t j = 1; j < file[i]->lst.size(); j++, l++)
-            EXPECT_EQ(file[i]->lst[j] - 1, file[i]->lst[j-1]);
+        for (size_t j = 1; j < file[i]->olst.size(); j++, l++)
+            EXPECT_EQ(file[i]->olst[j] - 1, file[i]->olst[j-1]);
         EXPECT_EQ(l, 1000+i);
     }
 }
@@ -155,7 +155,8 @@ void muting(size_t nt, size_t ns, trace_t * trc, size_t mute)
         for (size_t j = 0; j < mute; j++)
             trc[i*ns+j] = 0.0f;
 }
-void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt)
+
+void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt)
 {
     for (size_t i = 0; i < nt; i++)
     {
@@ -181,16 +182,19 @@ void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t
         }
     }
 }
+
 TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
+
     set->sort(SortType::SrcRcv);
+    set->calcFunc(set->func.begin(), set->func.end());
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
         size_t l = 1;
-        for (size_t j = 1; j < set->file[i]->lst.size(); j++, l++)
-            EXPECT_EQ(set->file[i]->lst[j] + 1, set->file[i]->lst[j-1]);
+        for (size_t j = 1; j < set->file[i]->olst.size(); j++, l++)
+            EXPECT_EQ(set->file[i]->olst[j] + 1, set->file[i]->olst[j-1]);
         EXPECT_EQ(l, 1000+i);
     }
 }
@@ -200,6 +204,7 @@ TEST_F(SetTest, SortRcvX)
     init(1, 1, 1, 1, true);
 
     set->sort(SortType::RcvOff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testRcvPattern(set->file);
 }
 
@@ -207,6 +212,7 @@ TEST_F(SetTest, SortRcvXR)
 {
     init(1, 1, 1, 1, true);
     set->sort(SortType::RcvROff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testRcvPattern(set->file);
 }
 
@@ -215,6 +221,7 @@ TEST_F(SetTest, SortLine)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::LineOff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testLineOffPattern(set->file);
 }
 
@@ -223,6 +230,7 @@ TEST_F(SetTest, SortLineROff)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::LineROff);
+    set->calcFunc(set->func.begin(), set->func.end());
     testLineOffPattern(set->file);
 }
 
@@ -231,6 +239,7 @@ TEST_F(SetTest, SortOffLine)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::OffLine);
+    set->calcFunc(set->func.begin(), set->func.end());
     testOffLinePattern(set->file);
 }
 
@@ -239,6 +248,7 @@ TEST_F(SetTest, SortROffLine)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::ROffLine);
+    set->calcFunc(set->func.begin(), set->func.end());
     testOffLinePattern(set->file);
 }
 
@@ -248,6 +258,7 @@ TEST_F(SetTest, SortSortRcv)
 
     set->sort(SortType::SrcRcv);
     set->sort(SortType::RcvOff);
+    set->calcFunc(set->func.begin(), set->func.end());
 
     testSrcOffPattern(set->file);
 }
@@ -258,6 +269,7 @@ TEST_F(SetTest, SortSortRcvROff)
 
     set->sort(SortType::SrcRcv);
     set->sort(SortType::RcvROff);
+    set->calcFunc(set->func.begin(), set->func.end());
 
     testSrcOffPattern(set->file);
 }
@@ -267,14 +279,16 @@ TEST_F(SetTest, SortSrcXRcvY)
     init(1, 1, 1, 1, false);
 
     set->sort(SortType::SrcRcv);
+    set->calcFunc(set->func.begin(), set->func.end());
+    piol->isErr();
 
     for (size_t i = 0; i < set->file.size(); i++)
     {
-        size_t total = set->file[i]->lst.size();
+        size_t total = set->file[i]->olst.size();
         size_t l = 0;
         for (llint j = 0; j < 10U; j++)
             for (llint k = total / 10U - 1; k >= 0; k--, l++)
-                EXPECT_EQ(set->file[i]->lst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
+                EXPECT_EQ(set->file[i]->olst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
         EXPECT_EQ(l, 1000+i);
     }
 }
@@ -298,24 +312,34 @@ TEST_F(SetTest, getActive)
 {
     init(1, 1000U, 10);
 
-    EXPECT_EQ(set->getInNt(), 1000U);
-    EXPECT_EQ(set->getLNt(), 1000U - 10U);
+    size_t nt = 0U;
+    for (auto & f : set->file)
+        nt += f->ifc->readNt();
+    EXPECT_EQ(nt, 1000U);
+
+    //EXPECT_EQ(set->getLNt(), 1000U - 10U);
 }
 
 TEST_F(SetTest, getActive2)
 {
     init(1, 3333, 1111);
 
-    EXPECT_EQ(set->getInNt(), 3333U);
-    EXPECT_EQ(set->getLNt(), 2222U);
+    size_t nt = 0U;
+    for (auto & f : set->file)
+        nt += f->ifc->readNt();
+    EXPECT_EQ(nt, 3333U);
+    //EXPECT_EQ(set->getLNt(), 2222U);
 }
 
 TEST_F(SetTest, getActive3)
 {
     init(2, 3333, 1111);
 
-    EXPECT_EQ(set->getInNt(), 2U*3333U);
-    EXPECT_EQ(set->getLNt(), 2U*2222U);
+    size_t nt = 0U;
+    for (auto & f : set->file)
+        nt += f->ifc->readNt();
+    EXPECT_EQ(nt, 2U*3333U);
+    //EXPECT_EQ(set->getLNt(), 2U*2222U);
 }
 
 TEST_F(SetTest, Taper2TailLin)
@@ -357,60 +381,69 @@ TEST_F(SetTest, Taper1TailLinMute)
 
 TEST_F(SetTest, agcRMS)
 {
-    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr) {
-          trace_t amp = 0.0f;
-          for (size_t i = 0; i < window; i++)
-              amp += pow(trc[i], 2.0f);
-          size_t num = std::count_if(&trc[0], &trc[window],[](float j){return j != 0.0f;});
-          if (num < 1)
-              num = 1;
-          return std::sqrt(amp/num);};
-     agcTest(100, 1000, AGCType::RMS, func, 25, 1.0f);
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr) {
+        trace_t amp = 0.0f;
+        for (size_t i = 0; i < window; i++)
+            amp += pow(trc[i], 2.0f);
+        size_t num = std::count_if(&trc[0], &trc[window],[](trace_t j){ return j != 0.0f; });
+        if (num < 1)
+            num = 1;
+        return std::sqrt(amp/num);
+    };
+    agcTest(100, 1000, AGCType::RMS, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcRMSTri)
 {
-    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr){
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
+    {
         trace_t amp = 0.0f;
         trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
         for (size_t j = 0; j < window; j++)
-            amp += pow(trc[j] * (1.0f - float(abs(j - winCntr))/winFullTail),2.0f);
-          size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){return i != 0.0f;});
-          if (num < 1)
-              num = 1;
-          return std::sqrt(amp/num);};
-    agcTest(100, 1000, AGCType::RMSTri, func, 25, 1.0f);
+            amp += pow(trc[j] * (1.0f - trace_t(abs(llint(j - winCntr)))/winFullTail), 2.0f);
+        size_t num = std::count_if(&trc[0], &trc[window], [](trace_t i){ return i != 0.0f; });
+        if (num < 1)
+            num = 1;
+        return std::sqrt(amp/num);
+    };
+    agcTest(100, 1000, AGCType::RMSTri, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMeanAbs)
 {
-    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr) {
-          trace_t amp = 0.0f;
-          for (size_t i = 0; i < window; i++)
-              amp += trc[i];
-          size_t num = std::count_if(&trc[0], &trc[window],[](float j){return j != 0.0f;});
-          if (num < 1)
-              num = 1;
-          return std::abs(amp)/num;};
-     agcTest(100, 1000, AGCType::MeanAbs, func, 25, 1.0f);
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
+    {
+        trace_t amp = 0.0f;
+        for (size_t i = 0; i < window; i++)
+            amp += trc[i];
+        size_t num = std::count_if(&trc[0], &trc[window], [] (trace_t j){return j != 0.0f;});
+        if (num < 1)
+            num = 1;
+        return std::abs(amp)/num;
+    };
+    agcTest(100, 1000, AGCType::MeanAbs, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMedian)
 {
-    std::function<trace_t(size_t, trace_t *, size_t)> func = [](size_t window, trace_t * trc, size_t winCntr) {
-         std::sort(&trc[0], &trc[window]);
+    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
+    {
+        std::sort(&trc[0], &trc[window]);
         if (window % 2 == 0)
-            return (trc[window/2U]+trc[(window/2U)+1U])/2.0f;
+            return (trc[window/2U] + trc[(window/2U)+1U])/2.0f;
         else
-            return trc[window/2U]; };
-     agcTest(100, 1000, AGCType::Median, func, 25, 1.0f);
+            return trc[window/2U];
+    };
+    agcTest(100, 1000, AGCType::Median, agcFunc, 25, 1.0f);
 }
+
 TEST_F(SetTest, FilterOneTailTime)
 {
     std::vector<trace_t> c= {1.667, 0};
     ASSERT_EQ(lowpassTime.size(), 59);
     filterTest(FltrType::Lowpass, FltrDmn::Time, c, lowpassTime);
 }
+
 TEST_F(SetTest, FilterOneTailFreq)
 {
     std::vector<trace_t> c= {1.667, 0};
@@ -424,6 +457,7 @@ TEST_F(SetTest, FilterTwoTailTime)
     ASSERT_EQ(bandpassTime.size(), 59);
     filterTest(FltrType::Bandpass, FltrDmn::Time,c, bandpassTime);
 }
+
 TEST_F(SetTest, FilterTwoTailFreq)
 {
     std::vector<trace_t> c = {1.667_t, 6.5_t};

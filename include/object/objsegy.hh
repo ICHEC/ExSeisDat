@@ -62,17 +62,17 @@ class SEGY : public Interface
 
     void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const;
 
-    void readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const;
+    void readDO(csize_t * offset, csize_t ns, csize_t sz, uchar * d) const;
 
-    void writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const;
+    void writeDO(csize_t * offset, csize_t ns, csize_t sz, const uchar * d) const;
 
-    void readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const;
+    void readDOMD(csize_t * offset, csize_t ns, csize_t sz, uchar * md) const;
 
-    void writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const;
+    void writeDOMD(csize_t * offset, csize_t ns, csize_t sz, const uchar * md) const;
 
-    void readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const;
+    void readDODF(csize_t * offset, csize_t ns, csize_t sz, uchar * df) const;
 
-    void writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const;
+    void writeDODF(csize_t * offset, csize_t ns, csize_t sz, const uchar * df) const;
 };
 }}
 #endif

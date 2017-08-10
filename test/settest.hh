@@ -1,16 +1,18 @@
+#include <numeric>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-#include <cmath>
-#include <vector>
 #define private public
 #define protected public
 #include "file/file.hh"
-#include "set/set.hh"
-#include "set.hh"
-#include "ops/temporalfilter.hh"
+#include "flow/set.hh"
 #undef private
 #undef protected
+#include "file/filesegy.hh"
+#include "cppfileapi.hh"
+#include "object/objsegy.hh"
+#include "data/datampiio.hh"
+
 namespace PIOL {
 extern std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);     //TODO: TEMP!
 }
@@ -39,11 +41,24 @@ class MockFile : public File::ReadInterface
 
 ACTION_P(cpyprm, src)
 {
-   *arg2 = *src;
+   *arg3 = *src;
 }
 
 extern void muting(size_t nt, size_t ns, trace_t * trc, size_t mute);
-extern void taperMan(size_t nt, size_t ns, trace_t * trc, std::function<trace_t(trace_t wt, trace_t ramp)> func, size_t nTailLft, size_t nTailRt);
+extern void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt);
+
+
+template <class T>
+std::shared_ptr<T> makeTest(Piol piol, std::string name)
+{
+        File::WriteSEGY::Opt f;
+        File::ReadSEGY::Opt rf;
+        Obj::SEGY::Opt o;
+        Data::MPIIO::Opt d;
+        auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Test);
+        auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
+        return std::make_shared<T>(piol, name, obj);
+}
 
 struct SetTest : public Test
 {
@@ -111,22 +126,18 @@ struct SetTest : public Test
                             setPrm(l, Meta::tn, l+dec.first, tprm);
                             setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                         }
-                    EXPECT_CALL(*mock, readParam(dec.second, An<csize_t *>(), _, _))
-                                    .Times(Exactly(srtCnt))
-                                    .WillRepeatedly(cpyprm(&prm.back()));
+                    EXPECT_CALL(*mock, readTrace(dec.second, An<csize_t *>(), _, _, 0))
+                                                .Times(Exactly(1U))
+                                                .WillRepeatedly(cpyprm(&prm.back()));
 
                     set->add(std::move(mock));
                 }
     }
 
-
     void init(size_t numFile, size_t nt, size_t inactive)
     {
-        constexpr size_t NOT_IN_OUTPUT = std::numeric_limits<size_t>::max();
         srand(1337);
-        if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
         for (size_t i = 0; i < numFile; i++)
         {
             auto mock = std::make_unique<MockFile>();
@@ -136,86 +147,120 @@ struct SetTest : public Test
 
             set->add(std::move(mock));
 
-            llint range = (nt / inactive);
+ /*           llint range = (nt / inactive);
+
+#warning Randomly delete traces from the lists
             for (size_t j = 0; j < inactive; j++)
             {
                 size_t randj = range*j + (rand() % range);
                 set->file[i]->lst[randj] = NOT_IN_OUTPUT;
-            }
+            }*/
         }
     }
 
-    void taperTest(size_t nt, size_t ns, size_t mute, std::function<trace_t(trace_t, trace_t)> func, TaperType type, size_t nTailLft, size_t nTailRt)
+    void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc tapFunc, TaperType type, size_t nTailLft, size_t nTailRt)
     {
-       if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
+        auto mock = std::make_unique<MockFile>();
+
         std::vector<trace_t> trc(nt * ns);
         std::vector<trace_t> trcMan(nt * ns);
-        File::Param p(nt);
+        File::Param prm(nt);
         std::fill(trc.begin(), trc.end(), 1.0f);
         if (mute != 0)
-            muting(nt, ns, trc.data(),  mute);
+            muting(nt, ns, trc.data(), mute);
         trcMan = trc;
 
-        if (nTailRt == 0)
-            set->taper(type, nTailLft);
-        else
-            set->taper(type, nTailLft, nTailRt);
-        set->modify(ns, &p, trc.data());
+        std::vector<size_t> offsets(nt);
+        std::iota(offsets.begin(), offsets.end(), 0U);
 
-        taperMan(nt, ns, trcMan.data(), func, nTailLft, nTailRt);
+        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
+
+        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+                    .Times(Exactly(1U))
+                    .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
+                                    SetArrayArgument<2>(trc.begin(), trc.end())));
+        set->add(std::move(mock));
+
+        set->taper(type, nTailLft, nTailRt);
+        set->outfix = "tmp/temp";
+        set.reset();
+
+        std::string name = "tmp/temp.segy";
+        auto in = makeTest<File::ReadSEGY>(piol, name);
+        in->readTrace(0U, in->readNt(), trc.data());
+
+        taperMan(nt, ns, trcMan.data(), tapFunc, nTailLft, nTailRt);
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-            {
-                EXPECT_FLOAT_EQ(trc[i*ns+j],trcMan[i*ns+j]);
-            }
+                EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]);
     }
 
-    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> func, size_t window, trace_t normR)
+    void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> agcFunc, size_t window, trace_t normR)
     {
-        if (set.get() != nullptr)
-            set.release();
-        set = std::make_unique<Set>(piol);
+        set.reset(new Set(piol));
+        auto mock = std::make_unique<MockFile>();
+
         std::vector<trace_t> trc(nt*ns);
         std::vector<trace_t> trcMan(nt*ns);
-        File::Param p(nt);
 
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
                 trc[i*ns + j] = j;//*pow(-1.0f,j);
 
-       trcMan = trc;
-       set->agc(type, window, normR);
-       set->modify(ns, &p, trc.data());
+        trcMan = trc;
 
-       size_t win;
-       size_t winStr;
-       size_t winCntr;
-       for (size_t i = 0; i < nt; i++)
-           for (size_t j = 0; j < ns; j++)
-           {
-               if (j < (window/2U)+1)
-               {
-                   win = j + 1 + (window/2U);
-                   winStr = i*ns;
-                   winCntr = j;
-               }
-               else if ((ns - j) < (window/2U) + 1)
-               {
-                   win = ns - j+ (window/2U);
-                   winStr = i*ns + j -  window/2U;
-                   winCntr = window/2U;
-               }
-               else
-               {
-                   win = window;
-                   winStr = i*ns + j - window/2U;
-                   winCntr = window/2U;
-               }
-               std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
-               EXPECT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/func(win,trcWin.data(),winCntr));
-           }
+        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
+
+        std::vector<size_t> offsets(nt);
+        std::iota(offsets.begin(), offsets.end(), 0U);
+
+        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+                    .Times(Exactly(1U))
+                    .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
+                                    SetArrayArgument<2>(trc.begin(), trc.end())));
+        set->add(std::move(mock));
+
+        set->AGC(type, window, normR);
+        set->outfix = "tmp/temp";
+        set.reset();
+
+        std::string name = "tmp/temp.segy";
+
+        auto in = makeTest<File::ReadSEGY>(piol, name);
+        in->readTrace(0U, in->readNt(), trc.data());
+
+        size_t win;
+        size_t winStr;
+        size_t winCntr;
+        for (size_t i = 0; i < nt; i++)
+            for (size_t j = 0; j < ns; j++)
+            {
+                if (j < (window/2U)+1)
+                {
+                    win = j + 1 + (window/2U);
+                    winStr = i*ns;
+                    winCntr = j;
+                }
+                else if ((ns - j) < (window/2U) + 1)
+                {
+                    win = ns - j+ (window/2U);
+                    winStr = i*ns + j -  window/2U;
+                    winCntr = window/2U;
+                }
+                else
+                {
+                    win = window;
+                    winStr = i*ns + j - window/2U;
+                    winCntr = window/2U;
+                }
+                std::vector<trace_t> trcWin(trcMan.begin()+winStr, trcMan.begin()+winStr+win);
+                ASSERT_FLOAT_EQ(trc[i*ns+j], trcMan[i*ns+j]*normR/agcFunc(win,trcWin.data(),winCntr)) << i << " " << j << std::endl;
+            }
     }
 
     void filterTest(FltrType type, FltrDmn domain, std::vector<trace_t> corners, const std::vector<trace_t> & trcRef, size_t nt = 1LU)
@@ -227,18 +272,42 @@ struct SetTest : public Test
         set.reset(new Set(piol));
 
         std::vector<trace_t> trc(trcRef.size());
-        File::Param p(nt);
 
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
-                trc[i*ns+j]=std::sin(4.8_t * PI * (trace_t(j))/trace_t(ns)) +
-                     1.5_t * std::cos(36_t * PI * (trace_t(j))/trace_t(ns)) +
-                   0.5_t * std::sin(48.0_t * PI * (trace_t(j))/trace_t(ns));
+                trc[i*ns+j] = std::sin(4.8_t * PI * (trace_t(j))/trace_t(ns)) +
+                       1.5_t * std::cos(36_t * PI * (trace_t(j))/trace_t(ns)) +
+                      0.5_t * std::sin(48.0_t * PI * (trace_t(j))/trace_t(ns));
+
+
+        set.reset(new Set(piol));
+        auto mock = std::make_unique<MockFile>();
+
+        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
+
+        std::vector<size_t> offsets(nt);
+        std::iota(offsets.begin(), offsets.end(), 0U);
+
+        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+                    .Times(Exactly(1U))
+                    .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
+                                    SetArrayArgument<2>(trc.begin(), trc.end())));
+        set->add(std::move(mock));
 
         set->temporalFilter(type, domain, PadType::Zero, 30_t, N, corners);
-        set->modify(ns, &p, trc.data());
+        set->outfix = "tmp/temp";
+        set.reset();
+
+        std::string name = "tmp/temp.segy";
+
+        auto in = makeTest<File::ReadSEGY>(piol, name);
+
+        in->readTrace(0U, in->readNt(), trc.data());
 
         for (size_t i = 0; i < nt*ns; i++)
             ASSERT_NEAR(trc[i], trcRef[i], .00001_t);
     }
+
 };

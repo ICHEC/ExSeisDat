@@ -9,14 +9,14 @@
 #ifndef PIOLFILESEGY_INCLUDE_GUARD
 #define PIOLFILESEGY_INCLUDE_GUARD
 #include <memory>
+#include <type_traits>
 #include "global.hh"
 #include "file/file.hh"
 #include "file/segymd.hh"
 #include "file/dynsegymd.hh"
-
+#include "object/object.hh" //For the makes
 namespace PIOL { namespace File {
 enum class Format : int16_t;    //!< Data Format options
-
 /*! The SEG-Y implementation of the file layer
  */
 class ReadSEGY : public ReadInterface
@@ -36,7 +36,6 @@ class ReadSEGY : public ReadInterface
 
     private :
     Format format;              //<! Type formats
-
     unit_t incFactor;           //!< The increment factor
 
     /*! \brief Read the text and binary header and store the metadata variables in this SEGY object.
@@ -68,16 +67,30 @@ class ReadSEGY : public ReadInterface
 
     size_t readNt(void);
 
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm, csize_t skip) const;
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
 
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const;
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
 
-    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm, csize_t skip) const;
-
-    void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const;
-
-    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const;
+    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
 };
+
+/*! A SEGY class for velocity models
+ */
+class ReadSEGYModel : public Model3dInterface, public ReadSEGY
+{
+    public :
+    /*!
+     \param[in] piol_ The piol object.
+     \param[in] name_ The name of the file.
+     \param[in] obj_ A shared pointer for the object layer object.
+     */
+    ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+
+    std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather);
+
+    std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather);
+};
+
 /*! The SEG-Y implementation of the file layer
  */
 class WriteSEGY : public WriteInterface
@@ -96,6 +109,8 @@ class WriteSEGY : public WriteInterface
     };
 
     private :
+    bool nsSet = false;
+
     Format format;              //<! Type formats
 
     /*! State flags structure for SEGY
@@ -152,13 +167,9 @@ class WriteSEGY : public WriteInterface
 
     void writeInc(const geom_t inc_);
 
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, csize_t skip);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0);
 
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, csize_t skip);
-
-    void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip);
-
-    void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip);
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0);
 };
 }}
 #endif

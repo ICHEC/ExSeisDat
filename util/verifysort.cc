@@ -6,7 +6,7 @@
 #include <fstream>
 #include "cppfileapi.hh"
 #include "sglobal.hh"
-#include "fileops.hh"
+#include "ops/sort.hh"
 
 using namespace PIOL;
 using namespace File;
@@ -34,13 +34,10 @@ int main(int argc, char ** argv)
 
     assert(name1.size());
 
-    size_t rank = piol.getRank();
-    size_t numRank = piol.getNumRank();
-
     File::ReadDirect src(piol, name1);
 
     //Perform the decomposition and read coordinates of interest.
-    auto dec = decompose(src.readNt(), numRank, rank);
+    auto dec = decompose(piol, src);
 
     if (checkOrder(src, dec, type))
         std::cout << "Success\n";

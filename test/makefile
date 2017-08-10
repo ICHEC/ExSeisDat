@@ -10,9 +10,6 @@ GCOMP=g++
 
 include ../compiler.cfg
 
-#INC_FOLDER=-I../include -I../api $(LOCAL_INC_FOLDER)
-# CXXFLAGS=$(CXXSTANDARD) $(WARNINGS) $(DEBUG) $(OPTIMISATIONS) $(INC_FOLDER) $(CUSTOM_FLAGS)
-
 DEP=depend
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
@@ -43,7 +40,7 @@ libgmock.a:
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(GOOGLE_OBJ) $(OBJECTS)
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(OBJECTS) $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
 genfiles: genfiles.c
 	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles

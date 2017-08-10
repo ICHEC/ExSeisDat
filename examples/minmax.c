@@ -1,5 +1,5 @@
 #include "sglobal.h"
-#include "set.h"
+#include "flow.h"
 #include <assert.h>
 int main(int argc, char ** argv)
 {

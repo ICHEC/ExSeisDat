@@ -10,7 +10,6 @@
 #define PIOLDATAMPIIO_INCLUDE_GUARD
 #include "global.hh"
 #include "data/data.hh"
-
 namespace PIOL { namespace Data {
 /*! \brief This templated function pointer type allows us to refer to MPI functions more compactly.
  */

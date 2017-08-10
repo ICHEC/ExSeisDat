@@ -16,16 +16,16 @@ namespace PIOL { namespace Log {
  */
 enum class Layer : size_t
 {
-    Data,
-    Object,
-    File,
-    Set,
-    Ops,
-    Comm,
+    Data,       //!< The data layer
+    Object,     //!< The object layer
+    File,       //!< The file layer
+    Set,        //!< The set layer
+    Ops,        //!< The ops layer
+    Comm,       //!< The comms layer
     Log,        //!< The Log layer itself.
     MPI,        //!< Misc MPI.
-    PIOL,
-    API
+    PIOL,       //!< The PIOL itself
+    API         //!< Within the APIs
 };
 
 /*! \brief The enumeration for the different status messages.

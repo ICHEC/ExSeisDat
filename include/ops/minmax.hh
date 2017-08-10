@@ -15,9 +15,7 @@
 
 namespace PIOL { namespace File {
 
-template <typename T>
-using Func = std::function<geom_t(const T &)>;  //!< Return the value associated with a particular parameter
-
+/******************************************* Core *****************************************************/
 /*! Get the min and max for a parameter. Use a second parameter to decide between equal cases.
  * \tparam T The type of the input array
  * \param[in] piol The PIOL object
@@ -30,7 +28,7 @@ using Func = std::function<geom_t(const T &)>;  //!< Return the value associated
  */
 template <typename T>
 std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord,
-                                      Func<T> elem1, Func<T> elem2)
+                                      MinMaxFunc<T> elem1, MinMaxFunc<T> elem2)
 {
     auto min = [elem1, elem2] (const T & a, const T & b) -> bool
     {
@@ -83,7 +81,7 @@ std::vector<CoordElem> getCoordMinMax(ExSeisPIOL * piol, size_t offset, size_t s
  *            min for xlam, max for xlam, min for ylam, max for ylam.
  */
 template <typename T>
-void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Func<T> xlam, Func<T> ylam, CoordElem * minmax)
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, MinMaxFunc<T> xlam, MinMaxFunc<T> ylam, CoordElem * minmax)
 {
     auto x = getCoordMinMax<T>(piol, offset, sz, coord, xlam, ylam);
     auto y = getCoordMinMax<T>(piol, offset, sz, coord, ylam, xlam);
@@ -94,5 +92,22 @@ void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Fun
         std::copy(y.begin(), y.end(), minmax + x.size());
     }
 }
+
+/******************************************* Non-Core *****************************************************/
+
+//TODO: Write a test for this function
+/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+ *  the collective min and max across all processes (which also must all call this file).
+ *  \param[in, out] piol The PIOL object
+ *  \param[in] offset The starting trace number (local).
+ *  \param[in] sz The local number of traces to process.
+ *  \param[in] m1 The first coordinate item of interest.
+ *  \param[in] m2 The second coordinate item of interest.
+ *  \param[in] prm An array of trace parameter structures
+ *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+ *  and their respective trace numbers.
+ */
+extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, Meta m1, Meta m2, const Param * prm, CoordElem * minmax);
+
 }}
 #endif

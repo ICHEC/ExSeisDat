@@ -13,7 +13,6 @@
 #include "share/units.hh"
 #include "share/param.hh"
 #include "share/datatype.hh"
-
 namespace PIOL { namespace File {
 /*! The Datatype (or format in SEG-Y terminology)
  */

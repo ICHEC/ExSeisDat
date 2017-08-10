@@ -1,6 +1,8 @@
 #include <iconv.h>
 #include <string.h>
 #include <memory>
+#include <random>
+#include <algorithm>
 #include <typeinfo>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -76,8 +78,6 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD1(readHO, void(uchar *));
     MOCK_CONST_METHOD1(setFileSz, void(csize_t));
     MOCK_CONST_METHOD1(writeHO, void(const uchar *));
-#warning TODO: Separate out groups of functions to separate files
-#warning Not covered yet beyond sz=1
     MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t, const uchar *));
 
@@ -86,14 +86,12 @@ class MockObj : public Obj::Interface
     MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t, uchar *));
     MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t, const uchar *));
 
-    MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t *, const uchar *));
-    MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t *, const uchar *));
-
-#warning Not covered yet.
-    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t *, const uchar *));
+    MOCK_CONST_METHOD4(readDO, void(csize_t *, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDO, void(csize_t *, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDODF, void(csize_t *, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDODF, void(csize_t *, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDOMD, void(csize_t *, csize_t, csize_t, uchar *));
+    MOCK_CONST_METHOD4(writeDOMD, void(csize_t *, csize_t, csize_t, const uchar *));
 };
 
 struct FileReadSEGYTest : public Test
@@ -236,7 +234,8 @@ struct FileReadSEGYTest : public Test
 
     void initReadTrHdrsMock(size_t ns, size_t tn)
     {
-        EXPECT_CALL(*mock.get(), readDOMD(0, ns, tn, _))
+        size_t zero = 0U;
+        EXPECT_CALL(*mock.get(), readDOMD(zero, ns, tn, _))
                     .Times(Exactly(1))
                     .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
@@ -264,7 +263,41 @@ struct FileReadSEGYTest : public Test
         ASSERT_THAT(prm.c, ContainerEq(tr));
     }
 
-    template <bool readPrm = false, bool MOCK = true>
+    void initRandReadTrHdrsMock(size_t ns, size_t tn)
+    {
+        File::Param prm(tn);
+        std::vector<size_t> offset(tn);
+        std::iota(offset.begin(), offset.end(), 0);
+
+        std::random_device rand;
+        std::mt19937 mt(rand());
+        std::shuffle(offset.begin(), offset.end(), mt);
+
+        EXPECT_CALL(*mock.get(), readDOMD(A<csize_t *>(), ns, tn, _))
+                .Times(Exactly(1))
+                .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+
+        file->readTraceNonMono(tn, offset.data(), const_cast<trace_t *>(File::TRACE_NULL), &prm);
+
+        for (size_t i = 0; i < tn; i++)
+        {
+            ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm));
+            ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm));
+
+            if (sizeof(geom_t) == sizeof(double))
+            {
+                ASSERT_DOUBLE_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_DOUBLE_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            }
+            else
+            {
+                ASSERT_FLOAT_EQ(xNum(offset[i]), File::getPrm<geom_t>(i, Meta::xSrc, &prm));
+                ASSERT_FLOAT_EQ(yNum(offset[i]), File::getPrm<geom_t>(i, Meta::ySrc, &prm));
+            }
+        }
+    }
+
+    template <bool readPrm = false, bool MOCK = true, bool RmRule = false>
     void readTraceTest(csize_t offset, size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
@@ -300,11 +333,27 @@ struct FileReadSEGYTest : public Test
         }
 
         std::vector<trace_t> bufnew(tn * ns);
-        File::Param prm(tn);
+        auto rule = std::make_shared<File::Rule>(true, true);
+        if (RmRule)
+        {
+            rule->rmRule(Meta::xSrc);
+            rule->addSEGYFloat(Meta::ShotNum, File::Tr::UpSrc, File::Tr::UpRcv);
+            rule->addLong(Meta::Misc1, File::Tr::TORF);
+            rule->addShort(Meta::Misc2, File::Tr::ShotNum);
+            rule->addShort(Meta::Misc3, File::Tr::ShotScal);
+            rule->rmRule(Meta::ShotNum);
+            rule->rmRule(Meta::Misc1);
+            rule->rmRule(Meta::Misc2);
+            rule->rmRule(Meta::Misc3);
+            rule->rmRule(Meta::ySrc);
+            rule->addSEGYFloat(Meta::xSrc, File::Tr::xSrc, File::Tr::ScaleCoord);
+            rule->addSEGYFloat(Meta::ySrc, File::Tr::ySrc, File::Tr::ScaleCoord);
+        }
+        File::Param prm(rule, tn);
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
         for (size_t i = 0U; i < tnRead; i++)
         {
-            if (readPrm && tnRead * ns)
+            if (readPrm && tnRead && ns)
             {
                 ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
@@ -343,7 +392,7 @@ struct FileReadSEGYTest : public Test
                 buf.resize(tn * SEGSz::getDFSz(ns));
             for (size_t i = 0U; i < tn; i++)
             {
-                if (readPrm && ns*tn)
+                if (readPrm && ns && tn)
                     std::copy(tr.begin() + offset[i] * SEGSz::getMDSz(), tr.begin() + (offset[i]+1) * SEGSz::getMDSz(), buf.begin() + i*SEGSz::getDOSz(ns));
                 for (size_t j = 0U; j < ns; j++)
                 {
@@ -353,10 +402,10 @@ struct FileReadSEGYTest : public Test
                 }
             }
             if (readPrm)
-                EXPECT_CALL(*mock, readDO(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, readDO(offset.data(), ns, tn, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
             else
-                EXPECT_CALL(*mock, readDODF(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, readDODF(offset.data(), ns, tn, _))
                             .Times(Exactly(1)).WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
         }
 
@@ -368,7 +417,7 @@ struct FileReadSEGYTest : public Test
             file->readTrace(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
-            if (readPrm && tn * ns)
+            if (readPrm && tn && ns)
             {
                 ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];
@@ -428,12 +477,6 @@ struct FileWriteSEGYTest : public Test
             file.reset();
         piol->isErr();
 
-/*        file = std::make_unique<File::WriteDirect>(piol, name);
-
-        writeHO<false>();
-
-        delete file.release();*/
-
         File::WriteSEGY::Opt f;
         File::ReadSEGY::Opt rf;
         Obj::SEGY::Opt o;
@@ -480,9 +523,10 @@ struct FileWriteSEGYTest : public Test
         else
         {
             file->file->nt = nt;
-            file->file->ns = ns;
+            file->file->writeNs(ns);
         }
     }
+
     void initTrBlock()
     {
         tr.resize(nt * SEGSz::getMDSz());
@@ -673,7 +717,7 @@ struct FileWriteSEGYTest : public Test
             readfile->readTrace(offset, tn, bufnew.data());
         for (size_t i = 0U; i < tnRead; i++)
         {
-            if (readPrm && tnRead * ns)
+            if (readPrm && tnRead && ns)
             {
                 ASSERT_EQ(ilNum(i+offset), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xlNum(i+offset), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset;
@@ -724,10 +768,10 @@ struct FileWriteSEGYTest : public Test
                 }
             }
             if (writePrm)
-                EXPECT_CALL(*mock, writeDO(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, writeDO(offset.data(), ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
             else
-                EXPECT_CALL(*mock, writeDODF(ns, tn, offset.data(), _))
+                EXPECT_CALL(*mock, writeDODF(offset.data(), ns, tn, _))
                                 .Times(Exactly(1)).WillOnce(check3(buf.data(), buf.size()));
         }
         File::Param prm(tn);
@@ -776,7 +820,7 @@ struct FileWriteSEGYTest : public Test
             readfile->readTrace(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
-            if (readPrm && tn * ns)
+            if (readPrm && tn && ns)
             {
                 ASSERT_EQ(ilNum(offset[i]), File::getPrm<llint>(i, Meta::il, &prm)) << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xlNum(offset[i]), File::getPrm<llint>(i, Meta::xl, &prm)) << "Trace Number " << i << " offset " << offset[i];

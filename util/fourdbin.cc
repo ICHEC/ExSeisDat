@@ -96,8 +96,8 @@ int main(int argc, char ** argv)
     cmsg(piol, "Parameter-read phase");
 
     //Perform the decomposition and read the coordinates of interest.
-    auto coords1 = getCoords(piol, name1);
-    auto coords2 = getCoords(piol, name2);
+    auto coords1 = getCoords(piol, name1, fopt.ixline);
+    auto coords2 = getCoords(piol, name2, fopt.ixline);
 
     vec<size_t> min(coords1->sz);
     vec<fourd_t> minrs(coords1->sz);
@@ -117,6 +117,19 @@ int main(int argc, char ** argv)
             lminrs.push_back(minrs[i]);
             list1.push_back(coords1->tn[i]);
         }
+
+    if (fopt.verbose)
+    {
+        std::string name = "tmp/restart" + std::to_string(piol.getRank());
+        FILE * fOut = fopen(name.c_str(), "w+");
+        size_t sz = list1.size();
+        assert(fwrite(&sz, sizeof(size_t), 1U, fOut) == 1U);
+        assert(fwrite(list1.data(), sizeof(size_t), sz, fOut) == sz);
+        assert(fwrite(list2.data(), sizeof(size_t), sz, fOut) == sz);
+        assert(fwrite(lminrs.data(), sizeof(fourd_t), sz, fOut) == sz);
+        fclose(fOut);
+    }
+
     //free up some memory
     coords1.release();
 

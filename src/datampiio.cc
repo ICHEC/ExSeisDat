@@ -70,15 +70,6 @@ int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_
     return MPI_File_set_view(file, 0, MPI_BYTE, *type, "native", info);
 }
 
-/*! The size of the fabric
- *  \return Returns the size of the packet sizes to the storage in bytes
- *  \todo TODO: Implement a proper check
- */
-constexpr size_t getFabricPacketSz(void)
-{
-    return 4U*1024U*1024U;
-}
-
 /*! \brief This function exists to hide the const from the MPI_File_write_at function signature
  *  \param[in] f The MPI file handle
  *  \param[in] o The offset in bytes from the current internal shared pointer
@@ -292,7 +283,7 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-    read(0U, nb*bsz, d);
+    read(0LU, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
@@ -301,15 +292,6 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
 
 void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
 {
-    /*
-     *  If the bsz size is very large, we may as well read do this as a sequence of separate reads.
-     *  If MPI_Aint ignores the spec, then we are also constrained to this.
-     *  TODO: Investigate which limit is the optimal choice if the need arises
-    */
-    if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
-        for (size_t i = 0; i < nb; i++)
-            read(offset+i*osz, bsz, d);
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
     auto viewIO = [this, offset, bsz, osz]
@@ -354,7 +336,7 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
 {
 //TODO: More accurately determine a real limit for setting a view.
 //      Is the problem strides that are too big?
-    size_t max = maxSize / (bsz ? bsz * 2U : 1U);
+    size_t max = maxSize / (bsz ? bsz * 2LU : 1LU);
     size_t remCall = 0;
     {
         auto vec = piol->comm->gather<size_t>(sz);
@@ -381,20 +363,11 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
 
 void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
 {
-    if (bsz > getFabricPacketSz())
-        for (size_t i = 0; i < sz; i++)
-            read(offset[i], bsz, d);
-
    listIO((coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d, "list read failure");
 }
 
 void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
 {
-    if (bsz > getFabricPacketSz())
-        for (size_t i = 0; i < sz; i++)
-            write(offset[i], bsz, d);
-
-
     listIO((coll ? mpiio_write_at_all : mpiio_write_at), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
 }
 
@@ -413,7 +386,7 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
-    write(0U, nb*bsz, d);
+    write(0LU, nb*bsz, d);
 
     //Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
@@ -427,14 +400,6 @@ void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
 
 void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
 {
-    /*
-     *  If the bsz size is very large, we may as well read do this as a sequence of separate reads.
-     *  If MPI_Aint ignores the spec, then we are also contrained to this.
-     *  TODO: Investigate which limit is the optimal choice if the need arises
-    */
-    if (bsz > getFabricPacketSz() || (sizeof(MPI_Aint) < sizeof(size_t) && osz > maxSize))
-        for (size_t i = 0; i < nb; i++)
-            write(offset+i*osz, bsz, d);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
     auto viewIO = [this, offset, bsz, osz]

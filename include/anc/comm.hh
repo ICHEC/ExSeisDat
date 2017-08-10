@@ -78,22 +78,28 @@ class Interface
     }
 
     /*! Perform a reduce across all process to get the sum of the passed values
-     * \param[in] val variable to be used in the operation from thie process
+     * \param[in] val variable to be used in the operation from this process
      * \return the global sum (same value on all processes)
      */
     virtual size_t sum(size_t val) = 0;
 
     /*! Perform a reduce across all process to get the max of the passed values
-     * \param[in] val variable to be used in the operation from thie process
+     * \param[in] val variable to be used in the operation from this process
      * \return the global max (same value on all processes)
      */
     virtual size_t max(size_t val) = 0;
 
     /*! Perform a reduce across all process to get the min of the passed values
-     * \param[in] val variable to be used in the operation from thie process
+     * \param[in] val variable to be used in the operation from this process
      * \return the global min (same value on all processes)
      */
     virtual size_t min(size_t val) = 0;
+
+    /*! Calculate the offset assuming a local given contribution
+     * \param[in] val variable to be used in the operation from this process
+     * \return the local offset (equivalent to an MPI exscan)
+     */
+    virtual size_t offset(size_t val) = 0;
 
     /*! \brief A barrier between all processes which are members of the communication collective.
      */

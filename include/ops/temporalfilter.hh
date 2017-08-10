@@ -10,14 +10,9 @@
 #include <vector>
 #include <complex>
 #include "global.hh"
+#include "share/api.hh"
 
 namespace PIOL { namespace File {
-
-extern const trace_t PI;
-extern const std::complex<trace_t> I;
-
-typedef std::function<trace_t(trace_t *, size_t, size_t, size_t)> FltrPad;  //!< Typedef for filter padding funcitons
-
 /* Determines the filter order if given passband and stopband frequecnies
  * \param[in] cornerP Passband corner
  * \param[in] cornerS Stopband corner
@@ -120,7 +115,8 @@ void filterTime(size_t nw,trace_t * trcOrgnl, size_t N, trace_t * numer, trace_t
  * \param[in] winCntr Center of filter window
  * \param[in] corners Vector of corner frequencies (Hz)
  */
-void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain,  PadType pad,size_t nw, size_t winCntr, std::vector<trace_t> corners);
+void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain,
+                  PadType pad, size_t nw, size_t winCntr, std::vector<trace_t> corners);
 
 /* Temporally filter traces when given passband frequencies and filter Order
  * \param[in] nt Number of traces
@@ -135,6 +131,7 @@ void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType ty
  * \param[in] N Filter order
  * \param[in] corners Vector of corner frequencies (Hz)
  */
-void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain, PadType pad, size_t nw, size_t winCntr, std::vector<trace_t> corners, size_t N);
+void temporalFilter(size_t nt, size_t ns, trace_t * trc, trace_t fs, FltrType type, FltrDmn domain,
+                  PadType pad, size_t nw, size_t winCntr, std::vector<trace_t> corners, size_t N);
 }}
 #endif

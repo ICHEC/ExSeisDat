@@ -106,6 +106,20 @@ void ReadDirect::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace,
     file->readTraceNonMono(sz, offset, trace, prm);
 }
 
+ReadModel::ReadModel(const Piol piol, const std::string name)
+{
+    const Obj::SEGY::Opt o;
+    const Data::MPIIO::Opt d;
+    auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
+    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
+    file = std::make_shared<File::ReadSEGYModel>(piol, name, obj);
+}
+
+std::vector<trace_t> ReadModel::readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather)
+{
+    return std::dynamic_pointer_cast<File::Model3dInterface>(file)->readModel(gOffset, numGather, gather);
+}
+
 void WriteDirect::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
 {
     file->writeTrace(sz, offset, trace, prm);

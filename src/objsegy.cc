@@ -7,15 +7,20 @@
  *   \details
  *//*******************************************************************************************/
 #include "object/objsegy.hh"
+#include "data/datampiio.hh"
 #include "share/segy.hh"
 #include "data/data.hh"
 namespace PIOL { namespace Obj {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Obj::Interface> makeDefaultObj(Piol piol, std::string name, FileMode mode)
+{
+    auto data = std::make_shared<Data::MPIIO>(piol, name, mode);
+    return std::make_shared<Obj::SEGY>(piol, name, data, mode);
+}
 
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
-
 //pragma to ignore unusued-paramter warnings here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -30,15 +35,15 @@ SEGY::SEGY(Piol piol_, std::string name_, std::shared_ptr<Data::Interface> data_
 ///////////////////////////////////       Member functions      ///////////////////////////////////
 void SEGY::readHO(uchar * ho) const
 {
-    data->read(0U, SEGSz::getHOSz(), ho);
+    data->read(0LU, SEGSz::getHOSz(), ho);
 }
 
 void SEGY::writeHO(const uchar * ho) const
 {
     if (ho)
-        data->write(0U, SEGSz::getHOSz(), ho);
+        data->write(0LU, SEGSz::getHOSz(), ho);
     else
-        data->write(0U, 0, ho);
+        data->write(0LU, 0U, ho);
 }
 
 void SEGY::readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const
@@ -72,7 +77,7 @@ void SEGY::writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) c
 }
 
 //TODO: Add optional validation in this layer?
-void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
+void SEGY::readDO(csize_t * offset, csize_t ns, csize_t sz, uchar * d) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -80,7 +85,7 @@ void SEGY::readDO(csize_t ns, csize_t sz, csize_t * offset, uchar * d) const
     data->read(SEGSz::getDOSz(ns), sz, dooff.data(), d);
 }
 
-void SEGY::writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) const
+void SEGY::writeDO(csize_t * offset, csize_t ns, csize_t sz, const uchar * d) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -88,7 +93,7 @@ void SEGY::writeDO(csize_t ns, csize_t sz, csize_t * offset, const uchar * d) co
     data->write(SEGSz::getDOSz(ns), sz, dooff.data(), d);
 }
 
-void SEGY::readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const
+void SEGY::readDOMD(csize_t * offset, csize_t ns, csize_t sz, uchar * md) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -96,7 +101,7 @@ void SEGY::readDOMD(csize_t ns, csize_t sz, csize_t * offset, uchar * md) const
     data->read(SEGSz::getMDSz(), sz, dooff.data(), md);
 }
 
-void SEGY::writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md) const
+void SEGY::writeDOMD(csize_t * offset, csize_t ns, csize_t sz, const uchar * md) const
 {
     std::vector<size_t> dooff(sz);
     for (size_t i = 0; i < sz; i++)
@@ -104,7 +109,7 @@ void SEGY::writeDOMD(csize_t ns, csize_t sz, csize_t * offset, const uchar * md)
     data->write(SEGSz::getMDSz(), sz, dooff.data(), md);
 }
 
-void SEGY::readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const
+void SEGY::readDODF(csize_t * offset, csize_t ns, csize_t sz, uchar * df) const
 {
     if (ns == 0)
         return;
@@ -114,7 +119,7 @@ void SEGY::readDODF(csize_t ns, csize_t sz, csize_t * offset, uchar * df) const
     data->read(SEGSz::getDFSz(ns), sz, dooff.data(), df);
 }
 
-void SEGY::writeDODF(csize_t ns, csize_t sz, csize_t * offset, const uchar * df) const
+void SEGY::writeDODF(csize_t * offset, csize_t ns, csize_t sz, const uchar * df) const
 {
     if (ns == 0)
         return;

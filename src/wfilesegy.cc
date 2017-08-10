@@ -35,7 +35,7 @@ WriteSEGY::WriteSEGY(const Piol piol_, const std::string name_, std::shared_ptr<
 
 WriteSEGY::~WriteSEGY(void)
 {
-    if (!piol->log->isErr())
+    if (!piol->log->isErr())    //TODO: On error this can be a source of a deadlock
     {
         calcNt();
         if (state.resize)
@@ -76,8 +76,8 @@ void WriteSEGY::Init(const WriteSEGY::Opt & opt)
     incFactor = opt.incFactor;
     memset(&state, 0, sizeof(Flags));
     format = Format::IEEE;
-    ns = 0U;
-    nt = 0U;
+    ns = 0LU;
+    nt = 0LU;
     inc = geom_t(0);
     text = "";
     state.writeHO = true;
@@ -118,18 +118,11 @@ void WriteSEGY::writeNs(csize_t ns_)
         state.resize = true;
         state.writeHO = true;
     }
+    nsSet = true;
 }
 
 void WriteSEGY::writeNt(csize_t nt_)
 {
-#ifdef NT_LIMITS
-    if (nt_ > NT_LIMITS)
-    {
-        const std::string msg = "nt_ beyond limited size: "  + std::to_string(NT_LIMITS) + " in writeNt()";
-        piol->log->record(name, Log::Layer::File, Log::Status::Error, msg, Log::Verb::None);
-    }
-#endif
-
     if (nt != nt_)
     {
         nt = nt_;
@@ -154,128 +147,69 @@ void WriteSEGY::writeInc(const geom_t inc_)
     }
 }
 
-void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm, csize_t skip)
+/*! Template function for writing SEG-Y traces and parameters, random and contiguous.
+ *  \tparam T The type of offset (pointer or size_t)
+ *  \param[in] obj The object-layer object.
+ *  \param[in] ns The number of samples per trace.
+ *  \param[in] offset The offset(s). If T == size_t * this is an array, otherwise its a single offset.
+ *  \param[in] sz The number of traces to write
+ *  \param[in] trc Pointer to trace array.
+ *  \param[in] prm Pointer to parameter structure.
+ *  \param[in] skip Skip \c skip entries in the parameter structure
+ */
+template <typename T>
+void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t * trc, const Param * prm, csize_t skip)
 {
-    #ifdef NT_LIMITS
-    if (sz+offset > NT_LIMITS)
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeTrace() was called with an implied write of an nt value that is too large", Log::Verb::None);
-        return;
-    }
-    #endif
-
-    uchar * buf = reinterpret_cast<uchar *>(trace);
-
-    //TODO: Check cache effects doing both of these loops the other way.
-    //TODO: Add unit test for reverse4Bytes
-    for (size_t i = 0; i < ns * sz; i++)
-        reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
+    uchar * tbuf = reinterpret_cast<uchar *>(trc);
+    if (trc != TRACE_NULL && trc != nullptr)
+        for (size_t i = 0; i < ns * sz; i++)
+            reverse4Bytes(&tbuf[i*sizeof(float)]);
 
     if (prm == PARAM_NULL)
-        obj->writeDODF(offset, ns, sz, buf);
+        obj->writeDODF(offset, ns, sz, tbuf);
     else
     {
-        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns)); //FIXME: Potentially a big allocation
-        if (sz)
-            insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns), skip);
-        for (size_t i = 0; i < sz; i++)
-            std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
-                      dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
-        obj->writeDO(offset, ns, sz, dobuf.data());
+        csize_t blockSz = (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+        std::vector<uchar> alloc(blockSz * sz);
+        uchar * buf = (sz ? alloc.data() : nullptr);
+        insertParam(sz, prm, buf, blockSz - SEGSz::getMDSz(), skip);
+
+        if (trc == TRACE_NULL)
+            obj->writeDOMD(offset, ns, sz, buf);
+        else
+        {
+            for (size_t i = 0; i < sz; i++)
+                std::copy(&tbuf[i * SEGSz::getDFSz(ns)], &tbuf[(i+1) * SEGSz::getDFSz(ns)],
+                           &buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()]);
+            obj->writeDO(offset, ns, sz, buf);
+        }
     }
 
-    for (size_t i = 0; i < ns * sz; i++)
-        reverse4Bytes(&buf[i*sizeof(float)]);
+    if (trc != TRACE_NULL && trc != nullptr)
+        for (size_t i = 0; i < ns * sz; i++)
+            reverse4Bytes(&tbuf[i*sizeof(float)]);
+}
 
+void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Param * prm, csize_t skip)
+{
+    if (!nsSet)
+        piol->log->record(name, Log::Layer::File, Log::Status::Error,
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", Log::Verb::None);
+
+    writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
     nt = std::max(offset + sz, nt);
 }
 
-void WriteSEGY::writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip)
+void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trc, const Param * prm, csize_t skip)
 {
-    #ifdef NT_LIMITS
-    if (sz+offset > NT_LIMITS)
-    {
+    if (!nsSet)
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
-        return;
-    }
-    #endif
-    if (!sz)   //Nothing to be written.
-    {
-        obj->writeDOMD(0, 0, size_t(0), nullptr);
-        return;
-    }
-    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", Log::Verb::None);
 
-    if (prm != nullptr)
-        insertParam(sz, prm, buf.data(), 0U, skip);
-
-    obj->writeDOMD(offset, ns, sz, buf.data());
-
-    state.stalent = true;
-    nt = std::max(offset + sz, nt);
-}
-
-void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm, csize_t skip)
-{
-    uchar * buf = reinterpret_cast<uchar *>(trace);
-
-    //TODO: Check cache effects doing both of these loops the other way.
-    //TODO: Add unit test for reverse4Bytes
-    for (size_t i = 0; i < ns * sz; i++)
-        reverse4Bytes(&buf[i*sizeof(float)]); //TODO: Add length check
-
-    if (prm == PARAM_NULL)
-        obj->writeDODF(ns, sz, offset, buf);
-    else
-    {
-        std::vector<uchar> dobuf(sz * SEGSz::getDOSz(ns));          //FIXME: Potentially a big allocation
-        if (sz)
-            insertParam(sz, prm, dobuf.data(), SEGSz::getDFSz(ns), skip);
-        for (size_t i = 0; i < sz; i++)
-            std::copy(&buf[i * SEGSz::getDFSz(ns)], &buf[(i+1) * SEGSz::getDFSz(ns)],
-                      dobuf.begin() + i * SEGSz::getDOSz(ns) + SEGSz::getMDSz());
-        obj->writeDO(ns, sz, offset, dobuf.data());
-    }
-
-    for (size_t i = 0; i < ns * sz; i++)
-        reverse4Bytes(&buf[i*sizeof(float)]);
-
+    writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
     if (sz)
-        nt = std::max(offset[sz-1]+1U, nt);
-}
-
-void WriteSEGY::writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip)
-{
-    #ifdef NT_LIMITS
-    size_t max = 0;
-    for (size_t i = 0; i < sz; i++)
-        max = std::max(offset[i], max);
-
-    if (sz+max > NT_LIMITS)
-    {
-        piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "writeParam() was called with an implied write of an nt value that is too large", Log::Verb::None);
-        return;
-    }
-    #endif
-
-    if (!sz)   //Nothing to be written.
-    {
-        obj->writeDOMD(0, 0, nullptr, nullptr);
-        return;
-    }
-    std::vector<uchar> buf(SEGSz::getMDSz() * sz);
-
-    if (prm != nullptr)
-        insertParam(sz, prm, buf.data(), 0U, skip);
-
-    obj->writeDOMD(ns, sz, offset, buf.data());
-
-    state.stalent = true;
-    nt = std::max(offset[sz-1]+1U, nt);
+        nt = std::max(offset[sz-1LU]+1LU, nt);
 }
 }}

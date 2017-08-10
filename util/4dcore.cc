@@ -67,6 +67,7 @@ void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xs
 fourd_t hypot(const fourd_t x, const fourd_t y)
 {
     return sqrtf(x*x + y*y);
+   // return std::hypot(x, y);
 }
 
 /*! Create windows for one-sided communication of coordinates
@@ -109,7 +110,7 @@ vec<MPI_Win> createCoordsWin(const Coords * crd, const bool ixline)
  */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
-    auto crd = std::make_unique<Coords>(sz);
+    auto crd = std::make_unique<Coords>(sz, ixline);
     for (size_t i = 0; i < win.size(); i++)
         MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
 
@@ -199,9 +200,9 @@ template <const bool ixline>
 size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, const fourd_t dsrmax)
 {
     //For the vectorisation
-    size_t lstart = 0U;
+    size_t lstart = 0LU;
     size_t lend = crd1->sz;
-    size_t rstart = 0U;
+    size_t rstart = 0LU;
     size_t rend = crd2->sz;
 
     //Ignore all file2 traces that can not possibly match our criteria within the min/max
@@ -238,12 +239,12 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
     #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) aligned(yR2:ALIGN) \
                      aligned(xS1:ALIGN) aligned(yS1:ALIGN) aligned(xR1:ALIGN) aligned(yR1:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (size_t i = lstart; i < lend; i++)                         //Loop through every file1 trace
+    for (llint i = lstart; i < lend; i++)                         //Loop through every file1 trace
     {
         const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
         size_t lm = lmin[i];
         fourd_t lmrs = lminrs[i];
-        for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
+        for (llint j = rstart; j < rend; j++)        //loop through a multiple of the alignment
         {
             const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j], yr2 = yR2[j];
             fourd_t dval = (!ixline || (crd1->il[i] == crd2->il[j] && crd1->xl[i] == crd2->xl[j]) ?
@@ -263,6 +264,13 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
     return lsz * rsz;
 }
 
+/*! Send coordinate data. An alternative but largely untested alternative
+ *  to the one-sided communication mechanism.
+ *  \param[in] lrank The target rank to communicate with
+ *  \param[in] crd The coordinate data
+ *  \param[in] ixline Whether line numbers are also being sent
+ *  \return A vector of MPI_Request objects for performing a MPI_Waitall
+ */
 vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
 {
     vec<MPI_Request> request(5);
@@ -281,9 +289,16 @@ vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
     return request;
 }
 
+/*! Reive coordinate data. An alternative but largely untested alternative
+ *  to the one-sided communication mechanism.
+ *  \param[in] lrank The target rank to communicate with
+ *  \param[in] sz The number of entries to recv
+ *  \param[in] ixline Whether line numbers are also being received
+ *  \return The coordinate data
+ */
 std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
 {
-    auto crd = std::make_unique<Coords>(sz);
+    auto crd = std::make_unique<Coords>(sz, ixline);
     vec<MPI_Request> request(5);
     MPIErr(MPI_Irecv(crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD, &request[0]));
     MPIErr(MPI_Irecv(crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD, &request[1]));
@@ -303,7 +318,6 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
     return std::move(crd);
 }
 
-
 void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, const Coords * crd2,
                                   const FourDOpt opt, vec<size_t> & min, vec<fourd_t> & minrs)
 {
@@ -313,12 +327,12 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
     auto szall = piol->comm->gather(vec<size_t>{crd2->sz});
 
     //The File2 min/max from every process
-    auto xsmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0U]});
-    auto xsmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz-1U]});
+    auto xsmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0LU]});
+    auto xsmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz-1LU]});
 
     //The File1 local min and local maximum for the particular process
-    auto xslmin = crd1->xSrc[0U];
-    auto xslmax = crd1->xSrc[crd1->sz-1U];
+    auto xslmin = crd1->xSrc[0LU];
+    auto xslmax = crd1->xSrc[crd1->sz-1LU];
 
     //Perform a local initialisation update of min and minrs
     if (opt.ixline)
@@ -328,7 +342,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
     //This for loop determines the processes the local process will need to be communicating with.
     vec<size_t> active;
-    for (size_t i = 0U; i < numRank; i++)
+    for (size_t i = 0LU; i < numRank; i++)
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
             active.push_back(i);
 
@@ -348,7 +362,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         auto xsfmin = piol->comm->gather<fourd_t>(xslmin);
         auto xsfmax = piol->comm->gather<fourd_t>(xslmax);
 
-        for (size_t i = 0U; i < numRank; i++)
+        for (size_t i = 0LU; i < numRank; i++)
             if ((xsmin[rank] - dsrmax <= xsfmax[i]) && (xsmax[rank] + dsrmax >= xsfmin[i]))
             {
                 vec<MPI_Request> rq = sendCrd(i, crd1, opt.ixline);
@@ -363,7 +377,6 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
 
     //Perform the updates of min and minrs using data from other processes.
     //This is the main loop.
-    //for (llint i = (rank % 2 ? 0 : active.size()); (rank % 2 &&  i < active.size()) || (!(rank % 2) && i > 0) ; i += (rank % 2 ? 1 : -1))
     for (size_t i = 0; i < active.size(); i ++)
     {
         double ltime = MPI_Wtime();
@@ -374,7 +387,7 @@ void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, con
         auto proc = recvCrd(lrank, szall[lrank], opt.ixline);
 #endif
         double wtime = MPI_Wtime() - ltime;
-        double sent = szall[lrank] * (4U*sizeof(fourd_t) + sizeof(size_t) + 2U*sizeof(llint));
+        double sent = szall[lrank] * (4LU*sizeof(fourd_t) + sizeof(size_t) + 2LU*sizeof(llint));
         size_t ops = (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
                                   update<false>(crd1, proc.get(), min, minrs, dsrmax));
 

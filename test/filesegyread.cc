@@ -71,6 +71,13 @@ TEST_F(FileSEGYRead, FileReadFileTrs)
     initReadTrHdrsMock(ns, nt);
 }
 
+TEST_F(FileSEGYRead, FileReadFileTrsRandom)
+{
+    makeMockSEGY();
+    initTrBlock();
+    initRandReadTrHdrsMock(ns, nt);
+}
+
 TEST_F(FileSEGYRead, FileReadTraceBigNS)
 {
     nt = 100;
@@ -246,4 +253,39 @@ TEST_F(FileSEGYRead, FileReadRandomTraceWPrmZeroNs)
     initTrBlock();
     auto offsets = getRandomVec(size, nt, 1337);
     readRandomTraceTest<true>(size, offsets);
+}
+
+
+TEST_F(FileSEGYRead, FileReadTraceBigNSRuleRm)
+{
+    nt = 100;
+    ns = 10000;
+    makeMockSEGY();
+    readTraceTest<false, true, true>(10, nt);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceBigNSWPrmRuleRm)
+{
+    nt = 100;
+    ns = 10000;
+    makeMockSEGY();
+    initTrBlock();
+    readTraceTest<true, true, true>(10, nt);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceBigOffsetRuleRm)
+{
+    nt = 3738270;
+    ns = 3000;
+    makeMockSEGY();
+    readTraceTest<false, true, true>(3728270, 3000);
+}
+
+TEST_F(FileSEGYRead, FileReadTraceWPrmBigOffsetRuleRm)
+{
+    nt = 3738270;
+    ns = 3000;
+    makeMockSEGY();
+    initTrBlock();
+    readTraceTest<true, true, true>(3728270, 3000);
 }

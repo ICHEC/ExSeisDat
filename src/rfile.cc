@@ -9,6 +9,18 @@
 #include "file/file.hh"
 namespace PIOL { namespace File {
 const Param * PARAM_NULL = (Param *)1;
+const trace_t * TRACE_NULL = (trace_t *)1;
+
+//TODO: Unit test
+void ReadInterface::readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const
+{
+    readTrace(offset, sz, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+}
+
+void ReadInterface::readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const
+{
+    readTrace(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+}
 
 const std::string & ReadInterface::readText(void) const
 {

@@ -7,9 +7,9 @@ all:
 	@(cd examples; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
 
 clean:
-	(cd src; $(MAKE) clean)
-	(cd test; $(MAKE) clean)
-	(cd api; $(MAKE) clean)
-	(cd util; $(MAKE) clean)
-	(cd examples; $(MAKE) clean)
+	@(cd src; $(MAKE) clean)
+	@(cd test; $(MAKE) clean)
+	@(cd api; $(MAKE) clean)
+	@(cd util; $(MAKE) clean)
+	@(cd examples; $(MAKE) clean)
 

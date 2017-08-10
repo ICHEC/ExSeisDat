@@ -1,6 +1,6 @@
 #include "sglobal.hh"
 #include "cppfileapi.hh"
-#include "fileops.hh"
+#include "ops/minmax.hh"
 #include <iostream>
 #include <algorithm>
 using namespace PIOL;
@@ -16,7 +16,7 @@ void calcMin(std::string iname, std::string oname)
     ExSeis piol;
     File::ReadDirect in(piol, iname);
 
-    auto dec = decompose(in.readNt(), piol.getNumRank(), piol.getRank());
+    auto dec = decompose(piol, in);
     size_t offset = dec.first;
     size_t lnt = dec.second;
 

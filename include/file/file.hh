@@ -11,13 +11,24 @@
 #define PIOLFILE_INCLUDE_GUARD
 #include "global.hh"
 #include "share/param.hh"
-
-namespace PIOL { namespace File {
-extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
-/*! \brief The File layer interface. Specific File implementations
- *  work off this base class.
+#include "share/uniray.hh"
+namespace PIOL {
+namespace Obj {
+/*! Make the default object layer object.
+ * \param[in] piol The piol shared object.
+ * \param[in] name The name of the file.
+ * \param[in] mode The filemode.
+ * \return Return a shared_ptr to the obj layer object.
+ * \todo TODO: This hack needs a further tidyup and out of file.hh.
  */
-class ReadInterface
+std::shared_ptr<Obj::Interface> makeDefaultObj(PIOL::Piol piol, std::string name, FileMode mode);
+}
+namespace File {
+extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
+extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
+/*! Class for all file interfaces
+ */
+class Interface
 {
     protected :
     Piol piol;                            //!< The PIOL object.
@@ -28,23 +39,42 @@ class ReadInterface
     std::string text;                     //!< Human readable text extracted from the file
     geom_t inc;                           //!< The increment between samples in a trace
 
-    public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    ReadInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
+    Interface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
     {
     }
 
     /*! Empty constructor
      */
-    ReadInterface(void) { }
+    Interface(void) { }
 
     /*! \brief A virtual destructor to allow deletion, unique_ptr polymorphism.
      */
-    virtual ~ReadInterface(void) { }
+    virtual ~Interface(void) { }
+};
+
+/*! \brief The File layer interface. Specific File implementations
+ *  work off this base class.
+ */
+class ReadInterface : public Interface
+{
+    public :
+
+    /*! \brief The constructor.
+     *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  \param[in] name_ The name of the file associated with the instantiation.
+     *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
+     */
+    ReadInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : Interface(piol_, name_, obj_)
+    {
+    }
+
+    ReadInterface(void) : Interface()
+    { }
 
     /*! \brief Read the human readable text from the file
      *  \return A string containing the text (in ASCII format)
@@ -81,7 +111,15 @@ class ReadInterface
      *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    virtual void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const = 0;
+    void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const;
+
+    /*! \brief Read the traces specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to read.
+     *  \param[out] prm A parameter structure
+     *  \param[in] skip When reading, skip the first "skip" entries of prm
+     */
+    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const;
 
     /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -113,47 +151,22 @@ class ReadInterface
      *  \details When prm==PARAM_NULL only the trace DF is read.
      */
     virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
-
-    /*! \brief Read the traces specified by the offsets in the passed offset array.
-     *  \param[in] sz The number of traces to process
-     *  \param[in] offset An array of trace numbers to read.
-     *  \param[out] prm A parameter structure
-     *  \param[in] skip When reading, skip the first "skip" entries of prm
-     */
-    virtual void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const = 0;
 };
 
 /*! \brief The File layer interface. Specific File implementations
  *  work off this base class.
  */
-class WriteInterface
+class WriteInterface : public Interface
 {
-    protected :
-    Piol piol;                            //!< The PIOL object.
-    std::string name;                     //!< Store the file name for debugging purposes.
-    std::shared_ptr<Obj::Interface> obj;  //!< Pointer to the Object-layer object (polymorphic).
-    size_t ns;                            //!< The number of samples per trace.
-    size_t nt;                            //!< The number of traces.
-    std::string text;                     //!< Human readable text extracted from the file
-    geom_t inc;                           //!< The increment between samples in a trace
-
     public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    WriteInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
+    WriteInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : Interface(piol_, name_, obj_)
     {
     }
-
-    /*! Empty constructor
-     */
-    WriteInterface(void) { }
-
-    /*! \brief A virtual destructor to allow deletion, unique_ptr polymorphism.
-     */
-    virtual ~WriteInterface(void) { }
 
     /*! \brief Write the human readable text from the file.
      *  \param[in] text_ The new string containing the text (in ASCII format).
@@ -185,7 +198,24 @@ class WriteInterface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip = 0) = 0;
+    void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip = 0)
+    {
+        writeTrace(offset, sz, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+    }
+
+    /*! \brief Write the parameters specified by the offsets in the passed offset array.
+     *  \param[in] sz The number of traces to process
+     *  \param[in] offset An array of trace numbers to write.
+     *  \param[in] prm A parameter structure
+     *  \param[in] skip When writing, skip the first "skip" entries of prm
+     *
+     *  \details It is assumed that the parameter writing operation is not an update. Any previous
+     *  contents of the trace header will be overwritten.
+     */
+    void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip = 0)
+    {
+        writeTrace(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+    }
 
     /*! \brief Write the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -208,17 +238,61 @@ class WriteInterface
      *  contents of the trace header will be overwritten.
      */
     virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
-
-    /*! \brief Write the traces specified by the offsets in the passed offset array.
-     *  \param[in] sz The number of traces to process
-     *  \param[in] offset An array of trace numbers to write.
-     *  \param[in] prm A parameter structure
-     *  \param[in] skip When writing, skip the first "skip" entries of prm
-     *
-     *  \details It is assumed that the parameter writing operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
-     */
-    virtual void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip = 0) = 0;
 };
+
+/*! \brief An intitial class for 3d volumes
+ */
+class Model3dInterface
+{
+    public :
+    std::tuple<llint, llint, llint> il;  //!< Parameters for the inline coordinate (start, count, increment)
+    std::tuple<llint, llint, llint> xl;  //!< Parameters for the crossline coordinate (start, count, increment)
+
+    /*! read the 3d file based on il and xl that match those in the given \c gather array.
+     *  \param[in] offset the offset into the global array
+     *  \param[in] sz the number of gathers for the local process
+     *  \param[in] gather a structure which contains the il and xl coordinates of interest
+     *  \return return a vector of traces containing the trace values requested
+     */
+    virtual std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather) = 0;
+
+    /*! Read the 3d file based on il and xl that match those in the given \c gather array.
+     *  \param[in] sz The number of offsets for the local process
+     *  \param[in] offset the offset into the global array
+     *  \param[in] gather A structure which contains the il and xl coordinates of interest
+     *  \return Return a vector of traces containing the trace values requested
+     */
+    virtual std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
+};
+
+/*! Construct ReadSEGY objects with default object and MPI-IO layers.
+ * \tparam T The type of the file layer.
+ * \param[in] piol The piol shared object.
+ * \param[in] name The name of the file.
+ * \return Return a pointer of the respective file type.
+ */
+template <class T>
+std::unique_ptr<typename std::enable_if<std::is_base_of<File::ReadInterface, T>::value, T>::type>
+makeFile(Piol piol, const std::string name)
+{
+    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
+    auto file = std::make_unique<T>(piol, name, obj);
+    return std::move(file);
+}
+
+/*! Construct WriteSEGY objects with default object and MPI-IO layers
+ * \tparam T The type of the file layer
+ * \param[in] piol The piol shared object
+ * \param[in] name The name of the file
+ * \return Return a pointer of the respective file type.
+ */
+template <class T>
+std::unique_ptr<typename std::enable_if<std::is_base_of<File::WriteInterface, T>::value, T>::type>
+makeFile(Piol piol, const std::string name)
+{
+    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
+    auto file = std::make_unique<T>(piol, name, obj);
+    return std::move(file);
+}
 }}
 #endif
