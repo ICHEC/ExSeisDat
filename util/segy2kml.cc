@@ -7,6 +7,7 @@
 #include <algorithm>
 using namespace PIOL;
 
+// Create the initial KML file settings to order to describe the output in general
 void initKML(std::ofstream &file, std::string oname, std::string folder)
 {
     file.open(oname);
@@ -20,11 +21,14 @@ void initKML(std::ofstream &file, std::string oname, std::string folder)
     file << "<Schema name=\"Intrepid\" id=\"Intrepid\">\n\t<SimpleField name=\"Name\" type=\"string\"></SimpleField>";
     file << "\n\t<SimpleField name=\"Description\" type=\"string\"></SimpleField>\n</Schema>\n\n";
 }
+
 std::string highPrecStr(geom_t coord)
 {
     return std::to_string(static_cast<long long>(std::floor(coord))) +"."+
     std::to_string(static_cast<long long>(std::floor((coord - std::floor(coord))*10000000000)));
 }
+
+// Add a line containing coordinates data to the KML file.
 void addLine(std::ofstream &file, std::string name, std::vector<CoordElem> coords)
 {
     file << "<Placemark>\n\t<name>"+name+"</name>\n\t<styleUrl>#pathstyle</styleUrl>\n\t<LineString>\n\t\t";
@@ -40,6 +44,8 @@ void closeKML(std::ofstream &file)
     file << "</Folder>\n</Document>\n</kml>";
     file.close();
 }
+
+// Compute a lat long value from a UTM input
 void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  & lat, geom_t & lng)
 {
     geom_t hemi = (utmZone.back()="N" ? 1 : -1);
@@ -50,6 +56,7 @@ void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  &
     geom_t const k0 = 0.9996;
     geom_t E = std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
 
+    //FIXME I guess these formulae come from somewhere? Can you include a link to that so improve the understandability and so they can be checked?
     geom_t ei = (1 - std::sqrt(1 - E*E)) / (1 + std::sqrt(1 - E*E));
     geom_t x = 500000 - easting;
     geom_t mu = (northing / k0) / (eqRad *  (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64 - 5 * std::pow(E, 6U) / 256));
@@ -87,7 +94,7 @@ void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
     File::getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
 };
 
-/* Main function for minmax.
+/* Main function for segy to kml
  *  \param[in] argc The number of input strings.
  *  \param[in] argv The array of input strings.
  *  \return zero on success, non-zero on failure
@@ -131,7 +138,9 @@ int main(int argc, char ** argv)
         return -1;
     }
 
-    if (utmZone != ""  && (std::toupper(utmZone.back()) != 'N' &&  std::toupper(utmZone.back()) != 'S' || (std::stof(utmZone) < 1 ||
+    // Expect UTM zone to have the form xS or xN where x is an integer between 1 and 60
+    // FIXME I added parentheses for clarity, can you check if you agree?
+    if (utmZone != ""  && ((std::toupper(utmZone.back()) != 'N' && std::toupper(utmZone.back()) != 'S') || (std::stof(utmZone) < 1 ||
        std::stof(utmZone) > 60) || std::stof(utmZone) != std::floor(std::stof(utmZone))))
         {
             std::cerr << "Invalid UTM Zone (WGS-84). \n";
@@ -155,6 +164,7 @@ int main(int argc, char ** argv)
     for (size_t i = 0; i< iname.size(); i++)
     {
         calcMin(piol, iname[i], minmax);
+        // FIXME What happens if minax > 180?
         if (minmax[0].val > 180)
         {
             utm2LatLong(minmax[0].val, minmax[2].val, utmZone, minmax[0].val, minmax[2].val);
