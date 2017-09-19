@@ -46,6 +46,7 @@ void closeKML(std::ofstream &file)
 }
 
 // Compute a lat long value from a UTM input
+// Formulas is from https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM (Excel Spreadsheet is clearer than formula)
 void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  & lat, geom_t & lng)
 {
     geom_t hemi = (utmZone.back()="N" ? 1 : -1);
@@ -55,8 +56,6 @@ void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  &
     geom_t const polRad = 6356752;
     geom_t const k0 = 0.9996;
     geom_t E = std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
-
-    //FIXME I guess these formulae come from somewhere? Can you include a link to that so improve the understandability and so they can be checked?
     geom_t ei = (1 - std::sqrt(1 - E*E)) / (1 + std::sqrt(1 - E*E));
     geom_t x = 500000 - easting;
     geom_t mu = (northing / k0) / (eqRad *  (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64 - 5 * std::pow(E, 6U) / 256));
@@ -76,8 +75,9 @@ void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  &
 
 /*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
+ *  \param[in] piol Piol constructor
  *  \param[in] iname Input file
- *  \param[in] oname Output file
+ *  \param[in] minmax Minimum and maximum coordinates
  */
 void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
 {
@@ -139,7 +139,7 @@ int main(int argc, char ** argv)
     }
 
     // Expect UTM zone to have the form xS or xN where x is an integer between 1 and 60
-    // FIXME I added parentheses for clarity, can you check if you agree?
+    // It is correct
     if (utmZone != ""  && ((std::toupper(utmZone.back()) != 'N' && std::toupper(utmZone.back()) != 'S') || (std::stof(utmZone) < 1 ||
        std::stof(utmZone) > 60) || std::stof(utmZone) != std::floor(std::stof(utmZone))))
         {
@@ -164,7 +164,8 @@ int main(int argc, char ** argv)
     for (size_t i = 0; i< iname.size(); i++)
     {
         calcMin(piol, iname[i], minmax);
-        // FIXME What happens if minax > 180?
+        // If Longitude/Easting is greater than 180, coordinate is in UTM formate and must be
+        // converted to latitude/longitude (mimimum UTM Easting is 100,000)
         if (minmax[0].val > 180)
         {
             utm2LatLong(minmax[0].val, minmax[2].val, utmZone, minmax[0].val, minmax[2].val);
