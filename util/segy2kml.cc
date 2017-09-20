@@ -7,7 +7,11 @@
 #include <algorithm>
 using namespace PIOL;
 
-// Create the initial KML file settings to order to describe the output in general
+/*! Create the initial KML file settings to order to describe the output in general
+ *  \param[in,out] file file handle opened file is assigned to
+ *  \param[in] oname name of the file to open
+ *  \param[in] folder ??? FIXME
+ */
 void initKML(std::ofstream &file, std::string oname, std::string folder)
 {
     file.open(oname);
@@ -22,30 +26,47 @@ void initKML(std::ofstream &file, std::string oname, std::string folder)
     file << "\n\t<SimpleField name=\"Description\" type=\"string\"></SimpleField>\n</Schema>\n\n";
 }
 
+/*! Creates a high precision 10 decimals() string from a single coordinate (i.e. not a pair)
+ *  \param[in] coord lat/long coords to change to string
+ *  \return the coordinates as a string
+ */
 std::string highPrecStr(geom_t coord)
 {
     return std::to_string(static_cast<long long>(std::floor(coord))) +"."+
     std::to_string(static_cast<long long>(std::floor((coord - std::floor(coord))*10000000000)));
 }
 
-// Add a line containing coordinates data to the KML file.
+/*! Add a line containing coordinates data to the KML file.
+ *  \param[in,out] file file handle to write to
+ *  \param[in] name name to be given to this set of coordinates
+ *  \param[in] coords the lat/long coords to print to the file
+ */
 void addLine(std::ofstream &file, std::string name, std::vector<CoordElem> coords)
 {
     file << "<Placemark>\n\t<name>"+name+"</name>\n\t<styleUrl>#pathstyle</styleUrl>\n\t<LineString>\n\t\t";
     file << "<ExtendedData>\n\t\t\t<SchemaData schemaUrl=\"#Intrepid\">\n\t\t\t\t";
-    file <<  "<SimpleData name=\"Name\">"+name+"</SimpleData>\n\t\t\t</SchemaDat>\n\t\t</ExtendedData>\n\t\t\t";
+    file <<  "<SimpleData name=\"Name\">"+name+"</SimpleData>\n\t\t\t</SchemaData>\n\t\t</ExtendedData>\n\t\t\t";
     file << "<tessellate>1</tessellate>\n\t\t<coordinates>\n\t\t\t"+highPrecStr(coords[2].val)+","+highPrecStr(coords[0].val);
     file << +",0\n\t\t\t"+highPrecStr(coords[3].val)+","+highPrecStr(coords[1].val)+",0\n\t\t </coordinates>\n\t";
     file << "</LineString>\n</Placemark>\n";
 }
 
+/*! close the kml outpuut file
+ *  \param[in,out] file file handle to close
+ */
 void closeKML(std::ofstream &file)
 {
     file << "</Folder>\n</Document>\n</kml>";
     file.close();
 }
 
-// Compute a lat long value from a UTM input
+/*! Compute a lat long value from a UTM input
+ *  \param[in] easting UTM easting coordinate
+ *  \param[in] northing UTM northing coordinate
+ *  \param[in] utmZone the UTM zone the coordinates lie in
+ *  \param[out] lat latitude coordinate
+ *  \param[out] lng longitude coordinate
+ */
 // Formulas is from https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM (Excel Spreadsheet is clearer than formula)
 void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  & lat, geom_t & lng)
 {
@@ -101,8 +122,9 @@ void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
  *  \details Options:
  *           -i \<file\> : input file name
  *           -o \<file\> : output file name
- *           -f \<folder\> : KML Folder name
+ *           -f \<folder\> : KML Folder name ??? FIXME what does this mean?
  *           -z \<UTMZone\> : UTM Zone if coordinates in UTM
+ *           -h \<help\> : prints available command line options
  */
 int main(int argc, char ** argv)
 {
@@ -110,23 +132,27 @@ int main(int argc, char ** argv)
     std::string oname = "";
     std::string utmZone = "";
     std::string folder = "SEG-Y";
+    bool help = false;
 
-    std::string opt = "i:o:f:z:";  //TODO: uses a GNU extension
+    std::string opt = "i:o:f:z:h";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
             case 'i' :
                 iname.push_back(optarg);
-            break;
+                break;
             case 'o' :
                 oname = optarg;
-            break;
+                break;
             case 'f' :
                 folder = optarg;
-            break;
+                break;
             case 'z' :
                 utmZone = optarg;
-            break;
+                break;
+            case 'h' :
+                help = optarg;
+                break;
 
             return -1;
         }
@@ -134,19 +160,30 @@ int main(int argc, char ** argv)
     if (iname.size()<1 || oname == "")
     {
         std::cerr << "Invalid arguments given.\n";
-        std::cerr << "Arguments: -i for input file, -o for output file\n";
-        return -1;
+        std::cerr << "Arguments: -i for input file, -o for KML output file\n";
+        return -2;
+    }
+
+    if ( help ) {
+        std::cerr << "Arguments: -i for input file\n";
+        std::cerr << "           -o for KML output file\n";
+        std::cerr << "           -f for ???\n"; //FIXME
+        std::cerr << "           -z UTM zone\n";
+        std::cerr << "           -help print help text\n";
+        return 0;
     }
 
     // Expect UTM zone to have the form xS or xN where x is an integer between 1 and 60
-    // It is correct
     if (utmZone != ""  && ((std::toupper(utmZone.back()) != 'N' && std::toupper(utmZone.back()) != 'S') || (std::stof(utmZone) < 1 ||
        std::stof(utmZone) > 60) || std::stof(utmZone) != std::floor(std::stof(utmZone))))
-        {
-            std::cerr << "Invalid UTM Zone (WGS-84). \n";
-            std::cerr << "Zones must an integer between 1 and 60 in hemisphere N or S\n";
-            return -1;
-        }
+    {
+        std::cerr << "Invalid UTM Zone (WGS-84). \n";
+        std::cerr << "Zones must an integer between 1 and 60 in hemisphere N or S\n";
+        return -1;
+    }
+    else if (utmZone == "" ) {
+        std::cout << "No UTM zone specified. Assuming Lat/Long coordinates in input files.\n";
+    }
 
     if (std::toupper(iname[0].back()) != 'Y')
     {
@@ -164,12 +201,17 @@ int main(int argc, char ** argv)
     for (size_t i = 0; i< iname.size(); i++)
     {
         calcMin(piol, iname[i], minmax);
-        // If Longitude/Easting is greater than 180, coordinate is in UTM formate and must be
+        // If Longitude/Easting is greater than 180, coordinate is in UTM format and must be
         // converted to latitude/longitude (mimimum UTM Easting is 100,000)
-        if (minmax[0].val > 180)
+        if (minmax[0].val > 180 && utmZone != "")
         {
             utm2LatLong(minmax[0].val, minmax[2].val, utmZone, minmax[0].val, minmax[2].val);
             utm2LatLong(minmax[1].val, minmax[3].val, utmZone, minmax[1].val, minmax[3].val);
+        }
+        else if ( utmZone == "" ) {
+            std::cerr << "\nError: Invalid coordinates found in file.\n";
+            std::cerr << "       Expected lat/long but values must be UTM.\n";
+            std::cerr << "       Use the -z option to specify the UTM zone.\n";
         }
         addLine(ofile, iname[i], minmax);
     }
