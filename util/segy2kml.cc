@@ -10,7 +10,7 @@ using namespace PIOL;
 /*! Create the initial KML file settings to order to describe the output in general
  *  \param[in,out] file file handle opened file is assigned to
  *  \param[in] oname name of the file to open
- *  \param[in] folder ??? FIXME
+ *  \param[in] folder KML folder name containing all trace lines
  */
 void initKML(std::ofstream &file, std::string oname, std::string folder)
 {
@@ -113,7 +113,7 @@ void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
 
     File::getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
     File::getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
-};
+}
 
 /* Main function for segy to kml
  *  \param[in] argc The number of input strings.
@@ -122,7 +122,7 @@ void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
  *  \details Options:
  *           -i \<file\> : input file name
  *           -o \<file\> : output file name
- *           -f \<folder\> : KML Folder name ??? FIXME what does this mean?
+ *           -f \<folder\> : name of folder in KML file that contains the trace lines
  *           -z \<UTMZone\> : UTM Zone if coordinates in UTM
  *           -h \<help\> : prints available command line options
  */
@@ -167,7 +167,7 @@ int main(int argc, char ** argv)
     if ( help ) {
         std::cerr << "Arguments: -i for input file\n";
         std::cerr << "           -o for KML output file\n";
-        std::cerr << "           -f for ???\n"; //FIXME
+        std::cerr << "           -f for name of folder containing trace lines in KML file\n";
         std::cerr << "           -z UTM zone\n";
         std::cerr << "           -help print help text\n";
         return 0;
