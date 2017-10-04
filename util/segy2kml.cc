@@ -113,7 +113,7 @@ void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
 
     File::getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
     File::getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
-};
+}
 
 /* Main function for segy to kml
  *  \param[in] argc The number of input strings.
