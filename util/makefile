@@ -10,10 +10,10 @@ BIN = concatenate segy2kml radon segsort versort fourdbin cropen creadwrite asse
 CURR_BIN=$(wildcard $(BIN))
 
 %.dep: %.c
-	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(CINC_FOLDER) -o $@ 
+	$(CC) $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(CINC_FOLDER) -o $@
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(CXXINC_FOLDER) -o $@ 
+	$(CXX) $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(CXXINC_FOLDER) -o $@
 
 $(OBJDIR)/%.cpo: %.cc
 	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) -c $< -o $@

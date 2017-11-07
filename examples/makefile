@@ -10,10 +10,10 @@ CURR_BIN=$(wildcard $(BIN))
 UTIL_INC=-I../util
 
 %.dep: %.c
-	gcc $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(UTIL_INC) $(CINC_FOLDER) -o $@ 
+	$(CC) $(CSTANDARD) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.co, $<) $(UTIL_INC) $(CINC_FOLDER) -o $@
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(UTIL_INC) $(CXXINC_FOLDER) -o $@ 
+	$(CXX) $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.cpo, $<) $(UTIL_INC) $(CXXINC_FOLDER) -o $@
 
 $(OBJDIR)/%.cpo: %.cc
 	$(CXX) $(CXXFLAGS) $(CXXINC_FOLDER) $(UTIL_INC) -c $< -o $@

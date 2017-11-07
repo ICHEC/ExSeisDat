@@ -16,7 +16,7 @@ CURR_OBJECTS:=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
 CURR_DEP:=$(wildcard $(DEP))
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@
+	$(CXX) $(CXXSTANDARD) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) $(CXXINC_FOLDER) -o $@
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) -fPIC $(LIB_FLAG) $(CXXFLAGS) -c $< -o $@

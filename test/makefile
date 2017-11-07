@@ -6,7 +6,7 @@ LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
 LIB_IPIOL=ipiol
 LIB_PIOL=piol
-GCOMP=g++
+GCOMP=$(CXX)
 
 include ../compiler.cfg
 
@@ -31,10 +31,10 @@ $(LIB_DIR)/$(LIB_PIOL):
 	(cd ../api/; $(MAKE))
 
 libgmock.a:
-	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
+	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GTEST_DIR}/src/gtest-all.cc
-	$(GCOMP) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
+	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gtest-all.o gmock-all.o
@@ -43,14 +43,15 @@ $(BIN): $(OBJECTS)
 	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(OBJECTS) $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
 genfiles: genfiles.c
-	gcc -g -Wall -Wextra -fopenmp -std=c11 genfiles.c -o genfiles
+	$(CC) -g -Wall -Wextra -std=c11 genfiles.c -o genfiles
 
 extract: extract.c
-	gcc -g -Wall -Wextra -fopenmp -std=c11 extract.c -o extract
+	$(CC) -g -Wall -Wextra -std=c11 extract.c -o extract
 
 .PHONY: clean
 clean:
 	rm -f $(OBJECTS) $(OBJDIR)/*.optrpt $(BIN) $(CURR_DEPENDS) $(CURR_DEP)
+	rm -rf tmp/ *.dSYM
 
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o
@@ -63,7 +64,7 @@ ifeq "$(CURR_DEP)" "$(DEP)"
 endif
 
 %.dep: %.cc
-	g++ $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@ 
+	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
 
 $(OBJDIR)/%.o: %.cc
 	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
