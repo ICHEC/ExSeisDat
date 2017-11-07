@@ -9,7 +9,6 @@ all:
 clean:
 	@(cd src; $(MAKE) clean)
 	@(cd test; $(MAKE) clean)
-	@(cd test; $(MAKE) googleclean)
 	@(cd api; $(MAKE) clean)
 	@(cd util; $(MAKE) clean)
 	@(cd examples; $(MAKE) clean)

@@ -50,7 +50,6 @@ extract: extract.c
 
 
 # Testing commands
-# First time use `make testfiles` before `make test`.
 # On a regular computer, use `make test_nofarm` because farm tests
 # use large files, so need a lot of memory.
 
@@ -62,8 +61,7 @@ test: spectests tmp/.genfiles_stamp
 # Run non-farm tests
 .PHONY: test_nofarm
 test_nofarm: spectests tmp/.genfiles_stamp
-	#./spectests --gtest_filter=-*Farm*
-	./spectests --gtest_filter='*FileSEGYIntegRead*'
+	./spectests --gtest_filter=-*Farm*
 
 # Generate all test files
 tmp/.genfiles_stamp: genfiles
@@ -73,10 +71,11 @@ tmp/.genfiles_stamp: genfiles
 
 # Clean everything
 .PHONY: clean
-clean:
+clean: googleclean
 	rm -f $(OBJECTS) $(OBJDIR)/*.optrpt $(BIN) $(CURR_DEPENDS) $(CURR_DEP)
 	rm -rf tmp/ *.dSYM
 
+.PHONY: googleclean
 googleclean:
 	rm -f libgmock.a gtest-all.o gmock-all.o
 
