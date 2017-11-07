@@ -34,9 +34,10 @@ int main(int argc, char ** argv)
     //Create a SEGY file object
     File::WriteDirect file(piol, name);
 
-    //lnt is the number of traces and sets of trace parameters we will write per process
-    size_t nt = 40000, ns = 300;
-    double inc = 0.04;
+    //nt is the number of traces, ns the number of samples per trace
+    size_t nt = 40000, ns = 1000;
+    //inc is the increment step between traces (microseconds)
+    double inc = 4.0;
 
     auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
     size_t offset = dec.first;

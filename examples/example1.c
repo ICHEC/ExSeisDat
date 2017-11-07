@@ -19,7 +19,7 @@ int main(int argc, char ** argv)
     ExSeisWrite fh = openWriteFile(piol, name);
 
     //nt is the number of traces, ns the number of samples per trace
-    size_t nt = 400000, ns = 1000;
+    size_t nt = 40000, ns = 1000;
     //inc is the increment step between traces (microseconds)
     double inc = 4.0;
 
