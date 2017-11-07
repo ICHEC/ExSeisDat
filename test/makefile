@@ -48,6 +48,30 @@ genfiles: genfiles.c
 extract: extract.c
 	$(CC) -g -Wall -Wextra -std=c11 extract.c -o extract
 
+
+# Testing commands
+# First time use `make testfiles` before `make test`.
+# On a regular computer, use `make test_nofarm` because farm tests
+# use large files, so need a lot of memory.
+
+# Run all tests
+.PHONY: test
+test: spectests tmp/.genfiles_stamp
+	./spectests
+
+# Run non-farm tests
+.PHONY: test_nofarm
+test_nofarm: spectests tmp/.genfiles_stamp
+	#./spectests --gtest_filter=-*Farm*
+	./spectests --gtest_filter='*FileSEGYIntegRead*'
+
+# Generate all test files
+tmp/.genfiles_stamp: genfiles
+	mkdir -p tmp
+	./genfiles
+	touch tmp/.genfiles_stamp
+
+# Clean everything
 .PHONY: clean
 clean:
 	rm -f $(OBJECTS) $(OBJDIR)/*.optrpt $(BIN) $(CURR_DEPENDS) $(CURR_DEP)

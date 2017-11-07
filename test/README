@@ -1,6 +1,15 @@
-Time Sinks:
-Google Mock has limitations when it comes to death tests. Do not expect mock
-expectations to be handled correctly in a death test as the newly spawned threads
-appear to play havok with the correct deallocation of the mock.
+Testing:
+To run tests from scratch, cd into the test folder and run
+    ./genfiles
+to generate the test data, then run
+    ./spectests
+to run all the tests. For future tests, just run the spectests executable.
 
-/spectests --gtest_filter=-*Farm* lets you skip all the heavy unit tests that should be task farmed.
+Time Sinks:
+Google Mock has limitations when it comes to death tests.  Do not expect mock
+expectations to be handled correctly in a death test as the newly spawned
+threads appear to play havok with the correct deallocation of the mock.
+
+Heavy unit tests include the "Farm" keyword. Run
+    ./spectests --gtest_filter=-*Farm*
+to skip all the heavy unit tests that should be task farmed.
