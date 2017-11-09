@@ -8,21 +8,36 @@
  *//*******************************************************************************************/
 #ifndef PIOLCFILEAPI_INCLUDE_GUARD
 #define PIOLCFILEAPI_INCLUDE_GUARD
+
 #include <mpi.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "share/api.hh"
+
 #ifdef __cplusplus
-using namespace PIOL;
+using PIOL::Meta;
+using PIOL::CoordElem;
 extern "C" {
 #endif
 
-typedef struct PIOLWrapper * ExSeisHandle;      //!< A wrapper around a shared PIOL Object
-typedef struct ExSeisReadWrapper * ExSeisRead;  //!< A wrapper around a File Layer pointer
-typedef struct ExSeisWriteWrapper * ExSeisWrite;//!< A wrapper around a File Layer pointer
-typedef struct RuleWrapper * RuleHdl;           //!< A wrapper around a File Layer pointer
-typedef struct ParamWrapper * CParam;           //!< A wrapper around a File Layer pointer
+//!< A wrapper around a PIOL::ExSeis object
+typedef struct PIOL_ExSeisPointer* PIOL_ExSeisHandle;
+
+//!< A wrapper around a PIOL::File::Rule object
+typedef struct PIOL_File_RulePointer* PIOL_File_RuleHandle;
+
+//!< A wrapper around a PIOL::File::Param object
+typedef struct PIOL_File_ParamPointer* PIOL_File_ParamHandle;
+
+//!< A wrapper around a PIOL::File::ReadDirect object
+typedef struct PIOL_File_ReadDirectPointer* PIOL_File_ReadDirectHandle;
+
+//!< A wrapper around a PIOL::File::WriteDirect object
+typedef struct PIOL_File_WriteDirectPointer* PIOL_File_WriteDirectHandle;
+
+//!< A wrapper around a PIOL::Set object
+typedef struct PIOL_SetPointer* PIOL_SetHandle;
 
 /*
  * PIOL calls. Non-file specific
@@ -30,56 +45,56 @@ typedef struct ParamWrapper * CParam;           //!< A wrapper around a File Lay
 /*! Initialise the PIOL and MPI.
  *  \return A handle to the PIOL.
  */
-extern ExSeisHandle initMPIOL();
+PIOL_ExSeisHandle PIOL_ExSeis_new();
 
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
  */
-extern void freePIOL(ExSeisHandle piol);
+void PIOL_ExSeis_delete(PIOL_ExSeisHandle piol);
 
 /*! Get the rank of the process (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
  */
-extern size_t getRank(ExSeisHandle piol);
+size_t PIOL_ExSeis_getRank(PIOL_ExSeisHandle piol);
 
 /*! Get the number of processes (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
  */
-extern size_t getNumRank(ExSeisHandle piol);
+size_t PIOL_ExSeis_getNumRank(PIOL_ExSeisHandle piol);
 
 /*! Check if the PIOL has any error conditions
  * \param[in] piol A handle to the PIOL.
  */
-extern void isErr(ExSeisHandle piol);
+void PIOL_ExSeis_isErr(PIOL_ExSeisHandle piol);
 
 /*!  A barrier. All PIOL processes must call this.
  * \param[in] piol A handle to the PIOL.
  */
-extern void barrier(ExSeisHandle piol);
+void PIOL_ExSeis_barrier(PIOL_ExSeisHandle piol);
 
 //SEG-Y Size functions
 /*! Get the size of the SEG-Y text field (3200 bytes)
  * \return The text size in bytes for SEG-Y
  */
-extern size_t getSEGYTextSz(void);
+size_t PIOL_SEGSz_getTextSz(void);
 
 /*! Get the size a SEGY file should be given the number of traces (\c nt) and sample size (\c ns)
  * \param[in] nt The number of traces
  * \param[in] ns The number of samples per trace
  * \return The corresponding file size in bytes for SEG-Y
  */
-extern size_t getSEGYFileSz(size_t nt, size_t ns);
+size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns);
 
 /*! Get the size a SEGY trace should be given the sample size (\c ns) and a type of float
  * \param[in] ns The number of samples per trace
  * \return The corresponding trace size in bytes
  */
-extern size_t getSEGYTraceLen(size_t ns);
+size_t PIOL_SEGSz_getDFSz(size_t ns);
 
 /*! Get the size of a SEGY trace header
  * \return The trace header size in bytes
  */
-extern size_t getSEGYParamSz(void);
+size_t PIOL_SEGSz_getMDSz(void);
 
 /*
  * Rule calls
@@ -88,26 +103,26 @@ extern size_t getSEGYParamSz(void);
  *  \param[in] def Set default rules if true
  *  \return Return a handle for the Rule structure
  */
-RuleHdl initRules(bool def);
+PIOL_File_RuleHandle PIOL_File_Rule_new(bool def);
 
 /*! Free a Rule structure.
  *  \param[in] rule The Rule handle associated with the structure to free
  */
-void freeRules(RuleHdl rule);
+void PIOL_File_Rule_delete(PIOL_File_RuleHandle rule);
 
 /*! Add a Rule for longs (int64_t)
  *  \param[in] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
-void addLongRule(RuleHdl rule, Meta m, size_t loc);
+void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, Meta m, size_t loc);
 
 /*! Add a Rule for shorts (int16_t)
  *  \param[in] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
-void addShortRule(RuleHdl rule, Meta m, size_t loc);
+void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, Meta m, size_t loc);
 
 /*! Add a Rule for floats
  *  \param[in] rule The Rule handle
@@ -115,34 +130,31 @@ void addShortRule(RuleHdl rule, Meta m, size_t loc);
  *  \param[in] loc The location in the trace header for the rule.
  *  \param[in] scalLoc The location in the trace header for the shared scaler;
  */
-void addSEGYFloatRule(RuleHdl rule, Meta m, size_t loc, size_t scalLoc);
+void PIOL_File_Rule_addSEGYFloat(
+    PIOL_File_RuleHandle rule, Meta m, size_t loc, size_t scalLoc
+);
 
 /*! remove a rule for a parameter
  *  \param[in] rule The Rule handle associated with the structure to free
  *  \param[in] m The parameter which one is removing a rule for
  */
-void rmRule(RuleHdl rule, Meta m);
+void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, Meta m);
 
 /*!
  * Param calls
  */
 /*! Define a new parameter structure
- *  \param[in] rule The Rule handle associated with the structure
+ *  \param[in] rule The Rule handle associated with the structure (use NULL for
+ *      default rules)
  *  \param[in] sz The number of sets of parameters stored by the structure
  *  \return Return a handle for the parameter structure
  */
-CParam initParam(RuleHdl rule, size_t sz);
-
-/*! Define a new parameter structure using default rules
- *  \param[in] sz The number of sets of parameters stored by the structure
- *  \return Return a handle for the parameter structure
- */
-CParam initDefParam(size_t sz);
+PIOL_File_ParamHandle PIOL_File_Param_new(PIOL_File_RuleHandle rule, size_t sz);
 
 /*! Free the given parameter structure
  *  \param[in] prm The parameter structure
  */
-void freeParam(CParam prm);
+void PIOL_File_Param_delete(PIOL_File_ParamHandle param);
 
 /*! Get a short parameter which is in a particular set in a parameter structure.
  *  \param[in] i The parameter set number
@@ -150,7 +162,9 @@ void freeParam(CParam prm);
  *  \param[in] prm The parameter structure
  *  \return The associated parameter
  */
-int16_t getShortPrm(size_t i, Meta entry, CParam prm);
+int16_t PIOL_File_getPrm_short(
+    size_t i, Meta entry, PIOL_File_ParamHandle param
+);
 
 /*! Get a long parameter which is in a particular set in a parameter structure.
  *  \param[in] i The parameter set number
@@ -158,7 +172,9 @@ int16_t getShortPrm(size_t i, Meta entry, CParam prm);
  *  \param[in] prm The parameter structure
  *  \return The associated parameter
  */
-int64_t getLongPrm(size_t i, Meta entry, CParam prm);
+int64_t PIOL_File_getPrm_llint(
+    size_t i, Meta entry, PIOL_File_ParamHandle param
+);
 
 /*! Get a double parameter which is in a particular set in a parameter structure.
  *  \param[in] i The parameter set number
@@ -166,7 +182,9 @@ int64_t getLongPrm(size_t i, Meta entry, CParam prm);
  *  \param[in] prm The parameter structure
  *  \return The associated parameter
  */
-double getFloatPrm(size_t i, Meta entry, CParam prm);
+double PIOL_File_getPrm_double(
+    size_t i, Meta entry, PIOL_File_ParamHandle param
+);
 
 /*! Set a short parameter within the parameter structure.
  *  \param[in] i The parameter set number
@@ -174,7 +192,9 @@ double getFloatPrm(size_t i, Meta entry, CParam prm);
  *  \param[in] ret The value to set the parameter to
  *  \param[in] prm The parameter structure
  */
-void setShortPrm(size_t i, Meta entry, int16_t ret, CParam prm);
+void PIOL_File_setPrm_short(
+    size_t i, Meta entry, int16_t ret, PIOL_File_ParamHandle param
+);
 
 /*! Set a long parameter within the parameter structure.
  *  \param[in] i The parameter set number
@@ -182,7 +202,9 @@ void setShortPrm(size_t i, Meta entry, int16_t ret, CParam prm);
  *  \param[in] ret The value to set the parameter to
  *  \param[in] prm The parameter structure
  */
-void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm);
+void PIOL_File_setPrm_llint(
+    size_t i, Meta entry, int64_t ret, PIOL_File_ParamHandle param
+);
 
 /*! Set a double parameter within the parameter structure.
  *  \param[in] i The parameter set number
@@ -190,7 +212,9 @@ void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm);
  *  \param[in] ret The value to set the parameter to
  *  \param[in] prm The parameter structure
  */
-void setFloatPrm(size_t i, Meta entry, double ret, CParam prm);
+void PIOL_File_setPrm_double(
+    size_t i, Meta entry, double ret, PIOL_File_ParamHandle param
+);
 
 /*! Copy parameter within the parameter structure.
  *  \param[in] i The parameter set number of the source
@@ -198,7 +222,10 @@ void setFloatPrm(size_t i, Meta entry, double ret, CParam prm);
  *  \param[in] j The parameter set number of the destination
  *  \param[in] dst The parameter structure of the destination
  */
-void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
+void PIOL_File_cpyPrm(
+    size_t i, PIOL_File_ParamHandle src,
+    size_t j, PIOL_File_ParamHandle dst
+);
 
 /*
  * Operations
@@ -210,7 +237,11 @@ void cpyPrm(size_t i, const CParam src, size_t j, CParam dst);
  *  \param[in] coord The array of local coordinates which one wants to process
  *  \param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
  */
-extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, const CParam prm, CoordElem * minmax);
+void PIOL_File_getMinMax(
+    PIOL_ExSeisHandle piol,
+    size_t offset, size_t sz, Meta m1, Meta m2,
+    PIOL_File_ParamHandle param, CoordElem * minmax
+);
 
 /*
  * Opening and closing files
@@ -220,24 +251,28 @@ extern void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta
  * \param[in] name The name of the file.
  * \return A handle for the file.
  */
-extern ExSeisRead openReadFile(ExSeisHandle piol, const char * name);
+PIOL_File_ReadDirectHandle PIOL_File_ReadDirect_new(
+    PIOL_ExSeisHandle piol, const char * name
+);
 
 /*! Open a write-only file and return a handle for the file
  * \param[in] piol A handle to the PIOL.
  * \param[in] name The name of the file.
  * \return A handle for the file.
  */
-extern ExSeisWrite openWriteFile(ExSeisHandle piol, const char * name);
+PIOL_File_WriteDirectHandle PIOL_File_WriteDirect_new(
+    PIOL_ExSeisHandle piol, const char * name
+);
 
 /*! \brief Close the file associated with the handle
  *  \param[in] f A handle for the file.
  */
-extern void closeReadFile(ExSeisRead f);
+void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirectHandle readDirect);
 
 /*! \brief Close the file associated with the handle
  *  \param[in] f A handle for the file.
  */
-extern void closeWriteFile(ExSeisWrite f);
+void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirectHandle writeDirect);
 
 /*
  * Read binary and text headers
@@ -249,52 +284,62 @@ extern void closeWriteFile(ExSeisWrite f);
  *  \param[in] f A handle for the file.
  *  \return A string containing the text (in ASCII format)
  */
-extern const char * readText(ExSeisRead f);
+const char * PIOL_File_ReadDirect_readText(
+    PIOL_File_ReadDirectHandle readDirect
+);
 
 /*! \brief Read the number of samples per trace
  *  \param[in] f A handle for the file.
  *  \return The number of samples per trace
  */
-extern size_t readNs(ExSeisRead f);
+size_t PIOL_File_ReadDirect_readNs(PIOL_File_ReadDirectHandle readDirect);
 
 /*! \brief Read the number of traces in the file
  *  \param[in] f A handle for the file.
  *  \return The number of traces
  */
-extern size_t readNt(ExSeisRead f);
+size_t PIOL_File_ReadDirect_readNt(PIOL_File_ReadDirectHandle readDirect);
 
 /*! \brief Read the increment between trace samples
  *  \param[in] f A handle for the file.
  *  \return The increment between trace samples
  */
-extern double readInc(ExSeisRead f);
+double PIOL_File_ReadDirect_readInc(PIOL_File_ReadDirectHandle readDirect);
 
 /*! \brief Write the human readable text from the file.
  *  \param[in] f A handle for the file.
  *  \param[in] text The new null-terminated string containing the text (in ASCII format).
  */
-extern void writeText(ExSeisWrite f, const char * text);
+void PIOL_File_WriteDirect_writeText(
+    PIOL_File_WriteDirectHandle writeDirect, const char * text
+);
 
 /*! \brief Write the number of samples per trace
  *  \param[in] f A handle for the file.
  *  \param[in] ns The new number of samples per trace.
  */
-extern void writeNs(ExSeisWrite f, size_t ns);
+void PIOL_File_WriteDirect_writeNs(
+    PIOL_File_WriteDirectHandle writeDirect, size_t ns
+);
 
 /*! \brief Write the number of traces in the file
  *  \param[in] f A handle for the file.
  *  \param[in] nt The new number of traces.
  */
-extern void writeNt(ExSeisWrite f, size_t nt);
+void PIOL_File_WriteDirect_writeNt(
+    PIOL_File_WriteDirectHandle writeDirect, size_t nt
+);
 
 /*! \brief Write the increment between trace samples.
  *  \param[in] f A handle for the file.
  *  \param[in] inc The new increment between trace samples.
  */
-extern void writeInc(ExSeisWrite f, geom_t inc);
+void PIOL_File_WriteDirect_writeInc(
+    PIOL_File_WriteDirectHandle writeDirect, geom_t inc
+);
 
 /*
- *    Reading data from the trace headers
+ *    Reading/writing data from the trace headers
  */
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
@@ -307,7 +352,10 @@ extern void writeInc(ExSeisWrite f, geom_t inc);
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
  */
-extern void writeParam(ExSeisWrite f, size_t offset, size_t sz, const CParam prm);
+void PIOL_File_WriteDirect_writeParam(
+    PIOL_File_WriteDirectHandle writeDirect,
+    size_t offset, size_t sz, PIOL_File_ParamHandle param
+);
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
@@ -316,74 +364,57 @@ extern void writeParam(ExSeisWrite f, size_t offset, size_t sz, const CParam prm
  *  \param[in] sz The number of traces to process.
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readParam(ExSeisRead f, size_t offset, size_t sz, CParam prm);
+void PIOL_File_ReadDirect_readParam(
+    PIOL_File_ReadDirectHandle readDirect, size_t offset, size_t sz,
+    PIOL_File_ParamHandle param
+);
 
 /*
  *    Reading the traces themselves
  */
-/*! \brief Read the traces from offset to offset+sz.
+/*! \brief Read the traces and trace parameters from offset to offset+sz.
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[out] prm An array of the parameter structures (size
+ *      sizeof(CParam)*sz) (pass NULL to ignore)
  */
-extern void readTrace(ExSeisRead f, size_t offset, size_t sz, float * trace);
-
-/*! \brief Read the trace and trace parameters from offset to offset+sz.
- *  \param[in] f A handle for the file.
- *  \param[in] offset The starting trace number.
- *  \param[in] sz The number of traces to process
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[out] prm An array of the parameter structures (size sizeof(CParam)*sz)
- */
-extern void readFullTrace(ExSeisRead f, size_t offset, size_t sz, float * trace, CParam prm);
-
-/*! \brief Read the traces from offset to offset+sz.
- *  \param[in] f A handle for the file.
- *  \param[in] offset The starting trace number.
- *  \param[in] sz The number of traces to process
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \warning This function is not thread safe.
- */
-extern void writeTrace(ExSeisWrite f, size_t offset, size_t sz, float * trace);
+void PIOL_File_ReadDirect_readTrace(
+    PIOL_File_ReadDirectHandle readDirect,
+    size_t offset, size_t sz, float * trace, PIOL_File_ParamHandle param
+);
 
 /*! \brief Read the traces and trace parameters from offset to offset+sz.
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
- *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *      (pass NULL to ignore)
  *  \warning This function is not thread safe.
  */
-extern void writeFullTrace(ExSeisWrite f, size_t offset, size_t sz, float * trace, const CParam prm);
+void PIOL_File_WriteDirect_writeTrace(
+    PIOL_File_WriteDirectHandle writeDirect,
+    size_t offset, size_t sz, float * trace,
+    PIOL_File_ParamHandle param
+);
 
 //Lists
-
-/*! \brief Write the traces and trace parameters corresponding to the list of trace numbers.
- *  \param[in] f A handle for the file.
- *  \param[in] sz The number of traces to process
- *  \param[in] offset A list of trace numbers.
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- */
-extern void readListTrace(ExSeisRead f, size_t sz, size_t * offset, float * trace);
-
-/*! \brief Write the traces corresponding to the list of trace numbers.
- *  \param[in] f A handle for the file.
- *  \param[in] sz The number of traces to process
- *  \param[in] offset A list of trace numbers.
- *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \warning This function is not thread safe.
- */
-extern void writeListTrace(ExSeisWrite f, size_t sz, size_t * offset, float * trace);
 
 /*! \brief Read the traces and trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
  *  \param[in] sz The number of traces to process
  *  \param[in] offset A list of trace numbers.
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[out] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *  \param[out] prm An array of the parameter structures (size
+ *  sizeof(CParam)*sz) (pass NULL to ignore)
  */
-extern void readFullListTrace(ExSeisRead f, size_t sz, size_t * offset, float * trace, CParam prm);
+#warning TODO: add readTrace for non-contiguous
+//void PIOL_File_ReadDirect_readTrace(
+//    PIOL_File_ReadDirectHandle readDirect,
+//    size_t sz, size_t * offset, float * trace, PIOL_File_ParamHandle param
+//);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -391,8 +422,13 @@ extern void readFullListTrace(ExSeisRead f, size_t sz, size_t * offset, float * 
  *  \param[in] offset A list of trace numbers.
  *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *      (pass NULL to ignore)
  */
-extern void writeFullListTrace(ExSeisWrite f, size_t sz, size_t * offset, float * trace, const CParam prm);
+#warning TODO: add writeTrace for non-contiguous
+//void PIOL_File_WriteDirect_writeTrace(
+//    PIOL_File_WriteDirectHandle writeDirect,
+//    size_t sz, size_t * offset, float * trace, PIOL_File_ParamHandle param
+//);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -400,7 +436,11 @@ extern void writeFullListTrace(ExSeisWrite f, size_t sz, size_t * offset, float 
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void writeListParam(ExSeisWrite f, size_t sz, size_t * offset, const CParam prm);
+#warning TODO: add writeParam for non-contiguous
+//void PIOL_File_WriteDirect_writeParam(
+//    PIOL_File_WriteDirectHandle writeDirect,
+//    size_t sz, size_t * offset, PIOL_File_ParamHandle param
+//);
 
 /*! \brief Read the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
@@ -408,7 +448,11 @@ extern void writeListParam(ExSeisWrite f, size_t sz, size_t * offset, const CPar
  *  \param[in] offset A list of trace numbers.
  *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
  */
-extern void readListParam(ExSeisRead f, size_t sz, size_t * offset, CParam prm);
+#warning TODO: add readParam for non-contiguous
+//void PIOL_File_ReadDirect_readParam(
+//    PIOL_File_ReadDirectHandle readDirect,
+//    size_t sz, size_t * offset, PIOL_File_ParamHandle param
+//);
 
 #ifdef DISABLED_OPTIONS
 /*
@@ -450,6 +494,6 @@ typedef struct
 #endif
 
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 #endif

@@ -25,45 +25,46 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    ExSeisHandle piol = initMPIOL();
-    size_t rank = getRank(piol);
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
+    size_t rank = PIOL_ExSeis_getRank(piol);
 
     //Create a SEGY file object for input
-    ExSeisRead ifh = openReadFile(piol, iname);
-    isErr(piol);
+    PIOL_File_ReadDirectHandle ifh = PIOL_File_ReadDirect_new(piol, iname);
+    PIOL_ExSeis_isErr(piol);
 
     //Create some local variables based on the input file
-    size_t nt = readNt(ifh);
-    size_t ns = readNs(ifh);
+    size_t nt = PIOL_File_ReadDirect_readNt(ifh);
+    size_t ns = PIOL_File_ReadDirect_readNs(ifh);
 
-    Extent dec = decompose(nt, getNumRank(piol), rank);
+    Extent dec = decompose(nt, PIOL_ExSeis_getNumRank(piol), rank);
     size_t offset = dec.start;
     size_t lnt = dec.sz;
 
     //Alloc the required memory for the data we want.
-    float * trace = malloc(lnt * getSEGYTraceLen(ns));
-    CParam trhdr = initDefParam(lnt);
+    float * trace = malloc(lnt * PIOL_SEGSz_getDFSz(ns));
+    PIOL_File_ParamHandle trhdr = PIOL_File_Param_new(NULL, lnt);
 
     //Create a SEGY file object for output
-    ExSeisWrite ofh = openWriteFile(piol, oname);
-    isErr(piol);
+    PIOL_File_WriteDirectHandle ofh = PIOL_File_WriteDirect_new(piol, oname);
+    PIOL_ExSeis_isErr(piol);
 
     //Write the headers based on the input file.
-    writeNs(ofh, nt);
-    writeNt(ofh, ns);
-    writeText(ofh, readText(ifh));
-    writeInc(ofh, readInc(ifh));
+    PIOL_File_WriteDirect_writeNs(ofh, nt);
+    PIOL_File_WriteDirect_writeNt(ofh, ns);
+    PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
+    PIOL_File_WriteDirect_writeInc(ofh,  PIOL_File_ReadDirect_readInc(ifh));
 
     //Read the traces from the input file and to the output
-    readFullTrace(ifh, offset, lnt, trace, trhdr);
-    writeFullTrace(ofh, offset, lnt, trace, trhdr);
+    PIOL_File_ReadDirect_readTrace(ifh, offset, lnt, trace, trhdr);
+    PIOL_File_WriteDirect_writeTrace(ofh, offset, lnt, trace, trhdr);
 
     free(trace);
-    freeParam(trhdr);
+    PIOL_File_Param_delete(trhdr);
 
     //Close the file handles and close the piol
-    closeReadFile(ifh);
-    closeWriteFile(ofh);
-    freePIOL(piol);
+    PIOL_File_ReadDirect_delete(ifh);
+    PIOL_File_WriteDirect_delete(ofh);
+    PIOL_ExSeis_delete(piol);
+
     return 0;
 }

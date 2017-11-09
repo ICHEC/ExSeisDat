@@ -4,7 +4,7 @@
 int main(int argc, char ** argv)
 {
     //Initialise the PIOL by creating an ExSeisPIOL object
-    ExSeisHandle piol = initMPIOL();
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
 
     char * opt = "i:";  //TODO: uses a GNU extension
     char * name = NULL;
@@ -15,14 +15,14 @@ int main(int argc, char ** argv)
             fprintf(stderr, "One of the command line arguments is invalid\n");
     assert(name);
 
-    ExSeisSet set = initSet(piol, name);
+    PIOL_SetHandle set = PIOL_Set_new(piol, name);
 
     CoordElem minmax[12];
-    getMinMaxSet(set, xSrc, ySrc, &minmax[0]);
-    getMinMaxSet(set, xRcv, yRcv, &minmax[4]);
-    getMinMaxSet(set, xCmp, yCmp, &minmax[8]);
+    PIOL_Set_getMinMax(set, xSrc, ySrc, &minmax[0]);
+    PIOL_Set_getMinMax(set, xRcv, yRcv, &minmax[4]);
+    PIOL_Set_getMinMax(set, xCmp, yCmp, &minmax[8]);
 
-    if (!getRank(piol))
+    if (!PIOL_ExSeis_getRank(piol))
     {
         printf("x Src %e (%zu) -> %e (%zu)\n", minmax[0].val, minmax[0].num, minmax[1].val, minmax[1].num);
         printf("y Src %e (%zu) -> %e (%zu)\n", minmax[2].val, minmax[2].num, minmax[3].val, minmax[3].num);

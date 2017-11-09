@@ -5,39 +5,44 @@
 #include "ctest.h"
 #include "cfileapi.h"
 
-int testManyFiles(ExSeisHandle piol, const char * name)
+int testManyFiles(PIOL_ExSeisHandle piol, const char * name)
 {
     //Don't go too crazy or systems won't like you.
     const size_t rnum = 10;
     const size_t fnum = 1000;
-    ExSeisRead * file = calloc(fnum, sizeof(ExSeisRead));
-    ExSeisRead ffile = openReadFile(piol, name);
+    PIOL_File_ReadDirectHandle * files = calloc(
+        fnum, sizeof(PIOL_File_ReadDirectHandle)
+    );
+    PIOL_File_ReadDirectHandle ffile = PIOL_File_ReadDirect_new(piol, name);
 
-    const char * msg = readText(ffile);
-    size_t ln = strlen(msg);
-    size_t ns = readNs(ffile);
-    size_t nt = readNt(ffile);
-    double inc = readInc(ffile);
+    const char * msg = PIOL_File_ReadDirect_readText(ffile);
+    size_t ln  = strlen(msg);
+    size_t ns  = PIOL_File_ReadDirect_readNs(ffile);
+    size_t nt  = PIOL_File_ReadDirect_readNt(ffile);
+    double inc = PIOL_File_ReadDirect_readInc(ffile);
 
     for (size_t i = 0; i < rnum; i++)
     {
         for (size_t j = 0; j < fnum; j++)
-            file[j] = openReadFile(piol, name);
+            files[j] = PIOL_File_ReadDirect_new(piol, name);
 
         for (size_t j = 0; j < fnum; j++)
         {
-            CMP_STR(msg, readText(file[i]));
+            CMP_STR(msg, PIOL_File_ReadDirect_readText(files[i]));
             CMP(ln, strlen(msg));
-            CMP(ns, readNs(file[i]));
-            CMP(nt, readNt(file[i]));
-            CMP(inc, readInc(file[i]));
+            CMP(ns,  PIOL_File_ReadDirect_readNs(files[i]));
+            CMP(nt,  PIOL_File_ReadDirect_readNt(files[i]));
+            CMP(inc, PIOL_File_ReadDirect_readInc(files[i]));
         }
 
         for (size_t j = 0; j < fnum; j++)
-            closeReadFile(file[j]);
+        {
+            PIOL_File_ReadDirect_delete(files[j]);
+        }
     }
-    free(file);
-    closeReadFile(ffile);
+
+    PIOL_File_ReadDirect_delete(ffile);
+    free(files);
 
     return 0;
 }
@@ -60,13 +65,13 @@ int main(int argc, char ** argv)
         }
     assert(name);
 
-    ExSeisHandle piol = initMPIOL();
-    isErr(piol);
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
+    PIOL_ExSeis_isErr(piol);
 
     testManyFiles(piol, name);
 
-    if (name != NULL)
-        free(name);
+    free(name);
+
     return 0;
 }
 

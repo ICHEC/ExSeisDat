@@ -14,21 +14,21 @@
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisRead ifh, ExSeisWrite ofh)
+void readwriteParam(PIOL_ExSeisHandle piol, size_t off, size_t tcnt, PIOL_File_ReadDirectHandle ifh, PIOL_File_WriteDirectHandle ofh)
 {
-    CParam prm = initDefParam(tcnt);
-    readParam(ifh, off, tcnt, prm);
+    PIOL_File_ParamHandle prm = PIOL_File_Param_new(NULL, tcnt);
+    PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++)
     {
-        geom_t xval = getFloatPrm(i, xSrc, prm);
-        geom_t yval = getFloatPrm(i, ySrc, prm);
-        setFloatPrm(i, xSrc, yval, prm);
-        setFloatPrm(i, ySrc, xval, prm);
+        geom_t xval = PIOL_File_getPrm_double(i, xSrc, prm);
+        geom_t yval = PIOL_File_getPrm_double(i, ySrc, prm);
+        PIOL_File_setPrm_double(i, xSrc, yval, prm);
+        PIOL_File_setPrm_double(i, ySrc, xval, prm);
     }
 
-    writeParam(ofh, off, tcnt, prm);
-    isErr(piol);
-    freeParam(prm);
+    PIOL_File_WriteDirect_writeParam(ofh, off, tcnt, prm);
+    PIOL_ExSeis_isErr(piol);
+    PIOL_File_Param_delete(prm);
 }
 
 /*! Write the output header details.
@@ -36,13 +36,13 @@ void readwriteParam(ExSeisHandle piol, size_t off, size_t tcnt, ExSeisRead ifh, 
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void writeHeader(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh)
+void writeHeader(PIOL_ExSeisHandle piol, PIOL_File_ReadDirectHandle ifh, PIOL_File_WriteDirectHandle ofh)
 {
-    writeText(ofh, readText(ifh));
-    writeNs(ofh, readNs(ifh));
-    writeNt(ofh, readNt(ifh));
-    writeInc(ofh, readInc(ifh));
-    isErr(piol);
+    PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
+    PIOL_File_WriteDirect_writeNs(ofh,  PIOL_File_ReadDirect_readNs(ifh));
+    PIOL_File_WriteDirect_writeNt(ofh,  PIOL_File_ReadDirect_readNt(ifh));
+    PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
+    PIOL_ExSeis_isErr(piol);
 }
 
 /*! Write the data from the input file to the output file
@@ -53,8 +53,8 @@ void writeHeader(ExSeisHandle piol, ExSeisRead ifh, ExSeisWrite ofh)
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void writePayload(ExSeisHandle piol, size_t goff, size_t lnt, size_t tcnt,
-                  ExSeisRead ifh, ExSeisWrite ofh)
+void writePayload(PIOL_ExSeisHandle piol, size_t goff, size_t lnt, size_t tcnt,
+                  PIOL_File_ReadDirectHandle ifh, PIOL_File_WriteDirectHandle ofh)
 {
     size_t biggest = lnt;
     int err = MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
@@ -67,7 +67,9 @@ void writePayload(ExSeisHandle piol, size_t goff, size_t lnt, size_t tcnt,
     }
 
     for (size_t i = 0U; i < extra; i++)
+    {
         readwriteParam(piol, goff, 0, ifh, ofh);
+    }
 }
 
 int main(int argc, char ** argv)
@@ -96,34 +98,34 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    ExSeisHandle piol = initMPIOL();
-    isErr(piol);
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
+    PIOL_ExSeis_isErr(piol);
 
-    ExSeisRead ifh = openReadFile(piol, iname);
-    isErr(piol);
+    PIOL_File_ReadDirectHandle ifh = PIOL_File_ReadDirect_new(piol, iname);
+    PIOL_ExSeis_isErr(piol);
 
-    size_t ns = readNs(ifh);
-    size_t nt = readNt(ifh);
+    size_t ns = PIOL_File_ReadDirect_readNs(ifh);
+    size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     //Write all header metadata
-    ExSeisWrite ofh = openWriteFile(piol, oname);
-    isErr(piol);
+    PIOL_File_WriteDirectHandle ofh = PIOL_File_WriteDirect_new(piol, oname);
+    PIOL_ExSeis_isErr(piol);
 
     writeHeader(piol, ifh, ofh);
 
-    Extent dec = decompose(nt, getNumRank(piol), getRank(piol));
-    size_t tcnt = memmax / MAX(getSEGYTraceLen(ns), getSEGYParamSz());
+    Extent dec = decompose(nt, PIOL_ExSeis_getNumRank(piol),
+                           PIOL_ExSeis_getRank(piol));
+    size_t tcnt = memmax / MAX(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
 
     writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
 
-    isErr(piol);
-    closeWriteFile(ofh);
-    closeReadFile(ifh);
-    freePIOL(piol);
+    PIOL_ExSeis_isErr(piol);
+    PIOL_File_WriteDirect_delete(ofh);
+    PIOL_File_ReadDirect_delete(ifh);
+    PIOL_ExSeis_delete(piol);
 
-    if (iname != NULL)
-        free(iname);
-    if (oname != NULL)
-        free(oname);
+    free(iname);
+    free(oname);
+
     return 0;
 }
 
