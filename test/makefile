@@ -1,6 +1,6 @@
 GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
-GOOGLE_OBJ=gmock-all.o  gtest-all.o
+GOOGLE_OBJ=$(OBJDIR)/gmock-all.o  $(OBJDIR)/gtest-all.o
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
@@ -33,11 +33,11 @@ $(LIB_DIR)/$(LIB_PIOL):
 libgmock.a:
 	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
-    -pthread -c ${GTEST_DIR}/src/gtest-all.cc
+    -pthread -c ${GTEST_DIR}/src/gtest-all.cc -o $(OBJDIR)/gtest-all.o
 	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
-    -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
-	ar -rv libgmock.a gtest-all.o gmock-all.o
+    -pthread -c ${GMOCK_DIR}/src/gmock-all.cc -o $(OBJDIR)/gmock-all.o
+	ar -rv libgmock.a $(GOOGLE_OBJ)
 
 $(BIN): $(OBJECTS)
 	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(OBJECTS) $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
@@ -77,7 +77,7 @@ clean: googleclean
 
 .PHONY: googleclean
 googleclean:
-	rm -f libgmock.a gtest-all.o gmock-all.o
+	rm -f libgmock.a $(GOOGLE_OBJ)
 
 $(DEP): $(DEPENDS)
 	cat *.dep > $(DEP)
