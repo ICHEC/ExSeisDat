@@ -441,20 +441,21 @@ struct FileReadSEGYTest : public Test
 
 struct FileWriteSEGYTest : public Test
 {
+    std::shared_ptr<MockObj> mock;
+
     std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPI::Opt opt;
     bool testEBCDIC;
-    std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    std::unique_ptr<File::WriteDirect> file;
-    std::unique_ptr<File::ReadDirect> readfile;
+    std::string testString;
+    std::string name_;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
     int inc = 10;
     csize_t format = 5;
     std::vector<uchar> ho;
-    std::shared_ptr<MockObj> mock;
-    std::string name_;
+    std::unique_ptr<File::WriteDirect> file;
+    std::unique_ptr<File::ReadDirect> readfile;
 
     FileWriteSEGYTest()
     {
@@ -463,6 +464,7 @@ struct FileWriteSEGYTest : public Test
         opt.initMPI = false;
         piol = std::make_shared<ExSeisPIOL>(opt);
         ho.resize(SEGSz::getHOSz());
+        testString = "This is a string for testing EBCDIC conversion etc.";
     }
 
     ~FileWriteSEGYTest()
