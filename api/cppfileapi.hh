@@ -11,6 +11,7 @@
 #include "global.hh"
 #include "file/file.hh"
 #include "file/dynsegymd.hh"
+
 namespace PIOL {
 /*! This class provides access to the ExSeisPIOL class but with a simpler API
  */
@@ -337,4 +338,20 @@ class ReadModel : public ReadDirect
 };
 
 }}
+
+
+//
+// C API Wrapper types
+//
+typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeisPointer;
+
+typedef std::shared_ptr<PIOL::File::Rule> PIOL_File_RulePointer;
+
+typedef std::shared_ptr<PIOL::File::Param> PIOL_File_ParamPointer;
+
+typedef std::shared_ptr<PIOL::File::ReadDirect> PIOL_File_ReadDirectPointer;
+
+typedef std::shared_ptr<PIOL::File::WriteDirect> PIOL_File_WriteDirectPointer;
+
+
 #endif

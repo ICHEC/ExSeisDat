@@ -15,29 +15,51 @@
 #include <stdbool.h>
 #include "share/api.hh"
 
+
+//
+// Include or forward declare XXXPointer types used for C API handles
+//
 #ifdef __cplusplus
-using PIOL::Meta;
-using PIOL::CoordElem;
-extern "C" {
+// Include concrete implementations for XXXPionter types in C++
+#include "cppfileapi.hh"
+#else
+// Forward declare opaque structs in C
+typedef struct PIOL_ExSeisPointer PIOL_ExSeisPointer;
+typedef struct PIOL_File_RulePointer  PIOL_File_RulePointer;
+typedef struct PIOL_File_ParamPointer PIOL_File_ParamPointer;
+typedef struct PIOL_File_ReadDirectPointer  PIOL_File_ReadDirectPointer;
+typedef struct PIOL_File_WriteDirectPointer PIOL_File_WriteDirectPointer;
 #endif
 
+
+#ifdef __cplusplus
+// Need "using" for these enums for the C++ and C prototypes to match here.
+// TODO: rename Meta etc. to PIOL_Meta so including this header
+//     doesn't add Meta unnamespaced into the global scope.
+using PIOL::Meta;
+using PIOL::CoordElem;
+
+// Everything from here on is C API functions needing C linkage.
+extern "C"
+{
+#endif
+
+
 //!< A wrapper around a PIOL::ExSeis object
-typedef struct PIOL_ExSeisPointer* PIOL_ExSeisHandle;
+typedef PIOL_ExSeisPointer* PIOL_ExSeisHandle;
 
 //!< A wrapper around a PIOL::File::Rule object
-typedef struct PIOL_File_RulePointer* PIOL_File_RuleHandle;
+typedef PIOL_File_RulePointer* PIOL_File_RuleHandle;
 
 //!< A wrapper around a PIOL::File::Param object
-typedef struct PIOL_File_ParamPointer* PIOL_File_ParamHandle;
+typedef PIOL_File_ParamPointer* PIOL_File_ParamHandle;
 
 //!< A wrapper around a PIOL::File::ReadDirect object
-typedef struct PIOL_File_ReadDirectPointer* PIOL_File_ReadDirectHandle;
+typedef PIOL_File_ReadDirectPointer* PIOL_File_ReadDirectHandle;
 
 //!< A wrapper around a PIOL::File::WriteDirect object
-typedef struct PIOL_File_WriteDirectPointer* PIOL_File_WriteDirectHandle;
+typedef PIOL_File_WriteDirectPointer* PIOL_File_WriteDirectHandle;
 
-//!< A wrapper around a PIOL::Set object
-typedef struct PIOL_SetPointer* PIOL_SetHandle;
 
 /*
  * PIOL calls. Non-file specific

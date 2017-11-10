@@ -8,45 +8,18 @@
  *//*******************************************************************************************/
 #include "global.hh"
 #include "cfileapi.h"
+#include "flow.h"
+
 #include <iostream>
 #include <cstddef>
 #include <assert.h>
+
 #include "cppfileapi.hh"
+#include "flow.hh"
 #include "file/dynsegymd.hh"
 #include "share/segy.hh"
 #include "share/api.hh"
 #include "flow/set.hh"
-#include "flow.h"
-
-struct PIOL_ExSeisPointer: public std::shared_ptr<PIOL::ExSeis> {
-    typedef std::shared_ptr<PIOL::ExSeis> Base;
-    using Base::Base;
-};
-
-struct PIOL_File_RulePointer: public std::shared_ptr<PIOL::File::Rule> {
-    typedef std::shared_ptr<PIOL::File::Rule> Base;
-    using Base::Base;
-};
-
-struct PIOL_File_ParamPointer: public std::shared_ptr<PIOL::File::Param> {
-    typedef std::shared_ptr<PIOL::File::Param> Base;
-    using Base::Base;
-};
-
-class PIOL_File_ReadDirectPointer: public std::shared_ptr<PIOL::File::ReadDirect> {
-    typedef std::shared_ptr<PIOL::File::ReadDirect> Base;
-    using Base::Base;
-};
-
-class PIOL_File_WriteDirectPointer: public std::shared_ptr<PIOL::File::WriteDirect> {
-    typedef std::shared_ptr<PIOL::File::WriteDirect> Base;
-    using Base::Base;
-};
-
-class PIOL_SetPointer: public std::shared_ptr<PIOL::Set> {
-    typedef std::shared_ptr<PIOL::Set> Base;
-    using Base::Base;
-};
 
 
 extern "C"

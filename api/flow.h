@@ -11,14 +11,35 @@
 
 #include "cfileapi.h"
 
+//
+// Include or forward declare XXXPointer types used for C API handles
+//
 #ifdef __cplusplus
+// Include concrete implementations for XXXPionter types in C++
+#include "flow.hh"
+#else
+// Forward declare an opaque struct in C
+typedef struct PIOL_SetPointer PIOL_SetPointer;
+#endif
+
+
+#ifdef __cplusplus
+// Need "using" for these enums for the C++ and C prototypes to match here.
+// TODO: rename SortType etc. to PIOL_SortType so including this header
+//     doesn't add SortType unnamespaced into the global scope.
 using PIOL::SortType;
 using PIOL::TaperType;
 using PIOL::AGCType;
 
+// Everything from here on is C API functions needing C linkage.
 extern "C"
 {
 #endif
+
+
+//!< A wrapper around a PIOL::Set object
+typedef PIOL_SetPointer* PIOL_SetHandle;
+
 
 /*! Initialise the set.
  *  \param[in] piol The PIOL handle
