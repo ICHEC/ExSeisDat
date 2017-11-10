@@ -21,7 +21,7 @@ void AGC(csize_t nt, csize_t ns, trace_t * trc, const AGCFunc func, size_t windo
 {
     window = (window % 2LU == 0LU ? window + 1LU : window);
     assert(ns > window);
-    std::vector<trace_t> trcAGC(ns);
+    std::vector<trace_t> trcAGC(ns+1);
     size_t win2 = window/2LU;
     for (size_t i = 0LU; i < nt; i++)
     {
