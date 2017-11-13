@@ -269,12 +269,7 @@ class Set
      *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}))
-        : piol(piol_), rule(rule_), cache(piol_)
-    {
-        rank = piol->comm->getRank();
-        numRank = piol->comm->getNumRank();
-    }
+    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
 
     /*! Destructor
      */
@@ -322,10 +317,7 @@ class Set
     /*! Set the text-header of the output
      *  \param[in] outmsg_ The output message
      */
-    void text(std::string outmsg_)
-    {
-        outmsg = outmsg_;
-    }
+    void text(std::string outmsg_);
 
     /*! Summarise the current status by whatever means the PIOL intrinsically supports
      */

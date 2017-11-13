@@ -4,6 +4,7 @@ GOOGLE_OBJ=$(OBJDIR)/gmock-all.o  $(OBJDIR)/gtest-all.o
 TEST_FRAM=-I../googletest/googletest/include/ -I../googletest/googlemock/include/
 LOCAL_INC_FOLDER=-I../src/ $(TEST_FRAM)
 OBJDIR=obj
+BINDIR=bin
 LIB_IPIOL=ipiol
 LIB_PIOL=piol
 GCOMP=$(CXX)
@@ -11,18 +12,23 @@ GCOMP=$(CXX)
 include ../compiler.cfg
 
 DEP=depend
-SOURCES=$(wildcard *.cc)
-OBJECTS=$(patsubst %.cc, $(OBJDIR)/%.o, $(SOURCES))
-DEPENDS=$(patsubst %.cc, %.dep, $(SOURCES))
+SPECTESTS_SOURCES=$(wildcard spectests/*.cc)
+SPECTESTS_OBJECTS=$(patsubst spectests/%.cc, $(OBJDIR)/%_spectests.o, $(SPECTESTS_SOURCES))
+SPECTESTS_DEPENDS=$(patsubst spectests/%.cc, $(OBJDIR)/%_spectests.dep, $(SPECTESTS_SOURCES))
 
-CURR_OBJECTS=$(filter $(wildcard $(OBJDIR)/*.o), $(OBJECTS))
+CWRAPTESTS_SOURCES=$(wildcard cwraptests/*.cc)
+CWRAPTESTS_OBJECTS=$(patsubst cwraptests/%.cc, $(OBJDIR)/%_cwraptests.o, $(CWRAPTESTS_SOURCES))
+CWRAPTESTS_DEPENDS=$(patsubst cwraptests/%.cc, $(OBJDIR)/%_cwraptests.dep, $(CWRAPTESTS_SOURCES))
+
+
+CURR_OBJECTS=$(filter $(wildcard $(OBJDIR)/*.o), $(SPECTESTS_OBJECTS))
 CURR_DEP=$(wildcard $(DEP))
-CURR_DEPENDS=$(wildcard $(DEPENDS))
+CURR_DEPENDS=$(wildcard $(SPECTESTS_DEPENDS))
 
-BIN=spectests
+BIN=$(BINDIR)/spectests
 
 .PHONY: all
-all: extract genfiles libgmock.a $(BIN) $(DEP) $(OBJECTS)
+all: $(BINDIR)/.bindir_stamp $(OBJDIR)/.objdir_stamp $(BINDIR)/extract $(BINDIR)/genfiles $(BINDIR)/libgmock.a $(BINDIR)/spectests $(BINDIR)/cwraptests $(DEP) $(SPECTESTS_OBJECTS)
 
 $(LIB_DIR)/$(LIB_IPIOL):
 	(cd ../src/; $(MAKE))
@@ -30,23 +36,35 @@ $(LIB_DIR)/$(LIB_IPIOL):
 $(LIB_DIR)/$(LIB_PIOL):
 	(cd ../api/; $(MAKE))
 
-libgmock.a:
+$(BINDIR)/libgmock.a:
 	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GTEST_DIR}/src/gtest-all.cc -o $(OBJDIR)/gtest-all.o
 	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GMOCK_DIR}/src/gmock-all.cc -o $(OBJDIR)/gmock-all.o
-	ar -rv libgmock.a $(GOOGLE_OBJ)
+	ar -rv $(BINDIR)/libgmock.a $(GOOGLE_OBJ)
 
-$(BIN): $(OBJECTS)
-	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(OBJECTS) $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
+$(BINDIR)/.bindir_stamp:
+	mkdir -p $(BINDIR)
+	touch $(BINDIR)/.bindir_stamp
 
-genfiles: genfiles.c
-	$(CC) -g -Wall -Wextra -std=c11 genfiles.c -o genfiles
+$(OBJDIR)/.objdir_stamp:
+	mkdir -p $(OBJDIR)
+	touch $(OBJDIR)/.objdir_stamp
 
-extract: extract.c
-	$(CC) -g -Wall -Wextra -std=c11 extract.c -o extract
+$(BINDIR)/spectests: $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $^ $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
+
+$(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS)
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^ $(GOOGLE_OBJ) ../api/obj/cfileapi.o
+
+
+$(BINDIR)/genfiles: genfiles.c
+	$(CC) -g -Wall -Wextra -std=c11 $^ -o $@
+
+$(BINDIR)/extract: extract.c
+	$(CC) -g -Wall -Wextra -std=c11 $^ -o $@
 
 
 # Testing commands
@@ -55,32 +73,35 @@ extract: extract.c
 
 # Run all tests
 .PHONY: test
-test: spectests tmp/.genfiles_stamp
-	./spectests
+test: $(BINDIR)/spectests tmp/.genfiles_stamp
+	$(BINDIR)/spectests
 
 # Run non-farm tests
 .PHONY: test_nofarm
-test_nofarm: spectests tmp/.genfiles_stamp
-	./spectests --gtest_filter=-*Farm*
+test_nofarm: $(BINDIR)/spectests tmp/.genfiles_stamp
+	#$(BINDIR)/spectests --gtest_filter=-*Farm*
+	$(BINDIR)/cwraptests
 
 # Generate all test files
-tmp/.genfiles_stamp: genfiles
+tmp/.genfiles_stamp: $(BINDIR)/genfiles
 	mkdir -p tmp
-	./genfiles
+	$(BINDIR)/genfiles
 	touch tmp/.genfiles_stamp
 
 # Clean everything
 .PHONY: clean
 clean: googleclean
-	rm -f $(OBJECTS) $(OBJDIR)/*.optrpt $(BIN) $(CURR_DEPENDS) $(CURR_DEP)
-	rm -rf tmp/ *.dSYM
+	rm -f $(SPECTESTS_OBJECTS) $(OBJDIR)/*.optrpt $(CURR_DEPENDS) $(CURR_DEP)
+	rm -f $(BINDIR)/spectests $(BINDIR)/genfiles $(BINDIR)/extract $(BINDIR)/.bindir_stamp
+	- rmdir $(BINDIR)
+	rm -rf tmp/ *.dSYM $(BINDIR) $(OBJDIR)
 
 .PHONY: googleclean
 googleclean:
-	rm -f libgmock.a $(GOOGLE_OBJ)
+	rm -f $(BINDIR)/libgmock.a $(GOOGLE_OBJ)
 
-$(DEP): $(DEPENDS)
-	cat *.dep > $(DEP)
+$(DEP): $(SPECTESTS_DEPENDS)
+	cat $(OBJDIR)/*.dep > $(DEP)
 
 ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)
@@ -90,5 +111,17 @@ endif
 	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
 
 $(OBJDIR)/%.o: %.cc
+	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
+
+$(OBJDIR)/%_spectests.dep: spectests/%.cc
+	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
+
+$(OBJDIR)/%_spectests.o: spectests/%.cc
+	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
+
+$(OBJDIR)/%_cwraptests.dep: cwraptests/%.cc
+	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
+
+$(OBJDIR)/%_cwraptests.o: cwraptests/%.cc
 	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
 

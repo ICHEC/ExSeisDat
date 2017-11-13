@@ -1,15 +1,14 @@
 all:
-	@(cd test; $(MAKE) libgmock.a)
-	@(cd src; $(MAKE))
-	@(cd api; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
-	@(cd test; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
-	@(cd util; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
-	@(cd examples; LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE))
+	$(MAKE) -C src
+	LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE) -C api
+	LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE) -C test
+	LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE) -C util
+	LIBRARY_PATH=$(LIBRARY_PATH):$(PWD)/lib $(MAKE) -C examples
 
 clean:
-	@(cd src; $(MAKE) clean)
-	@(cd test; $(MAKE) clean)
-	@(cd api; $(MAKE) clean)
-	@(cd util; $(MAKE) clean)
-	@(cd examples; $(MAKE) clean)
+	$(MAKE) -C src  clean
+	$(MAKE) -C test clean
+	$(MAKE) -C api  clean
+	$(MAKE) -C util clean
+	$(MAKE) -C examples clean
 

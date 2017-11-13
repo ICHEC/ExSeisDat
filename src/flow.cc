@@ -60,6 +60,12 @@ Set::Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<F
     numRank = piol->comm->getNumRank();
     add(pattern);
 }
+Set::Set(Piol piol_, std::shared_ptr<File::Rule> rule_) :
+                                                            piol(piol_), rule(rule_), cache(piol_)
+{
+    rank = piol->comm->getRank();
+    numRank = piol->comm->getNumRank();
+}
 
 Set::~Set(void)
 {
@@ -589,6 +595,11 @@ void Set::AGC(AGCFunc agcFunc, size_t window, trace_t normR)
         File::AGC(in->prm->size(), in->ns, in->trc.data(), agcFunc, window, normR);
         return std::vector<size_t>{};
     }));
+}
+
+void Set::text(std::string outmsg_)
+{
+    outmsg = outmsg_;
 }
 
 /********************************************** Non-Core **************************************************************/

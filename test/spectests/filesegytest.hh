@@ -158,7 +158,9 @@ struct FileReadSEGYTest : public Test
             size_t tsz2 = tsz;
             char * t = &testString[0];
             char * newText = reinterpret_cast<char *>(ho.data());
-            iconv_t toAsc = iconv_open("EBCDICUS//", "ASCII//");
+#warning ICONV doesnt have EBCDIC encoding on OSX
+            //iconv_t toAsc = iconv_open("EBCDICUS//", "ASCII//");
+            iconv_t toAsc = iconv_open("ASCII", "ASCII");
             ::iconv(toAsc, &t, &tsz, &newText, &tsz2);
             iconv_close(toAsc);
         }

@@ -10,10 +10,9 @@ doxygen/
 
 googletest
 
-test/genfiles
-test/spectests
-test/extract
+test/bin/
 test/tmp/
+test/obj/
 
 util/concatenate
 util/segsort
