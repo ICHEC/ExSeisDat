@@ -201,9 +201,9 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
 {
     //For the vectorisation
     size_t lstart = 0LU;
-    llint lend = crd1->sz;
+    size_t lend = crd1->sz;
     size_t rstart = 0LU;
-    llint rend = crd2->sz;
+    size_t rend = crd2->sz;
 
     //Ignore all file2 traces that can not possibly match our criteria within the min/max
     //of src x.
@@ -239,12 +239,12 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
     #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) aligned(yR2:ALIGN) \
                      aligned(xS1:ALIGN) aligned(yS1:ALIGN) aligned(xR1:ALIGN) aligned(yR1:ALIGN) \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
-    for (llint i = lstart; i < lend; i++)                         //Loop through every file1 trace
+    for (size_t i = lstart; i < lend; i++)                         //Loop through every file1 trace
     {
         const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
         size_t lm = lmin[i];
         fourd_t lmrs = lminrs[i];
-        for (llint j = rstart; j < rend; j++)        //loop through a multiple of the alignment
+        for (size_t j = rstart; j < rend; j++)        //loop through a multiple of the alignment
         {
             const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j], yr2 = yR2[j];
             fourd_t dval = (!ixline || (crd1->il[i] == crd2->il[j] && crd1->xl[i] == crd2->xl[j]) ?

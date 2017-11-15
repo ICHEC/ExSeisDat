@@ -74,7 +74,7 @@ struct SetTest : public Test
         piol = std::make_shared<ExSeisPIOL>(opt);
         set = nullptr;
     }
-    void init(size_t numFile, size_t numNs, size_t numInc, size_t srtCnt, bool linear)
+    void init(size_t numFile, size_t numNs, size_t numInc, size_t, bool linear)
     {
         if (set.get() != nullptr)
             set.release();
@@ -134,7 +134,7 @@ struct SetTest : public Test
                 }
     }
 
-    void init(size_t numFile, size_t nt, size_t inactive)
+    void init(size_t numFile, size_t nt, size_t)
     {
         srand(1337);
         set.reset(new Set(piol));
@@ -265,7 +265,7 @@ struct SetTest : public Test
 
     void filterTest(FltrType type, FltrDmn domain, std::vector<trace_t> corners, const std::vector<trace_t> & trcRef, size_t nt = 1LU)
     {
-        ASSERT_EQ(trcRef.size(), 59);
+        ASSERT_EQ(trcRef.size(), static_cast<size_t>(59));
         trace_t PI = std::acos(-1);
         size_t N = 3;
         size_t ns = trcRef.size() / nt;

@@ -1,3 +1,4 @@
+#include "stubtools.hh"
 #include "setstub.hh"
 
 std::function<
@@ -25,13 +26,14 @@ PIOL::Set::Set(Piol piol_, std::shared_ptr<File::Rule> rule_):
 }
 
 
-std::function<void()> PIOL_Set_delete_cb;
-PIOL::Set::~Set(void)
-{
-    if(PIOL_Set_delete_cb) {
-        PIOL_Set_delete_cb();
-    }
-}
+MAKE_STUB_0_CTOR(PIOL::Set::~Set, PIOL_Set_delete)
+//std::function<void()> PIOL_Set_delete_cb;
+//PIOL::Set::~Set(void)
+//{
+//    if(PIOL_Set_delete_cb) {
+//        PIOL_Set_delete_cb();
+//    }
+//}
 
 std::function<void(PIOL::CompareP)> PIOL_Set_sort_1_cb;
 void PIOL::Set::sort(CompareP sortFunc)

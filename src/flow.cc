@@ -270,7 +270,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
     {
         OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
         FuncLst tFunc;
-        tFunc.push_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock * in) -> std::vector<size_t>
+        tFunc.push_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock *) -> std::vector<size_t>
         {
             return std::vector<size_t>{};
         }));
@@ -438,7 +438,6 @@ std::vector<std::string> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::i
                 return std::vector<std::string>{gname};
 
             //TODO: Later this will need to be changed when the gather also continues with single trace cases
-            auto type = FuncOpt::Gather;
             #warning Trick goes here
             for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather); ++fCurr);
         }
@@ -463,7 +462,7 @@ std::vector<std::string> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::i
 std::vector<std::string> Set::output(std::string oname)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
-    func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock * in) -> std::vector<size_t>
+    func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock *) -> std::vector<size_t>
     {
         return std::vector<size_t>{};
     }));

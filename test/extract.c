@@ -10,12 +10,12 @@ int main(int argc, char ** argv)
     fseek(fs, 3220U, SEEK_SET);
     fread(cns, sizeof(char), 2U, fs);
     int64_t ns = cns[0] << 8 | cns[1];
-    fprintf(stderr, "int16_t ns = %i\n", ns);
+    fprintf(stderr, "int16_t ns = %lli\n", ns);
 
     fseek(fs, 0U, SEEK_END);
 
     int64_t fsz = ftell(fs);
-    fprintf(stderr, "uint64_t fsz = %li\n", fsz);
+    fprintf(stderr, "uint64_t fsz = %lli\n", fsz);
     size_t nt = (fsz-3600U) / (sizeof(float)*ns + 240U);
     assert(!((fsz-3600U) % (sizeof(float)*ns + 240U)));
 
@@ -31,7 +31,7 @@ int main(int argc, char ** argv)
         fread(traces, sizeof(uint32_t), ns, fs);
         fseek(fs, 240U, SEEK_CUR);
         printf("    0x%x, ", traces[0]);
-        for (size_t j = 1U; j < ns-1U; j++)
+        for (int64_t j = 1U; j < ns-1U; j++)
             printf("0x%x, ", traces[j]);
         if (i == rnt-1)
             printf("0x%x\n", traces[ns - 1]);

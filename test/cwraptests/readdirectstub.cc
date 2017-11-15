@@ -15,10 +15,10 @@ size_t PIOL::File::ReadDirect::readNs() const { return 0; }
 
 geom_t PIOL::File::ReadDirect::readInc() const { return 0; }
 
+std::string PIOL_File_ReadDirect_readText_static_string = "PIOL_File_ReadDirect_readText_static_string";
 const std::string& PIOL::File::ReadDirect::readText() const
 {
-    static std::string s;
-    return s;
+    return PIOL_File_ReadDirect_readText_static_string;
 }
 
 void PIOL::File::ReadDirect::readParam(csize_t, csize_t, PIOL::File::Param*) const {}

@@ -54,7 +54,7 @@ class MPIIOTest : public Test
 
         struct stat info;
         stat(tempFile.c_str(), &info);
-        ASSERT_EQ(sz, info.st_size);
+        ASSERT_EQ(sz, static_cast<size_t>(info.st_size));
     }
 
     template <bool block>

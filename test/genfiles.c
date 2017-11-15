@@ -5,7 +5,7 @@
 #include <assert.h>
 typedef unsigned char uchar;
 
-void writePattern(FILE * fs, const size_t sz, const uchar const * pattern, const size_t psz)
+void writePattern(FILE * fs, size_t sz, const uchar* pattern, size_t psz)
 {
     size_t q = sz / psz;
     size_t r = sz % psz;
@@ -15,7 +15,7 @@ void writePattern(FILE * fs, const size_t sz, const uchar const * pattern, const
         fwrite(pattern, sizeof(uchar), r, fs);
 }
 
-void makeFile(const char const * name, const size_t sz, const uchar const * pattern, const size_t psz)
+void makeFile(const char * name, size_t sz, const uchar * pattern, size_t psz)
 {
     FILE * fs = fopen(name, "w");
     if (sz == 0)
@@ -49,7 +49,7 @@ int32_t yNum(size_t i)
     return 1000L + (i % 2000L);
 }
 
-void makeSEGY(const char const * out, const size_t ns, const size_t nt, size_t maxBlock)
+void makeSEGY(const char * out, size_t ns, size_t nt, size_t maxBlock)
 {
     const size_t hsz  = 3600;
     const size_t thsz = 240U;

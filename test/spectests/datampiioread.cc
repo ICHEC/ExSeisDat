@@ -26,7 +26,7 @@ TEST_F(MPIIODeathTest, FailedConstructor)
     EXPECT_EQ(notFile, item->file);
     EXPECT_EQ(Log::Layer::Data, item->layer);
     EXPECT_EQ(Log::Status::Error, item->stat);
-    EXPECT_NE(0, item->msg.size());
+    EXPECT_NE(static_cast<size_t>(0), item->msg.size());
     EXPECT_EQ(Log::Verb::None, item->vrbsy);
 
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
@@ -49,7 +49,7 @@ TEST_F(MPIIOTest, Constructor)
     EXPECT_TRUE(mio->file != MPI_FILE_NULL) << "File was not opened";
 
     piol->isErr();
-    EXPECT_EQ(0, data->getFileSz());
+    EXPECT_EQ(static_cast<size_t>(0), data->getFileSz());
 }
 
 TEST_F(MPIIOTest, SmallFileSize)

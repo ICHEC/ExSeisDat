@@ -15,7 +15,7 @@
 
 namespace PIOL {
 //TODO: Generalise this for parameters and traces
-std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool cPrm, bool cTrc)
+std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool, bool)
 {
     auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc; });
     if (it == cache.end() || !it->block || !it->block->prm)

@@ -50,7 +50,7 @@ TEST_F(RuleFixEmpty, AddRmLongRules)
 {
     rule->addLong(Meta::xl, Tr::il);
     ASSERT_EQ(rule->getEntry(Meta::xl)->loc, size_t(Tr::il));
-    ASSERT_EQ(rule->extent(), 4);
+    ASSERT_EQ(rule->extent(), static_cast<size_t>(4));
     rule->rmRule(Meta::xl);
     ASSERT_EQ(NULL, rule->getEntry(Meta::xl));
 }
@@ -63,7 +63,7 @@ TEST_F(RuleFixEmpty, AddRmFloatRules)
     ASSERT_NE(nullptr, frule);
     ASSERT_EQ(frule->loc, size_t(Tr::SrcMeas));
     ASSERT_EQ(frule->scalLoc, size_t(Tr::SrcMeasExp));
-    ASSERT_EQ(rule->extent(), 6);
+    ASSERT_EQ(rule->extent(), static_cast<size_t>(6));
     rule->rmRule(Meta::dsdr);
     ASSERT_EQ(nullptr, rule->getEntry(Meta::dsdr));
 }
@@ -111,32 +111,32 @@ TEST_F(RuleFixList, setPrm)
 
 TEST_F(RuleFixDefault, Constructor)
 {
-        ASSERT_EQ(rule->translate.size(), 12);
-        ASSERT_EQ(rule->numFloat, 6);
-        ASSERT_EQ(rule->numLong, 4);
-        ASSERT_EQ(rule->numShort, 0);
-        ASSERT_EQ(rule->numIndex, 2);
-        ASSERT_EQ(rule->extent(), 240U);
+        ASSERT_EQ(rule->translate.size(), static_cast<size_t>(12));
+        ASSERT_EQ(rule->numFloat, static_cast<size_t>(6));
+        ASSERT_EQ(rule->numLong,  static_cast<size_t>(4));
+        ASSERT_EQ(rule->numShort, static_cast<size_t>(0));
+        ASSERT_EQ(rule->numIndex, static_cast<size_t>(2));
+        ASSERT_EQ(rule->extent(), static_cast<size_t>(240));
 }
 
 TEST_F(RuleFixDefault, MakeCopy)
 {
     auto r = new Rule(rule->translate, false);
-    ASSERT_EQ(r->translate.size(), 12);
-    ASSERT_EQ(r->numFloat, 6);
-    ASSERT_EQ(r->numLong, 4);
-    ASSERT_EQ(r->numShort, 0);
-    ASSERT_EQ(r->numIndex, 2);
-    ASSERT_EQ(r->extent(), 192);
+    ASSERT_EQ(r->translate.size(), static_cast<size_t>(12));
+    ASSERT_EQ(r->numFloat, static_cast<size_t>(6));
+    ASSERT_EQ(r->numLong,  static_cast<size_t>(4));
+    ASSERT_EQ(r->numShort, static_cast<size_t>(0));
+    ASSERT_EQ(r->numIndex, static_cast<size_t>(2));
+    ASSERT_EQ(r->extent(), static_cast<size_t>(192));
 }
 
 TEST_F(RuleFixDefault, MakeCopyFull)
 {
     auto r = new Rule(rule->translate, true);
-    ASSERT_EQ(r->translate.size(), 12);
-    ASSERT_EQ(r->numFloat, 6);
-    ASSERT_EQ(r->numLong, 4);
-    ASSERT_EQ(r->numShort, 0);
-    ASSERT_EQ(r->numIndex, 2);
-    ASSERT_EQ(r->extent(), 240);
+    ASSERT_EQ(r->translate.size(), static_cast<size_t>(12));
+    ASSERT_EQ(r->numFloat, static_cast<size_t>(6));
+    ASSERT_EQ(r->numLong,  static_cast<size_t>(4));
+    ASSERT_EQ(r->numShort, static_cast<size_t>(0));
+    ASSERT_EQ(r->numIndex, static_cast<size_t>(2));
+    ASSERT_EQ(r->extent(), static_cast<size_t>(240));
 }

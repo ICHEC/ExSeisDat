@@ -131,7 +131,7 @@ TEST_F(OpsTest, getMinMaxRand)
         size_t num = rand() % 1710880;
         std::vector<coord_t> coord(num);
         for (size_t i = 0; i < num; i++)
-            coord[i] = { rand(), rand() };
+            coord[i] = { 1.0*rand(), 1.0*rand() };
 
         getMinMax(piol, 0, coord.size(), coord.data(), minmax.data());
         piol.isErr();
@@ -197,16 +197,16 @@ TEST_F(OpsTest, SortSrcRcvRand)
     setPrm(8, Meta::xSrc, 7.0, &prm);
     setPrm(9, Meta::xSrc, 0.0, &prm);
     auto list = sort(piol, SortType::SrcRcv, &prm);
-    ASSERT_EQ(5, list[0]);
-    ASSERT_EQ(3, list[1]);
-    ASSERT_EQ(1, list[2]);
-    ASSERT_EQ(4, list[3]);
-    ASSERT_EQ(2, list[4]);
-    ASSERT_EQ(9, list[5]);
-    ASSERT_EQ(6, list[6]);
-    ASSERT_EQ(8, list[7]);
-    ASSERT_EQ(7, list[8]);
-    ASSERT_EQ(0, list[9]);
+    ASSERT_EQ(static_cast<size_t>(5), list[0]);
+    ASSERT_EQ(static_cast<size_t>(3), list[1]);
+    ASSERT_EQ(static_cast<size_t>(1), list[2]);
+    ASSERT_EQ(static_cast<size_t>(4), list[3]);
+    ASSERT_EQ(static_cast<size_t>(2), list[4]);
+    ASSERT_EQ(static_cast<size_t>(9), list[5]);
+    ASSERT_EQ(static_cast<size_t>(6), list[6]);
+    ASSERT_EQ(static_cast<size_t>(8), list[7]);
+    ASSERT_EQ(static_cast<size_t>(7), list[8]);
+    ASSERT_EQ(static_cast<size_t>(0), list[9]);
 }
 TEST_F(OpsTest, FilterCheckLowpass)
 {

@@ -223,13 +223,13 @@ FltrPad getPad(PadType type)
     {
         default :
         case PadType::Zero :
-            return [](trace_t * trc, size_t N, size_t nw, size_t j){ return 0.0_t; };
+            return [](trace_t *,     size_t,   size_t,    size_t){ return 0.0_t; };
         break;
         case PadType::Symmetric :
             return [](trace_t * trc, size_t N, size_t nw, size_t j){ return (j <= nw ? trc[N-j] : trc[2*(nw+N) -j]);};
         break;
         case PadType::Replicate :
-            return [](trace_t * trc, size_t N, size_t nw, size_t j){ return (j <= nw ? trc[0] : trc[nw]);};
+            return [](trace_t * trc, size_t,   size_t nw, size_t j){ return (j <= nw ? trc[0] : trc[nw]);};
         break;
         case PadType::Cyclic :
             return [](trace_t * trc, size_t N, size_t nw, size_t j){ return (j <= nw ? trc[nw -(N-j)] : trc[j-nw -N]); };
@@ -237,7 +237,7 @@ FltrPad getPad(PadType type)
     }
 }
 
-void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * numer, trace_t * denom, FltrPad padding)
+void filterFreq(size_t nss, trace_t * trcX, trace_t fs, size_t N, trace_t * numer, trace_t * denom, FltrPad)
 {
 //TODO: Generalize fftwf for other data types besides floats
 //TODO: If creating + destroying plans becomes a bottleneck, re-use the plans

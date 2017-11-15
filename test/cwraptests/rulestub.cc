@@ -15,7 +15,7 @@ void PIOL::File::Rule::addLong(PIOL::Meta, PIOL::File::Tr) {}
 
 void PIOL::File::Rule::addShort(PIOL::Meta, PIOL::File::Tr) {}
 
-PIOL::File::RuleEntry * PIOL::File::Rule::getEntry(PIOL::Meta) {}
+PIOL::File::RuleEntry * PIOL::File::Rule::getEntry(PIOL::Meta) { return NULL; }
 
 PIOL::File::Rule::Rule(std::initializer_list<PIOL::Meta>, bool) {}
 

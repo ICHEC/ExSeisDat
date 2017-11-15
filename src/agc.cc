@@ -40,7 +40,7 @@ void AGC(csize_t nt, csize_t ns, trace_t * trc, const AGCFunc func, size_t windo
 }
 
 /******************************************** Non-core *********************************************/
-trace_t AGCRMS(trace_t * trc, size_t window, trace_t normR, llint winCntr)
+trace_t AGCRMS(trace_t * trc, size_t window, trace_t normR, llint)
 {
     trace_t amp = trace_t(0);
     for (size_t j = 0LU; j < window; j++)
@@ -53,13 +53,13 @@ trace_t AGCRMSTri(trace_t * trc, size_t window, trace_t normR, llint winCntr)
 {
     trace_t winFullTail = std::max(std::abs(winCntr), std::abs(llint(window) - winCntr - 1L));
     trace_t amp = trace_t(0);
-    for (llint j = 0LU; j < window; j++)
+    for (llint j = 0LU; j < static_cast<llint>(window); j++)
         amp += pow(trc[j] * (trace_t(1) - std::abs(trace_t(j-winCntr)/winFullTail)), trace_t(2));
     size_t num = std::count_if(trc, &trc[window], [] (trace_t i) { return i != trace_t(0); });
     return normR / std::sqrt(amp / trace_t(!num ? 1LU : num));
 }
 
-trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint winCntr)
+trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint)
 {
     trace_t amp = trace_t(0);
     for (size_t j = 0LU; j < window; j++)
@@ -69,7 +69,7 @@ trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint winCntr)
 }
 
 //This can be optimised with std::nth_element if required.
-trace_t AGCMedian(trace_t * trc, size_t window, trace_t normR, llint winCntr)
+trace_t AGCMedian(trace_t * trc, size_t window, trace_t normR, llint)
 {
     std::vector<trace_t> trcTmp(trc, &trc[window]);
     std::sort(trcTmp.begin(), trcTmp.end());

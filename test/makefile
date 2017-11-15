@@ -28,7 +28,7 @@ CURR_DEPENDS=$(wildcard $(SPECTESTS_DEPENDS))
 BIN=$(BINDIR)/spectests
 
 .PHONY: all
-all: $(BINDIR)/.bindir_stamp $(OBJDIR)/.objdir_stamp $(BINDIR)/extract $(BINDIR)/genfiles $(BINDIR)/libgmock.a $(BINDIR)/spectests $(BINDIR)/cwraptests $(DEP) $(SPECTESTS_OBJECTS)
+all: $(BINDIR)/extract $(BINDIR)/genfiles $(BINDIR)/libgmock.a $(BINDIR)/spectests $(BINDIR)/cwraptests $(DEP) $(SPECTESTS_OBJECTS)
 
 $(LIB_DIR)/$(LIB_IPIOL):
 	(cd ../src/; $(MAKE))
@@ -36,7 +36,7 @@ $(LIB_DIR)/$(LIB_IPIOL):
 $(LIB_DIR)/$(LIB_PIOL):
 	(cd ../api/; $(MAKE))
 
-$(BINDIR)/libgmock.a:
+$(BINDIR)/libgmock.a: $(BINDIR)/.bindir_stamp $(OBJDIR)/.objdir_stamp
 	$(GCOMP) $(CXXFLAGS) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} \
     -pthread -c ${GTEST_DIR}/src/gtest-all.cc -o $(OBJDIR)/gtest-all.o
@@ -53,18 +53,18 @@ $(OBJDIR)/.objdir_stamp:
 	mkdir -p $(OBJDIR)
 	touch $(OBJDIR)/.objdir_stamp
 
-$(BINDIR)/spectests: $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a
-	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $^ $(GOOGLE_OBJ) -l$(LIB_PIOL) -l$(LIB_IPIOL)
+$(BINDIR)/spectests: $(BINDIR)/.bindir_stamp $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
-$(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS)
-	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^ $(GOOGLE_OBJ) ../api/obj/cfileapi.o
+$(BINDIR)/cwraptests: $(BINDIR)/.bindir_stamp $(CWRAPTESTS_OBJECTS) $(BINDIR)/libgmock.a
+	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CWRAPTESTS_OBJECTS) $(BINDIR)/libgmock.a ../api/obj/cfileapi.o 
 
 
-$(BINDIR)/genfiles: genfiles.c
-	$(CC) -g -Wall -Wextra -std=c11 $^ -o $@
+$(BINDIR)/genfiles: genfiles.c $(BINDIR)/.bindir_stamp
+	$(CC) -g -Wall -Wextra -std=c11 $< -o $@
 
-$(BINDIR)/extract: extract.c
-	$(CC) -g -Wall -Wextra -std=c11 $^ -o $@
+$(BINDIR)/extract: extract.c   $(BINDIR)/.bindir_stamp
+	$(CC) -g -Wall -Wextra -std=c11 $< -o $@
 
 
 # Testing commands
@@ -78,8 +78,8 @@ test: $(BINDIR)/spectests tmp/.genfiles_stamp
 
 # Run non-farm tests
 .PHONY: test_nofarm
-test_nofarm: $(BINDIR)/spectests tmp/.genfiles_stamp
-	#$(BINDIR)/spectests --gtest_filter=-*Farm*
+test_nofarm: $(BINDIR)/spectests $(BINDIR)/cwraptests tmp/.genfiles_stamp
+	$(BINDIR)/spectests --gtest_filter=-*Farm*
 	$(BINDIR)/cwraptests
 
 # Generate all test files
@@ -110,18 +110,18 @@ endif
 %.dep: %.cc
 	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
 
-$(OBJDIR)/%.o: %.cc
+$(OBJDIR)/%.o: %.cc $(OBJDIR)/.objdir_stamp
 	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
 
-$(OBJDIR)/%_spectests.dep: spectests/%.cc
+$(OBJDIR)/%_spectests.dep: spectests/%.cc $(OBJDIR)/.objdir_stamp
 	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
 
-$(OBJDIR)/%_spectests.o: spectests/%.cc
+$(OBJDIR)/%_spectests.o: spectests/%.cc $(OBJDIR)/.objdir_stamp
 	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
 
-$(OBJDIR)/%_cwraptests.dep: cwraptests/%.cc
+$(OBJDIR)/%_cwraptests.dep: cwraptests/%.cc $(OBJDIR)/.objdir_stamp
 	$(CXX) $(CXXSTANDARD) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.cc, $(OBJDIR)/%.o, $<) -o $@
 
-$(OBJDIR)/%_cwraptests.o: cwraptests/%.cc
+$(OBJDIR)/%_cwraptests.o: cwraptests/%.cc $(OBJDIR)/.objdir_stamp
 	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
 

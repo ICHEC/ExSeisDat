@@ -120,8 +120,8 @@ void testLineOffPattern(std::deque<std::shared_ptr<FileDesc>> & file)
     {
         size_t total = file[i]->olst.size();
         size_t l = 0;
-        for (llint j = 0; j < 10U; j++)
-            for (llint k = 0; k < total / 10; k++, l++)
+        for (size_t j = 0; j < 10U; j++)
+            for (size_t k = 0; k < total / 10; k++, l++)
                 EXPECT_EQ(file[i]->olst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
         EXPECT_EQ(l, 1000+i);
     }
@@ -288,7 +288,7 @@ TEST_F(SetTest, SortSrcXRcvY)
         size_t l = 0;
         for (llint j = 0; j < 10U; j++)
             for (llint k = total / 10U - 1; k >= 0; k--, l++)
-                EXPECT_EQ(set->file[i]->olst[l], 10 * k + j) << i << " " << j << " " << k << " "  << l;
+                EXPECT_EQ(set->file[i]->olst[l], static_cast<size_t>(10 * k + j)) << i << " " << j << " " << k << " "  << l;
         EXPECT_EQ(l, 1000+i);
     }
 }
@@ -302,10 +302,10 @@ TEST_F(SetTest, getMinMax)
     EXPECT_EQ(minmax[1].val, 2000.);
     EXPECT_EQ(minmax[2].val, 1001.);
     EXPECT_EQ(minmax[3].val, 2000.);
-    EXPECT_EQ(minmax[0].num, 999);
-    EXPECT_EQ(minmax[1].num, 0);
-    EXPECT_EQ(minmax[2].num, 999);
-    EXPECT_EQ(minmax[3].num, 0);
+    EXPECT_EQ(minmax[0].num, static_cast<size_t>(999));
+    EXPECT_EQ(minmax[1].num, static_cast<size_t>(0));
+    EXPECT_EQ(minmax[2].num, static_cast<size_t>(999));
+    EXPECT_EQ(minmax[3].num, static_cast<size_t>(0));
 }
 
 TEST_F(SetTest, getActive)
@@ -381,7 +381,7 @@ TEST_F(SetTest, Taper1TailLinMute)
 
 TEST_F(SetTest, agcRMS)
 {
-    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr) {
+    auto agcFunc = [](size_t window, trace_t * trc, size_t) {
         trace_t amp = 0.0f;
         for (size_t i = 0; i < window; i++)
             amp += pow(trc[i], 2.0f);
@@ -411,7 +411,7 @@ TEST_F(SetTest, agcRMSTri)
 
 TEST_F(SetTest, agcMeanAbs)
 {
-    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
+    auto agcFunc = [](size_t window, trace_t * trc, size_t)
     {
         trace_t amp = 0.0f;
         for (size_t i = 0; i < window; i++)
@@ -426,7 +426,7 @@ TEST_F(SetTest, agcMeanAbs)
 
 TEST_F(SetTest, agcMedian)
 {
-    auto agcFunc = [](size_t window, trace_t * trc, size_t winCntr)
+    auto agcFunc = [](size_t window, trace_t * trc, size_t)
     {
         std::sort(&trc[0], &trc[window]);
         if (window % 2 == 0)
@@ -440,27 +440,27 @@ TEST_F(SetTest, agcMedian)
 TEST_F(SetTest, FilterOneTailTime)
 {
     std::vector<trace_t> c= {1.667, 0};
-    ASSERT_EQ(lowpassTime.size(), 59);
+    ASSERT_EQ(lowpassTime.size(), static_cast<size_t>(59));
     filterTest(FltrType::Lowpass, FltrDmn::Time, c, lowpassTime);
 }
 
 TEST_F(SetTest, FilterOneTailFreq)
 {
     std::vector<trace_t> c= {1.667, 0};
-    ASSERT_EQ(lowpassFreq.size(), 59);
+    ASSERT_EQ(lowpassFreq.size(), static_cast<size_t>(59));
     filterTest(FltrType::Lowpass, FltrDmn::Freq, c,lowpassFreq);
 }
 
 TEST_F(SetTest, FilterTwoTailTime)
 {
     std::vector<trace_t> c={1.667, 6.5};
-    ASSERT_EQ(bandpassTime.size(), 59);
+    ASSERT_EQ(bandpassTime.size(), static_cast<size_t>(59));
     filterTest(FltrType::Bandpass, FltrDmn::Time,c, bandpassTime);
 }
 
 TEST_F(SetTest, FilterTwoTailFreq)
 {
     std::vector<trace_t> c = {1.667_t, 6.5_t};
-    ASSERT_EQ(bandpassFreq.size(), 59);
+    ASSERT_EQ(bandpassFreq.size(), static_cast<size_t>(59));
     filterTest(FltrType::Bandpass, FltrDmn::Freq,c, bandpassFreq);
 }
