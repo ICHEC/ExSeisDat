@@ -16,7 +16,7 @@ void printErr(Log::Logger * log, const std::string file, const Log::Layer layer,
             msg += " MPI_Status: " + std::to_string(stat->MPI_ERROR);
         else
             msg += "MPI_ERR = " + std::to_string(err);
-        log->record(file, layer, Log::Status::Error, msg, Log::Verb::None);
+        log->record(file, layer, Log::Status::Error, msg, PIOL_VERBOSITY_NONE);
     }
 }
 }

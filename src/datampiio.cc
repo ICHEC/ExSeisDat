@@ -224,7 +224,7 @@ void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
     printErr(log, name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
 
     if (esz != 1)
-        log->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", Log::Verb::None);
+        log->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", PIOL_VERBOSITY_NONE);
 
     fcomm = opt.fcomm;
 
@@ -275,7 +275,7 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
-        log->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, Log::Verb::None);
+        log->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
     //Set a view so that MPI_File_read... functions only see contiguous data.
@@ -378,7 +378,7 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
-        log->record(name, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, Log::Verb::None);
+        log->record(name, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
     //Set a view so that MPI_File_read... functions only see contiguous data.

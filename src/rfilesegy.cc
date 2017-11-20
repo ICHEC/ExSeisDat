@@ -182,7 +182,7 @@ void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trc, Param * prm,
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
     if (offset >= nt && sz)   //Nothing to be read.
         piol->log->record(name, Log::Layer::File, Log::Status::Warning,
-                          "readParam() was called for a zero byte read", Log::Verb::None);
+                          "readParam() was called for a zero byte read", PIOL_VERBOSITY_NONE);
     readTraceT(obj.get(), format, ns, offset, [offset] (size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);
 }
 

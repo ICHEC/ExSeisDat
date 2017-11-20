@@ -12,6 +12,7 @@
 #include "file/file.hh"
 #include "file/dynsegymd.hh"
 
+
 namespace PIOL {
 /*! This class provides access to the ExSeisPIOL class but with a simpler API
  */
@@ -23,20 +24,24 @@ class ExSeis
     /*! Constructor with optional maxLevel and which initialises MPI.
      * \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeis(const Log::Verb maxLevel = Log::Verb::None);
+    ExSeis(const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
 
     /*! Constructor where one can also initialise MPI optionally.
      *  \param[in] initComm Initialise MPI if true
      *  \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeis(bool initComm, const Log::Verb maxLevel = Log::Verb::None);
+    ExSeis(bool initComm, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
 
     // TODO Abstract the communicator to MPI::Comm
     /*! Don't initialise MPI. Use the supplied communicator
      *  \param[in] comm The MPI communicator
      *  \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeis(MPI_Comm comm, const Log::Verb maxLevel = Log::Verb::None);
+    ExSeis(MPI_Comm comm, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
+
+    /*! ExSeis Deleter.
+     */
+    ~ExSeis();
 
     /*! Cast to ExSeisPIOL *
      */
@@ -55,34 +60,22 @@ class ExSeis
     /*! Shortcut to get the commrank.
      *  \return The comm rank.
      */
-    size_t getRank(void)
-    {
-        return piol->comm->getRank();
-    }
+    size_t getRank(void);
 
     /*! Shortcut to get the number of ranks.
      *  \return The comm number of ranks.
      */
-    size_t getNumRank(void)
-    {
-        return piol->comm->getNumRank();
-    }
+    size_t getNumRank(void);
 
     /*! Shortcut for a communication barrier
      */
-    void barrier(void) const
-    {
-        piol->comm->barrier();
-    }
+    void barrier(void) const;
 
     /*! Return the maximum value amongst the processes
      *  \param[in] n The value to take part in the reduction
      *  \return Return the maximum value amongst the processes
      */
-    size_t max(size_t n) const
-    {
-        return piol->comm->max(n);
-    }
+    size_t max(size_t n) const;
 
     /*! \brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
      *  and the code aborts.
@@ -118,7 +111,7 @@ class ReadDirect
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
         if (!file)
             piol->log->record(name, Log::Layer::API, Log::Status::Error,
-            "ReadInterface creation failure in ReadDirect<F,O,D>()", Log::Verb::None);
+            "ReadInterface creation failure in ReadDirect<F,O,D>()", PIOL_VERBOSITY_NONE);
     }
 
     /*! Constructor without options.
@@ -233,7 +226,7 @@ class WriteDirect
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
         if (!file)
             piol->log->record(name, Log::Layer::API, Log::Status::Error,
-                              "WriteInterface creation failure in WriteDirect<F,O,D>()", Log::Verb::None);
+                              "WriteInterface creation failure in WriteDirect<F,O,D>()", PIOL_VERBOSITY_NONE);
     }
 
     /*! Constructor without options.

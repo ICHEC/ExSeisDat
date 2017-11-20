@@ -118,7 +118,7 @@ void Set::summary(void) const
                           "-\tNt: " + std::to_string(f->ifc->readNt())   + "\n" +
                          "-\tInc: " + std::to_string(f->ifc->readInc())  + "\n";
 
-        piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , Log::Verb::None);
+        piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , PIOL_VERBOSITY_NONE);
     }
 
     if (!rank)
@@ -126,7 +126,7 @@ void Set::summary(void) const
         for (auto & m : fmap)
             piol->log->record("", Log::Layer::Set, Log::Status::Request,
                 "Local File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
-                    + " inc) = " + std::to_string(m.second.size()), Log::Verb::None);
+                    + " inc) = " + std::to_string(m.second.size()), PIOL_VERBOSITY_NONE);
         piol->log->procLog();
     }
 }
@@ -529,7 +529,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
         if (piol->comm->min(in->prm->size()) < 3LU) //TODO: It will eventually be necessary to support this use case.
         {
             piol->log->record("", Log::Layer::Set, Log::Status::Error,
-                "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
+                "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", PIOL_VERBOSITY_NONE);
             return std::vector<size_t>{};
         }
         else

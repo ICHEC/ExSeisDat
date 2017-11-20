@@ -21,7 +21,7 @@ class ExSeisPIOL
      *  \param[in] copt An options structure for MPI
      *  \param[in] maxLevel The maximum log level to be recorded.
      */
-    void Init(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
+    void Init(Comm::MPI::Opt & copt, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
 
     public :
     std::unique_ptr<Log::Logger> log;       //!< The ExSeisPIOL logger
@@ -31,18 +31,18 @@ class ExSeisPIOL
      *  \param[in] copt An options structure for MPI
      *  \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeisPIOL(Comm::MPI::Opt & copt, const Log::Verb maxLevel = Log::Verb::None);
+    ExSeisPIOL(Comm::MPI::Opt & copt, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
 
     /*! Constructor where one can also initialise MPI optionally.
      *  \param[in] initMPI Initialise MPI if true
      *  \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeisPIOL(bool initMPI, const Log::Verb maxLevel = Log::Verb::None);
+    ExSeisPIOL(bool initMPI, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
 
     /*! Constructor with optional maxLevel and which initialises MPI.
      * \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeisPIOL(const Log::Verb maxLevel = Log::Verb::None);
+    ExSeisPIOL(const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
 
     ~ExSeisPIOL(void);
 

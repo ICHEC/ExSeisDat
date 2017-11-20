@@ -40,7 +40,7 @@ void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src
 {
     iconv_t toAsc = iconv_open("ASCII//", "EBCDICUS//");
     piol->log->record(file, Log::Layer::File, Log::Status::Error, "Iconv has failed to open ASCII and EBCDICUS",
-                      Log::Verb::None, toAsc == (iconv_t)-1);
+                      PIOL_VERBOSITY_NONE, toAsc == (iconv_t)-1);
 
     std::vector<char> dst(sz);
     size_t isz = sz;
@@ -51,12 +51,15 @@ void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src
     size_t serr = ::iconv(toAsc, &in, &isz, &out, &osz);
     if (serr == size_t(-1) || osz)
     {
-        piol->log->record(file, Log::Layer::File, Log::Status::Warning, "getConv osz wasn't zero or iconv failed", Log::Verb::Max, !osz);
+        piol->log->record(file, Log::Layer::File, Log::Status::Warning, "getConv osz wasn't zero or iconv failed", PIOL_VERBOSITY_MAX, !osz);
     }
     else if (getCount(dst.data(), sz) > getCount(reinterpret_cast<char *>(src), sz))
+    {
         std::memcpy(src, dst.data(), sizeof(char)*sz);
+    }
     int err = iconv_close(toAsc);
-    piol->log->record(file, Log::Layer::File, Log::Status::Warning, "Iconv has closed badly", Log::Verb::None, err != 0);
+    piol->log->record(file, Log::Layer::File, Log::Status::Warning, "Iconv has closed badly", PIOL_VERBOSITY_NONE, err != 0);
+
 }
 }
 

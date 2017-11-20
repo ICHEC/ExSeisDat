@@ -9,13 +9,13 @@
 #include "anc/log.hh"
 #include <iostream>
 namespace PIOL { namespace Log {
-void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity, bool condition)
+void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verbosity verbosity, bool condition)
 {
     if (condition)
         record(file, layer, stat, msg, verbosity);
 }
 
-void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verb verbosity)
+void Logger::record(const std::string file, const Layer layer, const Status stat, const std::string msg, const Verbosity verbosity)
 {
     if (static_cast<size_t>(verbosity) <= static_cast<size_t>(maxLevel))
         loglist.push_front({file, layer, stat, msg, verbosity});

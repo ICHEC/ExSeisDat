@@ -108,7 +108,7 @@ void WriteSEGY::writeNs(csize_t ns_)
 {
     if (ns_ > size_t(std::numeric_limits<int16_t>::max()))
     {
-        piol->log->record(name, Log::Layer::File, Log::Status::Error, "Ns value is too large for SEG-Y", Log::Verb::None);
+        piol->log->record(name, Log::Layer::File, Log::Status::Error, "Ns value is too large for SEG-Y", PIOL_VERBOSITY_NONE);
         return;
     }
 
@@ -136,7 +136,7 @@ void WriteSEGY::writeInc(const geom_t inc_)
     if (std::isnormal(inc_) == false)
     {
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "The SEG-Y Increment " + std::to_string(inc_) + " is not normal.", Log::Verb::None);
+            "The SEG-Y Increment " + std::to_string(inc_) + " is not normal.", PIOL_VERBOSITY_NONE);
         return;
     }
 
@@ -194,7 +194,7 @@ void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Para
 {
     if (!nsSet)
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", Log::Verb::None);
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", PIOL_VERBOSITY_NONE);
 
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
@@ -205,7 +205,7 @@ void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trc, const Pa
 {
     if (!nsSet)
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
-            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", Log::Verb::None);
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.", PIOL_VERBOSITY_NONE);
 
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;

@@ -27,7 +27,7 @@ TEST_F(MPIIODeathTest, FailedConstructor)
     EXPECT_EQ(Log::Layer::Data, item->layer);
     EXPECT_EQ(Log::Status::Error, item->stat);
     EXPECT_NE(static_cast<size_t>(0), item->msg.size());
-    EXPECT_EQ(Log::Verb::None, item->vrbsy);
+    EXPECT_EQ(PIOL_VERBOSITY_NONE, item->vrbsy);
 
     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }

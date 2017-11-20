@@ -9,9 +9,7 @@
 #ifndef PIOLSHAREAPI_INCLUDE_GUARD
 #define PIOLSHAREAPI_INCLUDE_GUARD
 
-#ifndef __cplusplus
 typedef double geom_t;  //!< TODO: This should be done somewhere more general
-#endif
 
 #ifdef __cplusplus
 namespace PIOL {

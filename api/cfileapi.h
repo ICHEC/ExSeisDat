@@ -67,7 +67,7 @@ typedef PIOL_File_WriteDirectPointer* PIOL_File_WriteDirectHandle;
 /*! Initialise the PIOL and MPI.
  *  \return A handle to the PIOL.
  */
-PIOL_ExSeisHandle PIOL_ExSeis_new();
+PIOL_ExSeisHandle PIOL_ExSeis_new(PIOL_Verbosity);
 
 /*! close the PIOL (deinit MPI)
  * \param[in] piol A handle to the PIOL.
@@ -87,12 +87,19 @@ size_t PIOL_ExSeis_getNumRank(PIOL_ExSeisHandle piol);
 /*! Check if the PIOL has any error conditions
  * \param[in] piol A handle to the PIOL.
  */
-void PIOL_ExSeis_isErr(PIOL_ExSeisHandle piol);
+void PIOL_ExSeis_isErr(PIOL_ExSeisHandle piol, const char* msg);
 
 /*!  A barrier. All PIOL processes must call this.
  * \param[in] piol A handle to the PIOL.
  */
 void PIOL_ExSeis_barrier(PIOL_ExSeisHandle piol);
+
+/*! Return the maximum value amongst the processes
+ * \param[in] piol A handle to the PIOL.
+ * \param[in] n The value to take part in the reduction
+ * \return Return the maximum value of (\c n) amongst the processes
+ */
+size_t PIOL_ExSeis_max(PIOL_ExSeisHandle piol, size_t n);
 
 //SEG-Y Size functions
 /*! Get the size of the SEG-Y text field (3200 bytes)

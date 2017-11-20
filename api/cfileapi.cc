@@ -119,9 +119,9 @@ void PIOL_File_cpyPrm(
 }
 
 //////////////////PIOL////////////////////////////
-PIOL_ExSeisHandle PIOL_ExSeis_new(void)
+PIOL_ExSeisHandle PIOL_ExSeis_new(PIOL_Verbosity verbosity)
 {
-    return new PIOL_ExSeisPointer(new PIOL::ExSeis());
+    return new PIOL_ExSeisPointer(new PIOL::ExSeis(verbosity));
 }
 
 void PIOL_ExSeis_delete(PIOL_ExSeisHandle piol)
@@ -134,9 +134,13 @@ void PIOL_ExSeis_barrier(PIOL_ExSeisHandle piol)
     (*piol)->barrier();
 }
 
-void PIOL_ExSeis_isErr(PIOL_ExSeisHandle piol)
+void PIOL_ExSeis_isErr(PIOL_ExSeisHandle piol, const char* msg)
 {
-    (*piol)->isErr();
+    if(msg != NULL) {
+        (*piol)->isErr(msg);
+    } else {
+        (*piol)->isErr();
+    }
 }
 
 size_t PIOL_ExSeis_getRank(PIOL_ExSeisHandle piol)
@@ -147,6 +151,10 @@ size_t PIOL_ExSeis_getRank(PIOL_ExSeisHandle piol)
 size_t PIOL_ExSeis_getNumRank(PIOL_ExSeisHandle piol)
 {
     return (*piol)->getNumRank();
+}
+
+size_t PIOL_ExSeis_max(PIOL_ExSeisHandle piol, size_t n) {
+    return (*piol)->max(n);
 }
 
 ////////////////// File Layer ////////////////////////////
