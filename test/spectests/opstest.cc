@@ -263,6 +263,6 @@ TEST_F(OpsTest, FilterCheckBandstop)
     for (size_t i = 0; i < 2*N+1; i++)
     {
         EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
-        EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
+        EXPECT_NEAR(numerRef[i], numerCalc[i], 5e-6);
     }
 }
