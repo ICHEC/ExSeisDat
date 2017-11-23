@@ -2,7 +2,7 @@
 #include "cfileapi.h"
 int main(void)
 {
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
     if (!PIOL_ExSeis_getRank(piol))
     {
         size_t num = PIOL_ExSeis_getNumRank(piol);

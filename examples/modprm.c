@@ -27,7 +27,7 @@ void readwriteParam(PIOL_ExSeisHandle piol, size_t off, size_t tcnt, PIOL_File_R
     }
 
     PIOL_File_WriteDirect_writeParam(ofh, off, tcnt, prm);
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "");
     PIOL_File_Param_delete(prm);
 }
 
@@ -42,7 +42,7 @@ void writeHeader(PIOL_ExSeisHandle piol, PIOL_File_ReadDirectHandle ifh, PIOL_Fi
     PIOL_File_WriteDirect_writeNs(ofh,  PIOL_File_ReadDirect_readNs(ifh));
     PIOL_File_WriteDirect_writeNt(ofh,  PIOL_File_ReadDirect_readNt(ifh));
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "");
 }
 
 /*! Write the data from the input file to the output file
@@ -98,17 +98,17 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis_isErr(piol, "");
 
     PIOL_File_ReadDirectHandle ifh = PIOL_File_ReadDirect_new(piol, iname);
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "");
 
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     //Write all header metadata
     PIOL_File_WriteDirectHandle ofh = PIOL_File_WriteDirect_new(piol, oname);
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "");
 
     writeHeader(piol, ifh, ofh);
 
@@ -118,7 +118,7 @@ int main(int argc, char ** argv)
 
     writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
 
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "");
     PIOL_File_WriteDirect_delete(ofh);
     PIOL_File_ReadDirect_delete(ifh);
     PIOL_ExSeis_delete(piol);

@@ -25,12 +25,12 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
     size_t rank = PIOL_ExSeis_getRank(piol);
 
     //Create a SEGY file object for input
     PIOL_File_ReadDirectHandle ifh = PIOL_File_ReadDirect_new(piol, iname);
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "Unable to create a SEGY file object for input.");
 
     //Create some local variables based on the input file
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
@@ -46,7 +46,7 @@ int main(int argc, char ** argv)
 
     //Create a SEGY file object for output
     PIOL_File_WriteDirectHandle ofh = PIOL_File_WriteDirect_new(piol, oname);
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeis_isErr(piol, "Unable to create a SEGY file object for output.");
 
     //Write the headers based on the input file.
     PIOL_File_WriteDirect_writeNs(ofh, nt);

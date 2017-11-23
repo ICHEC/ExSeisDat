@@ -4,7 +4,7 @@
 int main(int argc, char ** argv)
 {
     //Initialise the PIOL by creating an ExSeis object
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
 
     char * opt = "o:";  //TODO: uses a GNU extension
     char * name = NULL;

@@ -65,8 +65,8 @@ int main(int argc, char ** argv)
         }
     assert(name);
 
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new();
-    PIOL_ExSeis_isErr(piol);
+    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis_isErr(piol, "");
 
     testManyFiles(piol, name);
 
