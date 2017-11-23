@@ -3,6 +3,9 @@
 
 #include <functional>
 #include <type_traits>
+#include <iostream>
+#include <cxxabi.h>
+#include <cassert>
 
 //
 // Filthy hack for const reference returns
@@ -36,6 +39,21 @@ class MAKE_STUB_HANDLE_CONST_REF<void>
 public:
     void get() const { return; }
 };
+
+
+static std::string demangle(const char* name)
+{
+    int err = 0;
+    char* demangled = abi::__cxa_demangle(name, NULL, NULL, &err);
+
+    assert(err == 0);
+    assert(demangled != NULL);
+
+    std::string r{demangled};
+    free(demangled);
+
+    return r;
+}
 
 
 //
@@ -84,10 +102,16 @@ public:
 #define MAKE_STUB_N_FULL(CALLBACK_NAME, CXX_NAME, QUALIFIER, STUB_RETURN_TYPE, LAMBDA_RETURN_TYPE, SIGNATURE, CALL, RETURN) \
     std::function<LAMBDA_RETURN_TYPE SIGNATURE> CALLBACK_NAME; \
     STUB_RETURN_TYPE CXX_NAME SIGNATURE QUALIFIER { \
-        if(CALLBACK_NAME) { \
+        try { \
             RETURN CALLBACK_NAME CALL; \
-        } else { \
-            RETURN MAKE_STUB_HANDLE_CONST_REF<LAMBDA_RETURN_TYPE>().get(); \
+        } catch(...) { \
+            std::cerr \
+                << "Calling unset lambda " << #CALLBACK_NAME \
+                << " in method " << #CXX_NAME \
+                << " with signature " \
+                << demangle(typeid(LAMBDA_RETURN_TYPE SIGNATURE).name()) \
+                << std::endl; \
+            throw; \
         } \
     }
 #else

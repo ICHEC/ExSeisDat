@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "exseiswraptest.hh"
+#include "readdirectwraptest.hh"
 
 extern "C" {
 
@@ -36,6 +37,7 @@ void init_wraptests()
     all_tests_run = false;
     test_runner(
         test_PIOL_ExSeis,
+        test_PIOL_File_ReadDirect,
         [](auto cb) {
             all_tests_run = true;
             cb();

@@ -1,9 +1,7 @@
-#include "wraptesttools.hh"
-
-#include "piolstub/exseisstub.hh"
-
 #include "exseiswraptest.hh"
 
+#include "piolstub/exseisstub.hh"
+#include "wraptesttools.hh"
 #include "gtest/gtest.h"
 
 
@@ -150,6 +148,6 @@ void test_PIOL_ExSeis(std::function<void()> callback) {
         test_PIOL_ExSeis_max,
         test_PIOL_ExSeis_isErr,
         test_PIOL_ExSeis_delete,
-        [callback](auto cb) { cb(); callback(); }
+        [=](auto cb) { cb(); callback(); }
     );
 }

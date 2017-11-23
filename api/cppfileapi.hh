@@ -94,17 +94,17 @@ class ReadDirect
 
     public :
     /*! Constructor with options.
-     *  \tparam F The nested options structure of interest for the file layer.
-     *  \tparam O The nested options structure of interest for the object layer.
      *  \tparam D The nested options structure of interest for the data layer.
+     *  \tparam O The nested options structure of interest for the object layer.
+     *  \tparam F The nested options structure of interest for the file layer.
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
-     *  \param[in] f The File options.
-     *  \param[in] o The Object options.
      *  \param[in] d The Data options.
+     *  \param[in] o The Object options.
+     *  \param[in] f The File options.
      */
     template <class F, class O, class D>
-    ReadDirect(const Piol piol, const std::string name, const F & f, const O & o, const D & d)
+    ReadDirect(const Piol piol, const std::string name, const D & d, const O & o, const F & f)
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Read);
@@ -120,11 +120,16 @@ class ReadDirect
      */
     ReadDirect(const Piol piol, const std::string name);
 
-    ReadDirect(void) { }
+    /*! Copy constructor for a std::shared_ptr<ReadInterface> object
+     * \param[in] file The ReadInterface shared_ptr object.
+     */
+    ReadDirect(std::shared_ptr<ReadInterface> file);
+
+    //ReadDirect(void) { }
 
     /*! Empty destructor
      */
-    ~ReadDirect(void) { }
+    ~ReadDirect(void);
 
     /*! Overload of member of pointer access
      *  \return Return the base File layer class Interface.
@@ -209,17 +214,17 @@ class WriteDirect
 
     public :
     /*! Constructor with options.
-     *  \tparam F The nested options structure of interest for the file layer.
-     *  \tparam O The nested options structure of interest for the object layer.
      *  \tparam D The nested options structure of interest for the data layer.
+     *  \tparam O The nested options structure of interest for the object layer.
+     *  \tparam F The nested options structure of interest for the file layer.
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
-     *  \param[in] f The File options.
-     *  \param[in] o The Object options.
      *  \param[in] d The Data options.
+     *  \param[in] o The Object options.
+     *  \param[in] f The File options.
      */
-    template <class F, class O, class D>
-    WriteDirect(const Piol piol, const std::string name, const F & f, const O & o, const D & d)
+    template <class D, class O, class F>
+    WriteDirect(const Piol piol, const std::string name, const D & d, const O & o, const F & f)
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Write);
@@ -235,26 +240,29 @@ class WriteDirect
      */
     WriteDirect(const Piol piol, const std::string name);
 
-    WriteDirect(void) { }
+    /*! Copy constructor for a std::shared_ptr<ReadInterface> object
+     * \param[in] file The ReadInterface shared_ptr object.
+     */
+    WriteDirect(std::shared_ptr<WriteInterface> file);
 
     /*! Empty destructor
      */
-    ~WriteDirect(void) { }
+    ~WriteDirect(void);
 
     /*! Overload of member of pointer access
      *  \return Return the base File layer class Interface.
      */
-    WriteInterface * operator->() const
+    WriteInterface& operator->() const
     {
-        return file.get();
+        return *file;
     }
 
     /*! Operator to convert to an Interface object.
      *  \return Return the internal \c Interface pointer.
      */
-    operator WriteInterface * () const
+    operator WriteInterface& () const
     {
-        return file.get();
+        return *file;
     }
 
     /*! \brief Write the human readable text from the file.

@@ -70,6 +70,9 @@ ReadDirect::ReadDirect(const Piol piol, const std::string name)
     file = std::make_shared<File::ReadSEGY>(piol, name, f, obj);
 }
 
+ReadDirect::ReadDirect(std::shared_ptr<ReadInterface> file_): file(file_)
+{}
+
 WriteDirect::WriteDirect(const Piol piol, const std::string name)
 {
     const File::WriteSEGY::Opt f;
@@ -79,6 +82,12 @@ WriteDirect::WriteDirect(const Piol piol, const std::string name)
     auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Write);
     file = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
 }
+
+WriteDirect::WriteDirect(std::shared_ptr<WriteInterface> file_): file(file_)
+{}
+
+ReadDirect::~ReadDirect()   = default;
+WriteDirect::~WriteDirect() = default;
 
 const std::string & ReadDirect::readText(void) const
 {
@@ -130,13 +139,14 @@ void ReadDirect::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace,
     file->readTraceNonMono(sz, offset, trace, prm);
 }
 
-ReadModel::ReadModel(const Piol piol, const std::string name)
+ReadModel::ReadModel(const Piol piol, const std::string name):
+    ReadDirect(piol, name, Data::MPIIO::Opt(), Obj::SEGY::Opt(), File::ReadSEGYModel::Opt())
 {
-    const Obj::SEGY::Opt o;
-    const Data::MPIIO::Opt d;
-    auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
-    file = std::make_shared<File::ReadSEGYModel>(piol, name, obj);
+    //const Obj::SEGY::Opt o;
+    //const Data::MPIIO::Opt d;
+    //auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
+    //auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
+    //file = std::make_shared<File::ReadSEGYModel>(piol, name, obj);
 }
 
 std::vector<trace_t> ReadModel::readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather)

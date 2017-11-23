@@ -327,11 +327,11 @@ typedef std::unordered_map<Meta, RuleEntry *> RuleMap;              //!< Typedef
  */
 struct Rule
 {
-    size_t numLong;         //!< Number of long rules.
-    size_t numFloat;        //!< Number of float rules.
-    size_t numShort;        //!< Number of short rules.
-    size_t numIndex;        //!< Number of index rules.
-    size_t numCopy;         //!< Number of copy rules. either 0 or 1.
+    size_t numLong  = 0;        //!< Number of long rules.
+    size_t numFloat = 0;        //!< Number of float rules.
+    size_t numShort = 0;        //!< Number of short rules.
+    size_t numIndex = 0;        //!< Number of index rules.
+    size_t numCopy  = 0;        //!< Number of copy rules. either 0 or 1.
     size_t start;           //!< The starting byte position in the SEG-Y header.
     size_t end;             //!< The end byte position (+ 1) in the SEG-Y header.
     struct
@@ -348,7 +348,7 @@ struct Rule
      *  default rules in place or no rules in place.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] defaults Whether the default SEG-Y rules should be set.
-     *  \param[in] extra Whether maximum amount of rules should be set. Useful when copying files
+     *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
     Rule(bool full, bool defaults, bool extra = false);
@@ -357,8 +357,12 @@ struct Rule
      *  have default locations associated with them.
      *  \param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  \param[in] defaults Whether the default SEG-Y rules should be set.
+     *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
+     *              through the library.
      */
-    Rule(std::initializer_list<Meta> m, bool full = true);
+    Rule(std::initializer_list<Meta> m,
+         bool full = true, bool defaults = false, bool extra = false);
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.

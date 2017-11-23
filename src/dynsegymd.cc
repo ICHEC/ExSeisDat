@@ -15,9 +15,30 @@
 #include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
+
+static std::vector<Meta> default_metas {
+    Meta::xSrc, Meta::ySrc,
+    Meta::xRcv, Meta::yRcv,
+    Meta::xCmp, Meta::yCmp,
+    Meta::Offset,
+    Meta::il, Meta::xl,
+    Meta::tn
+};
+
+static std::vector<Meta> extra_metas {
+    Meta::tnl, Meta::tnr, Meta::tne,
+    Meta::SrcNum,
+    Meta::Tic,
+    Meta::VStack, Meta::HStack,
+    Meta::RGElev, Meta::SSElev, Meta::SDElev,
+    Meta::ns,
+    Meta::inc,
+    Meta::ShotNum,
+    Meta::TraceUnit, Meta::TransUnit
+};
+
 Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
 {
-    numLong = numShort = numFloat = numIndex = numCopy = 0;
     for (const auto & t : translate)
         switch (t.second->type())
         {
@@ -51,6 +72,81 @@ Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
         flag.badextent = true;
         extent();
     }
+}
+
+Rule::Rule(std::initializer_list<Meta> mlist,
+           bool full, bool defaults, bool extras)
+{
+
+    //TODO: Change this when extents are flexible
+    flag.fullextent = full;
+    addIndex(Meta::gtn);
+    addIndex(Meta::ltn);
+
+    for (auto m : mlist)
+        addRule(m);
+
+    if(defaults)
+    {
+        for(auto m : default_metas)
+            addRule(m);
+    }
+
+    if(extras)
+    {
+        for(auto m : extra_metas)
+            addRule(m);
+    }
+
+    if (flag.fullextent)
+    {
+        start = 0LU;
+        end = SEGSz::getMDSz();
+        flag.badextent = false;
+    }
+    else
+    {
+        flag.badextent = true;
+        extent();
+    }
+}
+
+Rule::Rule(bool full, bool defaults, bool extras): Rule({}, full, defaults, extras) {}
+// {
+//     //TODO: Change this when extents are flexible
+//     flag.fullextent = full;
+//     addIndex(Meta::gtn);
+//     addIndex(Meta::ltn);
+// 
+//     if(defaults)
+//     {
+//         for(auto m : default_metas)
+//             addRule(m);
+//     }
+// 
+//     if(extra)
+//     {
+//         for(auto m : extra_metas)
+//             addRule(m);
+//     }
+// 
+//     if (flag.fullextent)
+//     {
+//         start = 0LU;
+//         end = SEGSz::getMDSz();
+//         flag.badextent = false;
+//     }
+//     else
+//     {
+//         flag.badextent = true;
+//         extent();
+//     }
+// }
+
+Rule::~Rule(void)
+{
+    for (const auto t : translate)
+        delete t.second;
 }
 
 bool Rule::addRule(Meta m)
@@ -149,100 +245,6 @@ bool Rule::addRule(Meta m)
         break;    //Non-default
     }
     return true;
-}
-
-Rule::Rule(std::initializer_list<Meta> mlist, bool full)
-{
-    numLong = 0;
-    numShort = 0;
-    numFloat = 0;
-    numIndex = 0;
-    numCopy = 0;
-
-    //TODO: Change this when extents are flexible
-    flag.fullextent = full;
-    addIndex(Meta::gtn);
-    addIndex(Meta::ltn);
-
-    for (auto m : mlist)
-        addRule(m);
-
-    if (flag.fullextent)
-    {
-        start = 0LU;
-        end = SEGSz::getMDSz();
-        flag.badextent = false;
-    }
-    else
-    {
-        flag.badextent = true;
-        extent();
-    }
-}
-
-Rule::Rule(bool full, bool defaults, bool extra)
-{
-    numLong = 0;
-    numShort = 0;
-    numFloat = 0;
-    numIndex = 0;
-    numCopy = 0;
-
-    flag.fullextent = full;
-
-    addIndex(Meta::gtn);
-    addIndex(Meta::ltn);
-
-    if (defaults)
-    {
-        addRule(Meta::xSrc);
-        addRule(Meta::ySrc);
-        addRule(Meta::xRcv);
-        addRule(Meta::yRcv);
-        addRule(Meta::xCmp);
-        addRule(Meta::yCmp);
-        addRule(Meta::Offset);
-        addRule(Meta::il);
-        addRule(Meta::xl);
-        addRule(Meta::tn);
-    }
-
-    if (extra)
-    {
-        addRule(Meta::tnl);
-        addRule(Meta::tnr);
-        addRule(Meta::tne);
-        addRule(Meta::SrcNum);
-        addRule(Meta::Tic);
-        addRule(Meta::VStack);
-        addRule(Meta::HStack);
-        addRule(Meta::RGElev);
-        addRule(Meta::SSElev);
-        addRule(Meta::SDElev);
-        addRule(Meta::ns);
-        addRule(Meta::inc);
-        addRule(Meta::ShotNum);
-        addRule(Meta::TraceUnit);
-        addRule(Meta::TransUnit);
-    }
-
-    if (full)
-    {
-        start = 0LU;
-        end = SEGSz::getMDSz();
-        flag.badextent = false;
-    }
-    else
-    {
-        flag.badextent = true;
-        extent();
-    }
-}
-
-Rule::~Rule(void)
-{
-    for (const auto t : translate)
-        delete t.second;
 }
 
 size_t Rule::extent(void)

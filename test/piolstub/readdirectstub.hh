@@ -11,7 +11,9 @@
 #include "stubtools.hh"
 
 
-MAKE_STUB_2_CTOR(PIOL_File_ReadDirect_new_cb,  PIOL::File::ReadDirect::ReadDirect,, void(std::shared_ptr<PIOL::ExSeisPIOL>, std::string))
+MAKE_STUB_2_CTOR(PIOL_File_ReadDirect_new_cb,     PIOL::File::ReadDirect::ReadDirect,,   void(std::shared_ptr<PIOL::ExSeisPIOL>, std::string))
+
+MAKE_STUB_0_CTOR(PIOL_File_ReadDirect_delete_cb,  PIOL::File::ReadDirect::~ReadDirect,)
 
 MAKE_STUB_0(PIOL_File_ReadDirect_readNt_cb,    PIOL::File::ReadDirect::readNt,,          size_t(void))
 

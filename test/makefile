@@ -20,9 +20,9 @@ PIOLSTUB_SOURCES=$(wildcard piolstub/*.cc)
 PIOLSTUB_OBJECTS=$(patsubst piolstub/%.cc, $(OBJDIR)/piolstub/%.o,   $(PIOLSTUB_SOURCES))
 PIOLSTUB_DEPENDS=$(patsubst piolstub/%.cc, $(OBJDIR)/piolstub/%.dep, $(PIOLSTUB_SOURCES))
 
-CWRAPTESTS_SOURCES=$(wildcard cwraptests/*.cc)
-CWRAPTESTS_OBJECTS=$(patsubst cwraptests/%.cc, $(OBJDIR)/cwraptests/%.o,   $(CWRAPTESTS_SOURCES))
-CWRAPTESTS_DEPENDS=$(patsubst cwraptests/%.cc, $(OBJDIR)/cwraptests/%.dep, $(CWRAPTESTS_SOURCES))
+CWRAPTESTS_SOURCES=$(wildcard cwraptests/*.c)
+CWRAPTESTS_OBJECTS=$(patsubst cwraptests/%.c, $(OBJDIR)/cwraptests/%.o,   $(CWRAPTESTS_SOURCES))
+CWRAPTESTS_DEPENDS=$(patsubst cwraptests/%.c, $(OBJDIR)/cwraptests/%.dep, $(CWRAPTESTS_SOURCES))
 
 WRAPTESTS_SOURCES=$(wildcard wraptests/*.cc)
 WRAPTESTS_OBJECTS=$(patsubst wraptests/%.cc, $(OBJDIR)/wraptests/%.o,   $(WRAPTESTS_SOURCES))
@@ -59,10 +59,10 @@ $(BINDIR)/spectests: $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a
 	mkdir -p $(@D)
 	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
-$(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS) ../api/obj/cfileapi.o $(BINDIR)/wraptests.so $(BINDIR)/piolstub.so
-	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^  -Wl,-dead_strip
+$(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS) $(BINDIR)/wraptests.so $(BINDIR)/piolstub.so
+	$(CC) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^  -Wl,-dead_strip
 
-$(BINDIR)/wraptests.so: $(WRAPTESTS_OBJECTS) $(BINDIR)/piolstub.so $(BINDIR)/libgmock.a
+$(BINDIR)/wraptests.so: $(WRAPTESTS_OBJECTS) ../api/obj/cfileapi.o $(BINDIR)/piolstub.so $(BINDIR)/libgmock.a
 	$(CXX) -shared -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^
 
 $(BINDIR)/piolstub.so: $(PIOLSTUB_OBJECTS)
@@ -84,13 +84,23 @@ $(BINDIR)/extract: extract.c
 
 # Run all tests
 .PHONY: test
-test: $(BINDIR)/spectests tmp/.genfiles_stamp
-	$(BINDIR)/spectests
+test: test_spec test_cwrap
 
 # Run non-farm tests
 .PHONY: test_nofarm
-test_nofarm: $(BINDIR)/spectests $(BINDIR)/cwraptests tmp/.genfiles_stamp
-	#$(BINDIR)/spectests --gtest_filter=-*Farm*
+test_nofarm: test_spec_nofarm test_cwrap
+
+.PHONY: test_spec
+test_spec: $(BINDIR)/spectests tmp/.genfiles_stamp
+	$(BINDIR)/spectests
+
+.PHONY: test_spec_nofarm
+test_spec_nofarm: $(BINDIR)/spectests tmp/.genfiles_stamp
+	$(BINDIR)/spectests --gtest_filter=-'*Farm*'
+	#$(BINDIR)/spectests --gtest_filter='*FilterCheckBandstop*'
+
+.PHONY: test_cwrap
+test_cwrap: $(BINDIR)/cwraptests
 	$(BINDIR)/cwraptests
 
 # Generate all test files
@@ -124,4 +134,12 @@ $(OBJDIR)/%.dep: %.cc
 
 $(OBJDIR)/%.o: %.cc
 	mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(LOCAL_INC_FOLDER) -c $< -o $@
+	$(CXX) $(CXXSTANDARD) $(CXXFLAGS) $(CXXINC_FOLDER) $(LOCAL_INC_FOLDER) -c $< -o $@
+
+$(OBJDIR)/%.dep: %.c
+	mkdir -p $(@D)
+	$(CC) $(CSTANDARD) $(CINC_FOLDER) $(LOCAL_INC_FOLDER) -MM $< -MT $(patsubst %.c, $(OBJDIR)/%.o, $<) -o $@
+
+$(OBJDIR)/%.o: %.c
+	mkdir -p $(@D)
+	$(CC) $(CSTANDARD) $(CFLAGS) $(CINC_FOLDER) $(LOCAL_INC_FOLDER) -c $< -o $@

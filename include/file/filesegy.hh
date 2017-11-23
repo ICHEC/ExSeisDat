@@ -44,11 +44,6 @@ class ReadSEGY : public ReadInterface
      */
     void procHeader(csize_t fsz, uchar * buf);
 
-    /*! \brief This function initialises the SEGY specific portions of the class.
-     *  \param[in] segyOpt The SEGY-File options
-     */
-    void Init(const ReadSEGY::Opt & opt);
-
     public :
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -79,12 +74,22 @@ class ReadSEGY : public ReadInterface
 class ReadSEGYModel : public Model3dInterface, public ReadSEGY
 {
     public :
+
+    /*! \brief The SEG-Y Model options structure.
+     */
+    struct Opt: public ReadSEGY::Opt
+    {
+        typedef ReadSEGYModel Type;  //!< The Type of the class this structure is nested in
+    };
+
     /*!
      \param[in] piol_ The piol object.
      \param[in] name_ The name of the file.
      \param[in] obj_ A shared pointer for the object layer object.
      */
     ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+
+    ReadSEGYModel(const Piol piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_);
 
     std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather);
 

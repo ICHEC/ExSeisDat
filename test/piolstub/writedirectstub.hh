@@ -9,6 +9,10 @@
 
 #include "stubtools.hh"
 
+MAKE_STUB_2_CTOR(PIOL_File_WriteDirect_new_cb,   PIOL::File::WriteDirect::WriteDirect,, void(std::shared_ptr<PIOL::ExSeisPIOL>, std::string))
+
+MAKE_STUB_0_CTOR(PIOL_File_WriteDirect_delete_cb,  PIOL::File::WriteDirect::~WriteDirect,)
+
 MAKE_STUB_3(PIOL_File_WriteDirect_writeParam_cb, PIOL::File::WriteDirect::writeParam,,  void(size_t, size_t, const PIOL::File::Param *))
 
 MAKE_STUB_4(PIOL_File_WriteDirect_writeTrace_cb, PIOL::File::WriteDirect::writeTrace,,  void(size_t, size_t, float *, const PIOL::File::Param *))
@@ -20,7 +24,5 @@ MAKE_STUB_1(PIOL_File_WriteDirect_writeNt_cb,    PIOL::File::WriteDirect::writeN
 MAKE_STUB_1(PIOL_File_WriteDirect_writeInc_cb,   PIOL::File::WriteDirect::writeInc,,    void(double))
 
 MAKE_STUB_1(PIOL_File_WriteDirect_writeText_cb,  PIOL::File::WriteDirect::writeText,,   void(std::string))
-
-MAKE_STUB_2_CTOR(PIOL_File_WriteDirect_new_cb,   PIOL::File::WriteDirect::WriteDirect,, void(std::shared_ptr<PIOL::ExSeisPIOL>, std::string))
 
 #endif

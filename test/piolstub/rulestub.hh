@@ -19,7 +19,7 @@ MAKE_STUB_2(PIOL_File_Rule_addShort_cb,     PIOL::File::Rule::addShort,, void(PI
 
 MAKE_STUB_1(PIOL_File_Rule_getEntry_cb,     PIOL::File::Rule::getEntry,, PIOL::File::RuleEntry * (PIOL::Meta))
 
-MAKE_STUB_2_CTOR(PIOL_File_Rule_new_1_cb,   PIOL::File::Rule::Rule,,     void(std::initializer_list<PIOL::Meta>, bool))
+MAKE_STUB_4_CTOR(PIOL_File_Rule_new_1_cb,   PIOL::File::Rule::Rule,,     void(std::initializer_list<PIOL::Meta>, bool, bool, bool))
 
 MAKE_STUB_3_CTOR(PIOL_File_Rule_new_2_cb,   PIOL::File::Rule::Rule,,     void(bool, bool, bool))
 

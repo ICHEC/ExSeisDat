@@ -130,10 +130,10 @@ struct FileReadSEGYTest : public Test
             file.reset();
         if (OPTS)
         {
-            File::ReadSEGY::Opt fopt;
-            Obj::SEGY::Opt oopt;
             Data::MPIIO::Opt dopt;
-            file = std::make_unique<File::ReadDirect>(piol, name, fopt, oopt, dopt);
+            Obj::SEGY::Opt oopt;
+            File::ReadSEGY::Opt fopt;
+            file = std::make_unique<File::ReadDirect>(piol, name, dopt, oopt, fopt);
         }
         else
             file = std::make_unique<File::ReadDirect>(piol, name);
@@ -182,8 +182,8 @@ struct FileReadSEGYTest : public Test
         EXPECT_CALL(*mock, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 
         auto sfile = std::make_shared<File::ReadSEGY>(piol, notFile, mock);
-        file = std::make_unique<File::ReadDirect>();
-        file->file = std::move(sfile);
+        file = std::make_unique<File::ReadDirect>(std::move(sfile));
+        //file->file = std::move(sfile);
     }
 
     void initTrBlock()
@@ -489,14 +489,14 @@ struct FileWriteSEGYTest : public Test
         auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
 
         auto fi = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
-        file = std::make_unique<File::WriteDirect>();
-        file->file = std::move(fi);
+        file = std::make_unique<File::WriteDirect>(std::move(fi));
+        //file->file = std::move(fi);
 
         writeHO<false>();
 
         auto rfi = std::make_shared<File::ReadSEGY>(piol, name, rf, obj);
-        readfile = std::make_unique<File::ReadDirect>();
-        readfile->file = std::move(rfi);
+        readfile = std::make_unique<File::ReadDirect>(std::move(rfi));
+        //readfile->file = std::move(rfi);
 
         readfile->file->nt = nt;
         readfile->file->ns = ns;
@@ -516,8 +516,8 @@ struct FileWriteSEGYTest : public Test
         Mock::AllowLeak(mock.get());
 
         auto sfile = std::make_shared<File::WriteSEGY>(piol, notFile, mock);
-        file = std::make_unique<File::WriteDirect>();
-        file->file = std::move(sfile);
+        file = std::make_unique<File::WriteDirect>(std::move(sfile));
+        //file->file = std::move(sfile);
 
         if (callHO)
         {

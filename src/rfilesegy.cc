@@ -21,18 +21,37 @@ ReadSEGY::Opt::Opt(void)
 ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, const ReadSEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_)
     : ReadInterface(piol_, name_, obj_)
 {
-    Init(opt);
+    incFactor = opt.incFactor;
+    size_t hoSz = SEGSz::getHOSz();
+    size_t fsz = obj->getFileSz();
+
+    if (fsz >= hoSz)
+    {
+        auto buf = std::vector<uchar>(hoSz);
+        obj->readHO(buf.data());
+        procHeader(fsz, buf.data());
+    }
+    else
+    {
+        format = Format::IEEE;
+        ns = 0LU;
+        nt = 0LU;
+        inc = geom_t(0);
+        text = "";
+    }
 }
 
 ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
-    : ReadInterface(piol_, name_, obj_)
+    : ReadSEGY(piol_, name_, ReadSEGY::Opt(), obj_)
 {
-    ReadSEGY::Opt opt;
-    Init(opt);
 }
 ///////////////////////////////////       Member functions      ///////////////////////////////////
 
-ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, obj_)
+ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGYModel(piol_, name_, ReadSEGYModel::Opt(), obj_)
+{
+}
+
+ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, opt, obj_)
 {
     std::vector<size_t> vlist = {0LU, 1LU, readNt() - 1LU};
     File::Param prm(vlist.size());
@@ -97,28 +116,6 @@ void ReadSEGY::procHeader(size_t fsz, uchar * buf)
     getAscii(piol.get(), name, SEGSz::getTextSz(), buf);
     for (size_t i = 0LU; i < SEGSz::getTextSz(); i++)
         text.push_back(buf[i]);
-}
-
-void ReadSEGY::Init(const ReadSEGY::Opt & opt)
-{
-    incFactor = opt.incFactor;
-    size_t hoSz = SEGSz::getHOSz();
-    size_t fsz = obj->getFileSz();
-
-    if (fsz >= hoSz)
-    {
-        auto buf = std::vector<uchar>(hoSz);
-        obj->readHO(buf.data());
-        procHeader(fsz, buf.data());
-    }
-    else
-    {
-        format = Format::IEEE;
-        ns = 0LU;
-        nt = 0LU;
-        inc = geom_t(0);
-        text = "";
-    }
 }
 
 size_t ReadSEGY::readNt(void)
