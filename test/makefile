@@ -30,7 +30,7 @@ WRAPTESTS_DEPENDS=$(patsubst wraptests/%.cc, $(OBJDIR)/wraptests/%.dep, $(WRAPTE
 
 
 CURR_OBJECTS=$(SPECTESTS_OBJECTS) $(PIOLSTUB_OBJECTS) $(WRAPTESTS_OBJECTS) $(CWRAPTESTS_OBJECTS)
-CURR_DEP=$(wildcard $(DEP))
+CURR_DEP=$(DEP)
 CURR_DEPENDS=$(SPECTESTS_DEPENDS) $(PIOLSTUB_DEPENDS) $(WRAPTESTS_DEPENDS) $(CWRAPTESTS_DEPENDS)
 
 BIN=$(BINDIR)/spectests
@@ -122,7 +122,7 @@ googleclean:
 	rm -f $(BINDIR)/libgmock.a $(GOOGLE_OBJ)
 
 $(DEP): $(CURR_DEPENDS)
-	cat $< > $(DEP)
+	cat $^ > $(DEP)
 
 ifeq "$(CURR_DEP)" "$(DEP)"
 -include $(DEP)

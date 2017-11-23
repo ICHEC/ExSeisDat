@@ -4,6 +4,7 @@
 
 #include "exseiswraptest.hh"
 #include "readdirectwraptest.hh"
+#include "rulewraptests.hh"
 
 extern "C" {
 
@@ -37,6 +38,7 @@ void init_wraptests()
     all_tests_run = false;
     test_runner(
         test_PIOL_ExSeis,
+        test_PIOL_File_Rule,
         test_PIOL_File_ReadDirect,
         [](auto cb) {
             all_tests_run = true;

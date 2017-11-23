@@ -48,64 +48,64 @@ TEST_F(RuleFixList, List)
 
 TEST_F(RuleFixEmpty, AddRmLongRules)
 {
-    rule->addLong(Meta::xl, Tr::il);
-    ASSERT_EQ(rule->getEntry(Meta::xl)->loc, size_t(Tr::il));
+    rule->addLong(PIOL_META_xl, Tr::il);
+    ASSERT_EQ(rule->getEntry(PIOL_META_xl)->loc, size_t(Tr::il));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(4));
-    rule->rmRule(Meta::xl);
-    ASSERT_EQ(NULL, rule->getEntry(Meta::xl));
+    rule->rmRule(PIOL_META_xl);
+    ASSERT_EQ(NULL, rule->getEntry(PIOL_META_xl));
 }
 
 TEST_F(RuleFixEmpty, AddRmFloatRules)
 {
-    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
-    ASSERT_NE(nullptr, rule->getEntry(Meta::dsdr));
-    auto frule = dynamic_cast<SEGYFloatRuleEntry *>(rule->getEntry(Meta::dsdr));
+    rule->addSEGYFloat(PIOL_META_dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
+    ASSERT_NE(nullptr, rule->getEntry(PIOL_META_dsdr));
+    auto frule = dynamic_cast<SEGYFloatRuleEntry *>(rule->getEntry(PIOL_META_dsdr));
     ASSERT_NE(nullptr, frule);
     ASSERT_EQ(frule->loc, size_t(Tr::SrcMeas));
     ASSERT_EQ(frule->scalLoc, size_t(Tr::SrcMeasExp));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(6));
-    rule->rmRule(Meta::dsdr);
-    ASSERT_EQ(nullptr, rule->getEntry(Meta::dsdr));
+    rule->rmRule(PIOL_META_dsdr);
+    ASSERT_EQ(nullptr, rule->getEntry(PIOL_META_dsdr));
 }
 
 TEST_F(RuleFixEmpty, Extent)
 {
-    rule->addSEGYFloat(Meta::dsdr, Tr::SrcMeas, Tr::ScaleCoord);
+    rule->addSEGYFloat(PIOL_META_dsdr, Tr::SrcMeas, Tr::ScaleCoord);
     ASSERT_EQ(rule->extent(), size_t(Tr::SrcMeas) + 4U - size_t(Tr::ScaleCoord));
 }
 
 TEST_F(RuleFixList, setPrm)
 {
-    rule->addLong(Meta::dsdr, Tr::SrcMeas);
-    rule->addShort(Meta::il, Tr::ScaleElev);
+    rule->addLong(PIOL_META_dsdr, Tr::SrcMeas);
+    rule->addShort(PIOL_META_il, Tr::ScaleElev);
     Param prm(rule, 100);
     for (size_t i = 0; i < 100; i++)
     {
-        setPrm(i, Meta::xSrc, geom_t(i) + 1., &prm);
-        setPrm(i, Meta::ySrc, geom_t(i) + 2., &prm);
-        setPrm(i, Meta::xRcv, geom_t(i) + 3., &prm);
-        setPrm(i, Meta::yRcv, geom_t(i) + 4., &prm);
-        setPrm(i, Meta::dsdr, llint(i + 1), &prm);
-        setPrm(i, Meta::il, short(i + 2), &prm);
+        setPrm(i, PIOL_META_xSrc, geom_t(i) + 1., &prm);
+        setPrm(i, PIOL_META_ySrc, geom_t(i) + 2., &prm);
+        setPrm(i, PIOL_META_xRcv, geom_t(i) + 3., &prm);
+        setPrm(i, PIOL_META_yRcv, geom_t(i) + 4., &prm);
+        setPrm(i, PIOL_META_dsdr, llint(i + 1), &prm);
+        setPrm(i, PIOL_META_il, short(i + 2), &prm);
     }
     for (size_t i = 0; i < 100; i++)
     {
         if (sizeof(geom_t) == sizeof(double))
         {
-            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i+1));
-            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i+2));
-            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i+3));
-            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i+4));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, PIOL_META_xSrc, &prm), geom_t(i+1));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, PIOL_META_ySrc, &prm), geom_t(i+2));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, PIOL_META_xRcv, &prm), geom_t(i+3));
+            ASSERT_DOUBLE_EQ(getPrm<geom_t>(i, PIOL_META_yRcv, &prm), geom_t(i+4));
         }
         else
         {
-            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::xSrc, &prm), geom_t(i + 1));
-            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::ySrc, &prm), geom_t(i + 2));
-            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::xRcv, &prm), geom_t(i + 3));
-            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, Meta::yRcv, &prm), geom_t(i + 4));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, PIOL_META_xSrc, &prm), geom_t(i + 1));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, PIOL_META_ySrc, &prm), geom_t(i + 2));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, PIOL_META_xRcv, &prm), geom_t(i + 3));
+            ASSERT_FLOAT_EQ(getPrm<geom_t>(i, PIOL_META_yRcv, &prm), geom_t(i + 4));
         }
-        ASSERT_EQ(getPrm<llint>(i, Meta::dsdr, &prm), llint(i + 1));
-        ASSERT_EQ(getPrm<short>(i, Meta::il, &prm), short(i + 2));
+        ASSERT_EQ(getPrm<llint>(i, PIOL_META_dsdr, &prm), llint(i + 1));
+        ASSERT_EQ(getPrm<short>(i, PIOL_META_il, &prm), short(i + 2));
     }
 }
 

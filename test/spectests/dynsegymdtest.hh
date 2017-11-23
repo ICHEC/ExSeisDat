@@ -25,10 +25,10 @@ struct RuleFixList : public RuleFix
     RuleFixList(void)
     {
         locs = {size_t(Tr::xSrc), size_t(Tr::ySrc), size_t(Tr::xRcv), size_t(Tr::yRcv)};
-        meta = {Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv};
-        rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv}, false);
-        rule->rmRule(Meta::ltn);
-        rule->rmRule(Meta::gtn);
+        meta = {PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv};
+        rule = std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv}, false);
+        rule->rmRule(PIOL_META_ltn);
+        rule->rmRule(PIOL_META_gtn);
     }
 };
 

@@ -297,7 +297,7 @@ TEST_F(SetTest, getMinMax)
 {
     init(1, 1, 1, 1, true);
     std::vector<CoordElem> minmax(4);
-    set->getMinMax(Meta::xSrc, Meta::ySrc, minmax.data());
+    set->getMinMax(PIOL_META_xSrc, PIOL_META_ySrc, minmax.data());
     EXPECT_EQ(minmax[0].val, 1001.);
     EXPECT_EQ(minmax[1].val, 2000.);
     EXPECT_EQ(minmax[2].val, 1001.);

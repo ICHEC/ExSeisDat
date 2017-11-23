@@ -351,7 +351,7 @@ struct Rule
      *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
-    Rule(bool full, bool defaults, bool extra = false);
+    Rule(bool full, bool defaults, bool extras = false);
 
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
@@ -361,8 +361,8 @@ struct Rule
      *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
-    Rule(std::initializer_list<Meta> m,
-         bool full = true, bool defaults = false, bool extra = false);
+    Rule(std::vector<Meta> m, bool full = true,
+         bool defaults = false, bool extras = false);
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.

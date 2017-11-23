@@ -253,7 +253,7 @@ class Set
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     Set(Piol piol_, std::string pattern, std::string outfix_,
-        std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
+        std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Constructor
      *  \param[in] piol_ The PIOL object.
@@ -261,7 +261,7 @@ class Set
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     Set(Piol piol_, std::string pattern,
-        std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy})) :
+        std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY})) :
         Set(piol_, pattern, "", rule_)
     {}
 
@@ -269,7 +269,7 @@ class Set
      *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy}));
+    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Destructor
      */

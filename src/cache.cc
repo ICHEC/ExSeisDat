@@ -38,8 +38,8 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
             f->ifc->readParam(f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++)
             {
-                File::setPrm(loff+i, Meta::gtn, off + loff + f->ilst[i], prm.get());
-                File::setPrm(loff+i, Meta::ltn, f->ilst[i] * desc.size() + c, prm.get());
+                File::setPrm(loff+i, PIOL_META_gtn, off + loff + f->ilst[i], prm.get());
+                File::setPrm(loff+i, PIOL_META_ltn, f->ilst[i] * desc.size() + c, prm.get());
             }
             c++;
             loff += f->ilst.size();
@@ -62,7 +62,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
     }
     else
     {
-        //TODO: Check if prm is cached and use Meta::Copy
+        //TODO: Check if prm is cached and use PIOL_META_COPY
     }
     return it->block;
 }

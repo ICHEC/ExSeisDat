@@ -23,14 +23,14 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
     size_t numRank = piol->comm->getNumRank();
     std::vector<std::tuple<size_t, llint, llint>> lline;
 
-    llint ill = getPrm<llint>(0LU, Meta::il, prm);
-    llint xll = getPrm<llint>(0LU, Meta::xl, prm);
+    llint ill = getPrm<llint>(0LU, PIOL_META_il, prm);
+    llint xll = getPrm<llint>(0LU, PIOL_META_xl, prm);
     lline.emplace_back(1LU, ill, xll);
 
     for (size_t i = 1; i < prm->size(); i++)
     {
-        llint il = getPrm<llint>(i, Meta::il, prm);
-        llint xl = getPrm<llint>(i, Meta::xl, prm);
+        llint il = getPrm<llint>(i, PIOL_META_il, prm);
+        llint xl = getPrm<llint>(i, PIOL_META_xl, prm);
 
         if (il != ill || xl != xll)
         {
@@ -66,7 +66,7 @@ Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
 Uniray<size_t, llint, llint> getIlXlGathers(ExSeisPIOL * piol, ReadInterface * file)
 {
     auto dec = decompose(piol, file);
-    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
+    auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
     Param prm(rule, dec.second);
     file->readParam(dec.first, dec.second, &prm);
 

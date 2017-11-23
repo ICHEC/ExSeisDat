@@ -305,7 +305,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
 
         //TODO: Loop and add rules
         //TODO: need better rule handling, create rule of all rules in gather functions
-        auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
+        auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
 
         auto fTemp = fCurr;
         while (++fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather));
@@ -511,9 +511,9 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
 
 void Set::sort(CompareP sortFunc)
 {
-    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl, Meta::xSrc,
-                                                                         Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::xCmp,
-                                                                         Meta::yCmp, Meta::Offset, Meta::WtrDepRcv, Meta::tn});
+    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl, PIOL_META_xSrc,
+                                                                         PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv, PIOL_META_xCmp,
+                                                                         PIOL_META_yCmp, PIOL_META_Offset, PIOL_META_WtrDepRcv, PIOL_META_tn});
 
     //TODO: This is not the ideal mechanism, hack for now. See the note in the calcFunc for single traces
     rule->addRule(r.get());
@@ -569,8 +569,8 @@ void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
         {
             //TODO: Set the rest of the parameters
             //TODO: Check the get numbers
-            File::setPrm(j, Meta::il, state->il[in->gNum], out->prm.get());
-            File::setPrm(j, Meta::xl, state->xl[in->gNum], out->prm.get());
+            File::setPrm(j, PIOL_META_il, state->il[in->gNum], out->prm.get());
+            File::setPrm(j, PIOL_META_xl, state->xl[in->gNum], out->prm.get());
         }
     }));
 }

@@ -37,7 +37,6 @@ typedef struct PIOL_File_WriteDirectPointer PIOL_File_WriteDirectPointer;
 // Need "using" for these enums for the C++ and C prototypes to match here.
 // TODO: rename Meta etc. to PIOL_Meta so including this header
 //     doesn't add Meta unnamespaced into the global scope.
-using PIOL::Meta;
 using PIOL::CoordElem;
 
 // Everything from here on is C API functions needing C linkage.
@@ -135,6 +134,12 @@ size_t PIOL_SEGSz_getMDSz(void);
  */
 PIOL_File_RuleHandle PIOL_File_Rule_new(bool def);
 
+/*! Initialise a Rule structure from a list of Metas.
+ * \param[in] n Number of elements in m
+ * \param[in] m List of Meta values.
+ */
+PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, PIOL_Meta * m);
+
 /*! Free a Rule structure.
  *  \param[in] rule The Rule handle associated with the structure to free
  */
@@ -145,14 +150,14 @@ void PIOL_File_Rule_delete(PIOL_File_RuleHandle rule);
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
-void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, Meta m, size_t loc);
+void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc);
 
 /*! Add a Rule for shorts (int16_t)
  *  \param[in] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
-void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, Meta m, size_t loc);
+void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc);
 
 /*! Add a Rule for floats
  *  \param[in] rule The Rule handle
@@ -161,14 +166,14 @@ void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, Meta m, size_t loc);
  *  \param[in] scalLoc The location in the trace header for the shared scaler;
  */
 void PIOL_File_Rule_addSEGYFloat(
-    PIOL_File_RuleHandle rule, Meta m, size_t loc, size_t scalLoc
+    PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc, size_t scalLoc
 );
 
 /*! remove a rule for a parameter
  *  \param[in] rule The Rule handle associated with the structure to free
  *  \param[in] m The parameter which one is removing a rule for
  */
-void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, Meta m);
+void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, PIOL_Meta m);
 
 /*!
  * Param calls
@@ -193,7 +198,7 @@ void PIOL_File_Param_delete(PIOL_File_ParamHandle param);
  *  \return The associated parameter
  */
 int16_t PIOL_File_getPrm_short(
-    size_t i, Meta entry, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param
 );
 
 /*! Get a long parameter which is in a particular set in a parameter structure.
@@ -203,7 +208,7 @@ int16_t PIOL_File_getPrm_short(
  *  \return The associated parameter
  */
 int64_t PIOL_File_getPrm_llint(
-    size_t i, Meta entry, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param
 );
 
 /*! Get a double parameter which is in a particular set in a parameter structure.
@@ -213,7 +218,7 @@ int64_t PIOL_File_getPrm_llint(
  *  \return The associated parameter
  */
 double PIOL_File_getPrm_double(
-    size_t i, Meta entry, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param
 );
 
 /*! Set a short parameter within the parameter structure.
@@ -223,7 +228,7 @@ double PIOL_File_getPrm_double(
  *  \param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_short(
-    size_t i, Meta entry, int16_t ret, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_ParamHandle param
 );
 
 /*! Set a long parameter within the parameter structure.
@@ -233,7 +238,7 @@ void PIOL_File_setPrm_short(
  *  \param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_llint(
-    size_t i, Meta entry, int64_t ret, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, int64_t ret, PIOL_File_ParamHandle param
 );
 
 /*! Set a double parameter within the parameter structure.
@@ -243,7 +248,7 @@ void PIOL_File_setPrm_llint(
  *  \param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_double(
-    size_t i, Meta entry, double ret, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, double ret, PIOL_File_ParamHandle param
 );
 
 /*! Copy parameter within the parameter structure.
@@ -269,7 +274,7 @@ void PIOL_File_cpyPrm(
  */
 void PIOL_File_getMinMax(
     PIOL_ExSeisHandle piol,
-    size_t offset, size_t sz, Meta m1, Meta m2,
+    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2,
     PIOL_File_ParamHandle param, CoordElem * minmax
 );
 

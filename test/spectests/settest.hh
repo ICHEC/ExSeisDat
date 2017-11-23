@@ -96,35 +96,35 @@ struct SetTest : public Test
                     if (linear)
                         for (size_t l = 0; l < dec.second; l++)
                         {
-                            setPrm(l, Meta::xSrc, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, Meta::ySrc, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, Meta::xRcv, 2000. + geom_t(dec.first + l), tprm);
-                            setPrm(l, Meta::yRcv, 2000. + geom_t(dec.first + l), tprm);
-                            setPrm(l, Meta::xCmp, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, Meta::yCmp, 2000. - geom_t(dec.first + l), tprm);
-                            setPrm(l, Meta::il, 2000U + dec.first + l, tprm);
-                            setPrm(l, Meta::xl, 2000U + dec.first + l, tprm);
-                            setPrm(l, Meta::tn, l+dec.first, tprm);
+                            setPrm(l, PIOL_META_xSrc, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, PIOL_META_ySrc, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, PIOL_META_xRcv, 2000. + geom_t(dec.first + l), tprm);
+                            setPrm(l, PIOL_META_yRcv, 2000. + geom_t(dec.first + l), tprm);
+                            setPrm(l, PIOL_META_xCmp, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, PIOL_META_yCmp, 2000. - geom_t(dec.first + l), tprm);
+                            setPrm(l, PIOL_META_il, 2000U + dec.first + l, tprm);
+                            setPrm(l, PIOL_META_xl, 2000U + dec.first + l, tprm);
+                            setPrm(l, PIOL_META_tn, l+dec.first, tprm);
 
                             auto xS = 2000. - geom_t((dec.first + l) % (nt / 10U));
                             auto yR = 2000. + geom_t((dec.first + l) / (nt / 10U));
-                            setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
+                            setPrm(l, PIOL_META_Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                         }
                     else
                         for (size_t l = 0; l < dec.second; l++)
                         {
                             auto xS = 2000U - (dec.first + l) % (nt / 10U);
                             auto yR = 2000U + (dec.first + l) / (nt / 10U);
-                            setPrm(l, Meta::xSrc, xS, tprm);
-                            setPrm(l, Meta::ySrc, 2000., tprm);
-                            setPrm(l, Meta::xRcv, 2000., tprm);
-                            setPrm(l, Meta::yRcv, yR, tprm);
-                            setPrm(l, Meta::xCmp, xS, tprm);
-                            setPrm(l, Meta::yCmp, yR, tprm);
-                            setPrm(l, Meta::il, 4000U - xS, tprm);
-                            setPrm(l, Meta::xl, yR, tprm);
-                            setPrm(l, Meta::tn, l+dec.first, tprm);
-                            setPrm(l, Meta::Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
+                            setPrm(l, PIOL_META_xSrc, xS, tprm);
+                            setPrm(l, PIOL_META_ySrc, 2000., tprm);
+                            setPrm(l, PIOL_META_xRcv, 2000., tprm);
+                            setPrm(l, PIOL_META_yRcv, yR, tprm);
+                            setPrm(l, PIOL_META_xCmp, xS, tprm);
+                            setPrm(l, PIOL_META_yCmp, yR, tprm);
+                            setPrm(l, PIOL_META_il, 4000U - xS, tprm);
+                            setPrm(l, PIOL_META_xl, yR, tprm);
+                            setPrm(l, PIOL_META_tn, l+dec.first, tprm);
+                            setPrm(l, PIOL_META_Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                         }
                     EXPECT_CALL(*mock, readTrace(dec.second, An<csize_t *>(), _, _, 0))
                                                 .Times(Exactly(1U))

@@ -30,23 +30,30 @@ PIOL_File_RuleHandle PIOL_File_Rule_new(bool def)
     return new PIOL_File_RulePointer(new PIOL::File::Rule(true, def));
 }
 
+PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, PIOL_Meta * m)
+{
+    return new PIOL_File_RulePointer(
+        new PIOL::File::Rule({m, m+n}, true, false, false)
+    );
+}
+
 void PIOL_File_Rule_delete(PIOL_File_RuleHandle rule)
 {
     delete rule;
 }
 
-void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, Meta m, size_t loc)
+void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc)
 {
     (*rule)->addLong(m, static_cast<PIOL::File::Tr>(loc));
 }
 
-void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, Meta m, size_t loc)
+void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc)
 {
     (*rule)->addShort(m, static_cast<PIOL::File::Tr>(loc));
 }
 
 void PIOL_File_Rule_addSEGYFloat(
-    PIOL_File_RuleHandle rule, Meta m, size_t loc, size_t scalLoc
+    PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc, size_t scalLoc
 ) {
     (*rule)->addSEGYFloat(
         m, static_cast<PIOL::File::Tr>(loc),
@@ -54,7 +61,7 @@ void PIOL_File_Rule_addSEGYFloat(
     );
 }
 
-void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, Meta m)
+void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, PIOL_Meta m)
 {
     (*rule)->rmRule(m);
 }
@@ -70,41 +77,41 @@ void PIOL_File_Param_delete(PIOL_File_ParamHandle param)
     delete param;
 }
 
-short PIOL_File_getPrm_short(size_t i, Meta entry, PIOL_File_ParamHandle param)
+short PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param)
 {
     return PIOL::File::getPrm<short>(i, entry, param->get());
 }
 
 int64_t PIOL_File_getPrm_llint(
-    size_t i, Meta entry, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param
 )
 {
     return PIOL::File::getPrm<llint>(i, entry, param->get());
 }
 
 double PIOL_File_getPrm_double(
-    size_t i, Meta entry, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param
 )
 {
     return PIOL::File::getPrm<geom_t>(i, entry, param->get());
 }
 
 void PIOL_File_setPrm_short(
-    size_t i, Meta entry, short ret, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, short ret, PIOL_File_ParamHandle param
 )
 {
     PIOL::File::setPrm(i, entry, ret, param->get());
 }
 
 void PIOL_File_setPrm_llint(
-    size_t i, Meta entry, int64_t ret, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, int64_t ret, PIOL_File_ParamHandle param
 )
 {
     PIOL::File::setPrm(i, entry, ret, param->get());
 }
 
 void PIOL_File_setPrm_double(
-    size_t i, Meta entry, double ret, PIOL_File_ParamHandle param
+    size_t i, PIOL_Meta entry, double ret, PIOL_File_ParamHandle param
 )
 {
     PIOL::File::setPrm(i, entry, ret, param->get());
@@ -332,7 +339,7 @@ void PIOL_File_ReadDirect_readParam(
 
 void PIOL_File_getMinMax(
     PIOL_ExSeisHandle piol,
-    size_t offset, size_t sz, Meta m1, Meta m2, PIOL_File_ParamHandle param,
+    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2, PIOL_File_ParamHandle param,
     CoordElem * minmax
 )
 {
@@ -374,7 +381,7 @@ void PIOL_Set_delete(PIOL_SetHandle set)
 }
 
 void PIOL_Set_getMinMax(
-    PIOL_SetHandle set, Meta m1, Meta m2, CoordElem * minmax
+    PIOL_SetHandle set, PIOL_Meta m1, PIOL_Meta m2, CoordElem * minmax
 )
 {
     (*set)->getMinMax(m1, m2, minmax);

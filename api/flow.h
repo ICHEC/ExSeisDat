@@ -61,7 +61,7 @@ void PIOL_Set_delete(PIOL_SetHandle set);
  *  and their respective trace numbers.
  */
 void PIOL_Set_getMinMax(
-    PIOL_SetHandle set, Meta m1, Meta m2, CoordElem * minmax
+    PIOL_SetHandle set, PIOL_Meta m1, PIOL_Meta m2, CoordElem * minmax
 );
 
 /*! Sort the set by the specified sort type.

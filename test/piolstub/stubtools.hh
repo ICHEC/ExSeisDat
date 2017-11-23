@@ -102,16 +102,16 @@ static std::string demangle(const char* name)
 #define MAKE_STUB_N_FULL(CALLBACK_NAME, CXX_NAME, QUALIFIER, STUB_RETURN_TYPE, LAMBDA_RETURN_TYPE, SIGNATURE, CALL, RETURN) \
     std::function<LAMBDA_RETURN_TYPE SIGNATURE> CALLBACK_NAME; \
     STUB_RETURN_TYPE CXX_NAME SIGNATURE QUALIFIER { \
-        try { \
+        if(CALLBACK_NAME) { \
             RETURN CALLBACK_NAME CALL; \
-        } catch(...) { \
+        } else { \
             std::cerr \
                 << "Calling unset lambda " << #CALLBACK_NAME \
                 << " in method " << #CXX_NAME \
                 << " with signature " \
                 << demangle(typeid(LAMBDA_RETURN_TYPE SIGNATURE).name()) \
                 << std::endl; \
-            throw; \
+            RETURN CALLBACK_NAME CALL; \
         } \
     }
 #else

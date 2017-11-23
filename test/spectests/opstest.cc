@@ -147,11 +147,11 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
     Param prm(200);
     for (size_t i = 0; i < prm.size(); i++)
     {
-        setPrm(i, Meta::xSrc, 1000.0 - geom_t(i / 20), &prm);
-        setPrm(i, Meta::ySrc, 1000.0 - geom_t(i % 20), &prm);
-        setPrm(i, Meta::xRcv, 1000.0 - geom_t(i / 10), &prm);
-        setPrm(i, Meta::yRcv, 1000.0 - geom_t(i % 10), &prm);
-        setPrm(i, Meta::gtn, i, &prm);
+        setPrm(i, PIOL_META_xSrc, 1000.0 - geom_t(i / 20), &prm);
+        setPrm(i, PIOL_META_ySrc, 1000.0 - geom_t(i % 20), &prm);
+        setPrm(i, PIOL_META_xRcv, 1000.0 - geom_t(i / 10), &prm);
+        setPrm(i, PIOL_META_yRcv, 1000.0 - geom_t(i % 10), &prm);
+        setPrm(i, PIOL_META_gtn, i, &prm);
     }
     auto list = sort(piol, SortType::SrcRcv, &prm);
     for (size_t i = 0; i < list.size(); i++)
@@ -163,11 +163,11 @@ TEST_F(OpsTest, SortSrcRcvForwards)
     Param prm(200);
     for (size_t i = 0; i < prm.size(); i++)
     {
-        setPrm(i, Meta::xSrc, 1000.0 + i / 20, &prm);
-        setPrm(i, Meta::ySrc, 1000.0 + i % 20, &prm);
-        setPrm(i, Meta::xRcv, 1000.0 + i / 10, &prm);
-        setPrm(i, Meta::yRcv, 1000.0 + i % 10, &prm);
-        setPrm(i, Meta::gtn, i, &prm);
+        setPrm(i, PIOL_META_xSrc, 1000.0 + i / 20, &prm);
+        setPrm(i, PIOL_META_ySrc, 1000.0 + i % 20, &prm);
+        setPrm(i, PIOL_META_xRcv, 1000.0 + i / 10, &prm);
+        setPrm(i, PIOL_META_yRcv, 1000.0 + i % 10, &prm);
+        setPrm(i, PIOL_META_gtn, i, &prm);
     }
     auto list = sort(piol, SortType::SrcRcv, &prm);
 
@@ -181,21 +181,21 @@ TEST_F(OpsTest, SortSrcRcvRand)
     Param prm(10);
     for (size_t i = 0; i < prm.size(); i++)
     {
-        setPrm(i, Meta::ySrc, 1000.0, &prm);
-        setPrm(i, Meta::xRcv, 1000.0, &prm);
-        setPrm(i, Meta::yRcv, 1000.0, &prm);
-        setPrm(i, Meta::gtn, i, &prm);
+        setPrm(i, PIOL_META_ySrc, 1000.0, &prm);
+        setPrm(i, PIOL_META_xRcv, 1000.0, &prm);
+        setPrm(i, PIOL_META_yRcv, 1000.0, &prm);
+        setPrm(i, PIOL_META_gtn, i, &prm);
     }
-    setPrm(0, Meta::xSrc, 5.0, &prm);
-    setPrm(1, Meta::xSrc, 3.0, &prm);
-    setPrm(2, Meta::xSrc, 1.0, &prm);
-    setPrm(3, Meta::xSrc, 4.0, &prm);
-    setPrm(4, Meta::xSrc, 2.0, &prm);
-    setPrm(5, Meta::xSrc, 9.0, &prm);
-    setPrm(6, Meta::xSrc, 6.0, &prm);
-    setPrm(7, Meta::xSrc, 8.0, &prm);
-    setPrm(8, Meta::xSrc, 7.0, &prm);
-    setPrm(9, Meta::xSrc, 0.0, &prm);
+    setPrm(0, PIOL_META_xSrc, 5.0, &prm);
+    setPrm(1, PIOL_META_xSrc, 3.0, &prm);
+    setPrm(2, PIOL_META_xSrc, 1.0, &prm);
+    setPrm(3, PIOL_META_xSrc, 4.0, &prm);
+    setPrm(4, PIOL_META_xSrc, 2.0, &prm);
+    setPrm(5, PIOL_META_xSrc, 9.0, &prm);
+    setPrm(6, PIOL_META_xSrc, 6.0, &prm);
+    setPrm(7, PIOL_META_xSrc, 8.0, &prm);
+    setPrm(8, PIOL_META_xSrc, 7.0, &prm);
+    setPrm(9, PIOL_META_xSrc, 0.0, &prm);
     auto list = sort(piol, SortType::SrcRcv, &prm);
     ASSERT_EQ(static_cast<size_t>(5), list[0]);
     ASSERT_EQ(static_cast<size_t>(3), list[1]);

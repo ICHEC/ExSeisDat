@@ -57,13 +57,13 @@ ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, const Re
     File::Param prm(vlist.size());
     readParam(vlist.size(), vlist.data(), &prm);
 
-    llint il0 = File::getPrm<llint>(0LU, Meta::il, &prm);
-    llint xl0 = File::getPrm<llint>(0LU, Meta::xl, &prm);
+    llint il0 = File::getPrm<llint>(0LU, PIOL_META_il, &prm);
+    llint xl0 = File::getPrm<llint>(0LU, PIOL_META_xl, &prm);
 
-    llint ilInc = File::getPrm<llint>(1LU, Meta::il, &prm) - il0;
-    llint ilNum = (ilInc ? (File::getPrm<llint>(2LU, Meta::il, &prm) - il0) / ilInc : 0LU);
+    llint ilInc = File::getPrm<llint>(1LU, PIOL_META_il, &prm) - il0;
+    llint ilNum = (ilInc ? (File::getPrm<llint>(2LU, PIOL_META_il, &prm) - il0) / ilInc : 0LU);
     llint xlNum = (readNt() / (ilNum ? ilNum : 1LU));
-    llint xlInc = (File::getPrm<llint>(2LU, Meta::xl, &prm) - xl0) / xlNum;
+    llint xlInc = (File::getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl0) / xlNum;
 
     ilInc = (ilInc ? ilInc : 1LU);
     xlInc = (xlInc ? xlInc : 1LU);
@@ -160,7 +160,7 @@ void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T o
 
         extractParam(sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0LU), skip);
         for (size_t i = 0; i < sz; i++)
-            setPrm(i+skip, Meta::ltn, offunc(i), prm);
+            setPrm(i+skip, PIOL_META_ltn, offunc(i), prm);
     }
 
     if (trc != TRACE_NULL && trc != nullptr)

@@ -11,63 +11,60 @@
 
 typedef double geom_t;  //!< TODO: This should be done somewhere more general
 
+typedef size_t PIOL_Meta;
+
 #ifdef __cplusplus
 namespace PIOL {
 /*! The available trace parameters
  */
-enum class Meta : int
-#else
-/*! The available trace parameters for C
- */
-typedef enum
+    typedef PIOL_Meta Meta;
+}
 #endif
-{
-    Copy,       //!< Copy all headers. Don't interpret them.
-    ltn,        //!< Local trace number.
-    gtn,        //!< Global trace number.
-    tnl,        //!< The trace number (line)
-    tnr,        //!< The Trace number (record)
-    tn,         //!< The trace number (file)
-    tne,        //!< The trace number (ensemble)
-    ns,         //!< Number of samples in this trace
-    inc,        //!< The increment of this trace.
-    Tic,        //!< Trace identification code
-    SrcNum,     //!< Source Number
-    ShotNum,    //!< Shot number
-    VStack,     //!< Number of traces stacked for this trace (vertical)
-    HStack,     //!< Number of traces stacked for this trace (horizontal)
-    Offset,     //!< Distance from source to receiver
-    RGElev,     //!< Receiver group elevation
-    SSElev,     //!< Source surface elevation
-    SDElev,     //!< Source depth
-    WtrDepSrc,  //!< The Water depth at source
-    WtrDepRcv,  //!< The Water depth at receiver
-    xSrc,       //!< The source x coordinate
-    ySrc,       //!< The source y coordinate
-    xRcv,       //!< The receiver x coordinate
-    yRcv,       //!< The receiver y coordinate
-    xCmp,       //!< The CMP x coordinate
-    yCmp,       //!< The CMP y coordinate
-    il,         //!< The inline number
-    xl,         //!< The crossline number
-    TransUnit,  //!< Unit system for transduction constant
-    TraceUnit,  //!< Unit system for traces
-//Non-standard
-    dsdr,       //!< The sum of the differences between sources and receivers of this trace and another
-    //TODO: Don't add more of these, find out what they do and replace them with real names
-    Misc1,      //!< Miscellaneous
-    Misc2,      //!< Miscellaneous
-    Misc3,      //!< Miscellaneous
-    Misc4,      //!< Miscellaneous
-#ifdef __cplusplus
-};
-#else
-} Meta;
-#endif
+
+#define PIOL_META_COPY      ((PIOL_Meta) 0)       //!< Copy all headers. Don't interpret them.
+#define PIOL_META_ltn       ((PIOL_Meta) 1)        //!< Local trace number.
+#define PIOL_META_gtn       ((PIOL_Meta) 2)        //!< Global trace number.
+#define PIOL_META_tnl       ((PIOL_Meta) 3)        //!< The trace number (line)
+#define PIOL_META_tnr       ((PIOL_Meta) 4)        //!< The Trace number (record)
+#define PIOL_META_tn        ((PIOL_Meta) 5)         //!< The trace number (file)
+#define PIOL_META_tne       ((PIOL_Meta) 6)        //!< The trace number (ensemble)
+#define PIOL_META_ns        ((PIOL_Meta) 7)         //!< Number of samples in this trace
+#define PIOL_META_inc       ((PIOL_Meta) 8)        //!< The increment of this trace.
+#define PIOL_META_Tic       ((PIOL_Meta) 9)        //!< Trace identification code
+#define PIOL_META_SrcNum    ((PIOL_Meta) 10)     //!< Source Number
+#define PIOL_META_ShotNum   ((PIOL_Meta) 11)    //!< Shot number
+#define PIOL_META_VStack    ((PIOL_Meta) 12)     //!< Number of traces stacked for this trace (vertical)
+#define PIOL_META_HStack    ((PIOL_Meta) 13)     //!< Number of traces stacked for this trace (horizontal)
+#define PIOL_META_Offset    ((PIOL_Meta) 14)     //!< Distance from source to receiver
+#define PIOL_META_RGElev    ((PIOL_Meta) 15)     //!< Receiver group elevation
+#define PIOL_META_SSElev    ((PIOL_Meta) 16)     //!< Source surface elevation
+#define PIOL_META_SDElev    ((PIOL_Meta) 17)     //!< Source depth
+#define PIOL_META_WtrDepSrc ((PIOL_Meta) 18)  //!< The Water depth at source
+#define PIOL_META_WtrDepRcv ((PIOL_Meta) 19)  //!< The Water depth at receiver
+#define PIOL_META_xSrc      ((PIOL_Meta) 20)       //!< The source x coordinate
+#define PIOL_META_ySrc      ((PIOL_Meta) 21)       //!< The source y coordinate
+#define PIOL_META_xRcv      ((PIOL_Meta) 22)       //!< The receiver x coordinate
+#define PIOL_META_yRcv      ((PIOL_Meta) 23)       //!< The receiver y coordinate
+#define PIOL_META_xCmp      ((PIOL_Meta) 24)       //!< The CMP x coordinate
+#define PIOL_META_yCmp      ((PIOL_Meta) 25)       //!< The CMP y coordinate
+#define PIOL_META_il        ((PIOL_Meta) 26)         //!< The inline number
+#define PIOL_META_xl        ((PIOL_Meta) 27)         //!< The crossline number
+#define PIOL_META_TransUnit ((PIOL_Meta) 28)  //!< Unit system for transduction constant
+#define PIOL_META_TraceUnit ((PIOL_Meta) 29)  //!< Unit system for traces
+// Non-standard
+#define PIOL_META_dsdr      ((PIOL_Meta) 30)       //!< The sum of the differences between sources and receivers of this trace and another
+//TODO: Don't add more of th((PIOL_Meta)se, find out what they do and replace them with real names
+#define PIOL_META_Misc1     ((PIOL_Meta) 31)      //!< Miscellaneous
+#define PIOL_META_Misc2     ((PIOL_Meta) 32)      //!< Miscellaneous
+#define PIOL_META_Misc3     ((PIOL_Meta) 33)      //!< Miscellaneous
+#define PIOL_META_Misc4     ((PIOL_Meta) 34)      //!< Miscellaneous
+
 
 /*! An enum class of the different types of sorting operation.
  */
 #ifdef __cplusplus
+namespace PIOL {
+
 enum class SortType : int
 #else
 typedef enum

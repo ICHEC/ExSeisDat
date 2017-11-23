@@ -25,7 +25,7 @@ MAKE_STUB_1(PIOL_Set_output_cb, PIOL::Set::output,, std::vector<std::string>(std
 
 MAKE_STUB_3(PIOL_Set_getMinMax_1_cb, PIOL::Set::getMinMax,, void(MinMaxFunc<PIOL::File::Param>, MinMaxFunc<PIOL::File::Param>, CoordElem *))
 
-MAKE_STUB_3(PIOL_Set_getMinMax_2_cb, PIOL::Set::getMinMax,, void(Meta, Meta, CoordElem *))
+MAKE_STUB_3(PIOL_Set_getMinMax_2_cb, PIOL::Set::getMinMax,, void(PIOL::Meta, PIOL::Meta, CoordElem *))
 
 MAKE_STUB_1(PIOL_Set_text_cb,    PIOL::Set::text,, void(std::string))
 
