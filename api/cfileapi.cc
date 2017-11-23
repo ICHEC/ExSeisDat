@@ -86,7 +86,7 @@ int64_t PIOL_File_getPrm_llint(
     size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param
 )
 {
-    return PIOL::File::getPrm<llint>(i, entry, param->get());
+    return PIOL::File::getPrm<PIOL::llint>(i, entry, param->get());
 }
 
 double PIOL_File_getPrm_double(
@@ -247,7 +247,7 @@ void PIOL_File_WriteDirect_writeInc(
 //Contiguous traces
 void PIOL_File_ReadDirect_readTrace(
     PIOL_File_ReadDirectHandle readDirect,
-    size_t offset, size_t sz, trace_t * trace,
+    size_t offset, size_t sz, PIOL::trace_t * trace,
     PIOL_File_ParamHandle param
 )
 {
@@ -260,7 +260,7 @@ void PIOL_File_ReadDirect_readTrace(
 
 void PIOL_File_WriteDirect_writeTrace(
     PIOL_File_WriteDirectHandle writeDirect,
-    size_t offset, size_t sz, trace_t * trace,
+    size_t offset, size_t sz, PIOL::trace_t * trace,
     PIOL_File_ParamHandle param
 )
 {
@@ -387,18 +387,18 @@ void PIOL_Set_getMinMax(
     (*set)->getMinMax(m1, m2, minmax);
 }
 
-void PIOL_Set_sort(PIOL_SetHandle set, SortType type)
+void PIOL_Set_sort(PIOL_SetHandle set, PIOL_SortType type)
 {
     (*set)->sort(type);
 }
 
 void PIOL_Set_sort_fn(
     PIOL_SetHandle set,
-    bool (* func)(const PIOL_File_ParamHandle param, csize_t i, csize_t j)
+    bool (* func)(const PIOL_File_ParamHandle param, PIOL::csize_t i, PIOL::csize_t j)
 )
 {
     auto lam = [func] (
-        const PIOL::File::Param * param, csize_t i, csize_t j
+        const PIOL::File::Param * param, PIOL::csize_t i, PIOL::csize_t j
     ) -> bool
     {
         // Create a shared_ptr with no deleter to satisfy types for

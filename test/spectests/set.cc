@@ -187,7 +187,7 @@ TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
 
-    set->sort(SortType::SrcRcv);
+    set->sort(PIOL_SORTTYPE_SrcRcv);
     set->calcFunc(set->func.begin(), set->func.end());
 
     for (size_t i = 0; i < set->file.size(); i++)
@@ -203,7 +203,7 @@ TEST_F(SetTest, SortRcvX)
 {
     init(1, 1, 1, 1, true);
 
-    set->sort(SortType::RcvOff);
+    set->sort(PIOL_SORTTYPE_RcvOff);
     set->calcFunc(set->func.begin(), set->func.end());
     testRcvPattern(set->file);
 }
@@ -211,7 +211,7 @@ TEST_F(SetTest, SortRcvX)
 TEST_F(SetTest, SortRcvXR)
 {
     init(1, 1, 1, 1, true);
-    set->sort(SortType::RcvROff);
+    set->sort(PIOL_SORTTYPE_RcvROff);
     set->calcFunc(set->func.begin(), set->func.end());
     testRcvPattern(set->file);
 }
@@ -220,7 +220,7 @@ TEST_F(SetTest, SortLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::LineOff);
+    set->sort(PIOL_SORTTYPE_LineOff);
     set->calcFunc(set->func.begin(), set->func.end());
     testLineOffPattern(set->file);
 }
@@ -229,7 +229,7 @@ TEST_F(SetTest, SortLineROff)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::LineROff);
+    set->sort(PIOL_SORTTYPE_LineROff);
     set->calcFunc(set->func.begin(), set->func.end());
     testLineOffPattern(set->file);
 }
@@ -238,7 +238,7 @@ TEST_F(SetTest, SortOffLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::OffLine);
+    set->sort(PIOL_SORTTYPE_OffLine);
     set->calcFunc(set->func.begin(), set->func.end());
     testOffLinePattern(set->file);
 }
@@ -247,7 +247,7 @@ TEST_F(SetTest, SortROffLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::ROffLine);
+    set->sort(PIOL_SORTTYPE_ROffLine);
     set->calcFunc(set->func.begin(), set->func.end());
     testOffLinePattern(set->file);
 }
@@ -256,8 +256,8 @@ TEST_F(SetTest, SortSortRcv)
 {
     init(1, 1, 1, 2, true);
 
-    set->sort(SortType::SrcRcv);
-    set->sort(SortType::RcvOff);
+    set->sort(PIOL_SORTTYPE_SrcRcv);
+    set->sort(PIOL_SORTTYPE_RcvOff);
     set->calcFunc(set->func.begin(), set->func.end());
 
     testSrcOffPattern(set->file);
@@ -267,8 +267,8 @@ TEST_F(SetTest, SortSortRcvROff)
 {
     init(1, 1, 1, 2, true);
 
-    set->sort(SortType::SrcRcv);
-    set->sort(SortType::RcvROff);
+    set->sort(PIOL_SORTTYPE_SrcRcv);
+    set->sort(PIOL_SORTTYPE_RcvROff);
     set->calcFunc(set->func.begin(), set->func.end());
 
     testSrcOffPattern(set->file);
@@ -278,7 +278,7 @@ TEST_F(SetTest, SortSrcXRcvY)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::SrcRcv);
+    set->sort(PIOL_SORTTYPE_SrcRcv);
     set->calcFunc(set->func.begin(), set->func.end());
     piol->isErr();
 

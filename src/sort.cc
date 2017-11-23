@@ -231,31 +231,31 @@ CompareP getComp(SortType type)
     switch (type)
     {
         default :
-        case SortType::SrcRcv :
+        case PIOL_SORTTYPE_SrcRcv :
             return lessSrcRcv;
         break;
-        case SortType::SrcOff :
+        case PIOL_SORTTYPE_SrcOff :
             return lessSrcOff<true>;
         break;
-        case SortType::SrcROff :
+        case PIOL_SORTTYPE_SrcROff :
             return lessSrcOff<false>;
         break;
-        case SortType::RcvOff :
+        case PIOL_SORTTYPE_RcvOff :
             return lessRcvOff<true>;
         break;
-        case SortType::RcvROff :
+        case PIOL_SORTTYPE_RcvROff :
             return lessRcvOff<false>;
         break;
-        case SortType::LineOff :
+        case PIOL_SORTTYPE_LineOff :
             return lessLineOff<true>;
         break;
-        case SortType::LineROff :
+        case PIOL_SORTTYPE_LineROff :
             return lessLineOff<false>;
         break;
-        case SortType::OffLine :
+        case PIOL_SORTTYPE_OffLine :
             return lessOffLine<true>;
         break;
-        case SortType::ROffLine :
+        case PIOL_SORTTYPE_ROffLine :
             return lessOffLine<false>;
         break;
     }

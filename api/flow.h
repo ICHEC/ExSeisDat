@@ -27,7 +27,6 @@ typedef struct PIOL_SetPointer PIOL_SetPointer;
 // Need "using" for these enums for the C++ and C prototypes to match here.
 // TODO: rename SortType etc. to PIOL_SortType so including this header
 //     doesn't add SortType unnamespaced into the global scope.
-using PIOL::SortType;
 using PIOL::TaperType;
 using PIOL::AGCType;
 
@@ -68,7 +67,7 @@ void PIOL_Set_getMinMax(
  *  \param[in] s The set handle
  *  \param[in] type The sort type
  */
-void PIOL_Set_sort(PIOL_SetHandle set, SortType type);
+void PIOL_Set_sort(PIOL_SetHandle set, PIOL_SortType type);
 
 /*! Sort the set using a custom comparison function
  *  \param[in] s A handle for the set.

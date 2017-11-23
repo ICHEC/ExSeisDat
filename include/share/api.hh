@@ -15,12 +15,12 @@ typedef size_t PIOL_Meta;
 
 #ifdef __cplusplus
 namespace PIOL {
-/*! The available trace parameters
- */
     typedef PIOL_Meta Meta;
 }
 #endif
 
+/*! The available trace parameters
+ */
 #define PIOL_META_COPY      ((PIOL_Meta) 0)       //!< Copy all headers. Don't interpret them.
 #define PIOL_META_ltn       ((PIOL_Meta) 1)        //!< Local trace number.
 #define PIOL_META_gtn       ((PIOL_Meta) 2)        //!< Global trace number.
@@ -62,33 +62,29 @@ namespace PIOL {
 
 /*! An enum class of the different types of sorting operation.
  */
+typedef size_t PIOL_SortType;
+
 #ifdef __cplusplus
 namespace PIOL {
-
-enum class SortType : int
-#else
-typedef enum
+    typedef PIOL_SortType SortType;
+}
 #endif
-{
-    SrcRcv,     //!< Sort by source x, source y, receiver x, receiver y
-    SrcOff,     //!< Sort by source x, source y, calcuated offset
-    SrcROff,    //!< Sort by source x, source y, offset read from file
-    RcvOff,     //!< Sort by receiver x, receiver y, calculate offset
-    RcvROff,    //!< Sort by receiver x, receiver y, offset read from file
-    LineOff,    //!< Sort by inline, crossline, calculated offset
-    LineROff,   //!< Sort by inline, crossline, offset read from file
-    OffLine,    //!< Sort by calculated offset, inline, crossline
-    ROffLine    //!< Sort by offset read from file, inline, crossline
 
-#ifdef __cplusplus
-};
-#else
-} SortType;
-#endif
+#define PIOL_SORTTYPE_SrcRcv   ((PIOL_SortType) 35)   //!< Sort by source x, source y, receiver x, receiver y
+#define PIOL_SORTTYPE_SrcOff   ((PIOL_SortType) 36)   //!< Sort by source x, source y, calcuated offset
+#define PIOL_SORTTYPE_SrcROff  ((PIOL_SortType) 37)   //!< Sort by source x, source y, offset read from file
+#define PIOL_SORTTYPE_RcvOff   ((PIOL_SortType) 38)   //!< Sort by receiver x, receiver y, calculate offset
+#define PIOL_SORTTYPE_RcvROff  ((PIOL_SortType) 39)   //!< Sort by receiver x, receiver y, offset read from file
+#define PIOL_SORTTYPE_LineOff  ((PIOL_SortType) 40)   //!< Sort by inline, crossline, calculated offset
+#define PIOL_SORTTYPE_LineROff ((PIOL_SortType) 41)   //!< Sort by inline, crossline, offset read from file
+#define PIOL_SORTTYPE_OffLine  ((PIOL_SortType) 42)   //!< Sort by calculated offset, inline, crossline
+#define PIOL_SORTTYPE_ROffLine ((PIOL_SortType) 43)   //!< Sort by offset read from file, inline, crossline
+
 
 /*! An enum class of the different types of tapering windows.
  */
 #ifdef __cplusplus
+namespace PIOL {
 enum class TaperType : int
 #else
 typedef enum

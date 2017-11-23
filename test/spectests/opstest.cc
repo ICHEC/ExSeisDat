@@ -153,7 +153,7 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
         setPrm(i, PIOL_META_yRcv, 1000.0 - geom_t(i % 10), &prm);
         setPrm(i, PIOL_META_gtn, i, &prm);
     }
-    auto list = sort(piol, SortType::SrcRcv, &prm);
+    auto list = sort(piol, PIOL_SORTTYPE_SrcRcv, &prm);
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(list.size() - i-1, list[i]) << " i " << i << " list.size()-i-1 " << list.size()-i-1  << " list[i] " << list[i];
 }
@@ -169,7 +169,7 @@ TEST_F(OpsTest, SortSrcRcvForwards)
         setPrm(i, PIOL_META_yRcv, 1000.0 + i % 10, &prm);
         setPrm(i, PIOL_META_gtn, i, &prm);
     }
-    auto list = sort(piol, SortType::SrcRcv, &prm);
+    auto list = sort(piol, PIOL_SORTTYPE_SrcRcv, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(i, list[i]);
@@ -196,7 +196,7 @@ TEST_F(OpsTest, SortSrcRcvRand)
     setPrm(7, PIOL_META_xSrc, 8.0, &prm);
     setPrm(8, PIOL_META_xSrc, 7.0, &prm);
     setPrm(9, PIOL_META_xSrc, 0.0, &prm);
-    auto list = sort(piol, SortType::SrcRcv, &prm);
+    auto list = sort(piol, PIOL_SORTTYPE_SrcRcv, &prm);
     ASSERT_EQ(static_cast<size_t>(5), list[0]);
     ASSERT_EQ(static_cast<size_t>(3), list[1]);
     ASSERT_EQ(static_cast<size_t>(1), list[2]);
