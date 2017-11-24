@@ -47,10 +47,46 @@ int main()
 
     PIOL_File_RuleHandle rule_tmp = PIOL_File_Rule_new(false);
 
-    //size_t nmetas = sizeof(default_rule_metas);
-    //PIOL_File_RuleHandle rule_tmp2 = PIOL_File_Rule_new_from_list(
-    //    nmetas, default_rule_metas
-    //);
+    const PIOL_Meta meta_list[] = {
+        PIOL_META_COPY,
+        PIOL_META_ltn,
+        PIOL_META_gtn,
+        PIOL_META_tnl,
+        PIOL_META_tnr,
+        PIOL_META_tn,
+        PIOL_META_tne,
+        PIOL_META_ns,
+        PIOL_META_inc,
+        PIOL_META_Tic,
+        PIOL_META_SrcNum,
+        PIOL_META_ShotNum,
+        PIOL_META_VStack,
+        PIOL_META_HStack,
+        PIOL_META_Offset,
+        PIOL_META_RGElev,
+        PIOL_META_SSElev,
+        PIOL_META_SDElev,
+        PIOL_META_WtrDepSrc,
+        PIOL_META_WtrDepRcv,
+        PIOL_META_xSrc,
+        PIOL_META_ySrc,
+        PIOL_META_xRcv,
+        PIOL_META_yRcv,
+        PIOL_META_xCmp,
+        PIOL_META_yCmp,
+        PIOL_META_il,
+        PIOL_META_xl,
+        PIOL_META_TransUnit,
+        PIOL_META_TraceUnit,
+        PIOL_META_dsdr,
+        PIOL_META_Misc1,
+        PIOL_META_Misc2,
+        PIOL_META_Misc3,
+        PIOL_META_Misc4
+    };
+    PIOL_File_RuleHandle rule_tmp2 = PIOL_File_Rule_new_from_list(
+        sizeof(meta_list)/sizeof(meta_list[0]), meta_list
+    );
     
     PIOL_File_Rule_addLong(rule, PIOL_META_COPY, 60);
     PIOL_File_Rule_addShort(rule, PIOL_META_COPY, 70);

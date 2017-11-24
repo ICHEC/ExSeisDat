@@ -59,6 +59,11 @@ namespace PIOL {
 #define PIOL_META_Misc3     ((PIOL_Meta) 33)      //!< Miscellaneous
 #define PIOL_META_Misc4     ((PIOL_Meta) 34)      //!< Miscellaneous
 
+// Start / end of META define values
+// For checking if a passed in value is a meta
+#define PIOL_META_INTERNAL_START PIOL_META_COPY
+#define PIOL_META_INTERNAL_END   PIOL_META_Misc4
+
 
 /*! An enum class of the different types of sorting operation.
  */

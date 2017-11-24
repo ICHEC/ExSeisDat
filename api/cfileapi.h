@@ -138,7 +138,7 @@ PIOL_File_RuleHandle PIOL_File_Rule_new(bool def);
  * \param[in] n Number of elements in m
  * \param[in] m List of Meta values.
  */
-PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, PIOL_Meta * m);
+PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, const PIOL_Meta * m);
 
 /*! Free a Rule structure.
  *  \param[in] rule The Rule handle associated with the structure to free

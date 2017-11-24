@@ -30,7 +30,7 @@ PIOL_File_RuleHandle PIOL_File_Rule_new(bool def)
     return new PIOL_File_RulePointer(new PIOL::File::Rule(true, def));
 }
 
-PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, PIOL_Meta * m)
+PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, const PIOL_Meta * m)
 {
     return new PIOL_File_RulePointer(
         new PIOL::File::Rule({m, m+n}, true, false, false)
