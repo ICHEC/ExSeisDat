@@ -24,7 +24,7 @@ struct RuleFixList : public RuleFix
     std::vector<size_t> locs;
     RuleFixList(void)
     {
-        locs = {size_t(Tr::xSrc), size_t(Tr::ySrc), size_t(Tr::xRcv), size_t(Tr::yRcv)};
+        locs = {PIOL_TR_xSrc, PIOL_TR_ySrc, PIOL_TR_xRcv, PIOL_TR_yRcv};
         meta = {PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv};
         rule = std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv}, false);
         rule->rmRule(PIOL_META_ltn);

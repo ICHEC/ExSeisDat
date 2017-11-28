@@ -342,17 +342,17 @@ struct FileReadSEGYTest : public Test
         if (RmRule)
         {
             rule->rmRule(PIOL_META_xSrc);
-            rule->addSEGYFloat(PIOL_META_ShotNum, File::Tr::UpSrc, File::Tr::UpRcv);
-            rule->addLong(PIOL_META_Misc1, File::Tr::TORF);
-            rule->addShort(PIOL_META_Misc2, File::Tr::ShotNum);
-            rule->addShort(PIOL_META_Misc3, File::Tr::ShotScal);
+            rule->addSEGYFloat(PIOL_META_ShotNum, PIOL_TR_UpSrc, PIOL_TR_UpRcv);
+            rule->addLong(PIOL_META_Misc1, PIOL_TR_TORF);
+            rule->addShort(PIOL_META_Misc2, PIOL_TR_ShotNum);
+            rule->addShort(PIOL_META_Misc3, PIOL_TR_ShotScal);
             rule->rmRule(PIOL_META_ShotNum);
             rule->rmRule(PIOL_META_Misc1);
             rule->rmRule(PIOL_META_Misc2);
             rule->rmRule(PIOL_META_Misc3);
             rule->rmRule(PIOL_META_ySrc);
-            rule->addSEGYFloat(PIOL_META_xSrc, File::Tr::xSrc, File::Tr::ScaleCoord);
-            rule->addSEGYFloat(PIOL_META_ySrc, File::Tr::ySrc, File::Tr::ScaleCoord);
+            rule->addSEGYFloat(PIOL_META_xSrc, PIOL_TR_xSrc, PIOL_TR_ScaleCoord);
+            rule->addSEGYFloat(PIOL_META_ySrc, PIOL_TR_ySrc, PIOL_TR_ScaleCoord);
         }
         File::Param prm(rule, tn);
         file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));

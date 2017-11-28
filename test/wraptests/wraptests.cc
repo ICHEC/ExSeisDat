@@ -1,14 +1,12 @@
 #include "wraptests.h"
 #include "wraptesttools.hh"
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "exseiswraptest.hh"
-#include "readdirectwraptest.hh"
 #include "rulewraptests.hh"
 
 extern "C" {
-
-bool all_tests_run;
 
 void init_wraptests()
 {
@@ -32,53 +30,20 @@ void init_wraptests()
     testing::TestEventListeners& listeners =
         testing::UnitTest::GetInstance()->listeners();
     listeners.Release(listeners.default_result_printer());
+    listeners.Append(new CheckReturnListener);
 
+    //::testing::FLAGS_gmock_verbose = "info";
+    ::testing::FLAGS_gmock_verbose = "error";
 
     // Add test initializers here
-    all_tests_run = false;
-    test_runner(
-        test_PIOL_ExSeis,
-        test_PIOL_File_Rule,
-        test_PIOL_File_ReadDirect,
-        [](auto cb) {
-            all_tests_run = true;
-            cb();
-        }
-    );
+    testing::InSequence s;
+    test_PIOL_ExSeis();
+    test_PIOL_File_Rule();
 }
 
-int finalize_wraptests() {
-    if(all_tests_run) {
-        std::cout
-            << std::endl
-            << "=" << std::endl
-            << "= All tests run!" << std::endl
-            << "=" << std::endl
-            << std::endl;
-
-        std::cout << "Testing Passed." << std::endl;
-        return EXIT_SUCCESS;
-    } else {
-        std::cout
-            << std::endl
-            << "=" << std::endl
-            << "= Some tests were not run!" << std::endl
-            << "=" << std::endl
-            << std::endl
-            << "Expecting: " << current_test_name << std::endl
-            << std::endl;
-
-        std::cout << "Testing Failed." << std::endl;
-        return EXIT_FAILURE;
-    }
-}
-
-void fail_wraptests() {
-    std::cout
-        << "fail_wraptests called after test: " << previous_test_name
-        << std::endl
-        << "Expected value: " << expected_value
-        << std::endl;
+void wraptest_ok()
+{
+    returnChecker().Call();
 }
 
 }

@@ -22,52 +22,8 @@
 #include "share/param.hh"
 #include "share/api.hh"
 #include "share/segy.hh"
+
 namespace PIOL { namespace File {
-/*! SEG-Y Trace Header offsets
- */
-enum class Tr : size_t
-{
-    SeqNum      = 1U,   //!< int32_t. The trace sequence number in the Line.
-    SeqFNum     = 5U,   //!< int32_t. The trace sequence number in SEG-Y File.
-    ORF         = 9U,   //!< int32_t. The original field record number.
-    TORF        = 13U,  //!< int32_t. The trace number in the ORF.
-    ENSrcNum    = 17U,  //!< int32_t. The source energy number.
-    SeqNumEns   = 25U,  //!< int32_t. The trace number in the ensemble.
-    TIC         = 29U,  //!< int16_t. The trace identification number.
-    VStackCnt   = 31U,  //!< int16_t. The number of traces vertically stacked.
-    HStackCnt   = 33U,  //!< int16_t. The number of traces horizontally stacked.
-    CDist       = 37U,  //!< int32_t. The distance from source center to receiver centre.
-    RcvElv      = 41U,  //!< int32_t. The receiver group elevation.
-    SurfElvSrc  = 45U,  //!< int32_t. The surface elevation at the source.
-    SrcDpthSurf = 49U,  //!< int32_t. The source depth below surface (opposite of above?).
-    DtmElvRcv   = 53U,  //!< int32_t. The datum elevation for the receiver group.
-    DtmElvSrc   = 57U,  //!< int32_t. The datum elevation for the source.
-    WtrDepSrc   = 61U,  //!< int32_t. The water depth for the source.
-    WtrDepRcv   = 65U,  //!< int32_t. The water depth for the receive group.
-    ScaleElev   = 69U,  //!< int16_t. The scale coordinate for 41-68 (elevations + depths).
-    ScaleCoord  = 71U,  //!< int16_t. The scale coordinate for 73-88 + 181-188
-    xSrc        = 73U,  //!< int32_t. The X coordinate for the source
-    ySrc        = 77U,  //!< int32_t. The Y coordinate for the source
-    xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
-    yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
-    UpSrc       = 95U,  //!< int16_t. The uphole time at the source (ms).
-    UpRcv       = 97U,  //!< int16_t. The uphole time at the receive group (ms).
-    Ns          = 115U, //!< int16_t. The number of samples in the trace.
-    Inc         = 117U, //!< int16_t. The sample interval (us).
-    xCmp        = 181U, //!< int32_t. The X coordinate for the CMP
-    yCmp        = 185U, //!< int32_t. The Y coordinate for the CMP
-    il          = 189U, //!< int32_t. The Inline grid point.
-    xl          = 193U, //!< int32_t. The Crossline grid point.
-    ShotNum     = 197U, //!< int32_t. The source nearest to the CDP.
-    ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
-    ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
-    TransConst  = 205U, //!< int32_t. The transduction constant.
-    TransExp    = 209U, //!< int16_t. The transduction exponent.
-    TransUnit   = 211U, //!< int16_t. The transduction units
-    TimeScal    = 215U, //!< int16_t. Scalar for time measurements.
-    SrcMeas     = 225U, //!< int32_t. Source measurement.
-    SrcMeasExp  = 229U, //!< int16_t. Source measurement exponent.
-};
 
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
 /*! This function exists to address a defect in enum usage in a map
@@ -361,7 +317,7 @@ struct Rule
      *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
-    Rule(std::vector<Meta> m, bool full = true,
+    Rule(const std::vector<Meta>& m, bool full = true,
          bool defaults = false, bool extras = false);
 
     /*! The constructor for creating a Rule structure with
@@ -385,7 +341,7 @@ struct Rule
      *  \param[in] r Another rule pointer.
      *  \return Return true if no errors
      */
-    bool addRule(Rule * r);
+    bool addRule(const Rule& r);
 
     /*! Add a rule for longs.
      *  \param[in] m The Meta entry.

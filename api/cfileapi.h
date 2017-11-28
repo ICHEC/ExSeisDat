@@ -22,7 +22,23 @@
 //
 #ifdef __cplusplus
 // Include concrete implementations for XXXPionter types in C++
-#include "cppfileapi.hh"
+namespace PIOL {
+    class ExSeis;
+
+    namespace File {
+        class Rule;
+        class Param;
+        class ReadDirect;
+        class WriteDirect;
+    }
+}
+
+typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeisPointer;
+typedef std::shared_ptr<PIOL::File::Rule> PIOL_File_RulePointer;
+typedef std::shared_ptr<PIOL::File::Param> PIOL_File_ParamPointer;
+typedef std::shared_ptr<PIOL::File::ReadDirect> PIOL_File_ReadDirectPointer;
+typedef std::shared_ptr<PIOL::File::WriteDirect> PIOL_File_WriteDirectPointer;
+
 #else
 // Forward declare opaque structs in C
 typedef struct PIOL_ExSeisPointer PIOL_ExSeisPointer;
@@ -145,19 +161,33 @@ PIOL_File_RuleHandle PIOL_File_Rule_new_from_list(size_t n, const PIOL_Meta * m)
  */
 void PIOL_File_Rule_delete(PIOL_File_RuleHandle rule);
 
+/*! Add a pre-defined rule.
+ *  \param[in] rule The Rule handle
+ *  \param[in] m The Meta entry.
+ *  \return Return true if the rule was added, otherwise false
+ */
+bool PIOL_File_Rule_addRule_Meta(PIOL_File_RuleHandle rule, PIOL_Meta m);
+
+/*! Add all rules from the given handle
+ *  \param[in] rule The Rule handle
+ *  \param[in] ruleToCopy The rule handle to copy the rules from.
+ *  \return Return true if no errors
+ */
+bool PIOL_File_Rule_addRule_RuleHandle(PIOL_File_RuleHandle rule, const PIOL_File_RuleHandle ruleToCopy);
+
 /*! Add a Rule for longs (int64_t)
  *  \param[in] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
-void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc);
+void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, PIOL_Meta m, PIOL_Tr loc);
 
 /*! Add a Rule for shorts (int16_t)
  *  \param[in] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
-void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc);
+void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, PIOL_Tr loc);
 
 /*! Add a Rule for floats
  *  \param[in] rule The Rule handle
@@ -166,14 +196,44 @@ void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc)
  *  \param[in] scalLoc The location in the trace header for the shared scaler;
  */
 void PIOL_File_Rule_addSEGYFloat(
-    PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc, size_t scalLoc
+    PIOL_File_RuleHandle rule, PIOL_Meta m, PIOL_Tr loc, PIOL_Tr scalLoc
 );
+
+/*! Add a rule for an index.
+ *  \param[in] rule The Rule handle
+ *  \param[in] m The Meta entry.
+ */
+void PIOL_File_Rule_addIndex(PIOL_File_RuleHandle rule, PIOL_Meta m);
+
+
+/*! Add a rule to buffer the original trace header.
+*  \param[in] rule The Rule handle
+ */
+void PIOL_File_Rule_addCopy(PIOL_File_RuleHandle rule);
 
 /*! remove a rule for a parameter
  *  \param[in] rule The Rule handle associated with the structure to free
  *  \param[in] m The parameter which one is removing a rule for
  */
 void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, PIOL_Meta m);
+
+/*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
+*  \param[in] rule The Rule handle
+ *  \return Return the size.
+ */
+size_t PIOL_File_Rule_extent(PIOL_File_RuleHandle rule);
+
+/*! Estimate of the total memory used
+*  \param[in] rule The Rule handle
+ *  \return Return estimate in bytes.
+ */
+size_t PIOL_File_Rule_memUsage(const PIOL_File_RuleHandle rule);
+
+/*! How much memory will each set of parameters require?
+*  \param[in] rule The Rule handle
+ *  \return Amount of memory in bytes.
+ */
+size_t PIOL_File_Rule_paramMem(const PIOL_File_RuleHandle rule);
 
 /*!
  * Param calls

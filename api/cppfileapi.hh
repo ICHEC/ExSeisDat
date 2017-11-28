@@ -84,6 +84,7 @@ class ExSeis
     void isErr(const std::string msg = "") const;
 };
 
+
 namespace File {
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
@@ -335,24 +336,8 @@ class ReadModel : public ReadDirect
 {
     public :
     ReadModel(const Piol piol_, const std::string name_);
-    std::vector<trace_t> readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather);
+    std::vector<trace_t> virtual readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather);
 };
 
 }}
-
-
-//
-// C API Wrapper types
-//
-typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeisPointer;
-
-typedef std::shared_ptr<PIOL::File::Rule> PIOL_File_RulePointer;
-
-typedef std::shared_ptr<PIOL::File::Param> PIOL_File_ParamPointer;
-
-typedef std::shared_ptr<PIOL::File::ReadDirect> PIOL_File_ReadDirectPointer;
-
-typedef std::shared_ptr<PIOL::File::WriteDirect> PIOL_File_WriteDirectPointer;
-
-
 #endif

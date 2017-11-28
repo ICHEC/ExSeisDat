@@ -42,28 +42,50 @@ void PIOL_File_Rule_delete(PIOL_File_RuleHandle rule)
     delete rule;
 }
 
-void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc)
+void PIOL_File_Rule_addLong(PIOL_File_RuleHandle rule, PIOL_Meta m, PIOL_Tr loc)
 {
-    (*rule)->addLong(m, static_cast<PIOL::File::Tr>(loc));
+    (*rule)->addLong(m, loc);
 }
 
-void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc)
+void PIOL_File_Rule_addShort(PIOL_File_RuleHandle rule, PIOL_Meta m, PIOL_Tr loc)
 {
-    (*rule)->addShort(m, static_cast<PIOL::File::Tr>(loc));
+    (*rule)->addShort(m, loc);
 }
 
 void PIOL_File_Rule_addSEGYFloat(
-    PIOL_File_RuleHandle rule, PIOL_Meta m, size_t loc, size_t scalLoc
+    PIOL_File_RuleHandle rule, PIOL_Meta m, PIOL_Tr loc, PIOL_Tr scalLoc
 ) {
-    (*rule)->addSEGYFloat(
-        m, static_cast<PIOL::File::Tr>(loc),
-        static_cast<PIOL::File::Tr>(scalLoc)
-    );
+    (*rule)->addSEGYFloat(m, loc, scalLoc);
+}
+
+void PIOL_File_Rule_addIndex(PIOL_File_RuleHandle rule, PIOL_Meta m)
+{
+    (*rule)->addIndex(m);
+}
+
+void PIOL_File_Rule_addCopy(PIOL_File_RuleHandle rule)
+{
+    (*rule)->addCopy();
 }
 
 void PIOL_File_Rule_rmRule(PIOL_File_RuleHandle rule, PIOL_Meta m)
 {
     (*rule)->rmRule(m);
+}
+
+size_t PIOL_File_Rule_extent(PIOL_File_RuleHandle rule)
+{
+    return (*rule)->extent();
+}
+
+size_t PIOL_File_Rule_memUsage(const PIOL_File_RuleHandle rule)
+{
+    return (*rule)->memUsage();
+}
+
+size_t PIOL_File_Rule_paramMem(const PIOL_File_RuleHandle rule)
+{
+    return (*rule)->paramMem();
 }
 
 PIOL_File_ParamHandle PIOL_File_Param_new(PIOL_File_RuleHandle rule, size_t sz)
@@ -75,6 +97,16 @@ PIOL_File_ParamHandle PIOL_File_Param_new(PIOL_File_RuleHandle rule, size_t sz)
 void PIOL_File_Param_delete(PIOL_File_ParamHandle param)
 {
     delete param;
+}
+
+bool PIOL_File_Rule_addRule_Meta(PIOL_File_RuleHandle rule, PIOL_Meta m)
+{
+    return (*rule)->addRule(m);
+}
+
+bool PIOL_File_Rule_addRule_RuleHandle(PIOL_File_RuleHandle rule, const PIOL_File_RuleHandle ruleToCopy)
+{
+    return (*rule)->addRule(**ruleToCopy);
 }
 
 short PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, PIOL_File_ParamHandle param)

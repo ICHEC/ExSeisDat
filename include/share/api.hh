@@ -65,6 +65,58 @@ namespace PIOL {
 #define PIOL_META_INTERNAL_END   PIOL_META_Misc4
 
 
+/*! SEG-Y Trace Header offsets
+ */
+typedef size_t PIOL_Tr;
+
+#ifdef __cplusplus
+namespace PIOL {
+    typedef PIOL_Tr Tr;
+}
+#endif
+
+#define PIOL_TR_SeqNum      ((PIOL_Tr) 1U)   //!< int32_t. The trace sequence number in the Line.
+#define PIOL_TR_SeqFNum     ((PIOL_Tr) 5U)   //!< int32_t. The trace sequence number in SEG-Y File.
+#define PIOL_TR_ORF         ((PIOL_Tr) 9U)   //!< int32_t. The original field record number.
+#define PIOL_TR_TORF        ((PIOL_Tr) 13U)  //!< int32_t. The trace number in the ORF.
+#define PIOL_TR_ENSrcNum    ((PIOL_Tr) 17U)  //!< int32_t. The source energy number.
+#define PIOL_TR_SeqNumEns   ((PIOL_Tr) 25U)  //!< int32_t. The trace number in the ensemble.
+#define PIOL_TR_TIC         ((PIOL_Tr) 29U)  //!< int16_t. The trace identification number.
+#define PIOL_TR_VStackCnt   ((PIOL_Tr) 31U)  //!< int16_t. The number of traces vertically stacked.
+#define PIOL_TR_HStackCnt   ((PIOL_Tr) 33U)  //!< int16_t. The number of traces horizontally stacked.
+#define PIOL_TR_CDist       ((PIOL_Tr) 37U)  //!< int32_t. The distance from source center to receiver centre.
+#define PIOL_TR_RcvElv      ((PIOL_Tr) 41U)  //!< int32_t. The receiver group elevation.
+#define PIOL_TR_SurfElvSrc  ((PIOL_Tr) 45U)  //!< int32_t. The surface elevation at the source.
+#define PIOL_TR_SrcDpthSurf ((PIOL_Tr) 49U)  //!< int32_t. The source depth below surface (opposite of above?).
+#define PIOL_TR_DtmElvRcv   ((PIOL_Tr) 53U)  //!< int32_t. The datum elevation for the receiver group.
+#define PIOL_TR_DtmElvSrc   ((PIOL_Tr) 57U)  //!< int32_t. The datum elevation for the source.
+#define PIOL_TR_WtrDepSrc   ((PIOL_Tr) 61U)  //!< int32_t. The water depth for the source.
+#define PIOL_TR_WtrDepRcv   ((PIOL_Tr) 65U)  //!< int32_t. The water depth for the receive group.
+#define PIOL_TR_ScaleElev   ((PIOL_Tr) 69U)  //!< int16_t. The scale coordinate for 41-68 (elevations + depths).
+#define PIOL_TR_ScaleCoord  ((PIOL_Tr) 71U)  //!< int16_t. The scale coordinate for 73-88 + 181-188
+#define PIOL_TR_xSrc        ((PIOL_Tr) 73U)  //!< int32_t. The X coordinate for the source
+#define PIOL_TR_ySrc        ((PIOL_Tr) 77U)  //!< int32_t. The Y coordinate for the source
+#define PIOL_TR_xRcv        ((PIOL_Tr) 81U)  //!< int32_t. The X coordinate for the receive group
+#define PIOL_TR_yRcv        ((PIOL_Tr) 85U)  //!< int32_t. The Y coordinate for the receive group
+#define PIOL_TR_UpSrc       ((PIOL_Tr) 95U)  //!< int16_t. The uphole time at the source (ms).
+#define PIOL_TR_UpRcv       ((PIOL_Tr) 97U)  //!< int16_t. The uphole time at the receive group (ms).
+#define PIOL_TR_Ns          ((PIOL_Tr) 115U) //!< int16_t. The number of samples in the trace.
+#define PIOL_TR_Inc         ((PIOL_Tr) 117U) //!< int16_t. The sample interval (us).
+#define PIOL_TR_xCmp        ((PIOL_Tr) 181U) //!< int32_t. The X coordinate for the CMP
+#define PIOL_TR_yCmp        ((PIOL_Tr) 185U) //!< int32_t. The Y coordinate for the CMP
+#define PIOL_TR_il          ((PIOL_Tr) 189U) //!< int32_t. The Inline grid point.
+#define PIOL_TR_xl          ((PIOL_Tr) 193U) //!< int32_t. The Crossline grid point.
+#define PIOL_TR_ShotNum     ((PIOL_Tr) 197U) //!< int32_t. The source nearest to the CDP.
+#define PIOL_TR_ShotScal    ((PIOL_Tr) 201U) //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
+#define PIOL_TR_ValMeas     ((PIOL_Tr) 203U) //!< int16_t. The unit system used for trace values.
+#define PIOL_TR_TransConst  ((PIOL_Tr) 205U) //!< int32_t. The transduction constant.
+#define PIOL_TR_TransExp    ((PIOL_Tr) 209U) //!< int16_t. The transduction exponent.
+#define PIOL_TR_TransUnit   ((PIOL_Tr) 211U) //!< int16_t. The transduction units
+#define PIOL_TR_TimeScal    ((PIOL_Tr) 215U) //!< int16_t. Scalar for time measurements.
+#define PIOL_TR_SrcMeas     ((PIOL_Tr) 225U) //!< int32_t. Source measurement.
+#define PIOL_TR_SrcMeasExp  ((PIOL_Tr) 229U) //!< int16_t. Source measurement exponent.
+
+
 /*! An enum class of the different types of sorting operation.
  */
 typedef size_t PIOL_SortType;

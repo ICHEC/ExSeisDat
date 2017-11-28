@@ -3,6 +3,6 @@
 
 #include <functional>
 
-void test_PIOL_File_Rule(std::function<void()> callback);
+void test_PIOL_File_Rule();
 
 #endif

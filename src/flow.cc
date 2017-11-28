@@ -516,7 +516,7 @@ void Set::sort(CompareP sortFunc)
                                                                          PIOL_META_yCmp, PIOL_META_Offset, PIOL_META_WtrDepRcv, PIOL_META_tn});
 
     //TODO: This is not the ideal mechanism, hack for now. See the note in the calcFunc for single traces
-    rule->addRule(r.get());
+    rule->addRule(*r);
     sort(r, sortFunc);
 }
 

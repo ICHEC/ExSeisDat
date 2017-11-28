@@ -16,10 +16,6 @@ SPECTESTS_SOURCES=$(wildcard spectests/*.cc)
 SPECTESTS_OBJECTS=$(patsubst spectests/%.cc, $(OBJDIR)/spectests/%.o,   $(SPECTESTS_SOURCES))
 SPECTESTS_DEPENDS=$(patsubst spectests/%.cc, $(OBJDIR)/spectests/%.dep, $(SPECTESTS_SOURCES))
 
-PIOLSTUB_SOURCES=$(wildcard piolstub/*.cc)
-PIOLSTUB_OBJECTS=$(patsubst piolstub/%.cc, $(OBJDIR)/piolstub/%.o,   $(PIOLSTUB_SOURCES))
-PIOLSTUB_DEPENDS=$(patsubst piolstub/%.cc, $(OBJDIR)/piolstub/%.dep, $(PIOLSTUB_SOURCES))
-
 CWRAPTESTS_SOURCES=$(wildcard cwraptests/*.c)
 CWRAPTESTS_OBJECTS=$(patsubst cwraptests/%.c, $(OBJDIR)/cwraptests/%.o,   $(CWRAPTESTS_SOURCES))
 CWRAPTESTS_DEPENDS=$(patsubst cwraptests/%.c, $(OBJDIR)/cwraptests/%.dep, $(CWRAPTESTS_SOURCES))
@@ -29,9 +25,9 @@ WRAPTESTS_OBJECTS=$(patsubst wraptests/%.cc, $(OBJDIR)/wraptests/%.o,   $(WRAPTE
 WRAPTESTS_DEPENDS=$(patsubst wraptests/%.cc, $(OBJDIR)/wraptests/%.dep, $(WRAPTESTS_SOURCES))
 
 
-CURR_OBJECTS=$(SPECTESTS_OBJECTS) $(PIOLSTUB_OBJECTS) $(WRAPTESTS_OBJECTS) $(CWRAPTESTS_OBJECTS)
+CURR_OBJECTS=$(SPECTESTS_OBJECTS) $(WRAPTESTS_OBJECTS) $(CWRAPTESTS_OBJECTS)
 CURR_DEP=$(DEP)
-CURR_DEPENDS=$(SPECTESTS_DEPENDS) $(PIOLSTUB_DEPENDS) $(WRAPTESTS_DEPENDS) $(CWRAPTESTS_DEPENDS)
+CURR_DEPENDS=$(SPECTESTS_DEPENDS) $(WRAPTESTS_DEPENDS) $(CWRAPTESTS_DEPENDS)
 
 BIN=$(BINDIR)/spectests
 
@@ -59,13 +55,10 @@ $(BINDIR)/spectests: $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a
 	mkdir -p $(@D)
 	$(CXX) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $(CXXLDFLAGS) $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a -l$(LIB_PIOL) -l$(LIB_IPIOL)
 
-$(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS) $(BINDIR)/wraptests.so $(BINDIR)/piolstub.so
+$(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS) $(BINDIR)/wraptests.so
 	$(CC) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^  -Wl,-dead_strip
 
-$(BINDIR)/wraptests.so: $(WRAPTESTS_OBJECTS) ../api/obj/cfileapi.o $(BINDIR)/piolstub.so $(BINDIR)/libgmock.a
-	$(CXX) -shared -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^
-
-$(BINDIR)/piolstub.so: $(PIOLSTUB_OBJECTS)
+$(BINDIR)/wraptests.so: $(WRAPTESTS_OBJECTS) ../api/obj/cfileapi.o $(BINDIR)/libgmock.a
 	$(CXX) -shared -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^
 
 

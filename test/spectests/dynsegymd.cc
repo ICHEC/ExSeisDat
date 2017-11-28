@@ -4,24 +4,24 @@
 
 TEST(RuleEntry, SEGYFloat)
 {
-    SEGYFloatRuleEntry entry(2U, Tr::xSrc, Tr::ScaleCoord);
+    SEGYFloatRuleEntry entry(2U, PIOL_TR_xSrc, PIOL_TR_ScaleCoord);
     ASSERT_EQ(2U, entry.num);
-    ASSERT_EQ(size_t(Tr::xSrc), entry.loc);
-    ASSERT_EQ(size_t(Tr::ScaleCoord), entry.scalLoc);
+    ASSERT_EQ(size_t(PIOL_TR_xSrc), entry.loc);
+    ASSERT_EQ(size_t(PIOL_TR_ScaleCoord), entry.scalLoc);
 }
 
 TEST(RuleEntry, SEGYShort)
 {
-    SEGYShortRuleEntry entry(2U, Tr::ScaleCoord);
+    SEGYShortRuleEntry entry(2U, PIOL_TR_ScaleCoord);
     ASSERT_EQ(2U, entry.num);
-    ASSERT_EQ(size_t(Tr::ScaleCoord), entry.loc);
+    ASSERT_EQ(size_t(PIOL_TR_ScaleCoord), entry.loc);
 }
 
 TEST(RuleEntry, SEGYLong)
 {
-    SEGYLongRuleEntry entry(2U, Tr::il);
+    SEGYLongRuleEntry entry(2U, PIOL_TR_il);
     ASSERT_EQ(2U, entry.num);
-    ASSERT_EQ(size_t(Tr::il), entry.loc);
+    ASSERT_EQ(size_t(PIOL_TR_il), entry.loc);
 }
 
 
@@ -41,15 +41,15 @@ TEST_F(RuleFixList, List)
         for (auto loc : locs)
             match += (loc == entry->loc);
         ASSERT_EQ(match, 1) << i;
-        ASSERT_EQ(size_t(Tr::ScaleCoord), entry->scalLoc) << i;
+        ASSERT_EQ(size_t(PIOL_TR_ScaleCoord), entry->scalLoc) << i;
     }
-    ASSERT_EQ(rule->extent(), locs[3] - size_t(Tr::ScaleCoord) + 4U);
+    ASSERT_EQ(rule->extent(), locs[3] - size_t(PIOL_TR_ScaleCoord) + 4U);
 }
 
 TEST_F(RuleFixEmpty, AddRmLongRules)
 {
-    rule->addLong(PIOL_META_xl, Tr::il);
-    ASSERT_EQ(rule->getEntry(PIOL_META_xl)->loc, size_t(Tr::il));
+    rule->addLong(PIOL_META_xl, PIOL_TR_il);
+    ASSERT_EQ(rule->getEntry(PIOL_META_xl)->loc, size_t(PIOL_TR_il));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(4));
     rule->rmRule(PIOL_META_xl);
     ASSERT_EQ(NULL, rule->getEntry(PIOL_META_xl));
@@ -57,12 +57,12 @@ TEST_F(RuleFixEmpty, AddRmLongRules)
 
 TEST_F(RuleFixEmpty, AddRmFloatRules)
 {
-    rule->addSEGYFloat(PIOL_META_dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
+    rule->addSEGYFloat(PIOL_META_dsdr, PIOL_TR_SrcMeas, PIOL_TR_SrcMeasExp);
     ASSERT_NE(nullptr, rule->getEntry(PIOL_META_dsdr));
     auto frule = dynamic_cast<SEGYFloatRuleEntry *>(rule->getEntry(PIOL_META_dsdr));
     ASSERT_NE(nullptr, frule);
-    ASSERT_EQ(frule->loc, size_t(Tr::SrcMeas));
-    ASSERT_EQ(frule->scalLoc, size_t(Tr::SrcMeasExp));
+    ASSERT_EQ(frule->loc, size_t(PIOL_TR_SrcMeas));
+    ASSERT_EQ(frule->scalLoc, size_t(PIOL_TR_SrcMeasExp));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(6));
     rule->rmRule(PIOL_META_dsdr);
     ASSERT_EQ(nullptr, rule->getEntry(PIOL_META_dsdr));
@@ -70,14 +70,14 @@ TEST_F(RuleFixEmpty, AddRmFloatRules)
 
 TEST_F(RuleFixEmpty, Extent)
 {
-    rule->addSEGYFloat(PIOL_META_dsdr, Tr::SrcMeas, Tr::ScaleCoord);
-    ASSERT_EQ(rule->extent(), size_t(Tr::SrcMeas) + 4U - size_t(Tr::ScaleCoord));
+    rule->addSEGYFloat(PIOL_META_dsdr, PIOL_TR_SrcMeas, PIOL_TR_ScaleCoord);
+    ASSERT_EQ(rule->extent(), size_t(PIOL_TR_SrcMeas) + 4U - size_t(PIOL_TR_ScaleCoord));
 }
 
 TEST_F(RuleFixList, setPrm)
 {
-    rule->addLong(PIOL_META_dsdr, Tr::SrcMeas);
-    rule->addShort(PIOL_META_il, Tr::ScaleElev);
+    rule->addLong(PIOL_META_dsdr, PIOL_TR_SrcMeas);
+    rule->addShort(PIOL_META_il, PIOL_TR_ScaleElev);
     Param prm(rule, 100);
     for (size_t i = 0; i < 100; i++)
     {

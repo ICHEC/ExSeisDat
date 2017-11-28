@@ -7,7 +7,7 @@ extern "C" {
 
 void init_wraptests();
 void fail_wraptests();
-int  finalize_wraptests();
+void wraptest_ok();
 
 #ifdef __cplusplus
 }
