@@ -174,9 +174,9 @@ class ReadDirect
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[out] prm The parameter structure
      *
-     *  \details When prm==PRM_NULL only the trace DF is read.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
     /*! \brief Function to read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
@@ -192,11 +192,11 @@ class ReadDirect
      *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[out] prm The parameter structure
      *
-     *  \details When prm==PRM_NULL only the trace DF is read.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
-    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL)) const;
+    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -293,9 +293,9 @@ class WriteDirect
      *  \param[in] prm The parameter structure
      *  \warning This function is not thread safe.
      *
-     *  \details When prm==PRM_NULL only the trace DF is written.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is written.
      */
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
@@ -314,11 +314,11 @@ class WriteDirect
      *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
      *  \param[in] prm The parameter structure
      *
-     *  \details When prm==PRM_NULL only the trace DF is written.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is written.
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL);
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process

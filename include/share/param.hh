@@ -10,6 +10,7 @@
 #ifndef PIOLSHAREPARAM_INCLUDE_GUARD
 #define PIOLSHAREPARAM_INCLUDE_GUARD
 #include "global.hh"
+#include "api.hh"
 
 namespace PIOL { namespace File {
 struct Rule;

@@ -25,7 +25,6 @@ std::shared_ptr<Obj::Interface> makeDefaultObj(PIOL::Piol piol, std::string name
 }
 namespace File {
 extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
-extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
 /*! Class for all file interfaces
  */
 class Interface
@@ -128,7 +127,7 @@ class ReadInterface : public Interface
      *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array. Assumes Monotonic.
      *  \param[in] sz The number of traces to process
@@ -137,9 +136,9 @@ class ReadInterface : public Interface
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      *
-     *  \details When prm==PARAM_NULL only the trace DF is read.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array. Does not assume monotonic
      *  \param[in] sz The number of traces to process
@@ -148,9 +147,9 @@ class ReadInterface : public Interface
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      *
-     *  \details When prm==PARAM_NULL only the trace DF is read.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+    virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
 };
 
 /*! \brief The File layer interface. Specific File implementations
@@ -224,7 +223,7 @@ class WriteInterface : public Interface
      *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When writing, skip the first "skip" entries of prm
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
+    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) = 0;
 
     /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -233,11 +232,11 @@ class WriteInterface : public Interface
      *  \param[in] prm A parameter structure
      *  \param[in] skip When writing, skip the first "skip" entries of prm
      *
-     *  \details When prm==PARAM_NULL only the trace DF is written.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is written.
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
+    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) = 0;
 };
 
 /*! \brief An intitial class for 3d volumes

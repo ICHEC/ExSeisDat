@@ -165,7 +165,7 @@ void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t
         for (size_t i = 0; i < ns * sz; i++)
             reverse4Bytes(&tbuf[i*sizeof(float)]);
 
-    if (prm == PARAM_NULL)
+    if (prm == PIOL_PARAM_NULL)
         obj->writeDODF(offset, ns, sz, tbuf);
     else
     {

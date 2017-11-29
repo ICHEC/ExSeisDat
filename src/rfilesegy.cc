@@ -87,7 +87,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t offset, csize_t sz, const 
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offsets.size(), offsets.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
+    readTrace(offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
     return trc;
 }
 
@@ -102,7 +102,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * offset, cons
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offsets.size(), offsets.data(), trc.data(), const_cast<Param *>(PARAM_NULL), 0LU);
+    readTrace(offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
     return trc;
 }
 
@@ -140,7 +140,7 @@ void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T o
                                       csize_t sz, trace_t * trc, Param * prm, csize_t skip)
 {
     uchar * tbuf = reinterpret_cast<uchar *>(trc);
-    if (prm == PARAM_NULL)
+    if (prm == PIOL_PARAM_NULL)
         obj->readDODF(offset, ns, sz, tbuf);
     else
     {
@@ -198,13 +198,13 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trc, Par
         if (offset[idx[j-1]] != offset[idx[j]])
             nodups.push_back(offset[idx[j]]);
 
-    File::Param sprm(prm->r, (prm != PARAM_NULL ? nodups.size() : 0LU));
+    File::Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
     std::vector<trace_t> strc(ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
 
     readTrace(nodups.size(), nodups.data(), (trc != TRACE_NULL ? strc.data() : trc),
-                                            (prm != PARAM_NULL ? &sprm : prm), 0LU);
+                                            (prm != PIOL_PARAM_NULL ? &sprm : prm), 0LU);
 
-    if (prm != PARAM_NULL)
+    if (prm != PIOL_PARAM_NULL)
         for (size_t n = 0, j = 0; j < sz; ++j)
         {
             n += (j && offset[idx[j-1]] != offset[idx[j]]);

@@ -388,8 +388,8 @@ size_t Param::memUsage(void) const
 
 void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
 {
-    if (src == File::PARAM_NULL || src == nullptr ||
-        dst == File::PARAM_NULL || dst == nullptr)
+    if (src == PIOL_PARAM_NULL || src == nullptr ||
+        dst == PIOL_PARAM_NULL || dst == nullptr)
         return;
 
     Rule * srule = src->r.get();

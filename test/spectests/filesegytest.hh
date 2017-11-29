@@ -355,7 +355,7 @@ struct FileReadSEGYTest : public Test
             rule->addSEGYFloat(PIOL_META_ySrc, PIOL_TR_ySrc, PIOL_TR_ScaleCoord);
         }
         File::Param prm(rule, tn);
-        file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : const_cast<File::Param *>(File::PARAM_NULL)));
+        file->readTrace(offset, tn, bufnew.data(), (readPrm ? &prm : PIOL_PARAM_NULL));
         for (size_t i = 0U; i < tnRead; i++)
         {
             if (readPrm && tnRead && ns)

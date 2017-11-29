@@ -8,7 +8,6 @@
  *//*******************************************************************************************/
 #include "file/file.hh"
 namespace PIOL { namespace File {
-const Param * PARAM_NULL = (Param *)1;
 const trace_t * TRACE_NULL = (trace_t *)1;
 
 //TODO: Unit test

@@ -244,4 +244,19 @@ typedef struct
 #ifdef __cplusplus
 }
 #endif
+
+
+#ifdef __cplusplus
+    namespace PIOL {
+        namespace File {
+            struct Param;
+        }
+    }
+    typedef PIOL::File::Param PIOL_Param;
+#else
+    typedef struct PIOL_Param PIOL_Param;
+#endif
+
+#define PIOL_PARAM_NULL ((PIOL_Param*) 1)  //!< The NULL parameter so that the correct internal read pattern is selected
+
 #endif

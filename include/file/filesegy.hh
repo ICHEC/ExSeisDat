@@ -62,11 +62,11 @@ class ReadSEGY : public ReadInterface
 
     size_t readNt(void);
 
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
+    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
+    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 
-    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const;
+    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 };
 
 /*! A SEGY class for velocity models
@@ -172,9 +172,9 @@ class WriteSEGY : public WriteInterface
 
     void writeInc(const geom_t inc_);
 
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0);
+    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
 
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0);
+    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
 };
 }}
 #endif
