@@ -30,7 +30,13 @@ void init_wraptests()
     testing::TestEventListeners& listeners =
         testing::UnitTest::GetInstance()->listeners();
     listeners.Release(listeners.default_result_printer());
-    listeners.Append(new CheckReturnListener);
+
+    // Setup and add the CheckReturnListener
+    if(PIOL::checkReturnListener == nullptr)
+    {
+        PIOL::checkReturnListener = new PIOL::CheckReturnListener;
+    }
+    listeners.Append(PIOL::checkReturnListener);
 
     //::testing::FLAGS_gmock_verbose = "info";
     ::testing::FLAGS_gmock_verbose = "error";
@@ -43,7 +49,7 @@ void init_wraptests()
 
 void wraptest_ok()
 {
-    returnChecker().Call();
+    PIOL::returnChecker().Call();
 }
 
 }

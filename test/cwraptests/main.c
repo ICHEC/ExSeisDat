@@ -15,13 +15,13 @@ int main()
     //
     // Testing ExSeis
     //
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(0);
+    PIOL_ExSeis* piol = PIOL_ExSeis_new(0);
 
-    PIOL_ExSeisHandle piol_tmp_1 = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    PIOL_ExSeisHandle piol_tmp_2 = PIOL_ExSeis_new(PIOL_VERBOSITY_MINIMAL);
-    PIOL_ExSeisHandle piol_tmp_3 = PIOL_ExSeis_new(PIOL_VERBOSITY_EXTENDED);
-    PIOL_ExSeisHandle piol_tmp_4 = PIOL_ExSeis_new(PIOL_VERBOSITY_VERBOSE);
-    PIOL_ExSeisHandle piol_tmp_5 = PIOL_ExSeis_new(PIOL_VERBOSITY_MAX);
+    PIOL_ExSeis* piol_tmp_1 = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis* piol_tmp_2 = PIOL_ExSeis_new(PIOL_VERBOSITY_MINIMAL);
+    PIOL_ExSeis* piol_tmp_3 = PIOL_ExSeis_new(PIOL_VERBOSITY_EXTENDED);
+    PIOL_ExSeis* piol_tmp_4 = PIOL_ExSeis_new(PIOL_VERBOSITY_VERBOSE);
+    PIOL_ExSeis* piol_tmp_5 = PIOL_ExSeis_new(PIOL_VERBOSITY_MAX);
 
     if(PIOL_ExSeis_getRank(piol)    == 0)  wraptest_ok();
     if(PIOL_ExSeis_getNumRank(piol) == 10) wraptest_ok();
@@ -43,9 +43,9 @@ int main()
     // Testing Rule
     //
 
-    PIOL_File_RuleHandle rule = PIOL_File_Rule_new(true);
+    PIOL_File_Rule* rule = PIOL_File_Rule_new(true);
 
-    PIOL_File_RuleHandle rule_tmp = PIOL_File_Rule_new(false);
+    PIOL_File_Rule* rule_tmp = PIOL_File_Rule_new(false);
 
     const PIOL_Meta meta_list[] = {
         PIOL_META_COPY,
@@ -84,13 +84,13 @@ int main()
         PIOL_META_Misc3,
         PIOL_META_Misc4
     };
-    PIOL_File_RuleHandle rule_tmp2 = PIOL_File_Rule_new_from_list(
+    PIOL_File_Rule* rule_tmp2 = PIOL_File_Rule_new_from_list(
         sizeof(meta_list)/sizeof(meta_list[0]), meta_list
     );
     
     if(PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true)  wraptest_ok();
     if(PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == false) wraptest_ok();
-    PIOL_File_Rule_addRule_RuleHandle(rule, rule_tmp);
+    PIOL_File_Rule_addRule_Rule(rule, rule_tmp);
 
     PIOL_File_Rule_addLong(rule, PIOL_META_COPY, PIOL_TR_SeqNum);
     PIOL_File_Rule_addSEGYFloat(rule, PIOL_META_COPY, PIOL_TR_SeqNum, PIOL_TR_SeqNum);
@@ -109,7 +109,7 @@ int main()
 //     //
 //     // Testing ReadDirect
 //     //
-//     PIOL_File_ReadDirectHandle read_direct =
+//     PIOL_File_ReadDirect* read_direct =
 //         PIOL_File_ReadDirect_new(piol, "test_readdirect_filename.sgy");
 // 
 //     {

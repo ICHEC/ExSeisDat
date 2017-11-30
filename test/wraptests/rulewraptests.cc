@@ -6,28 +6,6 @@ using namespace PIOL;
 using namespace PIOL::File;
 using namespace testing;
 
-// EqDeref(p): *p == arg
-MATCHER_P(EqDeref, p, "")
-{
-    return *p == arg;
-}
-
-// AddressEqDeref(p): *p == &arg
-MATCHER_P(AddressEqDeref, p, "")
-{
-    return *p == &arg;
-}
-
-ACTION_P(SetCheckReturn, v)
-{
-    CheckReturnListener::wait_for_check(testing::PrintToString(v));
-    return v;
-}
-
-ACTION(ClearCheckReturn)
-{
-    CheckReturnListener::check_successful();
-}
 
 void test_PIOL_File_Rule()
 {
@@ -82,9 +60,9 @@ void test_PIOL_File_Rule()
     EXPECT_CALL(mockRule, ctor(_, test_meta_values, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp2_ptr));
 
-    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(SetCheckReturn(true));
+    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(true));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
-    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(SetCheckReturn(false));
+    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(false));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), Matcher<const Rule&>(AddressEqDeref(rule_tmp_ptr))));
@@ -97,13 +75,13 @@ void test_PIOL_File_Rule()
 
     EXPECT_CALL(mockRule, rmRule(_, PIOL_META_COPY));
 
-    EXPECT_CALL(mockRule, extent(_)).WillOnce(SetCheckReturn(100));
+    EXPECT_CALL(mockRule, extent(_)).WillOnce(CheckReturn(100));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mockRule, memUsage(_)).WillOnce(SetCheckReturn(110));
+    EXPECT_CALL(mockRule, memUsage(_)).WillOnce(CheckReturn(110));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mockRule, paramMem(_)).WillOnce(SetCheckReturn(120));
+    EXPECT_CALL(mockRule, paramMem(_)).WillOnce(CheckReturn(120));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     //MOCK_METHOD1(getEntry, RuleEntry * (Meta entry));

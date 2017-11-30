@@ -1,33 +1,46 @@
 #ifndef PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
 #define PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
 
-#include "gmock/gmock.h"
 
+#include "gmock/gmock.h"
+#include "checkreturnlistener.hh"
+
+
+namespace PIOL {
+
+// A global instance of CheckReturnListener.
+// This should be set to the pointer passed into the gtest listeners.
+PIOL::CheckReturnListener* checkReturnListener = nullptr;
+
+// Returns a mocked function which, when called, will call
+// checkReturnListener->got_expected_return_value();
 testing::MockFunction<void()>& returnChecker();
 
-extern std::string checking_return;
+}
 
 
-class CheckReturnListener: public testing::EmptyTestEventListener
+// EqDeref(p): *p == arg
+MATCHER_P(EqDeref, p, "")
 {
-public:
-    CheckReturnListener();
+    return *p == arg;
+}
 
-    // Called after EXPECT_CALL throws
-    virtual void OnTestPartResult(
-        const ::testing::TestPartResult& test_part_result);
+// AddressEqDeref(p): *p == &arg
+MATCHER_P(AddressEqDeref, p, "")
+{
+    return *p == &arg;
+}
 
-    // Call to set the awaiting_check_ flag, and the return_value_ string.
-    // This will set the listener to report the return_value on failure.
-    static void wait_for_check(std::string return_value);
+ACTION_P(CheckReturn, v)
+{
+    PIOL::checkReturnListener->expect_return_value(testing::PrintToString(v));
+    return v;
+}
 
-    // Call when the return value has been verified. This resets the
-    // awaiting_check_ flag to false;
-    static void check_successful();
+ACTION(ClearCheckReturn)
+{
+    PIOL::checkReturnListener->got_expected_return_value();
+}
 
-private:
-    static bool awaiting_check_;
-    static std::string return_value_;
-};
 
 #endif
