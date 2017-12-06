@@ -38,7 +38,12 @@ static size_t getCount(const char * src, csize_t sz)
 //Do conversion, if more printable letters and spaces etc post-conversion use it.
 void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src)
 {
-    iconv_t toAsc = iconv_open("ASCII//", "EBCDICUS//");
+    #warning FIXME: EBCDICUS doesn't work on OSX!
+    #ifndef __APPLE__
+        iconv_t toAsc = iconv_open("ASCII//", "EBCDICUS//");
+    #else
+        iconv_t toAsc = iconv_open("ASCII", "ASCII");
+    #endif
     piol->log->record(file, Log::Layer::File, Log::Status::Error, "Iconv has failed to open ASCII and EBCDICUS",
                       Log::Verb::None, toAsc == (iconv_t)-1);
 

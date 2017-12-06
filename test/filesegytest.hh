@@ -158,7 +158,12 @@ struct FileReadSEGYTest : public Test
             size_t tsz2 = tsz;
             char * t = &testString[0];
             char * newText = reinterpret_cast<char *>(ho.data());
-            iconv_t toAsc = iconv_open("EBCDICUS//", "ASCII//");
+            #warning FIXME: EBCDICUS doesn't work on OSX!
+            #ifndef __APPLE__
+                iconv_t toAsc = iconv_open("ASCII//", "EBCDICUS//");
+            #else
+                iconv_t toAsc = iconv_open("ASCII", "ASCII");
+            #endif
             ::iconv(toAsc, &t, &tsz, &newText, &tsz2);
             iconv_close(toAsc);
         }
@@ -441,12 +446,11 @@ struct FileReadSEGYTest : public Test
 
 struct FileWriteSEGYTest : public Test
 {
+    std::string name_;
     std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPI::Opt opt;
     bool testEBCDIC;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    std::unique_ptr<File::WriteDirect> file;
-    std::unique_ptr<File::ReadDirect> readfile;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
@@ -454,7 +458,8 @@ struct FileWriteSEGYTest : public Test
     csize_t format = 5;
     std::vector<uchar> ho;
     std::shared_ptr<MockObj> mock;
-    std::string name_;
+    std::unique_ptr<File::WriteDirect> file;
+    std::unique_ptr<File::ReadDirect> readfile;
 
     FileWriteSEGYTest()
     {

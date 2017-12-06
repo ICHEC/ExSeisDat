@@ -131,7 +131,7 @@ TEST_F(OpsTest, getMinMaxRand)
         size_t num = rand() % 1710880;
         std::vector<coord_t> coord(num);
         for (size_t i = 0; i < num; i++)
-            coord[i] = { rand(), rand() };
+            coord[i] = { 1.0*rand(), 1.0*rand() };
 
         getMinMax(piol, 0, coord.size(), coord.data(), minmax.data());
         piol.isErr();
@@ -263,6 +263,6 @@ TEST_F(OpsTest, FilterCheckBandstop)
     for (size_t i = 0; i < 2*N+1; i++)
     {
         EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
-        EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
+        EXPECT_NEAR(numerRef[i], numerCalc[i], 5e-6);
     }
 }
