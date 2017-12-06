@@ -56,12 +56,40 @@ set(
 )
 
 
+# Find needed libraries ########################################################
+
+find_package(MPI REQUIRED)
+
+#
+# Find fftw3
+#
+include(FindPackageHandleStandardArgs)
+
+# fftw3.h
+find_path(
+    FFTW3_INCLUDES fftw3.h
+    HINTS ${FFTW3_DIR}
+    PATH_SUFFIXES include local/include
+)
+find_package_handle_standard_args(FFTW3_INCLUDES DEFAULT_MSG FFTW3_INCLUDES)
+
+# libfftw3f
+find_library(
+    FFTW3_LIBRARIES NAMES fftw3f
+    HINTS ${FFTW3_DIR} ${FFTW3_INCLUDES}/..
+    PATH_SUFFIXES bin lib lib64
+)
+find_package_handle_standard_args(FFTW3_LIBRARIES DEFAULT_MSG FFTW3_LIBRARIES)
+
+
 # Setup header includes ########################################################
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/api
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/util
+
+    ${FFTW3_INCLUDES}
 )
 
 
@@ -105,6 +133,8 @@ add_library(
     util/sglobal.cc
     util/sglobal.c
 )
+
+target_link_libraries(exseisdat MPI::MPI_C ${FFTW3_LIBRARIES})
 
 
 # Include subdirectories #######################################################
