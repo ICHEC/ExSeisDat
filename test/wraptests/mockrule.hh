@@ -8,6 +8,9 @@ namespace PIOL {
 
 using namespace File;
 
+class MockRule;
+MockRule& mockRule();
+
 class MockRule
 {
 public:
@@ -27,8 +30,6 @@ public:
     MOCK_CONST_METHOD1(memUsage, size_t (const Rule*));
     MOCK_CONST_METHOD1(paramMem, size_t (const Rule*));
     MOCK_METHOD2(getEntry, RuleEntry * (Rule*, Meta entry));
-
-    static MockRule& instance();
 };
 
 } // namespace PIOL

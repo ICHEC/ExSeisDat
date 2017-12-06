@@ -9,14 +9,12 @@ using namespace testing;
 
 void test_PIOL_File_Rule()
 {
-    auto& mockRule = MockRule::instance();
-
     auto rule_ptr = std::make_shared<Rule*>();
-    EXPECT_CALL(mockRule, ctor(_, true, true, false))
+    EXPECT_CALL(mockRule(), ctor(_, true, true, false))
         .WillOnce(SaveArg<0>(rule_ptr));
 
     auto rule_tmp_ptr = std::make_shared<const Rule*>();
-    EXPECT_CALL(mockRule, ctor(_, true, false, false))
+    EXPECT_CALL(mockRule(), ctor(_, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp_ptr));
 
     std::vector<Meta> test_meta_values = {
@@ -57,35 +55,35 @@ void test_PIOL_File_Rule()
         PIOL_META_Misc4,
     };
     auto rule_tmp2_ptr = std::make_shared<Rule*>();
-    EXPECT_CALL(mockRule, ctor(_, test_meta_values, true, false, false))
+    EXPECT_CALL(mockRule(), ctor(_, test_meta_values, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp2_ptr));
 
-    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(true));
+    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(true));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
-    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(false));
-    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
-
-    EXPECT_CALL(mockRule, addRule(EqDeref(rule_ptr), Matcher<const Rule&>(AddressEqDeref(rule_tmp_ptr))));
-
-    EXPECT_CALL(mockRule, addLong(_, PIOL_META_COPY, PIOL_TR_SeqNum));
-    EXPECT_CALL(mockRule, addSEGYFloat(_, PIOL_META_COPY, PIOL_TR_SeqNum, PIOL_TR_SeqNum));
-    EXPECT_CALL(mockRule, addShort(_, PIOL_META_COPY, PIOL_TR_SeqNum));
-    EXPECT_CALL(mockRule, addIndex(_, PIOL_META_COPY));
-    EXPECT_CALL(mockRule, addCopy(_));
-
-    EXPECT_CALL(mockRule, rmRule(_, PIOL_META_COPY));
-
-    EXPECT_CALL(mockRule, extent(_)).WillOnce(CheckReturn(100));
+    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(false));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mockRule, memUsage(_)).WillOnce(CheckReturn(110));
+    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), Matcher<const Rule&>(AddressEqDeref(rule_tmp_ptr))));
+
+    EXPECT_CALL(mockRule(), addLong(_, PIOL_META_COPY, PIOL_TR_SeqNum));
+    EXPECT_CALL(mockRule(), addSEGYFloat(_, PIOL_META_COPY, PIOL_TR_SeqNum, PIOL_TR_SeqNum));
+    EXPECT_CALL(mockRule(), addShort(_, PIOL_META_COPY, PIOL_TR_SeqNum));
+    EXPECT_CALL(mockRule(), addIndex(_, PIOL_META_COPY));
+    EXPECT_CALL(mockRule(), addCopy(_));
+
+    EXPECT_CALL(mockRule(), rmRule(_, PIOL_META_COPY));
+
+    EXPECT_CALL(mockRule(), extent(_)).WillOnce(CheckReturn(100));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mockRule, paramMem(_)).WillOnce(CheckReturn(120));
+    EXPECT_CALL(mockRule(), memUsage(_)).WillOnce(CheckReturn(110));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+
+    EXPECT_CALL(mockRule(), paramMem(_)).WillOnce(CheckReturn(120));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     //MOCK_METHOD1(getEntry, RuleEntry * (Meta entry));
 
-    EXPECT_CALL(mockRule, dtor(EqDeref(rule_tmp2_ptr)));
-    EXPECT_CALL(mockRule, dtor(EqDeref(rule_tmp_ptr)));
+    EXPECT_CALL(mockRule(), dtor(EqDeref(rule_tmp2_ptr)));
+    EXPECT_CALL(mockRule(), dtor(EqDeref(rule_tmp_ptr)));
 }

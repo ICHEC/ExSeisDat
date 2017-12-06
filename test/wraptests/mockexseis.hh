@@ -6,6 +6,9 @@
 
 namespace PIOL {
 
+class MockExSeis;
+class MockExSeis& mockExSeis();
+
 class MockExSeis
 {
 public:
@@ -18,8 +21,6 @@ public:
     MOCK_CONST_METHOD0(barrier, void());
     MOCK_CONST_METHOD1(max, size_t(size_t n));
     MOCK_CONST_METHOD1(isErr, void(const std::string msg));
-
-    static MockExSeis& instance();
 };
 
 } // namespace PIOL

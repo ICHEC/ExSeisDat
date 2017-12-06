@@ -7,6 +7,8 @@
 namespace PIOL {
 using namespace File;
 
+class MockReadDirect& mockReadDirect();
+
 class MockReadDirect
 {
 public:
@@ -58,8 +60,6 @@ public:
         readParam,
         void(const ReadDirect*, csize_t sz, csize_t * offset, Param * prm)
     );
-
-    static MockReadDirect& instance();
 };
 
 } // namespace PIOL

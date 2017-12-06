@@ -10,7 +10,7 @@ namespace PIOL {
 
 // A global instance of CheckReturnListener.
 // This should be set to the pointer passed into the gtest listeners.
-PIOL::CheckReturnListener* checkReturnListener = nullptr;
+PIOL::CheckReturnListener*& checkReturnListener();
 
 // Returns a mocked function which, when called, will call
 // checkReturnListener->got_expected_return_value();
@@ -33,13 +33,13 @@ MATCHER_P(AddressEqDeref, p, "")
 
 ACTION_P(CheckReturn, v)
 {
-    PIOL::checkReturnListener->expect_return_value(testing::PrintToString(v));
+    PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
     return v;
 }
 
 ACTION(ClearCheckReturn)
 {
-    PIOL::checkReturnListener->got_expected_return_value();
+    PIOL::checkReturnListener()->got_expected_return_value();
 }
 
 

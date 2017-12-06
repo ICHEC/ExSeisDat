@@ -10,8 +10,6 @@ using namespace ::testing;
 
 void test_PIOL_ExSeis()
 {
-    auto& mockExSeis = MockExSeis::instance();
-
     std::pair<std::string, Verbosity> exseis_new_args[] = {
         {"", PIOL_VERBOSITY_NONE},
         {"PIOL_VERBOSITY_NONE",     PIOL_VERBOSITY_NONE},
@@ -23,26 +21,26 @@ void test_PIOL_ExSeis()
 
     for(auto args: exseis_new_args)
     {
-        EXPECT_CALL(mockExSeis, ctor(args.second));
+        EXPECT_CALL(mockExSeis(), ctor(args.second));
     }
 
-    EXPECT_CALL(mockExSeis, getRank()).WillOnce(Return(0));
+    EXPECT_CALL(mockExSeis(), getRank()).WillOnce(Return(0));
     EXPECT_CALL(returnChecker(), Call());
 
-    EXPECT_CALL(mockExSeis, getNumRank()).WillOnce(Return(10));
+    EXPECT_CALL(mockExSeis(), getNumRank()).WillOnce(Return(10));
     EXPECT_CALL(returnChecker(), Call());
 
-    EXPECT_CALL(mockExSeis, barrier());
+    EXPECT_CALL(mockExSeis(), barrier());
 
-    EXPECT_CALL(mockExSeis, max(0)).WillOnce(Return(30));
+    EXPECT_CALL(mockExSeis(), max(0)).WillOnce(Return(30));
     EXPECT_CALL(returnChecker(), Call());
-    EXPECT_CALL(mockExSeis, max(40)).WillOnce(Return(50));
+    EXPECT_CALL(mockExSeis(), max(40)).WillOnce(Return(50));
     EXPECT_CALL(returnChecker(), Call());
 
-    EXPECT_CALL(mockExSeis, isErr(""));
-    EXPECT_CALL(mockExSeis, isErr("Test isErr message"));
+    EXPECT_CALL(mockExSeis(), isErr(""));
+    EXPECT_CALL(mockExSeis(), isErr("Test isErr message"));
 
     for(size_t i=0; i<5; i++) {
-        EXPECT_CALL(mockExSeis, dtor());
+        EXPECT_CALL(mockExSeis(), dtor());
     }
 }

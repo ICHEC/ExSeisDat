@@ -32,11 +32,8 @@ void init_wraptests()
     listeners.Release(listeners.default_result_printer());
 
     // Setup and add the CheckReturnListener
-    if(PIOL::checkReturnListener == nullptr)
-    {
-        PIOL::checkReturnListener = new PIOL::CheckReturnListener;
-    }
-    listeners.Append(PIOL::checkReturnListener);
+    PIOL::checkReturnListener() = new PIOL::CheckReturnListener;
+    listeners.Append(PIOL::checkReturnListener());
 
     //::testing::FLAGS_gmock_verbose = "info";
     ::testing::FLAGS_gmock_verbose = "error";

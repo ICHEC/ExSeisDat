@@ -3,8 +3,12 @@
 
 #include "gmock/gmock.h"
 #include "flow/set.hh"
+#include "file/dynsegymd.hh"
 
 namespace PIOL {
+
+class MockSet;
+MockSet& mockSet();
 
 class MockSet
 {
@@ -89,8 +93,6 @@ public:
             size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr
         )
     );
-
-    static MockSet& instance();
 };
 
 } // namespace PIOL

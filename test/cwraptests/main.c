@@ -10,6 +10,7 @@
 
 int main()
 {
+    printf("cwraptests: Initializing!\n");
     init_wraptests();
 
     //
@@ -85,7 +86,7 @@ int main()
         PIOL_META_Misc4
     };
     PIOL_File_Rule* rule_tmp2 = PIOL_File_Rule_new_from_list(
-        sizeof(meta_list)/sizeof(meta_list[0]), meta_list
+        meta_list, sizeof(meta_list)/sizeof(meta_list[0])
     );
     
     if(PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true)  wraptest_ok();
@@ -132,5 +133,7 @@ int main()
 //     //~ReadDirect(void) { }
 //     }
 // 
+
+    printf("cwraptests: Done!\n");
     return 0;
 }
