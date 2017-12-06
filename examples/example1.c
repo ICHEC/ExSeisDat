@@ -4,7 +4,7 @@
 int main(int argc, char ** argv)
 {
     //Initialise the PIOL by creating an ExSeis object
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
 
     char * opt = "o:";  //TODO: uses a GNU extension
     char * name = NULL;
@@ -16,7 +16,7 @@ int main(int argc, char ** argv)
     assert(name);
 
     //Create a SEGY file object
-    PIOL_File_WriteDirectHandle fh = PIOL_File_WriteDirect_new(piol, name);
+    PIOL_File_WriteDirect* fh = PIOL_File_WriteDirect_new(piol, name);
 
     //nt is the number of traces, ns the number of samples per trace
     size_t nt = 40000, ns = 1000;
@@ -38,19 +38,19 @@ int main(int argc, char ** argv)
     PIOL_File_WriteDirect_writeText(fh, "Test file\n");
 
     //Set some trace parameters
-    PIOL_File_ParamHandle prm = PIOL_File_Param_new(NULL, lnt);
+    PIOL_File_Param* prm = PIOL_File_Param_new(NULL, lnt);
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
-        PIOL_File_setPrm_double(j, xSrc, 1600.0 + k, prm);
-        PIOL_File_setPrm_double(j, ySrc, 2400.0 + k, prm);
-        PIOL_File_setPrm_double(j, xRcv, 100000.0 + k, prm);
-        PIOL_File_setPrm_double(j, yRcv, 3000000.0 + k, prm);
-        PIOL_File_setPrm_double(j, xCmp, 10000.0 + k, prm);
-        PIOL_File_setPrm_double(j, yCmp, 4000.0 + k, prm);
-        PIOL_File_setPrm_llint(j, il, 2400 + offset + j, prm);
-        PIOL_File_setPrm_llint(j, xl, 1600 + offset + j, prm);
-        PIOL_File_setPrm_llint(j, tn, offset + j, prm);
+        PIOL_File_setPrm_double(j, PIOL_META_xSrc, 1600.0 + k, prm);
+        PIOL_File_setPrm_double(j, PIOL_META_ySrc, 2400.0 + k, prm);
+        PIOL_File_setPrm_double(j, PIOL_META_xRcv, 100000.0 + k, prm);
+        PIOL_File_setPrm_double(j, PIOL_META_yRcv, 3000000.0 + k, prm);
+        PIOL_File_setPrm_double(j, PIOL_META_xCmp, 10000.0 + k, prm);
+        PIOL_File_setPrm_double(j, PIOL_META_yCmp, 4000.0 + k, prm);
+        PIOL_File_setPrm_llint(j, PIOL_META_il, 2400 + offset + j, prm);
+        PIOL_File_setPrm_llint(j, PIOL_META_xl, 1600 + offset + j, prm);
+        PIOL_File_setPrm_llint(j, PIOL_META_tn, offset + j, prm);
     }
 
     //Set some traces

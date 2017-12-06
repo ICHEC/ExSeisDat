@@ -17,7 +17,7 @@ int main(int argc, char ** argv)
 
     std::string opt = "i:o:t:d";  //TODO: uses a GNU extension
     std::string name1 = "";
-    auto type = SortType::SrcRcv;
+    auto type = PIOL_SORTTYPE_SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {

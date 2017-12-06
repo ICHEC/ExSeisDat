@@ -5,15 +5,15 @@
 #include "ctest.h"
 #include "cfileapi.h"
 
-int testManyFiles(PIOL_ExSeisHandle piol, const char * name)
+int testManyFiles(PIOL_ExSeis* piol, const char * name)
 {
     //Don't go too crazy or systems won't like you.
     const size_t rnum = 10;
     const size_t fnum = 1000;
-    PIOL_File_ReadDirectHandle * files = calloc(
-        fnum, sizeof(PIOL_File_ReadDirectHandle)
+    PIOL_File_ReadDirect** files = calloc(
+        fnum, sizeof(PIOL_File_ReadDirect*)
     );
-    PIOL_File_ReadDirectHandle ffile = PIOL_File_ReadDirect_new(piol, name);
+    PIOL_File_ReadDirect* ffile = PIOL_File_ReadDirect_new(piol, name);
 
     const char * msg = PIOL_File_ReadDirect_readText(ffile);
     size_t ln  = strlen(msg);
@@ -65,7 +65,7 @@ int main(int argc, char ** argv)
         }
     assert(name);
 
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
     PIOL_ExSeis_isErr(piol, "");
 
     testManyFiles(piol, name);

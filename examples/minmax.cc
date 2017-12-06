@@ -28,9 +28,9 @@ int main(int argc, char ** argv)
     Set set(piol, iname);
 
     CoordElem minmax[12];
-    set.getMinMax(Meta::xSrc, Meta::ySrc, &minmax[0]);
-    set.getMinMax(Meta::xRcv, Meta::yRcv, &minmax[4]);
-    set.getMinMax(Meta::xCmp, Meta::yCmp, &minmax[8]);
+    set.getMinMax(PIOL_META_xSrc, PIOL_META_ySrc, &minmax[0]);
+    set.getMinMax(PIOL_META_xRcv, PIOL_META_yRcv, &minmax[4]);
+    set.getMinMax(PIOL_META_xCmp, PIOL_META_yCmp, &minmax[8]);
 
     if (!piol.getRank())
     {

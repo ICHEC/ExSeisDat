@@ -25,11 +25,11 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
     size_t rank = PIOL_ExSeis_getRank(piol);
 
     //Create a SEGY file object for input
-    PIOL_File_ReadDirectHandle ifh = PIOL_File_ReadDirect_new(piol, iname);
+    PIOL_File_ReadDirect* ifh = PIOL_File_ReadDirect_new(piol, iname);
     PIOL_ExSeis_isErr(piol, "Unable to create a SEGY file object for input.");
 
     //Create some local variables based on the input file
@@ -42,10 +42,10 @@ int main(int argc, char ** argv)
 
     //Alloc the required memory for the data we want.
     float * trace = malloc(lnt * PIOL_SEGSz_getDFSz(ns));
-    PIOL_File_ParamHandle trhdr = PIOL_File_Param_new(NULL, lnt);
+    PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, lnt);
 
     //Create a SEGY file object for output
-    PIOL_File_WriteDirectHandle ofh = PIOL_File_WriteDirect_new(piol, oname);
+    PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
     PIOL_ExSeis_isErr(piol, "Unable to create a SEGY file object for output.");
 
     //Write the headers based on the input file.

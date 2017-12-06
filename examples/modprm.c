@@ -14,16 +14,16 @@
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void readwriteParam(PIOL_ExSeisHandle piol, size_t off, size_t tcnt, PIOL_File_ReadDirectHandle ifh, PIOL_File_WriteDirectHandle ofh)
+void readwriteParam(PIOL_ExSeis* piol, size_t off, size_t tcnt, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
-    PIOL_File_ParamHandle prm = PIOL_File_Param_new(NULL, tcnt);
+    PIOL_File_Param* prm = PIOL_File_Param_new(NULL, tcnt);
     PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++)
     {
-        geom_t xval = PIOL_File_getPrm_double(i, xSrc, prm);
-        geom_t yval = PIOL_File_getPrm_double(i, ySrc, prm);
-        PIOL_File_setPrm_double(i, xSrc, yval, prm);
-        PIOL_File_setPrm_double(i, ySrc, xval, prm);
+        geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
+        geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
+        PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
+        PIOL_File_setPrm_double(i, PIOL_META_ySrc, xval, prm);
     }
 
     PIOL_File_WriteDirect_writeParam(ofh, off, tcnt, prm);
@@ -36,7 +36,7 @@ void readwriteParam(PIOL_ExSeisHandle piol, size_t off, size_t tcnt, PIOL_File_R
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void writeHeader(PIOL_ExSeisHandle piol, PIOL_File_ReadDirectHandle ifh, PIOL_File_WriteDirectHandle ofh)
+void writeHeader(PIOL_ExSeis* piol, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
     PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
     PIOL_File_WriteDirect_writeNs(ofh,  PIOL_File_ReadDirect_readNs(ifh));
@@ -53,8 +53,8 @@ void writeHeader(PIOL_ExSeisHandle piol, PIOL_File_ReadDirectHandle ifh, PIOL_Fi
  *  \param[in] ifh The input file handle
  *  \param[out] ofh The output file handle
  */
-void writePayload(PIOL_ExSeisHandle piol, size_t goff, size_t lnt, size_t tcnt,
-                  PIOL_File_ReadDirectHandle ifh, PIOL_File_WriteDirectHandle ofh)
+void writePayload(PIOL_ExSeis* piol, size_t goff, size_t lnt, size_t tcnt,
+                  PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
     size_t biggest = lnt;
     int err = MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
@@ -98,16 +98,16 @@ int main(int argc, char ** argv)
         }
     assert(iname && oname);
 
-    PIOL_ExSeisHandle piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
     PIOL_ExSeis_isErr(piol, "");
 
-    PIOL_File_ReadDirectHandle ifh = PIOL_File_ReadDirect_new(piol, iname);
+    PIOL_File_ReadDirect* ifh = PIOL_File_ReadDirect_new(piol, iname);
     PIOL_ExSeis_isErr(piol, "");
 
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     //Write all header metadata
-    PIOL_File_WriteDirectHandle ofh = PIOL_File_WriteDirect_new(piol, oname);
+    PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
     PIOL_ExSeis_isErr(piol, "");
 
     writeHeader(piol, ifh, ofh);

@@ -24,9 +24,9 @@ void calcMin(std::string iname, std::string oname)
     std::vector<CoordElem> minmax(12U);
     in.readParam(offset, lnt, &prm);
 
-    getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
-    getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
-    getMinMax(piol, offset, lnt, Meta::xCmp, Meta::yCmp, &prm, minmax.data()+8U);
+    getMinMax(piol, offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
+    getMinMax(piol, offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
+    getMinMax(piol, offset, lnt, PIOL_META_xCmp, PIOL_META_yCmp, &prm, minmax.data()+8U);
 
     size_t sz = (!piol.getRank() ? minmax.size() : 0U);
     size_t usz = 0;
@@ -56,7 +56,7 @@ void calcMin(std::string iname, std::string oname)
             if (list[i] == uniqlist[j])
             {
                 cpyPrm(j, &tprm, i, &oprm);
-                setPrm(i, Meta::tn,  minmax[i].num, &oprm);
+                setPrm(i, PIOL_META_tn,  minmax[i].num, &oprm);
                 trace[i] = trace_t(1);
                 j = usz;
             }

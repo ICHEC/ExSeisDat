@@ -21,15 +21,15 @@ void writeContig(ExSeis piol, File::WriteDirect * file, size_t offset, size_t nt
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset+i+j));
-            setPrm(j, Meta::xSrc, 1600.0 + k, &prm);
-            setPrm(j, Meta::ySrc, 2400.0 + k, &prm);
-            setPrm(j, Meta::xRcv, 100000.0 + k, &prm);
-            setPrm(j, Meta::yRcv, 3000000.0 + k, &prm);
-            setPrm(j, Meta::xCmp, 10000.0 + k, &prm);
-            setPrm(j, Meta::yCmp, 4000.0 + k, &prm);
-            setPrm(j, Meta::il, 2400 + k, &prm);
-            setPrm(j, Meta::xl, 1600 + k, &prm);
-            setPrm(j, Meta::tn, offset+i+j, &prm);
+            setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
+            setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
+            setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
+            setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
+            setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
+            setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
+            setPrm(j, PIOL_META_il, 2400 + k, &prm);
+            setPrm(j, PIOL_META_xl, 1600 + k, &prm);
+            setPrm(j, PIOL_META_tn, offset+i+j, &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset+i)*ns+j)) - off;
@@ -38,7 +38,7 @@ void writeContig(ExSeis piol, File::WriteDirect * file, size_t offset, size_t nt
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, size_t(0), nullptr, File::PARAM_NULL);
+        file->writeTrace(0U, size_t(0), nullptr, PIOL_PARAM_NULL);
         piol.isErr();
     }
 }
@@ -86,15 +86,15 @@ void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t 
         for (size_t j = 0; j < rblock; j++)
         {
             float k = nhalf - std::abs(-nhalf + long(offset[i+j]));
-            setPrm(j, Meta::xSrc, 1600.0 + k, &prm);
-            setPrm(j, Meta::ySrc, 2400.0 + k, &prm);
-            setPrm(j, Meta::xRcv, 100000.0 + k, &prm);
-            setPrm(j, Meta::yRcv, 3000000.0 + k, &prm);
-            setPrm(j, Meta::xCmp, 10000.0 + k, &prm);
-            setPrm(j, Meta::yCmp, 4000.0 + k, &prm);
-            setPrm(j, Meta::il, 2400 + k, &prm);
-            setPrm(j, Meta::xl, 1600 + k, &prm);
-            setPrm(j, Meta::tn, offset[i+j], &prm);
+            setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
+            setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
+            setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
+            setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
+            setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
+            setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
+            setPrm(j, PIOL_META_il, 2400 + k, &prm);
+            setPrm(j, PIOL_META_xl, 1600 + k, &prm);
+            setPrm(j, PIOL_META_tn, offset[i+j], &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset[i])*ns+j)) - off;
@@ -103,7 +103,7 @@ void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t 
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, (size_t *)NULL, nullptr, File::PARAM_NULL);
+        file->writeTrace(0U, (size_t *)NULL, nullptr, PIOL_PARAM_NULL);
         piol->isErr();
     }
 }

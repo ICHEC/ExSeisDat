@@ -11,6 +11,6 @@ int main(void)
 {
     ExSeis piol;
     Set set(piol, "/ichec/work/exseisdat/dat/10*/b*", "temp");
-    set.sort(SortType::OffLine);
+    set.sort(PIOL_SORTTYPE_OffLine);
     return 0;
 }
