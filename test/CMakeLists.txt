@@ -55,7 +55,6 @@ add_test(
 add_test(
     NAME genfiles_test
     COMMAND genfiles
-    #COMMAND echo genfiles
 )
 set_tests_properties(genfiles_test PROPERTIES DEPENDS mkdir_tmp)
 

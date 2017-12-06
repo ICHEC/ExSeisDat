@@ -16,7 +16,7 @@ list(APPEND EXSEISDAT_UTILITIES_EXES exseis-traceanalysis)
 add_executable(exseis-radon         radon.cc sglobal.cc)
 list(APPEND EXSEISDAT_UTILITIES_EXES exseis-radon)
 
-message(AUTHOR_WARNIG "No file radon_file.cc, expected in old util/makefile.")
+message(AUTHOR_WARNING "No file radon_file.cc, expected in old util/makefile.")
 #add_executable(exseis-radon_file    radon_file.cc sglobal.cc)
 #list(APPEND EXSEISDAT_UTILITIES_EXES exseis-radon_file)
 
