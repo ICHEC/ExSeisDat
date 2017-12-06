@@ -7,6 +7,15 @@
 # Link all the libraries with exseisdat
 link_libraries(exseisdat)
 
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include/gtest/gtest.h)
+    message(
+        FATAL_ERROR
+        "You need a copy of googletest in the test directory!\n"
+        "From the ExSeisDat project root, run the following:\n"
+        "    git clone https://github.com/google/googletest.git test/googletest"
+    )
+endif()
+
 # Include googletest directories.
 include_directories(
     googletest/googletest/include
