@@ -107,7 +107,7 @@ void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, const T * coord, Min
  *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
  *  and their respective trace numbers.
  */
-extern void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, Meta m1, Meta m2, const Param * prm, CoordElem * minmax);
+void getMinMax(ExSeisPIOL * piol, size_t offset, size_t sz, Meta m1, Meta m2, const Param * prm, CoordElem * minmax);
 
 }}
 #endif
