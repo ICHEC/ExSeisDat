@@ -6,8 +6,8 @@
  *   \brief A Conversion function to convert from EBCDIC to ASCII
  *   \details
  *//*******************************************************************************************/
-#ifndef PIOLFILEICONV_INCLUDE_GUARD
-#define PIOLFILEICONV_INCLUDE_GUARD
+#ifndef PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
+#define PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 #include "global.hh"
 #include <string>
 namespace PIOL {
@@ -18,6 +18,10 @@ namespace PIOL {
  * \param[in] sz The length of the string.
  * \param[in, out] src The EBCDIC or ASCII string. After the function ends, the string is ASCII
  */
-extern void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src);
+
+char ebcdicToAscii(uchar ebcdic_char);
+char asciiToEbcdic(uchar ascii_char);
+
+void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src);
 }
 #endif

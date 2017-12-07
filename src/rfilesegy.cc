@@ -9,7 +9,7 @@
 #include "global.hh"
 #include "file/filesegy.hh"
 #include "object/object.hh"
-#include "file/iconv.hh"
+#include "file/characterconversion.hh"
 #include "share/misc.hh"
 namespace PIOL { namespace File {
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////

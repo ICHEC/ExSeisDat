@@ -1,4 +1,3 @@
-#include <iconv.h>
 #include <string.h>
 #include <memory>
 #include <random>
@@ -7,6 +6,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
+#include "file/characterconversion.hh"
 #include "anc/mpi.hh"
 #include "data/datampiio.hh"
 #include "object/objsegy.hh"
@@ -99,7 +99,23 @@ struct FileReadSEGYTest : public Test
     std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPI::Opt opt;
     bool testEBCDIC;
-    std::string testString = {"This is a string for testing EBCDIC conversion etc."};
+    std::string testString = {
+        "This is a string for testing EBCDIC conversion etc.\n"
+        "The quick brown fox jumps over the lazy dog."
+    };
+    // The testString in EBCDIC encoding.
+    std::string ebcdicTestString = {
+        // This is a string for testing EBCDIC conversion etc.\n
+        "\xE3\x88\x89\xA2\x40\x89\xA2\x40\x81\x40\xA2\xA3\x99\x89\x95\x87\x40"
+        "\x86\x96\x99\x40\xA3\x85\xA2\xA3\x89\x95\x87\x40\xC5\xC2\xC3\xC4\xC9"
+        "\xC3\x40\x83\x96\x95\xA5\x85\x99\xA2\x89\x96\x95\x40\x85\xA3\x83\x4B"
+        "\x25"
+
+        // The quick brown fox jumps over the lazy dog.
+        "\xE3\x88\x85\x40\x98\xA4\x89\x83\x92\x40\x82\x99\x96\xA6\x95\x40\x86"
+        "\x96\xA7\x40\x91\xA4\x94\x97\xA2\x40\x96\xA5\x85\x99\x40\xA3\x88\x85"
+        "\x40\x93\x81\xA9\xA8\x40\x84\x96\x87\x4B"
+    };
     std::unique_ptr<File::ReadDirect> file;
     std::vector<uchar> tr;
     size_t nt = 40U;
@@ -154,18 +170,10 @@ struct FileReadSEGYTest : public Test
         if (testEBCDIC)
         {
             // Create an EBCDID string to convert back to ASCII in the test
-            size_t tsz = testString.size();
-            size_t tsz2 = tsz;
-            char * t = &testString[0];
-            char * newText = reinterpret_cast<char *>(ho.data());
-            #warning FIXME: EBCDICUS doesn't work on OSX!
-            #ifndef __APPLE__
-                iconv_t toAsc = iconv_open("ASCII//", "EBCDICUS//");
-            #else
-                iconv_t toAsc = iconv_open("ASCII", "ASCII");
-            #endif
-            ::iconv(toAsc, &t, &tsz, &newText, &tsz2);
-            iconv_close(toAsc);
+            std::copy(
+                std::begin(ebcdicTestString), std::end(ebcdicTestString),
+                std::begin(ho)
+            );
         }
         else
             for (size_t i = 0; i < testString.size(); i++)

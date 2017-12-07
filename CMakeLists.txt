@@ -111,7 +111,7 @@ add_library(
     src/dynsegymd.cc
     src/flow.cc
     src/gather.cc
-    src/iconv.cc
+    src/characterconversion.cc
     src/log.cc
     src/minmax.cc
     src/misc.cc
