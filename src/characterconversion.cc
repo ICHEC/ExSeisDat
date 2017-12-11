@@ -7,6 +7,7 @@
  *   \details
  *//*******************************************************************************************/
 #include <algorithm>
+#include <array>
 #include "file/characterconversion.hh"
 namespace PIOL {
 
