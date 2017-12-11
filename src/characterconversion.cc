@@ -6,7 +6,7 @@
  *   \brief
  *   \details
  *//*******************************************************************************************/
-#include <map>
+#include <algorithm>
 #include "file/characterconversion.hh"
 namespace PIOL {
 
@@ -27,11 +27,15 @@ struct EbcdicAsciiPair {
     uchar ebcdic;
 };
 
+// The SUB character.
+// Used when a character is not representable in the given encoding.
+static const EbcdicAsciiPair char_sub{0x1Au, 0x3Fu};
+
 // A list of ASCII / EBCDIC pairs.
 // This list was generated with the iconv library using the
 // ASCII and EBCDICUS encodings.
-using EbcdicAsciiPairs = std::vector<EbcdicAsciiPair>;
-static EbcdicAsciiPairs ebcdicAsciiPairs = {
+using EbcdicAsciiPairs = std::array<EbcdicAsciiPair,126>;
+static const EbcdicAsciiPairs ebcdicAsciiPairs = {
     EbcdicAsciiPair{0x00u, 0x00u},
     EbcdicAsciiPair{0x01u, 0x01u},
     EbcdicAsciiPair{0x02u, 0x02u},
@@ -123,10 +127,7 @@ static EbcdicAsciiPairs ebcdicAsciiPairs = {
     EbcdicAsciiPair{0x58u, 0xE7u},
     EbcdicAsciiPair{0x59u, 0xE8u},
     EbcdicAsciiPair{0x5Au, 0xE9u},
-    EbcdicAsciiPair{0x5Bu, 0x3Fu},
     EbcdicAsciiPair{0x5Cu, 0xE0u},
-    EbcdicAsciiPair{0x5Du, 0x3Fu},
-    EbcdicAsciiPair{0x5Eu, 0x3Fu},
     EbcdicAsciiPair{0x5Fu, 0x6Du},
     EbcdicAsciiPair{0x60u, 0x79u},
     EbcdicAsciiPair{0x61u, 0x81u},
@@ -160,171 +161,42 @@ static EbcdicAsciiPairs ebcdicAsciiPairs = {
     EbcdicAsciiPair{0x7Du, 0xD0u},
     EbcdicAsciiPair{0x7Eu, 0xA1u},
     EbcdicAsciiPair{0x7Fu, 0x07u},
-    EbcdicAsciiPair{0x80u, 0x3Fu},
-    EbcdicAsciiPair{0x81u, 0x3Fu},
-    EbcdicAsciiPair{0x82u, 0x3Fu},
-    EbcdicAsciiPair{0x83u, 0x3Fu},
-    EbcdicAsciiPair{0x84u, 0x3Fu},
-    EbcdicAsciiPair{0x85u, 0x3Fu},
-    EbcdicAsciiPair{0x86u, 0x3Fu},
-    EbcdicAsciiPair{0x87u, 0x3Fu},
-    EbcdicAsciiPair{0x88u, 0x3Fu},
-    EbcdicAsciiPair{0x89u, 0x3Fu},
-    EbcdicAsciiPair{0x8Au, 0x3Fu},
-    EbcdicAsciiPair{0x8Bu, 0x3Fu},
-    EbcdicAsciiPair{0x8Cu, 0x3Fu},
-    EbcdicAsciiPair{0x8Du, 0x3Fu},
-    EbcdicAsciiPair{0x8Eu, 0x3Fu},
-    EbcdicAsciiPair{0x8Fu, 0x3Fu},
-    EbcdicAsciiPair{0x90u, 0x3Fu},
-    EbcdicAsciiPair{0x91u, 0x3Fu},
-    EbcdicAsciiPair{0x92u, 0x3Fu},
-    EbcdicAsciiPair{0x93u, 0x3Fu},
-    EbcdicAsciiPair{0x94u, 0x3Fu},
-    EbcdicAsciiPair{0x95u, 0x3Fu},
-    EbcdicAsciiPair{0x96u, 0x3Fu},
-    EbcdicAsciiPair{0x97u, 0x3Fu},
-    EbcdicAsciiPair{0x98u, 0x3Fu},
-    EbcdicAsciiPair{0x99u, 0x3Fu},
-    EbcdicAsciiPair{0x9Au, 0x3Fu},
-    EbcdicAsciiPair{0x9Bu, 0x3Fu},
-    EbcdicAsciiPair{0x9Cu, 0x3Fu},
-    EbcdicAsciiPair{0x9Du, 0x3Fu},
-    EbcdicAsciiPair{0x9Eu, 0x3Fu},
-    EbcdicAsciiPair{0x9Fu, 0x3Fu},
-    EbcdicAsciiPair{0xA0u, 0x3Fu},
-    EbcdicAsciiPair{0xA1u, 0x3Fu},
-    EbcdicAsciiPair{0xA2u, 0x3Fu},
-    EbcdicAsciiPair{0xA3u, 0x3Fu},
-    EbcdicAsciiPair{0xA4u, 0x3Fu},
-    EbcdicAsciiPair{0xA5u, 0x3Fu},
-    EbcdicAsciiPair{0xA6u, 0x3Fu},
-    EbcdicAsciiPair{0xA7u, 0x3Fu},
-    EbcdicAsciiPair{0xA8u, 0x3Fu},
-    EbcdicAsciiPair{0xA9u, 0x3Fu},
-    EbcdicAsciiPair{0xAAu, 0x3Fu},
-    EbcdicAsciiPair{0xABu, 0x3Fu},
-    EbcdicAsciiPair{0xACu, 0x3Fu},
-    EbcdicAsciiPair{0xADu, 0x3Fu},
-    EbcdicAsciiPair{0xAEu, 0x3Fu},
-    EbcdicAsciiPair{0xAFu, 0x3Fu},
-    EbcdicAsciiPair{0xB0u, 0x3Fu},
-    EbcdicAsciiPair{0xB1u, 0x3Fu},
-    EbcdicAsciiPair{0xB2u, 0x3Fu},
-    EbcdicAsciiPair{0xB3u, 0x3Fu},
-    EbcdicAsciiPair{0xB4u, 0x3Fu},
-    EbcdicAsciiPair{0xB5u, 0x3Fu},
-    EbcdicAsciiPair{0xB6u, 0x3Fu},
-    EbcdicAsciiPair{0xB7u, 0x3Fu},
-    EbcdicAsciiPair{0xB8u, 0x3Fu},
-    EbcdicAsciiPair{0xB9u, 0x3Fu},
-    EbcdicAsciiPair{0xBAu, 0x3Fu},
-    EbcdicAsciiPair{0xBBu, 0x3Fu},
-    EbcdicAsciiPair{0xBCu, 0x3Fu},
-    EbcdicAsciiPair{0xBDu, 0x3Fu},
-    EbcdicAsciiPair{0xBEu, 0x3Fu},
-    EbcdicAsciiPair{0xBFu, 0x3Fu},
-    EbcdicAsciiPair{0xC0u, 0x3Fu},
-    EbcdicAsciiPair{0xC1u, 0x3Fu},
-    EbcdicAsciiPair{0xC2u, 0x3Fu},
-    EbcdicAsciiPair{0xC3u, 0x3Fu},
-    EbcdicAsciiPair{0xC4u, 0x3Fu},
-    EbcdicAsciiPair{0xC5u, 0x3Fu},
-    EbcdicAsciiPair{0xC6u, 0x3Fu},
-    EbcdicAsciiPair{0xC7u, 0x3Fu},
-    EbcdicAsciiPair{0xC8u, 0x3Fu},
-    EbcdicAsciiPair{0xC9u, 0x3Fu},
-    EbcdicAsciiPair{0xCAu, 0x3Fu},
-    EbcdicAsciiPair{0xCBu, 0x3Fu},
-    EbcdicAsciiPair{0xCCu, 0x3Fu},
-    EbcdicAsciiPair{0xCDu, 0x3Fu},
-    EbcdicAsciiPair{0xCEu, 0x3Fu},
-    EbcdicAsciiPair{0xCFu, 0x3Fu},
-    EbcdicAsciiPair{0xD0u, 0x3Fu},
-    EbcdicAsciiPair{0xD1u, 0x3Fu},
-    EbcdicAsciiPair{0xD2u, 0x3Fu},
-    EbcdicAsciiPair{0xD3u, 0x3Fu},
-    EbcdicAsciiPair{0xD4u, 0x3Fu},
-    EbcdicAsciiPair{0xD5u, 0x3Fu},
-    EbcdicAsciiPair{0xD6u, 0x3Fu},
-    EbcdicAsciiPair{0xD7u, 0x3Fu},
-    EbcdicAsciiPair{0xD8u, 0x3Fu},
-    EbcdicAsciiPair{0xD9u, 0x3Fu},
-    EbcdicAsciiPair{0xDAu, 0x3Fu},
-    EbcdicAsciiPair{0xDBu, 0x3Fu},
-    EbcdicAsciiPair{0xDCu, 0x3Fu},
-    EbcdicAsciiPair{0xDDu, 0x3Fu},
-    EbcdicAsciiPair{0xDEu, 0x3Fu},
-    EbcdicAsciiPair{0xDFu, 0x3Fu},
-    EbcdicAsciiPair{0xE0u, 0x3Fu},
-    EbcdicAsciiPair{0xE1u, 0x3Fu},
-    EbcdicAsciiPair{0xE2u, 0x3Fu},
-    EbcdicAsciiPair{0xE3u, 0x3Fu},
-    EbcdicAsciiPair{0xE4u, 0x3Fu},
-    EbcdicAsciiPair{0xE5u, 0x3Fu},
-    EbcdicAsciiPair{0xE6u, 0x3Fu},
-    EbcdicAsciiPair{0xE7u, 0x3Fu},
-    EbcdicAsciiPair{0xE8u, 0x3Fu},
-    EbcdicAsciiPair{0xE9u, 0x3Fu},
-    EbcdicAsciiPair{0xEAu, 0x3Fu},
-    EbcdicAsciiPair{0xEBu, 0x3Fu},
-    EbcdicAsciiPair{0xECu, 0x3Fu},
-    EbcdicAsciiPair{0xEDu, 0x3Fu},
-    EbcdicAsciiPair{0xEEu, 0x3Fu},
-    EbcdicAsciiPair{0xEFu, 0x3Fu},
-    EbcdicAsciiPair{0xF0u, 0x3Fu},
-    EbcdicAsciiPair{0xF1u, 0x3Fu},
-    EbcdicAsciiPair{0xF2u, 0x3Fu},
-    EbcdicAsciiPair{0xF3u, 0x3Fu},
-    EbcdicAsciiPair{0xF4u, 0x3Fu},
-    EbcdicAsciiPair{0xF5u, 0x3Fu},
-    EbcdicAsciiPair{0xF6u, 0x3Fu},
-    EbcdicAsciiPair{0xF7u, 0x3Fu},
-    EbcdicAsciiPair{0xF8u, 0x3Fu},
-    EbcdicAsciiPair{0xF9u, 0x3Fu},
-    EbcdicAsciiPair{0xFAu, 0x3Fu},
-    EbcdicAsciiPair{0xFBu, 0x3Fu},
-    EbcdicAsciiPair{0xFCu, 0x3Fu},
-    EbcdicAsciiPair{0xFDu, 0x3Fu},
-    EbcdicAsciiPair{0xFEu, 0x3Fu},
     EbcdicAsciiPair{0xFFu, 0xFFu}
 };
 
+
+//
 // We define static functions for building the maps which we will use to
 // statically initialize the EBCDIC -> ASCII and ASCII -> EBCDIC maps.
+// The maps are defined as lists sorted by the key value (i.e. by ASCII value
+// or by EBCDIC value), and lookup is done using a sorted list lookup.
+//
+
 
 // Build the EBCDIC -> ASCII map
-using EbcdicToAsciiMap = std::map<uchar,uchar>;
-static EbcdicToAsciiMap buildEbcdicToAsciiMap()
+static EbcdicAsciiPairs buildEbcdicToAsciiMap()
 {
-    EbcdicToAsciiMap m;
-    for(auto pair: ebcdicAsciiPairs) {
-        // Skip the SUB character
-        if(pair.ebcdic != 0x3Fu) {
-            m.insert({pair.ebcdic, pair.ascii});
+    EbcdicAsciiPairs a = ebcdicAsciiPairs;
+    std::sort(
+        std::begin(a), std::end(a),
+        [](EbcdicAsciiPair a, EbcdicAsciiPair b) {
+            return a.ebcdic < b.ebcdic;
         }
-    }
-    // manually add the SUB character
-    m.insert({0x3Fu, 0x1Au});
-
-    return m;
+    );
+    return a;
 }
 
 // Build the ASCII -> EBCDIC map
-using AsciiToEbcdicMap = std::map<uchar,uchar>;
-static AsciiToEbcdicMap buildAsciiToEbcdicMap()
+static EbcdicAsciiPairs buildAsciiToEbcdicMap()
 {
-    AsciiToEbcdicMap m;
-    for(auto pair: ebcdicAsciiPairs) {
-        // Skip the SUB character
-        if(pair.ascii != 0x1Au) {
-            m.insert({pair.ascii, pair.ebcdic});
+    EbcdicAsciiPairs a = ebcdicAsciiPairs;
+    std::sort(
+        std::begin(a), std::end(a),
+        [](EbcdicAsciiPair a, EbcdicAsciiPair b) {
+            return a.ascii < b.ascii;
         }
-    }
-    // manually add the SUB character
-    m.insert({0x1Au, 0x3Fu});
-
-    return m;
+    );
+    return a;
 }
 
 // We use static const (namespace level) variables to build the maps only once
@@ -337,25 +209,38 @@ static const auto asciiToEbcdicMap = buildAsciiToEbcdicMap();
 // Convert EBCDIC -> ASCII
 char ebcdicToAscii(uchar ebcdic_char)
 {
-    const auto& ascii_char_it = ebcdicToAsciiMap.find(ebcdic_char);
-    if(ascii_char_it == ebcdicToAsciiMap.end()) {
-        return '\x3F'; /* EBCDIC SUB character */
+    // Use std::lower_bound for a binary search lookup
+    const auto& ascii_char_it = std::lower_bound(
+        std::begin(ebcdicToAsciiMap), std::end(ebcdicToAsciiMap), ebcdic_char,
+        [](EbcdicAsciiPair a, uchar b) {
+            return a.ebcdic < b; // Search by EBCDIC
+        }
+    );
+    if(ascii_char_it == std::end(ebcdicToAsciiMap)) {
+        return char_sub.ascii;
     }
-    return ascii_char_it->second;
+    return ascii_char_it->ascii;
 }
 
 // Convert ASCII -> EBCDIC
 char asciiToEbcdic(uchar ascii_char)
 {
-    const auto& ebcdic_char_it = asciiToEbcdicMap.find(ascii_char);
-    if(ebcdic_char_it == asciiToEbcdicMap.end()) {
-        return '\x1A'; /* ASCII SUB character */
+    const auto& ebcdic_char_it = std::lower_bound(
+        std::begin(ebcdicToAsciiMap), std::end(ebcdicToAsciiMap), ascii_char,
+        [](EbcdicAsciiPair a, uchar b) {
+            return a.ascii < b; // Search by ASCII
+        }
+    );
+    if(ebcdic_char_it == std::end(ebcdicToAsciiMap)) {
+        return char_sub.ebcdic;
     }
-    return ebcdic_char_it->second;
+    return ebcdic_char_it->ebcdic;
 }
 
 
 //Do conversion, if more printable letters and spaces etc post-conversion use it.
+// This is the old interface which used to be able to fail.
+// It should probably be removed!
 void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src)
 {
     for(size_t i=0; i<sz; i++) {
