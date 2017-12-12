@@ -162,6 +162,11 @@ target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${FFTW3_LIBRARIES})
 
 # Include subdirectories #######################################################
 
+message(STATUS "Subprojects:")
+message(STATUS "    EXSEISDAT_BUILD_UTILITIES = ${EXSEISDAT_BUILD_UTILITIES}")
+message(STATUS "    EXSEISDAT_BUILD_EXAMPLES  = ${EXSEISDAT_BUILD_EXAMPLES}")
+message(STATUS "    EXSEISDAT_BUILD_TESTS     = ${EXSEISDAT_BUILD_TESTS}")
+
 # Build utilities
 if(EXSEISDAT_BUILD_UTILITIES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/util)
