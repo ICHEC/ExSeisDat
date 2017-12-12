@@ -9,7 +9,7 @@ namespace PIOL {
 using namespace File;
 
 class MockRule;
-MockRule& mockRule();
+::testing::StrictMock<MockRule>& mockRule();
 
 class MockRule
 {

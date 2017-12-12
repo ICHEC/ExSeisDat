@@ -2,9 +2,9 @@
 
 namespace PIOL {
 
-MockRule& mockRule()
+::testing::StrictMock<MockRule>& mockRule()
 {
-    static MockRule mockRule;
+    static ::testing::StrictMock<MockRule> mockRule;
     return mockRule;
 }
 

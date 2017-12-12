@@ -8,7 +8,7 @@ namespace PIOL {
 using namespace File;
 
 class MockWriteDirect;
-MockWriteDirect& mockWriteDirect();
+::testing::StrictMock<MockWriteDirect>& mockWriteDirect();
 
 class MockWriteDirect
 {

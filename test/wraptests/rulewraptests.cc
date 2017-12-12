@@ -7,7 +7,7 @@ using namespace PIOL::File;
 using namespace testing;
 
 
-void test_PIOL_File_Rule()
+std::shared_ptr<PIOL::File::Rule*> test_PIOL_File_Rule()
 {
     auto rule_ptr = std::make_shared<Rule*>();
     EXPECT_CALL(mockRule(), ctor(_, true, true, false))
@@ -86,4 +86,6 @@ void test_PIOL_File_Rule()
 
     EXPECT_CALL(mockRule(), dtor(EqDeref(rule_tmp2_ptr)));
     EXPECT_CALL(mockRule(), dtor(EqDeref(rule_tmp_ptr)));
+
+    return rule_ptr;
 }

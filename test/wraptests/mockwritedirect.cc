@@ -2,9 +2,9 @@
 
 namespace PIOL {
 
-MockWriteDirect& mockWriteDirect()
+::testing::StrictMock<MockWriteDirect>& mockWriteDirect()
 {
-    static MockWriteDirect mockWriteDirect;
+    static ::testing::StrictMock<MockWriteDirect> mockWriteDirect;
     return mockWriteDirect;
 }
 

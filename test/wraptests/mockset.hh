@@ -8,7 +8,7 @@
 namespace PIOL {
 
 class MockSet;
-MockSet& mockSet();
+::testing::StrictMock<MockSet>& mockSet();
 
 class MockSet
 {

@@ -25,6 +25,12 @@ MATCHER_P(EqDeref, p, "")
     return *p == arg;
 }
 
+// GetEqDeref(p) *p == arg.get()
+MATCHER_P(GetEqDeref, p, "")
+{
+    return *p == arg.get();
+}
+
 // AddressEqDeref(p): *p == &arg
 MATCHER_P(AddressEqDeref, p, "")
 {

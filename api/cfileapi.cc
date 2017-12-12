@@ -508,7 +508,6 @@ size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns)
 size_t PIOL_SEGSz_getMDSz(void)
 {
     return PIOL::SEGSz::getMDSz();
-    //return sizeof(Param) + SEGSz::getMDSz();
 }
 
 ////////////////////////////////////SET/////////////////////////////////////////

@@ -2,9 +2,9 @@
 
 namespace PIOL {
 
-MockReadDirect& mockReadDirect()
+::testing::StrictMock<MockReadDirect>& mockReadDirect()
 {
-    static MockReadDirect mockReadDirect;
+    static ::testing::StrictMock<MockReadDirect> mockReadDirect;
     return mockReadDirect;
 }
 

@@ -4,15 +4,25 @@
 #include "share/param.hh"
 #include "file/dynsegymd.hh"
 #include "gmock/gmock.h"
+#include "printers.hh"
 
 namespace PIOL {
-using namespace File;
+namespace File {
 
 class MockParam;
-MockParam& mockParam();
+::testing::StrictMock<MockParam>& mockParam();
 
 class MockParamFreeFunctions;
-MockParamFreeFunctions& mockParamFreeFunctions();
+::testing::StrictMock<MockParamFreeFunctions>& mockParamFreeFunctions();
+
+// size_t return types for mocks hang during construction with
+// -fsanitize=address on g++ 7.2.0 , but not for const size_t return type.
+// WTF?
+#ifdef __SANITIZE_ADDRESS__
+#define EXSEISDAT_MOCK_PARAM_CONST const
+#else
+#define EXSEISDAT_MOCK_PARAM_CONST
+#endif
 
 class MockParam
 {
@@ -20,16 +30,8 @@ public:
     MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, csize_t sz));
     MOCK_METHOD2(ctor, void(Param*, csize_t sz));
 
-    // This hangs during construction with -fsanitize=address on g++ 7.2.0
-    // for size_t return type, but works fine with const size_t return type.
-    // WTF?
-#ifdef __SANITIZE_ADDRESS__
-    MOCK_CONST_METHOD1(ctor, const size_t (const Param*));
-    MOCK_CONST_METHOD1(memUsage, const size_t (const Param*));
-#else
-    MOCK_CONST_METHOD1(ctor, size_t (const Param*));
-    MOCK_CONST_METHOD1(memUsage, size_t (const Param*));
-#endif
+    MOCK_CONST_METHOD1(ctor, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));
+    MOCK_CONST_METHOD1(memUsage, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));
 };
 
 class MockParamFreeFunctions
@@ -41,6 +43,7 @@ public:
     );
 };
 
-}
+} // namespace File
+} // namespace PIOL
 
 #endif

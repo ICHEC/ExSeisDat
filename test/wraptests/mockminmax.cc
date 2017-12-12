@@ -2,9 +2,9 @@
 
 namespace PIOL {
 
-MockGetMinMax& mockGetMinMax()
+::testing::StrictMock<MockGetMinMax>& mockGetMinMax()
 {
-    static MockGetMinMax mockGetMinMax;
+    static ::testing::StrictMock<MockGetMinMax> mockGetMinMax;
     return mockGetMinMax;
 }
 

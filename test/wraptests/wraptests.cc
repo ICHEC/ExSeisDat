@@ -5,6 +5,7 @@
 
 #include "exseiswraptest.hh"
 #include "rulewraptests.hh"
+#include "paramwraptests.hh"
 
 extern "C" {
 
@@ -40,8 +41,9 @@ void init_wraptests()
 
     // Add test initializers here
     testing::InSequence s;
-    test_PIOL_ExSeis();
-    test_PIOL_File_Rule();
+    auto test_exseis = test_PIOL_ExSeis();
+    auto test_rule   = test_PIOL_File_Rule();
+    auto test_param  = test_PIOL_File_Param(test_rule);
 }
 
 void wraptest_ok()

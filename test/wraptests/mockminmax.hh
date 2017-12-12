@@ -8,7 +8,7 @@ namespace PIOL {
 using namespace File;
 
 class MockGetMinMax;
-MockGetMinMax& mockGetMinMax();
+::testing::StrictMock<MockGetMinMax>& mockGetMinMax();
 
 class MockGetMinMax
 {

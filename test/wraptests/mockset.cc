@@ -2,9 +2,9 @@
 
 namespace PIOL {
 
-MockSet& mockSet()
+::testing::StrictMock<MockSet>& mockSet()
 {
-    static MockSet mockSet;
+    static ::testing::StrictMock<MockSet> mockSet;
     return mockSet;
 }
 

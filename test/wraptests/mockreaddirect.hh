@@ -7,7 +7,8 @@
 namespace PIOL {
 using namespace File;
 
-class MockReadDirect& mockReadDirect();
+class MockReadDirect;
+::testing::StrictMock<MockReadDirect>& mockReadDirect();
 
 class MockReadDirect
 {

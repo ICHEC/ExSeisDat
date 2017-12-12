@@ -1,17 +1,19 @@
 #include "mockparam.hh"
 
 namespace PIOL {
+namespace File {
 
-MockParam& mockParam()
+::testing::StrictMock<MockParam>& mockParam()
 {
-    static MockParam mockParam;
+    static ::testing::StrictMock<MockParam> mockParam;
     return mockParam;
 }
 
-MockParamFreeFunctions& mockParamFreeFunctions()
+::testing::StrictMock<MockParamFreeFunctions>& mockParamFreeFunctions()
 {
-    static MockParamFreeFunctions mockParamFreeFunctions;
+    static ::testing::StrictMock<MockParamFreeFunctions> mockParamFreeFunctions;
     return mockParamFreeFunctions;
 }
 
-}
+} // namespace File
+} // namespace PIOL
