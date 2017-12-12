@@ -1,28 +1,32 @@
-# Building tests requires the googletest source in a test/googletest directory!
-# To get googletest, https://github.com/google/googletest/
-# Quickly:
-#   from the exseisdat project directory:
-#   cd test && git clone https://github.com/google/googletest.git
-
 # Link all the libraries with exseisdat
 link_libraries(exseisdat)
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include/gtest/gtest.h)
-    message(
-        FATAL_ERROR
-        "You need a copy of googletest in the test directory!\n"
-        "From the ExSeisDat project root, run the following:\n"
-        "    git clone https://github.com/google/googletest.git test/googletest"
-    )
-endif()
+
+#
+# Setup googletest dependencies
+#
+set(GOOGLETEST_DIR     ${CMAKE_CURRENT_BINARY_DIR}/googletest-release-1.8.0)
+set(GOOGLETEST_ARCHIVE ${CMAKE_CURRENT_SOURCE_DIR}/googletest-release-1.8.0.zip)
+
+# Unzip googletest
+add_custom_command(
+    OUTPUT
+        ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
+        ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
+    COMMAND
+        ${CMAKE_COMMAND} -E tar xf ${GOOGLETEST_ARCHIVE}
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 # Include googletest directories.
 include_directories(
-    googletest/googletest/include
-    googletest/googletest
-    googletest/googlemock/include
-    googletest/googlemock
+    ${GOOGLETEST_DIR}/googletest/include
+    ${GOOGLETEST_DIR}/googletest
+    ${GOOGLETEST_DIR}/googlemock/include
+    ${GOOGLETEST_DIR}/googlemock
 )
+
 
 add_executable(extract extract.c)
 add_executable(genfiles genfiles.c)
@@ -53,8 +57,8 @@ add_executable(
     selftests.cc
     set.cc
 
-    googletest/googletest/src/gtest-all.cc
-    googletest/googlemock/src/gmock-all.cc
+    ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
+    ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
 
 add_test(

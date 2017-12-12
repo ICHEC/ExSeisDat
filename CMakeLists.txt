@@ -40,7 +40,7 @@ option(
 option(
     EXSEISDAT_BUILD_TESTS
     "Build ExSeisDat tests. Depends on googletest."
-    OFF
+    ON
 )
 
 
