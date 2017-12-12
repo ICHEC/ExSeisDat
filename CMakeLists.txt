@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5.2)
 
 project(
     ExSeisDat
@@ -16,6 +16,11 @@ set(
     CMAKE_CXX_STANDARD 14 CACHE STRING
     "The C++ standard to target for compilation."
 )
+
+# Intel not explicitly supported until CMake 3.6
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+endif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 
 
 #
@@ -59,6 +64,11 @@ set(
 # Find needed libraries ########################################################
 
 find_package(MPI REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_C_COMPILE_FLAGS}")
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${MPI_C_COMPILE_FLAGS}")
+include_directories(${MPI_C_INCLUDE_PATH})
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
 
 #
 # Find fftw3
@@ -71,15 +81,28 @@ find_path(
     HINTS ${FFTW3_DIR}
     PATH_SUFFIXES include local/include
 )
+
 find_package_handle_standard_args(FFTW3_INCLUDES DEFAULT_MSG FFTW3_INCLUDES)
+if(NOT FFTW3_INCLUDES)
+    message(FATAL_ERROR "Unable to find FFTW3 headers!")
+endif(NOT FFTW3_INCLUDES)
+
 
 # libfftw3f
-find_library(
-    FFTW3_LIBRARIES NAMES fftw3f
-    HINTS ${FFTW3_DIR} ${FFTW3_INCLUDES}/..
-    PATH_SUFFIXES bin lib lib64
-)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    set(FFTW3_LIBRARIES -mkl)
+else()
+    find_library(
+        FFTW3_LIBRARIES NAMES fftw3f
+        HINTS ${FFTW3_DIR} ${FFTW3_INCLUDES}/..
+        PATH_SUFFIXES bin lib lib64
+    )
+endif()
+
 find_package_handle_standard_args(FFTW3_LIBRARIES DEFAULT_MSG FFTW3_LIBRARIES)
+if(NOT FFTW3_LIBRARIES)
+    message(FATAL_ERROR "Unable to find FFTW3 libraries!")
+endif(NOT FFTW3_LIBRARIES)
 
 
 # Setup header includes ########################################################
@@ -134,7 +157,7 @@ add_library(
     util/sglobal.c
 )
 
-target_link_libraries(exseisdat MPI::MPI_C ${FFTW3_LIBRARIES})
+target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${FFTW3_LIBRARIES})
 
 
 # Include subdirectories #######################################################
