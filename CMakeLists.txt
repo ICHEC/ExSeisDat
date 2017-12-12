@@ -158,6 +158,10 @@ add_library(
 )
 
 target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${FFTW3_LIBRARIES})
+set_target_properties(
+    exseisdat
+    PROPERTIES COMPILE_DEFINITIONS EXSEISDAT_MPIIO_COLLECTIVES
+)
 
 
 # Include subdirectories #######################################################

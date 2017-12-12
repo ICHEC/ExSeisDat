@@ -136,7 +136,7 @@ int iol(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chu
 ///////////////////////////////      Constructor & Destructor      ///////////////////////////////
 Data::MPIIO::Opt::Opt(void)
 {
-#ifdef MPIIO_COLLECTIVES
+#ifdef EXSEISDAT_MPIIO_COLLECTIVES
     coll = true;
 #else
     coll = false;
