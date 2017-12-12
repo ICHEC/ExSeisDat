@@ -61,6 +61,24 @@ set(
 )
 
 
+#
+# Setup build type defaults
+#
+if(NOT CMAKE_BUILD_TYPE)
+    get_property(
+        _CMAKE_BUILD_TYPE_HELPSTRING
+        CACHE CMAKE_BUILD_TYPE
+        PROPERTY HELPSTRING
+    )
+    set(
+        CMAKE_BUILD_TYPE "Release" CACHE STRING
+        "${_CMAKE_BUILD_TYPE_HELPSTRING}"
+        FORCE
+    )
+    unset(_CMAKE_BUILD_TYPE_HELPSTRING)
+endif(NOT CMAKE_BUILD_TYPE)
+
+
 # Find needed libraries ########################################################
 
 find_package(MPI REQUIRED)
