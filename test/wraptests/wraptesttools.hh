@@ -2,6 +2,7 @@
 #define PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
 
 
+#include "printers.hh"
 #include "gmock/gmock.h"
 #include "checkreturnlistener.hh"
 

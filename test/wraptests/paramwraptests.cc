@@ -17,30 +17,46 @@ std::shared_ptr<PIOL::File::Param*> test_PIOL_File_Param(
         .WillOnce(SaveArg<0>(param_ptr));
 
     EXPECT_CALL(mockParam(), ctor(_, 310));
-    //void PIOL_File_Param_delete(PIOL_File_Param* param);
-    //int16_t PIOL_File_getPrm_short(
-    //    size_t i, PIOL_Meta entry, PIOL_File_Param* param
-    //);
-    //int64_t PIOL_File_getPrm_llint(
-    //    size_t i, PIOL_Meta entry, PIOL_File_Param* param
-    //);
-    //double PIOL_File_getPrm_double(
-    //    size_t i, PIOL_Meta entry, PIOL_File_Param* param
-    //);
-    //void PIOL_File_setPrm_short(
-    //    size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param
-    //);
-    //void PIOL_File_setPrm_llint(
-    //    size_t i, PIOL_Meta entry, int64_t ret, PIOL_File_Param* param
-    //);
-    //void PIOL_File_setPrm_double(
-    //    size_t i, PIOL_Meta entry, double ret, PIOL_File_Param* param
-    //);
+
+    EXPECT_CALL(
+        mockParamFreeFunctions(),
+        getPrm_int16_t(320, PIOL_META_COPY, EqDeref(param_ptr))
+    ).WillOnce(CheckReturn(330));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+
+    EXPECT_CALL(
+        mockParamFreeFunctions(),
+        getPrm_llint(340, PIOL_META_COPY, EqDeref(param_ptr))
+    ).WillOnce(CheckReturn(350));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+
+    EXPECT_CALL(
+        mockParamFreeFunctions(),
+        getPrm_geom_t(360, PIOL_META_COPY, EqDeref(param_ptr))
+    ).WillOnce(CheckReturn(370.0));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+
+    EXPECT_CALL(
+        mockParamFreeFunctions(),
+        setPrm_int16_t(380, PIOL_META_COPY, 390, EqDeref(param_ptr))
+    );
+    EXPECT_CALL(
+        mockParamFreeFunctions(),
+        setPrm_llint(400, PIOL_META_COPY, 410, EqDeref(param_ptr))
+    );
+    EXPECT_CALL(
+        mockParamFreeFunctions(),
+        setPrm_geom_t(
+            420, PIOL_META_COPY, DoubleEq(430.0), EqDeref(param_ptr)
+        )
+    );
 
     //void PIOL_File_cpyPrm(
     //    size_t i, const PIOL_File_Param* src,
     //    size_t j, PIOL_File_Param* dst
     //);
+
+    //void PIOL_File_Param_delete(PIOL_File_Param* param);
 
     return param_ptr;
 }

@@ -150,30 +150,24 @@ int main()
     */
     PIOL_File_Param* param     = PIOL_File_Param_new(rule, 300);
     PIOL_File_Param* param_tmp = PIOL_File_Param_new(NULL, 310);
-    //void PIOL_File_Param_delete(PIOL_File_Param* param);
-    //int16_t PIOL_File_getPrm_short(
-    //    size_t i, PIOL_Meta entry, PIOL_File_Param* param
-    //);
-    //int64_t PIOL_File_getPrm_llint(
-    //    size_t i, PIOL_Meta entry, PIOL_File_Param* param
-    //);
-    //double PIOL_File_getPrm_double(
-    //    size_t i, PIOL_Meta entry, PIOL_File_Param* param
-    //);
-    //void PIOL_File_setPrm_short(
-    //    size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param
-    //);
-    //void PIOL_File_setPrm_llint(
-    //    size_t i, PIOL_Meta entry, int64_t ret, PIOL_File_Param* param
-    //);
-    //void PIOL_File_setPrm_double(
-    //    size_t i, PIOL_Meta entry, double ret, PIOL_File_Param* param
-    //);
+    if(PIOL_File_getPrm_short(320, PIOL_META_COPY, param) == 330) wraptest_ok();
+
+    if(PIOL_File_getPrm_llint(340, PIOL_META_COPY, param) == 350) wraptest_ok();
+    if(
+        abs(PIOL_File_getPrm_double(360, PIOL_META_COPY, param) - 370.0) < 1e-5
+    ) {
+        wraptest_ok();
+    }
+
+    PIOL_File_setPrm_short(380, PIOL_META_COPY, 390, param);
+    PIOL_File_setPrm_llint(400, PIOL_META_COPY, 410, param);
+    PIOL_File_setPrm_double(420, PIOL_META_COPY, 430.0, param);
 
     //void PIOL_File_cpyPrm(
     //    size_t i, const PIOL_File_Param* src,
     //    size_t j, PIOL_File_Param* dst
     //);
+    //void PIOL_File_Param_delete(PIOL_File_Param* param);
 
     ///*
     //** Operations

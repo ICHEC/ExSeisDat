@@ -9,6 +9,24 @@
  *//*******************************************************************************************/
 #ifndef PIOLGLOBAL_INCLUDE_GUARD
 #define PIOLGLOBAL_INCLUDE_GUARD
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+#include "stddef.h"
+
+typedef ptrdiff_t PIOL_llint;
+typedef float     PIOL_trace_t;
+typedef double    PIOL_geom_t;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+
+#ifdef __cplusplus
+
 #include <cstdint>
 #include <vector>
 #include <memory>
@@ -18,10 +36,10 @@
 namespace PIOL {
 
     typedef unsigned char uchar;        //!< The type to use for accessing individual bytes
-    typedef std::ptrdiff_t llint;              //!< A large signed integer type.
-    typedef float trace_t;              //!< Real type for traces, use "*_t" convention
-    typedef double geom_t;               //!< Real type for geometry
-    typedef double unit_t;               //!< Real type for physical, SI and math units
+    typedef PIOL_llint   llint;         //!< A large signed integer type.
+    typedef PIOL_trace_t trace_t;       //!< Real type for traces, use "*_t" convention
+    typedef PIOL_geom_t  geom_t;        //!< Real type for geometry
+    typedef double unit_t;              //!< Real type for physical, SI and math units
     typedef const std::size_t csize_t;  //!< Short hand for a const size_t
 
     typedef std::complex<trace_t> cmtrace_t;              //!< Real type for traces, use "*_t" convention
@@ -62,4 +80,7 @@ namespace PIOL {
     namespace Obj { class Interface; }
     namespace File { class ReadInterface; class WriteInterface; }
 }
-#endif
+
+#endif // __cplusplus
+
+#endif // PIOLGLOBAL_INCLUDE_GUARD

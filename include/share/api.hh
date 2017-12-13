@@ -9,7 +9,7 @@
 #ifndef PIOLSHAREAPI_INCLUDE_GUARD
 #define PIOLSHAREAPI_INCLUDE_GUARD
 
-typedef double geom_t;  //!< TODO: This should be done somewhere more general
+#include "global.hh"
 
 typedef size_t PIOL_Meta;
 
@@ -152,12 +152,15 @@ typedef enum
     CosSqr      //!< Taper using a cos^2 ramp
 #ifdef __cplusplus
 };
+} // namespace PIOL
 #else
 } TaperType;
 #endif
+
 /*! An enum class of the different types of filters.
  */
 #ifdef __cplusplus
+namespace PIOL {
 enum class FltrType : int
 #else
 typedef enum
@@ -169,6 +172,7 @@ typedef enum
     Bandstop    //!< Create Bandstop IIR Butterworth filter
 #ifdef __cplusplus
 };
+} // namespace PIOL
 #else
 } FltrType;
 #endif
@@ -176,6 +180,7 @@ typedef enum
 /*! An enum class of the different types of filtering domains.
  */
 #ifdef __cplusplus
+namespace PIOL {
 enum class FltrDmn : int
 #else
 typedef enum
@@ -185,6 +190,7 @@ typedef enum
     Freq     //!< Filter in frequency domain
 #ifdef __cplusplus
 };
+} // namespace PIOL
 #else
 } FltrDmn;
 #endif
@@ -192,6 +198,7 @@ typedef enum
 /*! An enum class of the different types of trace padding functions.
  */
 #ifdef __cplusplus
+namespace PIOL {
 enum class PadType : int
 #else
 typedef enum
@@ -203,6 +210,7 @@ typedef enum
     Cyclic      //!< Pad using values from other end of trace
 #ifdef __cplusplus
 };
+} // namespace PIOL
 #else
 } PadType;
 #endif
@@ -210,6 +218,7 @@ typedef enum
 /*! An enum class of the different types of automatic gain control functions.
  */
 #ifdef __cplusplus
+namespace PIOL {
 enum class AGCType : int
 #else
 typedef enum
@@ -221,6 +230,7 @@ typedef enum
     Median     //!< AGC using the median value
 #ifdef __cplusplus
 };
+} // namespace PIOL
 #else
 } AGCType;
 #endif
@@ -228,22 +238,16 @@ typedef enum
 /*! A structure to hold a reference to a single coordinate and
  * the corresponding trace number
  */
-#ifdef __cplusplus
-struct CoordElem
-#else
-typedef struct
-#endif
-{
-    geom_t val;     //!< The value
-    size_t num;     //!< The trace number
-#ifdef __cplusplus
+struct PIOL_CoordElem {
+    PIOL_geom_t val;  //!< The value
+    size_t num;       //!< The trace number
 };
-#else
-} CoordElem;
-#endif
+
 #ifdef __cplusplus
-}
-#endif
+namespace PIOL {
+    typedef PIOL_CoordElem CoordElem;
+} // namespace PIOL
+#endif // __cplusplus
 
 
 #ifdef __cplusplus

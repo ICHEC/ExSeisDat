@@ -8,6 +8,11 @@ namespace File {
         os << "PIOL::File::Param* " << static_cast<void*>(value);
         return os;
     }
+
+    ::std::ostream& operator<<(::std::ostream& os, const PIOL::File::Param* value) {
+        os << "const PIOL::File::Param* " << static_cast<const void*>(value);
+        return os;
+    }
 } // namespace File
 } // namespace PIOL
 

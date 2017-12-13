@@ -10,6 +10,7 @@ namespace File {
     class Param;
 
     ::std::ostream& operator<<(::std::ostream& os, PIOL::File::Param* value);
+    ::std::ostream& operator<<(::std::ostream& os, const PIOL::File::Param* value);
 } // namespace File
 } // namespace PIOL
 

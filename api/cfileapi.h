@@ -14,14 +14,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "share/api.hh"
+#include "global.hh"
 #include "anc/verbosity.h"
 
 
 //
-// Include or forward declare XXXPointer types used for C API handles
+// Forward declare types used for C API handles
 //
 #ifdef __cplusplus
-// Include concrete implementations for XXXPionter types in C++
+#include <memory>
+
 namespace PIOL {
     class ExSeis;
 
@@ -50,11 +52,6 @@ typedef struct PIOL_File_WriteDirect PIOL_File_WriteDirect;
 
 
 #ifdef __cplusplus
-// Need "using" for these enums for the C++ and C prototypes to match here.
-// TODO: rename Meta etc. to PIOL_Meta so including this header
-//     doesn't add Meta unnamespaced into the global scope.
-using PIOL::CoordElem;
-
 // Everything from here on is C API functions needing C linkage.
 extern "C"
 {
@@ -251,7 +248,7 @@ int16_t PIOL_File_getPrm_short(
  *  \param[in] prm The parameter structure
  *  \return The associated parameter
  */
-int64_t PIOL_File_getPrm_llint(
+PIOL_llint PIOL_File_getPrm_llint(
     size_t i, PIOL_Meta entry, PIOL_File_Param* param
 );
 
@@ -261,7 +258,7 @@ int64_t PIOL_File_getPrm_llint(
  *  \param[in] prm The parameter structure
  *  \return The associated parameter
  */
-double PIOL_File_getPrm_double(
+PIOL_geom_t PIOL_File_getPrm_double(
     size_t i, PIOL_Meta entry, PIOL_File_Param* param
 );
 
@@ -282,7 +279,7 @@ void PIOL_File_setPrm_short(
  *  \param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_llint(
-    size_t i, PIOL_Meta entry, int64_t ret, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param
 );
 
 /*! Set a double parameter within the parameter structure.
@@ -292,7 +289,7 @@ void PIOL_File_setPrm_llint(
  *  \param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_double(
-    size_t i, PIOL_Meta entry, double ret, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param
 );
 
 /*! Copy parameter within the parameter structure.
@@ -319,7 +316,7 @@ void PIOL_File_cpyPrm(
 void PIOL_File_getMinMax(
     PIOL_ExSeis* piol,
     size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2,
-    PIOL_File_Param* param, CoordElem * minmax
+    PIOL_File_Param* param, struct PIOL_CoordElem * minmax
 );
 
 /*
@@ -414,7 +411,7 @@ void PIOL_File_WriteDirect_writeNt(
  *  \param[in] inc The new increment between trace samples.
  */
 void PIOL_File_WriteDirect_writeInc(
-    PIOL_File_WriteDirect* writeDirect, geom_t inc
+    PIOL_File_WriteDirect* writeDirect, PIOL_geom_t inc
 );
 
 /*
@@ -461,7 +458,7 @@ void PIOL_File_ReadDirect_readParam(
  */
 void PIOL_File_ReadDirect_readTrace(
     PIOL_File_ReadDirect* readDirect,
-    size_t offset, size_t sz, float * trace, PIOL_File_Param* param
+    size_t offset, size_t sz, PIOL_trace_t * trace, PIOL_File_Param* param
 );
 
 /*! \brief Read the traces and trace parameters from offset to offset+sz.
@@ -475,7 +472,7 @@ void PIOL_File_ReadDirect_readTrace(
  */
 void PIOL_File_WriteDirect_writeTrace(
     PIOL_File_WriteDirect* writeDirect,
-    size_t offset, size_t sz, float * trace,
+    size_t offset, size_t sz, PIOL_trace_t * trace,
     PIOL_File_Param* param
 );
 
@@ -492,7 +489,7 @@ void PIOL_File_WriteDirect_writeTrace(
 #warning TODO: add readTrace for non-contiguous
 //void PIOL_File_ReadDirect_readTrace(
 //    PIOL_File_ReadDirect* readDirect,
-//    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
+//    size_t sz, size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
 //);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
@@ -506,7 +503,7 @@ void PIOL_File_WriteDirect_writeTrace(
 #warning TODO: add writeTrace for non-contiguous
 //void PIOL_File_WriteDirect_writeTrace(
 //    PIOL_File_WriteDirect* writeDirect,
-//    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
+//    size_t sz, size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
 //);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.

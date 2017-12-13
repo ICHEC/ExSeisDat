@@ -155,14 +155,14 @@ bool PIOL_File_Rule_addRule_Rule(PIOL_File_Rule* rule, const PIOL_File_Rule* rul
     return (**rule).addRule(**ruleToCopy);
 }
 
-short PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, PIOL_File_Param* param)
+int16_t PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    return PIOL::File::getPrm<short>(i, entry, param);
+    return PIOL::File::getPrm<int16_t>(i, entry, param);
 }
 
-int64_t PIOL_File_getPrm_llint(
+PIOL_llint PIOL_File_getPrm_llint(
     size_t i, PIOL_Meta entry, PIOL_File_Param* param
 )
 {
@@ -171,17 +171,17 @@ int64_t PIOL_File_getPrm_llint(
     return PIOL::File::getPrm<PIOL::llint>(i, entry, param);
 }
 
-double PIOL_File_getPrm_double(
+PIOL_geom_t PIOL_File_getPrm_double(
     size_t i, PIOL_Meta entry, PIOL_File_Param* param
 )
 {
     assert(not_null(param));
 
-    return PIOL::File::getPrm<geom_t>(i, entry, param);
+    return PIOL::File::getPrm<PIOL::geom_t>(i, entry, param);
 }
 
 void PIOL_File_setPrm_short(
-    size_t i, PIOL_Meta entry, short ret, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param
 )
 {
     assert(not_null(param));
@@ -190,7 +190,7 @@ void PIOL_File_setPrm_short(
 }
 
 void PIOL_File_setPrm_llint(
-    size_t i, PIOL_Meta entry, int64_t ret, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param
 )
 {
     assert(not_null(param));
@@ -199,7 +199,7 @@ void PIOL_File_setPrm_llint(
 }
 
 void PIOL_File_setPrm_double(
-    size_t i, PIOL_Meta entry, double ret, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param
 )
 {
     assert(not_null(param));
@@ -362,7 +362,7 @@ void PIOL_File_WriteDirect_writeNt(
 }
 
 void PIOL_File_WriteDirect_writeInc(
-    PIOL_File_WriteDirect* writeDirect, const geom_t inc
+    PIOL_File_WriteDirect* writeDirect, const PIOL_geom_t inc
 )
 {
     assert(not_null(writeDirect));
@@ -373,7 +373,7 @@ void PIOL_File_WriteDirect_writeInc(
 //Contiguous traces
 void PIOL_File_ReadDirect_readTrace(
     PIOL_File_ReadDirect* readDirect,
-    size_t offset, size_t sz, PIOL::trace_t * trace,
+    size_t offset, size_t sz, PIOL_trace_t * trace,
     PIOL_File_Param* param
 )
 {
@@ -389,7 +389,7 @@ void PIOL_File_ReadDirect_readTrace(
 
 void PIOL_File_WriteDirect_writeTrace(
     PIOL_File_WriteDirect* writeDirect,
-    size_t offset, size_t sz, PIOL::trace_t * trace,
+    size_t offset, size_t sz, PIOL_trace_t * trace,
     PIOL_File_Param* param
 )
 {
@@ -478,7 +478,7 @@ void PIOL_File_ReadDirect_readParam(
 void PIOL_File_getMinMax(
     PIOL_ExSeis* piol,
     size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2, PIOL_File_Param* param,
-    CoordElem * minmax
+    struct PIOL_CoordElem * minmax
 )
 {
     assert(not_null(piol));
@@ -525,7 +525,7 @@ void PIOL_Set_delete(PIOL_Set* set)
 }
 
 void PIOL_Set_getMinMax(
-    PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, CoordElem * minmax
+    PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem * minmax
 )
 {
     assert(not_null(set));
@@ -543,7 +543,7 @@ void PIOL_Set_sort(PIOL_Set* set, PIOL_SortType type)
 
 void PIOL_Set_sort_fn(
     PIOL_Set* set,
-    bool (* const func)(const PIOL_File_Param* param, PIOL::csize_t i, PIOL::csize_t j)
+    bool (* const func)(const PIOL_File_Param* param, size_t i, size_t j)
 )
 {
     assert(not_null(set));
@@ -560,7 +560,7 @@ void PIOL_Set_taper(
     set->taper(type, ntpstr, ntpend);
 }
 
-void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, float normR)
+void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, PIOL_trace_t normR)
 {
     assert(not_null(set));
 

@@ -12,10 +12,9 @@
 #include "cfileapi.h"
 
 //
-// Include or forward declare XXXPointer types used for C API handles
+// Forward declare types used for C API handles
 //
 #ifdef __cplusplus
-// Include concrete implementations for XXXPionter types in C++
 namespace PIOL {
     class Set;
 }
@@ -59,7 +58,7 @@ void PIOL_Set_delete(PIOL_Set* set);
  *  and their respective trace numbers.
  */
 void PIOL_Set_getMinMax(
-    PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, CoordElem * minmax
+    PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem * minmax
 );
 
 /*! Sort the set by the specified sort type.
@@ -116,7 +115,7 @@ void PIOL_Set_add(PIOL_Set* set, const char * name);
  * \param[in] window Length of the agc window
  * \param[in] normR Normalization value
  */
-void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, float normR);
+void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, PIOL_trace_t normR);
 
 #ifdef __cplusplus
 } // extern "C"
