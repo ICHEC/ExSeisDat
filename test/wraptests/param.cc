@@ -14,6 +14,11 @@ Param::Param(csize_t sz)
     mockParam().ctor(this, sz);
 }
 
+Param::~Param()
+{
+    mockParam().dtor(this);
+}
+
 size_t Param::size(void) const
 {
     return mockParam().size(this);

@@ -232,6 +232,16 @@ PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz);
  */
 void PIOL_File_Param_delete(PIOL_File_Param* param);
 
+/*! Return the number of sets of trace parameters.
+ *  \return Number of sets
+ */
+size_t PIOL_File_Param_size(const PIOL_File_Param* param);
+
+/*! Estimate of the total memory used
+ *  \return Return estimate in bytes.
+ */
+size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param);
+
 /*! Get a short parameter which is in a particular set in a parameter structure.
  *  \param[in] i The parameter set number
  *  \param[in] entry The parameter entry

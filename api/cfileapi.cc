@@ -140,6 +140,19 @@ void PIOL_File_Param_delete(PIOL_File_Param* param)
     delete param;
 }
 
+size_t PIOL_File_Param_size(const PIOL_File_Param* param)
+{
+    assert(not_null(param));
+
+    return param->size();
+}
+
+size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param) {
+    assert(not_null(param));
+
+    return param->memUsage();
+}
+
 bool PIOL_File_Rule_addRule_Meta(PIOL_File_Rule* rule, PIOL_Meta m)
 {
     assert(not_null(rule));

@@ -365,6 +365,8 @@ Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
     c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
+Param::~Param() = default;
+
 size_t Param::size(void) const
 {
     return sz;

@@ -50,6 +50,7 @@ class MockParam
 public:
     MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, csize_t sz));
     MOCK_METHOD2(ctor, void(Param*, csize_t sz));
+    MOCK_METHOD1(dtor, void(Param*));
 
     MOCK_CONST_METHOD1(size, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));
     MOCK_CONST_METHOD1(memUsage, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));

@@ -38,6 +38,10 @@ struct Param
      */
     Param(csize_t sz = 1);
 
+    /*! Default destructor
+     */
+    ~Param();
+
     /*! Return the number of sets of trace parameters.
      *  \return Number of sets
      */
