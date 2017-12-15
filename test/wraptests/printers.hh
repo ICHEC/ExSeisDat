@@ -4,7 +4,12 @@
 #include <iostream>
 #include <memory>
 
+extern "C" struct PIOL_CoordElem;
+
+::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value);
+
 namespace PIOL {
+
 namespace File {
     class Rule;
     class Param;

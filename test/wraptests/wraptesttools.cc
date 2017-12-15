@@ -8,9 +8,9 @@ PIOL::CheckReturnListener*& checkReturnListener()
     return checkReturnListener;
 }
 
-testing::MockFunction<void()>& returnChecker()
+::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker()
 {
-    static testing::MockFunction<void()> returnChecker;
+    static ::testing::StrictMock<::testing::MockFunction<void()>> returnChecker;
     return returnChecker;
 }
 

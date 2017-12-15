@@ -1,6 +1,7 @@
-#include "mockminmax.hh"
+#include "mockgetminmax.hh"
 
 namespace PIOL {
+namespace File {
 
 ::testing::StrictMock<MockGetMinMax>& mockGetMinMax()
 {
@@ -8,4 +9,5 @@ namespace PIOL {
     return mockGetMinMax;
 }
 
+} // namespace File
 } // namespace PIOL

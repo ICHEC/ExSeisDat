@@ -1,6 +1,18 @@
 #include "printers.hh"
 
+#include "share/param.hh"
+#include "share/api.hh"
+#include "file/dynsegymd.hh"
+
+::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value) {
+    os << "PIOL::CoordElem { "
+        << ".val = " << value.val << ", "
+        << ".num = " << value.num
+        << " }";
+}
+
 namespace PIOL {
+
 namespace File {
     class Rule;
 

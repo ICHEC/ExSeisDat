@@ -6,6 +6,8 @@
 #include "gmock/gmock.h"
 #include "checkreturnlistener.hh"
 
+#include "cppfileapi.hh"
+
 
 namespace PIOL {
 
@@ -15,7 +17,7 @@ PIOL::CheckReturnListener*& checkReturnListener();
 
 // Returns a mocked function which, when called, will call
 // checkReturnListener->got_expected_return_value();
-testing::MockFunction<void()>& returnChecker();
+::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker();
 
 }
 
@@ -38,10 +40,20 @@ MATCHER_P(AddressEqDeref, p, "")
     return *p == &arg;
 }
 
+MATCHER_P(EqToExSeisPIOL, n, "") {
+    return static_cast<const PIOL::ExSeisPIOL*>(**n) == arg;
+}
+
+
 ACTION_P(CheckReturn, v)
 {
     PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
     return v;
+}
+
+ACTION_P(CheckInOutParam, v)
+{
+    PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
 }
 
 ACTION(ClearCheckReturn)

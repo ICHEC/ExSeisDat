@@ -54,9 +54,12 @@ int main()
     printf("cwraptests: Initializing!\n");
     init_wraptests();
 
+
     /*
     ** Testing ExSeis
     */
+    printf("Testing ExSeis\n");
+
     PIOL_ExSeis* piol = PIOL_ExSeis_new(0);
 
     PIOL_ExSeis* piol_tmp_1 = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -85,6 +88,7 @@ int main()
     /*
     ** Testing Rule
     */
+    printf("Testing Rule\n");
 
     PIOL_File_Rule* rule = PIOL_File_Rule_new(true);
 
@@ -115,6 +119,7 @@ int main()
     /*
     ** Testing SEGSz
     */
+    printf("Testing SEGSz\n");
 
     if(PIOL_SEGSz_getTextSz() != 3200u) {
         printf(
@@ -149,6 +154,8 @@ int main()
     /*
     ** Param calls
     */
+    printf("Testing Param\n");
+
     PIOL_File_Param* param     = PIOL_File_Param_new(rule, 300);
     PIOL_File_Param* param_tmp = PIOL_File_Param_new(NULL, 310);
 
@@ -159,7 +166,7 @@ int main()
 
     if(PIOL_File_getPrm_llint(360, PIOL_META_COPY, param) == 370) wraptest_ok();
     if(
-        abs(PIOL_File_getPrm_double(380, PIOL_META_COPY, param) - 390.0) < 1e-5
+        fabs(PIOL_File_getPrm_double(380, PIOL_META_COPY, param) - 390.0) < 1e-5
     ) {
         wraptest_ok();
     }
@@ -173,32 +180,59 @@ int main()
     PIOL_File_Param_delete(param_tmp);
 
 
-    ///*
-    //** Operations
-    //*/
-    //void PIOL_File_getMinMax(
-    //    PIOL_ExSeis* piol,
-    //    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2,
-    //    PIOL_File_Param* param, CoordElem * minmax
+    /*
+    ** Operations
+    */
+    printf("Testing Operations\n");
+
+    struct PIOL_CoordElem coord_elem = {.val = 500.0, .num = 510 };
+    PIOL_File_getMinMax(
+        piol, 520, 530, PIOL_META_COPY, PIOL_META_COPY, param, &coord_elem
+    );
+    if(
+        fabs(coord_elem.val -  540.0) < 1e-5
+        &&   coord_elem.num == 550.0
+    ) {
+        wraptest_ok();
+    }
+
+    /*
+    ** Opening and closing files
+    */
+    //PIOL_File_ReadDirect* read_direct = PIOL_File_ReadDirect_new(
+    //    piol, "Test_ReadDirect_filename"
     //);
 
-    ///*
-    //** Opening and closing files
-    //*/
-    //PIOL_File_ReadDirect* read_direct = PIOL_File_ReadDirect_new(
-    //    piol, "hello"
+    //void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
+    //size_t PIOL_File_ReadDirect_readNs(PIOL_File_ReadDirect* readDirect);
+    //size_t PIOL_File_ReadDirect_readNt(PIOL_File_ReadDirect* readDirect);
+    //double PIOL_File_ReadDirect_readInc(PIOL_File_ReadDirect* readDirect);
+    //void PIOL_File_ReadDirect_readParam(
+    //    PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
+    //    PIOL_File_Param* param
     //);
+    //#warning TODO: add readParam for non-contiguous
+    //void PIOL_File_ReadDirect_readParam(
+    //    PIOL_File_ReadDirect* readDirect,
+    //    size_t sz, size_t * offset, PIOL_File_Param* param
+    //);
+    //void PIOL_File_ReadDirect_readTrace(
+    //    PIOL_File_ReadDirect* readDirect,
+    //    size_t offset, size_t sz, float * trace, PIOL_File_Param* param
+    //);
+    //#warning TODO: add readTrace for non-contiguous
+    //void PIOL_File_ReadDirect_readTrace(
+    //    PIOL_File_ReadDirect* readDirect,
+    //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
+    //);
+
     //PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
     //    PIOL_ExSeis* piol, const char * name
     //);
-    //void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
     //void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
     //const char * PIOL_File_ReadDirect_readText(
     //    PIOL_File_ReadDirect* readDirect
     //);
-    //size_t PIOL_File_ReadDirect_readNs(PIOL_File_ReadDirect* readDirect);
-    //size_t PIOL_File_ReadDirect_readNt(PIOL_File_ReadDirect* readDirect);
-    //double PIOL_File_ReadDirect_readInc(PIOL_File_ReadDirect* readDirect);
     //void PIOL_File_WriteDirect_writeText(
     //    PIOL_File_WriteDirect* writeDirect, const char * text
     //);
@@ -215,39 +249,19 @@ int main()
     //    PIOL_File_WriteDirect* writeDirect,
     //    size_t offset, size_t sz, PIOL_File_Param* param
     //);
-    //void PIOL_File_ReadDirect_readParam(
-    //    PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
-    //    PIOL_File_Param* param
-    //);
-    //void PIOL_File_ReadDirect_readTrace(
-    //    PIOL_File_ReadDirect* readDirect,
-    //    size_t offset, size_t sz, float * trace, PIOL_File_Param* param
-    //);
     //void PIOL_File_WriteDirect_writeTrace(
     //    PIOL_File_WriteDirect* writeDirect,
     //    size_t offset, size_t sz, float * trace,
     //    PIOL_File_Param* param
-    //);
-
-    //#warning TODO: add readTrace for non-contiguous
-    //void PIOL_File_ReadDirect_readTrace(
-    //    PIOL_File_ReadDirect* readDirect,
-    //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
     //);
     //#warning TODO: add writeTrace for non-contiguous
     //void PIOL_File_WriteDirect_writeTrace(
     //    PIOL_File_WriteDirect* writeDirect,
     //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
     //);
-
     //#warning TODO: add writeParam for non-contiguous
     //void PIOL_File_WriteDirect_writeParam(
     //    PIOL_File_WriteDirect* writeDirect,
-    //    size_t sz, size_t * offset, PIOL_File_Param* param
-    //);
-    //#warning TODO: add readParam for non-contiguous
-    //void PIOL_File_ReadDirect_readParam(
-    //    PIOL_File_ReadDirect* readDirect,
     //    size_t sz, size_t * offset, PIOL_File_Param* param
     //);
 
