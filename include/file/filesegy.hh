@@ -51,14 +51,14 @@ class ReadSEGY : public ReadInterface
      *  \param[in] segyOpt The SEGY-File options
      *  \param[in] obj_    A shared pointer to the object layer
      */
-    ReadSEGY(const Piol piol_, const std::string name_, const ReadSEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_);
+    ReadSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const ReadSEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_);
 
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] obj_    A shared pointer to the object layer
      */
-    ReadSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+    ReadSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 
     size_t readNt(void);
 
@@ -87,9 +87,9 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY
      \param[in] name_ The name of the file.
      \param[in] obj_ A shared pointer for the object layer object.
      */
-    ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+    ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 
-    ReadSEGYModel(const Piol piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_);
+    ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_);
 
     std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather);
 
@@ -151,14 +151,14 @@ class WriteSEGY : public WriteInterface
      *  \param[in] segyOpt The SEGY-File options
      *  \param[in] obj_    A shared pointer to the object layer
      */
-    WriteSEGY(const Piol piol_, const std::string name_, const WriteSEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_);
+    WriteSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const WriteSEGY::Opt & segyOpt, std::shared_ptr<Obj::Interface> obj_);
 
     /*! \brief The SEGY-Object class constructor.
      *  \param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_   The name of the file associated with the instantiation.
      *  \param[in] obj_    A shared pointer to the object layer
      */
-    WriteSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
+    WriteSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 
     /*! \brief Destructor. Processes any remaining flags
      */

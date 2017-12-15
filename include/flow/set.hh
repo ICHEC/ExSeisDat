@@ -39,17 +39,18 @@ struct gState
  */
 struct RadonState : public gState
 {
-    Piol piol;                  //!< The piol object.
-    std::string vmname;         //!< The name of the Velocity Model (VM) file.
-    std::vector<trace_t> vtrc;  //!< Trace data read from the VM file.
-    std::vector<llint> il;      //!< A list of inlines corresponding to the VM data read.
-    std::vector<llint> xl;      //!< A list of crosslines corresponding to the VM data read.
+    std::shared_ptr<ExSeisPIOL> piol;  //!< The piol object.
+    std::string vmname;                //!< The name of the Velocity Model (VM) file.
+    std::vector<trace_t> vtrc;         //!< Trace data read from the VM file.
+    std::vector<llint> il;             //!< A list of inlines corresponding to the VM data read.
+    std::vector<llint> xl;             //!< A list of crosslines corresponding to the VM data read.
 
-    size_t vNs;                 //!< The number of samples per trace for the VM.
-    size_t vBin;                //!< The binning factor to be used.
-    size_t oGSz;                //!< The number of traces per gather in the angle output.
-    geom_t vInc;                //!< The increment between samples in the VM file.
-    geom_t oInc;                //!< The increment between samples in the output file (radians).
+    size_t vNs;   //!< The number of samples per trace for the VM.
+    size_t vBin;  //!< The binning factor to be used.
+    size_t oGSz;  //!< The number of traces per gather in the angle output.
+    geom_t vInc;  //!< The increment between samples in the VM file.
+    geom_t oInc;  //!< The increment between samples in the output file (radians).
+
     /*! Constructor for the radon state.
      * \param[in] piol_ The piol object.
      * \param[in] vmname_ The VM file.
@@ -57,7 +58,7 @@ struct RadonState : public gState
      * \param[in] oGSz_  The number of traces in the angle output.
      * \param[in] oInc_ The number of increments.
      */
-    RadonState(Piol piol_, std::string vmname_, csize_t vBin_, csize_t oGSz_, const geom_t oInc_)
+    RadonState(std::shared_ptr<ExSeisPIOL> piol_, std::string vmname_, csize_t vBin_, csize_t oGSz_, const geom_t oInc_)
                           : piol(piol_), vmname(vmname_), vNs(0U), vBin(vBin_), oGSz(oGSz_), vInc(geom_t(0)), oInc(oInc_) {}
 
     void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather);
@@ -176,7 +177,7 @@ typedef std::list<std::shared_ptr<OpParent>> FuncLst;           //!< The functio
 class Set
 {
     private :
-    Piol piol;                                                  //!< The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;                           //!< The PIOL object.
     std::string outfix;                                         //!< The output prefix
     std::string outmsg;                                         //!< The output text-header message
     FileDeque file;                                             //!< A deque of unique pointers to file descriptors
@@ -252,7 +253,7 @@ class Set
      *  \param[in] outfix_ The output file-name prefix
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    Set(Piol piol_, std::string pattern, std::string outfix_,
+    Set(std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Constructor
@@ -260,7 +261,7 @@ class Set
      *  \param[in] pattern The file-matching pattern
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    Set(Piol piol_, std::string pattern,
+    Set(std::shared_ptr<ExSeisPIOL> piol_, std::string pattern,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY})) :
         Set(piol_, pattern, "", rule_)
     {}
@@ -269,7 +270,7 @@ class Set
      *  \param[in] piol_ The PIOL object.
      *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
-    Set(Piol piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
+    Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Destructor
      */

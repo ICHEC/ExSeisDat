@@ -97,14 +97,14 @@ class MPIIO : public Interface
      *  \param[in] opt   The MPI-IO options
      *  \param[in] mode The filemode
      */
-    MPIIO(const Piol piol_, const std::string name_, const MPIIO::Opt & opt, FileMode mode = FileMode::Read);
+    MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIO::Opt & opt, FileMode mode = FileMode::Read);
 
     /*! \brief The MPI-IO class constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] mode The filemode
      */
-    MPIIO(const Piol piol_, const std::string name_, FileMode mode = FileMode::Read);
+    MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, FileMode mode = FileMode::Read);
 
     ~MPIIO(void);
 

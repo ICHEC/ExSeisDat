@@ -14,7 +14,7 @@
 namespace PIOL { namespace FOURD {
 //TODO: Integration candidate
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
-std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
+std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
     auto time = MPI_Wtime();
     File::ReadDirect file(piol, name);
@@ -115,7 +115,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
+void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
 {
     auto time = MPI_Wtime();
     auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY});

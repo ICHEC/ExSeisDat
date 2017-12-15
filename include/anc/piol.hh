@@ -7,11 +7,14 @@
  *//*******************************************************************************************/
 #ifndef PIOLPIOL_INCLUDE_GUARD
 #define PIOLPIOL_INCLUDE_GUARD
+
 #include <memory>
 #include "anc/log.hh"
 #include "anc/comm.hh"
 #include "anc/mpi.hh"
+
 namespace PIOL {
+
 /*! \brief The ExSeisPIOL structure. A single instance of this structure should be created and
  *         passed to each subsequent PIOL object which is created.
  */
@@ -52,7 +55,6 @@ class ExSeisPIOL
      */
     void isErr(const std::string msg = "");
 };
-typedef std::shared_ptr<ExSeisPIOL> Piol;   //!< A typedef for the ExSeisPIOL shared_ptr
-}
-#endif
 
+} // namespace PIOL
+#endif // PIOLPIOL_INCLUDE_GUARD

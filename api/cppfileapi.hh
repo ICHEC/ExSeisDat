@@ -18,7 +18,7 @@ namespace PIOL {
  */
 class ExSeis
 {
-    Piol piol;                            //!< The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;  //!< The PIOL object.
 
     public :
     /*! Constructor with optional maxLevel and which initialises MPI.
@@ -52,7 +52,7 @@ class ExSeis
 
     /*! Cast to ExSeisPIOL shared_ptr
      */
-    operator Piol ()
+    operator std::shared_ptr<ExSeisPIOL> ()
     {
         return piol;
     }
@@ -105,7 +105,7 @@ class ReadDirect
      *  \param[in] f The File options.
      */
     template <class F, class O, class D>
-    ReadDirect(const Piol piol, const std::string name, const D & d, const O & o, const F & f)
+    ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name, const D & d, const O & o, const F & f)
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Read);
@@ -119,7 +119,7 @@ class ReadDirect
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
      */
-    ReadDirect(const Piol piol, const std::string name);
+    ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name);
 
     /*! Copy constructor for a std::shared_ptr<ReadInterface> object
      * \param[in] file The ReadInterface shared_ptr object.
@@ -225,7 +225,7 @@ class WriteDirect
      *  \param[in] f The File options.
      */
     template <class D, class O, class F>
-    WriteDirect(const Piol piol, const std::string name, const D & d, const O & o, const F & f)
+    WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name, const D & d, const O & o, const F & f)
     {
         auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
         auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Write);
@@ -239,7 +239,7 @@ class WriteDirect
      *  \param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name The name of the file associated with the instantiation.
      */
-    WriteDirect(const Piol piol, const std::string name);
+    WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name);
 
     /*! Copy constructor for a std::shared_ptr<ReadInterface> object
      * \param[in] file The ReadInterface shared_ptr object.
@@ -335,7 +335,7 @@ class WriteDirect
 class ReadModel : public ReadDirect
 {
     public :
-    ReadModel(const Piol piol_, const std::string name_);
+    ReadModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_);
     std::vector<trace_t> virtual readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather);
 };
 

@@ -49,7 +49,7 @@ extern void taperMan(size_t nt, size_t ns, trace_t * trc, TaperFunc func, size_t
 
 
 template <class T>
-std::shared_ptr<T> makeTest(Piol piol, std::string name)
+std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
 {
         File::WriteSEGY::Opt f;
         File::ReadSEGY::Opt rf;

@@ -21,7 +21,7 @@ using namespace PIOL;
 class MockData : public Data::Interface
 {
     public :
-    MockData(const Piol piol_, const std::string name_) : Data::Interface(piol_, name_)
+    MockData(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
     {
     }
 
@@ -46,7 +46,7 @@ enum class Block
 class ObjTest : public Test
 {
     protected :
-    Piol piol;
+    std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPI::Opt opt;
     std::shared_ptr<MockData> mock;
     Obj::Interface * obj;

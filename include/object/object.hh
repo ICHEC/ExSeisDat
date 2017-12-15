@@ -18,7 +18,7 @@ namespace PIOL { namespace Obj {
 class Interface
 {
     protected :
-    Piol piol;                              //!< Pointer to the PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;       //!< Pointer to the PIOL object.
     std::string name;                       //!< Store the file name for debugging purposes.
     std::shared_ptr<Data::Interface> data;  //!< Pointer to the Data layer object (polymorphic).
 
@@ -28,7 +28,7 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] data_ Pointer to the Data layer object (polymorphic).
      */
-    Interface(const Piol piol_, const std::string name_, std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
+    Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
     {
     }
 

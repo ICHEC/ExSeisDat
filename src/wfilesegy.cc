@@ -20,13 +20,13 @@ WriteSEGY::Opt::Opt(void)
     incFactor = SI::Micro;
 }
 
-WriteSEGY::WriteSEGY(const Piol piol_, const std::string name_, const WriteSEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_)
+WriteSEGY::WriteSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const WriteSEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_)
     : WriteInterface(piol_, name_, obj_)
 {
     Init(opt);
 }
 
-WriteSEGY::WriteSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
+WriteSEGY::WriteSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
     : WriteInterface(piol_, name_, obj_)
 {
     WriteSEGY::Opt opt;

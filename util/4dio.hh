@@ -83,7 +83,7 @@ struct Coords
  *  \param[in] ixline Inline/Xline enabled
  *  \return Return a unique_ptr to the structure containing the coordinates read by the local process.
  */
-extern std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline);
+extern std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
 
 /*! Extract traces and coordinates from an input file \c sname according to what traces are listed in \c list.
  *  \param[in] piol The piol object (in a shared pointer).
@@ -93,6 +93,6 @@ extern std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixlin
  *  \param[in] minrs The value of minrs which should be stored with the trace header of each trace.
  *  \param[in] printDsr Print the dsdr value if true.
  */
-extern void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr);
+extern void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr);
 }}
 #endif

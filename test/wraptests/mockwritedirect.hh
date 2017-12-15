@@ -13,7 +13,7 @@ class MockWriteDirect;
 class MockWriteDirect
 {
 public :
-    MOCK_METHOD3(ctor, void(WriteDirect*, const Piol piol, const std::string name));
+    MOCK_METHOD3(ctor, void(WriteDirect*, std::shared_ptr<ExSeisPIOL> piol, const std::string name));
     MOCK_METHOD2(ctor, void(WriteDirect*, std::shared_ptr<WriteInterface> file));
     MOCK_METHOD1(dtor, void(WriteDirect*));
     MOCK_METHOD2(writeText,  void(WriteDirect*, const std::string text_));

@@ -53,14 +53,14 @@ void updateElem(CoordElem * src, CoordElem * dst)
 
 //////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
 
-Set::Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
                                                             piol(piol_), outfix(outfix_), rule(rule_), cache(piol_)
 {
     rank = piol->comm->getRank();
     numRank = piol->comm->getNumRank();
     add(pattern);
 }
-Set::Set(Piol piol_, std::shared_ptr<File::Rule> rule_) :
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_) :
                                                             piol(piol_), rule(rule_), cache(piol_)
 {
     rank = piol->comm->getRank();

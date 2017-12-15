@@ -22,7 +22,7 @@ extern size_t modifyNt(csize_t fs, csize_t offset, csize_t nt, csize_t ns);
 class MPIIOTest : public Test
 {
     protected :
-    Piol piol;
+    std::shared_ptr<ExSeisPIOL> piol;
     Comm::MPI::Opt opt;
     Data::MPIIO::Opt ioopt;
     std::shared_ptr<Data::Interface> data;

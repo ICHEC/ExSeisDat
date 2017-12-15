@@ -2,7 +2,7 @@
 
 namespace PIOL {
 
-WriteDirect::WriteDirect(const Piol piol, const std::string name)
+WriteDirect::WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     mockWriteDirect().ctor(this, piol, name);
 }

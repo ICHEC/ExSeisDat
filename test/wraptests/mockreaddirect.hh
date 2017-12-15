@@ -14,7 +14,7 @@ class MockReadDirect
 {
 public:
 
-    MOCK_METHOD3(ctor, void(ReadDirect*, const Piol piol, const std::string name));
+    MOCK_METHOD3(ctor, void(ReadDirect*, std::shared_ptr<ExSeisPIOL> piol, const std::string name));
 
     MOCK_METHOD2(ctor, void(ReadDirect*, std::shared_ptr<ReadInterface> file));
 

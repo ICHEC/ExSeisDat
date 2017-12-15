@@ -16,12 +16,12 @@ public:
     MOCK_METHOD5(
         ctor,
         void(
-            Set*, Piol piol_, std::string pattern, std::string outfix_,
+            Set*, std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_,
             std::shared_ptr<File::Rule> rule_
         )
     );
 
-    MOCK_METHOD3(ctor, void(Set*, Piol piol_, std::shared_ptr<File::Rule> rule_));
+    MOCK_METHOD3(ctor, void(Set*, std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_));
 
     MOCK_METHOD1(dtor, void(Set*));
 

@@ -21,7 +21,7 @@ namespace Obj {
  * \return Return a shared_ptr to the obj layer object.
  * \todo TODO: This hack needs a further tidyup and out of file.hh.
  */
-std::shared_ptr<Obj::Interface> makeDefaultObj(PIOL::Piol piol, std::string name, FileMode mode);
+std::shared_ptr<Obj::Interface> makeDefaultObj(std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
 }
 namespace File {
 extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
@@ -30,7 +30,7 @@ extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correc
 class Interface
 {
     protected :
-    Piol piol;                            //!< The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;     //!< The PIOL object.
     std::string name;                     //!< Store the file name for debugging purposes.
     std::shared_ptr<Obj::Interface> obj;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                            //!< The number of samples per trace.
@@ -43,7 +43,8 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    Interface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
+    Interface(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Obj::Interface> obj_)
+        : piol(piol_), name(name_), obj(obj_)
     {
     }
 
@@ -68,7 +69,8 @@ class ReadInterface : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    ReadInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : Interface(piol_, name_, obj_)
+    ReadInterface(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Obj::Interface> obj_)
+        : Interface(piol_, name_, obj_)
     {
     }
 
@@ -163,7 +165,8 @@ class WriteInterface : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    WriteInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : Interface(piol_, name_, obj_)
+    WriteInterface(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Obj::Interface> obj_)
+        : Interface(piol_, name_, obj_)
     {
     }
 
@@ -272,7 +275,7 @@ class Model3dInterface
  */
 template <class T>
 std::unique_ptr<typename std::enable_if<std::is_base_of<File::ReadInterface, T>::value, T>::type>
-makeFile(Piol piol, const std::string name)
+makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
     auto file = std::make_unique<T>(piol, name, obj);
@@ -287,7 +290,7 @@ makeFile(Piol piol, const std::string name)
  */
 template <class T>
 std::unique_ptr<typename std::enable_if<std::is_base_of<File::WriteInterface, T>::value, T>::type>
-makeFile(Piol piol, const std::string name)
+makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
     auto file = std::make_unique<T>(piol, name, obj);

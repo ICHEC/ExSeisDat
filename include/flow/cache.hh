@@ -66,14 +66,14 @@ struct CacheElem
  */
 class Cache
 {
-    std::vector<CacheElem> cache;   //!< A vector of cache elements
-    Piol piol;                      //!< The PIOL object
+    std::vector<CacheElem> cache;      //!< A vector of cache elements
+    std::shared_ptr<ExSeisPIOL> piol;  //!< The PIOL object
     public :
 
     /*! Initialise the cache.
      * \param[in] piol_ The PIOL object
      */
-    Cache(Piol piol_) : piol(piol_) {}
+    Cache(std::shared_ptr<ExSeisPIOL> piol_) : piol(piol_) {}
 
     /*! Get a given cache of parameters or traces. Perform I/O and cache the result if not already done so.
      *  \param[in] rule The rule to use for the parameters.

@@ -36,7 +36,7 @@ class SEGY : public Interface
      *  \param[in] data_ Pointer to the Data layer object (polymorphic).
      *  \param[in] mode  The file mode
      */
-    SEGY(const Piol piol_, const std::string name_, const Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
+    SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
 
     /*! \brief The SEGY-Obj class constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
@@ -44,7 +44,7 @@ class SEGY : public Interface
      *  \param[in] data_ Pointer to the Data layer object (polymorphic).
      *  \param[in] mode  The file mode
      */
-    SEGY(const Piol piol_, const std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
+    SEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode = FileMode::Read);
 
     void readHO(uchar * ho) const;
 

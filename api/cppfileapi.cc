@@ -60,7 +60,7 @@ void ExSeis::isErr(std::string msg) const
 }
 
 namespace File {
-ReadDirect::ReadDirect(const Piol piol, const std::string name)
+ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     const File::ReadSEGY::Opt f;
     const Obj::SEGY::Opt o;
@@ -73,7 +73,7 @@ ReadDirect::ReadDirect(const Piol piol, const std::string name)
 ReadDirect::ReadDirect(std::shared_ptr<ReadInterface> file_): file(file_)
 {}
 
-WriteDirect::WriteDirect(const Piol piol, const std::string name)
+WriteDirect::WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     const File::WriteSEGY::Opt f;
     const Obj::SEGY::Opt o;
@@ -139,7 +139,7 @@ void ReadDirect::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace,
     file->readTraceNonMono(sz, offset, trace, prm);
 }
 
-ReadModel::ReadModel(const Piol piol, const std::string name):
+ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name):
     ReadDirect(piol, name, Data::MPIIO::Opt(), Obj::SEGY::Opt(), File::ReadSEGYModel::Opt())
 {
     //const Obj::SEGY::Opt o;

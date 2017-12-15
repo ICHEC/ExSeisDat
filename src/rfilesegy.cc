@@ -18,7 +18,7 @@ ReadSEGY::Opt::Opt(void)
     incFactor = SI::Micro;
 }
 
-ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, const ReadSEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_)
+ReadSEGY::ReadSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const ReadSEGY::Opt & opt, std::shared_ptr<Obj::Interface> obj_)
     : ReadInterface(piol_, name_, obj_)
 {
     incFactor = opt.incFactor;
@@ -41,17 +41,17 @@ ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, const ReadSEGY::Op
     }
 }
 
-ReadSEGY::ReadSEGY(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
+ReadSEGY::ReadSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_)
     : ReadSEGY(piol_, name_, ReadSEGY::Opt(), obj_)
 {
 }
 ///////////////////////////////////       Member functions      ///////////////////////////////////
 
-ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGYModel(piol_, name_, ReadSEGYModel::Opt(), obj_)
+ReadSEGYModel::ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : ReadSEGYModel(piol_, name_, ReadSEGYModel::Opt(), obj_)
 {
 }
 
-ReadSEGYModel::ReadSEGYModel(const Piol piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, opt, obj_)
+ReadSEGYModel::ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_) : ReadSEGY(piol_, name_, opt, obj_)
 {
     std::vector<size_t> vlist = {0LU, 1LU, readNt() - 1LU};
     File::Param prm(vlist.size());

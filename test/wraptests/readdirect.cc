@@ -2,7 +2,7 @@
 
 namespace PIOL {
 
-ReadDirect::ReadDirect(const Piol piol, const std::string name)
+ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     mockReadDirect().ctor(this, piol, name);
 }

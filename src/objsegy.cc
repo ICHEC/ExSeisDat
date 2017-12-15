@@ -14,7 +14,7 @@ namespace PIOL { namespace Obj {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////    Class functions    ///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Obj::Interface> makeDefaultObj(Piol piol, std::string name, FileMode mode)
+std::shared_ptr<Obj::Interface> makeDefaultObj(std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, mode);
     return std::make_shared<Obj::SEGY>(piol, name, data, mode);
@@ -24,10 +24,10 @@ std::shared_ptr<Obj::Interface> makeDefaultObj(Piol piol, std::string name, File
 //pragma to ignore unusued-paramter warnings here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-SEGY::SEGY(Piol piol_, std::string name_, const SEGY::Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode) : Interface(piol_, name_, data_)
+SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, const SEGY::Opt & opt_, std::shared_ptr<Data::Interface> data_, FileMode mode) : Interface(piol_, name_, data_)
 {
 }
-SEGY::SEGY(Piol piol_, std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode) : Interface(piol_, name_, data_)
+SEGY::SEGY(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Data::Interface> data_, FileMode mode) : Interface(piol_, name_, data_)
 {
 }
 #pragma GCC diagnostic pop
