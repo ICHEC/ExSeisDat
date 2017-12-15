@@ -20,8 +20,8 @@ void readwriteParam(PIOL_ExSeis* piol, size_t off, size_t tcnt, PIOL_File_ReadDi
     PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++)
     {
-        geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
-        geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
+        PIOL_geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
+        PIOL_geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
         PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
         PIOL_File_setPrm_double(i, PIOL_META_ySrc, xval, prm);
     }

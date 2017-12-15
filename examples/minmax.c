@@ -17,7 +17,7 @@ int main(int argc, char ** argv)
 
     PIOL_Set* set = PIOL_Set_new(piol, name);
 
-    CoordElem minmax[12];
+    struct PIOL_CoordElem minmax[12];
     PIOL_Set_getMinMax(set, PIOL_META_xSrc, PIOL_META_ySrc, &minmax[0]);
     PIOL_Set_getMinMax(set, PIOL_META_xRcv, PIOL_META_yRcv, &minmax[4]);
     PIOL_Set_getMinMax(set, PIOL_META_xCmp, PIOL_META_yCmp, &minmax[8]);
