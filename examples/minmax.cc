@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
             std::cerr << "One of the command line arguments is invalid.\n";
     assert(iname != "");
 
-    Set set(piol, iname);
+    Set set(piol.piol(), iname);
 
     CoordElem minmax[12];
     set.getMinMax(PIOL_META_xSrc, PIOL_META_ySrc, &minmax[0]);

@@ -37,7 +37,7 @@ int main(int argc, char ** argv)
                 std::cerr<< "One of the command line arguments is invalid\n";
             break;
         }
-    File::ReadDirect file(piol, name);
+    File::ReadDirect file(piol.piol(), name);
 
     File::Param prm(1LU);
     file->readParam(tn, 1LU, &prm);

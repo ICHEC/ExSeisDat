@@ -102,17 +102,17 @@ void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  &
  */
 void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
 {
-    File::ReadDirect in(piol, iname);
+    File::ReadDirect in(piol.piol(), iname);
 
-    auto dec = decompose(piol, in);
+    auto dec = decompose(piol.piol().get(), in);
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
     File::Param prm(lnt);
     in.readParam(offset, lnt, &prm);
 
-    File::getMinMax(piol, offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
-    File::getMinMax(piol, offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
+    File::getMinMax(piol.piol().get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
+    File::getMinMax(piol.piol().get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
 }
 
 /* Main function for segy to kml

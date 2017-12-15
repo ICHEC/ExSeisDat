@@ -78,7 +78,7 @@ int main(int argc, char ** argv)
             break;
             case 'v' :
                 fopt.verbose = true;
-                cmsg(piol, "Verbose mode enabled");
+                cmsg(piol.piol().get(), "Verbose mode enabled");
             break;
             case 'p' :
                 fopt.printDsr = false;
@@ -93,18 +93,18 @@ int main(int argc, char ** argv)
     assert(name1.size() && name2.size() && name3.size() && name4.size());
 /**********************************************************************************************************/
     //Open the two input files
-    cmsg(piol, "Parameter-read phase");
+    cmsg(piol.piol().get(), "Parameter-read phase");
 
     //Perform the decomposition and read the coordinates of interest.
-    auto coords1 = getCoords(piol, name1, fopt.ixline);
-    auto coords2 = getCoords(piol, name2, fopt.ixline);
+    auto coords1 = getCoords(piol.piol(), name1, fopt.ixline);
+    auto coords2 = getCoords(piol.piol(), name2, fopt.ixline);
 
     vec<size_t> min(coords1->sz);
     vec<fourd_t> minrs(coords1->sz);
-    calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
+    calc4DBin(piol.piol().get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
-    cmsg(piol, "Final list pass");
+    cmsg(piol.piol().get(), "Final list pass");
     //Now we weed out traces that have a match that is too far away
     vec<size_t> list1;
     vec<size_t> list2;
@@ -133,10 +133,10 @@ int main(int argc, char ** argv)
     //free up some memory
     coords1.release();
 
-    cmsg(piol, "Output phase");
+    cmsg(piol.piol().get(), "Output phase");
 
-    outputNonMono(piol, name3, name1, list1, lminrs, fopt.printDsr);
-    outputNonMono(piol, name4, name2, list2, lminrs, fopt.printDsr);
+    outputNonMono(piol.piol(), name3, name1, list1, lminrs, fopt.printDsr);
+    outputNonMono(piol.piol(), name4, name2, list2, lminrs, fopt.printDsr);
 
     return 0;
 }

@@ -43,7 +43,7 @@ int main(int argc, char ** argv)
                   << "\n-\tOutput angle file:\t" << angle
                   << "\n-\tIncrement:\t\t" << oInc
                   << "\n-\tvBin:\t\t\t" << vBin << std::endl;
-    Set set(piol, radon, angle);
+    Set set(piol.piol(), radon, angle);
     piol.isErr();
     set.toAngle(velocity, vBin, oInc);
 

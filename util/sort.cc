@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
 
     assert(name1.size() && name2.size());
 
-    Set set(piol, name1, name2);
+    Set set(piol.piol(), name1, name2);
     set.sort(type);
     piol.isErr();
     return 0;

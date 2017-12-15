@@ -46,7 +46,7 @@ TEST_F(OpsTest, getMinMaxSimple)
     std::vector<CoordElem> minmax(4);
     for (size_t offset = 0; offset < 300000; offset += 1 + offset * 10)
     {
-        getMinMax(piol, offset, coord.size(), coord.data(), minmax.data());
+        getMinMax(piol.piol().get(), offset, coord.size(), coord.data(), minmax.data());
         piol.isErr();
         ASSERT_EQ(offset, minmax[0].num);
         ASSERT_EQ(offset+999, minmax[1].num);
@@ -78,14 +78,14 @@ TEST_F(OpsTest, getMinMaxFail1)  //These fails won't surive a multi-processor ex
         coord[i] = { 1500. + i, 1300. - i };
 
     std::vector<CoordElem> minmax(4);
-    getMinMax(piol, 10, coord.size(), coord.data(), NULL);
+    getMinMax(piol.piol().get(), 10, coord.size(), coord.data(), NULL);
     piol.isErr();
 }
 
 TEST_F(OpsTest, getMinMaxFail2)  //These fails won't surive a multi-processor example
 {
     std::vector<CoordElem> minmax(4);
-    getMinMax(piol, 10, 0, NULL, minmax.data());
+    getMinMax(piol.piol().get(), 10, 0, NULL, minmax.data());
     piol.isErr();
 }
 
@@ -96,7 +96,7 @@ TEST_F(OpsTest, getMinMaxFail3)  //These fails won't surive a multi-processor ex
         coord[i] = { 1500. + i, 1300. - i };
 
     std::vector<CoordElem> minmax(4);
-    getMinMax(piol, 10, 0, coord.data(), minmax.data());
+    getMinMax(piol.piol().get(), 10, 0, coord.data(), minmax.data());
     piol.isErr();
 }
 
@@ -133,7 +133,7 @@ TEST_F(OpsTest, getMinMaxRand)
         for (size_t i = 0; i < num; i++)
             coord[i] = { 1.0*rand(), 1.0*rand() };
 
-        getMinMax(piol, 0, coord.size(), coord.data(), minmax.data());
+        getMinMax(piol.piol().get(), 0, coord.size(), coord.data(), minmax.data());
         piol.isErr();
         testMinMax<false, false>(coord, minmax);
         testMinMax<false, true>(coord, minmax);
@@ -153,7 +153,7 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
         setPrm(i, PIOL_META_yRcv, 1000.0 - geom_t(i % 10), &prm);
         setPrm(i, PIOL_META_gtn, i, &prm);
     }
-    auto list = sort(piol, PIOL_SORTTYPE_SrcRcv, &prm);
+    auto list = sort(piol.piol().get(), PIOL_SORTTYPE_SrcRcv, &prm);
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(list.size() - i-1, list[i]) << " i " << i << " list.size()-i-1 " << list.size()-i-1  << " list[i] " << list[i];
 }
@@ -169,7 +169,7 @@ TEST_F(OpsTest, SortSrcRcvForwards)
         setPrm(i, PIOL_META_yRcv, 1000.0 + i % 10, &prm);
         setPrm(i, PIOL_META_gtn, i, &prm);
     }
-    auto list = sort(piol, PIOL_SORTTYPE_SrcRcv, &prm);
+    auto list = sort(piol.piol().get(), PIOL_SORTTYPE_SrcRcv, &prm);
 
     for (size_t i = 0; i < list.size(); i++)
         ASSERT_EQ(i, list[i]);
@@ -196,7 +196,7 @@ TEST_F(OpsTest, SortSrcRcvRand)
     setPrm(7, PIOL_META_xSrc, 8.0, &prm);
     setPrm(8, PIOL_META_xSrc, 7.0, &prm);
     setPrm(9, PIOL_META_xSrc, 0.0, &prm);
-    auto list = sort(piol, PIOL_SORTTYPE_SrcRcv, &prm);
+    auto list = sort(piol.piol().get(), PIOL_SORTTYPE_SrcRcv, &prm);
     ASSERT_EQ(static_cast<size_t>(5), list[0]);
     ASSERT_EQ(static_cast<size_t>(3), list[1]);
     ASSERT_EQ(static_cast<size_t>(1), list[2]);

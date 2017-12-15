@@ -18,7 +18,7 @@ namespace PIOL {
  */
 class ExSeis
 {
-    std::shared_ptr<ExSeisPIOL> piol;  //!< The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol_;  //!< The PIOL object.
 
     public :
     /*! Constructor with optional maxLevel and which initialises MPI.
@@ -43,18 +43,10 @@ class ExSeis
      */
     ~ExSeis();
 
-    /*! Cast to ExSeisPIOL *
+    /*! Get the ExSeisPIOL object.
      */
-    operator ExSeisPIOL * ()
-    {
-        return piol.get();
-    }
-
-    /*! Cast to ExSeisPIOL shared_ptr
-     */
-    operator std::shared_ptr<ExSeisPIOL> ()
-    {
-        return piol;
+    std::shared_ptr<ExSeisPIOL> piol() {
+        return piol_;
     }
 
     /*! Shortcut to get the commrank.

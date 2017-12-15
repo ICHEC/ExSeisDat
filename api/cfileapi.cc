@@ -293,7 +293,7 @@ PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::File::WriteDirect(*piol, name);
+    return new PIOL::File::WriteDirect(piol->piol(), name);
 }
 
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
@@ -303,7 +303,7 @@ PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::File::ReadDirect(*piol, name);
+    return new PIOL::File::ReadDirect(piol->piol(), name);
 }
 
 void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect)
@@ -498,7 +498,7 @@ void PIOL_File_getMinMax(
     assert(not_null(param));
     assert(not_null(minmax));
 
-    PIOL::File::getMinMax(*piol, offset, sz, m1, m2, param, minmax);
+    PIOL::File::getMinMax(piol->piol().get(), offset, sz, m1, m2, param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
@@ -529,7 +529,7 @@ PIOL_Set* PIOL_Set_new(PIOL_ExSeis* piol, const char * ptrn)
     assert(not_null(piol));
     assert(not_null(ptrn));
 
-    return new PIOL::Set(*piol, ptrn);
+    return new PIOL::Set(piol->piol(), ptrn);
 }
 
 void PIOL_Set_delete(PIOL_Set* set)

@@ -253,14 +253,14 @@ int main(int argc, char ** argv)
 
     size_t numRank = piol.getNumRank();
 
-    MPIIO in(piol, iname, FileMode::Read);
-    MPIIO out(piol, oname, FileMode::Write);
+    MPIIO in(piol.piol(), iname, FileMode::Read);
+    MPIIO out(piol.piol(), oname, FileMode::Write);
     piol.isErr();
 
     csize_t fsz = in.getFileSz();
     piol.isErr();
     if (fsz/numRank < SEGSz::getHOSz())
-        smallCopy(piol, &in, &out, rep);
+        smallCopy(piol.piol().get(), &in, &out, rep);
     else
         switch (version)
         {

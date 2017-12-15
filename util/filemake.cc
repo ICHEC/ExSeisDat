@@ -111,7 +111,7 @@ void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t 
 void FileMake(bool lob, bool random, const std::string name, size_t max, size_t ns, size_t nt, geom_t inc)
 {
     ExSeis piol;
-    File::WriteDirect file(piol, name);
+    File::WriteDirect file(piol.piol(), name);
 
     piol.isErr();
     file.writeNs(ns);
@@ -126,7 +126,7 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
 
     if (lob)
     {
-        auto dec = lobdecompose(piol, nt, piol.getNumRank(), piol.getRank());
+        auto dec = lobdecompose(piol.piol().get(), nt, piol.getNumRank(), piol.getRank());
         offset = dec[0];
         lnt = dec[1];
         biggest = dec[2];
@@ -136,7 +136,7 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
         auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
         offset = dec.first;
         lnt = dec.second;
-        ExSeisPIOL * tpiol = piol;
+        ExSeisPIOL * tpiol = piol.piol().get();
         biggest = tpiol->comm->max(lnt);
     }
 
@@ -144,9 +144,9 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
     max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns)  + sizeof(size_t));
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
     if (random)
-        writeRandom(piol, &file, nt, ns, lnt, extra, max);
+        writeRandom(piol.piol().get(), &file, nt, ns, lnt, extra, max);
     else
-        writeContig(piol, &file, offset, nt, ns, lnt, extra, max);
+        writeContig(piol.piol().get(), &file, offset, nt, ns, lnt, extra, max);
 }
 
 int main(int argc, char ** argv)

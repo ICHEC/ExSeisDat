@@ -84,12 +84,12 @@ int main(int argc, char ** argv)
         }
     assert(pattern != "" && outprefix != "");
 
-    Set set(piol, pattern);
+    Set set(piol.piol(), pattern);
     set.text(msg);
     if (prompt)
     {
         set.summary();
-        doPrompt(piol);
+        doPrompt(piol.piol().get());
     }
     set.output(outprefix);
 

@@ -14,9 +14,9 @@ using namespace File;
 void calcMin(std::string iname, std::string oname)
 {
     ExSeis piol;
-    File::ReadDirect in(piol, iname);
+    File::ReadDirect in(piol.piol(), iname);
 
-    auto dec = decompose(piol, in);
+    auto dec = decompose(piol.piol().get(), in);
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
@@ -24,9 +24,9 @@ void calcMin(std::string iname, std::string oname)
     std::vector<CoordElem> minmax(12U);
     in.readParam(offset, lnt, &prm);
 
-    getMinMax(piol, offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
-    getMinMax(piol, offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
-    getMinMax(piol, offset, lnt, PIOL_META_xCmp, PIOL_META_yCmp, &prm, minmax.data()+8U);
+    getMinMax(piol.piol().get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
+    getMinMax(piol.piol().get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
+    getMinMax(piol.piol().get(), offset, lnt, PIOL_META_xCmp, PIOL_META_yCmp, &prm, minmax.data()+8U);
 
     size_t sz = (!piol.getRank() ? minmax.size() : 0U);
     size_t usz = 0;
@@ -62,7 +62,7 @@ void calcMin(std::string iname, std::string oname)
             }
         }
 
-    File::WriteDirect out(piol, oname);
+    File::WriteDirect out(piol.piol(), oname);
     out.writeNt(sz);
     out.writeNs(1U);
     out.writeInc(in.readInc());

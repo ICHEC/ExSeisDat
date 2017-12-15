@@ -40,8 +40,8 @@ MATCHER_P(AddressEqDeref, p, "")
     return *p == &arg;
 }
 
-MATCHER_P(EqToExSeisPIOL, n, "") {
-    return static_cast<const PIOL::ExSeisPIOL*>(**n) == arg;
+MATCHER_P(EqToExSeisPIOL_ptr, n, "") {
+    return (*n)->piol().get() == arg;
 }
 
 

@@ -14,12 +14,12 @@
 namespace PIOL {
 ExSeis::ExSeis(const Verbosity maxLevel)
 {
-    piol = std::make_shared<ExSeisPIOL>(maxLevel);
+    piol_ = std::make_shared<ExSeisPIOL>(maxLevel);
 }
 
 ExSeis::ExSeis(bool initComm, const Verbosity maxLevel)
 {
-    piol = std::make_shared<ExSeisPIOL>(initComm, maxLevel);
+    piol_ = std::make_shared<ExSeisPIOL>(initComm, maxLevel);
 }
 
 ExSeis::ExSeis(MPI_Comm comm, const Verbosity maxLevel)
@@ -27,36 +27,34 @@ ExSeis::ExSeis(MPI_Comm comm, const Verbosity maxLevel)
     Comm::MPI::Opt copt;
     copt.initMPI = false;
     copt.comm = comm;
-    piol = std::make_shared<ExSeisPIOL>(copt, maxLevel);
+    piol_ = std::make_shared<ExSeisPIOL>(copt, maxLevel);
 }
 
-ExSeis::~ExSeis()
-{
-}
+ExSeis::~ExSeis() = default;
 
 size_t ExSeis::getRank(void)
 {
-    return piol->comm->getRank();
+    return piol_->comm->getRank();
 }
 
 size_t ExSeis::getNumRank(void)
 {
-    return piol->comm->getNumRank();
+    return piol_->comm->getNumRank();
 }
 
 void ExSeis::barrier(void) const
 {
-    piol->comm->barrier();
+    piol_->comm->barrier();
 }
 
 size_t ExSeis::max(size_t n) const
 {
-    return piol->comm->max(n);
+    return piol_->comm->max(n);
 }
 
 void ExSeis::isErr(std::string msg) const
 {
-    piol->isErr(msg);
+    piol_->isErr(msg);
 }
 
 namespace File {

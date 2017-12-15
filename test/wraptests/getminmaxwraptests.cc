@@ -13,7 +13,7 @@ void test_PIOL_File_getMinMax(
     EXPECT_CALL(
         mockGetMinMax(),
         getMinMax(
-            EqToExSeisPIOL(piol), 520, 530, PIOL_META_COPY, PIOL_META_COPY,
+            EqToExSeisPIOL_ptr(piol), 520, 530, PIOL_META_COPY, PIOL_META_COPY,
             EqDeref(param), _
         )
     ).WillOnce(DoAll(
