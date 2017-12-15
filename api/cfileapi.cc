@@ -32,7 +32,7 @@ static inline bool not_null(const T* t)
 template<typename T>
 static inline bool not_null(const std::shared_ptr<T>* t)
 {
-    return t != nullptr && *t;
+    return t != nullptr && not_null(t->get());
 }
 
 extern "C"
