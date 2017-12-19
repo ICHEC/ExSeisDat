@@ -47,7 +47,7 @@ void init_wraptests()
     auto test_rule   = test_PIOL_File_Rule();
     auto test_param  = test_PIOL_File_Param(test_rule);
     test_PIOL_File_getMinMax(test_exseis, test_param);
-    test_PIOL_File_ReadDirect();
+    test_PIOL_File_ReadDirect(test_exseis, test_param);
 }
 
 void wraptest_ok()

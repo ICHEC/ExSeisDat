@@ -199,40 +199,53 @@ int main()
     /*
     ** Opening and closing files
     */
-    //PIOL_File_ReadDirect* read_direct = PIOL_File_ReadDirect_new(
-    //    piol, "Test_ReadDirect_filename"
-    //);
+    printf("Testing ReadDirect\n");
 
-    //void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
-    //size_t PIOL_File_ReadDirect_readNs(PIOL_File_ReadDirect* readDirect);
-    //size_t PIOL_File_ReadDirect_readNt(PIOL_File_ReadDirect* readDirect);
-    //double PIOL_File_ReadDirect_readInc(PIOL_File_ReadDirect* readDirect);
-    //void PIOL_File_ReadDirect_readParam(
-    //    PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
-    //    PIOL_File_Param* param
-    //);
+    PIOL_File_ReadDirect* read_direct = PIOL_File_ReadDirect_new(
+        piol, "Test_ReadDirect_filename"
+    );
+
+    if(
+        strcmp(
+            PIOL_File_ReadDirect_readText(read_direct),
+            "Test ReadDirect Text"
+        ) == 0
+    ) {
+        wraptest_ok();
+    }
+
+    if(PIOL_File_ReadDirect_readNs(read_direct) == 600) wraptest_ok();
+    if(PIOL_File_ReadDirect_readNt(read_direct) == 610) wraptest_ok();
+    if(fabs(PIOL_File_ReadDirect_readInc(read_direct) - 620.0) < 1e-5) {
+        wraptest_ok();
+    };
+
+    //PIOL_File_ReadDirect_readParam(read_direct, 630, 640, param);
+
     //#warning TODO: add readParam for non-contiguous
     //void PIOL_File_ReadDirect_readParam(
     //    PIOL_File_ReadDirect* readDirect,
     //    size_t sz, size_t * offset, PIOL_File_Param* param
     //);
-    //void PIOL_File_ReadDirect_readTrace(
+
+    //PIOL_File_ReadDirect_readTrace(
+    //    read_direct, 650, 660, trace, param
+    //);
     //    PIOL_File_ReadDirect* readDirect,
     //    size_t offset, size_t sz, float * trace, PIOL_File_Param* param
     //);
+
     //#warning TODO: add readTrace for non-contiguous
     //void PIOL_File_ReadDirect_readTrace(
     //    PIOL_File_ReadDirect* readDirect,
     //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
     //);
+    //void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
 
     //PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
     //    PIOL_ExSeis* piol, const char * name
     //);
     //void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
-    //const char * PIOL_File_ReadDirect_readText(
-    //    PIOL_File_ReadDirect* readDirect
-    //);
     //void PIOL_File_WriteDirect_writeText(
     //    PIOL_File_WriteDirect* writeDirect, const char * text
     //);
