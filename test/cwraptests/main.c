@@ -197,7 +197,7 @@ int main()
     }
 
     /*
-    ** Opening and closing files
+    ** ReadDirect
     */
     printf("Testing ReadDirect\n");
 
@@ -214,13 +214,14 @@ int main()
         wraptest_ok();
     }
 
-    if(PIOL_File_ReadDirect_readNs(read_direct) == 600) wraptest_ok();
+    const size_t read_direct_ns = PIOL_File_ReadDirect_readNs(read_direct);
+    if(read_direct_ns == 600) wraptest_ok();
     if(PIOL_File_ReadDirect_readNt(read_direct) == 610) wraptest_ok();
     if(fabs(PIOL_File_ReadDirect_readInc(read_direct) - 620.0) < 1e-5) {
         wraptest_ok();
     };
 
-    //PIOL_File_ReadDirect_readParam(read_direct, 630, 640, param);
+    PIOL_File_ReadDirect_readParam(read_direct, 630, 640, param);
 
     //#warning TODO: add readParam for non-contiguous
     //void PIOL_File_ReadDirect_readParam(
@@ -228,45 +229,63 @@ int main()
     //    size_t sz, size_t * offset, PIOL_File_Param* param
     //);
 
-    //PIOL_File_ReadDirect_readTrace(
-    //    read_direct, 650, 660, trace, param
-    //);
-    //    PIOL_File_ReadDirect* readDirect,
-    //    size_t offset, size_t sz, float * trace, PIOL_File_Param* param
-    //);
+    float* read_direct_trace = malloc(read_direct_ns*660*sizeof(float));
+    for(size_t i=0; i<read_direct_ns*660; i++) {
+        read_direct_trace[i] = 1.0*i;
+    }
+    PIOL_File_ReadDirect_readTrace(
+        read_direct, 650, 660, read_direct_trace, param
+    );
+
+    // readTrace sets trace[i] = 2*trace[i];
+    int read_direct_trace_ok = 1;
+    for(size_t i=0; i<read_direct_ns*600; i++) {
+        if(fabs(read_direct_trace[i] - 2.0*i) > 1e-5) {
+            read_direct_trace_ok = 0;
+        }
+    }
+    if(read_direct_trace_ok == 1) wraptest_ok();
+
+    free(read_direct_trace);
+    read_direct_trace = NULL;
 
     //#warning TODO: add readTrace for non-contiguous
     //void PIOL_File_ReadDirect_readTrace(
     //    PIOL_File_ReadDirect* readDirect,
     //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
     //);
-    //void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
 
-    //PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
-    //    PIOL_ExSeis* piol, const char * name
-    //);
-    //void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
-    //void PIOL_File_WriteDirect_writeText(
-    //    PIOL_File_WriteDirect* writeDirect, const char * text
-    //);
-    //void PIOL_File_WriteDirect_writeNs(
-    //    PIOL_File_WriteDirect* writeDirect, size_t ns
-    //);
-    //void PIOL_File_WriteDirect_writeNt(
-    //    PIOL_File_WriteDirect* writeDirect, size_t nt
-    //);
-    //void PIOL_File_WriteDirect_writeInc(
-    //    PIOL_File_WriteDirect* writeDirect, geom_t inc
-    //);
-    //void PIOL_File_WriteDirect_writeParam(
-    //    PIOL_File_WriteDirect* writeDirect,
-    //    size_t offset, size_t sz, PIOL_File_Param* param
-    //);
-    //void PIOL_File_WriteDirect_writeTrace(
-    //    PIOL_File_WriteDirect* writeDirect,
-    //    size_t offset, size_t sz, float * trace,
-    //    PIOL_File_Param* param
-    //);
+    PIOL_File_ReadDirect_delete(read_direct);
+
+
+    /*
+    ** WriteDirect
+    */
+    printf("Testing WriteDirect\n");
+
+    PIOL_File_WriteDirect* write_direct = PIOL_File_WriteDirect_new(
+        piol, "Test_WriteDirect_filename"
+    );
+
+    PIOL_File_WriteDirect_writeText(write_direct, "Test WriteDirect Text");
+
+    const int write_direct_ns = 700;
+    PIOL_File_WriteDirect_writeNs(write_direct, write_direct_ns);
+
+    PIOL_File_WriteDirect_writeNt(write_direct, 710);
+
+    PIOL_File_WriteDirect_writeInc(write_direct, 720.0);
+
+    PIOL_File_WriteDirect_writeParam(write_direct, 730, 740, param);
+
+    float* write_direct_trace = malloc(write_direct_ns*760*sizeof(float));
+    for(size_t i=0; i<write_direct_ns*760; i++) {
+        write_direct_trace[i] = 1.0*i;
+    }
+    PIOL_File_WriteDirect_writeTrace(
+        write_direct, 750, 760, write_direct_trace, param
+    );
+
     //#warning TODO: add writeTrace for non-contiguous
     //void PIOL_File_WriteDirect_writeTrace(
     //    PIOL_File_WriteDirect* writeDirect,
@@ -277,6 +296,90 @@ int main()
     //    PIOL_File_WriteDirect* writeDirect,
     //    size_t sz, size_t * offset, PIOL_File_Param* param
     //);
+
+    PIOL_File_WriteDirect_delete(write_direct);
+
+
+
+    // /*! Initialise the set.
+    //  *  \param[in] piol The PIOL handle
+    //  *  \param[in] pattern The file-matching pattern
+    //  */
+    // PIOL_Set* PIOL_Set_new(PIOL_ExSeis* piol, const char * ptrn);
+    // 
+    // /*! Free (deinit) the set.
+    //  *  \param[in] s The set handle
+    //  */
+    // void PIOL_Set_delete(PIOL_Set* set);
+    // 
+    // /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
+    //  *  the collective min and max across all processes (which also must all call this file).
+    //  *  \param[in] s The set handle
+    //  *  \param[in] m1 The first parameter type
+    //  *  \param[in] m2 The second parameter type
+    //  *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+    //  *  and their respective trace numbers.
+    //  */
+    // void PIOL_Set_getMinMax(
+    //     PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem * minmax
+    // );
+    // 
+    // /*! Sort the set by the specified sort type.
+    //  *  \param[in] s The set handle
+    //  *  \param[in] type The sort type
+    //  */
+    // void PIOL_Set_sort(PIOL_Set* set, PIOL_SortType type);
+    // 
+    // /*! Sort the set using a custom comparison function
+    //  *  \param[in] s A handle for the set.
+    //  *  \param[in] func The custom comparison function to sort set
+    //  */
+    // void PIOL_Set_sort_fn(
+    //     PIOL_Set* set,
+    //     bool (* func)(const PIOL_File_Param* param, size_t i, size_t j)
+    // );
+    // 
+    // /*! Preform tailed taper on a set of traces
+    //  * \param[in] s A handle for the set
+    //  * \param[in] type The type of taper to be applied to traces.
+    //  * \param[in] ntpstr The length of left-tail taper ramp.
+    //  * \param[in] ntpend The length of right-tail taper ramp (pass 0 for no ramp).
+    //  */
+    // void PIOL_Set_taper(
+    //     PIOL_Set* set, TaperType type, size_t ntpstr, size_t ntpend
+    // );
+    // 
+    // /*! Output using the given output prefix
+    //  *  \param[in] s The set handle
+    //  *  \param[in] oname The output prefix
+    //  */
+    // void PIOL_Set_output(PIOL_Set* set, const char * oname);
+    // 
+    // /*! Set the text-header of the output
+    //  *  \param[in] s The set handle
+    //  *  \param[in] outmsg The output message
+    //  */
+    // void PIOL_Set_text(PIOL_Set* set, const char * outmsg);
+    // 
+    // /*! Summarise the current status by whatever means the PIOL instrinsically supports
+    //  *  \param[in] s The set handle
+    //  */
+    // void PIOL_Set_summary(PIOL_Set* set);
+    // 
+    // /*! Add a file to the set based on the name given
+    //  *  \param[in] s The set handle
+    //  *  \param[in] name The input name
+    //  */
+    // void PIOL_Set_add(PIOL_Set* set, const char * name);
+    // 
+    // /*! Scale traces using automatic gain control for visualization
+    //  * \param[in] s The set handle
+    //  * \param[in] type They type of agc scaling function used
+    //  * \param[in] window Length of the agc window
+    //  * \param[in] normR Normalization value
+    //  */
+    // void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, PIOL_trace_t normR);
+
 
     printf("cwraptests: Done!\n");
     return 0;

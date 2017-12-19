@@ -23,8 +23,9 @@ void test_PIOL_File_ReadDirect(
         .WillOnce(CheckReturn(readText_return));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
+    const size_t ns = 600;
     EXPECT_CALL(mockReadDirect(), readNs(EqDeref(read_direct_ptr)))
-        .WillOnce(CheckReturn(600));
+        .WillOnce(CheckReturn(ns));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(mockReadDirect(), readNt(EqDeref(read_direct_ptr)))
@@ -35,36 +36,29 @@ void test_PIOL_File_ReadDirect(
         .WillOnce(CheckReturn(620.0));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    //EXPECT_CALL(
-    //    mockReadDirect(),
-    //    readParam(EqDeref(read_direct_ptr), 630, 640, EqDeref(param))
-    //);
-//void ReadDirect::readParam(csize_t offset, csize_t sz, Param * prm) const
-//{
-//    mockReadDirect().readParam(this, offset, sz, prm);
-//}
+    EXPECT_CALL(
+        mockReadDirect(),
+        readParam(EqDeref(read_direct_ptr), 630, 640, EqDeref(param))
+    );
 
-//void ReadDirect::readTrace(
-//    csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
-//{
-//    mockReadDirect().readTrace(this, offset, sz, trace, prm);
-//}
-//
-//
-//void ReadDirect::readTrace(
-//    csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
-//{
-//    mockReadDirect().readTrace(this, sz, offset, trace, prm);
-//}
-//
-//void ReadDirect::readTraceNonMono(
-//    csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
-//{
-//    mockReadDirect().readTraceNonMono(this, sz, offset, trace, prm);
-//}
-//
-//void ReadDirect::readParam(csize_t sz, csize_t * offset, Param * prm) const
-//{
-//    mockReadDirect().readParam(this, sz, offset, prm);
-//}
+    EXPECT_CALL(
+        mockReadDirect(),
+        readTrace(
+            EqDeref(read_direct_ptr), 650, 660, _, EqDeref(param)
+        )
+    ).WillOnce(DoAll(
+        WithArg<3>(Invoke([](float* trace) {
+            for(size_t i=0; i<ns*660; i++) {
+                EXPECT_FLOAT_EQ(trace[i], 1.0*i);
+            }
+
+            for(size_t i=0; i<ns*660; i++) {
+                trace[i] *= 2;
+            }
+        })),
+        CheckInOutParam("trace *= 2")
+    ));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+
+    EXPECT_CALL(mockReadDirect(), dtor(EqDeref(read_direct_ptr)));
 }

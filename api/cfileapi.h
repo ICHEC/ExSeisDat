@@ -433,7 +433,7 @@ void PIOL_File_WriteDirect_writeInc(
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process.
- *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *  \param[in] prm A handle for the parameter structure.
  *
  *  \details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
@@ -448,7 +448,7 @@ void PIOL_File_WriteDirect_writeParam(
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process.
- *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *  \param[in] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readParam(
     PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
@@ -463,8 +463,7 @@ void PIOL_File_ReadDirect_readParam(
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[out] prm An array of the parameter structures (size
- *      sizeof(CParam)*sz) (pass NULL to ignore)
+ *  \param[out] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readTrace(
     PIOL_File_ReadDirect* readDirect,
@@ -476,8 +475,7 @@ void PIOL_File_ReadDirect_readTrace(
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
  *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
- *      (pass NULL to ignore)
+ *  \param[in] prm A handle for the parameter structure.
  *  \warning This function is not thread safe.
  */
 void PIOL_File_WriteDirect_writeTrace(

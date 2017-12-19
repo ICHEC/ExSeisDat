@@ -393,7 +393,7 @@ void PIOL_File_ReadDirect_readTrace(
     assert(not_null(readDirect));
     assert(not_null(trace));
 
-    if(param != NULL) {
+    if(param == NULL) {
         readDirect->readTrace(offset, sz, trace);
     } else {
         readDirect->readTrace(offset, sz, trace, param);
