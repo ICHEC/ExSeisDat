@@ -168,7 +168,7 @@ bool PIOL_File_Rule_addRule_Rule(PIOL_File_Rule* rule, const PIOL_File_Rule* rul
     return (**rule).addRule(**ruleToCopy);
 }
 
-int16_t PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, PIOL_File_Param* param)
+int16_t PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
 {
     assert(not_null(param));
 
@@ -176,7 +176,7 @@ int16_t PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, PIOL_File_Param* param
 }
 
 PIOL_llint PIOL_File_getPrm_llint(
-    size_t i, PIOL_Meta entry, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
 )
 {
     assert(not_null(param));
@@ -185,7 +185,7 @@ PIOL_llint PIOL_File_getPrm_llint(
 }
 
 PIOL_geom_t PIOL_File_getPrm_double(
-    size_t i, PIOL_Meta entry, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
 )
 {
     assert(not_null(param));
@@ -242,14 +242,14 @@ void PIOL_ExSeis_delete(PIOL_ExSeis* piol)
     delete piol;
 }
 
-void PIOL_ExSeis_barrier(PIOL_ExSeis* piol)
+void PIOL_ExSeis_barrier(const PIOL_ExSeis* piol)
 {
     assert(not_null(piol));
 
     (**piol).barrier();
 }
 
-void PIOL_ExSeis_isErr(PIOL_ExSeis* piol, const char* msg)
+void PIOL_ExSeis_isErr(const PIOL_ExSeis* piol, const char* msg)
 {
     assert(not_null(piol));
 
@@ -263,21 +263,21 @@ void PIOL_ExSeis_isErr(PIOL_ExSeis* piol, const char* msg)
     }
 }
 
-size_t PIOL_ExSeis_getRank(PIOL_ExSeis* piol)
+size_t PIOL_ExSeis_getRank(const PIOL_ExSeis* piol)
 {
     assert(not_null(piol));
 
     return (**piol).getRank();
 }
 
-size_t PIOL_ExSeis_getNumRank(PIOL_ExSeis* piol)
+size_t PIOL_ExSeis_getNumRank(const PIOL_ExSeis* piol)
 {
     assert(not_null(piol));
 
     return (**piol).getNumRank();
 }
 
-size_t PIOL_ExSeis_max(PIOL_ExSeis* piol, size_t n)
+size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n)
 {
     assert(not_null(piol));
 
@@ -287,7 +287,7 @@ size_t PIOL_ExSeis_max(PIOL_ExSeis* piol, size_t n)
 ////////////////// File Layer ////////////////////////////
 
 PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
-    PIOL_ExSeis* piol, const char * name
+    const PIOL_ExSeis* piol, const char * name
 )
 {
     assert(not_null(piol));
@@ -297,7 +297,7 @@ PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
 }
 
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
-    PIOL_ExSeis* piol, const char * name
+    const PIOL_ExSeis* piol, const char * name
 )
 {
     assert(not_null(piol));
@@ -317,7 +317,7 @@ void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect)
 }
 
 const char * PIOL_File_ReadDirect_readText(
-    PIOL_File_ReadDirect* readDirect
+    const PIOL_File_ReadDirect* readDirect
 )
 {
     assert(not_null(readDirect));
@@ -325,21 +325,21 @@ const char * PIOL_File_ReadDirect_readText(
     return readDirect->readText().c_str();
 }
 
-size_t PIOL_File_ReadDirect_readNs(PIOL_File_ReadDirect* readDirect)
+size_t PIOL_File_ReadDirect_readNs(const PIOL_File_ReadDirect* readDirect)
 {
     assert(not_null(readDirect));
 
     return readDirect->readNs();
 }
 
-size_t PIOL_File_ReadDirect_readNt(PIOL_File_ReadDirect* readDirect)
+size_t PIOL_File_ReadDirect_readNt(const PIOL_File_ReadDirect* readDirect)
 {
     assert(not_null(readDirect));
 
     return readDirect->readNt();
 }
 
-double PIOL_File_ReadDirect_readInc(PIOL_File_ReadDirect* readDirect)
+double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect)
 {
     assert(not_null(readDirect));
 
@@ -385,7 +385,7 @@ void PIOL_File_WriteDirect_writeInc(
 
 //Contiguous traces
 void PIOL_File_ReadDirect_readTrace(
-    PIOL_File_ReadDirect* readDirect,
+    const PIOL_File_ReadDirect* readDirect,
     size_t offset, size_t sz, PIOL_trace_t * trace,
     PIOL_File_Param* param
 )
@@ -403,7 +403,7 @@ void PIOL_File_ReadDirect_readTrace(
 void PIOL_File_WriteDirect_writeTrace(
     PIOL_File_WriteDirect* writeDirect,
     size_t offset, size_t sz, PIOL_trace_t * trace,
-    PIOL_File_Param* param
+    const PIOL_File_Param* param
 )
 {
     assert(not_null(writeDirect));
@@ -418,7 +418,7 @@ void PIOL_File_WriteDirect_writeTrace(
 
 void PIOL_File_WriteDirect_writeParam(
     PIOL_File_WriteDirect* writeDirect,
-    size_t offset, size_t sz, PIOL_File_Param* param
+    size_t offset, size_t sz, const PIOL_File_Param* param
 )
 {
     assert(not_null(writeDirect));
@@ -428,7 +428,7 @@ void PIOL_File_WriteDirect_writeParam(
 }
 
 void PIOL_File_ReadDirect_readParam(
-    PIOL_File_ReadDirect* readDirect,
+    const PIOL_File_ReadDirect* readDirect,
     size_t offset, size_t sz, PIOL_File_Param* param
 )
 {
@@ -489,8 +489,8 @@ void PIOL_File_ReadDirect_readParam(
 /////////////////////////////////////Operations///////////////////////////////
 
 void PIOL_File_getMinMax(
-    PIOL_ExSeis* piol,
-    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2, PIOL_File_Param* param,
+    const PIOL_ExSeis* piol,
+    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2, const PIOL_File_Param* param,
     struct PIOL_CoordElem * minmax
 )
 {
@@ -524,7 +524,7 @@ size_t PIOL_SEGSz_getMDSz(void)
 }
 
 ////////////////////////////////////SET/////////////////////////////////////////
-PIOL_Set* PIOL_Set_new(PIOL_ExSeis* piol, const char * ptrn)
+PIOL_Set* PIOL_Set_new(const PIOL_ExSeis* piol, const char * ptrn)
 {
     assert(not_null(piol));
     assert(not_null(ptrn));
@@ -596,7 +596,7 @@ void PIOL_Set_text(PIOL_Set* set, const char * outmsg)
     set->text(outmsg);
 }
 
-void PIOL_Set_summary(PIOL_Set* set)
+void PIOL_Set_summary(const PIOL_Set* set)
 {
     assert(not_null(set));
 

@@ -27,7 +27,7 @@ size_t ReadDirect::readNs() const
     return mockReadDirect().readNs(this);
 }
 
-size_t ReadDirect::readNt()
+size_t ReadDirect::readNt() const
 {
     return mockReadDirect().readNt(this);
 }

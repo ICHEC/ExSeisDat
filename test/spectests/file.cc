@@ -37,7 +37,7 @@ struct FakeReadFile : public File::ReadInterface
         ns = 1010U;
     }
 
-    size_t readNt(void) { return nt; }
+    size_t readNt(void) const { return nt; }
     void readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm, size_t skip) const {}
     void readParam(csize_t offset, csize_t sz, File::Param * prm, size_t skip) const {}
 

@@ -24,7 +24,7 @@ public:
 
     MOCK_CONST_METHOD1(readNs, size_t(const ReadDirect*));
 
-    MOCK_METHOD1(readNt, size_t(ReadDirect*));
+    MOCK_CONST_METHOD1(readNt, size_t(const ReadDirect*));
 
     MOCK_CONST_METHOD1(readInc, geom_t(const ReadDirect*));
 

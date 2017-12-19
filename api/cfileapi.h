@@ -67,36 +67,36 @@ extern "C"
 PIOL_ExSeis* PIOL_ExSeis_new(PIOL_Verbosity);
 
 /*! close the PIOL (deinit MPI)
- * \param[in] piol A handle to the PIOL.
+ * \param[in,out] piol A handle to the PIOL.
  */
 void PIOL_ExSeis_delete(PIOL_ExSeis* piol);
 
 /*! Get the rank of the process (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
  */
-size_t PIOL_ExSeis_getRank(PIOL_ExSeis* piol);
+size_t PIOL_ExSeis_getRank(const PIOL_ExSeis* piol);
 
 /*! Get the number of processes (in terms of the PIOL communicator)
  * \param[in] piol A handle to the PIOL.
  */
-size_t PIOL_ExSeis_getNumRank(PIOL_ExSeis* piol);
+size_t PIOL_ExSeis_getNumRank(const PIOL_ExSeis* piol);
 
 /*! Check if the PIOL has any error conditions
  * \param[in] piol A handle to the PIOL.
  */
-void PIOL_ExSeis_isErr(PIOL_ExSeis* piol, const char* msg);
+void PIOL_ExSeis_isErr(const PIOL_ExSeis* piol, const char* msg);
 
 /*!  A barrier. All PIOL processes must call this.
  * \param[in] piol A handle to the PIOL.
  */
-void PIOL_ExSeis_barrier(PIOL_ExSeis* piol);
+void PIOL_ExSeis_barrier(const PIOL_ExSeis* piol);
 
 /*! Return the maximum value amongst the processes
  * \param[in] piol A handle to the PIOL.
  * \param[in] n The value to take part in the reduction
  * \return Return the maximum value of (\c n) amongst the processes
  */
-size_t PIOL_ExSeis_max(PIOL_ExSeis* piol, size_t n);
+size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n);
 
 //SEG-Y Size functions
 /*! Get the size of the SEG-Y text field (3200 bytes)
@@ -138,40 +138,40 @@ PIOL_File_Rule* PIOL_File_Rule_new(bool def);
 PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta * m, size_t n);
 
 /*! Free a Rule structure.
- *  \param[in] rule The Rule handle associated with the structure to free
+ *  \param[in,out] rule The Rule handle associated with the structure to free
  */
 void PIOL_File_Rule_delete(PIOL_File_Rule* rule);
 
 /*! Add a pre-defined rule.
- *  \param[in] rule The Rule handle
+ *  \param[in,out] rule The Rule handle
  *  \param[in] m The Meta entry.
  *  \return Return true if the rule was added, otherwise false
  */
 bool PIOL_File_Rule_addRule_Meta(PIOL_File_Rule* rule, PIOL_Meta m);
 
 /*! Add all rules from the given handle
- *  \param[in] rule The Rule handle
+ *  \param[in,out] rule The Rule handle
  *  \param[in] ruleToCopy The rule handle to copy the rules from.
  *  \return Return true if no errors
  */
 bool PIOL_File_Rule_addRule_Rule(PIOL_File_Rule* rule, const PIOL_File_Rule* ruleToCopy);
 
 /*! Add a Rule for longs (int64_t)
- *  \param[in] rule The Rule handle
+ *  \param[in,out] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
 void PIOL_File_Rule_addLong(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc);
 
 /*! Add a Rule for shorts (int16_t)
- *  \param[in] rule The Rule handle
+ *  \param[in,out] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  */
 void PIOL_File_Rule_addShort(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc);
 
 /*! Add a Rule for floats
- *  \param[in] rule The Rule handle
+ *  \param[in,out] rule The Rule handle
  *  \param[in] m The parameter which one is providing a rule for
  *  \param[in] loc The location in the trace header for the rule.
  *  \param[in] scalLoc The location in the trace header for the shared scaler;
@@ -181,25 +181,25 @@ void PIOL_File_Rule_addSEGYFloat(
 );
 
 /*! Add a rule for an index.
- *  \param[in] rule The Rule handle
+ *  \param[in,out] rule The Rule handle
  *  \param[in] m The Meta entry.
  */
 void PIOL_File_Rule_addIndex(PIOL_File_Rule* rule, PIOL_Meta m);
 
 
 /*! Add a rule to buffer the original trace header.
-*  \param[in] rule The Rule handle
+*  \param[in,out] rule The Rule handle
  */
 void PIOL_File_Rule_addCopy(PIOL_File_Rule* rule);
 
 /*! remove a rule for a parameter
- *  \param[in] rule The Rule handle associated with the structure to free
+ *  \param[in,out] rule The Rule handle associated with the structure to free
  *  \param[in] m The parameter which one is removing a rule for
  */
 void PIOL_File_Rule_rmRule(PIOL_File_Rule* rule, PIOL_Meta m);
 
 /*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
-*  \param[in] rule The Rule handle
+*  \param[in,out] rule The Rule handle
  *  \return Return the size.
  */
 size_t PIOL_File_Rule_extent(PIOL_File_Rule* rule);
@@ -222,13 +222,16 @@ size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule);
 /*! Define a new parameter structure
  *  \param[in] rule The Rule handle associated with the structure (use NULL for
  *      default rules)
+ *      A copy of this pointer is stored in PIOL_File_Param, but it's safe
+ *      to call PIOL_File_Rule_delete(rule) before deleting this, because the
+ *      underlying type is a shared_ptr.
  *  \param[in] sz The number of sets of parameters stored by the structure
  *  \return Return a handle for the parameter structure
  */
 PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz);
 
 /*! Free the given parameter structure
- *  \param[in] prm The parameter structure
+ *  \param[in,out] prm The parameter structure
  */
 void PIOL_File_Param_delete(PIOL_File_Param* param);
 
@@ -249,7 +252,7 @@ size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param);
  *  \return The associated parameter
  */
 int16_t PIOL_File_getPrm_short(
-    size_t i, PIOL_Meta entry, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
 );
 
 /*! Get a long parameter which is in a particular set in a parameter structure.
@@ -259,7 +262,7 @@ int16_t PIOL_File_getPrm_short(
  *  \return The associated parameter
  */
 PIOL_llint PIOL_File_getPrm_llint(
-    size_t i, PIOL_Meta entry, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
 );
 
 /*! Get a double parameter which is in a particular set in a parameter structure.
@@ -269,7 +272,7 @@ PIOL_llint PIOL_File_getPrm_llint(
  *  \return The associated parameter
  */
 PIOL_geom_t PIOL_File_getPrm_double(
-    size_t i, PIOL_Meta entry, PIOL_File_Param* param
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
 );
 
 /*! Set a short parameter within the parameter structure.
@@ -306,7 +309,7 @@ void PIOL_File_setPrm_double(
  *  \param[in] i The parameter set number of the source
  *  \param[in] src The parameter structure of the source
  *  \param[in] j The parameter set number of the destination
- *  \param[in] dst The parameter structure of the destination
+ *  \param[in,out] dst The parameter structure of the destination
  */
 void PIOL_File_cpyPrm(
     size_t i, const PIOL_File_Param* src,
@@ -324,9 +327,9 @@ void PIOL_File_cpyPrm(
  *  \param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
  */
 void PIOL_File_getMinMax(
-    PIOL_ExSeis* piol,
+    const PIOL_ExSeis* piol,
     size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2,
-    PIOL_File_Param* param, struct PIOL_CoordElem * minmax
+    const PIOL_File_Param* param, struct PIOL_CoordElem * minmax
 );
 
 /*
@@ -338,7 +341,7 @@ void PIOL_File_getMinMax(
  * \return A handle for the file.
  */
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
-    PIOL_ExSeis* piol, const char * name
+    const PIOL_ExSeis* piol, const char * name
 );
 
 /*! Open a write-only file and return a handle for the file
@@ -347,16 +350,16 @@ PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
  * \return A handle for the file.
  */
 PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
-    PIOL_ExSeis* piol, const char * name
+    const PIOL_ExSeis* piol, const char * name
 );
 
 /*! \brief Close the file associated with the handle
- *  \param[in] f A handle for the file.
+ *  \param[in,out] f A handle for the file.
  */
 void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
 
 /*! \brief Close the file associated with the handle
- *  \param[in] f A handle for the file.
+ *  \param[in,out] f A handle for the file.
  */
 void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
 
@@ -371,26 +374,26 @@ void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
  *  \return A string containing the text (in ASCII format)
  */
 const char * PIOL_File_ReadDirect_readText(
-    PIOL_File_ReadDirect* readDirect
+    const PIOL_File_ReadDirect* readDirect
 );
 
 /*! \brief Read the number of samples per trace
  *  \param[in] f A handle for the file.
  *  \return The number of samples per trace
  */
-size_t PIOL_File_ReadDirect_readNs(PIOL_File_ReadDirect* readDirect);
+size_t PIOL_File_ReadDirect_readNs(const PIOL_File_ReadDirect* readDirect);
 
 /*! \brief Read the number of traces in the file
  *  \param[in] f A handle for the file.
  *  \return The number of traces
  */
-size_t PIOL_File_ReadDirect_readNt(PIOL_File_ReadDirect* readDirect);
+size_t PIOL_File_ReadDirect_readNt(const PIOL_File_ReadDirect* readDirect);
 
 /*! \brief Read the increment between trace samples
  *  \param[in] f A handle for the file.
  *  \return The increment between trace samples
  */
-double PIOL_File_ReadDirect_readInc(PIOL_File_ReadDirect* readDirect);
+double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect);
 
 /*! \brief Write the human readable text from the file.
  *  \param[in] f A handle for the file.
@@ -440,7 +443,7 @@ void PIOL_File_WriteDirect_writeInc(
  */
 void PIOL_File_WriteDirect_writeParam(
     PIOL_File_WriteDirect* writeDirect,
-    size_t offset, size_t sz, PIOL_File_Param* param
+    size_t offset, size_t sz, const PIOL_File_Param* param
 );
 
 /*! \brief Write the trace parameters from offset to offset+sz to the respective
@@ -451,7 +454,7 @@ void PIOL_File_WriteDirect_writeParam(
  *  \param[in] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readParam(
-    PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
+    const PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
     PIOL_File_Param* param
 );
 
@@ -466,7 +469,7 @@ void PIOL_File_ReadDirect_readParam(
  *  \param[out] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readTrace(
-    PIOL_File_ReadDirect* readDirect,
+    const PIOL_File_ReadDirect* readDirect,
     size_t offset, size_t sz, PIOL_trace_t * trace, PIOL_File_Param* param
 );
 
@@ -481,7 +484,7 @@ void PIOL_File_ReadDirect_readTrace(
 void PIOL_File_WriteDirect_writeTrace(
     PIOL_File_WriteDirect* writeDirect,
     size_t offset, size_t sz, PIOL_trace_t * trace,
-    PIOL_File_Param* param
+    const PIOL_File_Param* param
 );
 
 //Lists

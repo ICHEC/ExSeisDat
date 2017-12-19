@@ -118,7 +118,7 @@ void ReadSEGY::procHeader(size_t fsz, uchar * buf)
         text.push_back(buf[i]);
 }
 
-size_t ReadSEGY::readNt(void)
+size_t ReadSEGY::readNt(void) const
 {
     return nt;
 }

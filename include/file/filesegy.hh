@@ -60,7 +60,7 @@ class ReadSEGY : public ReadInterface
      */
     ReadSEGY(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 
-    size_t readNt(void);
+    size_t readNt(void) const;
 
     void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 

@@ -24,7 +24,7 @@ class MockFile : public File::ReadInterface
 {
     public :
     MOCK_CONST_METHOD0(readNs, size_t(void));
-    MOCK_METHOD0(readNt, size_t(void));
+    MOCK_CONST_METHOD0(readNt, size_t(void));
     MOCK_CONST_METHOD0(readInc, geom_t(void));
 
     MOCK_METHOD1(writeText, void(const std::string));

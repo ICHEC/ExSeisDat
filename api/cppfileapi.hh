@@ -141,7 +141,7 @@ class ReadDirect
     /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
-    size_t readNt(void);
+    size_t readNt(void) const;
 
     /*! \brief Read the number of increment between trace samples
      *  \return The increment between trace samples

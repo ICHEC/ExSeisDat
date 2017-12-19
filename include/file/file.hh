@@ -98,7 +98,7 @@ class ReadInterface : public Interface
     /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
-    virtual size_t readNt(void) = 0;
+    virtual size_t readNt(void) const = 0;
 
     /*! \brief Read the number of increment between trace samples
      *  \return The increment between trace samples

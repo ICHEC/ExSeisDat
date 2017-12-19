@@ -84,7 +84,7 @@ size_t ReadDirect::readNs(void) const
     return file->readNs();
 }
 
-size_t ReadDirect::readNt(void)
+size_t ReadDirect::readNt(void) const
 {
     return file->readNt();
 }
