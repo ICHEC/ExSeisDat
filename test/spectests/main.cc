@@ -85,21 +85,21 @@ std::vector<size_t> getRandomVec(size_t nt, int seed)
 
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
     InitGoogleTest(&argc, argv);
 
-    if (!piol.getRank())
+    if (!piol->getRank())
     {
         makeFile(zeroFile, 0U);
         makeFile(smallFile, smallSize);
         makeFile(largeFile, largeSize);
     }
-    piol.barrier();
+    piol->barrier();
 
     int code = RUN_ALL_TESTS();
 
-    piol.barrier();
-    if (piol.getRank())
+    piol->barrier();
+    if (piol->getRank())
     {
         std::remove(zeroFile.c_str());
         std::remove(smallFile.c_str());

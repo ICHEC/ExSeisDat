@@ -62,18 +62,12 @@ std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
 
 struct SetTest : public Test
 {
-    std::shared_ptr<ExSeisPIOL> piol;
-    std::unique_ptr<Set> set;
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
+    std::unique_ptr<Set> set = nullptr;
     std::deque<File::Param> prm;
     Comm::MPI::Opt opt;
     const double pi = M_PI;
 
-    SetTest(void)
-    {
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-        set = nullptr;
-    }
     void init(size_t numFile, size_t numNs, size_t numInc, size_t, bool linear)
     {
         if (set.get() != nullptr)

@@ -16,48 +16,32 @@
 namespace PIOL {
 /*! This class provides access to the ExSeisPIOL class but with a simpler API
  */
-class ExSeis
+class ExSeis: public ExSeisPIOL
 {
-    std::shared_ptr<ExSeisPIOL> piol_;  //!< The PIOL object.
-
     public :
     /*! Constructor with optional maxLevel and which initialises MPI.
-     * \param[in] maxLevel The maximum log level to be recorded.
-     */
-    ExSeis(const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
-
-    /*! Constructor where one can also initialise MPI optionally.
-     *  \param[in] initComm Initialise MPI if true
-     *  \param[in] maxLevel The maximum log level to be recorded.
-     */
-    ExSeis(bool initComm, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
-
-    // TODO Abstract the communicator to MPI::Comm
-    /*! Don't initialise MPI. Use the supplied communicator
      *  \param[in] comm The MPI communicator
      *  \param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeis(MPI_Comm comm, const Verbosity maxLevel = PIOL_VERBOSITY_NONE);
+    static std::shared_ptr<ExSeis> New(
+        const Verbosity maxLevel = PIOL_VERBOSITY_NONE, MPI_Comm comm = MPI_COMM_WORLD
+    ) {
+        return std::shared_ptr<ExSeis>(new ExSeis(maxLevel, comm));
+    }
 
     /*! ExSeis Deleter.
      */
     ~ExSeis();
 
-    /*! Get the ExSeisPIOL object.
-     */
-    std::shared_ptr<ExSeisPIOL> piol() {
-        return piol_;
-    }
-
     /*! Shortcut to get the commrank.
      *  \return The comm rank.
      */
-    size_t getRank(void);
+    size_t getRank(void) const;
 
     /*! Shortcut to get the number of ranks.
      *  \return The comm number of ranks.
      */
-    size_t getNumRank(void);
+    size_t getNumRank(void) const;
 
     /*! Shortcut for a communication barrier
      */
@@ -73,7 +57,11 @@ class ExSeis
      *  and the code aborts.
      * \param[in] msg A message to be printed to the log.
      */
-    void isErr(const std::string msg = "") const;
+    void isErr(const std::string& msg = "") const;
+
+    private:
+    // The constructor is private! Use the ExSeis::New(...) function.
+    ExSeis(const Verbosity maxLevel = PIOL_VERBOSITY_NONE, MPI_Comm comm = MPI_COMM_WORLD);
 };
 
 

@@ -3,6 +3,7 @@
 #include "gmock/gmock.h"
 #include "tglobal.hh"
 #include "anc/mpi.hh"
+#include "cppfileapi.hh"
 #define private public
 #define protected public
 #include "data/data.hh"
@@ -14,13 +15,7 @@ using namespace PIOL;
 class DataTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPI::Opt opt;
-    DataTest()
-    {
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-    }
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
 };
 
 #pragma GCC diagnostic push

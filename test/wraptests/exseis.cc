@@ -2,19 +2,9 @@
 
 namespace PIOL {
 
-ExSeis::ExSeis(const PIOL::Verbosity maxLevel)
+ExSeis::ExSeis(const PIOL::Verbosity maxLevel, MPI_Comm comm)
 {
-    mockExSeis().ctor(this, maxLevel);
-}
-
-ExSeis::ExSeis(bool initComm, const PIOL::Verbosity maxLevel)
-{
-    mockExSeis().ctor(this, initComm, maxLevel);
-}
-
-ExSeis::ExSeis(MPI_Comm comm, const PIOL::Verbosity maxLevel)
-{
-    mockExSeis().ctor(this, comm, maxLevel);
+    mockExSeis().ctor(this, maxLevel, comm);
 }
 
 ExSeis::~ExSeis()
@@ -22,12 +12,12 @@ ExSeis::~ExSeis()
     mockExSeis().dtor(this);
 }
 
-size_t ExSeis::getRank()
+size_t ExSeis::getRank() const
 {
     return mockExSeis().getRank(this);
 }
 
-size_t ExSeis::getNumRank()
+size_t ExSeis::getNumRank() const
 {
     return mockExSeis().getNumRank(this);
 }
@@ -42,7 +32,7 @@ size_t ExSeis::max(size_t n) const
     return mockExSeis().max(this, n);
 }
 
-void ExSeis::isErr(const std::string msg) const
+void ExSeis::isErr(const std::string& msg) const
 {
     mockExSeis().isErr(this, msg);
 }

@@ -13,40 +13,37 @@
 #include <mpi.h>
 #include "anc/comm.hh"
 namespace PIOL { namespace Comm {
+
+/*! \brief Set whether PIOL should manage MPI initialization / finalization.
+ *      By default, PIOL will manage MPI if it calls MPI_Init, and it will call
+ *      MPI_Init if the PIOL::Comm::MPI class is initialized before MPI_Init
+ *      is called.
+ *      If PIOL Is managing MPI, it will call MPI_Finalize on program exit.
+ */
+void manageMPI(bool);
+
+
 /*! \brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.
  */
 class MPI : public Comm::Interface
 {
     private :
     MPI_Comm comm;      //!< The MPI communicator.
-    bool init;          //!< This variable records whether the class is responsible for initialisation of MPI or not.
     Log::Logger * log;  //!< For logging messages
+
     public :
     /*! \brief The MPI-Communicator options structure.
      */
     struct Opt
     {
-        MPI_Comm comm; //!< This variable defines the default MPI communicator.
-        bool initMPI;  //!< If \c initMPI is true, MPI initialisation is performed. Otherwise it is skipped.
-
-        /* \brief Default constructor to prevent intel warnings
-         */
-        Opt(void)
-        {
-            comm = MPI_COMM_WORLD;
-            initMPI = true;
-        }
+        MPI_Comm comm = MPI_COMM_WORLD; //!< This variable defines the default MPI communicator.
     };
+
     /*! \brief The constructor.
      *  \param[in] log_ Pointer to log object
      *  \param[in] opt Any options for the communication layer.
      */
     MPI(Log::Logger * log_, const MPI::Opt & opt);
-
-    /*! \brief The destructor. If the object is responsible for initialisation it deinitialises MPI
-     *  in this routine.
-     */
-    ~MPI(void);
 
     /*! \brief Retrieve the MPI communicator associated with the ExSeisPIOL.
      *  \return The MPI communicator.

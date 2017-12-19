@@ -13,7 +13,7 @@ using namespace ::testing;
 std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
 {
     auto exseis_ptr = std::make_shared<ExSeis*>();
-    EXPECT_CALL(mockExSeis(), ctor(_, PIOL_VERBOSITY_NONE))
+    EXPECT_CALL(mockExSeis(), ctor(_, PIOL_VERBOSITY_NONE, _))
         .WillOnce(SaveArg<0>(exseis_ptr));
 
     std::pair<std::string, Verbosity> exseis_new_args[] = {
@@ -26,7 +26,7 @@ std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
 
     for(auto args: exseis_new_args)
     {
-        EXPECT_CALL(mockExSeis(), ctor(_, args.second));
+        EXPECT_CALL(mockExSeis(), ctor(_, args.second, _));
     }
 
     EXPECT_CALL(mockExSeis(), getRank(_)).WillOnce(Return(0));

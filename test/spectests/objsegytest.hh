@@ -2,6 +2,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "cppfileapi.hh"
 #include "global.hh"
 #include "tglobal.hh"
 #include "share/segy.hh"
@@ -46,18 +47,10 @@ enum class Block
 class ObjTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPI::Opt opt;
-    std::shared_ptr<MockData> mock;
-    Obj::Interface * obj;
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
+    std::shared_ptr<MockData> mock = nullptr;
+    Obj::Interface * obj = nullptr;
 
-    ObjTest()
-    {
-        mock = nullptr;
-        obj = nullptr;
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-    }
     template <bool WRITE>
     void makeRealSEGY(std::string name)
     {

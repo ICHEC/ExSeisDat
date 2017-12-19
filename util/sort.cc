@@ -6,7 +6,7 @@
 using namespace PIOL;
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
     std::string opt = "i:o:t:";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
@@ -30,8 +30,8 @@ int main(int argc, char ** argv)
 
     assert(name1.size() && name2.size());
 
-    Set set(piol.piol(), name1, name2);
+    Set set(piol, name1, name2);
     set.sort(type);
-    piol.isErr();
+    piol->isErr();
     return 0;
 }

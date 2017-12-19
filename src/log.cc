@@ -39,13 +39,12 @@ bool Logger::isErr(void) const
 
 void Logger::procLog(void)
 {
-    while (!loglist.empty())
+    for(auto& item: loglist)
     {
-        Item & item = loglist.front();
-
         std::cerr << item.file << " " << static_cast<size_t>(item.layer) << " " << static_cast<size_t>(item.stat) <<
                      " " << item.msg << " " << static_cast<size_t>(item.vrbsy) << std::endl;
-        loglist.pop_front();
     }
+    loglist.clear();
 }
+
 }}

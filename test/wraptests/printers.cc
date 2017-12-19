@@ -9,6 +9,7 @@
         << ".val = " << value.val << ", "
         << ".num = " << value.num
         << " }";
+    return os;
 }
 
 namespace PIOL {

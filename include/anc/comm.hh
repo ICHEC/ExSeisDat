@@ -26,7 +26,7 @@ class Interface
     public :
     /*! \brief A virtual destructor to allow deletion.
      */
-    virtual ~Interface(void) { }
+    virtual ~Interface(void) = default;
 
     /*! \brief Returns the rank of the process executing the function/
      *  \return The rank.

@@ -40,10 +40,6 @@ MATCHER_P(AddressEqDeref, p, "")
     return *p == &arg;
 }
 
-MATCHER_P(EqToExSeisPIOL_ptr, n, "") {
-    return (*n)->piol().get() == arg;
-}
-
 
 ACTION_P(CheckReturn, v)
 {

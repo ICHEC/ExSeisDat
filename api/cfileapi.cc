@@ -234,7 +234,7 @@ void PIOL_File_cpyPrm(
 //////////////////PIOL////////////////////////////
 PIOL_ExSeis* PIOL_ExSeis_new(PIOL_Verbosity verbosity)
 {
-    return new PIOL::ExSeis(verbosity);
+    return new std::shared_ptr<PIOL::ExSeis>(PIOL::ExSeis::New(verbosity));
 }
 
 void PIOL_ExSeis_delete(PIOL_ExSeis* piol)
@@ -246,7 +246,7 @@ void PIOL_ExSeis_barrier(PIOL_ExSeis* piol)
 {
     assert(not_null(piol));
 
-    piol->barrier();
+    (**piol).barrier();
 }
 
 void PIOL_ExSeis_isErr(PIOL_ExSeis* piol, const char* msg)
@@ -255,11 +255,11 @@ void PIOL_ExSeis_isErr(PIOL_ExSeis* piol, const char* msg)
 
     if(msg != NULL)
     {
-        piol->isErr(msg);
+        (**piol).isErr(msg);
     }
     else
     {
-        piol->isErr();
+        (**piol).isErr();
     }
 }
 
@@ -267,21 +267,21 @@ size_t PIOL_ExSeis_getRank(PIOL_ExSeis* piol)
 {
     assert(not_null(piol));
 
-    return piol->getRank();
+    return (**piol).getRank();
 }
 
 size_t PIOL_ExSeis_getNumRank(PIOL_ExSeis* piol)
 {
     assert(not_null(piol));
 
-    return piol->getNumRank();
+    return (**piol).getNumRank();
 }
 
 size_t PIOL_ExSeis_max(PIOL_ExSeis* piol, size_t n)
 {
     assert(not_null(piol));
 
-    return piol->max(n);
+    return (**piol).max(n);
 }
 
 ////////////////// File Layer ////////////////////////////
@@ -293,7 +293,7 @@ PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::File::WriteDirect(piol->piol(), name);
+    return new PIOL::File::WriteDirect(*piol, name);
 }
 
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
@@ -303,7 +303,7 @@ PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::File::ReadDirect(piol->piol(), name);
+    return new PIOL::File::ReadDirect(*piol, name);
 }
 
 void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect)
@@ -498,7 +498,7 @@ void PIOL_File_getMinMax(
     assert(not_null(param));
     assert(not_null(minmax));
 
-    PIOL::File::getMinMax(piol->piol().get(), offset, sz, m1, m2, param, minmax);
+    PIOL::File::getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
@@ -529,7 +529,7 @@ PIOL_Set* PIOL_Set_new(PIOL_ExSeis* piol, const char * ptrn)
     assert(not_null(piol));
     assert(not_null(ptrn));
 
-    return new PIOL::Set(piol->piol(), ptrn);
+    return new PIOL::Set(*piol, ptrn);
 }
 
 void PIOL_Set_delete(PIOL_Set* set)

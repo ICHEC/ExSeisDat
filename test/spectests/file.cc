@@ -17,14 +17,7 @@ using namespace PIOL;
 class FileTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPI::Opt opt;
-
-    FileTest()
-    {
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-    }
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
 };
 
 #pragma GCC diagnostic push

@@ -35,7 +35,7 @@ namespace PIOL {
     }
 }
 
-typedef PIOL::ExSeis PIOL_ExSeis;
+typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeis;
 typedef std::shared_ptr<PIOL::File::Rule>  PIOL_File_Rule;
 typedef PIOL::File::Param PIOL_File_Param;
 typedef PIOL::File::ReadDirect  PIOL_File_ReadDirect;

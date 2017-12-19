@@ -96,27 +96,17 @@ class MockObj : public Obj::Interface
 
 struct FileReadSEGYTest : public Test
 {
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPI::Opt opt;
-    bool testEBCDIC;
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
+    bool testEBCDIC = false;
     std::string testString = {"This is a string for testing EBCDIC conversion etc."};
-    std::unique_ptr<File::ReadDirect> file;
+    std::unique_ptr<File::ReadDirect> file = nullptr;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
     int inc = 10;
     csize_t format = 5;
-    std::vector<uchar> ho;
+    std::vector<uchar> ho = std::vector<uchar>(SEGSz::getHOSz());
     std::shared_ptr<MockObj> mock;
-
-    FileReadSEGYTest()
-    {
-        testEBCDIC = false;
-        file = nullptr;
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-        ho.resize(SEGSz::getHOSz());
-    }
 
     ~FileReadSEGYTest()
     {
@@ -448,29 +438,18 @@ struct FileWriteSEGYTest : public Test
 {
     std::shared_ptr<MockObj> mock;
 
-    std::shared_ptr<ExSeisPIOL> piol;
-    Comm::MPI::Opt opt;
-    bool testEBCDIC;
-    std::string testString;
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
+    bool testEBCDIC = false;
+    std::string testString = "This is a string for testing EBCDIC conversion etc.";
     std::string name_;
     std::vector<uchar> tr;
     size_t nt = 40U;
     size_t ns = 200U;
     int inc = 10;
     csize_t format = 5;
-    std::vector<uchar> ho;
-    std::unique_ptr<File::WriteDirect> file;
+    std::vector<uchar> ho = std::vector<uchar>(SEGSz::getHOSz());
+    std::unique_ptr<File::WriteDirect> file = nullptr;
     std::unique_ptr<File::ReadDirect> readfile;
-
-    FileWriteSEGYTest()
-    {
-        testEBCDIC = false;
-        file = nullptr;
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-        ho.resize(SEGSz::getHOSz());
-        testString = "This is a string for testing EBCDIC conversion etc.";
-    }
 
     ~FileWriteSEGYTest()
     {

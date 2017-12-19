@@ -15,7 +15,8 @@
 using namespace PIOL;
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
+
     std::string opt = "i:";  //TODO: uses a GNU extension
     std::string iname = "";
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
@@ -25,14 +26,14 @@ int main(int argc, char ** argv)
             std::cerr << "One of the command line arguments is invalid.\n";
     assert(iname != "");
 
-    Set set(piol.piol(), iname);
+    Set set(piol, iname);
 
     CoordElem minmax[12];
     set.getMinMax(PIOL_META_xSrc, PIOL_META_ySrc, &minmax[0]);
     set.getMinMax(PIOL_META_xRcv, PIOL_META_yRcv, &minmax[4]);
     set.getMinMax(PIOL_META_xCmp, PIOL_META_yCmp, &minmax[8]);
 
-    if (!piol.getRank())
+    if (!piol->getRank())
     {
         std::cout << "x Src " << minmax[0].val  << " (" << minmax[0].num << ") -> "
                               << minmax[1].val  << " (" << minmax[1].num << ")\n";

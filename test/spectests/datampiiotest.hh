@@ -9,6 +9,7 @@
 #define private public
 #define protected public
 #include "tglobal.hh"
+#include "cppfileapi.hh"
 #include "share/segy.hh"
 #include "share/datatype.hh"
 #include "data/datampiio.hh"
@@ -22,21 +23,10 @@ extern size_t modifyNt(csize_t fs, csize_t offset, csize_t nt, csize_t ns);
 class MPIIOTest : public Test
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
     Comm::MPI::Opt opt;
     Data::MPIIO::Opt ioopt;
-    std::shared_ptr<Data::Interface> data;
-    MPIIOTest()
-    {
-        data = nullptr;
-        opt.initMPI = false;
-        piol = std::make_shared<ExSeisPIOL>(opt);
-    }
-    ~MPIIOTest()
-    {
-        if (data != nullptr)
-            data.reset();
-    }
+    std::shared_ptr<Data::Interface> data = nullptr;
 
     template <bool WRITE = false>
     void makeMPIIO(std::string name)

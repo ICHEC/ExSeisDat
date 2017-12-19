@@ -8,7 +8,7 @@
 #include "share/segy.hh"
 using namespace PIOL;
 
-void writeContig(ExSeis piol, File::WriteDirect * file, size_t offset, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+void writeContig(ExSeis& piol, File::WriteDirect * file, size_t offset, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
 {
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
@@ -43,17 +43,17 @@ void writeContig(ExSeis piol, File::WriteDirect * file, size_t offset, size_t nt
     }
 }
 
-void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
+void writeRandom(ExSeis& piol, File::WriteDirect * file, size_t nt, size_t ns, size_t lnt, size_t extra, size_t max)
 {
     float fhalf = float(nt*ns)/2.0;
     float off = float(nt*ns)/4.0;
     long nhalf = nt/2;
 
     std::vector<size_t> offset(lnt);
-    auto num = piol->comm->gather<size_t>(lnt);
+    auto num = piol.comm->gather<size_t>(lnt);
 
-    size_t rank = piol->comm->getRank();
-    size_t numRank = piol->comm->getNumRank();
+    size_t rank = piol.comm->getRank();
+    size_t numRank = piol.comm->getNumRank();
 
     size_t offcount = 0;
     size_t t = 0;
@@ -99,26 +99,27 @@ void writeRandom(ExSeisPIOL * piol, File::WriteDirect * file, size_t nt, size_t 
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset[i])*ns+j)) - off;
         file->writeTrace(rblock, &offset[i], trc.data(), &prm);
-        piol->isErr();
+        piol.isErr();
     }
     for (size_t j = 0; j < extra; j++)
     {
         file->writeTrace(0U, (size_t *)NULL, nullptr, PIOL_PARAM_NULL);
-        piol->isErr();
+        piol.isErr();
     }
 }
 
 void FileMake(bool lob, bool random, const std::string name, size_t max, size_t ns, size_t nt, geom_t inc)
 {
-    ExSeis piol;
-    File::WriteDirect file(piol.piol(), name);
+    auto piol = ExSeis::New();
 
-    piol.isErr();
+    File::WriteDirect file(piol, name);
+
+    piol->isErr();
     file.writeNs(ns);
     file.writeNt(nt);
     file.writeInc(inc);
     file.writeText("Test file\n");
-    piol.isErr();
+    piol->isErr();
 
     size_t offset = 0;
     size_t lnt = 0;
@@ -126,27 +127,26 @@ void FileMake(bool lob, bool random, const std::string name, size_t max, size_t 
 
     if (lob)
     {
-        auto dec = lobdecompose(piol.piol().get(), nt, piol.getNumRank(), piol.getRank());
+        auto dec = lobdecompose(piol.get(), nt, piol->getNumRank(), piol->getRank());
         offset = dec[0];
         lnt = dec[1];
         biggest = dec[2];
     }
     else
     {
-        auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
+        auto dec = decompose(nt, piol->getNumRank(), piol->getRank());
         offset = dec.first;
         lnt = dec.second;
-        ExSeisPIOL * tpiol = piol.piol().get();
-        biggest = tpiol->comm->max(lnt);
+        biggest = piol->comm->max(lnt);
     }
 
     //TODO: Add memusage for Param
     max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns)  + sizeof(size_t));
     size_t extra = biggest/max - lnt/max + (biggest % max > 0) - (lnt % max > 0);
     if (random)
-        writeRandom(piol.piol().get(), &file, nt, ns, lnt, extra, max);
+        writeRandom(*piol, &file, nt, ns, lnt, extra, max);
     else
-        writeContig(piol.piol().get(), &file, offset, nt, ns, lnt, extra, max);
+        writeContig(*piol, &file, offset, nt, ns, lnt, extra, max);
 }
 
 int main(int argc, char ** argv)

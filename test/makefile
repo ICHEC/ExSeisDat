@@ -58,7 +58,7 @@ $(BINDIR)/spectests: $(SPECTESTS_OBJECTS) $(BINDIR)/libgmock.a
 $(BINDIR)/cwraptests: $(CWRAPTESTS_OBJECTS) $(BINDIR)/wraptests.so
 	$(CC) -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^  -Wl,-dead_strip
 
-$(BINDIR)/wraptests.so: $(WRAPTESTS_OBJECTS) $(BINDIR)/libgmock.a
+$(BINDIR)/wraptests.so: $(WRAPTESTS_OBJECTS) $(BINDIR)/libgmock.a ../lib/libpiol.so ../lib/libipiol.so
 	$(CXX) -shared -o $@ -L$(LIB_DIR) $(CXXFLAGS) $(LOCAL_INC_FOLDER) $^
 
 

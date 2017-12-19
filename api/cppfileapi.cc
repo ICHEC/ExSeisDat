@@ -12,49 +12,36 @@
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
 namespace PIOL {
-ExSeis::ExSeis(const Verbosity maxLevel)
-{
-    piol_ = std::make_shared<ExSeisPIOL>(maxLevel);
-}
 
-ExSeis::ExSeis(bool initComm, const Verbosity maxLevel)
-{
-    piol_ = std::make_shared<ExSeisPIOL>(initComm, maxLevel);
-}
-
-ExSeis::ExSeis(MPI_Comm comm, const Verbosity maxLevel)
-{
-    Comm::MPI::Opt copt;
-    copt.initMPI = false;
-    copt.comm = comm;
-    piol_ = std::make_shared<ExSeisPIOL>(copt, maxLevel);
-}
+ExSeis::ExSeis(const Verbosity maxLevel, MPI_Comm comm)
+    : ExSeisPIOL(maxLevel, Comm::MPI::Opt{comm})
+{ }
 
 ExSeis::~ExSeis() = default;
 
-size_t ExSeis::getRank(void)
+size_t ExSeis::getRank(void) const
 {
-    return piol_->comm->getRank();
+    return comm->getRank();
 }
 
-size_t ExSeis::getNumRank(void)
+size_t ExSeis::getNumRank(void) const
 {
-    return piol_->comm->getNumRank();
+    return comm->getNumRank();
 }
 
 void ExSeis::barrier(void) const
 {
-    piol_->comm->barrier();
+    comm->barrier();
 }
 
 size_t ExSeis::max(size_t n) const
 {
-    return piol_->comm->max(n);
+    return comm->max(n);
 }
 
-void ExSeis::isErr(std::string msg) const
+void ExSeis::isErr(const std::string& msg) const
 {
-    piol_->isErr(msg);
+    ExSeisPIOL::isErr(msg);
 }
 
 namespace File {

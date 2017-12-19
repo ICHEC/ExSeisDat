@@ -32,7 +32,7 @@ class Interface
 
     /*! \brief A virtual destructor to allow deletion.
      */
-    virtual ~Interface(void) { }
+    virtual ~Interface(void) = default;
 
     /*! \brief find out the file size.
      *  \return The file size in bytes.

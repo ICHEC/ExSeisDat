@@ -20,7 +20,8 @@ using namespace PIOL;
  */
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
+
     std::string name = "";
     size_t tn = 0LU;
     std::string opt = "i:t:";  //TODO: uses a GNU extension
@@ -37,12 +38,12 @@ int main(int argc, char ** argv)
                 std::cerr<< "One of the command line arguments is invalid\n";
             break;
         }
-    File::ReadDirect file(piol.piol(), name);
+    File::ReadDirect file(piol, name);
 
     File::Param prm(1LU);
     file->readParam(tn, 1LU, &prm);
 
-    if (!piol.getRank())
+    if (!piol->getRank())
     {
         std::cout << "xSrc " << File::getPrm<geom_t>(0LU, PIOL_META_xSrc, &prm) << std::endl;
         std::cout << "ySrc " << File::getPrm<geom_t>(0LU, PIOL_META_ySrc, &prm) << std::endl;

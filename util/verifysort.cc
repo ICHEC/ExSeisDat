@@ -13,7 +13,7 @@ using namespace File;
 
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
 
     std::string opt = "i:o:t:d";  //TODO: uses a GNU extension
     std::string name1 = "";
@@ -34,10 +34,10 @@ int main(int argc, char ** argv)
 
     assert(name1.size());
 
-    File::ReadDirect src(piol.piol(), name1);
+    File::ReadDirect src(piol, name1);
 
     //Perform the decomposition and read coordinates of interest.
-    auto dec = decompose(piol.piol().get(), src);
+    auto dec = decompose(piol.get(), src);
 
     if (checkOrder(src, dec, type))
         std::cout << "Success\n";

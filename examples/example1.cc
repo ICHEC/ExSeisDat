@@ -29,17 +29,17 @@ int main(int argc, char ** argv)
     assert(name.size() > 0);
 
     //Initialise the PIOL by creating an ExSeisPIOL object
-    ExSeis piol;
+    auto piol = ExSeis::New();
 
     //Create a SEGY file object
-    File::WriteDirect file(piol.piol(), name);
+    File::WriteDirect file(piol, name);
 
     //nt is the number of traces, ns the number of samples per trace
     size_t nt = 40000, ns = 1000;
     //inc is the increment step between traces (microseconds)
     double inc = 4.0;
 
-    auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
+    auto dec = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
