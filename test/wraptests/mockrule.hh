@@ -5,8 +5,7 @@
 #include "file/dynsegymd.hh"
 
 namespace PIOL {
-
-using namespace File;
+namespace File {
 
 class MockRule;
 ::testing::StrictMock<MockRule>& mockRule();
@@ -32,6 +31,7 @@ public:
     MOCK_METHOD2(getEntry, RuleEntry * (Rule*, Meta entry));
 };
 
+} // namespace File
 } // namespace PIOL
 
 #endif

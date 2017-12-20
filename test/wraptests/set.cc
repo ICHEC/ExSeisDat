@@ -5,13 +5,13 @@ namespace PIOL {
 Set::Set(
     std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_,
     std::shared_ptr<File::Rule> rule_):
-    cache(piol_)
+    rule(rule_), cache(piol_)
 {
     mockSet().ctor(this, piol_, pattern, outfix_, rule_);
 }
 
 Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_):
-    cache(piol_)
+    rule(rule_), cache(piol_)
 {
     mockSet().ctor(this, piol_, rule_);
 }

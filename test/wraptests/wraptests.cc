@@ -3,12 +3,17 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "mockparam.hh"
+#include "mockrule.hh"
+#include "mockexseis.hh"
+
 #include "exseiswraptest.hh"
 #include "rulewraptests.hh"
 #include "paramwraptests.hh"
 #include "getminmaxwraptests.hh"
 #include "readdirectwraptests.hh"
 #include "writedirectwraptests.hh"
+#include "setwraptests.hh"
 
 extern "C" {
 
@@ -50,6 +55,12 @@ void init_wraptests()
     test_PIOL_File_getMinMax(test_exseis, test_param);
     test_PIOL_File_ReadDirect(test_exseis, test_param);
     test_PIOL_File_WriteDirect(test_exseis, test_param);
+    test_PIOL_Set(test_exseis);
+
+    // Add cleanup
+    EXPECT_CALL(PIOL::File::mockParam(), dtor(EqDeref(test_param)));
+    EXPECT_CALL(PIOL::File::mockRule(),  dtor(EqDeref(test_rule)));
+    EXPECT_CALL(PIOL::mockExSeis(),      dtor(EqDeref(test_exseis)));
 }
 
 void wraptest_ok()

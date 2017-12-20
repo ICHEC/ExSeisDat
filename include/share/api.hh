@@ -16,8 +16,8 @@ typedef size_t PIOL_Meta;
 #ifdef __cplusplus
 namespace PIOL {
     typedef PIOL_Meta Meta;
-}
-#endif
+} // namespace PIOL
+#endif // __cplusplus
 
 /*! The available trace parameters
  */
@@ -72,8 +72,8 @@ typedef size_t PIOL_Tr;
 #ifdef __cplusplus
 namespace PIOL {
     typedef PIOL_Tr Tr;
-}
-#endif
+} // namespace PIOL
+#endif // __cplusplus
 
 #define PIOL_TR_SeqNum      ((PIOL_Tr) 1U)   //!< int32_t. The trace sequence number in the Line.
 #define PIOL_TR_SeqFNum     ((PIOL_Tr) 5U)   //!< int32_t. The trace sequence number in SEG-Y File.
@@ -124,8 +124,8 @@ typedef size_t PIOL_SortType;
 #ifdef __cplusplus
 namespace PIOL {
     typedef PIOL_SortType SortType;
-}
-#endif
+} // namespace PIOL
+#endif // __cplusplus
 
 #define PIOL_SORTTYPE_SrcRcv   ((PIOL_SortType) 35)   //!< Sort by source x, source y, receiver x, receiver y
 #define PIOL_SORTTYPE_SrcOff   ((PIOL_SortType) 36)   //!< Sort by source x, source y, calcuated offset
@@ -140,100 +140,67 @@ namespace PIOL {
 
 /*! An enum class of the different types of tapering windows.
  */
+typedef size_t PIOL_TaperType;
+
 #ifdef __cplusplus
 namespace PIOL {
-enum class TaperType : int
-#else
-typedef enum
-#endif
-{
-    Linear,     //!< Taper using a linear ramp
-    Cos,        //!< Taper using a cos ramp
-    CosSqr      //!< Taper using a cos^2 ramp
-#ifdef __cplusplus
-};
+    typedef PIOL_TaperType TaperType;
 } // namespace PIOL
-#else
-} TaperType;
-#endif
+#endif // __cplusplus
+
+#define PIOL_TAPERTYPE_Linear ((PIOL_TaperType) 44)  //!< Taper using a linear ramp
+#define PIOL_TAPERTYPE_Cos    ((PIOL_TaperType) 45)  //!< Taper using a cos ramp
+#define PIOL_TAPERTYPE_CosSqr ((PIOL_TaperType) 46)  //!< Taper using a cos^2 ramp
+
+
+/*! An enum class of the different types of automatic gain control functions.
+ */
+typedef size_t PIOL_AGCType;
+#ifdef __cplusplus
+namespace PIOL {
+    typedef PIOL_AGCType AGCType;
+} // namespace PIOL
+#endif // __cplusplus
+
+#define PIOL_AGCTYPE_RMS     ((PIOL_AGCType) 47)  //!< AGC using RMS with rectangular window
+#define PIOL_AGCTYPE_RMSTri  ((PIOL_AGCType) 48)  //!< AGC using RMS with triangular window
+#define PIOL_AGCTYPE_MeanAbs ((PIOL_AGCType) 49)  //!< AGC using mean absolute value with rectangular window
+#define PIOL_AGCTYPE_Median  ((PIOL_AGCType) 50)  //!< AGC using the median value
+
+
+#ifdef __cplusplus
+namespace PIOL {
 
 /*! An enum class of the different types of filters.
  */
-#ifdef __cplusplus
-namespace PIOL {
 enum class FltrType : int
-#else
-typedef enum
-#endif
 {
     Lowpass,    //!< Create Lowpass IIR Butterworth filter
     Highpass,   //!< Create Highpass IIR Butterworth filter
     Bandpass,   //!< Create Bandpass IIR Butterworth filter
     Bandstop    //!< Create Bandstop IIR Butterworth filter
-#ifdef __cplusplus
 };
-} // namespace PIOL
-#else
-} FltrType;
-#endif
 
 /*! An enum class of the different types of filtering domains.
  */
-#ifdef __cplusplus
-namespace PIOL {
 enum class FltrDmn : int
-#else
-typedef enum
-#endif
 {
     Time,    //!< Filter in time domain
     Freq     //!< Filter in frequency domain
-#ifdef __cplusplus
 };
-} // namespace PIOL
-#else
-} FltrDmn;
-#endif
 
 /*! An enum class of the different types of trace padding functions.
  */
-#ifdef __cplusplus
-namespace PIOL {
 enum class PadType : int
-#else
-typedef enum
-#endif
 {
     Zero,       //!< Pad using zeros
     Symmetric,  //!< Pad using reflection of trace
     Replicate,  //!< Pad using closest value in trace
     Cyclic      //!< Pad using values from other end of trace
-#ifdef __cplusplus
 };
 } // namespace PIOL
-#else
-} PadType;
-#endif
+#endif // __cplusplus
 
-/*! An enum class of the different types of automatic gain control functions.
- */
-#ifdef __cplusplus
-namespace PIOL {
-enum class AGCType : int
-#else
-typedef enum
-#endif
-{
-    RMS,       //!< AGC using RMS with rectangular window
-    RMSTri,    //!< AGC using RMS with triangular window
-    MeanAbs,   //!< AGC using mean absolute value with rectangular window
-    Median     //!< AGC using the median value
-#ifdef __cplusplus
-};
-} // namespace PIOL
-#else
-} AGCType;
-#endif
 
 /*! A structure to hold a reference to a single coordinate and
  * the corresponding trace number

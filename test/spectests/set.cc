@@ -344,39 +344,39 @@ TEST_F(SetTest, getActive3)
 
 TEST_F(SetTest, Taper2TailLin)
 {
-    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50, 60);
+    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, PIOL_TAPERTYPE_Linear, 50, 60);
 }
 
 TEST_F(SetTest, Taper1TailLin)
 {
-    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
+    taperTest(100, 200, 0, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, PIOL_TAPERTYPE_Linear, 50,0);
 }
 TEST_F(SetTest, Taper2TailCos)
 {
-    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, TaperType::Cos, 50, 60);
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, PIOL_TAPERTYPE_Cos, 50, 60);
 }
 
 TEST_F(SetTest, Taper1TailCos)
 {
-    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, TaperType::Cos, 50,0);
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return 0.5f + 0.5 * cos(pi*(wt-ramp)/ramp);}, PIOL_TAPERTYPE_Cos, 50,0);
 }
 TEST_F(SetTest, Taper2TailCosSq)
 {
-    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, TaperType::CosSqr, 50, 60);
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, PIOL_TAPERTYPE_CosSqr, 50, 60);
 }
 TEST_F(SetTest, Taper1TailCosSq)
 {
-    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, TaperType::CosSqr, 50, 0);
+    taperTest(100, 200, 0, [&](trace_t wt, trace_t ramp){return pow(0.5f + 0.5 * cos(pi*(wt-ramp)/ramp),2.0f);}, PIOL_TAPERTYPE_CosSqr, 50, 0);
 }
 
 TEST_F(SetTest, Taper2TailLinMute)
 {
-    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 25, 30);
+    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, PIOL_TAPERTYPE_Linear, 25, 30);
 }
 
 TEST_F(SetTest, Taper1TailLinMute)
 {
-    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, TaperType::Linear, 50,0);
+    taperTest(100, 200, 30, [](trace_t wt, trace_t ramp){return 1.0f - std::abs((wt-ramp)/ramp);}, PIOL_TAPERTYPE_Linear, 50,0);
 }
 
 TEST_F(SetTest, agcRMS)
@@ -390,7 +390,7 @@ TEST_F(SetTest, agcRMS)
             num = 1;
         return std::sqrt(amp/num);
     };
-    agcTest(100, 1000, AGCType::RMS, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, PIOL_AGCTYPE_RMS, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcRMSTri)
@@ -406,7 +406,7 @@ TEST_F(SetTest, agcRMSTri)
             num = 1;
         return std::sqrt(amp/num);
     };
-    agcTest(100, 1000, AGCType::RMSTri, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, PIOL_AGCTYPE_RMSTri, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMeanAbs)
@@ -421,7 +421,7 @@ TEST_F(SetTest, agcMeanAbs)
             num = 1;
         return std::abs(amp)/num;
     };
-    agcTest(100, 1000, AGCType::MeanAbs, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, PIOL_AGCTYPE_MeanAbs, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMedian)
@@ -434,7 +434,7 @@ TEST_F(SetTest, agcMedian)
         else
             return trc[window/2U];
     };
-    agcTest(100, 1000, AGCType::Median, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, PIOL_AGCTYPE_Median, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, FilterOneTailTime)

@@ -81,13 +81,13 @@ AGCFunc getAGCFunc(AGCType type)
     switch (type)
     {
         default :
-        case AGCType::RMS :
+        case PIOL_AGCTYPE_RMS :
             return AGCRMS;
-        case AGCType::RMSTri :
+        case PIOL_AGCTYPE_RMSTri :
             return AGCRMSTri;
-        case AGCType::MeanAbs :
+        case PIOL_AGCTYPE_MeanAbs :
             return AGCMeanAbs;
-        case AGCType::Median :
+        case PIOL_AGCTYPE_Median :
             return AGCMedian;
     }
 }

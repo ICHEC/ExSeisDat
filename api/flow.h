@@ -26,12 +26,6 @@ typedef struct PIOL_Set PIOL_Set;
 
 
 #ifdef __cplusplus
-// Need "using" for these enums for the C++ and C prototypes to match here.
-// TODO: rename SortType etc. to PIOL_SortType so including this header
-//     doesn't add SortType unnamespaced into the global scope.
-using PIOL::TaperType;
-using PIOL::AGCType;
-
 // Everything from here on is C API functions needing C linkage.
 extern "C"
 {
@@ -83,7 +77,7 @@ void PIOL_Set_sort_fn(
  * \param[in] ntpend The length of right-tail taper ramp (pass 0 for no ramp).
  */
 void PIOL_Set_taper(
-    PIOL_Set* set, TaperType type, size_t ntpstr, size_t ntpend
+    PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend
 );
 
 /*! Output using the given output prefix
@@ -115,7 +109,7 @@ void PIOL_Set_add(PIOL_Set* set, const char * name);
  * \param[in] window Length of the agc window
  * \param[in] normR Normalization value
  */
-void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, PIOL_trace_t normR);
+void PIOL_Set_AGC(PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR);
 
 #ifdef __cplusplus
 } // extern "C"

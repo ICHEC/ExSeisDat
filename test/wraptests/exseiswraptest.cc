@@ -16,17 +16,17 @@ std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
     EXPECT_CALL(mockExSeis(), ctor(_, PIOL_VERBOSITY_NONE, _))
         .WillOnce(SaveArg<0>(exseis_ptr));
 
-    std::pair<std::string, Verbosity> exseis_new_args[] = {
-        {"PIOL_VERBOSITY_NONE",     PIOL_VERBOSITY_NONE},
-        {"PIOL_VERBOSITY_MINIMAL",  PIOL_VERBOSITY_MINIMAL},
-        {"PIOL_VERBOSITY_EXTENDED", PIOL_VERBOSITY_EXTENDED},
-        {"PIOL_VERBOSITY_VERBOSE",  PIOL_VERBOSITY_VERBOSE},
-        {"PIOL_VERBOSITY_MAX",      PIOL_VERBOSITY_MAX},
+    const Verbosity verbosities[] = {
+        PIOL_VERBOSITY_NONE,
+        PIOL_VERBOSITY_MINIMAL,
+        PIOL_VERBOSITY_EXTENDED,
+        PIOL_VERBOSITY_VERBOSE,
+        PIOL_VERBOSITY_MAX
     };
 
-    for(auto args: exseis_new_args)
+    for(auto verbosity: verbosities)
     {
-        EXPECT_CALL(mockExSeis(), ctor(_, args.second, _));
+        EXPECT_CALL(mockExSeis(), ctor(_, verbosity, _));
     }
 
     EXPECT_CALL(mockExSeis(), getRank(_)).WillOnce(Return(0));

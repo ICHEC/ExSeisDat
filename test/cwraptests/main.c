@@ -10,7 +10,7 @@
 
 
 /* List of all the PIOL_Meta values */
-const PIOL_Meta meta_list[] = {
+const PIOL_Meta metas[] = {
     PIOL_META_COPY,
     PIOL_META_ltn,
     PIOL_META_gtn,
@@ -47,6 +47,47 @@ const PIOL_Meta meta_list[] = {
     PIOL_META_Misc3,
     PIOL_META_Misc4
 };
+
+
+/* List of all the PIOL_SortType values */
+const PIOL_SortType sort_types[] = {
+    PIOL_SORTTYPE_SrcRcv,
+    PIOL_SORTTYPE_SrcOff,
+    PIOL_SORTTYPE_SrcROff,
+    PIOL_SORTTYPE_RcvOff,
+    PIOL_SORTTYPE_RcvROff,
+    PIOL_SORTTYPE_LineOff,
+    PIOL_SORTTYPE_LineROff,
+    PIOL_SORTTYPE_OffLine,
+    PIOL_SORTTYPE_ROffLine
+};
+
+
+/* List of all the PIOL_TaperType values */
+const PIOL_TaperType taper_types[] = {
+    PIOL_TAPERTYPE_Linear,
+    PIOL_TAPERTYPE_Cos,
+    PIOL_TAPERTYPE_CosSqr
+};
+
+
+/* List of all the PIOL_AGCType values */
+const PIOL_AGCType agc_types[] = {
+    PIOL_TAPERTYPE_Linear,
+    PIOL_TAPERTYPE_Cos,
+    PIOL_TAPERTYPE_CosSqr
+};
+
+
+/* Functions for testing PIOL_Set_sort_fn */
+bool set_sort_function_true(const PIOL_File_Param* param, size_t i, size_t j) {
+    if(i == 840 && j == 850) wraptest_ok();
+    return true;
+}
+bool set_sort_function_false(const PIOL_File_Param* param, size_t i, size_t j) {
+    if(i == 860 && j == 870) wraptest_ok();
+    return false;
+}
 
 
 int main()
@@ -95,7 +136,7 @@ int main()
     PIOL_File_Rule* rule_tmp = PIOL_File_Rule_new(false);
 
     PIOL_File_Rule* rule_tmp2 = PIOL_File_Rule_new_from_list(
-        meta_list, sizeof(meta_list)/sizeof(meta_list[0])
+        metas, sizeof(metas)/sizeof(metas[0])
     );
     
     if(PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true)  wraptest_ok();
@@ -300,86 +341,51 @@ int main()
     PIOL_File_WriteDirect_delete(write_direct);
 
 
+    /*
+    ** Set
+    */
+    printf("Testing Set\n");
 
-    // /*! Initialise the set.
-    //  *  \param[in] piol The PIOL handle
-    //  *  \param[in] pattern The file-matching pattern
-    //  */
-    // PIOL_Set* PIOL_Set_new(PIOL_ExSeis* piol, const char * ptrn);
-    // 
-    // /*! Free (deinit) the set.
-    //  *  \param[in] s The set handle
-    //  */
-    // void PIOL_Set_delete(PIOL_Set* set);
-    // 
-    // /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
-    //  *  the collective min and max across all processes (which also must all call this file).
-    //  *  \param[in] s The set handle
-    //  *  \param[in] m1 The first parameter type
-    //  *  \param[in] m2 The second parameter type
-    //  *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
-    //  *  and their respective trace numbers.
-    //  */
-    // void PIOL_Set_getMinMax(
-    //     PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem * minmax
-    // );
-    // 
-    // /*! Sort the set by the specified sort type.
-    //  *  \param[in] s The set handle
-    //  *  \param[in] type The sort type
-    //  */
-    // void PIOL_Set_sort(PIOL_Set* set, PIOL_SortType type);
-    // 
-    // /*! Sort the set using a custom comparison function
-    //  *  \param[in] s A handle for the set.
-    //  *  \param[in] func The custom comparison function to sort set
-    //  */
-    // void PIOL_Set_sort_fn(
-    //     PIOL_Set* set,
-    //     bool (* func)(const PIOL_File_Param* param, size_t i, size_t j)
-    // );
-    // 
-    // /*! Preform tailed taper on a set of traces
-    //  * \param[in] s A handle for the set
-    //  * \param[in] type The type of taper to be applied to traces.
-    //  * \param[in] ntpstr The length of left-tail taper ramp.
-    //  * \param[in] ntpend The length of right-tail taper ramp (pass 0 for no ramp).
-    //  */
-    // void PIOL_Set_taper(
-    //     PIOL_Set* set, TaperType type, size_t ntpstr, size_t ntpend
-    // );
-    // 
-    // /*! Output using the given output prefix
-    //  *  \param[in] s The set handle
-    //  *  \param[in] oname The output prefix
-    //  */
-    // void PIOL_Set_output(PIOL_Set* set, const char * oname);
-    // 
-    // /*! Set the text-header of the output
-    //  *  \param[in] s The set handle
-    //  *  \param[in] outmsg The output message
-    //  */
-    // void PIOL_Set_text(PIOL_Set* set, const char * outmsg);
-    // 
-    // /*! Summarise the current status by whatever means the PIOL instrinsically supports
-    //  *  \param[in] s The set handle
-    //  */
-    // void PIOL_Set_summary(PIOL_Set* set);
-    // 
-    // /*! Add a file to the set based on the name given
-    //  *  \param[in] s The set handle
-    //  *  \param[in] name The input name
-    //  */
-    // void PIOL_Set_add(PIOL_Set* set, const char * name);
-    // 
-    // /*! Scale traces using automatic gain control for visualization
-    //  * \param[in] s The set handle
-    //  * \param[in] type They type of agc scaling function used
-    //  * \param[in] window Length of the agc window
-    //  * \param[in] normR Normalization value
-    //  */
-    // void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, PIOL_trace_t normR);
+    PIOL_Set* set = PIOL_Set_new(piol, "Test_Set_pattern*.segy");
 
+    struct PIOL_CoordElem set_coord_elem = {.val = 800.0, .num = 810};
+    PIOL_Set_getMinMax(set, PIOL_META_COPY, PIOL_META_COPY, &set_coord_elem);
+    if(
+        fabs(set_coord_elem.val -  820.0) < 1e-5
+        &&   set_coord_elem.num == 830
+    ) {
+        wraptest_ok();
+    }
+
+    for(size_t i=0; i<sizeof(sort_types)/sizeof(sort_types[0]); i++) {
+        PIOL_Set_sort(set, sort_types[i]);
+    }
+
+    PIOL_Set_sort_fn(set, set_sort_function_true);
+    PIOL_Set_sort_fn(set, set_sort_function_false);
+
+    for(size_t i=0; i<sizeof(taper_types)/sizeof(taper_types[0]); i++) {
+        PIOL_Set_taper(set, taper_types[i], 880, 890);
+    }
+
+    PIOL_Set_output(set, "Test_Set_output_name.segy");
+
+    PIOL_Set_text(set, "Test Set text");
+
+    PIOL_Set_summary(set);
+
+    PIOL_Set_add(set, "Test Set add");
+
+    for(size_t i=0; i<sizeof(agc_types)/sizeof(agc_types[0]); i++) {
+        PIOL_Set_AGC(set, agc_types[i], 900, 910.0);
+    }
+
+    PIOL_Set_delete(set);
+
+
+    PIOL_File_Param_delete(param);
+    PIOL_File_Rule_delete(rule);
+    PIOL_ExSeis_delete(piol);
 
     printf("cwraptests: Done!\n");
     return 0;

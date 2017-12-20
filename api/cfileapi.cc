@@ -566,14 +566,14 @@ void PIOL_Set_sort_fn(
 }
 
 void PIOL_Set_taper(
-    PIOL_Set* set, TaperType type, size_t ntpstr, size_t ntpend)
+    PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend)
 {
     assert(not_null(set));
 
     set->taper(type, ntpstr, ntpend);
 }
 
-void PIOL_Set_AGC(PIOL_Set* set, AGCType type, size_t window, PIOL_trace_t normR)
+void PIOL_Set_AGC(PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR)
 {
     assert(not_null(set));
 

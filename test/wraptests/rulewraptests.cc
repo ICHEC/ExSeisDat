@@ -17,7 +17,7 @@ std::shared_ptr<PIOL::File::Rule*> test_PIOL_File_Rule()
     EXPECT_CALL(mockRule(), ctor(_, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp_ptr));
 
-    std::vector<Meta> test_meta_values = {
+    const std::vector<Meta> metas = {
         PIOL_META_COPY,
         PIOL_META_ltn,
         PIOL_META_gtn,
@@ -54,8 +54,9 @@ std::shared_ptr<PIOL::File::Rule*> test_PIOL_File_Rule()
         PIOL_META_Misc3,
         PIOL_META_Misc4,
     };
+
     auto rule_tmp2_ptr = std::make_shared<Rule*>();
-    EXPECT_CALL(mockRule(), ctor(_, test_meta_values, true, false, false))
+    EXPECT_CALL(mockRule(), ctor(_, metas, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp2_ptr));
 
     EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(true));
