@@ -85,7 +85,7 @@ std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string 
         for (size_t j = 0; j < sortlist.size(); j++)
             sortlist[j] = trlist[i + sortlist[j]];
 
-        file.readParam(rblock, sortlist.data(), &prm2);
+        file.readParamNonContiguous(rblock, sortlist.data(), &prm2);
 
         for (size_t j = 0; j < rblock; j++)
         {
@@ -105,7 +105,7 @@ std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string 
 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
-        file.readParam(0LU, nullptr, nullptr);
+        file.readParamNonContiguous(0LU, nullptr, nullptr);
 
     piol->comm->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
@@ -169,7 +169,7 @@ void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::str
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        src.readTraceNonMono(rblock, &list[i], trc.data(), &prm);
+        src.readTraceNonMonotonic(rblock, &list[i], trc.data(), &prm);
         if (printDsr)
             for (size_t j = 0; j < rblock; j++)
                 setPrm(j, PIOL_META_dsdr, minrs[i+j], &prm);
@@ -178,7 +178,7 @@ void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::str
 
     for (size_t i = 0; i < extra; i++)
     {
-        src.readTrace(size_t(0), nullptr, nullptr, nullptr);
+        src.readTraceNonContiguous(size_t(0), nullptr, nullptr, nullptr);
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 

@@ -224,7 +224,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
 #warning Use non-monotonic call here
                 File::Param prm(rule, rblock);
 
-                in->readTrace(rblock, f->ilst.data() + i, trc.data(), &prm);
+                in->readTraceNonContiguous(rblock, f->ilst.data() + i, trc.data(), &prm);
                 std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
 
                 auto bIn = std::make_unique<TraceBlock>();
@@ -242,12 +242,12 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 }
 
                 auto bFinal = calcFunc(fCurr, fEnd, FuncOpt::SingleTrace, std::move(bIn));
-                out->writeTrace(rblock, sortlist.data(), bFinal->trc.data(), bFinal->prm.get());
+                out->writeTraceNonContiguous(rblock, sortlist.data(), bFinal->trc.data(), bFinal->prm.get());
             }
 
             for (size_t i = 0; i < extra; i++)
             {
-                in->readTrace(0, nullptr, nullptr, nullptr);
+                in->readTraceNonContiguous(0, nullptr, nullptr, nullptr);
 
                 auto bIn = std::make_unique<TraceBlock>();
                 bIn->prm.reset(new File::Param(rule, 0LU));
@@ -257,7 +257,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 bIn->inc = f->ifc->readInc();
 
                 calcFunc(fCurr, fEnd, FuncOpt::Gather, std::move(bIn));
-                out->writeTrace(0, nullptr, nullptr, nullptr);
+                out->writeTraceNonContiguous(0, nullptr, nullptr, nullptr);
             }
         }
     }
@@ -491,7 +491,7 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
         std::vector<File::Param> vprm;
         File::Param prm(rule, f->ilst.size());
 
-        f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm);
+        f->ifc->readParamNonContiguous(f->ilst.size(), f->ilst.data(), &prm);
 
         for (size_t i = 0; i < f->ilst.size(); i++)
         {

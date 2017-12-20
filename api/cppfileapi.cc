@@ -114,14 +114,14 @@ void WriteDirect::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const 
     file->writeTrace(offset, sz, trace, prm);
 }
 
-void ReadDirect::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void ReadDirect::readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
 {
-    file->readTrace(sz, offset, trace, prm);
+    file->readTraceNonContiguous(sz, offset, trace, prm);
 }
 
-void ReadDirect::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void ReadDirect::readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
 {
-    file->readTraceNonMono(sz, offset, trace, prm);
+    file->readTraceNonMonotonic(sz, offset, trace, prm);
 }
 
 ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name):
@@ -139,19 +139,19 @@ std::vector<trace_t> ReadModel::readModel(size_t gOffset, size_t numGather, Unir
     return std::dynamic_pointer_cast<File::Model3dInterface>(file)->readModel(gOffset, numGather, gather);
 }
 
-void WriteDirect::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
+void WriteDirect::writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
 {
-    file->writeTrace(sz, offset, trace, prm);
+    file->writeTraceNonContiguous(sz, offset, trace, prm);
 }
 
-void ReadDirect::readParam(csize_t sz, csize_t * offset, Param * prm) const
+void ReadDirect::readParamNonContiguous(csize_t sz, csize_t * offset, Param * prm) const
 {
-    file->readParam(sz, offset, prm);
+    file->readParamNonContiguous(sz, offset, prm);
 }
 
-void WriteDirect::writeParam(csize_t sz, csize_t * offset, const Param * prm)
+void WriteDirect::writeParamNonContiguous(csize_t sz, csize_t * offset, const Param * prm)
 {
-    file->writeParam(sz, offset, prm);
+    file->writeParamNonContiguous(sz, offset, prm);
 }
 
 void WriteDirect::writeText(const std::string text_)

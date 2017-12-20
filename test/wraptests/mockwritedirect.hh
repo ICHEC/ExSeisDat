@@ -32,14 +32,14 @@ public :
         void(WriteDirect*, csize_t offset, csize_t sz, const Param * prm)
     );
     MOCK_METHOD5(
-        writeTrace,
+        writeTraceNonContiguous,
         void(
             WriteDirect*,
             csize_t sz, csize_t * offset, trace_t * trace, const Param * prm
         )
     );
     MOCK_METHOD4(
-        writeParam,
+        writeParamNonContiguous,
         void(WriteDirect*, csize_t sz, csize_t * offset, const Param * prm)
     );
 };

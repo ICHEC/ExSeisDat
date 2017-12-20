@@ -42,7 +42,7 @@ public:
     );
 
     MOCK_CONST_METHOD5(
-        readTrace,
+        readTraceNonContiguous,
         void(
             const ReadDirect*,
             csize_t sz, csize_t * offset, trace_t * trace, Param * prm
@@ -50,7 +50,7 @@ public:
     );
 
     MOCK_CONST_METHOD5(
-        readTraceNonMono,
+        readTraceNonMonotonic,
         void(
             const ReadDirect*,
             csize_t sz, csize_t * offset, trace_t * trace, Param * prm
@@ -58,7 +58,7 @@ public:
     );
 
     MOCK_CONST_METHOD4(
-        readParam,
+        readParamNonContiguous,
         void(const ReadDirect*, csize_t sz, csize_t * offset, Param * prm)
     );
 };

@@ -120,7 +120,7 @@ class ReadInterface : public Interface
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const;
+    void readParamNonContiguous(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const;
 
     /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -129,7 +129,8 @@ class ReadInterface : public Interface
      *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
+    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace,
+                           Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array. Assumes Monotonic.
      *  \param[in] sz The number of traces to process
@@ -140,7 +141,9 @@ class ReadInterface : public Interface
      *
      *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
+    virtual void readTraceNonContiguous(
+        csize_t sz, csize_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array. Does not assume monotonic
      *  \param[in] sz The number of traces to process
@@ -151,7 +154,9 @@ class ReadInterface : public Interface
      *
      *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
+    virtual void readTraceNonMonotonic(
+        csize_t sz, csize_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const = 0;
 };
 
 /*! \brief The File layer interface. Specific File implementations
@@ -214,9 +219,9 @@ class WriteInterface : public Interface
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip = 0)
+    void writeParamNonContiguous(csize_t sz, csize_t * offset, const Param * prm, csize_t skip = 0)
     {
-        writeTrace(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+        writeTraceNonContiguous(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
     }
 
     /*! \brief Write the traces from offset to offset+sz
@@ -226,7 +231,9 @@ class WriteInterface : public Interface
      *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When writing, skip the first "skip" entries of prm
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) = 0;
+    virtual void writeTrace(
+        csize_t offset, csize_t sz, trace_t * trace,
+        const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) = 0;
 
     /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -239,7 +246,9 @@ class WriteInterface : public Interface
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) = 0;
+    virtual void writeTraceNonContiguous(
+        csize_t sz, csize_t * offset, trace_t * trace,
+        const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) = 0;
 };
 
 /*! \brief An intitial class for 3d volumes

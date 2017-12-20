@@ -16,9 +16,9 @@ void ReadInterface::readParam(csize_t offset, csize_t sz, Param * prm, csize_t s
     readTrace(offset, sz, const_cast<trace_t *>(TRACE_NULL), prm, skip);
 }
 
-void ReadInterface::readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip) const
+void ReadInterface::readParamNonContiguous(csize_t sz, csize_t * offsets, Param * prm, csize_t skip) const
 {
-    readTrace(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+    readTraceNonContiguous(sz, offsets, const_cast<trace_t *>(TRACE_NULL), prm, skip);
 }
 
 const std::string & ReadInterface::readText(void) const

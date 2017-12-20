@@ -62,11 +62,17 @@ class ReadSEGY : public ReadInterface
 
     size_t readNt(void) const;
 
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
+    void readTrace(
+        csize_t offset, csize_t sz, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
+    void readTraceNonContiguous(
+        csize_t sz, csize_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 
-    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
+    void readTraceNonMonotonic(
+        csize_t sz, csize_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
 };
 
 /*! A SEGY class for velocity models
@@ -174,7 +180,7 @@ class WriteSEGY : public WriteInterface
 
     void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
 
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
+    void writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
 };
 }}
 #endif

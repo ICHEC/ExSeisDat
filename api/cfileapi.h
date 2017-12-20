@@ -132,7 +132,7 @@ size_t PIOL_SEGSz_getMDSz(void);
 PIOL_File_Rule* PIOL_File_Rule_new(bool def);
 
 /*! Initialise a Rule structure from a list of Metas.
- * \param[in] m List of Meta values.
+ * \param[in] m List of Meta values (size n).
  * \param[in] n Number of elements in m
  */
 PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta * m, size_t n);
@@ -464,8 +464,8 @@ void PIOL_File_ReadDirect_readParam(
 /*! \brief Read the traces and trace parameters from offset to offset+sz.
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
- *  \param[in] sz The number of traces to process
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[in] sz The number of traces to process.
+ *  \param[out] trace A contiguous array of each trace (size sz*ns).
  *  \param[out] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readTrace(
@@ -477,7 +477,7 @@ void PIOL_File_ReadDirect_readTrace(
  *  \param[in] f A handle for the file.
  *  \param[in] offset The starting trace number.
  *  \param[in] sz The number of traces to process
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
+ *  \param[out] trace A contiguous array of each trace (size sz*ns).
  *  \param[in] prm A handle for the parameter structure.
  *  \warning This function is not thread safe.
  */
@@ -491,55 +491,61 @@ void PIOL_File_WriteDirect_writeTrace(
 
 /*! \brief Read the traces and trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
- *  \param[in] sz The number of traces to process
- *  \param[in] offset A list of trace numbers.
- *  \param[out] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[out] prm An array of the parameter structures (size
- *  sizeof(CParam)*sz) (pass NULL to ignore)
+ *  \param[in] sz The number of traces to process.
+ *  \param[in] offset A list of trace numbers (size sz).
+ *  \param[out] trace A contiguous array of each trace (size sz*ns).
+ *  \param[out] prm A handle for the parameter structure (pass NULL to ignore).
  */
-#warning TODO: add readTrace for non-contiguous
-//void PIOL_File_ReadDirect_readTrace(
-//    PIOL_File_ReadDirect* readDirect,
-//    size_t sz, size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
-//);
+void PIOL_File_ReadDirect_readTraceNonContiguous(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
+);
+
+/*! \brief Read the traces and trace parameters corresponding to the non-monotonic list of trace numbers.
+ *  \param[in] f A handle for the file.
+ *  \param[in] sz The number of traces to process.
+ *  \param[in] offset A non-monotonic list of trace numbers (size sz).
+ *  \param[out] trace A contiguous array of each trace (size sz*ns).
+ *  \param[out] prm A handle for the parameter structure (pass NULL to ignore).
+ */
+void PIOL_File_ReadDirect_readTraceNonMonotonic(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
+);
 
 /*! \brief Write the traces corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
- *  \param[in] sz The number of traces to process
- *  \param[in] offset A list of trace numbers.
- *  \param[in] trace A contiguous array of each trace (size sz*ns*sizeof(float))
- *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
- *      (pass NULL to ignore)
+ *  \param[in] sz The number of traces to process.
+ *  \param[in] offset A list of trace numbers (size sz).
+ *  \param[in] trace A contiguous array of each trace (size sz*ns).
+ *  \param[in] prm A handle to the parameter structure (pass NULL to ignore).
  */
-#warning TODO: add writeTrace for non-contiguous
-//void PIOL_File_WriteDirect_writeTrace(
-//    PIOL_File_WriteDirect* writeDirect,
-//    size_t sz, size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
-//);
+void PIOL_File_WriteDirect_writeTraceNonContiguous(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
+);
 
 /*! \brief Write the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
  *  \param[in] sz The number of traces to process
- *  \param[in] offset A list of trace numbers.
- *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *  \param[in] offset A list of trace numbers (size sz).
+ *  \param[in] prm An handle to the parameter structure.
  */
-#warning TODO: add writeParam for non-contiguous
-//void PIOL_File_WriteDirect_writeParam(
-//    PIOL_File_WriteDirect* writeDirect,
-//    size_t sz, size_t * offset, PIOL_File_Param* param
-//);
+void PIOL_File_WriteDirect_writeParamNonContiguous(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t sz, const size_t * offset, PIOL_File_Param* param
+);
 
 /*! \brief Read the trace parameters corresponding to the list of trace numbers.
  *  \param[in] f A handle for the file.
  *  \param[in] sz The number of traces to process
- *  \param[in] offset A list of trace numbers.
- *  \param[in] prm An array of the parameter structures (size sizeof(CParam)*sz)
+ *  \param[in] offset A list of trace numbers (size sz).
+ *  \param[in] prm An handle to the parameter structure.
  */
-#warning TODO: add readParam for non-contiguous
-//void PIOL_File_ReadDirect_readParam(
-//    PIOL_File_ReadDirect* readDirect,
-//    size_t sz, size_t * offset, PIOL_File_Param* param
-//);
+void PIOL_File_ReadDirect_readParamNonContiguous(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_File_Param* param
+);
 
 #ifdef DISABLED_OPTIONS
 /*

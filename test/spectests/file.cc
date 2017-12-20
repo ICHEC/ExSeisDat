@@ -41,9 +41,9 @@ struct FakeReadFile : public File::ReadInterface
     void readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm, size_t skip) const {}
     void readParam(csize_t offset, csize_t sz, File::Param * prm, size_t skip) const {}
 
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
-    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
-    void readParam(csize_t sz, csize_t * offset, File::Param * prm, size_t skip) const {}
+    void readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void readParamNonContiguous(csize_t sz, csize_t * offset, File::Param * prm, size_t skip) const {}
 };
 
 struct FakeWriteFile : public File::WriteInterface

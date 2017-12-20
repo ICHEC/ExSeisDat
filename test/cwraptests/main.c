@@ -81,11 +81,11 @@ const PIOL_AGCType agc_types[] = {
 
 /* Functions for testing PIOL_Set_sort_fn */
 bool set_sort_function_true(const PIOL_File_Param* param, size_t i, size_t j) {
-    if(i == 840 && j == 850) wraptest_ok();
+    if(param == NULL && i == 840 && j == 850) wraptest_ok();
     return true;
 }
 bool set_sort_function_false(const PIOL_File_Param* param, size_t i, size_t j) {
-    if(i == 860 && j == 870) wraptest_ok();
+    if(param == NULL && i == 860 && j == 870) wraptest_ok();
     return false;
 }
 
@@ -264,37 +264,61 @@ int main()
 
     PIOL_File_ReadDirect_readParam(read_direct, 630, 640, param);
 
-    //#warning TODO: add readParam for non-contiguous
-    //void PIOL_File_ReadDirect_readParam(
-    //    PIOL_File_ReadDirect* readDirect,
-    //    size_t sz, size_t * offset, PIOL_File_Param* param
-    //);
-
-    float* read_direct_trace = malloc(read_direct_ns*660*sizeof(float));
-    for(size_t i=0; i<read_direct_ns*660; i++) {
-        read_direct_trace[i] = 1.0*i;
+    size_t* read_direct_offsets = malloc(650*sizeof(size_t));
+    for(size_t i=0; i<650; i++) {
+        read_direct_offsets[i] = i;
     }
-    PIOL_File_ReadDirect_readTrace(
-        read_direct, 650, 660, read_direct_trace, param
+    PIOL_File_ReadDirect_readParamNonContiguous(
+        read_direct, 650, read_direct_offsets, param
     );
 
-    // readTrace sets trace[i] = 2*trace[i];
+    float* read_direct_trace = calloc(read_direct_ns*670, sizeof(float));
+    PIOL_File_ReadDirect_readTrace(
+        read_direct, 660, 670, read_direct_trace, param
+    );
+
+    // readTrace sets trace[i] = i;
     int read_direct_trace_ok = 1;
-    for(size_t i=0; i<read_direct_ns*600; i++) {
-        if(fabs(read_direct_trace[i] - 2.0*i) > 1e-5) {
+    for(size_t i=0; i<read_direct_ns*670; i++) {
+        if(fabs(read_direct_trace[i] - 1.0*i) > 1e-5) {
             read_direct_trace_ok = 0;
         }
     }
     if(read_direct_trace_ok == 1) wraptest_ok();
-
     free(read_direct_trace);
     read_direct_trace = NULL;
 
-    //#warning TODO: add readTrace for non-contiguous
-    //void PIOL_File_ReadDirect_readTrace(
-    //    PIOL_File_ReadDirect* readDirect,
-    //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
-    //);
+
+    read_direct_offsets = malloc(680*sizeof(size_t));
+    for(size_t i=0; i<680; i++) {
+        read_direct_offsets[i] = i;
+    }
+    read_direct_trace = calloc(read_direct_ns*680, sizeof(float));
+    PIOL_File_ReadDirect_readTraceNonContiguous(
+        read_direct, 680, read_direct_offsets, read_direct_trace, param
+    );
+    for(size_t i=0; i<read_direct_ns*680; i++) {
+        if(read_direct_trace[i] != i) read_direct_trace_ok = 0;
+    }
+    if(read_direct_trace_ok == 1) wraptest_ok();
+    free(read_direct_trace);
+    free(read_direct_offsets);
+
+    read_direct_offsets = malloc(690*sizeof(size_t));
+    for(size_t i=0; i<690; i++) {
+        read_direct_offsets[i] = i;
+    }
+    read_direct_trace = calloc(read_direct_ns*690, sizeof(float));
+    PIOL_File_ReadDirect_readTraceNonMonotonic(
+        read_direct, 690, read_direct_offsets, read_direct_trace, param
+    );
+    for(size_t i=0; i<read_direct_ns*690; i++) {
+        if(read_direct_trace[i] != i) read_direct_trace_ok = 0;
+    }
+    if(read_direct_trace_ok == 1) wraptest_ok();
+    free(read_direct_trace);
+    free(read_direct_offsets);
+
 
     PIOL_File_ReadDirect_delete(read_direct);
 
@@ -319,24 +343,37 @@ int main()
 
     PIOL_File_WriteDirect_writeParam(write_direct, 730, 740, param);
 
-    float* write_direct_trace = malloc(write_direct_ns*760*sizeof(float));
-    for(size_t i=0; i<write_direct_ns*760; i++) {
+    size_t* write_direct_offsets = malloc(750*sizeof(size_t));
+    for(size_t i=0; i<750; i++) {
+        write_direct_offsets[i] = i;
+    }
+    PIOL_File_WriteDirect_writeParamNonContiguous(
+        write_direct, 750, write_direct_offsets, param
+    );
+    free(write_direct_offsets);
+
+    float* write_direct_trace = malloc(write_direct_ns*770*sizeof(float));
+    for(size_t i=0; i<write_direct_ns*770; i++) {
         write_direct_trace[i] = 1.0*i;
     }
     PIOL_File_WriteDirect_writeTrace(
-        write_direct, 750, 760, write_direct_trace, param
+        write_direct, 760, 770, write_direct_trace, param
     );
+    free(write_direct_trace);
 
-    //#warning TODO: add writeTrace for non-contiguous
-    //void PIOL_File_WriteDirect_writeTrace(
-    //    PIOL_File_WriteDirect* writeDirect,
-    //    size_t sz, size_t * offset, float * trace, PIOL_File_Param* param
-    //);
-    //#warning TODO: add writeParam for non-contiguous
-    //void PIOL_File_WriteDirect_writeParam(
-    //    PIOL_File_WriteDirect* writeDirect,
-    //    size_t sz, size_t * offset, PIOL_File_Param* param
-    //);
+    write_direct_offsets = malloc(780*sizeof(size_t));
+    write_direct_trace = malloc(write_direct_ns*780*sizeof(float));
+    for(size_t i=0; i<780; i++) {
+        write_direct_offsets[i] = i;
+    }
+    for(size_t i=0; i<write_direct_ns*780; i++) {
+        write_direct_trace[i] = 1.0*i;
+    }
+    PIOL_File_WriteDirect_writeTraceNonContiguous(
+        write_direct, 780, write_direct_offsets, write_direct_trace, param
+    );
+    free(write_direct_trace);
+    free(write_direct_offsets);
 
     PIOL_File_WriteDirect_delete(write_direct);
 

@@ -201,7 +201,7 @@ void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Para
     nt = std::max(offset + sz, nt);
 }
 
-void WriteSEGY::writeTrace(csize_t sz, csize_t * offset, trace_t * trc, const Param * prm, csize_t skip)
+void WriteSEGY::writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trc, const Param * prm, csize_t skip)
 {
     if (!nsSet)
         piol->log->record(name, Log::Layer::File, Log::Status::Error,

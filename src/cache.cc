@@ -35,7 +35,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
         size_t c = 0LU;
         for (auto & f : desc)
         {
-            f->ifc->readParam(f->ilst.size(), f->ilst.data(), prm.get(), loff);
+            f->ifc->readParamNonContiguous(f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++)
             {
                 File::setPrm(loff+i, PIOL_META_gtn, off + loff + f->ilst[i], prm.get());

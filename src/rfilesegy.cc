@@ -55,7 +55,7 @@ ReadSEGYModel::ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::strin
 {
     std::vector<size_t> vlist = {0LU, 1LU, readNt() - 1LU};
     File::Param prm(vlist.size());
-    readParam(vlist.size(), vlist.data(), &prm);
+    readParamNonContiguous(vlist.size(), vlist.data(), &prm);
 
     llint il0 = File::getPrm<llint>(0LU, PIOL_META_il, &prm);
     llint xl0 = File::getPrm<llint>(0LU, PIOL_META_xl, &prm);
@@ -87,7 +87,8 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t offset, csize_t sz, const 
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
+    readTraceNonContiguous(
+        offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
     return trc;
 }
 
@@ -102,7 +103,8 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * offset, cons
                   + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
     }
 
-    readTrace(offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
+    readTraceNonContiguous(
+        offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
     return trc;
 }
 
@@ -183,12 +185,12 @@ void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trc, Param * prm,
     readTraceT(obj.get(), format, ns, offset, [offset] (size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);
 }
 
-void ReadSEGY::readTrace(csize_t sz, csize_t * offset, trace_t * trc, Param * prm, csize_t skip) const
+void ReadSEGY::readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trc, Param * prm, csize_t skip) const
 {
     readTraceT(obj.get(), format, ns, offset,  [offset] (size_t i) -> size_t { return offset[i]; }, sz, trc, prm, skip);
 }
 
-void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trc, Param * prm, csize_t skip) const
+void ReadSEGY::readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trc, Param * prm, csize_t skip) const
 {
     //Sort the initial offset and make a new offset without duplicates
     auto idx = getSortIndex(sz, offset);
@@ -201,8 +203,10 @@ void ReadSEGY::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trc, Par
     File::Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
     std::vector<trace_t> strc(ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
 
-    readTrace(nodups.size(), nodups.data(), (trc != TRACE_NULL ? strc.data() : trc),
-                                            (prm != PIOL_PARAM_NULL ? &sprm : prm), 0LU);
+    readTraceNonContiguous(
+        nodups.size(), nodups.data(),
+        (trc != TRACE_NULL ? strc.data() : trc),
+        (prm != PIOL_PARAM_NULL ? &sprm : prm), 0LU);
 
     if (prm != PIOL_PARAM_NULL)
         for (size_t n = 0, j = 0; j < sz; ++j)

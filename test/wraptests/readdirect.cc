@@ -48,21 +48,21 @@ void ReadDirect::readParam(csize_t offset, csize_t sz, Param * prm) const
     mockReadDirect().readParam(this, offset, sz, prm);
 }
 
-void ReadDirect::readTrace(
+void ReadDirect::readTraceNonContiguous(
     csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
 {
-    mockReadDirect().readTrace(this, sz, offset, trace, prm);
+    mockReadDirect().readTraceNonContiguous(this, sz, offset, trace, prm);
 }
 
-void ReadDirect::readTraceNonMono(
+void ReadDirect::readTraceNonMonotonic(
     csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
 {
-    mockReadDirect().readTraceNonMono(this, sz, offset, trace, prm);
+    mockReadDirect().readTraceNonMonotonic(this, sz, offset, trace, prm);
 }
 
-void ReadDirect::readParam(csize_t sz, csize_t * offset, Param * prm) const
+void ReadDirect::readParamNonContiguous(csize_t sz, csize_t * offset, Param * prm) const
 {
-    mockReadDirect().readParam(this, sz, offset, prm);
+    mockReadDirect().readParamNonContiguous(this, sz, offset, prm);
 }
 
 } // namespace PIOL

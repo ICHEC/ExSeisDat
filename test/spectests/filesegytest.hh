@@ -272,7 +272,7 @@ struct FileReadSEGYTest : public Test
                 .Times(Exactly(1))
                 .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        file->readTraceNonMono(tn, offset.data(), const_cast<trace_t *>(File::TRACE_NULL), &prm);
+        file->readTraceNonMonotonic(tn, offset.data(), const_cast<trace_t *>(File::TRACE_NULL), &prm);
 
         for (size_t i = 0; i < tn; i++)
         {
@@ -407,9 +407,9 @@ struct FileReadSEGYTest : public Test
         std::vector<float> bufnew(tn * ns);
         File::Param prm(tn);
         if (readPrm)
-            file->readTrace(tn, offset.data(), bufnew.data(), &prm);
+            file->readTraceNonContiguous(tn, offset.data(), bufnew.data(), &prm);
         else
-            file->readTrace(tn, offset.data(), bufnew.data());
+            file->readTraceNonContiguous(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
             if (readPrm && tn && ns)
@@ -781,9 +781,9 @@ struct FileWriteSEGYTest : public Test
         }
 
         if (writePrm)
-            file->writeTrace(tn, offset.data(), bufnew.data(), &prm);
+            file->writeTraceNonContiguous(tn, offset.data(), bufnew.data(), &prm);
         else
-            file->writeTrace(tn, offset.data(), bufnew.data());
+            file->writeTraceNonContiguous(tn, offset.data(), bufnew.data());
 
         if (MOCK == false)
         {
@@ -801,9 +801,9 @@ struct FileWriteSEGYTest : public Test
         std::vector<float> bufnew(tn * ns);
         File::Param prm(tn);
         if (readPrm)
-            readfile->readTrace(tn, offset.data(), bufnew.data(), &prm);
+            readfile->readTraceNonContiguous(tn, offset.data(), bufnew.data(), &prm);
         else
-            readfile->readTrace(tn, offset.data(), bufnew.data());
+            readfile->readTraceNonContiguous(tn, offset.data(), bufnew.data());
         for (size_t i = 0U; i < tn; i++)
         {
             if (readPrm && tn && ns)

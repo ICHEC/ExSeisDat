@@ -46,7 +46,7 @@ void calcMin(std::string iname, std::string oname)
     }
 
     Param tprm(usz);
-    in.readParam(usz, uniqlist.data(), &tprm);
+    in.readParamNonContiguous(usz, uniqlist.data(), &tprm);
 
     Param oprm(sz);
     std::vector<trace_t> trace(sz);

@@ -439,52 +439,62 @@ void PIOL_File_ReadDirect_readParam(
 }
 
 //List traces
-#warning TODO: Add readTrace non-contiguous
-//void PIOL_File_ReadDirect_readTrace(
-//    PIOL_File_ReadDirect* readDirect,
-//    size_t sz, size_t * offset, trace_t * trace,
-//    PIOL_File_Param* param
-//)
-//{
-//    if(param == NULL) {
-//        readDirect->readTrace(sz, offset, trace);
-//    } else {
-//        readDirect->readTrace(sz, offset, trace, param);
-//    }
-//        
-//}
+void PIOL_File_ReadDirect_readTraceNonContiguous(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
+{
+    if(param == NULL) {
+        readDirect->readTraceNonContiguous(sz, offset, trace);
+    } else {
+        readDirect->readTraceNonContiguous(sz, offset, trace, param);
+    }
 
-#warning TODO: Add writeTrace non-contiguous
-//void PIOL_File_WriteDirect_writeTrace(
-//    PIOL_File_WriteDirect* writeDirect,
-//    size_t sz, size_t * offset, trace_t * trace,
-//    PIOL_File_Param* param
-//)
-//{
-//    if(param == NULL) {
-//        writeDirect->writeTrace(sz, offset, trace);
-//    } else {
-//        writeDirect->writeTrace(sz, offset, trace, param);
-//    }
-//}
+}
 
-#warning TODO: add writeParam non-contiguous
-//void PIOL_File_WriteDirect_writeParam(
-//    PIOL_File_WriteDirect* writeDirect,
-//    size_t sz, size_t * offset, PIOL_File_Param* param
-//)
-//{
-//    writeDirect->writeParam( sz, offset, param);
-//}
+void PIOL_File_ReadDirect_readTraceNonMonotonic(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
+{
+    if(param == NULL) {
+        readDirect->readTraceNonMonotonic(sz, offset, trace);
+    } else {
+        readDirect->readTraceNonMonotonic(sz, offset, trace, param);
+    }
 
-#warning TODO: add readParam non-contiguous
-//void PIOL_File_ReadDirect_readParam(
-//    PIOL_File_ReadDirect* readDirect,
-//    size_t sz, size_t * offset, PIOL_File_Param* param
-//)
-//{
-//    readDirect->readParam(sz, offset, param);
-//}
+}
+
+void PIOL_File_WriteDirect_writeTraceNonContiguous(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
+{
+    if(param == NULL) {
+        writeDirect->writeTraceNonContiguous(sz, offset, trace);
+    } else {
+        writeDirect->writeTraceNonContiguous(sz, offset, trace, param);
+    }
+}
+
+void PIOL_File_WriteDirect_writeParamNonContiguous(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t sz, const size_t * offset, PIOL_File_Param* param
+)
+{
+    writeDirect->writeParamNonContiguous(sz, offset, param);
+}
+
+void PIOL_File_ReadDirect_readParamNonContiguous(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_File_Param* param
+)
+{
+    readDirect->readParamNonContiguous(sz, offset, param);
+}
 
 /////////////////////////////////////Operations///////////////////////////////
 

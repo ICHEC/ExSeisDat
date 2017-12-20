@@ -174,16 +174,16 @@ class ReadDirect
      *
      *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
-    void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to read.
      *  \param[out] prm The parameter structure
      */
-    void readParam(csize_t sz, csize_t * offset, Param * prm) const;
+    void readParamNonContiguous(csize_t sz, csize_t * offset, Param * prm) const;
 };
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
@@ -298,7 +298,7 @@ class WriteDirect
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
+    void writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -308,7 +308,7 @@ class WriteDirect
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParam(csize_t sz, csize_t * offset, const Param * prm);
+    void writeParamNonContiguous(csize_t sz, csize_t * offset, const Param * prm);
 };
 
 

@@ -50,15 +50,15 @@ void WriteDirect::writeParam(csize_t offset, csize_t sz, const Param * prm)
     mockWriteDirect().writeParam(this, offset, sz, prm);
 }
 
-void WriteDirect::writeTrace(
+void WriteDirect::writeTraceNonContiguous(
     csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
 {
-    mockWriteDirect().writeTrace(this, sz, offset, trace, prm);
+    mockWriteDirect().writeTraceNonContiguous(this, sz, offset, trace, prm);
 }
 
-void WriteDirect::writeParam(csize_t sz, csize_t * offset, const Param * prm)
+void WriteDirect::writeParamNonContiguous(csize_t sz, csize_t * offset, const Param * prm)
 {
-    mockWriteDirect().writeParam(this, sz, offset, prm);
+    mockWriteDirect().writeParamNonContiguous(this, sz, offset, prm);
 }
 
 } // namespace PIOL

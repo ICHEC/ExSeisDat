@@ -98,12 +98,12 @@ void writeRandom(ExSeis& piol, File::WriteDirect * file, size_t nt, size_t ns, s
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] = fhalf - std::abs(-fhalf + float((offset[i])*ns+j)) - off;
-        file->writeTrace(rblock, &offset[i], trc.data(), &prm);
+        file->writeTraceNonContiguous(rblock, &offset[i], trc.data(), &prm);
         piol.isErr();
     }
     for (size_t j = 0; j < extra; j++)
     {
-        file->writeTrace(0U, (size_t *)NULL, nullptr, PIOL_PARAM_NULL);
+        file->writeTraceNonContiguous(0U, nullptr, nullptr, PIOL_PARAM_NULL);
         piol.isErr();
     }
 }

@@ -33,10 +33,10 @@ class MockFile : public File::ReadInterface
     MOCK_METHOD1(writeInc, void(const geom_t));
 
     MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t, File::Param *, csize_t));
-    MOCK_CONST_METHOD4(readParam, void(csize_t, csize_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD4(readParamNonContiguous, void(csize_t, csize_t *, File::Param *, csize_t));
     MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t, trace_t *, File::Param *, csize_t));
-    MOCK_CONST_METHOD5(readTrace, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
-    MOCK_CONST_METHOD5(readTraceNonMono, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTraceNonContiguous, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
+    MOCK_CONST_METHOD5(readTraceNonMonotonic, void(csize_t, csize_t *, trace_t *, File::Param *, csize_t));
 };
 
 ACTION_P(cpyprm, src)
@@ -120,7 +120,7 @@ struct SetTest : public Test
                             setPrm(l, PIOL_META_tn, l+dec.first, tprm);
                             setPrm(l, PIOL_META_Offset, (xS-2000.)*(xS-2000.) + (2000.-yR)*(2000.-yR), tprm);
                         }
-                    EXPECT_CALL(*mock, readTrace(dec.second, An<csize_t *>(), _, _, 0))
+                    EXPECT_CALL(*mock, readTraceNonContiguous(dec.second, An<csize_t *>(), _, _, 0))
                                                 .Times(Exactly(1U))
                                                 .WillRepeatedly(cpyprm(&prm.back()));
 
@@ -172,7 +172,7 @@ struct SetTest : public Test
         EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
         EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
 
-        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+        EXPECT_CALL(*mock, readTraceNonContiguous(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
                     .Times(Exactly(1U))
                     .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
                                     SetArrayArgument<2>(trc.begin(), trc.end())));
@@ -213,7 +213,7 @@ struct SetTest : public Test
         std::vector<size_t> offsets(nt);
         std::iota(offsets.begin(), offsets.end(), 0U);
 
-        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+        EXPECT_CALL(*mock, readTraceNonContiguous(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
                     .Times(Exactly(1U))
                     .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
                                     SetArrayArgument<2>(trc.begin(), trc.end())));
@@ -284,7 +284,7 @@ struct SetTest : public Test
         std::vector<size_t> offsets(nt);
         std::iota(offsets.begin(), offsets.end(), 0U);
 
-        EXPECT_CALL(*mock, readTrace(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
+        EXPECT_CALL(*mock, readTraceNonContiguous(nt, A<csize_t *>(), A<trace_t *>(), A<File::Param *>(), 0U))
                     .Times(Exactly(1U))
                     .WillRepeatedly(DoAll(check1(offsets.data(), offsets.size()),
                                     SetArrayArgument<2>(trc.begin(), trc.end())));
