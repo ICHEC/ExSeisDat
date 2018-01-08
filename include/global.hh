@@ -40,7 +40,6 @@ namespace PIOL {
     typedef PIOL_trace_t trace_t;       //!< Real type for traces, use "*_t" convention
     typedef PIOL_geom_t  geom_t;        //!< Real type for geometry
     typedef double unit_t;              //!< Real type for physical, SI and math units
-    typedef const std::size_t csize_t;  //!< Short hand for a const size_t
 
     typedef std::complex<trace_t> cmtrace_t;              //!< Real type for traces, use "*_t" convention
     constexpr trace_t operator "" _t(long double x)

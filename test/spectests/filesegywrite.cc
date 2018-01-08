@@ -11,8 +11,8 @@ TEST_F(FileSEGYWrite, FileWriteHOLongString)
 {
     //Extend the string beyond the text boundary
     //Extended text should be dropped in write call
-    csize_t sz = testString.size();
-    csize_t extendSz = 3400U - sz;
+    const size_t sz = testString.size();
+    const size_t extendSz = 3400U - sz;
     testString.resize(sz + extendSz);
     for (size_t i = 3200U; i < sz+extendSz; i++)
         testString[i] = uchar(0x7F);

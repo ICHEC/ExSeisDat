@@ -35,7 +35,7 @@ class Uniray
      * \param[in] piol_ The PIOL object.
      * \param[in] sz_ The number of elements in the global array.
      */
-    Uniray(ExSeisPIOL * piol_, csize_t sz_) : piol(piol_), sz(sz_)
+    Uniray(ExSeisPIOL * piol_, const size_t sz_) : piol(piol_), sz(sz_)
     {
         rank = piol->comm->getRank();
         numRank = piol->comm->getNumRank();

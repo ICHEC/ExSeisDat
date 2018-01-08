@@ -259,18 +259,18 @@ size_t MPIIO::getFileSz() const
     return size_t(fsz);
 }
 
-void MPIIO::setFileSz(csize_t sz) const
+void MPIIO::setFileSz(const size_t sz) const
 {
     int err = MPI_File_set_size(file, MPI_Offset(sz));
     printErr(log, name, Log::Layer::Data, err, nullptr, "error setting the file size");
 }
 
-void MPIIO::read(csize_t offset, csize_t sz, uchar * d) const
+void MPIIO::read(const size_t offset, const size_t sz, uchar * d) const
 {
     contigIO((coll ? MPI_File_read_at_all : MPI_File_read_at), offset, sz, d, " non-collective read Failure\n");
 }
 
-void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
+void MPIIO::readv(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, uchar * d) const
 {
     if (nb*osz > size_t(maxSize))
     {
@@ -292,7 +292,7 @@ void MPIIO::readv(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * 
     MPI_Type_free(&view);
 }
 
-void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d) const
+void MPIIO::read(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, uchar * d) const
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -308,8 +308,8 @@ void MPIIO::read(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, uchar * d
 }
 
 
-void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
-                     uchar * d, std::string msg, csize_t bsz, csize_t osz) const
+void MPIIO::contigIO(const MFp<MPI_Status> fn, const size_t offset, const size_t sz,
+                     uchar * d, std::string msg, const size_t bsz, const size_t osz) const
 {
     MPI_Status stat;
     int err = MPI_SUCCESS;
@@ -334,7 +334,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz,
 }
 
 //Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
-void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const
+void MPIIO::listIO(const MFp<MPI_Status> fn, const size_t bsz, const size_t sz, const size_t * offset, uchar * d, std::string msg) const
 {
 //TODO: More accurately determine a real limit for setting a view.
 //      Is the problem strides that are too big?
@@ -363,17 +363,17 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * 
         }
 }
 
-void MPIIO::read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const
+void MPIIO::read(const size_t bsz, const size_t sz, const size_t * offset, uchar * d) const
 {
    listIO((coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d, "list read failure");
 }
 
-void MPIIO::write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const
+void MPIIO::write(const size_t bsz, const size_t sz, const size_t * offset, const uchar * d) const
 {
     listIO((coll ? mpiio_write_at_all : mpiio_write_at), bsz, sz, offset, const_cast<uchar *>(d), "list write failure");
 }
 
-void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
+void MPIIO::writev(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, const uchar * d) const
 {
     if (nb*osz > size_t(maxSize))
     {
@@ -395,12 +395,12 @@ void MPIIO::writev(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const u
     MPI_Type_free(&view);
 }
 
-void MPIIO::write(csize_t offset, csize_t sz, const uchar * d) const
+void MPIIO::write(const size_t offset, const size_t sz, const uchar * d) const
 {
     contigIO((coll ? mpiio_write_at_all : mpiio_write_at), offset, sz, const_cast<uchar *>(d), "Non-collective write failure.");
 }
 
-void MPIIO::write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const
+void MPIIO::write(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, const uchar * d) const
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"

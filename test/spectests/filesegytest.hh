@@ -76,22 +76,22 @@ class MockObj : public Obj::Interface
                : Obj::Interface(piol_, name_, data_) {}
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
     MOCK_CONST_METHOD1(readHO, void(uchar *));
-    MOCK_CONST_METHOD1(setFileSz, void(csize_t));
+    MOCK_CONST_METHOD1(setFileSz, void(const size_t));
     MOCK_CONST_METHOD1(writeHO, void(const uchar *));
-    MOCK_CONST_METHOD4(readDOMD, void(csize_t, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(writeDOMD, void(csize_t, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDOMD, void(const size_t, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(writeDOMD, void(const size_t, const size_t, const size_t, const uchar *));
 
-    MOCK_CONST_METHOD4(readDODF, void(csize_t, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(writeDODF, void(csize_t, csize_t, csize_t, const uchar *));
-    MOCK_CONST_METHOD4(readDO, void(csize_t, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(writeDO, void(csize_t, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDODF, void(const size_t, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(writeDODF, void(const size_t, const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD4(readDO, void(const size_t, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(writeDO, void(const size_t, const size_t, const size_t, const uchar *));
 
-    MOCK_CONST_METHOD4(readDO, void(csize_t *, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(writeDO, void(csize_t *, csize_t, csize_t, const uchar *));
-    MOCK_CONST_METHOD4(readDODF, void(csize_t *, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(writeDODF, void(csize_t *, csize_t, csize_t, const uchar *));
-    MOCK_CONST_METHOD4(readDOMD, void(csize_t *, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(writeDOMD, void(csize_t *, csize_t, csize_t, const uchar *));
+    MOCK_CONST_METHOD4(readDO, void(const size_t *, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(writeDO, void(const size_t *, const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD4(readDODF, void(const size_t *, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(writeDODF, void(const size_t *, const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD4(readDOMD, void(const size_t *, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(writeDOMD, void(const size_t *, const size_t, const size_t, const uchar *));
 };
 
 struct FileReadSEGYTest : public Test
@@ -104,7 +104,7 @@ struct FileReadSEGYTest : public Test
     size_t nt = 40U;
     size_t ns = 200U;
     int inc = 10;
-    csize_t format = 5;
+    const size_t format = 5;
     std::vector<uchar> ho = std::vector<uchar>(SEGSz::getHOSz());
     std::shared_ptr<MockObj> mock;
 
@@ -268,7 +268,7 @@ struct FileReadSEGYTest : public Test
         std::mt19937 mt(rand());
         std::shuffle(offset.begin(), offset.end(), mt);
 
-        EXPECT_CALL(*mock.get(), readDOMD(A<csize_t *>(), ns, tn, _))
+        EXPECT_CALL(*mock.get(), readDOMD(A<const size_t *>(), ns, tn, _))
                 .Times(Exactly(1))
                 .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
@@ -293,7 +293,7 @@ struct FileReadSEGYTest : public Test
     }
 
     template <bool readPrm = false, bool MOCK = true, bool RmRule = false>
-    void readTraceTest(csize_t offset, size_t tn)
+    void readTraceTest(const size_t offset, size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
         std::vector<uchar> buf;
@@ -446,7 +446,7 @@ struct FileWriteSEGYTest : public Test
     size_t nt = 40U;
     size_t ns = 200U;
     int inc = 10;
-    csize_t format = 5;
+    const size_t format = 5;
     std::vector<uchar> ho = std::vector<uchar>(SEGSz::getHOSz());
     std::unique_ptr<File::WriteDirect> file = nullptr;
     std::unique_ptr<File::ReadDirect> readfile;
@@ -623,7 +623,7 @@ struct FileWriteSEGYTest : public Test
     }
 
     template <bool writePrm = false, bool MOCK = true>
-    void writeTraceTest(csize_t offset, csize_t tn)
+    void writeTraceTest(const size_t offset, const size_t tn)
     {
         std::vector<uchar> buf;
         if (MOCK)
@@ -692,7 +692,7 @@ struct FileWriteSEGYTest : public Test
     }
 
     template <bool readPrm = false>
-    void readTraceTest(csize_t offset, csize_t tn)
+    void readTraceTest(const size_t offset, const size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
         std::vector<trace_t> bufnew(tn * ns);
@@ -828,7 +828,7 @@ struct FileWriteSEGYTest : public Test
     }
 
     template <bool Copy>
-    void writeTraceHeaderTest(csize_t offset, csize_t tn)
+    void writeTraceHeaderTest(const size_t offset, const size_t tn)
     {
         const bool MOCK = true;
         std::vector<uchar> buf;

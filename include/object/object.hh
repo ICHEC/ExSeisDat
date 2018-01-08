@@ -44,7 +44,7 @@ class Interface
     /*! \brief Set the file size.
      *  \param[in] sz The size in bytes
      */
-    virtual void setFileSz(csize_t sz) const;
+    virtual void setFileSz(const size_t sz) const;
 
     /*! \brief Read the header object.
      *  \param[out] ho An array which the caller guarantees is long enough
@@ -64,7 +64,7 @@ class Interface
      *  \param[out] md An array which the caller guarantees is long enough for
      *  the DO metadata.
      */
-    virtual void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const = 0;
+    virtual void readDOMD(const size_t offset, const size_t ns, const size_t sz, uchar * md) const = 0;
 
     /*! \brief Write the data-object metadata.
      *  \param[in] offset The starting data-object we are interested in.
@@ -73,7 +73,7 @@ class Interface
      *  \param[in] md An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
+    virtual void writeDOMD(const size_t offset, const size_t ns, const size_t sz, const uchar * md) const = 0;
 
     /*! \brief Read a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
@@ -82,7 +82,7 @@ class Interface
      *  \param[out] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const = 0;
+    virtual void readDODF(const size_t offset, const size_t ns, const size_t sz, uchar * df) const = 0;
 
     /*! \brief Write a sequence of data-fields.
      *  \param[in] offset The starting data-object we are interested in.
@@ -91,7 +91,7 @@ class Interface
      *  \param[in] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const = 0;
+    virtual void writeDODF(const size_t offset, const size_t ns, const size_t sz, const uchar * df) const = 0;
 
     /*! \brief Read a sequence of data-objects.
      *  \param[in] offset The starting data-object we are interested in.
@@ -100,7 +100,7 @@ class Interface
      *  \param[out] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const = 0;
+    virtual void readDO(const size_t offset, const size_t ns, const size_t sz, uchar * d) const = 0;
 
     /*! \brief Write a sequence of data-objects.
      *  \param[in] offset The starting data-object we are interested in.
@@ -109,7 +109,7 @@ class Interface
      *  \param[in] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const = 0;
+    virtual void writeDO(const size_t offset, const size_t ns, const size_t sz, const uchar * d) const = 0;
 
     /*! \brief Read a list of data-objects.
      *  \param[in] offset An array of the starting data-objects we are interested in
@@ -118,7 +118,7 @@ class Interface
      *  \param[out] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void readDO(csize_t * offset, csize_t ns, csize_t sz, uchar * d) const = 0;
+    virtual void readDO(const size_t * offset, const size_t ns, const size_t sz, uchar * d) const = 0;
 
     /*! \brief Write a list of data-objects.
      *  \param[in] ns The number of elements per data field.
@@ -127,7 +127,7 @@ class Interface
      *  \param[in] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void writeDO(csize_t * offset, csize_t ns, csize_t sz, const uchar * d) const = 0;
+    virtual void writeDO(const size_t * offset, const size_t ns, const size_t sz, const uchar * d) const = 0;
 
     /*! \brief read a list of data-object metadata blocks.
      *  \param[in] offset an array of the starting data-objects we are interested in
@@ -136,7 +136,7 @@ class Interface
      *  \param[out] md an array which the caller guarantees is long enough for
      *  the metadata blocks.
      */
-    virtual void readDOMD(csize_t * offset, csize_t ns, csize_t sz, uchar * md) const = 0;
+    virtual void readDOMD(const size_t * offset, const size_t ns, const size_t sz, uchar * md) const = 0;
 
     /*! \brief Write a list of data-object metadata blocks.
      *  \param[in] offset An array of the starting data-object we are interested in.
@@ -145,7 +145,7 @@ class Interface
      *  \param[in] md An array which the caller guarantees is long enough for
      *  the metadata blocks.
      */
-    virtual void writeDOMD(csize_t * offset, csize_t ns, csize_t sz, const uchar * md) const = 0;
+    virtual void writeDOMD(const size_t * offset, const size_t ns, const size_t sz, const uchar * md) const = 0;
 
     /*! \brief Read a list of data-fields.
      *  \param[in] offset An array of the starting data-objects we are interested in
@@ -154,7 +154,7 @@ class Interface
      *  \param[out] df An array which the caller guarantees is long enough for
      *  the data-fields.
      */
-    virtual void readDODF(csize_t * offset, csize_t ns, csize_t sz, uchar * df) const = 0;
+    virtual void readDODF(const size_t * offset, const size_t ns, const size_t sz, uchar * df) const = 0;
 
     /*! \brief Write a list of data-fields
      *  \param[in] offset An array of the starting data-object we are interested in.
@@ -163,7 +163,7 @@ class Interface
      *  \param[in] df An array which the caller guarantees is long enough for
      *  the data-fields.
      */
-    virtual void writeDODF(csize_t * offset, csize_t ns, csize_t sz, const uchar * df) const = 0;
+    virtual void writeDODF(const size_t * offset, const size_t ns, const size_t sz, const uchar * df) const = 0;
 };
 }}
 #endif

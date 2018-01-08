@@ -11,12 +11,12 @@ namespace PIOL { namespace File {
 const trace_t * TRACE_NULL = (trace_t *)1;
 
 //TODO: Unit test
-void ReadInterface::readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip) const
+void ReadInterface::readParam(const size_t offset, const size_t sz, Param * prm, const size_t skip) const
 {
     readTrace(offset, sz, const_cast<trace_t *>(TRACE_NULL), prm, skip);
 }
 
-void ReadInterface::readParamNonContiguous(csize_t sz, csize_t * offsets, Param * prm, csize_t skip) const
+void ReadInterface::readParamNonContiguous(const size_t sz, const size_t * offsets, Param * prm, const size_t skip) const
 {
     readTraceNonContiguous(sz, offsets, const_cast<trace_t *>(TRACE_NULL), prm, skip);
 }

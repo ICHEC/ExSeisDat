@@ -5,7 +5,7 @@
 #include "cppfileapi.hh"
 
 namespace PIOL {
-using namespace File;
+namespace File {
 
 class MockReadDirect;
 ::testing::StrictMock<MockReadDirect>& mockReadDirect();
@@ -32,20 +32,20 @@ public:
         readTrace,
         void(
             const ReadDirect*,
-            csize_t offset, csize_t sz, trace_t * trace, Param * prm
+            const size_t offset, const size_t sz, trace_t * trace, Param * prm
         )
     );
 
     MOCK_CONST_METHOD4(
         readParam,
-        void(const ReadDirect*, csize_t offset, csize_t sz, Param * prm)
+        void(const ReadDirect*, const size_t offset, const size_t sz, Param * prm)
     );
 
     MOCK_CONST_METHOD5(
         readTraceNonContiguous,
         void(
             const ReadDirect*,
-            csize_t sz, csize_t * offset, trace_t * trace, Param * prm
+            const size_t sz, const size_t * offset, trace_t * trace, Param * prm
         )
     );
 
@@ -53,16 +53,17 @@ public:
         readTraceNonMonotonic,
         void(
             const ReadDirect*,
-            csize_t sz, csize_t * offset, trace_t * trace, Param * prm
+            const size_t sz, const size_t * offset, trace_t * trace, Param * prm
         )
     );
 
     MOCK_CONST_METHOD4(
         readParamNonContiguous,
-        void(const ReadDirect*, csize_t sz, csize_t * offset, Param * prm)
+        void(const ReadDirect*, const size_t sz, const size_t * offset, Param * prm)
     );
 };
 
+} // namespace File
 } // namespace PIOL
 
 #endif

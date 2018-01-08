@@ -27,7 +27,7 @@ static bool isGoodChar(char s)
  *  \param[in] sz The size of the string.
  *  \return The number of standard characters in the string.
  */
-static size_t getCount(const char * src, csize_t sz)
+static size_t getCount(const char * src, const size_t sz)
 {
     size_t count = 0;
     for (size_t i = 0; i < sz; i++)
@@ -36,7 +36,7 @@ static size_t getCount(const char * src, csize_t sz)
 }
 
 //Do conversion, if more printable letters and spaces etc post-conversion use it.
-void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src)
+void getAscii(ExSeisPIOL * piol, const std::string file, const size_t sz, uchar * src)
 {
 #ifdef __APPLE__
 #warning ICONV doesnt have EBCDICUS on OSX

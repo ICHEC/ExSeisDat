@@ -18,7 +18,7 @@
 
 using namespace testing;
 using namespace PIOL;
-extern size_t modifyNt(csize_t fs, csize_t offset, csize_t nt, csize_t ns);
+extern size_t modifyNt(const size_t fs, const size_t offset, const size_t nt, const size_t ns);
 
 class MPIIOTest : public Test
 {
@@ -37,7 +37,7 @@ class MPIIOTest : public Test
         data = std::make_shared<Data::MPIIO>(piol, name, mode);
     }
 
-    void makeTestSz(csize_t sz)
+    void makeTestSz(const size_t sz)
     {
         makeMPIIO<true>(tempFile);
         data->setFileSz(sz);
@@ -48,7 +48,7 @@ class MPIIOTest : public Test
     }
 
     template <bool block>
-    void writeSmallBlocks(size_t nt, csize_t ns, csize_t offset = 0)
+    void writeSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
         size_t step = (block ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
         std::vector<uchar> tr(step*nt);
@@ -69,7 +69,7 @@ class MPIIOTest : public Test
     }
 
     template <bool block>
-    void writeBigBlocks(size_t nt, csize_t ns, csize_t offset = 0)
+    void writeBigBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
         size_t step = (block ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns));
         std::vector<uchar> tr(step*nt);
@@ -98,7 +98,7 @@ class MPIIOTest : public Test
     }
 
     template <bool block>
-    void readSmallBlocks(size_t nt, csize_t ns, csize_t offset = 0)
+    void readSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
         size_t step = (block ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
         std::vector<uchar> tr(step*nt);
@@ -118,7 +118,7 @@ class MPIIOTest : public Test
     }
 
     template <bool block>
-    void readBigBlocks(size_t nt, csize_t ns, csize_t offset = 0)
+    void readBigBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
         size_t step = (block ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns));
         std::vector<uchar> tr(step*nt);
@@ -144,7 +144,7 @@ class MPIIOTest : public Test
         }
     }
 
-    void writeList(csize_t sz, csize_t ns)
+    void writeList(const size_t sz, const size_t ns)
     {
         auto offset = getRandomVec(sz, 1337);
         size_t bsz = SEGSz::getDFSz(ns);
@@ -171,7 +171,7 @@ class MPIIOTest : public Test
         readList(sz, ns, offset.data());
     }
 
-    void readList(csize_t sz, csize_t ns, csize_t * offset)
+    void readList(const size_t sz, const size_t ns, const size_t * offset)
     {
         size_t bsz = SEGSz::getDFSz(ns);
         std::vector<uchar> d(bsz*sz);

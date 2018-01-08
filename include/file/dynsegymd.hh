@@ -67,7 +67,7 @@ struct RuleEntry
      *  \param[in] num_ The numth rule of the given type for indexing
      *  \param[in] loc_ The location of the primary data
      */
-    RuleEntry(csize_t num_, csize_t loc_) : num(num_), loc(loc_) { }
+    RuleEntry(const size_t num_, const size_t loc_) : num(num_), loc(loc_) { }
 
     /*! Virtual destructor to allow overriding by derived classes.
      */
@@ -440,7 +440,7 @@ T getPrm(size_t i, Meta entry, const Param * prm)
  *  \param[in] prm The parameter structure
  */
 template <typename T>
-void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
+void setPrm(const size_t i, const Meta entry, T ret, Param * prm)
 {
     Rule * r = prm->r.get();
     RuleEntry * id = r->getEntry(entry);
@@ -467,6 +467,6 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
  * \param[in] k The trace number of the destination.
  * \param[out] dst The destination parameter structure.
  */
-void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst);
+void cpyPrm(const size_t j, const Param * src, const size_t k, Param * dst);
 }}
 #endif

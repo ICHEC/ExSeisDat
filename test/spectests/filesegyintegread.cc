@@ -1,11 +1,11 @@
 #include "filesegytest.hh"
 
-csize_t largens = 1000U;
-csize_t largent = 2000000U;
-csize_t bigtns = 32000U;
-csize_t bigtnt = 40000U;
-csize_t smallns = 261U;
-csize_t smallnt = 400U;
+const size_t largens = 1000U;
+const size_t largent = 2000000U;
+const size_t bigtns = 32000U;
+const size_t bigtnt = 40000U;
+const size_t smallns = 261U;
+const size_t smallnt = 400U;
 
 //Read test of File::SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileSEGYIntegRead, SEGYReadHO)

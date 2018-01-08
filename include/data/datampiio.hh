@@ -49,7 +49,7 @@ class MPIIO : public Interface
      *  \param[in] sz     The number of blocks
      *  \param[out] d     The array to store the output in
      */
-    void readv(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
+    void readv(const size_t offset, const size_t bsz, const size_t osz, const size_t sz, uchar * d) const;
 
     /*! Write a file using MPI-IO views. This function does not handle the integer limit
      *  \param[in] offset The offset in bytes from the current internal shared pointer
@@ -58,7 +58,7 @@ class MPIIO : public Interface
      *  \param[in] sz     The number of blocks
      *  \param[in] d      The array to read data output from
      */
-    void writev(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, const uchar * d) const;
+    void writev(const size_t offset, const size_t bsz, const size_t osz, const size_t sz, const uchar * d) const;
 
     /*! \brief The MPI-IO Init function.
      *  \param[in] opt  The MPI-IO options
@@ -76,8 +76,8 @@ class MPIIO : public Interface
      *  \param[in] bsz The block size in bytes (if not contiguous)
      *  \param[in] osz The stride size in bytes (block start to block start)
      */
-    void contigIO(const MFp<MPI_Status> fn, csize_t offset, csize_t sz, uchar * d, std::string msg,
-                                                            csize_t bsz = 1U, csize_t osz = 1U) const;
+    void contigIO(const MFp<MPI_Status> fn, const size_t offset, const size_t sz, uchar * d, std::string msg,
+                                                            const size_t bsz = 1U, const size_t osz = 1U) const;
 
     /*! \brief Perform I/O on blocks of data where each block starts at the location specified by an array of offsets.
      *  \param[in] fn The MPI-IO style function to perform the I/O with
@@ -87,7 +87,7 @@ class MPIIO : public Interface
      *  \param[in, out] d The array to get the input from or store the output in.
      *  \param[in] msg The message to be written if there is an error
      */
-    void listIO(const MFp<MPI_Status> fn, csize_t bsz, csize_t sz, csize_t * offset, uchar * d, std::string msg) const;
+    void listIO(const MFp<MPI_Status> fn, const size_t bsz, const size_t sz, const size_t * offset, uchar * d, std::string msg) const;
 
     public :
 
@@ -110,19 +110,19 @@ class MPIIO : public Interface
 
     size_t getFileSz() const;
 
-    void setFileSz(csize_t sz) const;
+    void setFileSz(const size_t sz) const;
 
-    void read(csize_t offset, csize_t sz, uchar * d) const;
+    void read(const size_t offset, const size_t sz, uchar * d) const;
 
-    void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const;
+    void read(const size_t offset, const size_t bsz, const size_t osz, const size_t sz, uchar * d) const;
 
-    void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const;
+    void read(const size_t bsz, const size_t sz, const size_t * offset, uchar * d) const;
 
-    void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const;
+    void write(const size_t bsz, const size_t sz, const size_t * offset, const uchar * d) const;
 
-    void write(csize_t offset, csize_t sz, const uchar * d) const;
+    void write(const size_t offset, const size_t sz, const uchar * d) const;
 
-    void write(csize_t offset, csize_t bsz, csize_t osz, csize_t nb, const uchar * d) const;
+    void write(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, const uchar * d) const;
 };
 }}
 #endif

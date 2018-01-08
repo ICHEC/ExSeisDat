@@ -94,32 +94,32 @@ geom_t ReadDirect::readInc(void) const
     return file->readInc();
 }
 
-void ReadDirect::readParam(csize_t offset, csize_t sz, Param * prm) const
+void ReadDirect::readParam(const size_t offset, const size_t sz, Param * prm) const
 {
     file->readParam(offset, sz, prm);
 }
 
-void WriteDirect::writeParam(csize_t offset, csize_t sz, const Param * prm)
+void WriteDirect::writeParam(const size_t offset, const size_t sz, const Param * prm)
 {
     file->writeParam(offset, sz, prm);
 }
 
-void ReadDirect::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
+void ReadDirect::readTrace(const size_t offset, const size_t sz, trace_t * trace, Param * prm) const
 {
     file->readTrace(offset, sz, trace, prm);
 }
 
-void WriteDirect::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm)
+void WriteDirect::writeTrace(const size_t offset, const size_t sz, trace_t * trace, const Param * prm)
 {
     file->writeTrace(offset, sz, trace, prm);
 }
 
-void ReadDirect::readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void ReadDirect::readTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, Param * prm) const
 {
     file->readTraceNonContiguous(sz, offset, trace, prm);
 }
 
-void ReadDirect::readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void ReadDirect::readTraceNonMonotonic(const size_t sz, const size_t * offset, trace_t * trace, Param * prm) const
 {
     file->readTraceNonMonotonic(sz, offset, trace, prm);
 }
@@ -139,17 +139,17 @@ std::vector<trace_t> ReadModel::readModel(size_t gOffset, size_t numGather, Unir
     return std::dynamic_pointer_cast<File::Model3dInterface>(file)->readModel(gOffset, numGather, gather);
 }
 
-void WriteDirect::writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
+void WriteDirect::writeTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, const Param * prm)
 {
     file->writeTraceNonContiguous(sz, offset, trace, prm);
 }
 
-void ReadDirect::readParamNonContiguous(csize_t sz, csize_t * offset, Param * prm) const
+void ReadDirect::readParamNonContiguous(const size_t sz, const size_t * offset, Param * prm) const
 {
     file->readParamNonContiguous(sz, offset, prm);
 }
 
-void WriteDirect::writeParamNonContiguous(csize_t sz, csize_t * offset, const Param * prm)
+void WriteDirect::writeParamNonContiguous(const size_t sz, const size_t * offset, const Param * prm)
 {
     file->writeParamNonContiguous(sz, offset, prm);
 }

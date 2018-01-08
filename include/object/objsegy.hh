@@ -50,29 +50,29 @@ class SEGY : public Interface
 
     void writeHO(const uchar * ho) const;
 
-    void readDOMD(csize_t offset, csize_t ns, csize_t sz, uchar * md) const;
+    void readDOMD(const size_t offset, const size_t ns, const size_t sz, uchar * md) const;
 
-    void writeDOMD(csize_t offset, csize_t ns, csize_t sz, const uchar * md) const;
+    void writeDOMD(const size_t offset, const size_t ns, const size_t sz, const uchar * md) const;
 
-    void readDODF(csize_t offset, csize_t ns, csize_t sz, uchar * df) const;
+    void readDODF(const size_t offset, const size_t ns, const size_t sz, uchar * df) const;
 
-    void writeDODF(csize_t offset, csize_t ns, csize_t sz, const uchar * df) const;
+    void writeDODF(const size_t offset, const size_t ns, const size_t sz, const uchar * df) const;
 
-    void readDO(csize_t offset, csize_t ns, csize_t sz, uchar * d) const;
+    void readDO(const size_t offset, const size_t ns, const size_t sz, uchar * d) const;
 
-    void writeDO(csize_t offset, csize_t ns, csize_t sz, const uchar * d) const;
+    void writeDO(const size_t offset, const size_t ns, const size_t sz, const uchar * d) const;
 
-    void readDO(csize_t * offset, csize_t ns, csize_t sz, uchar * d) const;
+    void readDO(const size_t * offset, const size_t ns, const size_t sz, uchar * d) const;
 
-    void writeDO(csize_t * offset, csize_t ns, csize_t sz, const uchar * d) const;
+    void writeDO(const size_t * offset, const size_t ns, const size_t sz, const uchar * d) const;
 
-    void readDOMD(csize_t * offset, csize_t ns, csize_t sz, uchar * md) const;
+    void readDOMD(const size_t * offset, const size_t ns, const size_t sz, uchar * md) const;
 
-    void writeDOMD(csize_t * offset, csize_t ns, csize_t sz, const uchar * md) const;
+    void writeDOMD(const size_t * offset, const size_t ns, const size_t sz, const uchar * md) const;
 
-    void readDODF(csize_t * offset, csize_t ns, csize_t sz, uchar * df) const;
+    void readDODF(const size_t * offset, const size_t ns, const size_t sz, uchar * df) const;
 
-    void writeDODF(csize_t * offset, csize_t ns, csize_t sz, const uchar * df) const;
+    void writeDODF(const size_t * offset, const size_t ns, const size_t sz, const uchar * df) const;
 };
 }}
 #endif

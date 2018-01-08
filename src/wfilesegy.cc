@@ -104,7 +104,7 @@ void WriteSEGY::writeText(const std::string text_)
     }
 }
 
-void WriteSEGY::writeNs(csize_t ns_)
+void WriteSEGY::writeNs(const size_t ns_)
 {
     if (ns_ > size_t(std::numeric_limits<int16_t>::max()))
     {
@@ -121,7 +121,7 @@ void WriteSEGY::writeNs(csize_t ns_)
     nsSet = true;
 }
 
-void WriteSEGY::writeNt(csize_t nt_)
+void WriteSEGY::writeNt(const size_t nt_)
 {
     if (nt != nt_)
     {
@@ -158,7 +158,7 @@ void WriteSEGY::writeInc(const geom_t inc_)
  *  \param[in] skip Skip \c skip entries in the parameter structure
  */
 template <typename T>
-void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t * trc, const Param * prm, csize_t skip)
+void writeTraceT(Obj::Interface * obj, const size_t ns, T offset, const size_t sz, trace_t * trc, const Param * prm, const size_t skip)
 {
     uchar * tbuf = reinterpret_cast<uchar *>(trc);
     if (trc != TRACE_NULL && trc != nullptr)
@@ -169,7 +169,7 @@ void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t
         obj->writeDODF(offset, ns, sz, tbuf);
     else
     {
-        csize_t blockSz = (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+        const size_t blockSz = (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
         std::vector<uchar> alloc(blockSz * sz);
         uchar * buf = (sz ? alloc.data() : nullptr);
         insertParam(sz, prm, buf, blockSz - SEGSz::getMDSz(), skip);
@@ -190,7 +190,7 @@ void writeTraceT(Obj::Interface * obj, csize_t ns, T offset, csize_t sz, trace_t
             reverse4Bytes(&tbuf[i*sizeof(float)]);
 }
 
-void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Param * prm, csize_t skip)
+void WriteSEGY::writeTrace(const size_t offset, const size_t sz, trace_t * trc, const Param * prm, const size_t skip)
 {
     if (!nsSet)
         piol->log->record(name, Log::Layer::File, Log::Status::Error,
@@ -201,7 +201,7 @@ void WriteSEGY::writeTrace(csize_t offset, csize_t sz, trace_t * trc, const Para
     nt = std::max(offset + sz, nt);
 }
 
-void WriteSEGY::writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trc, const Param * prm, csize_t skip)
+void WriteSEGY::writeTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trc, const Param * prm, const size_t skip)
 {
     if (!nsSet)
         piol->log->record(name, Log::Layer::File, Log::Status::Error,

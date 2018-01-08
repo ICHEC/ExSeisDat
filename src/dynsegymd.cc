@@ -336,7 +336,7 @@ size_t Rule::paramMem(void) const
          + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t) + (numCopy ? SEGSz::getMDSz() : 0);
 }
 
-Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
+Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
 {
     if (r->numFloat)
         f.resize(sz * r->numFloat);
@@ -354,7 +354,7 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
         c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
-Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
+Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
 {
     f.resize(sz * r->numFloat);
     i.resize(sz * r->numLong);
@@ -388,7 +388,7 @@ size_t Param::memUsage(void) const
                         + r->memUsage();
 }
 
-void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
+void cpyPrm(const size_t j, const Param * src, const size_t k, Param * dst)
 {
     if (src == PIOL_PARAM_NULL || src == nullptr ||
         dst == PIOL_PARAM_NULL || dst == nullptr)

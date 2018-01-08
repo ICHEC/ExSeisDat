@@ -18,6 +18,6 @@ namespace PIOL {
  * \param[in] sz The length of the string.
  * \param[in, out] src The EBCDIC or ASCII string. After the function ends, the string is ASCII
  */
-extern void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src);
+extern void getAscii(ExSeisPIOL * piol, const std::string file, const size_t sz, uchar * src);
 }
 #endif

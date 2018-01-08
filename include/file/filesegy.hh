@@ -42,7 +42,7 @@ class ReadSEGY : public ReadInterface
      *  \param[in] fsz The size of the file in bytes
      *  \param[in, out] buf The buffer to parse. The buffer is destructively modified
      */
-    void procHeader(csize_t fsz, uchar * buf);
+    void procHeader(const size_t fsz, uchar * buf);
 
     public :
     /*! \brief The SEGY-Object class constructor.
@@ -63,16 +63,16 @@ class ReadSEGY : public ReadInterface
     size_t readNt(void) const;
 
     void readTrace(
-        csize_t offset, csize_t sz, trace_t * trace,
-        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
+        const size_t offset, const size_t sz, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) const;
 
     void readTraceNonContiguous(
-        csize_t sz, csize_t * offset, trace_t * trace,
-        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
+        const size_t sz, const size_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) const;
 
     void readTraceNonMonotonic(
-        csize_t sz, csize_t * offset, trace_t * trace,
-        Param * prm = PIOL_PARAM_NULL, csize_t skip = 0) const;
+        const size_t sz, const size_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) const;
 };
 
 /*! A SEGY class for velocity models
@@ -97,9 +97,9 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY
 
     ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const ReadSEGYModel::Opt& opt, std::shared_ptr<Obj::Interface> obj_);
 
-    std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather);
+    std::vector<trace_t> readModel(const size_t offset, const size_t sz, const Uniray<size_t, llint, llint> & gather);
 
-    std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather);
+    std::vector<trace_t> readModel(const size_t sz, const size_t * offset, const Uniray<size_t, llint, llint> & gather);
 };
 
 /*! The SEG-Y implementation of the file layer
@@ -172,15 +172,15 @@ class WriteSEGY : public WriteInterface
 
     void writeText(const std::string text_);
 
-    void writeNs(csize_t ns_);
+    void writeNs(const size_t ns_);
 
-    void writeNt(csize_t nt_);
+    void writeNt(const size_t nt_);
 
     void writeInc(const geom_t inc_);
 
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
+    void writeTrace(const size_t offset, const size_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, const size_t skip = 0);
 
-    void writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, csize_t skip = 0);
+    void writeTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL, const size_t skip = 0);
 };
 }}
 #endif

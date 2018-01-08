@@ -58,7 +58,7 @@ struct RadonState : public gState
      * \param[in] oGSz_  The number of traces in the angle output.
      * \param[in] oInc_ The number of increments.
      */
-    RadonState(std::shared_ptr<ExSeisPIOL> piol_, std::string vmname_, csize_t vBin_, csize_t oGSz_, const geom_t oInc_)
+    RadonState(std::shared_ptr<ExSeisPIOL> piol_, std::string vmname_, const size_t vBin_, const size_t oGSz_, const geom_t oInc_)
                           : piol(piol_), vmname(vmname_), vNs(0U), vBin(vBin_), oGSz(oGSz_), vInc(geom_t(0)), oInc(oInc_) {}
 
     void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather);
@@ -340,7 +340,7 @@ class Set
      *  \param[in] oGSz The number of traces in the output gather.
      *  \param[in] oInc The samples per trace for the output (i.e the angle increment between samples.
      */
-    void toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc = Math::pi / geom_t(180LU));
+    void toAngle(std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc = Math::pi / geom_t(180LU));
 
     /************************************* Non-Core *****************************************************/
     /*! Sort the set by the specified sort type.

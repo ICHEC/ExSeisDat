@@ -4,12 +4,12 @@
 namespace PIOL {
 namespace File {
 
-Param::Param(std::shared_ptr<Rule> r_, csize_t sz)
+Param::Param(std::shared_ptr<Rule> r_, const size_t sz)
 {
     mockParam().ctor(this, r_, sz);
 }
 
-Param::Param(csize_t sz)
+Param::Param(const size_t sz)
 {
     mockParam().ctor(this, sz);
 }
@@ -29,7 +29,7 @@ size_t Param::memUsage(void) const
     return mockParam().memUsage(this);
 }
 
-void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
+void cpyPrm(const size_t j, const Param * src, const size_t k, Param * dst)
 {
     mockParamFreeFunctions().cpyPrm(j, src, k, dst);
 }
@@ -51,17 +51,17 @@ geom_t getPrm<geom_t>(size_t i, Meta entry, const Param * prm) {
 }
 
 template<>
-void setPrm<int16_t>(csize_t i, const Meta entry, int16_t ret, Param * prm) {
+void setPrm<int16_t>(const size_t i, const Meta entry, int16_t ret, Param * prm) {
     mockParamFreeFunctions().setPrm_int16_t(i, entry, ret, prm);
 }
 
 template<>
-void setPrm<llint>(csize_t i, const Meta entry, llint ret, Param * prm) {
+void setPrm<llint>(const size_t i, const Meta entry, llint ret, Param * prm) {
     mockParamFreeFunctions().setPrm_llint(i, entry, ret, prm);
 }
 
 template<>
-void setPrm<geom_t>(csize_t i, const Meta entry, geom_t ret, Param * prm) {
+void setPrm<geom_t>(const size_t i, const Meta entry, geom_t ret, Param * prm) {
     mockParamFreeFunctions().setPrm_geom_t(i, entry, ret, prm);
 }
 

@@ -5,7 +5,7 @@
 #include "cppfileapi.hh"
 
 namespace PIOL {
-using namespace File;
+namespace File {
 
 class MockWriteDirect;
 ::testing::StrictMock<MockWriteDirect>& mockWriteDirect();
@@ -17,33 +17,34 @@ public :
     MOCK_METHOD2(ctor, void(WriteDirect*, std::shared_ptr<WriteInterface> file));
     MOCK_METHOD1(dtor, void(WriteDirect*));
     MOCK_METHOD2(writeText,  void(WriteDirect*, const std::string text_));
-    MOCK_METHOD2(writeNs,    void(WriteDirect*, csize_t ns_));
-    MOCK_METHOD2(writeNt,    void(WriteDirect*, csize_t nt_));
+    MOCK_METHOD2(writeNs,    void(WriteDirect*, const size_t ns_));
+    MOCK_METHOD2(writeNt,    void(WriteDirect*, const size_t nt_));
     MOCK_METHOD2(writeInc,   void(WriteDirect*, const geom_t inc_));
     MOCK_METHOD5(
         writeTrace,
         void(
             WriteDirect*,
-            csize_t offset, csize_t sz, trace_t * trace, const Param * prm
+            const size_t offset, const size_t sz, trace_t * trace, const Param * prm
         )
     );
     MOCK_METHOD4(
         writeParam,
-        void(WriteDirect*, csize_t offset, csize_t sz, const Param * prm)
+        void(WriteDirect*, const size_t offset, const size_t sz, const Param * prm)
     );
     MOCK_METHOD5(
         writeTraceNonContiguous,
         void(
             WriteDirect*,
-            csize_t sz, csize_t * offset, trace_t * trace, const Param * prm
+            const size_t sz, const size_t * offset, trace_t * trace, const Param * prm
         )
     );
     MOCK_METHOD4(
         writeParamNonContiguous,
-        void(WriteDirect*, csize_t sz, csize_t * offset, const Param * prm)
+        void(WriteDirect*, const size_t sz, const size_t * offset, const Param * prm)
     );
 };
 
+} // namespace File
 } // namespace PIOL
 
 #endif

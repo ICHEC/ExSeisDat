@@ -1,5 +1,5 @@
 #include "datampiiotest.hh"
-size_t modifyNt(csize_t fs, csize_t offset, csize_t nt, csize_t ns)
+size_t modifyNt(const size_t fs, const size_t offset, const size_t nt, const size_t ns)
 {
     //We shouldn't have our ASSERT_EQ test beyond the actual number of traces which are
     //so we reduce the number of traces down to the number of traces present after
@@ -138,8 +138,8 @@ TEST_F(MPIIOTest, BlockingOneByteReadLarge)
 TEST_F(MPIIOTest, ReadContigZero)
 {
     makeMPIIO(smallSEGYFile);
-    csize_t nt = 0;
-    csize_t ns = 0;
+    const size_t nt = 0;
+    const size_t ns = 0;
     readSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -147,8 +147,8 @@ TEST_F(MPIIOTest, ReadContigZero)
 TEST_F(MPIIOTest, ReadContigSSS)
 {
     makeMPIIO(smallSEGYFile);
-    csize_t nt = 400;
-    csize_t ns = 261;
+    const size_t nt = 400;
+    const size_t ns = 261;
     readSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -159,7 +159,7 @@ TEST_F(MPIIOTest, FarmReadContigEnd)
 {
     makeMPIIO(smallSEGYFile);
     size_t nt = 400;
-    csize_t ns = 261;
+    const size_t ns = 261;
 
     //Read extra
     nt *= 1024;
@@ -170,8 +170,8 @@ TEST_F(MPIIOTest, FarmReadContigEnd)
 TEST_F(MPIIOTest, ReadContigSLS)
 {
     makeMPIIO(bigTraceSEGYFile);
-    csize_t nt = 40U;
-    csize_t ns = 32000U;
+    const size_t nt = 40U;
+    const size_t ns = 32000U;
     readSmallBlocks<false>(nt, ns, 1000U);
     piol->isErr();
 }
@@ -179,8 +179,8 @@ TEST_F(MPIIOTest, ReadContigSLS)
 TEST_F(MPIIOTest, FarmReadContigSLM)
 {
     makeMPIIO(bigTraceSEGYFile);
-    csize_t nt = 40000U;
-    csize_t ns = 32000U;
+    const size_t nt = 40000U;
+    const size_t ns = 32000U;
     readSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -188,8 +188,8 @@ TEST_F(MPIIOTest, FarmReadContigSLM)
 TEST_F(MPIIOTest, FarmReadContigSLL)
 {
     makeMPIIO(largeSEGYFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     readSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -197,8 +197,8 @@ TEST_F(MPIIOTest, FarmReadContigSLL)
 TEST_F(MPIIOTest, FarmReadContigLLM)
 {
     makeMPIIO(bigTraceSEGYFile);
-    csize_t nt = 40000U;
-    csize_t ns = 32000U;
+    const size_t nt = 40000U;
+    const size_t ns = 32000U;
     readBigBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -206,8 +206,8 @@ TEST_F(MPIIOTest, FarmReadContigLLM)
 TEST_F(MPIIOTest, FarmReadContigMLL)
 {
     makeMPIIO(largeSEGYFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     readBigBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -215,8 +215,8 @@ TEST_F(MPIIOTest, FarmReadContigMLL)
 TEST_F(MPIIOTest, ReadBlocksZero)
 {
     makeMPIIO(smallSEGYFile);
-    csize_t nt = 0;
-    csize_t ns = 0;
+    const size_t nt = 0;
+    const size_t ns = 0;
     readSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -224,8 +224,8 @@ TEST_F(MPIIOTest, ReadBlocksZero)
 TEST_F(MPIIOTest, ReadBlocksSSS)
 {
     makeMPIIO(smallSEGYFile);
-    csize_t nt = 400;
-    csize_t ns = 261;
+    const size_t nt = 400;
+    const size_t ns = 261;
     readSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -234,7 +234,7 @@ TEST_F(MPIIOTest, ReadBlocksEnd)
 {
     makeMPIIO(smallSEGYFile);
     size_t nt = 400;
-    csize_t ns = 261;
+    const size_t ns = 261;
 
     //Read extra
     nt *= 1024;
@@ -245,8 +245,8 @@ TEST_F(MPIIOTest, ReadBlocksEnd)
 TEST_F(MPIIOTest, ReadBlocksSLS)
 {
     makeMPIIO(bigTraceSEGYFile);
-    csize_t nt = 40U;
-    csize_t ns = 32000U;
+    const size_t nt = 40U;
+    const size_t ns = 32000U;
     readSmallBlocks<true>(nt, ns, 1000U);
     piol->isErr();
 }
@@ -254,8 +254,8 @@ TEST_F(MPIIOTest, ReadBlocksSLS)
 TEST_F(MPIIOTest, FarmReadBlocksSLM)
 {
     makeMPIIO(bigTraceSEGYFile);
-    csize_t nt = 40000U;
-    csize_t ns = 32000U;
+    const size_t nt = 40000U;
+    const size_t ns = 32000U;
     readSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -263,8 +263,8 @@ TEST_F(MPIIOTest, FarmReadBlocksSLM)
 TEST_F(MPIIOTest, FarmReadBlocksSLL)
 {
     makeMPIIO(largeSEGYFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     readSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -272,8 +272,8 @@ TEST_F(MPIIOTest, FarmReadBlocksSLL)
 TEST_F(MPIIOTest, FarmReadBlocksLLM)
 {
     makeMPIIO(bigTraceSEGYFile);
-    csize_t nt = 40000U;
-    csize_t ns = 32000U;
+    const size_t nt = 40000U;
+    const size_t ns = 32000U;
     readBigBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -281,17 +281,17 @@ TEST_F(MPIIOTest, FarmReadBlocksLLM)
 TEST_F(MPIIOTest, FarmReadBlocksMLL)
 {
     makeMPIIO(largeSEGYFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     readBigBlocks<true>(nt, ns);
     piol->isErr();
 }
 
 ///////Lists//////////
-csize_t largens = 1000U;
-csize_t largent = 2000000U;
-csize_t smallns = 261U;
-csize_t smallnt = 400U;
+const size_t largens = 1000U;
+const size_t largent = 2000000U;
+const size_t smallns = 261U;
+const size_t smallnt = 400U;
 
 TEST_F(MPIIOTest, ReadListZero)
 {

@@ -55,7 +55,7 @@ std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string 
         file.readParam(size_t(0), size_t(0), nullptr);
     cmsg(piol.get(), "getCoords sort");
 
-    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param * prm, csize_t i, csize_t j) -> bool
+    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param * prm, const size_t i, const size_t j) -> bool
             {
                 return (File::getPrm<geom_t>(i, PIOL_META_xSrc, prm) <  File::getPrm<geom_t>(j, PIOL_META_xSrc, prm) ? true :
                         File::getPrm<geom_t>(i, PIOL_META_xSrc, prm) == File::getPrm<geom_t>(j, PIOL_META_xSrc, prm) &&

@@ -1,6 +1,7 @@
 #include "mockreaddirect.hh"
 
 namespace PIOL {
+namespace File {
 
 ::testing::StrictMock<MockReadDirect>& mockReadDirect()
 {
@@ -8,4 +9,5 @@ namespace PIOL {
     return mockReadDirect;
 }
 
+} // namespace File
 } // namespace PIOL

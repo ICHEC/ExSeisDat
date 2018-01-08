@@ -27,14 +27,14 @@ class MockData : public Data::Interface
     }
 
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
-    MOCK_CONST_METHOD3(read, void(csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD5(read, void(csize_t, csize_t, csize_t, csize_t, uchar *));
-    MOCK_CONST_METHOD4(read, void(csize_t, csize_t, csize_t *, uchar *));
-    MOCK_CONST_METHOD3(write, void(csize_t, csize_t, const uchar *));
-    MOCK_CONST_METHOD5(write, void(csize_t, csize_t, csize_t, csize_t, const uchar *));
-    MOCK_CONST_METHOD4(write, void(csize_t, csize_t, csize_t *, const uchar *));
+    MOCK_CONST_METHOD3(read, void(const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD5(read, void(const size_t, const size_t, const size_t, const size_t, uchar *));
+    MOCK_CONST_METHOD4(read, void(const size_t, const size_t, const size_t *, uchar *));
+    MOCK_CONST_METHOD3(write, void(const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD5(write, void(const size_t, const size_t, const size_t, const size_t, const uchar *));
+    MOCK_CONST_METHOD4(write, void(const size_t, const size_t, const size_t *, const uchar *));
     // TODO: This method is not tested
-    MOCK_CONST_METHOD1(setFileSz, void(csize_t));
+    MOCK_CONST_METHOD1(setFileSz, void(const size_t));
 };
 
 enum class Block
@@ -89,7 +89,7 @@ class ObjTest : public Test
     template <bool MOCK=true>
     void readHOPatternTest(size_t off, uchar magic)
     {
-        csize_t extra = 20U;
+        const size_t extra = 20U;
         std::vector<uchar> cHo;
         if (MOCK)
         {
@@ -122,7 +122,7 @@ class ObjTest : public Test
             std::cerr << "Using Mock when not initialised: LOC: " << __LINE__ << std::endl;
             return;
         }
-        csize_t extra = 20U;
+        const size_t extra = 20U;
         std::vector<uchar> cHo(SEGSz::getHOSz());
         for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
             cHo[i] = getPattern(off + i);
@@ -145,7 +145,7 @@ class ObjTest : public Test
     }
 
     template <Block Type, bool MOCK = true>
-    void readTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
+    void readTest(const size_t offset, const size_t nt, const size_t ns, const size_t poff = 0, uchar magic = 0)
     {
         SCOPED_TRACE("readTest " + std::to_string(size_t(Type)));
         if (MOCK && mock == nullptr)
@@ -211,7 +211,7 @@ class ObjTest : public Test
     }
 
     template <Block Type, bool MOCK = true>
-    void writeTest(csize_t offset, csize_t nt, csize_t ns, csize_t poff = 0, uchar magic = 0)
+    void writeTest(const size_t offset, const size_t nt, const size_t ns, const size_t poff = 0, uchar magic = 0)
     {
         SCOPED_TRACE("writeTest " + std::to_string(size_t(Type)));
 
@@ -268,7 +268,7 @@ class ObjTest : public Test
     }
 
     template <Block Type, bool MOCK = true>
-    void readRandomTest(csize_t ns, const std::vector<size_t> & offset, uchar magic = 0)
+    void readRandomTest(const size_t ns, const std::vector<size_t> & offset, uchar magic = 0)
     {
         SCOPED_TRACE("readRandomTest " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
@@ -334,7 +334,7 @@ class ObjTest : public Test
     }
 
     template <Block Type, bool MOCK = true>
-    void writeRandomTest(csize_t ns, const std::vector<size_t> & offset, uchar magic = 0)
+    void writeRandomTest(const size_t ns, const std::vector<size_t> & offset, uchar magic = 0)
     {
         SCOPED_TRACE("writeRandomTest " + std::to_string(size_t(Type)));
         size_t nt = offset.size();

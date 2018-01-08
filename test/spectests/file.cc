@@ -38,12 +38,12 @@ struct FakeReadFile : public File::ReadInterface
     }
 
     size_t readNt(void) const { return nt; }
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, File::Param * prm, size_t skip) const {}
-    void readParam(csize_t offset, csize_t sz, File::Param * prm, size_t skip) const {}
+    void readTrace(const size_t offset, const size_t sz, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void readParam(const size_t offset, const size_t sz, File::Param * prm, size_t skip) const {}
 
-    void readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
-    void readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
-    void readParamNonContiguous(csize_t sz, csize_t * offset, File::Param * prm, size_t skip) const {}
+    void readTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void readTraceNonMonotonic(const size_t sz, const size_t * offset, trace_t * trace, File::Param * prm, size_t skip) const {}
+    void readParamNonContiguous(const size_t sz, const size_t * offset, File::Param * prm, size_t skip) const {}
 };
 
 struct FakeWriteFile : public File::WriteInterface
@@ -61,14 +61,14 @@ struct FakeWriteFile : public File::WriteInterface
     }
 
     void writeText(const std::string text_) {}
-    void writeNs(csize_t ns_) {}
-    void writeNt(csize_t nt_) {}
+    void writeNs(const size_t ns_) {}
+    void writeNt(const size_t nt_) {}
     void writeInc(const geom_t inc_) {}
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const File::Param * prm, size_t skip) {}
-    void writeParam(csize_t offset, csize_t sz, const File::Param * prm, size_t skip) {}
+    void writeTrace(const size_t offset, const size_t sz, trace_t * trace, const File::Param * prm, size_t skip) {}
+    void writeParam(const size_t offset, const size_t sz, const File::Param * prm, size_t skip) {}
 
-    void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const File::Param * prm, size_t skip) {}
-    void writeParam(csize_t sz, csize_t * offset, const File::Param * prm, size_t skip) {}
+    void writeTrace(const size_t sz, const size_t * offset, trace_t * trace, const File::Param * prm, size_t skip) {}
+    void writeParam(const size_t sz, const size_t * offset, const File::Param * prm, size_t skip) {}
 };
 
 #pragma GCC diagnostic pop

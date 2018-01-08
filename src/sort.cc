@@ -37,7 +37,7 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
  *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
  *  \return Return true if e1 is less than e2 in terms of the sort.
  */
-bool lessSrcRcv(const Param * prm, csize_t i, csize_t j)
+bool lessSrcRcv(const Param * prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
@@ -80,7 +80,7 @@ bool lessSrcRcv(const Param * prm, csize_t i, csize_t j)
  *  \return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
-bool lessSrcOff(const Param * prm, csize_t i, csize_t j)
+bool lessSrcOff(const Param * prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
@@ -117,7 +117,7 @@ bool lessSrcOff(const Param * prm, csize_t i, csize_t j)
  *  \return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
-bool lessRcvOff(const Param * prm, csize_t i, csize_t j)
+bool lessRcvOff(const Param * prm, const size_t i, const size_t j)
 {
     auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
     auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
@@ -154,7 +154,7 @@ bool lessRcvOff(const Param * prm, csize_t i, csize_t j)
  *  \return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
-bool lessLineOff(const Param * prm, csize_t i, csize_t j)
+bool lessLineOff(const Param * prm, const size_t i, const size_t j)
 {
     auto e1il = getPrm<llint>(i, PIOL_META_il, prm);
     auto e2il = getPrm<llint>(j, PIOL_META_il, prm);
@@ -194,7 +194,7 @@ bool lessLineOff(const Param * prm, csize_t i, csize_t j)
  *  \return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
-bool lessOffLine(const Param * prm, csize_t i, csize_t j)
+bool lessOffLine(const Param * prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
@@ -425,10 +425,10 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
  */
 std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 {
-    csize_t lnt = list.size();
-    csize_t regionSz = piol->comm->min(lnt) / 4LU;
-    csize_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0LU);
-    csize_t offset = piol->comm->offset(lnt);
+    const size_t lnt = list.size();
+    const size_t regionSz = piol->comm->min(lnt) / 4LU;
+    const size_t edge2 = (piol->comm->getRank() != piol->comm->getNumRank()-1 ? regionSz : 0LU);
+    const size_t offset = piol->comm->offset(lnt);
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
     for (size_t i = 0; i < lnt; i++)

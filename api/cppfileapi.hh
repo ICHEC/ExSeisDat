@@ -156,7 +156,7 @@ class ReadDirect
      *
      *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTrace(const size_t offset, const size_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
     /*! \brief Function to read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
@@ -164,7 +164,7 @@ class ReadDirect
      *  \param[in] sz The number of traces to process.
      *  \param[out] prm The parameter structure
      */
-    void readParam(csize_t offset, csize_t sz, Param * prm) const;
+    void readParam(const size_t offset, const size_t sz, Param * prm) const;
 
      /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -174,16 +174,16 @@ class ReadDirect
      *
      *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
-    void readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTraceNonMonotonic(const size_t sz, const size_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
      *  \param[in] offset An array of trace numbers to read.
      *  \param[out] prm The parameter structure
      */
-    void readParamNonContiguous(csize_t sz, csize_t * offset, Param * prm) const;
+    void readParamNonContiguous(const size_t sz, const size_t * offset, Param * prm) const;
 };
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
@@ -254,12 +254,12 @@ class WriteDirect
     /*! \brief Write the number of samples per trace
      *  \param[in] ns_ The new number of samples per trace.
      */
-    void writeNs(csize_t ns_);
+    void writeNs(const size_t ns_);
 
     /*! \brief Write the number of traces in the file
      *  \param[in] nt_ The new number of traces.
      */
-    void writeNt(csize_t nt_);
+    void writeNt(const size_t nt_);
 
     /*! \brief Write the increment between trace samples.
      *  \param[in] inc_ The new increment between trace samples.
@@ -275,7 +275,7 @@ class WriteDirect
      *
      *  \details When prm==PIOL_PARAM_NULL only the trace DF is written.
      */
-    void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
+    void writeTrace(const size_t offset, const size_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
 
     /*! \brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
@@ -286,7 +286,7 @@ class WriteDirect
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParam(csize_t offset, csize_t sz, const Param * prm);
+    void writeParam(const size_t offset, const size_t sz, const Param * prm);
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -298,7 +298,7 @@ class WriteDirect
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
+    void writeTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
 
     /*! \brief write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -308,7 +308,7 @@ class WriteDirect
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParamNonContiguous(csize_t sz, csize_t * offset, const Param * prm);
+    void writeParamNonContiguous(const size_t sz, const size_t * offset, const Param * prm);
 };
 
 

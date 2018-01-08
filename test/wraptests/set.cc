@@ -74,7 +74,7 @@ void Set::add(std::string name)
 }
 
 void Set::toAngle(
-    std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
+    std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
 {
     mockSet().toAngle(this, vmName, vBin, oGSz, oInc);
 }

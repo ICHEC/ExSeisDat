@@ -539,7 +539,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
     }));
 }
 
-void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
+void Set::toAngle(std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::ModMetaVal,
                  FuncOpt::DepTrcVal, FuncOpt::DepTrcOrder, FuncOpt::DepTrcCnt, FuncOpt::DepMetaVal,
@@ -547,7 +547,7 @@ void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
     auto state = std::make_shared<RadonState>(piol, vmName, vBin, oGSz, oInc);
     func.emplace_back(std::make_shared<Op<Mod>>(opt, rule, state, [state] (const TraceBlock * in, TraceBlock * out)
     {
-        csize_t iGSz = in->prm->size();
+        const size_t iGSz = in->prm->size();
         out->ns = in->ns;
         out->inc = state->oInc;   //1 degree in radians
         out->trc.resize(state->oGSz * out->ns);

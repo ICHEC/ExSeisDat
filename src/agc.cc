@@ -17,7 +17,7 @@
 #include "share/api.hh"
 namespace PIOL { namespace File {
 /******************************************** Core *********************************************/
-void AGC(csize_t nt, csize_t ns, trace_t * trc, const AGCFunc func, size_t window, trace_t normR)
+void AGC(const size_t nt, const size_t ns, trace_t * trc, const AGCFunc func, size_t window, trace_t normR)
 {
     window = (window % 2LU == 0LU ? window + 1LU : window);
     assert(ns > window);

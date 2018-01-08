@@ -63,7 +63,7 @@ public:
 
     MOCK_METHOD5(
         toAngle,
-        void(Set*, std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
+        void(Set*, std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
     );
 
     MOCK_METHOD2(sort, void(Set*, SortType type));

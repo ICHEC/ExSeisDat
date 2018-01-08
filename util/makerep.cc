@@ -16,10 +16,10 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 
 void smallCopy(const ExSeis& piol, Data::Interface * in, Data::Interface * out, size_t repRate)
 {
-    csize_t rank = piol.comm->getRank();
+    const size_t rank = piol.comm->getRank();
 
-    csize_t fsz = in->getFileSz();
-    csize_t hosz = SEGSz::getHOSz();
+    const size_t fsz = in->getFileSz();
+    const size_t hosz = SEGSz::getHOSz();
     size_t wsz = (!rank ? fsz : 0);
     std::vector<uchar> buf(wsz);
 
@@ -131,11 +131,11 @@ void mpiMakeSEGYCopy(const ExSeis& piol, Interface * in, Interface * out, size_t
     size_t rank = piol.getRank();
     size_t numRank = piol.getNumRank();
 
-    csize_t fsz = in->getFileSz();
+    const size_t fsz = in->getFileSz();
     piol.isErr();
 
-    csize_t bsz = 2097152LU;
-    csize_t hosz = SEGSz::getHOSz();
+    const size_t bsz = 2097152LU;
+    const size_t hosz = SEGSz::getHOSz();
     size_t memlim = 512U * bsz;
     size_t step = numRank * memlim;
 
@@ -172,9 +172,9 @@ template <bool Block>
 void mpiMakeSEGYCopyNaive(const ExSeis& piol, Interface * in, Interface * out, size_t repRate)
 {
     size_t numRank = piol.getNumRank();
-    csize_t fsz = in->getFileSz();
-    csize_t bsz = 2097152LU;
-    csize_t hosz = SEGSz::getHOSz();
+    const size_t fsz = in->getFileSz();
+    const size_t bsz = 2097152LU;
+    const size_t hosz = SEGSz::getHOSz();
     size_t memlim = 512U * bsz;
     size_t step = numRank * memlim;
 
@@ -257,7 +257,7 @@ int main(int argc, char ** argv)
     MPIIO out(piol, oname, FileMode::Write);
     piol->isErr();
 
-    csize_t fsz = in.getFileSz();
+    const size_t fsz = in.getFileSz();
     piol->isErr();
     if (fsz/numRank < SEGSz::getHOSz())
         smallCopy(*piol, &in, &out, rep);

@@ -72,7 +72,7 @@ ReadSEGYModel::ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::strin
     xl = std::make_tuple(xl0, xlNum, xlInc);
 }
 
-std::vector<trace_t> ReadSEGYModel::readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather)
+std::vector<trace_t> ReadSEGYModel::readModel(const size_t offset, const size_t sz, const Uniray<size_t, llint, llint> & gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
@@ -92,7 +92,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(csize_t offset, csize_t sz, const 
     return trc;
 }
 
-std::vector<trace_t> ReadSEGYModel::readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather)
+std::vector<trace_t> ReadSEGYModel::readModel(const size_t sz, const size_t * offset, const Uniray<size_t, llint, llint> & gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
@@ -138,15 +138,15 @@ size_t ReadSEGY::readNt(void) const
  *  \param[in] skip Skip \c skip entries in the parameter structure
  */
 template <typename T>
-void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T offset, std::function<size_t(size_t)> offunc,
-                                      csize_t sz, trace_t * trc, Param * prm, csize_t skip)
+void readTraceT(Obj::Interface * obj, const Format format, const size_t ns, const T offset, std::function<size_t(size_t)> offunc,
+                                      const size_t sz, trace_t * trc, Param * prm, const size_t skip)
 {
     uchar * tbuf = reinterpret_cast<uchar *>(trc);
     if (prm == PIOL_PARAM_NULL)
         obj->readDODF(offset, ns, sz, tbuf);
     else
     {
-        csize_t blockSz = (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+        const size_t blockSz = (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
         std::vector<uchar> alloc(blockSz * sz);
         uchar * buf = (sz ? alloc.data() : nullptr);
 
@@ -176,7 +176,7 @@ void readTraceT(Obj::Interface * obj, const Format format, csize_t ns, const T o
     }
 }
 
-void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trc, Param * prm, csize_t skip) const
+void ReadSEGY::readTrace(const size_t offset, const size_t sz, trace_t * trc, Param * prm, const size_t skip) const
 {
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
     if (offset >= nt && sz)   //Nothing to be read.
@@ -185,12 +185,12 @@ void ReadSEGY::readTrace(csize_t offset, csize_t sz, trace_t * trc, Param * prm,
     readTraceT(obj.get(), format, ns, offset, [offset] (size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);
 }
 
-void ReadSEGY::readTraceNonContiguous(csize_t sz, csize_t * offset, trace_t * trc, Param * prm, csize_t skip) const
+void ReadSEGY::readTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trc, Param * prm, const size_t skip) const
 {
     readTraceT(obj.get(), format, ns, offset,  [offset] (size_t i) -> size_t { return offset[i]; }, sz, trc, prm, skip);
 }
 
-void ReadSEGY::readTraceNonMonotonic(csize_t sz, csize_t * offset, trace_t * trc, Param * prm, csize_t skip) const
+void ReadSEGY::readTraceNonMonotonic(const size_t sz, const size_t * offset, trace_t * trc, Param * prm, const size_t skip) const
 {
     //Sort the initial offset and make a new offset without duplicates
     auto idx = getSortIndex(sz, offset);

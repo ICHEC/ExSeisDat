@@ -19,8 +19,8 @@ TEST_F(MPIIOTest, FarmSetLargeFileSz)
 TEST_F(MPIIOTest, WriteContigZero)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 0;
-    csize_t ns = 0;
+    const size_t nt = 0;
+    const size_t ns = 0;
     writeSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -28,8 +28,8 @@ TEST_F(MPIIOTest, WriteContigZero)
 TEST_F(MPIIOTest, WriteContigSSS)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 400;
-    csize_t ns = 261;
+    const size_t nt = 400;
+    const size_t ns = 261;
     writeSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -37,8 +37,8 @@ TEST_F(MPIIOTest, WriteContigSSS)
 TEST_F(MPIIOTest, WriteContigSLS)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 40U;
-    csize_t ns = 40000U;
+    const size_t nt = 40U;
+    const size_t ns = 40000U;
     writeSmallBlocks<false>(nt, ns, 1000U);
     piol->isErr();
 }
@@ -46,8 +46,8 @@ TEST_F(MPIIOTest, WriteContigSLS)
 TEST_F(MPIIOTest, FarmWriteContigSLM)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 40000U;
-    csize_t ns = 40000U;
+    const size_t nt = 40000U;
+    const size_t ns = 40000U;
     writeSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -55,8 +55,8 @@ TEST_F(MPIIOTest, FarmWriteContigSLM)
 TEST_F(MPIIOTest, FarmWriteContigSLL)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     writeSmallBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -64,8 +64,8 @@ TEST_F(MPIIOTest, FarmWriteContigSLL)
 TEST_F(MPIIOTest, FarmWriteContigLLM)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 40000U;
-    csize_t ns = 40000U;
+    const size_t nt = 40000U;
+    const size_t ns = 40000U;
     writeBigBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -73,8 +73,8 @@ TEST_F(MPIIOTest, FarmWriteContigLLM)
 TEST_F(MPIIOTest, FarmWriteContigMLL)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     writeBigBlocks<false>(nt, ns);
     piol->isErr();
 }
@@ -82,8 +82,8 @@ TEST_F(MPIIOTest, FarmWriteContigMLL)
 TEST_F(MPIIOTest, WriteBlocksZero)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 0;
-    csize_t ns = 0;
+    const size_t nt = 0;
+    const size_t ns = 0;
     writeSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -91,8 +91,8 @@ TEST_F(MPIIOTest, WriteBlocksZero)
 TEST_F(MPIIOTest, WriteBlocksSSS)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 400;
-    csize_t ns = 261;
+    const size_t nt = 400;
+    const size_t ns = 261;
     writeSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -100,8 +100,8 @@ TEST_F(MPIIOTest, WriteBlocksSSS)
 TEST_F(MPIIOTest, WriteBlocksSLS)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 40U;
-    csize_t ns = 40000U;
+    const size_t nt = 40U;
+    const size_t ns = 40000U;
     writeSmallBlocks<true>(nt, ns, 1000U);
     piol->isErr();
 }
@@ -109,8 +109,8 @@ TEST_F(MPIIOTest, WriteBlocksSLS)
 TEST_F(MPIIOTest, FarmWriteBlocksSLM)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 40000U;
-    csize_t ns = 40000U;
+    const size_t nt = 40000U;
+    const size_t ns = 40000U;
     writeSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -118,8 +118,8 @@ TEST_F(MPIIOTest, FarmWriteBlocksSLM)
 TEST_F(MPIIOTest, FarmWriteBlocksSLL)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     writeSmallBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -127,8 +127,8 @@ TEST_F(MPIIOTest, FarmWriteBlocksSLL)
 TEST_F(MPIIOTest, FarmWriteBlocksLLM)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 40000U;
-    csize_t ns = 40000U;
+    const size_t nt = 40000U;
+    const size_t ns = 40000U;
     writeBigBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -136,8 +136,8 @@ TEST_F(MPIIOTest, FarmWriteBlocksLLM)
 TEST_F(MPIIOTest, FarmWriteBlocksMLL)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     writeBigBlocks<true>(nt, ns);
     piol->isErr();
 }
@@ -146,8 +146,8 @@ TEST_F(MPIIOTest, FarmWriteBlocksMLL)
 TEST_F(MPIIOTest, WriteListZero)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 0;
-    csize_t ns = 0;
+    const size_t nt = 0;
+    const size_t ns = 0;
     writeList(nt, ns);
     piol->isErr();
 }
@@ -155,8 +155,8 @@ TEST_F(MPIIOTest, WriteListZero)
 TEST_F(MPIIOTest, WriteListSmall)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 400;
-    csize_t ns = 261;
+    const size_t nt = 400;
+    const size_t ns = 261;
 
     writeList(nt, ns);
     piol->isErr();
@@ -165,8 +165,8 @@ TEST_F(MPIIOTest, WriteListSmall)
 TEST_F(MPIIOTest, FarmWriteListLarge)
 {
     makeMPIIO<true>(tempFile);
-    csize_t nt = 2000000U;
-    csize_t ns = 1000U;
+    const size_t nt = 2000000U;
+    const size_t ns = 1000U;
     writeList(nt, ns);
     piol->isErr();
 }

@@ -18,8 +18,6 @@ class DataTest : public Test
     std::shared_ptr<ExSeis> piol = ExSeis::New();
 };
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 struct FakeData : public Data::Interface
 {
     FakeData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : Data::Interface(piol_, name_)
@@ -32,15 +30,14 @@ struct FakeData : public Data::Interface
         return 0U;
     }
 
-    void read(csize_t offset, csize_t sz, uchar * d) const {}
-    void read(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, uchar * d) const {}
-    void read(csize_t bsz, csize_t sz, csize_t * offset, uchar * d) const {}
-    void setFileSz(csize_t sz) const {}
-    void write(csize_t offset, csize_t sz, const uchar * d) const {}
-    void write(csize_t offset, csize_t bsz, csize_t osz, csize_t sz, const uchar * d) const {}
-    void write(csize_t bsz, csize_t sz, csize_t * offset, const uchar * d) const {}
+    void read(const size_t, const size_t, uchar *) const {}
+    void read(const size_t, const size_t, const size_t, const size_t, uchar *) const {}
+    void read(const size_t, const size_t, const size_t *, uchar *) const {}
+    void setFileSz(const size_t) const {}
+    void write(const size_t, const size_t, const uchar *) const {}
+    void write(const size_t, const size_t, const size_t, const size_t, const uchar *) const {}
+    void write(const size_t, const size_t, const size_t *, const uchar *) const {}
 };
-#pragma GCC diagnostic pop
 
 TEST_F(DataTest, Constructor)
 {

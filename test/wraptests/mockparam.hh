@@ -21,13 +21,13 @@ geom_t getPrm<geom_t>(size_t i, Meta entry, const Param * prm);
 
 
 template<>
-void setPrm<int16_t>(csize_t i, const Meta entry, int16_t ret, Param * prm);
+void setPrm<int16_t>(const size_t i, const Meta entry, int16_t ret, Param * prm);
 
 template<>
-void setPrm<llint>(csize_t i, const Meta entry, llint ret, Param * prm);
+void setPrm<llint>(const size_t i, const Meta entry, llint ret, Param * prm);
 
 template<>
-void setPrm<geom_t>(csize_t i, const Meta entry, geom_t ret, Param * prm);
+void setPrm<geom_t>(const size_t i, const Meta entry, geom_t ret, Param * prm);
 
 
 class MockParam;
@@ -48,8 +48,8 @@ class MockParamFreeFunctions;
 class MockParam
 {
 public:
-    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, csize_t sz));
-    MOCK_METHOD2(ctor, void(Param*, csize_t sz));
+    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, const size_t sz));
+    MOCK_METHOD2(ctor, void(Param*, const size_t sz));
     MOCK_METHOD1(dtor, void(Param*));
 
     MOCK_CONST_METHOD1(size, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));
@@ -61,7 +61,7 @@ class MockParamFreeFunctions
 public:
     MOCK_METHOD4(
         cpyPrm,
-        void(csize_t j, const Param * src, csize_t k, Param * dst)
+        void(const size_t j, const Param * src, const size_t k, Param * dst)
     );
 
     MOCK_METHOD3(
@@ -76,15 +76,15 @@ public:
 
     MOCK_METHOD4(
         setPrm_int16_t,
-        void(csize_t i, const Meta entry, int16_t ret, Param * prm)
+        void(const size_t i, const Meta entry, int16_t ret, Param * prm)
     );
     MOCK_METHOD4(
         setPrm_llint,
-        void(csize_t i, const Meta entry, llint ret, Param * prm)
+        void(const size_t i, const Meta entry, llint ret, Param * prm)
     );
     MOCK_METHOD4(
         setPrm_geom_t,
-        void(csize_t i, const Meta entry, geom_t ret, Param * prm)
+        void(const size_t i, const Meta entry, geom_t ret, Param * prm)
     );
 };
 

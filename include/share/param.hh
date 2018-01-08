@@ -31,12 +31,12 @@ struct Param
      *  \param[in] r_ The rules which describe the layout of the arrays.
      *  \param[in] sz The number of sets of trace parameters.
      */
-    Param(std::shared_ptr<Rule> r_, csize_t sz);
+    Param(std::shared_ptr<Rule> r_, const size_t sz);
 
     /*! Allocate the basic space required to store the arrays and store the rules. Default rules
      *  \param[in] sz The number of sets of trace parameters.
      */
-    Param(csize_t sz = 1);
+    Param(const size_t sz = 1);
 
     /*! Default destructor
      */
@@ -78,7 +78,7 @@ struct Param
     }
 };
 }
-typedef std::function<bool(const File::Param *, csize_t, csize_t)>  CompareP;   //!< A template for the Compare less-than function
+typedef std::function<bool(const File::Param *, const size_t, const size_t)>  CompareP;   //!< A template for the Compare less-than function
 }
 #endif
 
