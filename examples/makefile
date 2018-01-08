@@ -5,7 +5,7 @@ DEP=depend
 DEPENDS:=$(patsubst %.c, %.dep, $(wildcard *.c)) $(patsubst %.cc, %.dep, $(wildcard *.cc))
 CURR_DEP:=$(wildcard $(DEP))
 CURR_DEPENDS:=$(wildcard $(DEPENDS))
-BIN = sort minmax cmodprm csort cminmax hellow example1 cexample1 example2 cexample2
+BIN = sort minmax cmodprm csort cminmax hellow example1 cexample1 cexample2
 CURR_BIN=$(wildcard $(BIN))
 UTIL_INC=-I../util
 
@@ -45,8 +45,6 @@ cexample1: obj/example1.co ../util/obj/sglobal.co
 cexample2: obj/example2.co ../util/obj/sglobal.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
 example1: obj/example1.cpo ../util/obj/sglobal.cpo
-	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
-example2: obj/example2.cpo ../util/obj/sglobal.cpo
 	$(CXX) $(CXXFLAGS) $+ -o $@ $(CXXLDFLAGS)
 creadwrite: obj/creadwrite.co obj/sglobal.co
 	$(CC) $(CFLAGS) $+ -o $@ $(CLDFLAGS)
