@@ -273,11 +273,12 @@ class Model3dInterface
  */
 template <class T>
 std::unique_ptr<typename std::enable_if<std::is_base_of<File::ReadInterface, T>::value, T>::type>
-makeFile(Piol piol, const std::string name)
+makeFile(Piol piol, const std::string & name)
 {
-    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Read);
-    auto file = std::make_unique<T>(piol, name, obj);
-    return std::move(file);
+    return  std::make_unique<T>(
+        piol, name,
+        Obj::makeDefaultObj(piol, name, FileMode::Read)
+    );
 }
 
 /*! Construct WriteSEGY objects with default object and MPI-IO layers
@@ -288,11 +289,12 @@ makeFile(Piol piol, const std::string name)
  */
 template <class T>
 std::unique_ptr<typename std::enable_if<std::is_base_of<File::WriteInterface, T>::value, T>::type>
-makeFile(Piol piol, const std::string name)
+makeFile(Piol piol, const std::string & name)
 {
-    auto obj = Obj::makeDefaultObj(piol, name, FileMode::Write);
-    auto file = std::make_unique<T>(piol, name, obj);
-    return std::move(file);
+    return std::make_unique<T>(
+        piol, name,
+        Obj::makeDefaultObj(piol, name, FileMode::Write)
+    );
 }
 }}
 #endif
