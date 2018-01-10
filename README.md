@@ -41,7 +41,7 @@ CMake >= 3.5.2.
     # cd $HOME
     # rm -rf /path/to/build/directory
 
-CMake should find the necessary MPI and FFTW libraries automatically.
+CMake should find the necessary MPI and FFTW libraries automatically. It also searches for the C and C++ compilers in the CC and CXX environmental variables.
 
 
 ### Specifying MPI
