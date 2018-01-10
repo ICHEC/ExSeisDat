@@ -1,4 +1,3 @@
-#include <iconv.h>
 #include <string.h>
 #include <memory>
 #include "gtest/gtest.h"

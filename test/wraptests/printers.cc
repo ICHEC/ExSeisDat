@@ -15,8 +15,6 @@
 namespace PIOL {
 
 namespace File {
-    class Rule;
-
     ::std::ostream& operator<<(::std::ostream& os, PIOL::File::Param* value) {
         os << "PIOL::File::Param* " << static_cast<void*>(value);
         return os;

@@ -28,8 +28,8 @@ namespace PIOL {
     class ExSeis;
 
     namespace File {
-        class Rule;
-        class Param;
+        struct Rule;
+        struct Param;
         class ReadDirect;
         class WriteDirect;
     }

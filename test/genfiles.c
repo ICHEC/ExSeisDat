@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 #include <assert.h>
+#include <string.h>
+
 typedef unsigned char uchar;
 
 void writePattern(FILE * fs, size_t sz, const uchar* pattern, size_t psz)
@@ -133,25 +135,72 @@ void makeSEGY(const char * out, size_t ns, size_t nt, size_t maxBlock)
     }
 }
 
-int main(void)
+int main(int argc, char * argv[])
 {
     const size_t psz = 0x100;
     uchar pattern[psz];
-    for (size_t i = 0; i < psz; i++)
+    for (size_t i = 0; i < psz; i++) {
         pattern[i] = i % psz;
         //pattern[i] = i + i % 3 + i % 9 + i % (psz - 7);
+    }
 
-    makeFile("tmp/smallFilePattern.tmp", 4096ll, pattern, psz);
-    makeFile("tmp/largeFilePattern.tmp", 10ll*1024ll*1024ll*1024ll, pattern, psz);
-    makeSEGY("tmp/smallsegy.tmp", 261U, 400U, 1024U*1024U);
-    makeSEGY("tmp/bigtracesegy.tmp", 32000U, 40000U, 1024U*1024U);
-    makeSEGY("tmp/largesegy.tmp", 1000U, 2000000U, 1024U*1024U);
+    for (int i=1; i<argc; i++) {
 
-//  These are for generating system tests
-/*    makeSEGY("dat/notrace.segy", 1000U, 0U, 3600U);
-    makeSEGY("dat/onetrace.segy", 1000U, 1U, 1024U*1024U*1024U);
-    makeSEGY("dat/onebigtrace.segy", 32768U, 1U, 16U*1024U*1024U);
-    makeSEGY("dat/smallsegy.segy", 1000U, 2200000U, 1024U*1024U*1024U);*/
-    return 0;
+        //
+        // Files for unit tests
+        //
+
+        printf("Generating file: %s\n", argv[i]);
+
+        if (strcmp("smallFilePattern.tmp", argv[i]) == 0) {
+            makeFile(argv[i], 4096ll, pattern, psz);
+            continue;
+        }
+        if (strcmp("largeFilePattern.tmp", argv[i]) == 0) {
+            makeFile(argv[i], 10ll*1024ll*1024ll*1024ll, pattern, psz);
+            continue;
+        }
+        if (strcmp("smallsegy.tmp", argv[i]) == 0) {
+            makeSEGY(argv[i], 261U, 400U, 1024U*1024U);
+            continue;
+        }
+        if (strcmp("bigtracesegy.tmp", argv[i]) == 0) {
+            makeSEGY(argv[i], 32000U, 40000U, 1024U*1024U);
+            continue;
+        }
+        if (strcmp("largesegy.tmp", argv[i]) == 0) {
+            makeSEGY(argv[i], 1000U, 2000000U, 1024U*1024U);
+            continue;
+        }
+
+
+        //
+        // Files for system tests
+        //
+
+        if (strcmp("notrace.segy", argv[i]) == 0) {
+            makeSEGY(argv[i], 1000U, 0U, 3600U);
+            continue;
+        }
+        if (strcmp("onetrace.segy", argv[i]) == 0) {
+            makeSEGY(argv[i], 1000U, 1U, 1024U*1024U*1024U);
+            continue;
+        }
+        if (strcmp("onebigtrace.segy", argv[i]) == 0) {
+            makeSEGY(argv[i], 32768U, 1U, 16U*1024U*1024U);
+            continue;
+        }
+        if (strcmp("smallsegy.segy", argv[i]) == 0) {
+            makeSEGY(argv[i], 1000U, 2200000U, 1024U*1024U*1024U);
+            continue;
+        }
+
+
+        // Uncaught value for argv
+        printf("Error! Unknown filename %s!\n", argv[i]);
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 

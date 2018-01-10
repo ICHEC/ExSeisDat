@@ -93,6 +93,7 @@ bool set_sort_function_false(const PIOL_File_Param* param, size_t i, size_t j) {
 int main()
 {
     printf("cwraptests: Initializing!\n");
+    fflush(stdout);
     init_wraptests();
 
 
@@ -100,6 +101,7 @@ int main()
     ** Testing ExSeis
     */
     printf("Testing ExSeis\n");
+    fflush(stdout);
 
     PIOL_ExSeis* piol = PIOL_ExSeis_new(0);
 
@@ -130,6 +132,7 @@ int main()
     ** Testing Rule
     */
     printf("Testing Rule\n");
+    fflush(stdout);
 
     PIOL_File_Rule* rule = PIOL_File_Rule_new(true);
 
@@ -161,12 +164,14 @@ int main()
     ** Testing SEGSz
     */
     printf("Testing SEGSz\n");
+    fflush(stdout);
 
     if(PIOL_SEGSz_getTextSz() != 3200u) {
         printf(
             "PIOL_SEGSz_getTextSz() expected return value of %u, got %lu\n",
             3200, PIOL_SEGSz_getTextSz()
         );
+        fflush(stdout);
         return EXIT_FAILURE;
     }
     if(PIOL_SEGSz_getFileSz(200, 210) != 219600u) {
@@ -174,6 +179,7 @@ int main()
             "PIOL_SEGSz_getFileSz(200, 210) expected return value of %u, got %lu\n",
             219600u, PIOL_SEGSz_getFileSz(200, 210)
         );
+        fflush(stdout);
         return EXIT_FAILURE;
     }
     if(PIOL_SEGSz_getDFSz(220) != 880u) {
@@ -181,6 +187,7 @@ int main()
             "PIOL_SEGSz_getDFSz(220) expected return value of %u, got %lu\n",
             880u, PIOL_SEGSz_getDFSz(220)
         );
+        fflush(stdout);
         return EXIT_FAILURE;
     }
     if(PIOL_SEGSz_getMDSz() != 240u) {
@@ -188,6 +195,7 @@ int main()
             "PIOL_SEGSz_getMDSz() expected return value of %u, got %lu\n",
             240u, PIOL_SEGSz_getMDSz()
         );
+        fflush(stdout);
         return EXIT_FAILURE;
     }
 
@@ -196,6 +204,7 @@ int main()
     ** Param calls
     */
     printf("Testing Param\n");
+    fflush(stdout);
 
     PIOL_File_Param* param     = PIOL_File_Param_new(rule, 300);
     PIOL_File_Param* param_tmp = PIOL_File_Param_new(NULL, 310);
@@ -225,6 +234,7 @@ int main()
     ** Operations
     */
     printf("Testing Operations\n");
+    fflush(stdout);
 
     struct PIOL_CoordElem coord_elem = {.val = 500.0, .num = 510 };
     PIOL_File_getMinMax(
@@ -241,6 +251,7 @@ int main()
     ** ReadDirect
     */
     printf("Testing ReadDirect\n");
+    fflush(stdout);
 
     PIOL_File_ReadDirect* read_direct = PIOL_File_ReadDirect_new(
         piol, "Test_ReadDirect_filename"
@@ -327,6 +338,7 @@ int main()
     ** WriteDirect
     */
     printf("Testing WriteDirect\n");
+    fflush(stdout);
 
     PIOL_File_WriteDirect* write_direct = PIOL_File_WriteDirect_new(
         piol, "Test_WriteDirect_filename"
@@ -382,6 +394,7 @@ int main()
     ** Set
     */
     printf("Testing Set\n");
+    fflush(stdout);
 
     PIOL_Set* set = PIOL_Set_new(piol, "Test_Set_pattern*.segy");
 
@@ -425,5 +438,6 @@ int main()
     PIOL_ExSeis_delete(piol);
 
     printf("cwraptests: Done!\n");
+    fflush(stdout);
     return 0;
 }

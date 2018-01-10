@@ -1,0 +1,6 @@
+Time Sinks:
+Google Mock has limitations when it comes to death tests. Do not expect mock
+expectations to be handled correctly in a death test as the newly spawned threads
+appear to play havok with the correct deallocation of the mock.
+
+When running the `spectests` test, `spectests --gtest_filter=-*Farm*` lets you skip all the heavy unit tests that should be task farmed.

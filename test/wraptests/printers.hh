@@ -11,8 +11,8 @@ extern "C" struct PIOL_CoordElem;
 namespace PIOL {
 
 namespace File {
-    class Rule;
-    class Param;
+    struct Rule;
+    struct Param;
 
     ::std::ostream& operator<<(::std::ostream& os, PIOL::File::Param* value);
     ::std::ostream& operator<<(::std::ostream& os, const PIOL::File::Param* value);

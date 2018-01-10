@@ -12,6 +12,7 @@ TEST_F(FileSEGYIntegRead, SEGYReadHO)
 {
     nt = smallnt;
     ns = smallns;
+    std::cout << "SmallSEGYFile: " << smallSEGYFile << std::endl;
     makeSEGY<false>(smallSEGYFile);
 
     piol->isErr();

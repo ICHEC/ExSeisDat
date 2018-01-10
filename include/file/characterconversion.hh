@@ -6,11 +6,15 @@
  *   \brief A Conversion function to convert from EBCDIC to ASCII
  *   \details
  *//*******************************************************************************************/
-#ifndef PIOLFILEICONV_INCLUDE_GUARD
-#define PIOLFILEICONV_INCLUDE_GUARD
+#ifndef PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
+#define PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 #include "global.hh"
 #include <string>
 namespace PIOL {
+
+char ebcdicToAscii(uchar ebcdic_char);
+char asciiToEbcdic(uchar ascii_char);
+
 /*!\brief This function detects if the given unsigned character array contains ebcdic text. If so, it converts
  * the strong. Otherwise it is unmodified.
  * \param[in, out] piol The PIOL object
@@ -18,6 +22,6 @@ namespace PIOL {
  * \param[in] sz The length of the string.
  * \param[in, out] src The EBCDIC or ASCII string. After the function ends, the string is ASCII
  */
-extern void getAscii(ExSeisPIOL * piol, const std::string file, const size_t sz, uchar * src);
+void getAscii(ExSeisPIOL * piol, const std::string & file, size_t sz, uchar * src);
 }
 #endif

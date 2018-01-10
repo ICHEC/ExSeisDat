@@ -18,7 +18,7 @@
 #include "file/filesegy.hh"
 #include "object/object.hh"
 #include "share/segy.hh"
-#include "file/iconv.hh"
+#include "file/characterconversion.hh"
 #include "share/units.hh"
 #include "share/datatype.hh"
 

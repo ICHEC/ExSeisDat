@@ -29,18 +29,18 @@ std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
         EXPECT_CALL(mockExSeis(), ctor(_, verbosity, _));
     }
 
-    EXPECT_CALL(mockExSeis(), getRank(_)).WillOnce(Return(0));
-    EXPECT_CALL(returnChecker(), Call());
+    EXPECT_CALL(mockExSeis(), getRank(_)).WillOnce(CheckReturn(0));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mockExSeis(), getNumRank(_)).WillOnce(Return(10));
-    EXPECT_CALL(returnChecker(), Call());
+    EXPECT_CALL(mockExSeis(), getNumRank(_)).WillOnce(CheckReturn(10));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(mockExSeis(), barrier(_));
 
-    EXPECT_CALL(mockExSeis(), max(_, 0)).WillOnce(Return(30));
-    EXPECT_CALL(returnChecker(), Call());
-    EXPECT_CALL(mockExSeis(), max(_, 40)).WillOnce(Return(50));
-    EXPECT_CALL(returnChecker(), Call());
+    EXPECT_CALL(mockExSeis(), max(_, 0)).WillOnce(CheckReturn(30));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+    EXPECT_CALL(mockExSeis(), max(_, 40)).WillOnce(CheckReturn(50));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(mockExSeis(), isErr(_, ""));
     EXPECT_CALL(mockExSeis(), isErr(_, "Test isErr message"));

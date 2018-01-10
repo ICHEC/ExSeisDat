@@ -11,6 +11,7 @@ TEST_F(FileSEGYRead, FileConstructor)
 
 TEST_F(FileSEGYRead, FileReadHO)
 {
+    testEBCDIC = true;
     makeMockSEGY();
 
     EXPECT_EQ(nt, file->readNt());
