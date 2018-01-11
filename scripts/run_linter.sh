@@ -20,7 +20,14 @@ source_dirs="api examples include src systest test util"
 
 build_dir=${PWD}/build
 
+# Workaround a false-positive in googletest / googlemock
+gmock_problem_file=$(find ${build_dir} -name gmock-spec-builders.h)
+cp ${gmock_problem_file} ${gmock_problem_file}.bak
+sed '1272 s#\( // NOLINT\)*$# // NOLINT#' "${gmock_problem_file}.bak" > "${gmock_problem_file}"
+
 # Run clang-tidy
 find ${source_dirs} -iname "*.cc" \
-    | xargs -n 1 \
-        clang-tidy -p ${build_dir}
+    -exec echo 'Linting (clang-tidy):' {} \; \
+    -exec \
+        clang-tidy  {} \
+        -p ${build_dir} \;
