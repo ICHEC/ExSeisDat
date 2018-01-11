@@ -18,12 +18,12 @@ using namespace PIOL;
 void createFile(std::string name, size_t nt, size_t ns, double inc)
 {
     //Initialize PIOL by creating an ExSeisPIOL object
-    ExSeis piol;
+    auto piol = ExSeis::New();
 
     //Create new SEGY file
     File::WriteDirect file(piol, name);
 
-    auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
+    auto dec = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
@@ -55,13 +55,15 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
     for (size_t j = 0; j < lnt*ns; j++)
         trc[j] = float(offset*ns+j);
     file.writeTrace(offset, lnt, trc.data());
-    return 0;
 }
+
+
 int main(void)
 {
     //Set output file name, number of traces, number of samples per trace, and sampling rate
     std::string name = "CreateFileOutputCPP";
-    size_t nt = 8000; ns = 4000;
+    size_t nt = 8000;
+    size_t ns = 4000;
     double inc = .01;
 
     createFile(name, nt, ns, inc);

@@ -6,12 +6,12 @@
  *   \date February 2017
  *   \brief Sort a file in 9 lines
 *//*******************************************************************************************/
-#include "set.hh"
+#include "flow.hh"
 #include <vector>
 using namespace PIOL;
 int main(void)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
     Set set(piol, "Line_*", "LowpassTime");
     std::vector<float> c = {3.5, 0};
     set.temporalFilter(FltrType::Lowpass, FltrDmn::Time, PadType::Symmetric, 30.f, 4LU, c);

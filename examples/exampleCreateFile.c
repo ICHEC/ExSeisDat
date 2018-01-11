@@ -2,7 +2,7 @@
 #include "cfileapi.h"
 #include <assert.h>
 
-void createFile(char name, size_t nt, size_t ns, size_t inc)
+void createFile(const char * name, size_t nt, size_t ns, size_t inc)
 {
     //Initialise the PIOL by creating an ExSeis object
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -57,14 +57,15 @@ void createFile(char name, size_t nt, size_t ns, size_t inc)
     //Close the file handle and free the piol
     PIOL_File_WriteDirect_delete(fh);
     PIOL_ExSeis_delete(piol);
-
-    return 0;
 }
+
+
 int main(void)
 {
-        //Set output file name, number of traces, number of samples per trace, and sampling rate
-    char name = "CreateFileOutputC";
-    size_t nt = 8000; ns = 4000;
+    //Set output file name, number of traces, number of samples per trace, and sampling rate
+    const char * name = "CreateFileOutputC";
+    size_t nt = 8000;
+    size_t ns = 4000;
     double inc = .01;
 
     createFile(name, nt, ns, inc);
