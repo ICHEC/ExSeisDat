@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,-clang-analyzer-security.insecureAPI.rand'
 WarningsAsErrors: ''
 HeaderFilterRegex: '^.*\.hh?'
 AnalyzeTemporaryDtors: false

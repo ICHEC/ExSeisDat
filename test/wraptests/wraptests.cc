@@ -23,17 +23,19 @@ void init_wraptests()
 
     // Argc and argv.
     int argc = 1;
-    char* argv = NULL;
 
     // const char* needed for string literal, non-const char* needed for
     // google test.
-    const char* cargv = "cwraptests";
-    argv = new char[strlen(cargv)+1];
-    strcpy(argv, cargv);
+    const char * program_name = "cwraptests";
+    auto program_name_v = std::vector<char>{
+        program_name, program_name+strlen(program_name)+1
+    };
+    char * program_name_ptr = program_name_v.data();
 
     // Throw so TestBuilder has something to catch and report.
     testing::GTEST_FLAG(throw_on_failure) = true;
-    testing::InitGoogleTest(&argc, &argv);
+
+    testing::InitGoogleTest(&argc, &program_name_ptr);
 
     // Disable GoogleTest printing exceptions.
     testing::TestEventListeners& listeners =

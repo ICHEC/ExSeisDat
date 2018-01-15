@@ -53,7 +53,9 @@ public:
     MOCK_METHOD1(dtor, void(Param*));
 
     MOCK_CONST_METHOD1(size, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));
-    MOCK_CONST_METHOD1(memUsage, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*));
+    MOCK_CONST_METHOD1(
+        memUsage, EXSEISDAT_MOCK_PARAM_CONST size_t (const Param*)
+    );
 };
 
 class MockParamFreeFunctions
@@ -65,13 +67,20 @@ public:
     );
 
     MOCK_METHOD3(
-        getPrm_int16_t, const int16_t(size_t i, Meta entry, const Param* prm)
+        getPrm_int16_t,
+        EXSEISDAT_MOCK_PARAM_CONST int16_t(
+            size_t i, Meta entry, const Param* prm
+        )
     );
     MOCK_METHOD3(
-        getPrm_llint,   const llint(size_t i, Meta entry, const Param* prm)
+        getPrm_llint,
+        EXSEISDAT_MOCK_PARAM_CONST llint(size_t i, Meta entry, const Param* prm)
     );
     MOCK_METHOD3(
-        getPrm_geom_t,  const geom_t(size_t i, Meta entry, const Param* prm)
+        getPrm_geom_t,
+        EXSEISDAT_MOCK_PARAM_CONST geom_t(
+            size_t i, Meta entry, const Param* prm
+        )
     );
 
     MOCK_METHOD4(

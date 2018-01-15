@@ -104,7 +104,7 @@ void Set::add(std::string pattern)
 
     for (size_t i = 0; i < globs.gl_pathc; i++)
         if (std::regex_match(globs.gl_pathv[i], reg))   //For each input file which matches the regex
-            add(std::move(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i])));
+            add(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i]));
     globfree(&globs);
     piol->isErr();
 }
@@ -154,7 +154,7 @@ void RadonState::makeState(const std::vector<size_t> & offset, const Uniray<size
 std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, std::unique_ptr<TraceBlock> bIn)
 {
     if (fCurr == fEnd || !(*fCurr)->opt.check(type))
-        return std::move(bIn);
+        return bIn;
     switch (type)
     {
         case FuncOpt::Gather :
@@ -164,9 +164,8 @@ std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst
                 dynamic_cast<Op<Mod> *>(fCurr->get())->func(bIn.get(), bOut.get());
                 bIn = std::move(bOut);
             }
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
             ++fCurr;
-#pragma GCC diagnostic pop
+            // fallthrough
         case FuncOpt::SingleTrace :
             if ((*fCurr)->opt.check(FuncOpt::SingleTrace))
             {

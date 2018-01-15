@@ -129,7 +129,7 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
     for (size_t i = 0; i < win.size(); i++)
         MPIErr(MPI_Win_unlock(lrank, win[i]));
 
-    return std::move(crd);
+    return crd;
 }
 
 /*! Calcuate the difference criteria between source/receiver pairs between traces.
@@ -315,7 +315,7 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
     vec<MPI_Status> stat(request.size());
     MPIErr(MPI_Waitall(request.size(), request.data(), stat.data()));
 
-    return std::move(crd);
+    return crd;
 }
 
 void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * crd1, const Coords * crd2,

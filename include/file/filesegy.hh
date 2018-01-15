@@ -89,9 +89,9 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY
     };
 
     /*!
-     \param[in] piol_ The piol object.
-     \param[in] name_ The name of the file.
-     \param[in] obj_ A shared pointer for the object layer object.
+     * \param[in] piol_ The piol object.
+     * \param[in] name_ The name of the file.
+     * \param[in] obj_ A shared pointer for the object layer object.
      */
     ReadSEGYModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_);
 

@@ -294,15 +294,12 @@ void MPIIO::readv(const size_t offset, const size_t bsz, const size_t osz, const
 
 void MPIIO::read(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, uchar * d) const
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-    auto viewIO = [this, offset, bsz, osz]
-        (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
+    auto viewIO = [this, bsz, osz]
+        (MPI_File, MPI_Offset off, void * d, int numb, MPI_Datatype, MPI_Status*) -> int
         {
             readv(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
             return MPI_SUCCESS;
         };
-#pragma GCC diagnostic pop
 
     contigIO(viewIO, offset, nb, d, "Failed to read data over the integer limit.", bsz, osz);
 }
@@ -402,15 +399,12 @@ void MPIIO::write(const size_t offset, const size_t sz, const uchar * d) const
 
 void MPIIO::write(const size_t offset, const size_t bsz, const size_t osz, const size_t nb, const uchar * d) const
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-    auto viewIO = [this, offset, bsz, osz]
-        (MPI_File file, MPI_Offset off, void * d, int numb, MPI_Datatype da, MPI_Status * stat) -> int
+    auto viewIO = [this, bsz, osz]
+        (MPI_File, MPI_Offset off, void * d, int numb, MPI_Datatype, MPI_Status*) -> int
         {
             writev(off, bsz, osz, size_t(numb), static_cast<uchar *>(d));
             return MPI_SUCCESS;
         };
-#pragma GCC diagnostic pop
 
     contigIO(viewIO, offset, nb, const_cast<uchar *>(d), "Failed to read data over the integer limit.", bsz, osz);
 }

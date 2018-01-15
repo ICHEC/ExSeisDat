@@ -110,7 +110,7 @@ std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string 
     piol->comm->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
-    return std::move(coords);
+    return coords;
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?
