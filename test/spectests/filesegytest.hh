@@ -14,13 +14,9 @@
 #include "share/segy.hh"
 #include "share/datatype.hh"
 
-#define private public
-#define protected public
 #include "cppfileapi.hh"
 #include "file/filesegy.hh"
 #include "segymdextra.hh"
-#undef private
-#undef protected
 
 using namespace testing;
 using namespace PIOL;
@@ -31,6 +27,48 @@ using File::calcScale;
 using File::scalComp;
 using File::setCoord;
 using File::setGrid;
+
+
+struct ReadSEGY_public: public File::ReadSEGY
+{
+    using ReadSEGY::ReadSEGY;
+
+    using ReadSEGY::piol;
+    using ReadSEGY::name;
+    using ReadSEGY::obj;
+
+    using ReadSEGY::nt;
+    using ReadSEGY::ns;
+    using ReadSEGY::inc;
+    using ReadSEGY::text;
+
+    static ReadSEGY_public* get(ReadInterface* read_interface) {
+        auto* read_segy_public = dynamic_cast<ReadSEGY_public*>(read_interface);
+        assert(read_segy_public != nullptr);
+        return read_segy_public;
+    }
+};
+
+struct WriteSEGY_public: public File::WriteSEGY
+{
+    using WriteSEGY::WriteSEGY;
+
+    using WriteSEGY::piol;
+    using WriteSEGY::name;
+    using WriteSEGY::obj;
+
+    using WriteSEGY::nt;
+    using WriteSEGY::ns;
+    using WriteSEGY::inc;
+    using WriteSEGY::text;
+
+    static WriteSEGY_public* get(WriteInterface* write_interface) {
+        auto* write_segy_public = dynamic_cast<WriteSEGY_public*>(write_interface);
+        assert(write_segy_public != nullptr);
+        return write_segy_public;
+    }
+};
+
 
 enum Hdr : size_t
 {
@@ -182,9 +220,8 @@ struct FileReadSEGYTest : public Test
                                                                        nt*SEGSz::getDOSz(ns)));
         EXPECT_CALL(*mock, readHO(_)).Times(Exactly(1)).WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 
-        auto sfile = std::make_shared<File::ReadSEGY>(piol, notFile, mock);
+        auto sfile = std::make_shared<ReadSEGY_public>(piol, notFile, mock);
         file = std::make_unique<File::ReadDirect>(std::move(sfile));
-        //file->file = std::move(sfile);
     }
 
     void initTrBlock()
@@ -484,14 +521,13 @@ struct FileWriteSEGYTest : public Test
 
         writeHO<false>();
 
-        auto rfi = std::make_shared<File::ReadSEGY>(piol, name, rf, obj);
-        readfile = std::make_unique<File::ReadDirect>(std::move(rfi));
-        //readfile->file = std::move(rfi);
+        auto rfi = std::make_shared<ReadSEGY_public>(piol, name, rf, obj);
+        rfi->nt = nt;
+        rfi->ns = ns;
+        rfi->inc = inc;
+        rfi->text = testString;
 
-        readfile->file->nt = nt;
-        readfile->file->ns = ns;
-        readfile->file->inc = inc;
-        readfile->file->text = testString;
+        readfile = std::make_unique<File::ReadDirect>(rfi);
     }
 
     template <bool callHO = true>
@@ -505,19 +541,19 @@ struct FileWriteSEGYTest : public Test
         piol->isErr();
         Mock::AllowLeak(mock.get());
 
-        auto sfile = std::make_shared<File::WriteSEGY>(piol, notFile, mock);
+        auto sfile = std::make_shared<WriteSEGY_public>(piol, notFile, mock);
+        if(!callHO)
+        {
+            sfile->nt = nt;
+            sfile->writeNs(ns);
+        }
+
         file = std::make_unique<File::WriteDirect>(std::move(sfile));
-        //file->file = std::move(sfile);
 
         if (callHO)
         {
             piol->isErr();
             writeHO<true>();
-        }
-        else
-        {
-            file->file->nt = nt;
-            file->file->writeNs(ns);
         }
     }
 
@@ -694,7 +730,9 @@ struct FileWriteSEGYTest : public Test
 
         if (MOCK == false)
         {
-            readfile->file->nt = std::max(offset+tn, readfile->file->nt);
+            ReadSEGY_public::get(*readfile)->nt = std::max(
+                offset+tn, ReadSEGY_public::get(*readfile)->nt
+            );
             readTraceTest<writePrm>(offset, tn);
         }
     }
@@ -796,7 +834,9 @@ struct FileWriteSEGYTest : public Test
         if (MOCK == false)
         {
             for (size_t i = 0U; i < tn; i++)
-                readfile->file->nt = std::max(offset[i], readfile->file->nt);
+                ReadSEGY_public::get(*readfile)->nt = std::max(
+                    offset[i], ReadSEGY_public::get(*readfile)->nt
+                );
             readRandomTraceTest<writePrm>(tn, offset);
         }
     }

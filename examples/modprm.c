@@ -57,7 +57,7 @@ void writePayload(PIOL_ExSeis* piol, size_t goff, size_t lnt, size_t tcnt,
                   PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
     size_t biggest = lnt;
-    int err = MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
     size_t extra = biggest/tcnt - lnt/tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
     for (size_t i = 0U; i < lnt; i += tcnt)

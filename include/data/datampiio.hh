@@ -108,6 +108,9 @@ class MPIIO : public Interface
 
     ~MPIIO(void);
 
+    /// Test if file == MPI_FILE_NULL
+    bool isFileNull() const;
+
     size_t getFileSz() const;
 
     void setFileSz(const size_t sz) const;

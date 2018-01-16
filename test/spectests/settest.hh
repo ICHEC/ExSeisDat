@@ -2,12 +2,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "tglobal.hh"
-#define private public
-#define protected public
 #include "file/file.hh"
 #include "flow/set.hh"
-#undef private
-#undef protected
 #include "file/filesegy.hh"
 #include "cppfileapi.hh"
 #include "object/objsegy.hh"
@@ -60,10 +56,20 @@ std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
         return std::make_shared<T>(piol, name, obj);
 }
 
+struct Set_public: public Set
+{
+    using Set::Set;
+
+    using Set::outfix;
+    using Set::func;
+    using Set::calcFunc;
+    using Set::file;
+};
+
 struct SetTest : public Test
 {
     std::shared_ptr<ExSeis> piol = ExSeis::New();
-    std::unique_ptr<Set> set = nullptr;
+    std::unique_ptr<Set_public> set = nullptr;
     std::deque<File::Param> prm;
     Comm::MPI::Opt opt;
     const double pi = M_PI;
@@ -72,7 +78,7 @@ struct SetTest : public Test
     {
         if (set.get() != nullptr)
             set.release();
-        set = std::make_unique<Set>(piol);
+        set = std::make_unique<Set_public>(piol);
         for (size_t j = 0; j < numNs; j++)
             for (size_t k = 0; k < numInc; k++)
                 for (size_t i = 0; i < numFile; i++)
@@ -131,7 +137,7 @@ struct SetTest : public Test
     void init(size_t numFile, size_t nt, size_t)
     {
         srand(1337);
-        set.reset(new Set(piol));
+        set.reset(new Set_public(piol));
         for (size_t i = 0; i < numFile; i++)
         {
             auto mock = std::make_unique<MockFile>();
@@ -154,7 +160,7 @@ struct SetTest : public Test
 
     void taperTest(size_t nt, size_t ns, size_t mute, TaperFunc tapFunc, TaperType type, size_t nTailLft, size_t nTailRt)
     {
-        set.reset(new Set(piol));
+        set.reset(new Set_public(piol)); //, "", "tmp/temp"));
         auto mock = std::make_unique<MockFile>();
 
         std::vector<trace_t> trc(nt * ns);
@@ -194,7 +200,7 @@ struct SetTest : public Test
 
     void agcTest(size_t nt, size_t ns, AGCType type, std::function<trace_t(size_t, trace_t *,size_t)> agcFunc, size_t window, trace_t normR)
     {
-        set.reset(new Set(piol));
+        set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
 
         std::vector<trace_t> trc(nt*ns);
@@ -263,7 +269,7 @@ struct SetTest : public Test
         trace_t PI = std::acos(-1);
         size_t N = 3;
         size_t ns = trcRef.size() / nt;
-        set.reset(new Set(piol));
+        set.reset(new Set_public(piol));
 
         std::vector<trace_t> trc(trcRef.size());
 
@@ -274,7 +280,7 @@ struct SetTest : public Test
                       0.5_t * std::sin(48.0_t * PI * (trace_t(j))/trace_t(ns));
 
 
-        set.reset(new Set(piol));
+        set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
 
         EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));

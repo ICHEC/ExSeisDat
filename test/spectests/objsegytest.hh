@@ -9,12 +9,8 @@
 #include "share/datatype.hh"
 #include "anc/mpi.hh"
 #include "data/datampiio.hh"
-#define private public
-#define protected public
 #include "object/object.hh"
 #include "object/objsegy.hh"
-#undef private
-#undef protected
 
 using namespace testing;
 using namespace PIOL;

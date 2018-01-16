@@ -176,7 +176,7 @@ typedef std::list<std::shared_ptr<OpParent>> FuncLst;           //!< The functio
  */
 class Set
 {
-    private :
+    protected :
     std::shared_ptr<ExSeisPIOL> piol;                           //!< The PIOL object.
     std::string outfix;                                         //!< The output prefix
     std::string outmsg;                                         //!< The output text-header message

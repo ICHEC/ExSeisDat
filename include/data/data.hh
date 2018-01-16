@@ -17,22 +17,37 @@ namespace PIOL { namespace Data {
 class Interface
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;  //!< Pointer to the PIOL object.
-    Log::Logger * log;                 //!< For convienience
-    const std::string name;            //!< Store the file name for debugging purposes.
+    std::shared_ptr<ExSeisPIOL> piol_;  //!< Pointer to the PIOL object.
+    Log::Logger * log_;                 //!< For convienience
+    const std::string name_;            //!< Store the file name for debugging purposes.
 
     public :
     /*! \brief The constructor.
      *  \param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  \param[in] name_ The name of the file associated with the instantiation.
      */
-    Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) : piol(piol_), log(piol_->log.get()), name(name_)
+    Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name) : piol_(piol), log_(piol->log.get()), name_(name)
     {
     }
 
     /*! \brief A virtual destructor to allow deletion.
      */
     virtual ~Interface(void) = default;
+
+    /// \brief The stored PIOL object.
+    virtual std::shared_ptr<ExSeisPIOL> piol() {
+        return piol_;
+    }
+
+    /// \brief The stored log object.
+    virtual const Log::Logger* log() {
+        return log_;
+    }
+
+    /// \brief The stored file name.
+    virtual std::string name() {
+        return name_;
+    }
 
     /*! \brief find out the file size.
      *  \return The file size in bytes.

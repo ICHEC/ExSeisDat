@@ -137,8 +137,9 @@ void makeSEGY(const char * out, size_t ns, size_t nt, size_t maxBlock)
 
 int main(int argc, char * argv[])
 {
-    const size_t psz = 0x100;
-    uchar pattern[psz];
+    #define PSZ_VALUE (0x100)
+    const size_t psz = PSZ_VALUE;
+    uchar pattern[PSZ_VALUE];
     for (size_t i = 0; i < psz; i++) {
         pattern[i] = i % psz;
         //pattern[i] = i + i % 3 + i % 9 + i % (psz - 7);

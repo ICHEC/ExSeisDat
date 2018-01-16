@@ -189,14 +189,14 @@ int getMPIMode(FileMode mode)
     }
 }
 
-MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, const MPIIO::Opt & opt, FileMode mode)
-    : PIOL::Data::Interface(piol_, name_)
+MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol, const std::string name, const MPIIO::Opt & opt, FileMode mode)
+    : PIOL::Data::Interface(piol, name)
 {
     Init(opt, mode);
 }
 
-MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, FileMode mode)
-    : PIOL::Data::Interface(piol_, name_)
+MPIIO::MPIIO(std::shared_ptr<ExSeisPIOL> piol, const std::string name, FileMode mode)
+    : PIOL::Data::Interface(piol, name)
 {
     const MPIIO::Opt opt;
     Init(opt, mode);
@@ -207,12 +207,12 @@ MPIIO::~MPIIO(void)
     if (file != MPI_FILE_NULL)
     {
         int err = MPI_File_close(&file);
-        printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_File_close failed");
+        printErr(log_, name_, Log::Layer::Data, err, nullptr, "MPI_File_close failed");
     }
     if (info != MPI_INFO_NULL)
     {
         int err = MPI_Info_free(&info);
-        printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_Info_free failed");
+        printErr(log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_free failed");
     }
 }
 
@@ -223,10 +223,10 @@ void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
     file = MPI_FILE_NULL;
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    printErr(log, name, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
+    printErr(log_, name_, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
 
     if (esz != 1)
-        log->record(name, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", PIOL_VERBOSITY_NONE);
+        log_->record(name_, Log::Layer::Data, Log::Status::Error, "MPI_CHAR extent is bigger than one.", PIOL_VERBOSITY_NONE);
 
     fcomm = opt.fcomm;
 
@@ -235,34 +235,40 @@ void MPIIO::Init(const MPIIO::Opt & opt, FileMode mode)
     if (opt.info != MPI_INFO_NULL)
     {
         err = MPI_Info_dup(opt.info, &info);
-        printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
+        printErr(log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
     }
     else
         info = MPI_INFO_NULL;
 
-    err = MPI_File_open(fcomm, name.data(), flags, info, &file);
-    printErr(log, name, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
+    err = MPI_File_open(fcomm, name_.data(), flags, info, &file);
+    printErr(log_, name_, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     if (err == MPI_SUCCESS)
     {
         int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
-        printErr(log, name, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
+        printErr(log_, name_, Log::Layer::Data, err, nullptr, "MPIIO Constructor failed to set a view");
     }
 }
 
 ///////////////////////////////////       Member functions      ///////////////////////////////////
+
+bool MPIIO::isFileNull() const
+{
+    return file == MPI_FILE_NULL;
+}
+
 size_t MPIIO::getFileSz() const
 {
     MPI_Offset fsz = 0;
     int err = MPI_File_get_size(file, &fsz);
-    printErr(log, name, Log::Layer::Data, err, nullptr, "error getting the file size");
+    printErr(log_, name_, Log::Layer::Data, err, nullptr, "error getting the file size");
     return size_t(fsz);
 }
 
 void MPIIO::setFileSz(const size_t sz) const
 {
     int err = MPI_File_set_size(file, MPI_Offset(sz));
-    printErr(log, name, Log::Layer::Data, err, nullptr, "error setting the file size");
+    printErr(log_, name_, Log::Layer::Data, err, nullptr, "error setting the file size");
 }
 
 void MPIIO::read(const size_t offset, const size_t sz, uchar * d) const
@@ -277,13 +283,13 @@ void MPIIO::readv(const size_t offset, const size_t bsz, const size_t osz, const
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
-        log->record(name, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
+        log_->record(name_, Log::Layer::Data, Log::Status::Error, "Read overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
     //Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
-    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
+    printErr(log_, name_, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
     read(0LU, nb*bsz, d);
 
@@ -312,7 +318,7 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, const size_t offset, const size_t
     int err = MPI_SUCCESS;
     size_t max = maxSize / osz;
     size_t remCall = 0;
-    auto vec = piol->comm->gather<size_t>(sz);
+    auto vec = piol_->comm->gather<size_t>(sz);
     remCall = *std::max_element(vec.begin(), vec.end());
     remCall = remCall/max + (remCall % max > 0) - sz/max - (sz % max > 0);
 
@@ -320,13 +326,13 @@ void MPIIO::contigIO(const MFp<MPI_Status> fn, const size_t offset, const size_t
     {
         size_t chunk = std::min(sz - i, max);
         err = fn(file, MPI_Offset(offset + osz*i), &d[bsz*i], chunk, MPIType<uchar>(), &stat);
-        printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 
     for (size_t i = 0; i < remCall; i++)
     {
         err = fn(file, 0, NULL, 0, MPIType<uchar>(), &stat);
-        printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 }
 
@@ -338,7 +344,7 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, const size_t bsz, const size_t sz, 
     size_t max = maxSize / (bsz ? bsz * 2LU : 1LU);
     size_t remCall = 0;
     {
-        auto vec = piol->comm->gather<size_t>(sz);
+        auto vec = piol_->comm->gather<size_t>(sz);
         remCall = *std::max_element(vec.begin(), vec.end());
         remCall = remCall / max + (remCall % max > 0) -  (sz / max) - (sz % max > 0);
     }
@@ -349,14 +355,14 @@ void MPIIO::listIO(const MFp<MPI_Status> fn, const size_t bsz, const size_t sz, 
     {
         size_t chunk = std::min(sz - i, max);
         err = iol(fn, file, info, bsz, chunk, reinterpret_cast<const MPI_Aint *>(&offset[i]), &d[i*bsz], &stat);
-        printErr(log, name, Log::Layer::Data, err, &stat, msg);
+        printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 
     if (remCall)
         for (size_t i = 0; i < remCall; i++)
         {
             err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
-            printErr(log, name, Log::Layer::Data, err, &stat, msg);
+            printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
         }
 }
 
@@ -377,13 +383,13 @@ void MPIIO::writev(const size_t offset, const size_t bsz, const size_t osz, cons
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
                                                + std::to_string(bsz) + ", "
                                                + std::to_string(osz) + ")";
-        log->record(name, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
+        log_->record(name_, Log::Layer::Data, Log::Status::Error, "Write overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
     //Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
-    printErr(log, name, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
+    printErr(log_, name_, Log::Layer::Data, err, NULL, "Failed to set a view for reading.");
 
     write(0LU, nb*bsz, d);
 

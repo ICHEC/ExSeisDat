@@ -3,9 +3,10 @@
 TEST_F(FileSEGYRead, FileConstructor)
 {
     makeMockSEGY();
-    EXPECT_EQ(piol, file->file->piol);
-    EXPECT_EQ(notFile, file->file->name);
-    EXPECT_EQ(mock, file->file->obj);
+
+    EXPECT_EQ(piol,    ReadSEGY_public::get(*file)->piol);
+    EXPECT_EQ(notFile, ReadSEGY_public::get(*file)->name);
+    EXPECT_EQ(mock,    ReadSEGY_public::get(*file)->obj);
     ASSERT_TRUE(ns < 0x10000);
 }
 
@@ -61,7 +62,7 @@ TEST_F(FileSEGYRead, FileReadTrHdrBigNs)
     initTrBlock();
 
     const size_t bigns = 10000;
-    file->file->ns = bigns;
+    ReadSEGY_public::get(*file)->ns = bigns;
     initReadTrMock(bigns, nt/2U);
 }
 

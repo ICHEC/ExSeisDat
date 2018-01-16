@@ -18,9 +18,9 @@ namespace PIOL { namespace Obj {
 class Interface
 {
     protected :
-    std::shared_ptr<ExSeisPIOL> piol;       //!< Pointer to the PIOL object.
-    std::string name;                       //!< Store the file name for debugging purposes.
-    std::shared_ptr<Data::Interface> data;  //!< Pointer to the Data layer object (polymorphic).
+    std::shared_ptr<ExSeisPIOL> piol_;       //!< Pointer to the PIOL object.
+    std::string name_;                       //!< Store the file name for debugging purposes.
+    std::shared_ptr<Data::Interface> data_;  //!< Pointer to the Data layer object (polymorphic).
 
     public :
     /*! \brief The constructor.
@@ -28,13 +28,25 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] data_ Pointer to the Data layer object (polymorphic).
      */
-    Interface(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_, std::shared_ptr<Data::Interface> data_) : piol(piol_), name(name_), data(data_)
+    Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name, std::shared_ptr<Data::Interface> data) : piol_(piol), name_(name), data_(data)
     {
     }
 
     /*! \brief A virtual destructor to allow deletion.
      */
     virtual ~Interface(void) { }
+
+    virtual std::shared_ptr<ExSeisPIOL> piol() {
+        return piol_;
+    }
+
+    virtual std::string name() {
+        return name_;
+    }
+
+    virtual std::shared_ptr<Data::Interface> data() {
+        return data_;
+    }
 
     /*! \brief Find out the file size.
      *  \return The file size in bytes.

@@ -19,10 +19,10 @@ TEST_F(MPIIODeathTest, FailedConstructor)
 {
     makeMPIIO(notFile);
 
-    EXPECT_EQ(piol, data->piol);
-    EXPECT_EQ(notFile, data->name);
+    EXPECT_EQ(piol, data->piol());
+    EXPECT_EQ(notFile, data->name());
 
-    Log::Item * item = &piol->log->loglist.front();
+    const Log::Item * item = &piol->log->loglist().front();
     EXPECT_EQ(notFile, item->file);
     EXPECT_EQ(Log::Layer::Data, item->layer);
     EXPECT_EQ(Log::Status::Error, item->stat);
@@ -36,17 +36,17 @@ TEST_F(MPIIODeathTest, FailedConstructor)
 TEST_F(MPIIOTest, Constructor)
 {
     makeMPIIO(zeroFile);
-    EXPECT_EQ(piol, data->piol);
-    EXPECT_EQ(zeroFile, data->name);
+    EXPECT_EQ(piol, data->piol());
+    EXPECT_EQ(zeroFile, data->name());
     piol->isErr();
     piol->log->procLog();
 
-    EXPECT_TRUE(piol->log->loglist.empty()) << "Unexpected log message";
+    EXPECT_TRUE(piol->log->loglist().empty()) << "Unexpected log message";
 
     EXPECT_NE(nullptr, data) << "data is null";
     auto mio = std::dynamic_pointer_cast<Data::MPIIO>(data);
     EXPECT_NE(nullptr, mio) << "MPI-IO data cast failed";
-    EXPECT_TRUE(mio->file != MPI_FILE_NULL) << "File was not opened";
+    EXPECT_FALSE(mio->isFileNull()) << "File was not opened";
 
     piol->isErr();
     EXPECT_EQ(static_cast<size_t>(0), data->getFileSz());

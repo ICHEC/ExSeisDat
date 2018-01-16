@@ -4,11 +4,7 @@
 #include "tglobal.hh"
 #include "anc/mpi.hh"
 #include "cppfileapi.hh"
-#define private public
-#define protected public
 #include "data/data.hh"
-#undef private
-#undef protected
 
 using namespace testing;
 using namespace PIOL;
@@ -42,6 +38,6 @@ struct FakeData : public Data::Interface
 TEST_F(DataTest, Constructor)
 {
     FakeData fake(piol, notFile);
-    EXPECT_EQ(piol, fake.piol);
-    EXPECT_EQ(notFile, fake.name);
+    EXPECT_EQ(piol, fake.piol());
+    EXPECT_EQ(notFile, fake.name());
 }
