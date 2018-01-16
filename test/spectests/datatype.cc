@@ -3,6 +3,11 @@
 #include <vector>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+
+//include two very large vectors
+#include "ibm.hh"
+#include "ibm-compare.hh"
+
 using namespace PIOL;
 TEST(Datatype, getHost32Bit1)
 {
@@ -27,10 +32,6 @@ TEST(Datatype, getHost32Bit3)
     EXPECT_EQ(ans, h);
 }
 
-//include two very large vectors
-#include "ibm.cc-part"
-#include "ibm-compare.cc-part"
-
 std::string printBinary(uint32_t val)
 {
     std::stringstream s;
@@ -45,15 +46,19 @@ std::string printBinary(uint32_t val)
     return s.str();
 }
 
+// Small function for getting the size of a static array
+template<typename T, size_t N>
+static size_t array_size(T (&)[N]) { return N; }
+
 TEST(Datatype, IBMToIEEE)
 {
-    ASSERT_EQ(rawTraces.size(), tktraces.size());
-    for (size_t i = 0; i < rawTraces.size(); i++)
+    ASSERT_EQ(array_size(rawTraces), array_size(tktraces));
+    for (size_t i = 0; i < array_size(rawTraces); i++)
     {
         float val = convertIBMtoIEEE(tofloat(rawTraces[i]), true);
         EXPECT_EQ(val, tktraces[i]) << "float number " << i
             << "\n raw " << printBinary(rawTraces[i])
             << "me   " << printBinary(toint(convertIBMtoIEEE(tofloat(rawTraces[i]), true)))
-            << "them " << printBinary(*reinterpret_cast<uint32_t *>(&tktraces[i]));
+            << "them " << printBinary(*reinterpret_cast<const uint32_t *>(&tktraces[i]));
     }
 }
