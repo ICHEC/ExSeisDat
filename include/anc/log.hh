@@ -58,7 +58,7 @@ class Logger
 {
     private :
     Verbosity maxLevel;                      //!< The maximum verbosity level
-    std::forward_list<const Item> loglist_;    //!< The linked-list container which holds the log items
+    std::forward_list<Item> loglist_;    //!< The linked-list container which holds the log items
     bool error;                         //!< The error status.
 
     public :
@@ -81,7 +81,7 @@ class Logger
     }
 
     /// \brief The list of current log items.
-    const std::forward_list<const Item>& loglist() const {
+    const std::forward_list<Item>& loglist() const {
         return loglist_;
     }
 
