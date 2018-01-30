@@ -12,6 +12,7 @@
 #define PIOLANCCMPI_INCLUDE_GUARD
 #include <mpi.h>
 #include "anc/comm.hh"
+#include "anc/log.hh"
 namespace PIOL { namespace Comm {
 
 /*! @brief Set whether PIOL should manage MPI initialization / finalization.

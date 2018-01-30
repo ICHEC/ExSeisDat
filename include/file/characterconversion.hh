@@ -9,6 +9,7 @@
 #ifndef PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 #define PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 #include "global.hh"
+#include "anc/piol.hh"
 #include <string>
 namespace PIOL {
 

@@ -12,6 +12,7 @@
 #include <functional>
 #include "global.hh"
 #include "share/api.hh"
+#include "anc/piol.hh"
 
 namespace PIOL { namespace File {
 

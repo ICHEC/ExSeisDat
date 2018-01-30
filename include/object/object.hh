@@ -10,6 +10,7 @@
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
 #include "global.hh"
+#include "anc/piol.hh"
 
 namespace PIOL { namespace Obj {
 /*! @brief The Obj layer interface. Specific Obj implementations

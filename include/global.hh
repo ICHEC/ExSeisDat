@@ -10,11 +10,19 @@
 #ifndef PIOLGLOBAL_INCLUDE_GUARD
 #define PIOLGLOBAL_INCLUDE_GUARD
 
+#include "stddef.h"
+
 #ifdef __cplusplus
+
+#include <cstdint>
+#include <vector>
+#include <memory>
+#include <functional>
+#include <complex>
+
 extern "C" {
 #endif // __cplusplus
 
-#include "stddef.h"
 
 typedef ptrdiff_t PIOL_llint;
 typedef float     PIOL_trace_t;
@@ -26,12 +34,6 @@ typedef double    PIOL_geom_t;
 
 
 #ifdef __cplusplus
-
-#include <cstdint>
-#include <vector>
-#include <memory>
-#include <functional>
-#include <complex>
 
 namespace PIOL {
 
@@ -52,8 +54,6 @@ namespace PIOL {
     }
 
 }
-
-#include "anc/piol.hh"
 
 namespace PIOL {
 

@@ -7,6 +7,7 @@
  *   @details
  *//*******************************************************************************************/
 #include "global.hh"
+#include "anc/piol.hh"
 namespace PIOL {
 /*! Perform a 1d decomposition so that the load is optimally balanced.
  *  @param[in] sz The sz of the 1d domain

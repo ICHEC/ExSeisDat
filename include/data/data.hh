@@ -10,6 +10,7 @@
 #ifndef PIOLDATA_INCLUDE_GUARD
 #define PIOLDATA_INCLUDE_GUARD
 #include "global.hh"
+#include "anc/piol.hh"
 namespace PIOL { namespace Data {
 /*! @brief The Data layer interface. Specific data I/O implementations
  *  work off this base class.

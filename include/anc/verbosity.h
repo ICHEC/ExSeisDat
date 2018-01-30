@@ -1,6 +1,8 @@
 #ifndef PIOLANCVERBOSITY_HEADER_GUARD
 #define PIOLANCVERBOSITY_HEADER_GUARD
 
+#include <stddef.h>
+
 /*! @brief The enumeration for the verbosity level of records
  */
 typedef size_t PIOL_Verbosity;
