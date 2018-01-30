@@ -11,11 +11,11 @@
 namespace PIOL { namespace Obj {
 size_t Interface::getFileSz(void) const
 {
-    return data->getFileSz();
+    return data_->getFileSz();
 }
 
-void Interface::setFileSz(csize_t sz) const
+void Interface::setFileSz(const size_t sz) const
 {
-    return data->setFileSz(sz);
+    return data_->setFileSz(sz);
 }
 }}

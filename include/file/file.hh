@@ -21,17 +21,16 @@ namespace Obj {
  * \return Return a shared_ptr to the obj layer object.
  * \todo TODO: This hack needs a further tidyup and out of file.hh.
  */
-std::shared_ptr<Obj::Interface> makeDefaultObj(PIOL::Piol piol, std::string name, FileMode mode);
+std::shared_ptr<Obj::Interface> makeDefaultObj(std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
 }
 namespace File {
 extern const trace_t * TRACE_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
-extern const Param * PARAM_NULL;    //!< The NULL parameter so that the correct internal read pattern is selected
 /*! Class for all file interfaces
  */
 class Interface
 {
     protected :
-    Piol piol;                            //!< The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;     //!< The PIOL object.
     std::string name;                     //!< Store the file name for debugging purposes.
     std::shared_ptr<Obj::Interface> obj;  //!< Pointer to the Object-layer object (polymorphic).
     size_t ns;                            //!< The number of samples per trace.
@@ -44,7 +43,8 @@ class Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    Interface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : piol(piol_), name(name_), obj(obj_)
+    Interface(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Obj::Interface> obj_)
+        : piol(piol_), name(name_), obj(obj_)
     {
     }
 
@@ -69,7 +69,8 @@ class ReadInterface : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    ReadInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : Interface(piol_, name_, obj_)
+    ReadInterface(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Obj::Interface> obj_)
+        : Interface(piol_, name_, obj_)
     {
     }
 
@@ -97,7 +98,7 @@ class ReadInterface : public Interface
     /*! \brief Read the number of traces in the file
      *  \return The number of traces
      */
-    virtual size_t readNt(void) = 0;
+    virtual size_t readNt(void) const = 0;
 
     /*! \brief Read the number of increment between trace samples
      *  \return The increment between trace samples
@@ -111,7 +112,7 @@ class ReadInterface : public Interface
      *  \param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    void readParam(csize_t offset, csize_t sz, Param * prm, csize_t skip = 0) const;
+    void readParam(const size_t offset, const size_t sz, Param * prm, const size_t skip = 0) const;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -119,7 +120,7 @@ class ReadInterface : public Interface
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    void readParam(csize_t sz, csize_t * offset, Param * prm, csize_t skip = 0) const;
+    void readParamNonContiguous(const size_t sz, const size_t * offset, Param * prm, const size_t skip = 0) const;
 
     /*! \brief Read the traces from offset to offset+sz
      *  \param[in] offset The starting trace number.
@@ -128,7 +129,8 @@ class ReadInterface : public Interface
      *  \param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      */
-    virtual void readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+    virtual void readTrace(const size_t offset, const size_t sz, trace_t * trace,
+                           Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array. Assumes Monotonic.
      *  \param[in] sz The number of traces to process
@@ -137,9 +139,11 @@ class ReadInterface : public Interface
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      *
-     *  \details When prm==PARAM_NULL only the trace DF is read.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    virtual void readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+    virtual void readTraceNonContiguous(
+        const size_t sz, const size_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) const = 0;
 
     /*! \brief Read the traces specified by the offsets in the passed offset array. Does not assume monotonic
      *  \param[in] sz The number of traces to process
@@ -148,9 +152,11 @@ class ReadInterface : public Interface
      *  \param[out] prm A parameter structure
      *  \param[in] skip When reading, skip the first "skip" entries of prm
      *
-     *  \details When prm==PARAM_NULL only the trace DF is read.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    virtual void readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm = const_cast<Param *>(PARAM_NULL), csize_t skip = 0) const = 0;
+    virtual void readTraceNonMonotonic(
+        const size_t sz, const size_t * offset, trace_t * trace,
+        Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) const = 0;
 };
 
 /*! \brief The File layer interface. Specific File implementations
@@ -164,7 +170,8 @@ class WriteInterface : public Interface
      *  \param[in] name_ The name of the file associated with the instantiation.
      *  \param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
-    WriteInterface(const Piol piol_, const std::string name_, std::shared_ptr<Obj::Interface> obj_) : Interface(piol_, name_, obj_)
+    WriteInterface(std::shared_ptr<ExSeisPIOL> piol_, std::string name_, std::shared_ptr<Obj::Interface> obj_)
+        : Interface(piol_, name_, obj_)
     {
     }
 
@@ -176,12 +183,12 @@ class WriteInterface : public Interface
     /*! \brief Write the number of samples per trace
      *  \param[in] ns_ The new number of samples per trace.
      */
-    virtual void writeNs(csize_t ns_) = 0;
+    virtual void writeNs(const size_t ns_) = 0;
 
     /*! \brief Write the number of traces in the file
      *  \param[in] nt_ The new number of traces.
      */
-    virtual void writeNt(csize_t nt_) = 0;
+    virtual void writeNt(const size_t nt_) = 0;
 
     /*! \brief Write the number of increment between trace samples.
      *  \param[in] inc_ The new increment between trace samples.
@@ -198,7 +205,7 @@ class WriteInterface : public Interface
      *  \details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParam(csize_t offset, csize_t sz, const Param * prm, csize_t skip = 0)
+    void writeParam(const size_t offset, const size_t sz, const Param * prm, const size_t skip = 0)
     {
         writeTrace(offset, sz, const_cast<trace_t *>(TRACE_NULL), prm, skip);
     }
@@ -212,9 +219,9 @@ class WriteInterface : public Interface
      *  \details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParam(csize_t sz, csize_t * offset, const Param * prm, csize_t skip = 0)
+    void writeParamNonContiguous(const size_t sz, const size_t * offset, const Param * prm, const size_t skip = 0)
     {
-        writeTrace(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
+        writeTraceNonContiguous(sz, offset, const_cast<trace_t *>(TRACE_NULL), prm, skip);
     }
 
     /*! \brief Write the traces from offset to offset+sz
@@ -224,7 +231,9 @@ class WriteInterface : public Interface
      *  \param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
      *  \param[in] skip When writing, skip the first "skip" entries of prm
      */
-    virtual void writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
+    virtual void writeTrace(
+        const size_t offset, const size_t sz, trace_t * trace,
+        const Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) = 0;
 
     /*! \brief Write the traces specified by the offsets in the passed offset array.
      *  \param[in] sz The number of traces to process
@@ -233,11 +242,13 @@ class WriteInterface : public Interface
      *  \param[in] prm A parameter structure
      *  \param[in] skip When writing, skip the first "skip" entries of prm
      *
-     *  \details When prm==PARAM_NULL only the trace DF is written.
+     *  \details When prm==PIOL_PARAM_NULL only the trace DF is written.
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    virtual void writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm = PARAM_NULL, csize_t skip = 0) = 0;
+    virtual void writeTraceNonContiguous(
+        const size_t sz, const size_t * offset, trace_t * trace,
+        const Param * prm = PIOL_PARAM_NULL, const size_t skip = 0) = 0;
 };
 
 /*! \brief An intitial class for 3d volumes
@@ -254,7 +265,7 @@ class Model3dInterface
      *  \param[in] gather a structure which contains the il and xl coordinates of interest
      *  \return return a vector of traces containing the trace values requested
      */
-    virtual std::vector<trace_t> readModel(csize_t offset, csize_t sz, const Uniray<size_t, llint, llint> & gather) = 0;
+    virtual std::vector<trace_t> readModel(const size_t offset, const size_t sz, const Uniray<size_t, llint, llint> & gather) = 0;
 
     /*! Read the 3d file based on il and xl that match those in the given \c gather array.
      *  \param[in] sz The number of offsets for the local process
@@ -262,7 +273,7 @@ class Model3dInterface
      *  \param[in] gather A structure which contains the il and xl coordinates of interest
      *  \return Return a vector of traces containing the trace values requested
      */
-    virtual std::vector<trace_t> readModel(csize_t sz, csize_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
+    virtual std::vector<trace_t> readModel(const size_t sz, const size_t * offset, const Uniray<size_t, llint, llint> & gather) = 0;
 };
 
 /*! Construct ReadSEGY objects with default object and MPI-IO layers.
@@ -273,7 +284,7 @@ class Model3dInterface
  */
 template <class T>
 std::unique_ptr<typename std::enable_if<std::is_base_of<File::ReadInterface, T>::value, T>::type>
-makeFile(Piol piol, const std::string & name)
+makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string & name)
 {
     return  std::make_unique<T>(
         piol, name,
@@ -289,7 +300,7 @@ makeFile(Piol piol, const std::string & name)
  */
 template <class T>
 std::unique_ptr<typename std::enable_if<std::is_base_of<File::WriteInterface, T>::value, T>::type>
-makeFile(Piol piol, const std::string & name)
+makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string & name)
 {
     return std::make_unique<T>(
         piol, name,

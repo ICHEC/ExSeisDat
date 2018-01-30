@@ -6,7 +6,7 @@ include ../compiler.cfg
 .PHONY: all
 all: libgmock.a test
 
-GCOMP=g++
+GCOMP=$(CXX)
 GTEST_DIR=../googletest/googletest
 GMOCK_DIR=../googletest/googlemock
 
@@ -19,7 +19,7 @@ libgmock.a:
     -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gtest-all.o gmock-all.o
 
-test: tests.o main.o 
+test: tests.o main.o
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $+
 
 .PHONY: clean

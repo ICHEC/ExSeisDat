@@ -8,428 +8,617 @@
  *//*******************************************************************************************/
 #include "global.hh"
 #include "cfileapi.h"
+#include "flow.h"
+
 #include <iostream>
 #include <cstddef>
 #include <assert.h>
+
 #include "cppfileapi.hh"
+#include "flow.hh"
 #include "file/dynsegymd.hh"
 #include "share/segy.hh"
 #include "share/api.hh"
 #include "flow/set.hh"
-#include "flow.h"
 
-using namespace PIOL;
+
+// Test for pointer null, empty shared_ptr, or shared_ptr to null
+template<typename T>
+static inline bool not_null(const T* t)
+{
+    return t != nullptr;
+}
+
+template<typename T>
+static inline bool not_null(const std::shared_ptr<T>* t)
+{
+    return t != nullptr && not_null(t->get());
+}
 
 extern "C"
 {
-struct PIOLWrapper
-{
-    std::shared_ptr<ExSeis> piol;
-};
 
-struct RuleWrapper
+PIOL_File_Rule* PIOL_File_Rule_new(bool def)
 {
-    std::shared_ptr<File::Rule> rule;
-};
-
-struct ParamWrapper
-{
-    File::Param * param;
-};
-
-struct ExSeisReadWrapper
-{
-    PIOL::File::ReadDirect * file;
-};
-
-struct ExSeisWriteWrapper
-{
-    PIOL::File::WriteDirect * file;
-};
-
-struct ExSeisSetWrapper
-{
-    PIOL::Set * set;
-};
-
-RuleHdl intiRules(bool def)
-{
-    auto wrap = new RuleWrapper;
-    wrap->rule = std::make_shared<File::Rule>(true, def);
-    return wrap;
+    return new std::shared_ptr<PIOL::File::Rule>(
+        new PIOL::File::Rule(true, def)
+    );
 }
 
-void freeRules(RuleHdl rule)
+PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta * m, size_t n)
 {
-    if (rule != NULL)
-        delete rule;
-    else
-        std::cerr << "Invalid free of NULL rule.\n";
+    assert(not_null(m));
+
+    return new std::shared_ptr<PIOL::File::Rule>(
+        new PIOL::File::Rule({m, m+n}, true, false, false)
+    );
 }
 
-void addLongRule(RuleHdl rule, Meta m, size_t loc)
+void PIOL_File_Rule_delete(PIOL_File_Rule* rule)
 {
-    rule->rule->addLong(m, static_cast<File::Tr>(loc));
+    delete rule;
 }
 
-void addShortRule(RuleHdl rule, Meta m, size_t loc)
+void PIOL_File_Rule_addLong(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc)
 {
-    rule->rule->addShort(m, static_cast<File::Tr>(loc));
+    assert(not_null(rule));
+
+    (**rule).addLong(m, loc);
 }
 
-void addSEGYFloat(RuleHdl rule, Meta m, size_t loc, size_t scalLoc)
+void PIOL_File_Rule_addShort(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc)
 {
-    rule->rule->addSEGYFloat(m, static_cast<File::Tr>(loc), static_cast<File::Tr>(scalLoc));
+    assert(not_null(rule));
+
+    (**rule).addShort(m, loc);
 }
 
-void rmRule(RuleHdl rule, Meta m)
-{
-    rule->rule->rmRule(m);
+void PIOL_File_Rule_addSEGYFloat(
+    PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc, PIOL_Tr scalLoc
+) {
+    assert(not_null(rule));
+
+    (**rule).addSEGYFloat(m, loc, scalLoc);
 }
 
-CParam initDefParam(size_t sz)
+void PIOL_File_Rule_addIndex(PIOL_File_Rule* rule, PIOL_Meta m)
 {
-    auto rule = std::make_shared<File::Rule>(true, true);
-    auto wrap = new ParamWrapper;
-    wrap->param = new File::Param(rule, sz);
-    return wrap;
+    assert(not_null(rule));
+
+    (**rule).addIndex(m);
 }
 
-CParam initParam(RuleHdl rule, size_t sz)
+void PIOL_File_Rule_addCopy(PIOL_File_Rule* rule)
 {
-    auto wrap = new ParamWrapper;
-    wrap->param = new File::Param(rule->rule, sz);
-    return wrap;
+    assert(not_null(rule));
+
+    (**rule).addCopy();
 }
 
-void freeParam(CParam prm)
+void PIOL_File_Rule_rmRule(PIOL_File_Rule* rule, PIOL_Meta m)
 {
-    if (prm != NULL)
+    assert(not_null(rule));
+
+    (**rule).rmRule(m);
+}
+
+size_t PIOL_File_Rule_extent(PIOL_File_Rule* rule)
+{
+    assert(not_null(rule));
+
+    return (**rule).extent();
+}
+
+size_t PIOL_File_Rule_memUsage(const PIOL_File_Rule* rule)
+{
+    assert(not_null(rule));
+
+    return (**rule).memUsage();
+}
+
+size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule)
+{
+    assert(not_null(rule));
+
+    return (**rule).paramMem();
+}
+
+PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz)
+{
+    if(not_null(rule))
     {
-        if (prm->param)
-            delete prm->param;
-        delete prm;
+        return new PIOL::File::Param(*rule, sz);
     }
     else
-        std::cerr << "Invalid free of NULL prm.\n";
+    {
+        return new PIOL::File::Param(sz);
+    }
 }
 
-short getShortPrm(size_t i, Meta entry, const CParam prm)
+void PIOL_File_Param_delete(PIOL_File_Param* param)
 {
-    return File::getPrm<short>(i, entry, prm->param);
+    delete param;
 }
 
-int64_t getLongPrm(size_t i, Meta entry, const CParam prm)
+size_t PIOL_File_Param_size(const PIOL_File_Param* param)
 {
-    return File::getPrm<llint>(i, entry, prm->param);
+    assert(not_null(param));
+
+    return param->size();
 }
 
-double getFloatPrm(size_t i, Meta entry, const CParam prm)
-{
-    return File::getPrm<geom_t>(i, entry, prm->param);
+size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param) {
+    assert(not_null(param));
+
+    return param->memUsage();
 }
 
-void setShortPrm(size_t i, Meta entry, short ret, CParam prm)
+bool PIOL_File_Rule_addRule_Meta(PIOL_File_Rule* rule, PIOL_Meta m)
 {
-    File::setPrm(i, entry, ret, prm->param);
+    assert(not_null(rule));
+
+    return (**rule).addRule(m);
 }
 
-void setLongPrm(size_t i, Meta entry, int64_t ret, CParam prm)
+bool PIOL_File_Rule_addRule_Rule(PIOL_File_Rule* rule, const PIOL_File_Rule* ruleToCopy)
 {
-    File::setPrm(i, entry, ret, prm->param);
+    assert(not_null(rule));
+    assert(not_null(ruleToCopy));
+
+    return (**rule).addRule(**ruleToCopy);
 }
 
-void setFloatPrm(size_t i, Meta entry, double ret, CParam prm)
+int16_t PIOL_File_getPrm_short(size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
 {
-    File::setPrm(i, entry, ret, prm->param);
+    assert(not_null(param));
+
+    return PIOL::File::getPrm<int16_t>(i, entry, param);
 }
 
-void cpyPrm(size_t i, const CParam src, size_t j, CParam dst)
+PIOL_llint PIOL_File_getPrm_llint(
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
+)
 {
-    File::cpyPrm(i, src->param, j, dst->param);
+    assert(not_null(param));
+
+    return PIOL::File::getPrm<PIOL::llint>(i, entry, param);
+}
+
+PIOL_geom_t PIOL_File_getPrm_double(
+    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
+)
+{
+    assert(not_null(param));
+
+    return PIOL::File::getPrm<PIOL::geom_t>(i, entry, param);
+}
+
+void PIOL_File_setPrm_short(
+    size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param
+)
+{
+    assert(not_null(param));
+
+    PIOL::File::setPrm(i, entry, ret, param);
+}
+
+void PIOL_File_setPrm_llint(
+    size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param
+)
+{
+    assert(not_null(param));
+
+    PIOL::File::setPrm(i, entry, ret, param);
+}
+
+void PIOL_File_setPrm_double(
+    size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param
+)
+{
+    assert(not_null(param));
+
+    PIOL::File::setPrm(i, entry, ret, param);
+}
+
+void PIOL_File_cpyPrm(
+    size_t i, const PIOL_File_Param* src,
+    size_t j, PIOL_File_Param* dst
+)
+{
+    assert(not_null(src));
+    assert(not_null(dst));
+
+    PIOL::File::cpyPrm(i, src, j, dst);
 }
 
 //////////////////PIOL////////////////////////////
-ExSeisHandle initMPIOL(void)
+PIOL_ExSeis* PIOL_ExSeis_new(PIOL_Verbosity verbosity)
 {
-    auto wrap = new PIOLWrapper;
-    wrap->piol = std::make_shared<ExSeis>();
-    return wrap;
+    return new std::shared_ptr<PIOL::ExSeis>(PIOL::ExSeis::New(verbosity));
 }
 
-void freePIOL(ExSeisHandle piol)
+void PIOL_ExSeis_delete(PIOL_ExSeis* piol)
 {
-    if (piol != NULL)
-        delete piol;
+    delete piol;
+}
+
+void PIOL_ExSeis_barrier(const PIOL_ExSeis* piol)
+{
+    assert(not_null(piol));
+
+    (**piol).barrier();
+}
+
+void PIOL_ExSeis_isErr(const PIOL_ExSeis* piol, const char* msg)
+{
+    assert(not_null(piol));
+
+    if(msg != NULL)
+    {
+        (**piol).isErr(msg);
+    }
     else
-        std::cerr << "Invalid free of ExSeisPIOL NULL.\n";
+    {
+        (**piol).isErr();
+    }
 }
 
-void barrier(ExSeisHandle piol)
+size_t PIOL_ExSeis_getRank(const PIOL_ExSeis* piol)
 {
-    piol->piol->barrier();
+    assert(not_null(piol));
+
+    return (**piol).getRank();
 }
 
-void isErr(ExSeisHandle piol)
+size_t PIOL_ExSeis_getNumRank(const PIOL_ExSeis* piol)
 {
-    piol->piol->isErr();
+    assert(not_null(piol));
+
+    return (**piol).getNumRank();
 }
 
-size_t getRank(ExSeisHandle piol)
+size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n)
 {
-    return piol->piol->getRank();
-}
+    assert(not_null(piol));
 
-size_t getNumRank(ExSeisHandle piol)
-{
-    return piol->piol->getNumRank();
+    return (**piol).max(n);
 }
 
 ////////////////// File Layer ////////////////////////////
 
-ExSeisWrite openWriteFile(ExSeisHandle piol, const char * name)
+PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
+    const PIOL_ExSeis* piol, const char * name
+)
 {
-    auto wrap = new ExSeisWriteWrapper;
-    wrap->file = new File::WriteDirect(*piol->piol, name);
-    return wrap;
+    assert(not_null(piol));
+    assert(not_null(name));
+
+    return new PIOL::File::WriteDirect(*piol, name);
 }
 
-ExSeisRead openReadFile(ExSeisHandle piol, const char * name)
+PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
+    const PIOL_ExSeis* piol, const char * name
+)
 {
-    auto wrap = new ExSeisReadWrapper;
-    wrap->file = new File::ReadDirect(*piol->piol, name);
-    return wrap;
+    assert(not_null(piol));
+    assert(not_null(name));
+
+    return new PIOL::File::ReadDirect(*piol, name);
 }
 
-void closeReadFile(ExSeisRead f)
+void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect)
 {
-    if (f != NULL)
-    {
-        if (f->file != NULL)
-            delete f->file;
-        delete f;
-    }
-    else
-        std::cerr << "Invalid free of ExSeisFile NULL.\n";
+    delete readDirect;
 }
 
-void closeWriteFile(ExSeisWrite f)
+void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect)
 {
-    if (f != NULL)
-    {
-        if (f->file != NULL)
-            delete f->file;
-        delete f;
-    }
-    else
-        std::cerr << "Invalid free of ExSeisFile NULL.\n";
+    delete writeDirect;
 }
 
-const char * readText(ExSeisRead f)
+const char * PIOL_File_ReadDirect_readText(
+    const PIOL_File_ReadDirect* readDirect
+)
 {
-    return f->file->readText().c_str();
+    assert(not_null(readDirect));
+
+    return readDirect->readText().c_str();
 }
 
-size_t readNs(ExSeisRead f)
+size_t PIOL_File_ReadDirect_readNs(const PIOL_File_ReadDirect* readDirect)
 {
-    return f->file->readNs();
+    assert(not_null(readDirect));
+
+    return readDirect->readNs();
 }
 
-size_t readNt(ExSeisRead f)
+size_t PIOL_File_ReadDirect_readNt(const PIOL_File_ReadDirect* readDirect)
 {
-    return f->file->readNt();
+    assert(not_null(readDirect));
+
+    return readDirect->readNt();
 }
 
-double readInc(ExSeisRead f)
+double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect)
 {
-   return f->file->readInc();
+    assert(not_null(readDirect));
+
+    return readDirect->readInc();
 }
 
-void writeText(ExSeisWrite f, const char * text)
+void PIOL_File_WriteDirect_writeText(
+    PIOL_File_WriteDirect* writeDirect, const char * text
+)
 {
-    std::string text_(text);
-    f->file->writeText(text_);
+    assert(not_null(writeDirect));
+    assert(not_null(text));
+
+    writeDirect->writeText(text);
 }
 
-void writeNs(ExSeisWrite f, size_t ns)
+void PIOL_File_WriteDirect_writeNs(
+    PIOL_File_WriteDirect* writeDirect, size_t ns
+)
 {
-    f->file->writeNs(ns);
+    assert(not_null(writeDirect));
+
+    writeDirect->writeNs(ns);
 }
 
-void writeNt(ExSeisWrite f, size_t nt)
+void PIOL_File_WriteDirect_writeNt(
+    PIOL_File_WriteDirect* writeDirect, size_t nt
+)
 {
-    f->file->writeNt(nt);
+    assert(not_null(writeDirect));
+
+    writeDirect->writeNt(nt);
 }
 
-void writeInc(ExSeisWrite f, const geom_t inc)
+void PIOL_File_WriteDirect_writeInc(
+    PIOL_File_WriteDirect* writeDirect, const PIOL_geom_t inc
+)
 {
-    f->file->writeInc(inc);
+    assert(not_null(writeDirect));
+
+    writeDirect->writeInc(inc);
 }
 
 //Contiguous traces
-void readTrace(ExSeisRead f, size_t offset, size_t sz, trace_t * trace)
+void PIOL_File_ReadDirect_readTrace(
+    const PIOL_File_ReadDirect* readDirect,
+    size_t offset, size_t sz, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
 {
-    f->file->readTrace(offset, sz, trace);
+    assert(not_null(readDirect));
+    assert(not_null(trace));
+
+    if(param == NULL) {
+        readDirect->readTrace(offset, sz, trace);
+    } else {
+        readDirect->readTrace(offset, sz, trace, param);
+    }
 }
 
-void readFullTrace(ExSeisRead f, size_t offset, size_t sz, trace_t * trace, CParam prm)
+void PIOL_File_WriteDirect_writeTrace(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t offset, size_t sz, PIOL_trace_t * trace,
+    const PIOL_File_Param* param
+)
 {
-    f->file->readTrace(offset, sz, trace, prm->param);
+    assert(not_null(writeDirect));
+    assert(not_null(trace));
+
+    if(param == NULL) {
+        writeDirect->writeTrace(offset, sz, trace);
+    } else {
+        writeDirect->writeTrace(offset, sz, trace, param);
+    }
 }
 
-void writeTrace(ExSeisWrite f, size_t offset, size_t sz, trace_t * trace)
+void PIOL_File_WriteDirect_writeParam(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t offset, size_t sz, const PIOL_File_Param* param
+)
 {
-    f->file->writeTrace(offset, sz, trace);
+    assert(not_null(writeDirect));
+    assert(not_null(param));
+
+    writeDirect->writeParam(offset, sz, param);
 }
 
-void writeFullTrace(ExSeisWrite f, size_t offset, size_t sz, trace_t * trace, const CParam prm)
+void PIOL_File_ReadDirect_readParam(
+    const PIOL_File_ReadDirect* readDirect,
+    size_t offset, size_t sz, PIOL_File_Param* param
+)
 {
-    f->file->writeTrace(offset, sz, trace, static_cast<const File::Param *>(prm->param));
-}
+    assert(not_null(readDirect));
+    assert(not_null(param));
 
-void writeParam(ExSeisWrite f, size_t offset, size_t sz, const CParam prm)
-{
-    f->file->writeParam(offset, sz, static_cast<const File::Param *>(prm->param));
-}
-
-void readParam(ExSeisRead f, size_t offset, size_t sz, CParam prm)
-{
-    f->file->readParam(offset, sz, prm->param);
+    readDirect->readParam(offset, sz, param);
 }
 
 //List traces
-void readListTrace(ExSeisRead f, size_t sz, size_t * offset, trace_t * trace)
+void PIOL_File_ReadDirect_readTraceNonContiguous(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
 {
-    f->file->readTrace(sz, offset, trace);
+    if(param == NULL) {
+        readDirect->readTraceNonContiguous(sz, offset, trace);
+    } else {
+        readDirect->readTraceNonContiguous(sz, offset, trace, param);
+    }
+
 }
 
-void writeListTrace(ExSeisWrite f, size_t sz, size_t * offset, trace_t * trace)
+void PIOL_File_ReadDirect_readTraceNonMonotonic(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
 {
-    f->file->writeTrace(sz, offset, trace);
+    if(param == NULL) {
+        readDirect->readTraceNonMonotonic(sz, offset, trace);
+    } else {
+        readDirect->readTraceNonMonotonic(sz, offset, trace, param);
+    }
+
 }
 
-void readFullListTrace(ExSeisRead f, size_t sz, size_t * offset, trace_t * trace, CParam prm)
+void PIOL_File_WriteDirect_writeTraceNonContiguous(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t sz, const size_t * offset, PIOL_trace_t * trace,
+    PIOL_File_Param* param
+)
 {
-    f->file->readTrace(sz, offset, trace, prm->param);
+    if(param == NULL) {
+        writeDirect->writeTraceNonContiguous(sz, offset, trace);
+    } else {
+        writeDirect->writeTraceNonContiguous(sz, offset, trace, param);
+    }
 }
 
-void writeFullListTrace(ExSeisWrite f, size_t sz, size_t * offset, trace_t * trace, const CParam prm)
+void PIOL_File_WriteDirect_writeParamNonContiguous(
+    PIOL_File_WriteDirect* writeDirect,
+    size_t sz, const size_t * offset, PIOL_File_Param* param
+)
 {
-    f->file->writeTrace(sz, offset, trace, static_cast<const File::Param *>(prm->param));
+    writeDirect->writeParamNonContiguous(sz, offset, param);
 }
 
-void writeListParam(ExSeisWrite f, size_t sz, size_t * offset, const CParam prm)
+void PIOL_File_ReadDirect_readParamNonContiguous(
+    PIOL_File_ReadDirect* readDirect,
+    size_t sz, const size_t * offset, PIOL_File_Param* param
+)
 {
-    f->file->writeParam(sz, offset, static_cast<const File::Param *>(prm->param));
-}
-
-void readListParam(ExSeisRead f, size_t sz, size_t * offset, CParam prm)
-{
-    f->file->readParam(sz, offset, prm->param);
+    readDirect->readParamNonContiguous(sz, offset, param);
 }
 
 /////////////////////////////////////Operations///////////////////////////////
 
-void getMinMax(ExSeisHandle piol, size_t offset, size_t sz, Meta m1, Meta m2, const CParam prm, CoordElem * minmax)
+void PIOL_File_getMinMax(
+    const PIOL_ExSeis* piol,
+    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2, const PIOL_File_Param* param,
+    struct PIOL_CoordElem * minmax
+)
 {
-    getMinMax(*piol->piol, offset, sz, m1, m2, static_cast<const File::Param *>(prm->param), minmax);
+    assert(not_null(piol));
+    assert(not_null(param));
+    assert(not_null(minmax));
+
+    PIOL::File::getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
-size_t getSEGYTextSz()
+size_t PIOL_SEGSz_getTextSz()
 {
-    return SEGSz::getTextSz();
+    return PIOL::SEGSz::getTextSz();
 }
 
-size_t getSEGYTraceLen(size_t ns)
+size_t PIOL_SEGSz_getDFSz(size_t ns)
 {
-    return SEGSz::getDFSz<float>(ns);
+    return PIOL::SEGSz::getDFSz<float>(ns);
 }
 
-size_t getSEGYFileSz(size_t nt, size_t ns)
+size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns)
 {
-    return SEGSz::getFileSz<float>(nt, ns);
+    return PIOL::SEGSz::getFileSz<float>(nt, ns);
 }
 
 //TODO UPDATE
-size_t getSEGYParamSz(void)
+size_t PIOL_SEGSz_getMDSz(void)
 {
-    return SEGSz::getMDSz();
-    //return sizeof(Param) + SEGSz::getMDSz();
+    return PIOL::SEGSz::getMDSz();
 }
 
 ////////////////////////////////////SET/////////////////////////////////////////
-ExSeisSet initSet(ExSeisHandle piol, const char * ptrn)
+PIOL_Set* PIOL_Set_new(const PIOL_ExSeis* piol, const char * ptrn)
 {
-    auto wrap = new ExSeisSetWrapper;
-    wrap->set = new Set(*piol->piol, ptrn);
-    return wrap;
+    assert(not_null(piol));
+    assert(not_null(ptrn));
+
+    return new PIOL::Set(*piol, ptrn);
 }
 
-void freeSet(ExSeisSet s)
+void PIOL_Set_delete(PIOL_Set* set)
 {
-    if (s != NULL)
-    {
-        if (s->set != NULL)
-            delete s->set;
-        delete s;
-    }
-    else
-        std::cerr << "Invalid free of ExSeisSet NULL.\n";
+    delete set;
 }
 
-void getMinMaxSet(ExSeisSet s, Meta m1, Meta m2, CoordElem * minmax)
+void PIOL_Set_getMinMax(
+    PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem * minmax
+)
 {
-    s->set->getMinMax(m1, m2, minmax);
+    assert(not_null(set));
+    assert(not_null(minmax));
+
+    set->getMinMax(m1, m2, minmax);
 }
 
-void sortSet(ExSeisSet s, SortType type)
+void PIOL_Set_sort(PIOL_Set* set, PIOL_SortType type)
 {
-    s->set->sort(type);
+    assert(not_null(set));
+
+    set->sort(type);
 }
 
-void taper2Tail(ExSeisSet s, TaperType type, size_t ntpstr, size_t ntpend)
+void PIOL_Set_sort_fn(
+    PIOL_Set* set,
+    bool (* const func)(const PIOL_File_Param* param, size_t i, size_t j)
+)
 {
-    s->set->taper(type, ntpstr, ntpend);
+    assert(not_null(set));
+    assert(func != nullptr);
+
+    set->sort(func);
 }
 
-void taper1Tail(ExSeisSet s, TaperType type, size_t ntpstr)
+void PIOL_Set_taper(
+    PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend)
 {
-    s->set->taper(type, ntpstr);
+    assert(not_null(set));
+
+    set->taper(type, ntpstr, ntpend);
 }
 
-extern void AGC(ExSeisSet s, AGCType type, size_t window, float normR)
+void PIOL_Set_AGC(PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR)
 {
-    s->set->AGC(type, window, normR);
+    assert(not_null(set));
+
+    set->AGC(type, window, normR);
 }
 
-void outputSet(ExSeisSet s, const char * oname)
+void PIOL_Set_output(PIOL_Set* set, const char * oname)
 {
-    s->set->output(oname);
+    assert(not_null(set));
+    assert(not_null(oname));
+
+    set->output(oname);
 }
 
-void textSet(ExSeisSet s, const char * outmsg)
+void PIOL_Set_text(PIOL_Set* set, const char * outmsg)
 {
-    s->set->text(outmsg);
+    assert(not_null(set));
+    assert(not_null(outmsg));
+
+    set->text(outmsg);
 }
 
-void summarySet(ExSeisSet s)
+void PIOL_Set_summary(const PIOL_Set* set)
 {
-    s->set->summary();
+    assert(not_null(set));
+
+    set->summary();
 }
 
-void addSet(ExSeisSet s, const char * name)
+void PIOL_Set_add(PIOL_Set* set, const char * name)
 {
-    s->set->add(name);
+    assert(not_null(set));
+    assert(not_null(name));
+
+    set->add(name);
 }
 
-void sortCustomSet(ExSeisSet s, bool (* func)(const CParam prm, csize_t i, csize_t j))
-{
-    auto lam = [func] (const File::Param * prm, csize_t i, csize_t j) -> bool
-    {
-        ParamWrapper awrap = { const_cast<File::Param *>(prm) };
-        return func(&awrap, i, j);
-    };
-    s->set->sort(lam);
-}
-}
+} // extern "C"

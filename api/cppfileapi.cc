@@ -12,31 +12,40 @@
 #include "object/objsegy.hh"
 #include "data/datampiio.hh"
 namespace PIOL {
-ExSeis::ExSeis(const Log::Verb maxLevel)
+
+ExSeis::ExSeis(const Verbosity maxLevel, MPI_Comm comm)
+    : ExSeisPIOL(maxLevel, Comm::MPI::Opt{comm})
+{ }
+
+ExSeis::~ExSeis() = default;
+
+size_t ExSeis::getRank(void) const
 {
-    piol = std::make_shared<ExSeisPIOL>(maxLevel);
+    return comm->getRank();
 }
 
-ExSeis::ExSeis(bool initComm, const Log::Verb maxLevel)
+size_t ExSeis::getNumRank(void) const
 {
-    piol = std::make_shared<ExSeisPIOL>(initComm, maxLevel);
+    return comm->getNumRank();
 }
 
-ExSeis::ExSeis(MPI_Comm comm, const Log::Verb maxLevel)
+void ExSeis::barrier(void) const
 {
-    Comm::MPI::Opt copt;
-    copt.initMPI = false;
-    copt.comm = comm;
-    piol = std::make_shared<ExSeisPIOL>(copt, maxLevel);
+    comm->barrier();
 }
 
-void ExSeis::isErr(std::string msg) const
+size_t ExSeis::max(size_t n) const
 {
-    piol->isErr(msg);
+    return comm->max(n);
+}
+
+void ExSeis::isErr(const std::string& msg) const
+{
+    ExSeisPIOL::isErr(msg);
 }
 
 namespace File {
-ReadDirect::ReadDirect(const Piol piol, const std::string name)
+ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     const File::ReadSEGY::Opt f;
     const Obj::SEGY::Opt o;
@@ -46,7 +55,10 @@ ReadDirect::ReadDirect(const Piol piol, const std::string name)
     file = std::make_shared<File::ReadSEGY>(piol, name, f, obj);
 }
 
-WriteDirect::WriteDirect(const Piol piol, const std::string name)
+ReadDirect::ReadDirect(std::shared_ptr<ReadInterface> file_): file(file_)
+{}
+
+WriteDirect::WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     const File::WriteSEGY::Opt f;
     const Obj::SEGY::Opt o;
@@ -55,6 +67,12 @@ WriteDirect::WriteDirect(const Piol piol, const std::string name)
     auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Write);
     file = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
 }
+
+WriteDirect::WriteDirect(std::shared_ptr<WriteInterface> file_): file(file_)
+{}
+
+ReadDirect::~ReadDirect()   = default;
+WriteDirect::~WriteDirect() = default;
 
 const std::string & ReadDirect::readText(void) const
 {
@@ -66,7 +84,7 @@ size_t ReadDirect::readNs(void) const
     return file->readNs();
 }
 
-size_t ReadDirect::readNt(void)
+size_t ReadDirect::readNt(void) const
 {
     return file->readNt();
 }
@@ -76,43 +94,44 @@ geom_t ReadDirect::readInc(void) const
     return file->readInc();
 }
 
-void ReadDirect::readParam(csize_t offset, csize_t sz, Param * prm) const
+void ReadDirect::readParam(const size_t offset, const size_t sz, Param * prm) const
 {
     file->readParam(offset, sz, prm);
 }
 
-void WriteDirect::writeParam(csize_t offset, csize_t sz, const Param * prm)
+void WriteDirect::writeParam(const size_t offset, const size_t sz, const Param * prm)
 {
     file->writeParam(offset, sz, prm);
 }
 
-void ReadDirect::readTrace(csize_t offset, csize_t sz, trace_t * trace, Param * prm) const
+void ReadDirect::readTrace(const size_t offset, const size_t sz, trace_t * trace, Param * prm) const
 {
     file->readTrace(offset, sz, trace, prm);
 }
 
-void WriteDirect::writeTrace(csize_t offset, csize_t sz, trace_t * trace, const Param * prm)
+void WriteDirect::writeTrace(const size_t offset, const size_t sz, trace_t * trace, const Param * prm)
 {
     file->writeTrace(offset, sz, trace, prm);
 }
 
-void ReadDirect::readTrace(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void ReadDirect::readTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, Param * prm) const
 {
-    file->readTrace(sz, offset, trace, prm);
+    file->readTraceNonContiguous(sz, offset, trace, prm);
 }
 
-void ReadDirect::readTraceNonMono(csize_t sz, csize_t * offset, trace_t * trace, Param * prm) const
+void ReadDirect::readTraceNonMonotonic(const size_t sz, const size_t * offset, trace_t * trace, Param * prm) const
 {
-    file->readTraceNonMono(sz, offset, trace, prm);
+    file->readTraceNonMonotonic(sz, offset, trace, prm);
 }
 
-ReadModel::ReadModel(const Piol piol, const std::string name)
+ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name):
+    ReadDirect(piol, name, Data::MPIIO::Opt(), Obj::SEGY::Opt(), File::ReadSEGYModel::Opt())
 {
-    const Obj::SEGY::Opt o;
-    const Data::MPIIO::Opt d;
-    auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
-    file = std::make_shared<File::ReadSEGYModel>(piol, name, obj);
+    //const Obj::SEGY::Opt o;
+    //const Data::MPIIO::Opt d;
+    //auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
+    //auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
+    //file = std::make_shared<File::ReadSEGYModel>(piol, name, obj);
 }
 
 std::vector<trace_t> ReadModel::readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather)
@@ -120,19 +139,19 @@ std::vector<trace_t> ReadModel::readModel(size_t gOffset, size_t numGather, Unir
     return std::dynamic_pointer_cast<File::Model3dInterface>(file)->readModel(gOffset, numGather, gather);
 }
 
-void WriteDirect::writeTrace(csize_t sz, csize_t * offset, trace_t * trace, const Param * prm)
+void WriteDirect::writeTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, const Param * prm)
 {
-    file->writeTrace(sz, offset, trace, prm);
+    file->writeTraceNonContiguous(sz, offset, trace, prm);
 }
 
-void ReadDirect::readParam(csize_t sz, csize_t * offset, Param * prm) const
+void ReadDirect::readParamNonContiguous(const size_t sz, const size_t * offset, Param * prm) const
 {
-    file->readParam(sz, offset, prm);
+    file->readParamNonContiguous(sz, offset, prm);
 }
 
-void WriteDirect::writeParam(csize_t sz, csize_t * offset, const Param * prm)
+void WriteDirect::writeParamNonContiguous(const size_t sz, const size_t * offset, const Param * prm)
 {
-    file->writeParam(sz, offset, prm);
+    file->writeParamNonContiguous(sz, offset, prm);
 }
 
 void WriteDirect::writeText(const std::string text_)

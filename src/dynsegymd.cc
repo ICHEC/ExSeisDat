@@ -15,9 +15,30 @@
 #include "file/dynsegymd.hh"
 
 namespace PIOL { namespace File {
+
+static std::vector<Meta> default_metas {
+    PIOL_META_xSrc, PIOL_META_ySrc,
+    PIOL_META_xRcv, PIOL_META_yRcv,
+    PIOL_META_xCmp, PIOL_META_yCmp,
+    PIOL_META_Offset,
+    PIOL_META_il, PIOL_META_xl,
+    PIOL_META_tn
+};
+
+static std::vector<Meta> extra_metas {
+    PIOL_META_tnl, PIOL_META_tnr, PIOL_META_tne,
+    PIOL_META_SrcNum,
+    PIOL_META_Tic,
+    PIOL_META_VStack, PIOL_META_HStack,
+    PIOL_META_RGElev, PIOL_META_SSElev, PIOL_META_SDElev,
+    PIOL_META_ns,
+    PIOL_META_inc,
+    PIOL_META_ShotNum,
+    PIOL_META_TraceUnit, PIOL_META_TransUnit
+};
+
 Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
 {
-    numLong = numShort = numFloat = numIndex = numCopy = 0;
     for (const auto & t : translate)
         switch (t.second->type())
         {
@@ -53,119 +74,29 @@ Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
     }
 }
 
-bool Rule::addRule(Meta m)
+Rule::Rule(const std::vector<Meta>& mlist,
+           bool full, bool defaults, bool extras)
 {
-    if (translate.find(m) != translate.end())
-        return false;
-
-    switch (m)
-    {
-        case Meta::WtrDepSrc :
-            addSEGYFloat(m, Tr::WtrDepSrc, Tr::ScaleElev);
-        break;
-        case Meta::WtrDepRcv :
-            addSEGYFloat(m, Tr::WtrDepRcv, Tr::ScaleElev);
-        break;
-        case Meta::xSrc :
-            addSEGYFloat(m, Tr::xSrc, Tr::ScaleCoord);
-        break;
-        case Meta::ySrc :
-            addSEGYFloat(m, Tr::ySrc, Tr::ScaleCoord);
-        break;
-        case Meta::xRcv :
-            addSEGYFloat(m, Tr::xRcv, Tr::ScaleCoord);
-        break;
-        case Meta::yRcv :
-            addSEGYFloat(m, Tr::yRcv, Tr::ScaleCoord);
-        break;
-        case Meta::xCmp :
-            addSEGYFloat(m, Tr::xCmp, Tr::ScaleCoord);
-        break;
-        case Meta::yCmp :
-            addSEGYFloat(m, Tr::yCmp, Tr::ScaleCoord);
-        break;
-        case Meta::il :
-            addLong(m, Tr::il);
-        break;
-        case Meta::xl :
-            addLong(m, Tr::xl);
-        break;
-        case Meta::Offset :
-            addLong(m, Tr::CDist);
-        break;
-        case Meta::tn :
-            addLong(m, Tr::SeqFNum);
-        break;
-        case Meta::Copy :
-            addCopy();
-        break;
-        case Meta::tnl :
-            addLong(m, Tr::SeqNum);
-        break;
-        case Meta::tnr :
-            addLong(m, Tr::TORF);
-        break;
-        case Meta::tne :
-            addLong(m, Tr::SeqNumEns);
-        break;
-        case Meta::SrcNum :
-            addLong(m, Tr::ENSrcNum);
-        break;
-        case Meta::Tic :
-            addShort(m, Tr::TIC);
-        break;
-        case Meta::VStack :
-            addShort(m, Tr::VStackCnt);
-        break;
-        case Meta::HStack :
-            addShort(m, Tr::HStackCnt);
-        break;
-        case Meta::RGElev :
-            addSEGYFloat(m, Tr::RcvElv, Tr::ScaleElev);
-        break;
-        case Meta::SSElev :
-            addSEGYFloat(m, Tr::SurfElvSrc, Tr::ScaleElev);
-        break;
-        case Meta::SDElev :
-            addSEGYFloat(m, Tr::SrcDpthSurf, Tr::ScaleElev);
-        break;
-        case Meta::ns :
-            addShort(m, Tr::Ns);
-        break;
-        case Meta::inc :
-            addShort(m, Tr::Inc);
-        break;
-        case Meta::ShotNum :
-            addSEGYFloat(m, Tr::ShotNum, Tr::ShotScal);
-        break;
-        case Meta::TraceUnit :
-            addShort(m, Tr::ValMeas);
-        break;
-        case Meta::TransUnit :
-            addShort(m, Tr::TransUnit);
-        break;
-        default :
-        return false;
-        break;    //Non-default
-    }
-    return true;
-}
-
-Rule::Rule(std::initializer_list<Meta> mlist, bool full)
-{
-    numLong = 0;
-    numShort = 0;
-    numFloat = 0;
-    numIndex = 0;
-    numCopy = 0;
 
     //TODO: Change this when extents are flexible
     flag.fullextent = full;
-    addIndex(Meta::gtn);
-    addIndex(Meta::ltn);
+    addIndex(PIOL_META_gtn);
+    addIndex(PIOL_META_ltn);
 
     for (auto m : mlist)
         addRule(m);
+
+    if(defaults)
+    {
+        for(auto m : default_metas)
+            addRule(m);
+    }
+
+    if(extras)
+    {
+        for(auto m : extra_metas)
+            addRule(m);
+    }
 
     if (flag.fullextent)
     {
@@ -180,69 +111,110 @@ Rule::Rule(std::initializer_list<Meta> mlist, bool full)
     }
 }
 
-Rule::Rule(bool full, bool defaults, bool extra)
-{
-    numLong = 0;
-    numShort = 0;
-    numFloat = 0;
-    numIndex = 0;
-    numCopy = 0;
-
-    flag.fullextent = full;
-
-    addIndex(Meta::gtn);
-    addIndex(Meta::ltn);
-
-    if (defaults)
-    {
-        addRule(Meta::xSrc);
-        addRule(Meta::ySrc);
-        addRule(Meta::xRcv);
-        addRule(Meta::yRcv);
-        addRule(Meta::xCmp);
-        addRule(Meta::yCmp);
-        addRule(Meta::Offset);
-        addRule(Meta::il);
-        addRule(Meta::xl);
-        addRule(Meta::tn);
-    }
-
-    if (extra)
-    {
-        addRule(Meta::tnl);
-        addRule(Meta::tnr);
-        addRule(Meta::tne);
-        addRule(Meta::SrcNum);
-        addRule(Meta::Tic);
-        addRule(Meta::VStack);
-        addRule(Meta::HStack);
-        addRule(Meta::RGElev);
-        addRule(Meta::SSElev);
-        addRule(Meta::SDElev);
-        addRule(Meta::ns);
-        addRule(Meta::inc);
-        addRule(Meta::ShotNum);
-        addRule(Meta::TraceUnit);
-        addRule(Meta::TransUnit);
-    }
-
-    if (full)
-    {
-        start = 0LU;
-        end = SEGSz::getMDSz();
-        flag.badextent = false;
-    }
-    else
-    {
-        flag.badextent = true;
-        extent();
-    }
-}
+Rule::Rule(bool full, bool defaults, bool extras): Rule({}, full, defaults, extras) {}
 
 Rule::~Rule(void)
 {
     for (const auto t : translate)
         delete t.second;
+}
+
+bool Rule::addRule(Meta m)
+{
+    if (translate.find(m) != translate.end())
+        return false;
+
+    switch (m)
+    {
+        case PIOL_META_WtrDepSrc :
+            addSEGYFloat(m, PIOL_TR_WtrDepSrc, PIOL_TR_ScaleElev);
+        break;
+        case PIOL_META_WtrDepRcv :
+            addSEGYFloat(m, PIOL_TR_WtrDepRcv, PIOL_TR_ScaleElev);
+        break;
+        case PIOL_META_xSrc :
+            addSEGYFloat(m, PIOL_TR_xSrc, PIOL_TR_ScaleCoord);
+        break;
+        case PIOL_META_ySrc :
+            addSEGYFloat(m, PIOL_TR_ySrc, PIOL_TR_ScaleCoord);
+        break;
+        case PIOL_META_xRcv :
+            addSEGYFloat(m, PIOL_TR_xRcv, PIOL_TR_ScaleCoord);
+        break;
+        case PIOL_META_yRcv :
+            addSEGYFloat(m, PIOL_TR_yRcv, PIOL_TR_ScaleCoord);
+        break;
+        case PIOL_META_xCmp :
+            addSEGYFloat(m, PIOL_TR_xCmp, PIOL_TR_ScaleCoord);
+        break;
+        case PIOL_META_yCmp :
+            addSEGYFloat(m, PIOL_TR_yCmp, PIOL_TR_ScaleCoord);
+        break;
+        case PIOL_META_il :
+            addLong(m, PIOL_TR_il);
+        break;
+        case PIOL_META_xl :
+            addLong(m, PIOL_TR_xl);
+        break;
+        case PIOL_META_Offset :
+            addLong(m, PIOL_TR_CDist);
+        break;
+        case PIOL_META_tn :
+            addLong(m, PIOL_TR_SeqFNum);
+        break;
+        case PIOL_META_COPY :
+            addCopy();
+        break;
+        case PIOL_META_tnl :
+            addLong(m, PIOL_TR_SeqNum);
+        break;
+        case PIOL_META_tnr :
+            addLong(m, PIOL_TR_TORF);
+        break;
+        case PIOL_META_tne :
+            addLong(m, PIOL_TR_SeqNumEns);
+        break;
+        case PIOL_META_SrcNum :
+            addLong(m, PIOL_TR_ENSrcNum);
+        break;
+        case PIOL_META_Tic :
+            addShort(m, PIOL_TR_TIC);
+        break;
+        case PIOL_META_VStack :
+            addShort(m, PIOL_TR_VStackCnt);
+        break;
+        case PIOL_META_HStack :
+            addShort(m, PIOL_TR_HStackCnt);
+        break;
+        case PIOL_META_RGElev :
+            addSEGYFloat(m, PIOL_TR_RcvElv, PIOL_TR_ScaleElev);
+        break;
+        case PIOL_META_SSElev :
+            addSEGYFloat(m, PIOL_TR_SurfElvSrc, PIOL_TR_ScaleElev);
+        break;
+        case PIOL_META_SDElev :
+            addSEGYFloat(m, PIOL_TR_SrcDpthSurf, PIOL_TR_ScaleElev);
+        break;
+        case PIOL_META_ns :
+            addShort(m, PIOL_TR_Ns);
+        break;
+        case PIOL_META_inc :
+            addShort(m, PIOL_TR_Inc);
+        break;
+        case PIOL_META_ShotNum :
+            addSEGYFloat(m, PIOL_TR_ShotNum, PIOL_TR_ShotScal);
+        break;
+        case PIOL_META_TraceUnit :
+            addShort(m, PIOL_TR_ValMeas);
+        break;
+        case PIOL_META_TransUnit :
+            addShort(m, PIOL_TR_TransUnit);
+        break;
+        default :
+        return false;
+        break;    //Non-default
+    }
+    return true;
 }
 
 size_t Rule::extent(void)
@@ -304,7 +276,7 @@ void Rule::addCopy(void)
 {
     if (!numCopy)
     {
-        translate[Meta::Copy] = new SEGYCopyRuleEntry();
+        translate[PIOL_META_COPY] = new SEGYCopyRuleEntry();
         numCopy++;
     }
 }
@@ -364,7 +336,7 @@ size_t Rule::paramMem(void) const
          + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t) + (numCopy ? SEGSz::getMDSz() : 0);
 }
 
-Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
+Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
 {
     if (r->numFloat)
         f.resize(sz * r->numFloat);
@@ -382,7 +354,7 @@ Param::Param(std::shared_ptr<Rule> r_, csize_t sz_) : r(r_), sz(sz_)
         c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
-Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
+Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
 {
     f.resize(sz * r->numFloat);
     i.resize(sz * r->numLong);
@@ -392,6 +364,8 @@ Param::Param(csize_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
     //TODO: This must be file format agnostic
     c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
+
+Param::~Param() = default;
 
 size_t Param::size(void) const
 {
@@ -414,10 +388,10 @@ size_t Param::memUsage(void) const
                         + r->memUsage();
 }
 
-void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
+void cpyPrm(const size_t j, const Param * src, const size_t k, Param * dst)
 {
-    if (src == File::PARAM_NULL || src == nullptr ||
-        dst == File::PARAM_NULL || dst == nullptr)
+    if (src == PIOL_PARAM_NULL || src == nullptr ||
+        dst == PIOL_PARAM_NULL || dst == nullptr)
         return;
 
     Rule * srule = src->r.get();
@@ -471,9 +445,9 @@ void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst)
         }
 }
 
-bool Rule::addRule(Rule * r)
+bool Rule::addRule(const Rule& r)
 {
-    for (auto & m : r->translate)
+    for (auto & m : r.translate)
         if (translate.find(m.first) == translate.end())
             switch (m.second->type())
             {

@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
         std::cout << "Too few arguments\n";
         return -1;
     }
-    ExSeis piol;
+    auto piol = ExSeis::New();
 
     glob_t globs;
     std::cout << "Pattern: " << argv[1] << "\n";
@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
 
             File::ReadDirect file(piol, globs.gl_pathv[i]);
-            piol.isErr();
+            piol->isErr();
             std::cout << "-\tNs: " << file.readNs() << "\n";
             std::cout << "-\tNt: " << file.readNt() << "\n";
             std::cout << "-\tInc: " << file.readInc() << "\n";

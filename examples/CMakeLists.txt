@@ -32,6 +32,17 @@ add_executable(sort  sort.cc)
 add_executable(csort sort.c)
 list(APPEND EXSEISDAT_EXAMPLE_EXES sort csort)
 
+add_executable(exampleCreateFile  exampleCreateFile.cc)
+add_executable(cexampleCreateFile exampleCreateFile.c)
+list(APPEND EXSEISDAT_EXAMPLE_EXES exampleCreateFile cexampleCreateFile)
+
+add_executable(exampleFilterTaper exampleFilterTaper.cc)
+list(APPEND EXSEISDAT_EXAMPLE_EXES exampleFilterTaper)
+
+add_executable(cexampleSort exampleSort.c)
+add_executable(exampleSort exampleSort.cc)
+list(APPEND EXSEISDAT_EXAMPLE_EXES exampleSort cexampleSort)
+
 #
 # Install the example executables
 #

@@ -53,12 +53,18 @@ void updateElem(CoordElem * src, CoordElem * dst)
 
 //////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
 
-Set::Set(Piol piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_, std::shared_ptr<File::Rule> rule_) :
                                                             piol(piol_), outfix(outfix_), rule(rule_), cache(piol_)
 {
     rank = piol->comm->getRank();
     numRank = piol->comm->getNumRank();
     add(pattern);
+}
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_) :
+                                                            piol(piol_), rule(rule_), cache(piol_)
+{
+    rank = piol->comm->getRank();
+    numRank = piol->comm->getNumRank();
 }
 
 Set::~Set(void)
@@ -98,7 +104,7 @@ void Set::add(std::string pattern)
 
     for (size_t i = 0; i < globs.gl_pathc; i++)
         if (std::regex_match(globs.gl_pathv[i], reg))   //For each input file which matches the regex
-            add(std::move(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i])));
+            add(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i]));
     globfree(&globs);
     piol->isErr();
 }
@@ -112,7 +118,7 @@ void Set::summary(void) const
                           "-\tNt: " + std::to_string(f->ifc->readNt())   + "\n" +
                          "-\tInc: " + std::to_string(f->ifc->readInc())  + "\n";
 
-        piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , Log::Verb::None);
+        piol->log->record("", Log::Layer::Set, Log::Status::Request, msg , PIOL_VERBOSITY_NONE);
     }
 
     if (!rank)
@@ -120,7 +126,7 @@ void Set::summary(void) const
         for (auto & m : fmap)
             piol->log->record("", Log::Layer::Set, Log::Status::Request,
                 "Local File count for (" + std::to_string(m.first.first) + " nt, " + std::to_string(m.first.second)
-                    + " inc) = " + std::to_string(m.second.size()), Log::Verb::None);
+                    + " inc) = " + std::to_string(m.second.size()), PIOL_VERBOSITY_NONE);
         piol->log->procLog();
     }
 }
@@ -148,7 +154,7 @@ void RadonState::makeState(const std::vector<size_t> & offset, const Uniray<size
 std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, std::unique_ptr<TraceBlock> bIn)
 {
     if (fCurr == fEnd || !(*fCurr)->opt.check(type))
-        return std::move(bIn);
+        return bIn;
     switch (type)
     {
         case FuncOpt::Gather :
@@ -158,9 +164,8 @@ std::unique_ptr<TraceBlock> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst
                 dynamic_cast<Op<Mod> *>(fCurr->get())->func(bIn.get(), bOut.get());
                 bIn = std::move(bOut);
             }
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
             ++fCurr;
-#pragma GCC diagnostic pop
+            // fallthrough
         case FuncOpt::SingleTrace :
             if ((*fCurr)->opt.check(FuncOpt::SingleTrace))
             {
@@ -218,7 +223,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
 #warning Use non-monotonic call here
                 File::Param prm(rule, rblock);
 
-                in->readTrace(rblock, f->ilst.data() + i, trc.data(), &prm);
+                in->readTraceNonContiguous(rblock, f->ilst.data() + i, trc.data(), &prm);
                 std::vector<size_t> sortlist = getSortIndex(rblock, f->olst.data() + i);
 
                 auto bIn = std::make_unique<TraceBlock>();
@@ -236,12 +241,12 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 }
 
                 auto bFinal = calcFunc(fCurr, fEnd, FuncOpt::SingleTrace, std::move(bIn));
-                out->writeTrace(rblock, sortlist.data(), bFinal->trc.data(), bFinal->prm.get());
+                out->writeTraceNonContiguous(rblock, sortlist.data(), bFinal->trc.data(), bFinal->prm.get());
             }
 
             for (size_t i = 0; i < extra; i++)
             {
-                in->readTrace(0, nullptr, nullptr, nullptr);
+                in->readTraceNonContiguous(0, nullptr, nullptr, nullptr);
 
                 auto bIn = std::make_unique<TraceBlock>();
                 bIn->prm.reset(new File::Param(rule, 0LU));
@@ -251,7 +256,7 @@ std::vector<std::string> Set::startSingle(FuncLst::iterator fCurr, const FuncLst
                 bIn->inc = f->ifc->readInc();
 
                 calcFunc(fCurr, fEnd, FuncOpt::Gather, std::move(bIn));
-                out->writeTrace(0, nullptr, nullptr, nullptr);
+                out->writeTraceNonContiguous(0, nullptr, nullptr, nullptr);
             }
         }
     }
@@ -264,7 +269,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
     {
         OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
         FuncLst tFunc;
-        tFunc.push_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock * in) -> std::vector<size_t>
+        tFunc.push_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock *) -> std::vector<size_t>
         {
             return std::vector<size_t>{};
         }));
@@ -299,7 +304,7 @@ std::string Set::startGather(FuncLst::iterator fCurr, const FuncLst::iterator fE
 
         //TODO: Loop and add rules
         //TODO: need better rule handling, create rule of all rules in gather functions
-        auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl});
+        auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
 
         auto fTemp = fCurr;
         while (++fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather));
@@ -432,7 +437,6 @@ std::vector<std::string> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::i
                 return std::vector<std::string>{gname};
 
             //TODO: Later this will need to be changed when the gather also continues with single trace cases
-            auto type = FuncOpt::Gather;
             #warning Trick goes here
             for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather); ++fCurr);
         }
@@ -457,7 +461,7 @@ std::vector<std::string> Set::calcFunc(FuncLst::iterator fCurr, const FuncLst::i
 std::vector<std::string> Set::output(std::string oname)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
-    func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock * in) -> std::vector<size_t>
+    func.emplace_back(std::make_shared<Op<InPlaceMod>>(opt, nullptr, nullptr, [] (TraceBlock *) -> std::vector<size_t>
     {
         return std::vector<size_t>{};
     }));
@@ -486,7 +490,7 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
         std::vector<File::Param> vprm;
         File::Param prm(rule, f->ilst.size());
 
-        f->ifc->readParam(f->ilst.size(), f->ilst.data(), &prm);
+        f->ifc->readParamNonContiguous(f->ilst.size(), f->ilst.data(), &prm);
 
         for (size_t i = 0; i < f->ilst.size(); i++)
         {
@@ -506,12 +510,12 @@ void Set::getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, 
 
 void Set::sort(CompareP sortFunc)
 {
-    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::il, Meta::xl, Meta::xSrc,
-                                                                         Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::xCmp,
-                                                                         Meta::yCmp, Meta::Offset, Meta::WtrDepRcv, Meta::tn});
+    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl, PIOL_META_xSrc,
+                                                                         PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv, PIOL_META_xCmp,
+                                                                         PIOL_META_yCmp, PIOL_META_Offset, PIOL_META_WtrDepRcv, PIOL_META_tn});
 
     //TODO: This is not the ideal mechanism, hack for now. See the note in the calcFunc for single traces
-    rule->addRule(r.get());
+    rule->addRule(*r);
     sort(r, sortFunc);
 }
 
@@ -524,7 +528,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
         if (piol->comm->min(in->prm->size()) < 3LU) //TODO: It will eventually be necessary to support this use case.
         {
             piol->log->record("", Log::Layer::Set, Log::Status::Error,
-                "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", Log::Verb::None);
+                "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.", PIOL_VERBOSITY_NONE);
             return std::vector<size_t>{};
         }
         else
@@ -534,7 +538,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
     }));
 }
 
-void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
+void Set::toAngle(std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::ModMetaVal,
                  FuncOpt::DepTrcVal, FuncOpt::DepTrcOrder, FuncOpt::DepTrcCnt, FuncOpt::DepMetaVal,
@@ -542,7 +546,7 @@ void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
     auto state = std::make_shared<RadonState>(piol, vmName, vBin, oGSz, oInc);
     func.emplace_back(std::make_shared<Op<Mod>>(opt, rule, state, [state] (const TraceBlock * in, TraceBlock * out)
     {
-        csize_t iGSz = in->prm->size();
+        const size_t iGSz = in->prm->size();
         out->ns = in->ns;
         out->inc = state->oInc;   //1 degree in radians
         out->trc.resize(state->oGSz * out->ns);
@@ -564,8 +568,8 @@ void Set::toAngle(std::string vmName, csize_t vBin, csize_t oGSz, geom_t oInc)
         {
             //TODO: Set the rest of the parameters
             //TODO: Check the get numbers
-            File::setPrm(j, Meta::il, state->il[in->gNum], out->prm.get());
-            File::setPrm(j, Meta::xl, state->xl[in->gNum], out->prm.get());
+            File::setPrm(j, PIOL_META_il, state->il[in->gNum], out->prm.get());
+            File::setPrm(j, PIOL_META_xl, state->xl[in->gNum], out->prm.get());
         }
     }));
 }
@@ -589,6 +593,11 @@ void Set::AGC(AGCFunc agcFunc, size_t window, trace_t normR)
         File::AGC(in->prm->size(), in->ns, in->trc.data(), agcFunc, window, normR);
         return std::vector<size_t>{};
     }));
+}
+
+void Set::text(std::string outmsg_)
+{
+    outmsg = outmsg_;
 }
 
 /********************************************** Non-Core **************************************************************/

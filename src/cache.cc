@@ -15,7 +15,7 @@
 
 namespace PIOL {
 //TODO: Generalise this for parameters and traces
-std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool cPrm, bool cTrc)
+std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool, bool)
 {
     auto it = std::find_if(cache.begin(), cache.end(), [desc] (const CacheElem & elem) -> bool { return elem.desc == desc; });
     if (it == cache.end() || !it->block || !it->block->prm)
@@ -35,11 +35,11 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
         size_t c = 0LU;
         for (auto & f : desc)
         {
-            f->ifc->readParam(f->ilst.size(), f->ilst.data(), prm.get(), loff);
+            f->ifc->readParamNonContiguous(f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++)
             {
-                File::setPrm(loff+i, Meta::gtn, off + loff + f->ilst[i], prm.get());
-                File::setPrm(loff+i, Meta::ltn, f->ilst[i] * desc.size() + c, prm.get());
+                File::setPrm(loff+i, PIOL_META_gtn, off + loff + f->ilst[i], prm.get());
+                File::setPrm(loff+i, PIOL_META_ltn, f->ilst[i] * desc.size() + c, prm.get());
             }
             c++;
             loff += f->ilst.size();
@@ -62,12 +62,12 @@ std::shared_ptr<TraceBlock> Cache::getCache(std::shared_ptr<File::Rule> rule, Fi
     }
     else
     {
-        //TODO: Check if prm is cached and use Meta::Copy
+        //TODO: Check if prm is cached and use PIOL_META_COPY
     }
     return it->block;
 }
 
-std::vector<size_t> Cache::getOutputTrace(FileDeque & desc, csize_t offset, csize_t sz, File::Param * prm)
+std::vector<size_t> Cache::getOutputTrace(FileDeque & desc, const size_t offset, const size_t sz, File::Param * prm)
 {
     std::vector<size_t> final;
 

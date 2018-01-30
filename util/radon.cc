@@ -7,7 +7,7 @@
 using namespace PIOL;
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
     std::string opt = "i:o:v:b:a:";  //TODO: uses a GNU extension
     std::string radon = "", angle = "", velocity = "";
     auto vBin = 20LU;
@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
         }
 
     assert(radon.size() && angle.size() && velocity.size());
-    if (!piol.getRank())
+    if (!piol->getRank())
         std::cout << "Radon to Angle Transformation"
                   << "\n-\tInput radon file:\t" << radon
                   << "\n-\tVelocity model file:\t" << velocity
@@ -44,11 +44,11 @@ int main(int argc, char ** argv)
                   << "\n-\tIncrement:\t\t" << oInc
                   << "\n-\tvBin:\t\t\t" << vBin << std::endl;
     Set set(piol, radon, angle);
-    piol.isErr();
+    piol->isErr();
     set.toAngle(velocity, vBin, oInc);
 
-    piol.isErr();
-    if (!piol.getRank())
+    piol->isErr();
+    if (!piol->getRank())
         std::cout << "Begin output\n";
 
     return 0;

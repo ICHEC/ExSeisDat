@@ -1,7 +1,3 @@
-# Link all the libraries with exseisdat
-link_libraries(exseisdat)
-
-
 #
 # Setup googletest dependencies
 #
@@ -19,12 +15,15 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Include googletest directories.
 include_directories(
+    # Include googletest directories.
     ${GOOGLETEST_DIR}/googletest/include
     ${GOOGLETEST_DIR}/googletest
     ${GOOGLETEST_DIR}/googlemock/include
     ${GOOGLETEST_DIR}/googlemock
+
+    # Include test directory
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 
@@ -33,37 +32,81 @@ include_directories(
 #
 
 add_executable(extract extract.c)
+target_link_libraries(extract exseisdat)
+
 add_executable(genfiles genfiles.c)
+target_link_libraries(genfiles exseisdat)
 
 add_executable(
     spectests
 
-    data.cc
-    datampiioread.cc
-    datampiiowrite.cc
-    datatype.cc
-    dynsegymd.cc
-    file.cc
-    filesegyintegread.cc
-    filesegyintegwrite.cc
-    filesegyread.cc
-    filesegywrite.cc
-    main.cc
-    objsegyintegread.cc
-    objsegyintegwrite.cc
-    objsegymeta.cc
-    objsegyread.cc
-    objsegywrite.cc
-    opstest.cc
-    segy.cc
-    segymd.cc
-    segymdextra.cc
-    selftests.cc
-    set.cc
+    spectests/data.cc
+    spectests/datampiioread.cc
+    spectests/datampiiowrite.cc
+    spectests/datatype.cc
+    spectests/dynsegymd.cc
+    spectests/file.cc
+    spectests/filesegyintegread.cc
+    spectests/filesegyintegwrite.cc
+    spectests/filesegyread.cc
+    spectests/filesegywrite.cc
+    spectests/main.cc
+    spectests/objsegyintegread.cc
+    spectests/objsegyintegwrite.cc
+    spectests/objsegymeta.cc
+    spectests/objsegyread.cc
+    spectests/objsegywrite.cc
+    spectests/opstest.cc
+    spectests/segy.cc
+    spectests/segymd.cc
+    spectests/segymdextra.cc
+    spectests/selftests.cc
+    spectests/set.cc
 
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
+target_link_libraries(spectests exseisdat)
+
+
+add_library(
+    wraptests
+
+    wraptests/cfileapiwrap.cc
+    wraptests/checkreturnlistener.cc
+    wraptests/exseis.cc
+    wraptests/exseiswraptest.cc
+    wraptests/getminmax.cc
+    wraptests/getminmaxwraptests.cc
+    wraptests/mockexseis.cc
+    wraptests/mockgetminmax.cc
+    wraptests/mockparam.cc
+    wraptests/mockreaddirect.cc
+    wraptests/mockrule.cc
+    wraptests/mockset.cc
+    wraptests/mockwritedirect.cc
+    wraptests/param.cc
+    wraptests/paramwraptests.cc
+    wraptests/printers.cc
+    wraptests/readdirect.cc
+    wraptests/readdirectwraptests.cc
+    wraptests/rule.cc
+    wraptests/rulewraptests.cc
+    wraptests/set.cc
+    wraptests/setwraptests.cc
+    wraptests/wraptests.cc
+    wraptests/wraptesttools.cc
+    wraptests/writedirect.cc
+    wraptests/writedirectwraptests.cc
+
+    ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
+    ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
+)
+target_link_libraries(wraptests exseisdat)
+
+add_executable(c_wraptest cwraptests/main.c)
+target_link_libraries(c_wraptest wraptests)
+
 
 
 #
@@ -105,8 +148,13 @@ add_genfile(largesegy.tmp)
 # Add the test targets
 #
 
+# Define spectests here with the *Farm* tests disabled
 add_test(
     NAME spectests_test
     COMMAND spectests --gtest_filter=-*Farm*
 )
-set_tests_properties(spectests_test PROPERTIES DEPENDS genfiles_test)
+
+add_test(
+    NAME c_wraptest_test
+    COMMAND c_wraptest
+)

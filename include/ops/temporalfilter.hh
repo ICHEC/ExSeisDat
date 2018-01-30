@@ -26,7 +26,7 @@ size_t filterOrder(const trace_t conerP, const trace_t cornerS, const trace_t fs
  * param[in] nvx Number of b coefficients
  * param[in] poly Expanded polynomial coefficients
  */
-void expandPoly (const std::complex<trace_t> * coef, csize_t nvx, trace_t * poly);
+void expandPoly (const std::complex<trace_t> * coef, const size_t nvx, trace_t * poly);
 
 /* Creates a digital Butterworth lowpass filter for a given corner in zero/pole/gain form
  * \param[in] N Filter order
@@ -35,7 +35,7 @@ void expandPoly (const std::complex<trace_t> * coef, csize_t nvx, trace_t * poly
  * \param[in] k Filter gain
  * \param[in] cf1 Corner passband frequency (Hz)
  */
-trace_t lowpass(csize_t N, std::complex<trace_t> * z, std::complex<trace_t> * p, trace_t cf1);
+trace_t lowpass(const size_t N, std::complex<trace_t> * z, std::complex<trace_t> * p, trace_t cf1);
 
 /* Creates a digital Butterworth highpass filter for a given corner in zero/pole/gain form
  * \param[in] N Filter order

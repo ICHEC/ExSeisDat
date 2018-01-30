@@ -31,7 +31,7 @@ typedef struct
  */
 extern Extent decompose(const size_t sz, const size_t nrank, const size_t rank);
 
-typedef void (* ModPrm)(size_t, size_t, CParam);    //!< Typedef for function which modifies parameters
+typedef void (* ModPrm)(size_t, size_t, PIOL_File_Param*);    //!< Typedef for function which modifies parameters
 typedef void (* ModTrc)(size_t, size_t, float *);   //!< Typedef for function which modifies traces
 
 /*! Function which copies a string onto newly allocated memory. The caller is responsible

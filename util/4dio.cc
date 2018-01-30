@@ -14,7 +14,7 @@
 namespace PIOL { namespace FOURD {
 //TODO: Integration candidate
 //TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
-std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
+std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
     auto time = MPI_Wtime();
     File::ReadDirect file(piol, name);
@@ -26,7 +26,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 
     auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());
-    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::gtn, Meta::xSrc});
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_gtn, PIOL_META_xSrc});
     /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
       handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
       parameters in batches because of this memory limit.*/
@@ -47,7 +47,7 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
         file->readParam(offset+i, rblock, &prm, i);
 
         for (size_t j = 0; j < rblock; j++)
-            setPrm(i + j, Meta::gtn, offset + i + j, &prm);
+            setPrm(i + j, PIOL_META_gtn, offset + i + j, &prm);
     }
 
     //Any extra readParam calls the particular process needs
@@ -55,11 +55,11 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
         file.readParam(size_t(0), size_t(0), nullptr);
     cmsg(piol.get(), "getCoords sort");
 
-    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param * prm, csize_t i, csize_t j) -> bool
+    auto trlist = File::sort(piol.get(), &prm, [] (const File::Param * prm, const size_t i, const size_t j) -> bool
             {
-                return (File::getPrm<geom_t>(i, Meta::xSrc, prm) <  File::getPrm<geom_t>(j, Meta::xSrc, prm) ? true :
-                        File::getPrm<geom_t>(i, Meta::xSrc, prm) == File::getPrm<geom_t>(j, Meta::xSrc, prm) &&
-                        File::getPrm<size_t>(i, Meta::gtn, prm)  <  File::getPrm<size_t>(j, Meta::gtn, prm));
+                return (File::getPrm<geom_t>(i, PIOL_META_xSrc, prm) <  File::getPrm<geom_t>(j, PIOL_META_xSrc, prm) ? true :
+                        File::getPrm<geom_t>(i, PIOL_META_xSrc, prm) == File::getPrm<geom_t>(j, PIOL_META_xSrc, prm) &&
+                        File::getPrm<size_t>(i, PIOL_META_gtn, prm)  <  File::getPrm<size_t>(j, PIOL_META_gtn, prm));
             }, false);
 
     cmsg(piol.get(), "getCoords post-sort I/O");
@@ -68,9 +68,9 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
 
     std::shared_ptr<File::Rule> crule;
     if (ixline)
-        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv, Meta::il, Meta::xl});
+        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv, PIOL_META_il, PIOL_META_xl});
     else
-        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::xSrc, Meta::ySrc, Meta::xRcv, Meta::yRcv});
+        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv});
 
     max = memlim / (crule->paramMem() + SEGSz::getMDSz() + 2LU*sizeof(size_t));
 
@@ -85,46 +85,46 @@ std::unique_ptr<Coords> getCoords(Piol piol, std::string name, bool ixline)
         for (size_t j = 0; j < sortlist.size(); j++)
             sortlist[j] = trlist[i + sortlist[j]];
 
-        file.readParam(rblock, sortlist.data(), &prm2);
+        file.readParamNonContiguous(rblock, sortlist.data(), &prm2);
 
         for (size_t j = 0; j < rblock; j++)
         {
-            coords->xSrc[i+orig[j]] = File::getPrm<geom_t>(j, Meta::xSrc, &prm2);
-            coords->ySrc[i+orig[j]] = File::getPrm<geom_t>(j, Meta::ySrc, &prm2);
-            coords->xRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::xRcv, &prm2);
-            coords->yRcv[i+orig[j]] = File::getPrm<geom_t>(j, Meta::yRcv, &prm2);
+            coords->xSrc[i+orig[j]] = File::getPrm<geom_t>(j, PIOL_META_xSrc, &prm2);
+            coords->ySrc[i+orig[j]] = File::getPrm<geom_t>(j, PIOL_META_ySrc, &prm2);
+            coords->xRcv[i+orig[j]] = File::getPrm<geom_t>(j, PIOL_META_xRcv, &prm2);
+            coords->yRcv[i+orig[j]] = File::getPrm<geom_t>(j, PIOL_META_yRcv, &prm2);
             coords->tn[i+orig[j]] = trlist[i+orig[j]];
         }
         for (size_t j = 0; ixline && j < rblock; j++)
         {
-            coords->il[i+orig[j]] = File::getPrm<llint>(j, Meta::il, &prm2);
-            coords->xl[i+orig[j]] = File::getPrm<llint>(j, Meta::xl, &prm2);
+            coords->il[i+orig[j]] = File::getPrm<llint>(j, PIOL_META_il, &prm2);
+            coords->xl[i+orig[j]] = File::getPrm<llint>(j, PIOL_META_xl, &prm2);
         }
     }
     }
 
     //Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
-        file.readParam(0LU, nullptr, nullptr);
+        file.readParamNonContiguous(0LU, nullptr, nullptr);
 
     piol->comm->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     cmsg(piol.get(), "Read sets of coordinates from file " + name + " in " + std::to_string(MPI_Wtime()- time) + " seconds");
 
-    return std::move(coords);
+    return coords;
 }
 
 //TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
-void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
+void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr)
 {
     auto time = MPI_Wtime();
-    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{Meta::Copy});
+    auto rule = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY});
 
     //Note: Set to TimeScal for OpenCPS viewing of dataset.
     //OpenCPS is restrictive on what locations can be used
     //as scalars.
     if (printDsr)
-        rule->addSEGYFloat(Meta::dsdr, File::Tr::SrcMeas, File::Tr::TimeScal);
+        rule->addSEGYFloat(PIOL_META_dsdr, PIOL_TR_SrcMeas, PIOL_TR_TimeScal);
 
     File::ReadDirect src(piol, sname);
     File::WriteDirect dst(piol, dname);
@@ -169,16 +169,16 @@ void outputNonMono(Piol piol, std::string dname, std::string sname, vec<size_t> 
     for (size_t i = 0; i < lnt; i += max)
     {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        src.readTraceNonMono(rblock, &list[i], trc.data(), &prm);
+        src.readTraceNonMonotonic(rblock, &list[i], trc.data(), &prm);
         if (printDsr)
             for (size_t j = 0; j < rblock; j++)
-                setPrm(j, Meta::dsdr, minrs[i+j], &prm);
+                setPrm(j, PIOL_META_dsdr, minrs[i+j], &prm);
         dst.writeTrace(offset+i, rblock, trc.data(), &prm);
     }
 
     for (size_t i = 0; i < extra; i++)
     {
-        src.readTrace(size_t(0), nullptr, nullptr, nullptr);
+        src.readTraceNonContiguous(size_t(0), nullptr, nullptr, nullptr);
         dst.writeTrace(size_t(0), size_t(0), nullptr, nullptr);
     }
 

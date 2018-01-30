@@ -22,52 +22,8 @@
 #include "share/param.hh"
 #include "share/api.hh"
 #include "share/segy.hh"
+
 namespace PIOL { namespace File {
-/*! SEG-Y Trace Header offsets
- */
-enum class Tr : size_t
-{
-    SeqNum      = 1U,   //!< int32_t. The trace sequence number in the Line.
-    SeqFNum     = 5U,   //!< int32_t. The trace sequence number in SEG-Y File.
-    ORF         = 9U,   //!< int32_t. The original field record number.
-    TORF        = 13U,  //!< int32_t. The trace number in the ORF.
-    ENSrcNum    = 17U,  //!< int32_t. The source energy number.
-    SeqNumEns   = 25U,  //!< int32_t. The trace number in the ensemble.
-    TIC         = 29U,  //!< int16_t. The trace identification number.
-    VStackCnt   = 31U,  //!< int16_t. The number of traces vertically stacked.
-    HStackCnt   = 33U,  //!< int16_t. The number of traces horizontally stacked.
-    CDist       = 37U,  //!< int32_t. The distance from source center to receiver centre.
-    RcvElv      = 41U,  //!< int32_t. The receiver group elevation.
-    SurfElvSrc  = 45U,  //!< int32_t. The surface elevation at the source.
-    SrcDpthSurf = 49U,  //!< int32_t. The source depth below surface (opposite of above?).
-    DtmElvRcv   = 53U,  //!< int32_t. The datum elevation for the receiver group.
-    DtmElvSrc   = 57U,  //!< int32_t. The datum elevation for the source.
-    WtrDepSrc   = 61U,  //!< int32_t. The water depth for the source.
-    WtrDepRcv   = 65U,  //!< int32_t. The water depth for the receive group.
-    ScaleElev   = 69U,  //!< int16_t. The scale coordinate for 41-68 (elevations + depths).
-    ScaleCoord  = 71U,  //!< int16_t. The scale coordinate for 73-88 + 181-188
-    xSrc        = 73U,  //!< int32_t. The X coordinate for the source
-    ySrc        = 77U,  //!< int32_t. The Y coordinate for the source
-    xRcv        = 81U,  //!< int32_t. The X coordinate for the receive group
-    yRcv        = 85U,  //!< int32_t. The Y coordinate for the receive group
-    UpSrc       = 95U,  //!< int16_t. The uphole time at the source (ms).
-    UpRcv       = 97U,  //!< int16_t. The uphole time at the receive group (ms).
-    Ns          = 115U, //!< int16_t. The number of samples in the trace.
-    Inc         = 117U, //!< int16_t. The sample interval (us).
-    xCmp        = 181U, //!< int32_t. The X coordinate for the CMP
-    yCmp        = 185U, //!< int32_t. The Y coordinate for the CMP
-    il          = 189U, //!< int32_t. The Inline grid point.
-    xl          = 193U, //!< int32_t. The Crossline grid point.
-    ShotNum     = 197U, //!< int32_t. The source nearest to the CDP.
-    ShotScal    = 201U, //!< int16_t. The shot number scalar. (Explicitly says that 0 == 1)
-    ValMeas     = 203U, //!< int16_t. The unit system used for trace values.
-    TransConst  = 205U, //!< int32_t. The transduction constant.
-    TransExp    = 209U, //!< int16_t. The transduction exponent.
-    TransUnit   = 211U, //!< int16_t. The transduction units
-    TimeScal    = 215U, //!< int16_t. Scalar for time measurements.
-    SrcMeas     = 225U, //!< int32_t. Source measurement.
-    SrcMeasExp  = 229U, //!< int16_t. Source measurement exponent.
-};
 
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6    //Compiler defects
 /*! This function exists to address a defect in enum usage in a map
@@ -111,7 +67,7 @@ struct RuleEntry
      *  \param[in] num_ The numth rule of the given type for indexing
      *  \param[in] loc_ The location of the primary data
      */
-    RuleEntry(csize_t num_, csize_t loc_) : num(num_), loc(loc_) { }
+    RuleEntry(const size_t num_, const size_t loc_) : num(num_), loc(loc_) { }
 
     /*! Virtual destructor to allow overriding by derived classes.
      */
@@ -327,11 +283,11 @@ typedef std::unordered_map<Meta, RuleEntry *> RuleMap;              //!< Typedef
  */
 struct Rule
 {
-    size_t numLong;         //!< Number of long rules.
-    size_t numFloat;        //!< Number of float rules.
-    size_t numShort;        //!< Number of short rules.
-    size_t numIndex;        //!< Number of index rules.
-    size_t numCopy;         //!< Number of copy rules. either 0 or 1.
+    size_t numLong  = 0;        //!< Number of long rules.
+    size_t numFloat = 0;        //!< Number of float rules.
+    size_t numShort = 0;        //!< Number of short rules.
+    size_t numIndex = 0;        //!< Number of index rules.
+    size_t numCopy  = 0;        //!< Number of copy rules. either 0 or 1.
     size_t start;           //!< The starting byte position in the SEG-Y header.
     size_t end;             //!< The end byte position (+ 1) in the SEG-Y header.
     struct
@@ -348,17 +304,21 @@ struct Rule
      *  default rules in place or no rules in place.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
      *  \param[in] defaults Whether the default SEG-Y rules should be set.
-     *  \param[in] extra Whether maximum amount of rules should be set. Useful when copying files
+     *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
-    Rule(bool full, bool defaults, bool extra = false);
+    Rule(bool full, bool defaults, bool extras = false);
 
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
      *  \param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
      *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  \param[in] defaults Whether the default SEG-Y rules should be set.
+     *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
+     *              through the library.
      */
-    Rule(std::initializer_list<Meta> m, bool full = true);
+    Rule(const std::vector<Meta>& m, bool full = true,
+         bool defaults = false, bool extras = false);
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
@@ -381,7 +341,7 @@ struct Rule
      *  \param[in] r Another rule pointer.
      *  \return Return true if no errors
      */
-    bool addRule(Rule * r);
+    bool addRule(const Rule& r);
 
     /*! Add a rule for longs.
      *  \param[in] m The Meta entry.
@@ -480,7 +440,7 @@ T getPrm(size_t i, Meta entry, const Param * prm)
  *  \param[in] prm The parameter structure
  */
 template <typename T>
-void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
+void setPrm(const size_t i, const Meta entry, T ret, Param * prm)
 {
     Rule * r = prm->r.get();
     RuleEntry * id = r->getEntry(entry);
@@ -507,6 +467,6 @@ void setPrm(csize_t i, const Meta entry, T ret, Param * prm)
  * \param[in] k The trace number of the destination.
  * \param[out] dst The destination parameter structure.
  */
-void cpyPrm(csize_t j, const Param * src, csize_t k, Param * dst);
+void cpyPrm(const size_t j, const Param * src, const size_t k, Param * dst);
 }}
 #endif

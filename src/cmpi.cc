@@ -10,30 +10,124 @@
 #include "anc/mpi.hh"
 #include "share/mpi.hh"
 namespace PIOL { namespace Comm {
-MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), init(opt.initMPI), log(log_)
+
+
+// We define functions and classes to delegate initialization and finalization
+// if MPI to initialization and destruction of function-local static variables.
+// This means initialization is tied to the first PIOL::Comm::MPI call,
+// and finalization is tied to the program exit.
+//
+// We also allow the user to circumvent this behaviour with a global variable,
+// set by calling manageMPI(bool).
+namespace {
+
+enum class ManagingMPI
 {
-    if (init)
+    unset, yes, no
+};
+
+// A static variable tracking whether we're managing MPI or not.
+// By default it's "unset", but after MPIManager() is called, it will definitely
+// be set.
+ManagingMPI& managingMPI() {
+    static auto managingMPI = ManagingMPI::unset;
+    return managingMPI;
+}
+
+
+/// \brief This class will be initialized as a function static variable.
+///     This means the lifetime will begin the first time the MPIManagerInstance
+///     function is called, and end when the program exits wither by returning
+///     from main, or when std::exit() is called.
+///     It uses the managingMPI() static variable to track management, which
+///     users can explicitly set using the manageMPI(bool) function.
+struct MPIManager
+{
+    /// \brief Initialize MPI if it hasn't been already, and we're responsible
+    ///     for it.
+    MPIManager()
     {
-        //Quote from MPI 3.1 specification: "The version for ISO C accepts the argc and argv
-        // that are provided by the arguments to main or NULL"
-        int err = MPI_Init(NULL, NULL);
-        printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Init failure");
+        // If we're not managing MPI, just do nothing.
+        if(managingMPI() == ManagingMPI::no) return;
+
+        int initialized = 0;
+        MPI_Initialized(&initialized);
+
+        if (!initialized) MPI_Init(NULL, NULL);
+
+        // Set managingMPI value if the user hasn't already
+        if(managingMPI() == ManagingMPI::unset)
+        {
+            if(initialized)
+            {
+                // MPI was already initialized
+                managingMPI() = ManagingMPI::no;
+            }
+            else
+            {
+                // We initialized MPI
+                managingMPI() = ManagingMPI::yes;
+            }
+        }
     }
+
+    /// \brief Finalize MPI if we're responsible for it.
+    ~MPIManager()
+    {
+        if (managingMPI() == ManagingMPI::yes)
+        {
+            int finalized = false;
+            MPI_Finalized(&finalized);
+
+            if(!finalized)
+            {
+                MPI_Finalize();
+            }
+        }
+    }
+};
+
+
+
+/// \brief A static instance of MPIManager so the destructor, and MPI_Finalize
+///     will be called at program exit.
+MPIManager& MPIManagerInstance()
+{
+    static auto& managing_mpi = managingMPI();
+    (void)managing_mpi;
+    static auto MPIManagerInstance = MPIManager();
+    return MPIManagerInstance;
+}
+
+} // namespace
+
+
+
+void manageMPI(bool manage)
+{
+    if(manage)
+    {
+        managingMPI() = ManagingMPI::yes;
+    }
+    else
+    {
+        managingMPI() = ManagingMPI::no;
+    }
+}
+
+
+MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), log(log_)
+{
+    // Initialize MPI and set up MPI_Finalize to be called at program close.
+    MPIManager& mpi_manager = MPIManagerInstance();
+    (void)mpi_manager;
+
     int irank;
     int inumRank;
     MPI_Comm_rank(comm, &irank);
     MPI_Comm_size(comm, &inumRank);
     rank = irank;
     numRank = inumRank;
-}
-
-MPI::~MPI(void)
-{
-    if (init)
-    {
-        int err = MPI_Finalize();
-        printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Finalize failure");
-    }
 }
 
 MPI_Comm MPI::getComm() const

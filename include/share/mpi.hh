@@ -55,18 +55,6 @@ MPI_Datatype MPIType(void)
          : MPI_BYTE))))))))))))));
 }
 
-/*! \brief Return the known limit for Intel MPI on Fionn
- *  \tparam T The type one wishes to find the limit for
- *  \return The size in counts
- */
-template <typename T>
-constexpr size_t getLim()
-{
-    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
-    //Probably something to do with pages.
-    //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
-    return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
-}
 
 /*! \brief Return the known limit for Intel MPI on Fionn for a type of the given size
  *  \param[in] sz The datatype size one wishes to find the limit for
@@ -77,6 +65,20 @@ inline size_t getLimSz(size_t sz)
     //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
     //Probably something to do with pages.
     return (std::numeric_limits<int>::max() - (4096U - sz)) / sz;
+}
+
+/*! \brief Return the known limit for Intel MPI on Fionn for a given type.
+ *  \tparam T The type one wishes to find the limit for
+ *  \return The size in counts
+ */
+template <typename T>
+constexpr size_t getLim()
+{
+    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
+    //Probably something to do with pages.
+    //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
+    //return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
+    return getLimSz(sizeof(T));
 }
 }
 #endif

@@ -27,7 +27,7 @@ namespace PIOL { namespace File {
  * \param[in] window Length of the agc window
  * \param[in] normR Value to which traces are normalised
  */
-extern void AGC(csize_t nt, csize_t ns, trace_t * trc, AGCFunc func, size_t window, trace_t normR);
+extern void AGC(const size_t nt, const size_t ns, trace_t * trc, AGCFunc func, size_t window, trace_t normR);
 
 /************************************** Non-core ***********************************************************/
 /*! Find the normalised root mean square (RMS) of traces in a rectangular window

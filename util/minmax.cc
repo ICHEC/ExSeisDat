@@ -13,10 +13,10 @@ using namespace File;
  */
 void calcMin(std::string iname, std::string oname)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
     File::ReadDirect in(piol, iname);
 
-    auto dec = decompose(piol, in);
+    auto dec = decompose(piol.get(), in);
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
@@ -24,11 +24,11 @@ void calcMin(std::string iname, std::string oname)
     std::vector<CoordElem> minmax(12U);
     in.readParam(offset, lnt, &prm);
 
-    getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
-    getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
-    getMinMax(piol, offset, lnt, Meta::xCmp, Meta::yCmp, &prm, minmax.data()+8U);
+    getMinMax(piol.get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
+    getMinMax(piol.get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
+    getMinMax(piol.get(), offset, lnt, PIOL_META_xCmp, PIOL_META_yCmp, &prm, minmax.data()+8U);
 
-    size_t sz = (!piol.getRank() ? minmax.size() : 0U);
+    size_t sz = (!piol->getRank() ? minmax.size() : 0U);
     size_t usz = 0;
     std::vector<size_t> list(sz);
     std::vector<size_t> uniqlist(sz);
@@ -46,7 +46,7 @@ void calcMin(std::string iname, std::string oname)
     }
 
     Param tprm(usz);
-    in.readParam(usz, uniqlist.data(), &tprm);
+    in.readParamNonContiguous(usz, uniqlist.data(), &tprm);
 
     Param oprm(sz);
     std::vector<trace_t> trace(sz);
@@ -56,7 +56,7 @@ void calcMin(std::string iname, std::string oname)
             if (list[i] == uniqlist[j])
             {
                 cpyPrm(j, &tprm, i, &oprm);
-                setPrm(i, Meta::tn,  minmax[i].num, &oprm);
+                setPrm(i, PIOL_META_tn,  minmax[i].num, &oprm);
                 trace[i] = trace_t(1);
                 j = usz;
             }

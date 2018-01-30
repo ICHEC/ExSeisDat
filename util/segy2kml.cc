@@ -100,19 +100,19 @@ void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  &
  *  \param[in] iname Input file
  *  \param[in] minmax Minimum and maximum coordinates
  */
-void calcMin(ExSeis piol, std::string iname, std::vector<CoordElem> & minmax)
+void calcMin(std::shared_ptr<ExSeis> piol, std::string iname, std::vector<CoordElem> & minmax)
 {
     File::ReadDirect in(piol, iname);
 
-    auto dec = decompose(piol, in);
+    auto dec = decompose(piol.get(), in);
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
     File::Param prm(lnt);
     in.readParam(offset, lnt, &prm);
 
-    File::getMinMax(piol, offset, lnt, Meta::xSrc, Meta::ySrc, &prm, minmax.data());
-    File::getMinMax(piol, offset, lnt, Meta::xRcv, Meta::yRcv, &prm, minmax.data()+4U);
+    File::getMinMax(piol.get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm, minmax.data());
+    File::getMinMax(piol.get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm, minmax.data()+4U);
 }
 
 /* Main function for segy to kml
@@ -197,7 +197,7 @@ int main(int argc, char ** argv)
 
     std::ofstream ofile;
     initKML(ofile, oname, folder);
-    ExSeis piol;
+    auto piol = ExSeis::New();
     for (size_t i = 0; i< iname.size(); i++)
     {
         calcMin(piol, iname[i], minmax);

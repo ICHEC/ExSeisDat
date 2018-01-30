@@ -53,7 +53,8 @@ void doPrompt(ExSeisPIOL * piol)
  */
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
+
     std::string pattern = "";
     std::string outprefix = "";
     std::string msg = "Concatenated with ExSeisPIOL";
@@ -64,12 +65,12 @@ int main(int argc, char ** argv)
         {
             case 'i' :
                 pattern = optarg;
-                if (!piol.getRank())
+                if (!piol->getRank())
                     std::cout << "Pattern: " << pattern << "\n";
             break;
             case 'o' :
                 outprefix = optarg;
-                if (!piol.getRank())
+                if (!piol->getRank())
                     std::cout << "output prefix: " << outprefix << "\n";
             break;
             case 'm' :
@@ -89,7 +90,7 @@ int main(int argc, char ** argv)
     if (prompt)
     {
         set.summary();
-        doPrompt(piol);
+        doPrompt(piol.get());
     }
     set.output(outprefix);
 

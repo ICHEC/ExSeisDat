@@ -6,11 +6,11 @@
 using namespace PIOL;
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
     std::string opt = "i:o:t:";  //TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
-    auto type = SortType::SrcRcv;
+    auto type = PIOL_SORTTYPE_SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
         switch (c)
         {
@@ -32,6 +32,6 @@ int main(int argc, char ** argv)
 
     Set set(piol, name1, name2);
     set.sort(type);
-    piol.isErr();
+    piol->isErr();
     return 0;
 }

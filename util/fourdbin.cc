@@ -42,7 +42,8 @@ namespace PIOL {
  */
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
+
     fourd_t dsrmax = 1.0;            //Default dsdr criteria
     std::string name1 = "";
     std::string name2 = "";
@@ -53,7 +54,7 @@ int main(int argc, char ** argv)
     char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING-1];
     int len;
     MPI_Get_library_version(MPIVersion, &len);
-    if (!piol.getRank())
+    if (!piol->getRank())
         std::cout << "MPI Version " << MPIVersion << std::endl;
 
 /*******************  Reading options from the command line ***********************************************/
@@ -78,7 +79,7 @@ int main(int argc, char ** argv)
             break;
             case 'v' :
                 fopt.verbose = true;
-                cmsg(piol, "Verbose mode enabled");
+                cmsg(piol.get(), "Verbose mode enabled");
             break;
             case 'p' :
                 fopt.printDsr = false;
@@ -93,7 +94,7 @@ int main(int argc, char ** argv)
     assert(name1.size() && name2.size() && name3.size() && name4.size());
 /**********************************************************************************************************/
     //Open the two input files
-    cmsg(piol, "Parameter-read phase");
+    cmsg(piol.get(), "Parameter-read phase");
 
     //Perform the decomposition and read the coordinates of interest.
     auto coords1 = getCoords(piol, name1, fopt.ixline);
@@ -101,10 +102,10 @@ int main(int argc, char ** argv)
 
     vec<size_t> min(coords1->sz);
     vec<fourd_t> minrs(coords1->sz);
-    calc4DBin(piol, dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
+    calc4DBin(piol.get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
-    cmsg(piol, "Final list pass");
+    cmsg(piol.get(), "Final list pass");
     //Now we weed out traces that have a match that is too far away
     vec<size_t> list1;
     vec<size_t> list2;
@@ -120,7 +121,7 @@ int main(int argc, char ** argv)
 
     if (fopt.verbose)
     {
-        std::string name = "tmp/restart" + std::to_string(piol.getRank());
+        std::string name = "tmp/restart" + std::to_string(piol->getRank());
         FILE * fOut = fopen(name.c_str(), "w+");
         size_t sz = list1.size();
         assert(fwrite(&sz, sizeof(size_t), 1U, fOut) == 1U);
@@ -133,7 +134,7 @@ int main(int argc, char ** argv)
     //free up some memory
     coords1.release();
 
-    cmsg(piol, "Output phase");
+    cmsg(piol.get(), "Output phase");
 
     outputNonMono(piol, name3, name1, list1, lminrs, fopt.printDsr);
     outputNonMono(piol, name4, name2, list2, lminrs, fopt.printDsr);

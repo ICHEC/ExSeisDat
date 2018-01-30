@@ -29,16 +29,17 @@ int main(int argc, char ** argv)
     assert(name.size() > 0);
 
     //Initialise the PIOL by creating an ExSeisPIOL object
-    ExSeis piol;
+    auto piol = ExSeis::New();
 
     //Create a SEGY file object
     File::WriteDirect file(piol, name);
 
-    //lnt is the number of traces and sets of trace parameters we will write per process
-    size_t nt = 40000, ns = 300;
-    double inc = 0.04;
+    //nt is the number of traces, ns the number of samples per trace
+    size_t nt = 40000, ns = 1000;
+    //inc is the increment step between traces (microseconds)
+    double inc = 4.0;
 
-    auto dec = decompose(nt, piol.getNumRank(), piol.getRank());
+    auto dec = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.first;
     size_t lnt = dec.second;
 
@@ -53,15 +54,15 @@ int main(int argc, char ** argv)
     for (size_t j = 0; j < lnt; j++)
     {
         float k = offset+j;
-        setPrm(j, Meta::xSrc, 1600.0 + k, &prm);
-        setPrm(j, Meta::ySrc, 2400.0 + k, &prm);
-        setPrm(j, Meta::xRcv, 100000.0 + k, &prm);
-        setPrm(j, Meta::yRcv, 3000000.0 + k, &prm);
-        setPrm(j, Meta::xCmp, 10000.0 + k, &prm);
-        setPrm(j, Meta::yCmp, 4000.0 + k, &prm);
-        setPrm(j, Meta::il, 2400 + k, &prm);
-        setPrm(j, Meta::xl, 1600 + k, &prm);
-        setPrm(j, Meta::tn, offset+j, &prm);
+        setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
+        setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
+        setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
+        setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
+        setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
+        setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
+        setPrm(j, PIOL_META_il, 2400 + k, &prm);
+        setPrm(j, PIOL_META_xl, 1600 + k, &prm);
+        setPrm(j, PIOL_META_tn, offset+j, &prm);
     }
     file.writeParam(offset, lnt, &prm);
 

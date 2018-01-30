@@ -20,7 +20,8 @@ using namespace PIOL;
  */
 int main(int argc, char ** argv)
 {
-    ExSeis piol;
+    auto piol = ExSeis::New();
+
     std::string name = "";
     size_t tn = 0LU;
     std::string opt = "i:t:";  //TODO: uses a GNU extension
@@ -42,17 +43,17 @@ int main(int argc, char ** argv)
     File::Param prm(1LU);
     file->readParam(tn, 1LU, &prm);
 
-    if (!piol.getRank())
+    if (!piol->getRank())
     {
-        std::cout << "xSrc " << File::getPrm<geom_t>(0LU, Meta::xSrc, &prm) << std::endl;
-        std::cout << "ySrc " << File::getPrm<geom_t>(0LU, Meta::ySrc, &prm) << std::endl;
-        std::cout << "xRcv " << File::getPrm<geom_t>(0LU, Meta::xRcv, &prm) << std::endl;
-        std::cout << "yRcv " << File::getPrm<geom_t>(0LU, Meta::yRcv, &prm) << std::endl;
-        std::cout << "xCmp " << File::getPrm<geom_t>(0LU, Meta::xCmp, &prm) << std::endl;
-        std::cout << "yCmp " << File::getPrm<geom_t>(0LU, Meta::yCmp, &prm) << std::endl;
+        std::cout << "xSrc " << File::getPrm<geom_t>(0LU, PIOL_META_xSrc, &prm) << std::endl;
+        std::cout << "ySrc " << File::getPrm<geom_t>(0LU, PIOL_META_ySrc, &prm) << std::endl;
+        std::cout << "xRcv " << File::getPrm<geom_t>(0LU, PIOL_META_xRcv, &prm) << std::endl;
+        std::cout << "yRcv " << File::getPrm<geom_t>(0LU, PIOL_META_yRcv, &prm) << std::endl;
+        std::cout << "xCmp " << File::getPrm<geom_t>(0LU, PIOL_META_xCmp, &prm) << std::endl;
+        std::cout << "yCmp " << File::getPrm<geom_t>(0LU, PIOL_META_yCmp, &prm) << std::endl;
 
-        std::cout << "il " << File::getPrm<size_t>(0LU, Meta::il, &prm) << std::endl;
-        std::cout << "xl " << File::getPrm<size_t>(0LU, Meta::xl, &prm) << std::endl;
+        std::cout << "il " << File::getPrm<size_t>(0LU, PIOL_META_il, &prm) << std::endl;
+        std::cout << "xl " << File::getPrm<size_t>(0LU, PIOL_META_xl, &prm) << std::endl;
     }
     return 0;
 }

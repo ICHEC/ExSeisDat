@@ -36,7 +36,7 @@ static const EbcdicAsciiPair char_sub{0x1Au, 0x3Fu};
 // This list was generated with the iconv library using the
 // ASCII and EBCDICUS encodings.
 using EbcdicAsciiPairs = std::array<EbcdicAsciiPair,126>;
-static const EbcdicAsciiPairs ebcdicAsciiPairs = {
+static const EbcdicAsciiPairs ebcdicAsciiPairs = {{
     EbcdicAsciiPair{0x00u, 0x00u},
     EbcdicAsciiPair{0x01u, 0x01u},
     EbcdicAsciiPair{0x02u, 0x02u},
@@ -163,7 +163,7 @@ static const EbcdicAsciiPairs ebcdicAsciiPairs = {
     EbcdicAsciiPair{0x7Eu, 0xA1u},
     EbcdicAsciiPair{0x7Fu, 0x07u},
     EbcdicAsciiPair{0xFFu, 0xFFu}
-};
+}};
 
 
 //
@@ -242,7 +242,7 @@ char asciiToEbcdic(uchar ascii_char)
 //Do conversion, if more printable letters and spaces etc post-conversion use it.
 // This is the old interface which used to be able to fail.
 // It should probably be removed!
-void getAscii(ExSeisPIOL * piol, const std::string file, csize_t sz, uchar * src)
+void getAscii(ExSeisPIOL*, const std::string &, size_t sz, uchar * src)
 {
     for(size_t i=0; i<sz; i++) {
         src[i] = ebcdicToAscii(src[i]);
