@@ -30,31 +30,50 @@ extern void printErr(Log::Logger * log, const std::string file, const Log::Layer
                                         const MPI_Status * stat, std::string msg);
 
 /*! @brief Return the fundamental MPI datatype associated with a fundamental datatype.
- *  @return The datatype. If the datatype is not known MPI_BYTE is returned.
+ *  @return The datatype.
  *  @tparam T The C++ datatype
  */
 template <typename T>
-#ifndef __ICC
-constexpr
-#endif
-MPI_Datatype MPIType(void)
-{
-    return (typeid(T) == typeid(double)             ? MPI_DOUBLE
-         : (typeid(T) == typeid(long double)        ? MPI_LONG_DOUBLE
-         : (typeid(T) == typeid(char)               ? MPI_CHAR
-         : (typeid(T) == typeid(uchar)              ? MPI_UNSIGNED_CHAR
-         : (typeid(T) == typeid(int)                ? MPI_INT
-         : (typeid(T) == typeid(long int)           ? MPI_LONG
-         : (typeid(T) == typeid(size_t)             ? MPI_UNSIGNED_LONG //Watch out for this one!
-         : (typeid(T) == typeid(unsigned long int)  ? MPI_UNSIGNED_LONG
-         : (typeid(T) == typeid(unsigned int)       ? MPI_UNSIGNED
-         : (typeid(T) == typeid(long long int)      ? MPI_LONG_LONG_INT
-         : (typeid(T) == typeid(int64_t)            ? MPI_LONG_LONG_INT
-         : (typeid(T) == typeid(float)              ? MPI_FLOAT
-         : (typeid(T) == typeid(signed short)       ? MPI_SHORT
-         : (typeid(T) == typeid(unsigned short)     ? MPI_UNSIGNED_SHORT
-         : MPI_BYTE))))))))))))));
+constexpr MPI_Datatype MPIType() {
+    static_assert(sizeof(T) == 0, "Unknown MPI type!");
+    return MPI_BYTE;
 }
+
+template<>
+constexpr MPI_Datatype MPIType<double>() { return MPI_DOUBLE; }
+
+template<>
+constexpr MPI_Datatype MPIType<long double>() { return MPI_LONG_DOUBLE; }
+
+template<>
+constexpr MPI_Datatype MPIType<char>() { return MPI_CHAR; }
+
+template<>
+constexpr MPI_Datatype MPIType<unsigned char>() { return MPI_UNSIGNED_CHAR; }
+
+template<>
+constexpr MPI_Datatype MPIType<int>() { return MPI_INT; }
+
+template<>
+constexpr MPI_Datatype MPIType<long int>() { return MPI_LONG; }
+
+template<>
+constexpr MPI_Datatype MPIType<unsigned long int>() { return MPI_UNSIGNED_LONG; }
+
+template<>
+constexpr MPI_Datatype MPIType<unsigned int>() { return MPI_UNSIGNED; }
+
+template<>
+constexpr MPI_Datatype MPIType<long long int>() { return MPI_LONG_LONG_INT; }
+
+template<>
+constexpr MPI_Datatype MPIType<float>() { return MPI_FLOAT; }
+
+template<>
+constexpr MPI_Datatype MPIType<signed short>() { return MPI_SHORT; }
+
+template<>
+constexpr MPI_Datatype MPIType<unsigned short>() { return MPI_UNSIGNED_SHORT; }
 
 
 /*! @brief Return the known limit for Intel MPI on Fionn for a type of the given size
