@@ -22,11 +22,11 @@ typedef struct
 
 /*! Function which takes the size of a problem, the number of ranks to
  *  decompose the problem over and the particular local rank for the function call.
- *  \param[in] sz The size of the problem.
- *  \param[in] nrank The total number of ranks.
- *  \param[in] rank The rank during the function call, generally the rank of the calling
+ *  @param[in] sz The size of the problem.
+ *  @param[in] nrank The total number of ranks.
+ *  @param[in] rank The rank during the function call, generally the rank of the calling
  *             MPI process.
- *  \return Return an extent, a starting point (generally for a 'for' loop) and the number
+ *  @return Return an extent, a starting point (generally for a 'for' loop) and the number
  *          of iterations.
  */
 extern Extent decompose(const size_t sz, const size_t nrank, const size_t rank);
@@ -37,8 +37,8 @@ typedef void (* ModTrc)(size_t, size_t, float *);   //!< Typedef for function wh
 /*! Function which copies a string onto newly allocated memory. The caller is responsible
  *  for deallocating the memory with free. The newly allocated memory is equal to the length
  *  of the old string.
- *  \param[in] oldstr The old string to be copied to the new memory.
- *  \return The newly allocated string which contains the contents of oldstr
+ *  @param[in] oldstr The old string to be copied to the new memory.
+ *  @return The newly allocated string which contains the contents of oldstr
  */
 extern char * copyString(const char * oldstr);
 #endif

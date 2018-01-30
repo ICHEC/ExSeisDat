@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date May 2017
- *   \brief
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date May 2017
+ *   @brief
 *//*******************************************************************************************/
 #ifndef PIOLSETCACHE_INCLUDE_GUARD
 #define PIOLSETCACHE_INCLUDE_GUARD
@@ -19,8 +19,8 @@ struct CacheElem
     std::shared_ptr<TraceBlock> block;  //!< The cached data
 
     /*! Construct the cache element with the given parameter structure.
-     *  \param[in] desc_ A deque of unique pointers to file descriptors
-     *  \param[inout] prm_ A unique_ptr to the parameter structure. The cache element takes ownership.
+     *  @param[in] desc_ A deque of unique pointers to file descriptors
+     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache element takes ownership.
      */
     CacheElem(FileDeque & desc_, std::unique_ptr<File::Param> prm_)
     {
@@ -30,9 +30,9 @@ struct CacheElem
     }
 
     /*! Construct the cache element with the given parameter structure.
-     *  \param[in] desc_ A deque of unique pointers to file descriptors
-     *  \param[in] trc_ A vector of traces for caching.
-     *  \param[inout] prm_ A unique_ptr to the parameter structure. The cache element takes ownership
+     *  @param[in] desc_ A deque of unique pointers to file descriptors
+     *  @param[in] trc_ A vector of traces for caching.
+     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache element takes ownership
      *                if it exists.
      */
     CacheElem(FileDeque & desc_, std::vector<trace_t> & trc_, std::unique_ptr<File::Param> prm_ = nullptr)
@@ -44,8 +44,8 @@ struct CacheElem
     }
 
     /*! Check if the given element has cached parameters
-     *  \param[in] desc_ A deque of unique pointers to file descriptors
-     *  \return Return true if the parameters are cached.
+     *  @param[in] desc_ A deque of unique pointers to file descriptors
+     *  @return Return true if the parameters are cached.
      */
     bool checkPrm(const FileDeque & desc_) const
     {
@@ -53,8 +53,8 @@ struct CacheElem
     }
 
     /*! Check if the given element has cached traces
-     *  \param[in] desc_ A deque of unique pointers to file descriptors
-     *  \return Return true if the traces are cached.
+     *  @param[in] desc_ A deque of unique pointers to file descriptors
+     *  @return Return true if the traces are cached.
      */
     bool checkTrc(const FileDeque & desc_) const
     {
@@ -71,23 +71,23 @@ class Cache
     public :
 
     /*! Initialise the cache.
-     * \param[in] piol_ The PIOL object
+     * @param[in] piol_ The PIOL object
      */
     Cache(std::shared_ptr<ExSeisPIOL> piol_) : piol(piol_) {}
 
     /*! Get a given cache of parameters or traces. Perform I/O and cache the result if not already done so.
-     *  \param[in] rule The rule to use for the parameters.
-     *  \param[in] desc A deque of unique pointers to file descriptors.
-     *  \param[in] cPrm if True, get the parameters.
-     *  \param[in] cTrc if True, get the traces.
-     *  \return Return a block with the traces and/or parameters.
+     *  @param[in] rule The rule to use for the parameters.
+     *  @param[in] desc A deque of unique pointers to file descriptors.
+     *  @param[in] cPrm if True, get the parameters.
+     *  @param[in] cTrc if True, get the traces.
+     *  @return Return a block with the traces and/or parameters.
      */
     std::shared_ptr<TraceBlock> getCache(std::shared_ptr<File::Rule> rule, FileDeque & desc, bool cPrm, bool cTrc);
 
     /*! Get a given cache of parameters. Perform I/O and cache the result if not already done so.
-     *  \param[in] rule The rule to use for the parameters.
-     *  \param[in] desc A deque of unique pointers to file descriptors.
-     *  \return Return a block with the parameters.
+     *  @param[in] rule The rule to use for the parameters.
+     *  @param[in] desc A deque of unique pointers to file descriptors.
+     *  @return Return a block with the parameters.
      */
     std::shared_ptr<TraceBlock> cachePrm(std::shared_ptr<File::Rule> rule, FileDeque & desc)
     {
@@ -95,8 +95,8 @@ class Cache
     }
 
     /*! Get a given cache of traces. Perform I/O and cache the result if not already done so.
-     *  \param[in] desc A deque of unique pointers to file descriptors.
-     *  \return Return a block with the traces.
+     *  @param[in] desc A deque of unique pointers to file descriptors.
+     *  @return Return a block with the traces.
      */
     std::shared_ptr<TraceBlock> cacheTrc(FileDeque & desc)
     {
@@ -104,8 +104,8 @@ class Cache
     }
 
     /*! Check if any of elements have cached parameters
-     *  \param[in] desc A deque of unique pointers to file descriptors.
-     *  \return Return true if the parameters are cached.
+     *  @param[in] desc A deque of unique pointers to file descriptors.
+     *  @return Return true if the parameters are cached.
      */
     bool checkPrm(FileDeque & desc)
     {
@@ -114,8 +114,8 @@ class Cache
     }
 
     /*! Check if any of elements have cached traces
-     *  \param[in] desc A deque of unique pointers to file descriptors.
-     *  \return Return true if the traces are cached.
+     *  @param[in] desc A deque of unique pointers to file descriptors.
+     *  @return Return true if the traces are cached.
      */
     bool checkTrc(FileDeque & desc)
     {
@@ -124,7 +124,7 @@ class Cache
     }
 
     /*! Erase the cache corresponding to the descriptor
-     *  \param[in] desc A deque of unique pointers to file descriptors.
+     *  @param[in] desc A deque of unique pointers to file descriptors.
      */
     void flush(FileDeque & desc)
     {
@@ -133,11 +133,11 @@ class Cache
     }
 
     /*! Get a subset of parameters from a cache.
-     *  \param[in] desc A deque of unique pointers to file descriptors.
-     *  \param[in] offset The offset in the file subset.
-     *  \param[in] sz The number of traces from the file subset.
-     *  \param[out] prm The parameter structure to fill.
-     *  \return Return the output trace locations
+     *  @param[in] desc A deque of unique pointers to file descriptors.
+     *  @param[in] offset The offset in the file subset.
+     *  @param[in] sz The number of traces from the file subset.
+     *  @param[out] prm The parameter structure to fill.
+     *  @return Return the output trace locations
      */
     std::vector<size_t> getOutputTrace(FileDeque & desc, const size_t offset, const size_t sz, File::Param * prm);
 };

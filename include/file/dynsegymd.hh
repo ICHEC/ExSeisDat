@@ -1,12 +1,12 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date October 2016
- *   \brief The state of this file is temporarily SEG-Y specific, when new formats are
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date October 2016
+ *   @brief The state of this file is temporarily SEG-Y specific, when new formats are
  *          investigated this file should be split into a format-agnostic component and a
  *          SEG-Y specific component.
- *   \details The SEG-Y implementation of metadata is dynamic to reflect the actual usage
+ *   @details The SEG-Y implementation of metadata is dynamic to reflect the actual usage
  *   by geophysicists where SEG-Y metadata fields are routinely used for other purposes.
  *   as such, the SEG-Y standard is treated as a default series of rules which can be removed
  *   and replaced. A rule specifies a specific type of metadata and particular locations
@@ -32,9 +32,9 @@ namespace PIOL { namespace File {
 struct EnumHash
 {
     /*! This overload describes how to convert from the enum to a size_t
-     * \tparam T The enum type
-     * \param[in] t The enum value
-     * \return Return a cast to size_t
+     * @tparam T The enum type
+     * @param[in] t The enum value
+     * @return Return a cast to size_t
      */
     template <typename T>
     size_t operator()(T t) const
@@ -64,8 +64,8 @@ struct RuleEntry
     size_t loc;     //!< The memory location for the primary data.
 
     /*! The constructor for storing the rule number and location.
-     *  \param[in] num_ The numth rule of the given type for indexing
-     *  \param[in] loc_ The location of the primary data
+     *  @param[in] num_ The numth rule of the given type for indexing
+     *  @param[in] loc_ The location of the primary data
      */
     RuleEntry(const size_t num_, const size_t loc_) : num(num_), loc(loc_) { }
 
@@ -75,18 +75,18 @@ struct RuleEntry
 
     /*! Pure virtual function to return the minimum location stored, in derived cases, more data can be stored than
      *  just loc
-     *  \return the minimum location
+     *  @return the minimum location
      */
     virtual size_t min(void) = 0;
 
     /*! Pure virtual function to return the maximum location stored up to, in derived cases, more data can be stored than
      *  just loc
-     *  \return the maximum location
+     *  @return the maximum location
      */
     virtual size_t max(void) = 0;
 
     /*! Pure virtual function to return the datatype.
-     *  \return The MdType associated with the derived class.
+     *  @return The MdType associated with the derived class.
      */
     virtual MdType type(void) = 0;
 };
@@ -96,14 +96,14 @@ struct RuleEntry
 struct SEGYLongRuleEntry : public RuleEntry
 {
     /*! The constructor.
-     *  \param[in] num_ The numth entry for indexing purposes
-     *  \param[in] loc_  The location of the primary data
+     *  @param[in] num_ The numth entry for indexing purposes
+     *  @param[in] loc_  The location of the primary data
      */
     SEGYLongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
 
     /*! Return the minimum location stored, i.e loc
      *  just loc
-     *  \return the minimum location
+     *  @return the minimum location
      */
     size_t min(void)
     {
@@ -111,7 +111,7 @@ struct SEGYLongRuleEntry : public RuleEntry
     }
 
     /*! Return the maximum location stored up to, including the size of the data stored
-     *  \return the maximum location plus 4 bytes to store an int32_t
+     *  @return the maximum location plus 4 bytes to store an int32_t
      */
     size_t max(void)
     {
@@ -119,7 +119,7 @@ struct SEGYLongRuleEntry : public RuleEntry
     }
 
     /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Long
+     *  @return \c MdType::Long
      */
     MdType type(void)
     {
@@ -136,7 +136,7 @@ struct SEGYCopyRuleEntry : public RuleEntry
     SEGYCopyRuleEntry(void) : RuleEntry(0U, 0U) { }
 
     /*! Return the minimum location stored, i.e 0
-     *  \return 0U
+     *  @return 0U
      */
     size_t min(void)
     {
@@ -144,7 +144,7 @@ struct SEGYCopyRuleEntry : public RuleEntry
     }
 
     /*! Return the size of the trace header
-     *  \return the size of the trace header
+     *  @return the size of the trace header
      */
     size_t max(void)
     {
@@ -152,7 +152,7 @@ struct SEGYCopyRuleEntry : public RuleEntry
     }
 
     /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Copy
+     *  @return \c MdType::Copy
      */
     MdType type(void)
     {
@@ -166,12 +166,12 @@ struct SEGYCopyRuleEntry : public RuleEntry
 struct SEGYIndexRuleEntry : public RuleEntry
 {
     /*! The constructor.
-     *  \param[in] num_ The numth entry for indexing purposes
+     *  @param[in] num_ The numth entry for indexing purposes
      */
     SEGYIndexRuleEntry(size_t num_) : RuleEntry(num_, 0U) { }
 
     /*! Return 0. nothing stored
-     *  \return Return 0
+     *  @return Return 0
      */
     size_t min(void)
     {
@@ -179,7 +179,7 @@ struct SEGYIndexRuleEntry : public RuleEntry
     }
 
     /*! Return 0. nothing stored
-     *  \return Return 0
+     *  @return Return 0
      */
     size_t max(void)
     {
@@ -187,7 +187,7 @@ struct SEGYIndexRuleEntry : public RuleEntry
     }
 
     /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Index
+     *  @return \c MdType::Index
      */
     MdType type(void)
     {
@@ -200,13 +200,13 @@ struct SEGYIndexRuleEntry : public RuleEntry
 struct SEGYShortRuleEntry : public RuleEntry
 {
     /*! The constructor.
-     *  \param[in] num_ The numth entry for indexing purposes
-     *  \param[in] loc_  The location of the primary data
+     *  @param[in] num_ The numth entry for indexing purposes
+     *  @param[in] loc_  The location of the primary data
      */
     SEGYShortRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) { }
 
     /*! Return the minimum location stored, i.e loc
-     *  \return the minimum location
+     *  @return the minimum location
      */
     size_t min(void)
     {
@@ -214,7 +214,7 @@ struct SEGYShortRuleEntry : public RuleEntry
     }
 
     /*! Return the maximum location stored up to, including the size of the data stored
-     *  \return the maximum location plus 2 bytes to store an int16_t
+     *  @return the maximum location plus 2 bytes to store an int16_t
      */
     size_t max(void)
     {
@@ -222,7 +222,7 @@ struct SEGYShortRuleEntry : public RuleEntry
     }
 
     /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Short
+     *  @return \c MdType::Short
      */
     MdType type(void)
     {
@@ -237,15 +237,15 @@ struct SEGYFloatRuleEntry : public RuleEntry
     size_t scalLoc;     //!< The location of the scaler field.
 
     /*! The constructor.
-     *  \param[in] num_ The numth entry for indexing purposes
-     *  \param[in] loc_  The location of the primary data
-     *  \param[in] scalLoc_ The location of the scaler field.
+     *  @param[in] num_ The numth entry for indexing purposes
+     *  @param[in] loc_  The location of the primary data
+     *  @param[in] scalLoc_ The location of the scaler field.
      */
     SEGYFloatRuleEntry(size_t num_, Tr loc_, Tr scalLoc_)
                             : RuleEntry(num_, size_t(loc_)), scalLoc(size_t(scalLoc_)) { }
 
     /*! Return the minimum location stored
-     *  \return the minimum location
+     *  @return the minimum location
      */
     size_t min(void)
     {
@@ -253,7 +253,7 @@ struct SEGYFloatRuleEntry : public RuleEntry
     }
 
     /*! Return the maximum location stored up to, including the size of the data stored
-     *  \return the maximum location. If the scaler is in a location higher than the
+     *  @return the maximum location. If the scaler is in a location higher than the
      *  the primary data store then the location + 2U is returned, otherwise the primary
      *  location + 4U is returned.
      */
@@ -263,7 +263,7 @@ struct SEGYFloatRuleEntry : public RuleEntry
     }
 
     /*! Return the datatype associated with the entry.
-     *  \return \c MdType::Float
+     *  @return \c MdType::Float
      */
     MdType type(void)
     {
@@ -302,19 +302,19 @@ struct Rule
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
-     *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
-     *  \param[in] defaults Whether the default SEG-Y rules should be set.
-     *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
+     *  @param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  @param[in] defaults Whether the default SEG-Y rules should be set.
+     *  @param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
     Rule(bool full, bool defaults, bool extras = false);
 
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
-     *  \param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
-     *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
-     *  \param[in] defaults Whether the default SEG-Y rules should be set.
-     *  \param[in] extras Whether maximum amount of rules should be set. Useful when copying files
+     *  @param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
+     *  @param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  @param[in] defaults Whether the default SEG-Y rules should be set.
+     *  @param[in] extras Whether maximum amount of rules should be set. Useful when copying files
      *              through the library.
      */
     Rule(const std::vector<Meta>& m, bool full = true,
@@ -322,8 +322,8 @@ struct Rule
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
-     *  \param[in] translate_ An unordered map to initialise the internal translate object with.
-     *  \param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  @param[in] translate_ An unordered map to initialise the internal translate object with.
+     *  @param[in] full Whether the extents are set to the default size or calculated dynamically.
      */
     Rule(RuleMap translate_, bool full = true);
 
@@ -332,38 +332,38 @@ struct Rule
     ~Rule(void);
 
     /*! Add a pre-defined rule.
-     *  \param[in] m The Meta entry.
-     *  \return Return true if the rule was added, otherwise false
+     *  @param[in] m The Meta entry.
+     *  @return Return true if the rule was added, otherwise false
      */
     bool addRule(Meta m);
 
     /*! Add all rules from the given argument
-     *  \param[in] r Another rule pointer.
-     *  \return Return true if no errors
+     *  @param[in] r Another rule pointer.
+     *  @return Return true if no errors
      */
     bool addRule(const Rule& r);
 
     /*! Add a rule for longs.
-     *  \param[in] m The Meta entry.
-     *  \param[in] loc The location in the SEG-Y DOMD (4 bytes).
+     *  @param[in] m The Meta entry.
+     *  @param[in] loc The location in the SEG-Y DOMD (4 bytes).
      */
     void addLong(Meta m, Tr loc);
 
     /*! Add a rule for floats.
-     *  \param[in] m The Meta entry.
-     *  \param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (4 bytes).
-     *  \param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
+     *  @param[in] m The Meta entry.
+     *  @param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (4 bytes).
+     *  @param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
      */
     void addSEGYFloat(Meta m, Tr loc, Tr scalLoc);
 
     /*! Add a rule for floats.
-     *  \param[in] m The Meta entry.
-     *  \param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (2 bytes).
+     *  @param[in] m The Meta entry.
+     *  @param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (2 bytes).
      */
     void addShort(Meta m, Tr loc);
 
     /*! Add a rule for an index.
-     *  \param[in] m The Meta entry.
+     *  @param[in] m The Meta entry.
      */
     void addIndex(Meta m);
 
@@ -372,39 +372,39 @@ struct Rule
     void addCopy(void);
 
     /*! Remove a rule based on the meta entry.
-     *  \param[in] m The meta entry.
+     *  @param[in] m The meta entry.
      */
     void rmRule(Meta m);
 
     /*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
-     *  \return Return the size.
+     *  @return Return the size.
      */
     size_t extent(void);
 
     /*! Estimate of the total memory used
-     *  \return Return estimate in bytes.
+     *  @return Return estimate in bytes.
      */
     size_t memUsage(void) const;
 
     /*! How much memory will each set of parameters require?
-     *  \return Amount of memory in bytes.
+     *  @return Amount of memory in bytes.
      */
     size_t paramMem() const;
 
     /*! Get the rule entry associated with a particular meta entry.
-     *  \param[in] entry The meta entry.
-     *  \return The associated rule entry.
+     *  @param[in] entry The meta entry.
+     *  @return The associated rule entry.
      */
     RuleEntry * getEntry(Meta entry);
 };
 
 //Access
 /*! Get the value associated with the particular entry.
- *  \tparam T The type of the value
- *  \param[in] i The trace number
- *  \param[in] entry The meta entry to retrieve.
- *  \param[in] prm The parameter structure
- *  \return Return the value associated with the entry
+ *  @tparam T The type of the value
+ *  @param[in] i The trace number
+ *  @param[in] entry The meta entry to retrieve.
+ *  @param[in] prm The parameter structure
+ *  @return Return the value associated with the entry
  */
 //prmRet getPrm(const size_t i, const Meta entry, const Param * prm);
 template <typename T>
@@ -433,11 +433,11 @@ T getPrm(size_t i, Meta entry, const Param * prm)
 }
 
 /*! Set the value associated with the particular entry.
- *  \tparam T The type of the value
- *  \param[in] i The trace number
- *  \param[in] entry The meta entry to retrieve.
- *  \param[in] ret The parameter return structure which is initialised by passing a geom_t, llint or short.
- *  \param[in] prm The parameter structure
+ *  @tparam T The type of the value
+ *  @param[in] i The trace number
+ *  @param[in] entry The meta entry to retrieve.
+ *  @param[in] ret The parameter return structure which is initialised by passing a geom_t, llint or short.
+ *  @param[in] prm The parameter structure
  */
 template <typename T>
 void setPrm(const size_t i, const Meta entry, T ret, Param * prm)
@@ -462,10 +462,10 @@ void setPrm(const size_t i, const Meta entry, T ret, Param * prm)
 }
 
 /*! Copy params from one parameter structure to another.
- * \param[in] j The trace number of the source.
- * \param[in] src The source parameter structure.
- * \param[in] k The trace number of the destination.
- * \param[out] dst The destination parameter structure.
+ * @param[in] j The trace number of the source.
+ * @param[in] src The source parameter structure.
+ * @param[in] k The trace number of the destination.
+ * @param[out] dst The destination parameter structure.
  */
 void cpyPrm(const size_t j, const Param * src, const size_t k, Param * dst);
 }}

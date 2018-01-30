@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date January 2017
- *   \brief
- *   \details This file contains the I/O related portions of the 4d Binning utility.
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date January 2017
+ *   @brief
+ *   @details This file contains the I/O related portions of the 4d Binning utility.
  *//*******************************************************************************************/
 #include <assert.h>
 #include <numeric>

@@ -1,11 +1,11 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date July 2016
- *   \brief This file contains any necessary SI units, conversion factors, physical constants
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date July 2016
+ *   @brief This file contains any necessary SI units, conversion factors, physical constants
  *   etc
- *   \details
+ *   @details
  *//*******************************************************************************************/
 #ifndef PIOLSHAREUNITS_INCLUDE_GUARD
 #define PIOLSHAREUNITS_INCLUDE_GUARD

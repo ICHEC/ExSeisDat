@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date August 2016
- *   \brief This file performs a variety of bit operations and conversions on datatypes
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date August 2016
+ *   @brief This file performs a variety of bit operations and conversions on datatypes
+ *   @details
  *//*******************************************************************************************/
 #include "global.hh"
 #include "share/datatype.hh"

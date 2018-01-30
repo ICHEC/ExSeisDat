@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date November 2016
- *   \brief The Set layer interface
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date November 2016
+ *   @brief The Set layer interface
 *//*******************************************************************************************/
 #ifndef PIOLSET_INCLUDE_GUARD
 #define PIOLSET_INCLUDE_GUARD
@@ -29,8 +29,8 @@ typedef std::function<std::vector<size_t>(TraceBlock * data)> InPlaceMod;  //!< 
 struct gState
 {
     /*! A virtual function which can be overridden to create the gather-operation state.
-     *  \param[in] offset A list of gather-numbers to be processed by the local process.
-     *  \param[in] gather The global array of gathers.
+     *  @param[in] offset A list of gather-numbers to be processed by the local process.
+     *  @param[in] gather The global array of gathers.
      */
     virtual void makeState(const std::vector<size_t> & offset, const Uniray<size_t, llint, llint> & gather) = 0;
 };
@@ -52,11 +52,11 @@ struct RadonState : public gState
     geom_t oInc;  //!< The increment between samples in the output file (radians).
 
     /*! Constructor for the radon state.
-     * \param[in] piol_ The piol object.
-     * \param[in] vmname_ The VM file.
-     * \param[in] vBin_ The velocity model bin parameter
-     * \param[in] oGSz_  The number of traces in the angle output.
-     * \param[in] oInc_ The number of increments.
+     * @param[in] piol_ The piol object.
+     * @param[in] vmname_ The VM file.
+     * @param[in] vBin_ The velocity model bin parameter
+     * @param[in] oGSz_  The number of traces in the angle output.
+     * @param[in] oInc_ The number of increments.
      */
     RadonState(std::shared_ptr<ExSeisPIOL> piol_, std::string vmname_, const size_t vBin_, const size_t oGSz_, const geom_t oInc_)
                           : piol(piol_), vmname(vmname_), vNs(0U), vBin(vBin_), oGSz(oGSz_), vInc(geom_t(0)), oInc(oInc_) {}
@@ -106,15 +106,15 @@ class OpOpt
     OpOpt(void) { }
 
     /*! Initialise the options list with an initialiser list.
-     *  \param[in] list An initialiser list of options.
+     *  @param[in] list An initialiser list of options.
      */
     OpOpt(std::initializer_list<FuncOpt> list) : optList(list)
     {
     }
 
     /*! Check if an option is present in the list.
-     *  \param[in] opt The function option.
-     *  \return Return true if the option is present in the list.
+     *  @param[in] opt The function option.
+     *  @return Return true if the option is present in the list.
      */
     bool check(FuncOpt opt)
     {
@@ -123,7 +123,7 @@ class OpOpt
     }
 
     /*! Add an option to the list.
-     *  \param[in] opt The function option.
+     *  @param[in] opt The function option.
      */
     void add(FuncOpt opt)
     {
@@ -141,9 +141,9 @@ struct OpParent
     std::shared_ptr<gState> state;      //!< Gather state if applicable.
 
     /*! Construct.
-     *  \param[in] opt_ Operation options.
-     *  \param[in] rule_ Rules parameter rules for the operation
-     *  \param[in] state_ Gather state object if applicable.
+     *  @param[in] opt_ Operation options.
+     *  @param[in] rule_ Rules parameter rules for the operation
+     *  @param[in] state_ Gather state object if applicable.
      */
     OpParent(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_) : opt(opt_), rule(rule_), state(state_) { }
 
@@ -160,10 +160,10 @@ struct Op : public OpParent
     T func;     //!< The particular std::function object for the operaton
 
     /*! Construct.
-     *  \param[in] opt_ Operation options.
-     *  \param[in] rule_ Rules parameter rules for the operation
-     *  \param[in] state_ Gather state object if applicable.
-     *  \param[in] func_ The particular std::function implementation.
+     *  @param[in] opt_ Operation options.
+     *  @param[in] rule_ Rules parameter rules for the operation
+     *  @param[in] state_ Gather state object if applicable.
+     *  @param[in] func_ The particular std::function implementation.
      */
     Op(OpOpt & opt_, std::shared_ptr<File::Rule> rule_, std::shared_ptr<gState> state_, T func_) : OpParent(opt_, rule_, state_), func(func_)
     { }
@@ -199,67 +199,67 @@ class Set
     }
 
     /*! Start unwinding the function list for subset-only operations based on the given iterators.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return the final iterator reached by the last deque.
+     *  @param[in] fCurr The iterator for the current function to process.
+     *  @param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  @return Return the final iterator reached by the last deque.
      */
     FuncLst::iterator startSubset(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
     /*! Start unwinding the function list for gather operations on the given iterators.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return a file name if fEnd is reached. Otherwise return "".
+     *  @param[in] fCurr The iterator for the current function to process.
+     *  @param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  @return Return a file name if fEnd is reached. Otherwise return "".
      */
     std::string startGather(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
     /*! Start unwinding the function list for single-trace operations on the given iterators.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return a list of all file names. Files are currently always created.
+     *  @param[in] fCurr The iterator for the current function to process.
+     *  @param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  @return Return a list of all file names. Files are currently always created.
      */
     std::vector<std::string> startSingle(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
     /*! The entry point for unwinding the function list for all use-cases.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \return Return a list of all file names.
+     *  @param[in] fCurr The iterator for the current function to process.
+     *  @param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  @return Return a list of all file names.
      */
     std::vector<std::string> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
 
     /*! The entry point for unwinding the function list for single-traces and gathers only.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \param[in] type The type of function currently being processed. Either single trace or gather.
-     *  \param[in] bIn The input trace block which can contain traces and trace parameters.
-     *  \return Return a traceblock which contains the output from the operation.
+     *  @param[in] fCurr The iterator for the current function to process.
+     *  @param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  @param[in] type The type of function currently being processed. Either single trace or gather.
+     *  @param[in] bIn The input trace block which can contain traces and trace parameters.
+     *  @return Return a traceblock which contains the output from the operation.
      *
      *  Transitions from gather to single trace are allowed but not the inverse.
      */
     std::unique_ptr<TraceBlock> calcFunc(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FuncOpt type, const std::unique_ptr<TraceBlock> bIn);
 
     /*! The entry point for unwinding the function list for subsets.
-     *  \param[in] fCurr The iterator for the current function to process.
-     *  \param[in] fEnd The iterator which indicates the end of the list has been reached.
-     *  \param[in] fQue A deque of unique pointers to file descriptors.
-     *  \return Return the final iterator reached.
+     *  @param[in] fCurr The iterator for the current function to process.
+     *  @param[in] fEnd The iterator which indicates the end of the list has been reached.
+     *  @param[in] fQue A deque of unique pointers to file descriptors.
+     *  @return Return the final iterator reached.
      */
     FuncLst::iterator calcFuncS(FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque & fQue);
 
     public :
 
     /*! Constructor
-     *  \param[in] piol_ The PIOL object.
-     *  \param[in] pattern The file-matching pattern
-     *  \param[in] outfix_ The output file-name prefix
-     *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
+     *  @param[in] piol_ The PIOL object.
+     *  @param[in] pattern The file-matching pattern
+     *  @param[in] outfix_ The output file-name prefix
+     *  @param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     Set(std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Constructor
-     *  \param[in] piol_ The PIOL object.
-     *  \param[in] pattern The file-matching pattern
-     *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
+     *  @param[in] piol_ The PIOL object.
+     *  @param[in] pattern The file-matching pattern
+     *  @param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     Set(std::shared_ptr<ExSeisPIOL> piol_, std::string pattern,
         std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY})) :
@@ -267,8 +267,8 @@ class Set
     {}
 
     /*! Constructor overload
-     *  \param[in] piol_ The PIOL object.
-     *  \param[in] rule_ Contains a pointer to the rules to use for trace parameters.
+     *  @param[in] piol_ The PIOL object.
+     *  @param[in] rule_ Contains a pointer to the rules to use for trace parameters.
      */
     Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
@@ -277,46 +277,46 @@ class Set
     ~Set(void);
 
     /*! Sort the set using the given comparison function
-     *  \param[in] sortFunc The comparison function
+     *  @param[in] sortFunc The comparison function
      */
     void sort(CompareP sortFunc);
 
     /*! Sort the set using the given comparison function
-     *  \param[in] r The rules necessary for the sort.
-     *  \param[in] sortFunc The comparison function.
+     *  @param[in] r The rules necessary for the sort.
+     *  @param[in] sortFunc The comparison function.
      */
     void sort(std::shared_ptr<File::Rule> r, CompareP sortFunc);
 
     /*! Output using the given output prefix
-     *  \param[in] oname The output prefix
-     *  \return Return a vector of the actual output names.
+     *  @param[in] oname The output prefix
+     *  @return Return a vector of the actual output names.
      */
     std::vector<std::string> output(std::string oname);
 
     /*! Find the min and max of two given parameters (e.g x and y source coordinates) and return
      *  the associated values and trace numbers in the given structure
-     *  \param[in] xlam The function for returning the first parameter
-     *  \param[in] ylam The function for returning the second parameter
-     *  \param[out] minmax The array of structures to hold the ouput
+     *  @param[in] xlam The function for returning the first parameter
+     *  @param[in] ylam The function for returning the second parameter
+     *  @param[out] minmax The array of structures to hold the ouput
      */
     void getMinMax(MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem * minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a set of traces
-     * \param[in] tapFunc Weight function for the taper ramp
-     * \param[in] nTailLft Length of left tail of taper
-     * \param[in] nTailRt Length of right tail of taper
+     * @param[in] tapFunc Weight function for the taper ramp
+     * @param[in] nTailLft Length of left tail of taper
+     * @param[in] nTailRt Length of right tail of taper
      */
     void taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt = 0);
 
     /*! Function to add to modify function that applies automatic gain control to a set of traces
-     * \param[in] agcFunc Staistical function used to scale traces
-     * \param[in] window Length of the agc window
-     * \param[in] normR Value to which traces are normalized
+     * @param[in] agcFunc Staistical function used to scale traces
+     * @param[in] window Length of the agc window
+     * @param[in] normR Value to which traces are normalized
      */
     void AGC(AGCFunc agcFunc, size_t window, trace_t normR);
 
     /*! Set the text-header of the output
-     *  \param[in] outmsg_ The output message
+     *  @param[in] outmsg_ The output message
      */
     void text(std::string outmsg_);
 
@@ -325,85 +325,85 @@ class Set
     void summary(void) const;
 
     /*! Add a file to the set based on the File::ReadInterface
-     *  \param[in] in The file interface
+     *  @param[in] in The file interface
      */
     void add(std::unique_ptr<File::ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
-     *  \param[in] name The input name or pattern
+     *  @param[in] name The input name or pattern
      */
     void add(std::string name);
 
     /*! Perform the radon to angle conversion. This assumes the input set is a radon transform file.
-     *  \param[in] vmName The name of the velocity model file.
-     *  \param[in] vBin The velocity model bin value.
-     *  \param[in] oGSz The number of traces in the output gather.
-     *  \param[in] oInc The samples per trace for the output (i.e the angle increment between samples.
+     *  @param[in] vmName The name of the velocity model file.
+     *  @param[in] vBin The velocity model bin value.
+     *  @param[in] oGSz The number of traces in the output gather.
+     *  @param[in] oInc The samples per trace for the output (i.e the angle increment between samples.
      */
     void toAngle(std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc = Math::pi / geom_t(180LU));
 
     /************************************* Non-Core *****************************************************/
     /*! Sort the set by the specified sort type.
-     *  \param[in] type The sort type
+     *  @param[in] type The sort type
      */
     void sort(SortType type);
 
     /*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
      *  the collective min and max across all processes (which also must all call this file).
-     *  \param[in] m1 The first parameter type
-     *  \param[in] m2 The second parameter type
-     *  \param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+     *  @param[in] m1 The first parameter type
+     *  @param[in] m2 The second parameter type
+     *  @param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
      *  and their respective trace numbers.
      */
     void getMinMax(Meta m1, Meta m2, CoordElem * minmax);
 
     /*! Perform tailed taper on a set of traces
-     * \param[in] type The type of taper to be applied to traces.
-     * \param[in] nTailLft The length of left-tail taper ramp.
-     * \param[in] nTailRt The length of right-tail taper ramp.
+     * @param[in] type The type of taper to be applied to traces.
+     * @param[in] nTailLft The length of left-tail taper ramp.
+     * @param[in] nTailRt The length of right-tail taper ramp.
      */
     void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
 
     /*! Scale traces using automatic gain control for visualization
-     * \param[in] type They type of agc scaling function used
-     * \param[in] window Length of the agc window
-     * \param[in] normR Normalization value
+     * @param[in] type They type of agc scaling function used
+     * @param[in] window Length of the agc window
+     * @param[in] normR Normalization value
      */
     void AGC(AGCType type, size_t window, trace_t normR);
 
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
-     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * \param[in] domain Filtering domaini
-     * \param[in] pad Padding pattern
-     * \param[in] fs Sampling frequency
-     * \param[in] corners Passband and stopband frequency in Hz
-     * \param[in] nw Size of trace filtering window
-     * \param[in] winCntr Center of trace filtering window
+     * @param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * @param[in] domain Filtering domaini
+     * @param[in] pad Padding pattern
+     * @param[in] fs Sampling frequency
+     * @param[in] corners Passband and stopband frequency in Hz
+     * @param[in] nw Size of trace filtering window
+     * @param[in] winCntr Center of trace filtering window
      */
     void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, std::vector<trace_t> corners, size_t nw = 0U, size_t winCntr = 0U);
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
-     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * \param[in] domain Filtering domain
-     * \param[in] pad Padding pattern
-     * \param[in] fs Sampling frequency
-     * \param[in] corners Passband frequency in Hz
-     * \param[in] N Filter order
-     * \param[in] nw Size of trace filtering window
-     * \param[in] winCntr Center of trace filtering window
+     * @param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * @param[in] domain Filtering domain
+     * @param[in] pad Padding pattern
+     * @param[in] fs Sampling frequency
+     * @param[in] corners Passband frequency in Hz
+     * @param[in] N Filter order
+     * @param[in] nw Size of trace filtering window
+     * @param[in] winCntr Center of trace filtering window
      */
     void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, std::vector<trace_t> corners, size_t nw = 0U, size_t winCntr = 0U);
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
-     * \param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * \param[in] domain Filtering domain
-     * \param[in] pad Padding pattern
-     * \param[in] fs Sampling frequency
-     * \param[in] corners Passband frequency in Hz
-     * \param[in] N Filter order
-     * \param[in] nw Size of trace filtering window
-     * \param[in] winCntr Center of trace filtering window
+     * @param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
+     * @param[in] domain Filtering domain
+     * @param[in] pad Padding pattern
+     * @param[in] fs Sampling frequency
+     * @param[in] corners Passband frequency in Hz
+     * @param[in] N Filter order
+     * @param[in] nw Size of trace filtering window
+     * @param[in] winCntr Center of trace filtering window
     */
     void temporalFilter(FltrType type, FltrDmn domain, PadType pad, trace_t fs, size_t N, trace_t corners, size_t nw = 0U, size_t winCntr = 0U)
     {

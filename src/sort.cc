@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date November 2016
- *   \brief The Sort Operation
- *   \details The algorithm used is a nearest neighbour approach where at each iteration
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date November 2016
+ *   @brief The Sort Operation
+ *   @details The algorithm used is a nearest neighbour approach where at each iteration
  *   the lowest valued metadata entries are moved to adjacent processes with a lower rank and a
  *   sort is performed. After the sort the highest entries are moved again to the process with a
  *   higher rank. If each process has the same traces it started off with, the sort
@@ -21,11 +21,11 @@
 namespace PIOL { namespace File {
 
 /*! Calculate the square of the hypotenuse
- *  \param[in] sx The source x coordinate
- *  \param[in] sy The source y coordinate
- *  \param[in] rx The receiver x coordinate
- *  \param[in] ry The receiver y coordinate
- *  \return square of the hypotenuse
+ *  @param[in] sx The source x coordinate
+ *  @param[in] sy The source y coordinate
+ *  @param[in] rx The receiver x coordinate
+ *  @param[in] ry The receiver y coordinate
+ *  @return square of the hypotenuse
  */
 inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
 {
@@ -33,9 +33,9 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
 }
 
 /*! For sorting by Src X, Src Y, Rcv X, Rcv Y.
- *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  \return Return true if e1 is less than e2 in terms of the sort.
+ *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if e1 is less than e2 in terms of the sort.
  */
 bool lessSrcRcv(const Param * prm, const size_t i, const size_t j)
 {
@@ -74,10 +74,10 @@ bool lessSrcRcv(const Param * prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Src X, Src Y and Offset.
- *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
- *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  \return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
 bool lessSrcOff(const Param * prm, const size_t i, const size_t j)
@@ -111,10 +111,10 @@ bool lessSrcOff(const Param * prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Rcv X, Rcv Y and Offset.
- *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
- *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  \return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
 bool lessRcvOff(const Param * prm, const size_t i, const size_t j)
@@ -148,10 +148,10 @@ bool lessRcvOff(const Param * prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Inline, Crossline and Offset.
- *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
- *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  \return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
 bool lessLineOff(const Param * prm, const size_t i, const size_t j)
@@ -188,10 +188,10 @@ bool lessLineOff(const Param * prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Offset, Inline and Crossline.
- *  \tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
- *  \param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  \param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  \return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
+ *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if e1 is less than e2 in terms of the sort.
  */
 template <bool CalcOff>
 bool lessOffLine(const Param * prm, const size_t i, const size_t j)
@@ -280,9 +280,9 @@ bool checkOrder(ReadInterface * src, std::pair<size_t , size_t> dec, SortType ty
 /************************** Core Implementation **************************************/
 
 /*! Wait on two requests to finish. The largest and smallest rank only wait on one request.
- *  \param[in] piol The PIOL object.
- *  \param[in] req1 The request that all processes except rank of numRank-1 wait on.
- *  \param[in] req2 The request that all processes except rank of 0 wait on..
+ *  @param[in] piol The PIOL object.
+ *  @param[in] req1 The request that all processes except rank of numRank-1 wait on.
+ *  @param[in] req2 The request that all processes except rank of 0 wait on..
  */
 void Wait(ExSeisPIOL * piol, std::vector<MPI_Request> req1, std::vector<MPI_Request> req2)
 {
@@ -305,10 +305,10 @@ void Wait(ExSeisPIOL * piol, std::vector<MPI_Request> req1, std::vector<MPI_Requ
 /*! Send objects from the current processes to the process one rank higher if
  *  such a process exists. Objects are taken from the end of a vector.
  *  Receiving processes put the objects at the start of their vector.
- *  \tparam T Type of vector
- *  \param[in] piol The PIOL object.
- *  \param[in] regionSz The size of data to send/receive.
- *  \param[in,out] dat Vector to be accessed
+ *  @tparam T Type of vector
+ *  @param[in] piol The PIOL object.
+ *  @param[in] regionSz The size of data to send/receive.
+ *  @param[in,out] dat Vector to be accessed
  */
 template <class T>
 void sendRight(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & dat)
@@ -335,10 +335,10 @@ void sendRight(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & dat)
 /*! Send objects from the current processes to the process one rank lower if
  *  such a process exists. Objects are taken from the start of a vector.
  *  Receiving processes put the objects at the end of their vector.
- *  \tparam T Type of vector
- *  \param[in] piol The PIOL object.
- *  \param[in] regionSz The size of data to send/receive.
- *  \param[in,out] dat Vector to be accessed
+ *  @tparam T Type of vector
+ *  @param[in] piol The PIOL object.
+ *  @param[in] regionSz The size of data to send/receive.
+ *  @param[in,out] dat Vector to be accessed
  */
 template <class T>
 void sendLeft(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & dat)
@@ -362,12 +362,12 @@ void sendLeft(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & dat)
 }
 
 /*! Function to sort a given vector by a nearest neighbour approach.
- *  \tparam T Type of vector
- *  \param[in] piol The PIOL object.
- *  \param[in] regionSz The size of the region which will be shared
- *  \param[in, out] temp1 Temporary vector which is the dat.size()+regionSz.
- *  \param[in,out] dat The vector to sort
- *  \param[in] comp The function to use for less-than comparisons between objects in the
+ *  @tparam T Type of vector
+ *  @param[in] piol The PIOL object.
+ *  @param[in] regionSz The size of the region which will be shared
+ *  @param[in, out] temp1 Temporary vector which is the dat.size()+regionSz.
+ *  @param[in,out] dat The vector to sort
+ *  @param[in] comp The function to use for less-than comparisons between objects in the
  *                  vector.
  */
 template <class T>
@@ -419,9 +419,9 @@ void sort(ExSeisPIOL * piol, size_t regionSz, std::vector<T> & temp1, std::vecto
 }
 
 /*! Parallel sort a list. Local vector is part of the entire list.
- *  \param[in] piol The PIOL object.
- *  \param[in] list The local vector
- *  \return Return a new sorted vector
+ *  @param[in] piol The PIOL object.
+ *  @param[in] list The local vector
+ *  @return Return a new sorted vector
  */
 std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 {
@@ -460,10 +460,10 @@ std::vector<size_t> sort(ExSeisPIOL * piol, std::vector<size_t> list)
 /*! Send objects from the current processes to the process one rank higher if
  *  such a process exists. Objects are taken from the end of a vector.
  *  Receiving processes put the objects at the start of their vector.
- *  \tparam T Type of vector
- *  \param[in] piol The PIOL object.
- *  \param[in] regionSz The size of data to send/receive.
- *  \param[in,out] dat Vector to be accessed
+ *  @tparam T Type of vector
+ *  @param[in] piol The PIOL object.
+ *  @param[in] regionSz The size of data to send/receive.
+ *  @param[in,out] dat Vector to be accessed
  */
 void sendRight(ExSeisPIOL * piol, size_t regionSz, Param * prm)
 {
@@ -508,10 +508,10 @@ void sendRight(ExSeisPIOL * piol, size_t regionSz, Param * prm)
 /*! Send objects from the current processes to the process one rank lower if
  *  such a process exists. Objects are taken from the start of a vector.
  *  Receiving processes put the objects at the end of their vector.
- *  \tparam T Type of vector
- *  \param[in] piol The PIOL object.
- *  \param[in] regionSz The size of data to send/receive.
- *  \param[in,out] dat Vector to be accessed
+ *  @tparam T Type of vector
+ *  @param[in] piol The PIOL object.
+ *  @param[in] regionSz The size of data to send/receive.
+ *  @param[in,out] dat Vector to be accessed
  */
 void sendLeft(ExSeisPIOL * piol, size_t regionSz, Param * prm)
 {

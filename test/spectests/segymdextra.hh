@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date October 2016
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date October 2016
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #ifndef PIOLFILETESTSEGYMD_INCLUDE_GUARD
 #define PIOLFILETESTSEGYMD_INCLUDE_GUARD
@@ -80,8 +80,8 @@ struct coord_t
     geom_t y;   //!< The y coordinate
 
     /*! Constructor for initialising coordinates
-     *  \param[in] x_ intialisation value for x
-     *  \param[in] y_ intialisation value for x
+     *  @param[in] x_ intialisation value for x
+     *  @param[in] y_ intialisation value for x
      */
     coord_t(const geom_t x_, const geom_t y_) : x(x_), y(y_) { }
     /*! Default constructor (set both coordinates to 0)
@@ -97,8 +97,8 @@ struct grid_t
     llint xl;   //!< The crossline value
 
     /*! Constructor for initialising a grid point
-     *  \param[in] i_ intialisation value for il
-     *  \param[in] x_ intialisation value for xl
+     *  @param[in] i_ intialisation value for il
+     *  @param[in] x_ intialisation value for xl
      */
     grid_t(const geom_t i_, const geom_t x_) : il(i_), xl(x_) { }
 
@@ -107,7 +107,7 @@ struct grid_t
     grid_t() : il(llint(0)), xl(llint(0)) { }
 };
 
-/*! \brief Possible coordinate sets
+/*! @brief Possible coordinate sets
  */
 enum class Coord : size_t
 {
@@ -116,16 +116,16 @@ enum class Coord : size_t
     CMP     //!< Common Midpoint Coordinates
 };
 
-/*! \brief Possible Grids
+/*! @brief Possible Grids
  */
 enum class Grid : size_t
 {
     Line    //!< Inline/Crossline grid points
 };
 
-/*! \brief Return a pair of coordinate offsets
- *  \param[in] pair The coordinate point type to return
- *  \return The pair of offset enums
+/*! @brief Return a pair of coordinate offsets
+ *  @param[in] pair The coordinate point type to return
+ *  @return The pair of offset enums
  */
 #ifndef __ICC
 constexpr
@@ -146,9 +146,9 @@ std::pair<TrCrd, TrCrd> getPair(Coord pair)
     }
 }
 
-/*! \brief Return a pair of grid offsets
- *  \param[in] pair The grid point type to return
- *  \return The pair of offset enums
+/*! @brief Return a pair of grid offsets
+ *  @param[in] pair The grid point type to return
+ *  @return The pair of offset enums
  */
 #ifndef __ICC
 constexpr

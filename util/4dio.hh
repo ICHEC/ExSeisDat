@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date January 2017
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date January 2017
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 
 #ifndef FOURDBIN4DIO_INCLUDE_GUARD
@@ -30,7 +30,7 @@ struct Coords
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
-     *  \param[in] sz_ Number of traces
+     *  @param[in] sz_ Number of traces
      */
     Coords(size_t sz_, bool ixline) : sz(sz_)
     {
@@ -78,20 +78,20 @@ struct Coords
 
 /*! Given an input file, perform a decomposition over the traces and return a subset of the coordinates to
  *  each process. The coordinates returned have been sorted into xSrc order.
- *  \param[in] piol The piol object (in a shared pointer).
- *  \param[in] name The name of the input file.
- *  \param[in] ixline Inline/Xline enabled
- *  \return Return a unique_ptr to the structure containing the coordinates read by the local process.
+ *  @param[in] piol The piol object (in a shared pointer).
+ *  @param[in] name The name of the input file.
+ *  @param[in] ixline Inline/Xline enabled
+ *  @return Return a unique_ptr to the structure containing the coordinates read by the local process.
  */
 extern std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
 
 /*! Extract traces and coordinates from an input file \c sname according to what traces are listed in \c list.
- *  \param[in] piol The piol object (in a shared pointer).
- *  \param[in] dname The name of the destination file.
- *  \param[in] sname The name of the source file.
- *  \param[in] list The list of traces to read from the input file in the order they should appear in the output file.
- *  \param[in] minrs The value of minrs which should be stored with the trace header of each trace.
- *  \param[in] printDsr Print the dsdr value if true.
+ *  @param[in] piol The piol object (in a shared pointer).
+ *  @param[in] dname The name of the destination file.
+ *  @param[in] sname The name of the source file.
+ *  @param[in] list The list of traces to read from the input file in the order they should appear in the output file.
+ *  @param[in] minrs The value of minrs which should be stored with the trace header of each trace.
+ *  @param[in] printDsr Print the dsdr value if true.
  */
 extern void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr);
 }}

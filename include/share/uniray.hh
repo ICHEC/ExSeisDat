@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date May 2017
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date May 2017
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #ifndef PIOLSHAREUNIRAY_INCLUDE_GUARD
 #define PIOLSHAREUNIRAY_INCLUDE_GUARD
@@ -14,7 +14,7 @@
 namespace PIOL {
 
 /*! A structure for MPI-free accessing using global arrays.
- *  \tparam T Template parameter pack
+ *  @tparam T Template parameter pack
  */
 template <class ... T>
 class Uniray
@@ -32,8 +32,8 @@ class Uniray
     public :
 
     /*! Construct the global array. This operation is collective across all processes.
-     * \param[in] piol_ The PIOL object.
-     * \param[in] sz_ The number of elements in the global array.
+     * @param[in] piol_ The PIOL object.
+     * @param[in] sz_ The number of elements in the global array.
      */
     Uniray(ExSeisPIOL * piol_, const size_t sz_) : piol(piol_), sz(sz_)
     {
@@ -57,8 +57,8 @@ class Uniray
     }
 
     /*! Set the global ith element with the given tuple.
-     *  \param[in] i The index into the global array.
-     *  \param[in] val The value to be set.
+     *  @param[in] i The index into the global array.
+     *  @param[in] val The value to be set.
      */
     void set(size_t i, std::tuple<T...> val)
     {
@@ -81,8 +81,8 @@ class Uniray
     }
 
     /*! Get the global ith element.
-     *  \param[in] i The index into the global array.
-     *  \return Return the value of the requested tuple.
+     *  @param[in] i The index into the global array.
+     *  @return Return the value of the requested tuple.
      */
     std::tuple<T...> get(size_t i) const
     {
@@ -109,8 +109,8 @@ class Uniray
     }
 
     /*! Get the global ith element through an overload of the [] operator.
-     *  \param[in] i The index into the global array.
-     *  \return Return the value of the requested tuple.
+     *  @param[in] i The index into the global array.
+     *  @return Return the value of the requested tuple.
      */
     std::tuple<T...> operator[](size_t i) const
     {
@@ -118,7 +118,7 @@ class Uniray
     }
 
     /*! Get the number of elements in the global array.
-     *  \return Return the number of elements in the global array.
+     *  @return Return the number of elements in the global array.
      */
     size_t size(void) const
     {

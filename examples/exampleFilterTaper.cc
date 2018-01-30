@@ -1,10 +1,10 @@
 
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - ruairi.short@ichec.ie - first commit
- *   \copyright LGPL v3
- *   \date February 2017
- *   \brief Sort a file in 9 lines
+ *   @file
+ *   @author Cathal O Broin - ruairi.short@ichec.ie - first commit
+ *   @copyright LGPL v3
+ *   @date February 2017
+ *   @brief Sort a file in 9 lines
 *//*******************************************************************************************/
 #include "flow.hh"
 #include <vector>

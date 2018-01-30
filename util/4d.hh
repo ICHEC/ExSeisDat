@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date January 2017
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date January 2017
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #ifndef FOURDBIN4D_INCLUDE_GUARD
 #define FOURDBIN4D_INCLUDE_GUARD
@@ -40,8 +40,8 @@ struct FourDOpt
 namespace PIOL
 {
 /*! Every process will call this function and process 0 will print the string.
- *  \param[in] piol The piol object.
- *  \param[in] msg The string to print.
+ *  @param[in] piol The piol object.
+ *  @param[in] msg The string to print.
  */
 void cmsg(ExSeisPIOL * piol, std::string msg);
 }

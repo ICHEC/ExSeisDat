@@ -1,10 +1,10 @@
 /************************************************************************ *******************//*!
- *   \file
- *   \author Meghan Fisher - meghan.fisher@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date May 2017
- *   \brief The Automatic Gain Control Operation
- *   \details The algorithm finds some type of moving average (RMS, RMS with Triangle window,
+ *   @file
+ *   @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date May 2017
+ *   @brief The Automatic Gain Control Operation
+ *   @details The algorithm finds some type of moving average (RMS, RMS with Triangle window,
  *   Mean Abs, and Median) to trace amplitudes for visualization purposes. It can be applied to
  *   traces independantly or applies the same scalar to all traces at the same height.
 *//*******************************************************************************************/

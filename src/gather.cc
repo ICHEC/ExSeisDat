@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date May 2017
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date May 2017
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #include "share/decomp.hh"
 #include "ops/gather.hh"
@@ -11,11 +11,11 @@
 namespace PIOL { namespace File {
 /*! Find the inline/crossline for each il/xl gather and the number of traces per gather
  *  based on the parameters provided and assuming this is collectively called.
- * \param[in] piol The piol object.
- * \param[in] prm The parameter structure.
- * \return Return an 'array' of tuples. Each tuple corresponds to each gather. Tuple elements:
+ * @param[in] piol The piol object.
+ * @param[in] prm The parameter structure.
+ * @return Return an 'array' of tuples. Each tuple corresponds to each gather. Tuple elements:
  *         1) Number of traces in the gather, 2) inline, 3) crossline.
- * \todo TODO: This can be generalised
+ * @todo TODO: This can be generalised
  */
 Uniray<size_t, llint, llint> getGathers(ExSeisPIOL * piol, Param * prm)
 {

@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Meghan Fisher - meghan.fisher@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date April 2017
- *   \brief The taper operation
+ *   @file
+ *   @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date April 2017
+ *   @brief The taper operation
  *//*******************************************************************************************/
 #include <assert.h>
 #include "global.hh"

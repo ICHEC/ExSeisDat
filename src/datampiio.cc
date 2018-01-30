@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date July 2016
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date July 2016
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #include <assert.h>
 #include <algorithm>
@@ -17,14 +17,14 @@ namespace PIOL { namespace Data {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*! Set a view on a file so that a read of blocks separated by (stride-block) bytes appears contiguous
- *  \param[in] file The MPI-IO file handle
- *  \param[in] info The info structure to use
- *  \param[in] offset The offset in bytes from the start of the file
- *  \param[in] block The block size in bytes
- *  \param[in] stride The stride size in bytes block start to block start
- *  \param[in] count The number of blocks
- *  \param[out] type The datatype which will have been used to create a view
- *  \return Return an MPI error code.
+ *  @param[in] file The MPI-IO file handle
+ *  @param[in] info The info structure to use
+ *  @param[in] offset The offset in bytes from the start of the file
+ *  @param[in] block The block size in bytes
+ *  @param[in] stride The stride size in bytes block start to block start
+ *  @param[in] count The number of blocks
+ *  @param[out] type The datatype which will have been used to create a view
+ *  @return Return an MPI error code.
  */
 int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_Aint stride, int count, MPI_Datatype * type)
 {
@@ -40,13 +40,13 @@ int strideView(MPI_File file, MPI_Info info, MPI_Offset offset, int block, MPI_A
 }
 
 /*! Set a view on a file so that a read of random traces appears contiguous
- *  \param[in] file The MPI-IO file handle
- *  \param[in] info The info structure to use
- *  \param[in] count The number of offsets
- *  \param[in] block The block size in bytes
- *  \param[in] offset An array of offsets in bytes from the start of the file of sizze count
- *  \param[out] type The datatype which will have been used to create a view
- *  \return Return an MPI error code.
+ *  @param[in] file The MPI-IO file handle
+ *  @param[in] info The info structure to use
+ *  @param[in] count The number of offsets
+ *  @param[in] block The block size in bytes
+ *  @param[in] offset An array of offsets in bytes from the start of the file of sizze count
+ *  @param[out] type The datatype which will have been used to create a view
+ *  @return Return an MPI error code.
  */
 int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_Aint * offset, MPI_Datatype * type)
 {
@@ -70,28 +70,28 @@ int randBlockView(MPI_File file, MPI_Info info, int count, int block, const MPI_
     return MPI_File_set_view(file, 0, MPI_BYTE, *type, "native", info);
 }
 
-/*! \brief This function exists to hide the const from the MPI_File_write_at function signature
- *  \param[in] f The MPI file handle
- *  \param[in] o The offset in bytes from the current internal shared pointer
- *  \param[in] d The array to read data output from
- *  \param[in] s The amount of data to write to disk in terms of datatypes
- *  \param[in] da The MPI datatype
- *  \param[in] st The MPI status structure
- *  \return Returns the associated MPI error code.
+/*! @brief This function exists to hide the const from the MPI_File_write_at function signature
+ *  @param[in] f The MPI file handle
+ *  @param[in] o The offset in bytes from the current internal shared pointer
+ *  @param[in] d The array to read data output from
+ *  @param[in] s The amount of data to write to disk in terms of datatypes
+ *  @param[in] da The MPI datatype
+ *  @param[in] st The MPI status structure
+ *  @return Returns the associated MPI error code.
  */
 int mpiio_write_at(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st)
 {
     return MPI_File_write_at(f, o, d, s, da, st);
 }
 
-/*! \brief This function exists to hide the const from the MPI_File_write_at_all function signature
- *  \param[in] f The MPI file handle
- *  \param[in] o The offset in bytes from the current internal shared pointer
- *  \param[in] d The array to read data output from
- *  \param[in] s The amount of data to write to disk in terms of datatypes
- *  \param[in] da The MPI datatype
- *  \param[in] st The MPI status structure
- *  \return Returns the associated MPI error code.
+/*! @brief This function exists to hide the const from the MPI_File_write_at_all function signature
+ *  @param[in] f The MPI file handle
+ *  @param[in] o The offset in bytes from the current internal shared pointer
+ *  @param[in] d The array to read data output from
+ *  @param[in] s The amount of data to write to disk in terms of datatypes
+ *  @param[in] da The MPI datatype
+ *  @param[in] st The MPI status structure
+ *  @return Returns the associated MPI error code.
  */
 int mpiio_write_at_all(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype da, MPI_Status * st)
 {
@@ -99,15 +99,15 @@ int mpiio_write_at_all(MPI_File f, MPI_Offset o, void * d, int s, MPI_Datatype d
 }
 
 /*! Perform list-based I/O by setting a view then performing the I/O
- *  \param[in] fn A contiguous I/O function
- *  \param[in] file The MPI file handle
- *  \param[in] info The MPI info object
- *  \param[in] bsz The block size
- *  \param[in] chunk The number of blocks to read
- *  \param[in] offset The list of offsets in the file
- *  \param[in, out] d The I/O buffer
- *  \param[in] stat The MPI status object
- *  \return Return the MPI error status
+ *  @param[in] fn A contiguous I/O function
+ *  @param[in] file The MPI file handle
+ *  @param[in] info The MPI info object
+ *  @param[in] bsz The block size
+ *  @param[in] chunk The number of blocks to read
+ *  @param[in] offset The list of offsets in the file
+ *  @param[in, out] d The I/O buffer
+ *  @param[in] stat The MPI status object
+ *  @return Return the MPI error status
  */
 int iol(const MFp<MPI_Status> fn, MPI_File file, MPI_Info info, int bsz, int chunk, const MPI_Aint * offset, uchar * d, MPI_Status * stat)
 {
@@ -170,8 +170,8 @@ Data::MPIIO::Opt::~Opt(void)
 }
 
 /*! GEt an MPI mode flag
- *  \param[in] mode The generic input mode.
- *  \return The MPI mode flag associated with the inpute enum
+ *  @param[in] mode The generic input mode.
+ *  @return The MPI mode flag associated with the inpute enum
  */
 int getMPIMode(FileMode mode)
 {

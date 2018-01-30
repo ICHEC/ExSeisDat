@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date March 2017
- *   \brief This file contains the compute heavy kernel of the 4d-binning utility
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date March 2017
+ *   @brief This file contains the compute heavy kernel of the 4d-binning utility
 *//*******************************************************************************************/
 #include <math.h>
 #include <assert.h>
@@ -15,9 +15,9 @@ namespace PIOL { namespace FOURD {
 
 //This function prints to stdio
 /*! Process 0 will print the xSrc min and max values for each process
- *  \param[in] piol The piol object.
- *  \param[in] xsmin A vector of the min xSrc for each process.
- *  \param[in] xsmax A vector of the max xSrc for each process.
+ *  @param[in] piol The piol object.
+ *  @param[in] xsmin A vector of the min xSrc for each process.
+ *  @param[in] xsmax A vector of the max xSrc for each process.
  */
 void printxSrcMinMax(ExSeisPIOL * piol, vec<fourd_t> & xsmin, vec<fourd_t> & xsmax)
 {
@@ -31,12 +31,12 @@ void printxSrcMinMax(ExSeisPIOL * piol, vec<fourd_t> & xsmin, vec<fourd_t> & xsm
 
 /*! Each process will print their xSrc min/max and active ranks to an output file.
  *  xSrc min/max will also be printed to the terminal.
- * \param[in] piol The piol object.
- * \param[in] xslmin The minimum local value for xSrc from file 1.
- * \param[in] xslmax The maximum local value for xSrc from file 1.
- * \param[in] xsrmin The minimum local value for xSrc from file 2.
- * \param[in] xsrmax The maximum local value for xSrc from file 2.
- * \param[in] active An array of active ranks for the local process. That is, processes the
+ * @param[in] piol The piol object.
+ * @param[in] xslmin The minimum local value for xSrc from file 1.
+ * @param[in] xslmax The maximum local value for xSrc from file 1.
+ * @param[in] xsrmin The minimum local value for xSrc from file 2.
+ * @param[in] xsrmax The maximum local value for xSrc from file 2.
+ * @param[in] active An array of active ranks for the local process. That is, processes the
  *            local process will do a one-sided MPI_Get on.
  */
 void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xsrmin, fourd_t xsrmax, vec<size_t> & active)
@@ -58,11 +58,11 @@ void printxSMinMax(ExSeisPIOL * piol, fourd_t xslmin, fourd_t xslmax, fourd_t xs
 }
 
 /*! Calculate the hypotenuse of a RH triangle using x and y as lengths.
- *  \param[in] x One side.
- *  \param[in] y The other.
+ *  @param[in] x One side.
+ *  @param[in] y The other.
  *  \note The intel compiler uses an incorrect hypotenuse function when it vectorises, so this
  *        is defined (intel 2016).
- *  \return Return the hypotenuse.
+ *  @return Return the hypotenuse.
  */
 fourd_t hypot(const fourd_t x, const fourd_t y)
 {
@@ -71,9 +71,9 @@ fourd_t hypot(const fourd_t x, const fourd_t y)
 }
 
 /*! Create windows for one-sided communication of coordinates
- *  \param[in] crd The coordinate structure of arrays to open to RDMA.
- *  \param[in] ixline The inline/crossline are included
- *  \return Return a vector of all the window values.
+ *  @param[in] crd The coordinate structure of arrays to open to RDMA.
+ *  @param[in] ixline The inline/crossline are included
+ *  @return Return a vector of all the window values.
  */
 vec<MPI_Win> createCoordsWin(const Coords * crd, const bool ixline)
 {
@@ -102,11 +102,11 @@ vec<MPI_Win> createCoordsWin(const Coords * crd, const bool ixline)
 }
 
 /*! One-sided retrieval from data in window on processor lrank. Processor lrank is passive.
- *  \param[in] lrank The rank
- *  \param[in] sz The number of coordinates
- *  \param[in] win The vector of windows to access with.
- *  \param[in] ixline The inline/crossline are included
- *  \return Return the associated Coords structure
+ *  @param[in] lrank The rank
+ *  @param[in] sz The number of coordinates
+ *  @param[in] win The vector of windows to access with.
+ *  @param[in] ixline The inline/crossline are included
+ *  @return Return the associated Coords structure
  */
 std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win, bool ixline)
 {
@@ -133,17 +133,17 @@ std::unique_ptr<Coords> getCoordsWin(size_t lrank, size_t sz, vec<MPI_Win> & win
 }
 
 /*! Calcuate the difference criteria between source/receiver pairs between traces.
- *  \param[in] xs1 xSrc from pair 1
- *  \param[in] ys1 ySrc from pair 1
- *  \param[in] xr1 xRcv from pair 1
- *  \param[in] yr1 yRcv from pair 1
- *  \param[in] xs2 xSrc from pair 2
- *  \param[in] ys2 ySrc from pair 2
- *  \param[in] xr2 xRcv from pair 2
- *  \param[in] yr2 yRcv from pair 2
- *  \return Return the dsr value
+ *  @param[in] xs1 xSrc from pair 1
+ *  @param[in] ys1 ySrc from pair 1
+ *  @param[in] xr1 xRcv from pair 1
+ *  @param[in] yr1 yRcv from pair 1
+ *  @param[in] xs2 xSrc from pair 2
+ *  @param[in] ys2 ySrc from pair 2
+ *  @param[in] xr2 xRcv from pair 2
+ *  @param[in] yr2 yRcv from pair 2
+ *  @return Return the dsr value
  *
- * \details The definitions of ds and dr are:
+ * @details The definitions of ds and dr are:
  * \f$ds = \sqrt((sx1-sx2)^2+(sy1-sy2)^2)\f$
  * \f$dr = \sqrt((rx1-rx2)^2+(ry1-ry2)^2)\f$
  * The boat may be going in the opposite direction for the data in file2 so that the source from file1
@@ -162,13 +162,13 @@ fourd_t dsr(const fourd_t xs1, const fourd_t ys1, const fourd_t xr1, const fourd
 }
 
 /*! Perform a minimisation check with the current two vectors of parameters.
- *  \tparam Init If true, perform the initialisation sequence.
- *  \param[in] crd1 A vector containing the process's parameter data from the first input file. This data
+ *  @tparam Init If true, perform the initialisation sequence.
+ *  @param[in] crd1 A vector containing the process's parameter data from the first input file. This data
  *             is never sent to any crd2 process.
- *  \param[in] crd2 A vector containing the parameter data from another process.
- *  \param[out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
+ *  @param[in] crd2 A vector containing the parameter data from another process.
+ *  @param[out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
- *  \param[out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
+ *  @param[out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
  */
 template <const bool ixline>
@@ -185,16 +185,16 @@ void initUpdate(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec
 }
 
 /*! Perform a minimisation check with the current two vectors of parameters.
- *  \tparam Init If true, perform the initialisation sequence.
- *  \param[in] crd1 A vector containing the process's parameter data from the first input file. This data
+ *  @tparam Init If true, perform the initialisation sequence.
+ *  @param[in] crd1 A vector containing the process's parameter data from the first input file. This data
  *             is never sent to any other process.
- *  \param[in] crd2 A vector containing the parameter data from another process.
- *  \param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
+ *  @param[in] crd2 A vector containing the parameter data from another process.
+ *  @param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
- *  \param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
+ *  @param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
  *                 This vector is updated by the loop.
- *  \param[in] dsrmax The maximum distance a pair from crd2 can be from crd1.
- *  \return Return the number of dsr calculations performed.
+ *  @param[in] dsrmax The maximum distance a pair from crd2 can be from crd1.
+ *  @return Return the number of dsr calculations performed.
  */
 template <const bool ixline>
 size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<fourd_t> & minrs, const fourd_t dsrmax)
@@ -266,10 +266,10 @@ size_t update(const Coords * crd1, const Coords * crd2, vec<size_t> & min, vec<f
 
 /*! Send coordinate data. An alternative but largely untested alternative
  *  to the one-sided communication mechanism.
- *  \param[in] lrank The target rank to communicate with
- *  \param[in] crd The coordinate data
- *  \param[in] ixline Whether line numbers are also being sent
- *  \return A vector of MPI_Request objects for performing a MPI_Waitall
+ *  @param[in] lrank The target rank to communicate with
+ *  @param[in] crd The coordinate data
+ *  @param[in] ixline Whether line numbers are also being sent
+ *  @return A vector of MPI_Request objects for performing a MPI_Waitall
  */
 vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
 {
@@ -291,10 +291,10 @@ vec<MPI_Request> sendCrd(size_t lrank, const Coords * crd, bool ixline)
 
 /*! Reive coordinate data. An alternative but largely untested alternative
  *  to the one-sided communication mechanism.
- *  \param[in] lrank The target rank to communicate with
- *  \param[in] sz The number of entries to recv
- *  \param[in] ixline Whether line numbers are also being received
- *  \return The coordinate data
+ *  @param[in] lrank The target rank to communicate with
+ *  @param[in] sz The number of entries to recv
+ *  @param[in] ixline Whether line numbers are also being received
+ *  @return The coordinate data
  */
 std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
 {

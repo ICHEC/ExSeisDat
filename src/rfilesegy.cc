@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date July 2016
- *   \brief
- *   \details ReadSEGY functions
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date July 2016
+ *   @brief
+ *   @details ReadSEGY functions
  *//*******************************************************************************************/
 #include "global.hh"
 #include "file/filesegy.hh"
@@ -126,16 +126,16 @@ size_t ReadSEGY::readNt(void) const
 }
 
 /*! Template function for reading SEG-Y traces and parameters, random and contiguous.
- *  \tparam T The type of offset (pointer or size_t)
- *  \param[in] obj The object-layer object.
- *  \param[in] format The format of the trace data.
- *  \param[in] ns The number of samples per trace.
- *  \param[in] offset The offset(s). If T == size_t * this is an array, otherwise its a single offset.
- *  \param[in] offunc A function which given the ith trace of the local process, returns the associated trace offset.
- *  \param[in] sz The number of traces to read
- *  \param[in] trc Pointer to trace array.
- *  \param[in] prm Pointer to parameter structure.
- *  \param[in] skip Skip \c skip entries in the parameter structure
+ *  @tparam T The type of offset (pointer or size_t)
+ *  @param[in] obj The object-layer object.
+ *  @param[in] format The format of the trace data.
+ *  @param[in] ns The number of samples per trace.
+ *  @param[in] offset The offset(s). If T == size_t * this is an array, otherwise its a single offset.
+ *  @param[in] offunc A function which given the ith trace of the local process, returns the associated trace offset.
+ *  @param[in] sz The number of traces to read
+ *  @param[in] trc Pointer to trace array.
+ *  @param[in] prm Pointer to parameter structure.
+ *  @param[in] skip Skip \c skip entries in the parameter structure
  */
 template <typename T>
 void readTraceT(Obj::Interface * obj, const Format format, const size_t ns, const T offset, std::function<size_t(size_t)> offunc,

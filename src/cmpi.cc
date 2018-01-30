@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author cathal o broin - cathal@ichec.ie - first commit
- *   \copyright tbd. do not distribute
- *   \date july 2016
- *   \brief
- *   \details
+ *   @file
+ *   @author cathal o broin - cathal@ichec.ie - first commit
+ *   @copyright tbd. do not distribute
+ *   @date july 2016
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #include "global.hh"
 #include "anc/mpi.hh"
@@ -35,7 +35,7 @@ ManagingMPI& managingMPI() {
 }
 
 
-/// \brief This class will be initialized as a function static variable.
+/// @brief This class will be initialized as a function static variable.
 ///     This means the lifetime will begin the first time the MPIManagerInstance
 ///     function is called, and end when the program exits wither by returning
 ///     from main, or when std::exit() is called.
@@ -43,7 +43,7 @@ ManagingMPI& managingMPI() {
 ///     users can explicitly set using the manageMPI(bool) function.
 struct MPIManager
 {
-    /// \brief Initialize MPI if it hasn't been already, and we're responsible
+    /// @brief Initialize MPI if it hasn't been already, and we're responsible
     ///     for it.
     MPIManager()
     {
@@ -71,7 +71,7 @@ struct MPIManager
         }
     }
 
-    /// \brief Finalize MPI if we're responsible for it.
+    /// @brief Finalize MPI if we're responsible for it.
     ~MPIManager()
     {
         if (managingMPI() == ManagingMPI::yes)
@@ -89,7 +89,7 @@ struct MPIManager
 
 
 
-/// \brief A static instance of MPIManager so the destructor, and MPI_Finalize
+/// @brief A static instance of MPIManager so the destructor, and MPI_Finalize
 ///     will be called at program exit.
 MPIManager& MPIManagerInstance()
 {
@@ -138,11 +138,11 @@ MPI_Comm MPI::getComm() const
 //Reduction for fundamental datatypes
 
 /*! Retrieve the corresponding values from every process in a collective call
- * \tparam T The datatype for the gather
- * \param[in] log The ExSeisPIOL logger object
- * \param[in] mpi The MPI communication object
- * \param[in] in The local value to use in the gather
- * \return Return a vector where the nth element is the value from the nth rank.
+ * @tparam T The datatype for the gather
+ * @param[in] log The ExSeisPIOL logger object
+ * @param[in] mpi The MPI communication object
+ * @param[in] in The local value to use in the gather
+ * @return Return a vector where the nth element is the value from the nth rank.
  */
 template <typename T>
 std::vector<T> MPIGather(Log::Logger * log, const MPI * mpi, const std::vector<T> & in)
@@ -154,12 +154,12 @@ std::vector<T> MPIGather(Log::Logger * log, const MPI * mpi, const std::vector<T
 }
 
 /*! Perform a reduction with the specified operation.
- *  \tparam T The type of the values
- *  \param[in,out] log The logging layer
- *  \param[in] mpi The MPI communicator
- *  \param[in] val The value to be reduced
- *  \param[in] op The operation
- *  \return Return the result of the reduce operation
+ *  @tparam T The type of the values
+ *  @param[in,out] log The logging layer
+ *  @param[in] mpi The MPI communicator
+ *  @param[in] val The value to be reduced
+ *  @param[in] op The operation
+ *  @return Return the result of the reduce operation
  */
 template <typename T>
 T getMPIOp(Log::Logger * log, const MPI * mpi, T val, MPI_Op op)

@@ -8,11 +8,11 @@
 /*! Read nt parameters from the input file ifh and write it to
  *  the output file ofh. Parameters are read and written from
  *  the offset off.
- *  \param[in] piol The PIOL handle
- *  \param[in] off The offset in number of traces.
- *  \param[in] tcnt The number of traces.
- *  \param[in] ifh The input file handle
- *  \param[out] ofh The output file handle
+ *  @param[in] piol The PIOL handle
+ *  @param[in] off The offset in number of traces.
+ *  @param[in] tcnt The number of traces.
+ *  @param[in] ifh The input file handle
+ *  @param[out] ofh The output file handle
  */
 void readwriteParam(PIOL_ExSeis* piol, size_t off, size_t tcnt, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
@@ -32,9 +32,9 @@ void readwriteParam(PIOL_ExSeis* piol, size_t off, size_t tcnt, PIOL_File_ReadDi
 }
 
 /*! Write the output header details.
- *  \param[in] piol The PIOL handle
- *  \param[in] ifh The input file handle
- *  \param[out] ofh The output file handle
+ *  @param[in] piol The PIOL handle
+ *  @param[in] ifh The input file handle
+ *  @param[out] ofh The output file handle
  */
 void writeHeader(PIOL_ExSeis* piol, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
@@ -46,12 +46,12 @@ void writeHeader(PIOL_ExSeis* piol, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDi
 }
 
 /*! Write the data from the input file to the output file
- *  \param[in] piol The PIOL handle
- *  \param[in] goff The global offset in number of traces.
- *  \param[in] lnt The lengthof each trace.
- *  \param[in] tcnt The number of traces.
- *  \param[in] ifh The input file handle
- *  \param[out] ofh The output file handle
+ *  @param[in] piol The PIOL handle
+ *  @param[in] goff The global offset in number of traces.
+ *  @param[in] lnt The lengthof each trace.
+ *  @param[in] tcnt The number of traces.
+ *  @param[in] ifh The input file handle
+ *  @param[out] ofh The output file handle
  */
 void writePayload(PIOL_ExSeis* piol, size_t goff, size_t lnt, size_t tcnt,
                   PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)

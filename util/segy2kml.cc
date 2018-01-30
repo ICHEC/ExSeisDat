@@ -8,9 +8,9 @@
 using namespace PIOL;
 
 /*! Create the initial KML file settings to order to describe the output in general
- *  \param[in,out] file file handle opened file is assigned to
- *  \param[in] oname name of the file to open
- *  \param[in] folder KML folder name containing all trace lines
+ *  @param[in,out] file file handle opened file is assigned to
+ *  @param[in] oname name of the file to open
+ *  @param[in] folder KML folder name containing all trace lines
  */
 void initKML(std::ofstream &file, std::string oname, std::string folder)
 {
@@ -27,8 +27,8 @@ void initKML(std::ofstream &file, std::string oname, std::string folder)
 }
 
 /*! Creates a high precision 10 decimals() string from a single coordinate (i.e. not a pair)
- *  \param[in] coord lat/long coords to change to string
- *  \return the coordinates as a string
+ *  @param[in] coord lat/long coords to change to string
+ *  @return the coordinates as a string
  */
 std::string highPrecStr(geom_t coord)
 {
@@ -37,9 +37,9 @@ std::string highPrecStr(geom_t coord)
 }
 
 /*! Add a line containing coordinates data to the KML file.
- *  \param[in,out] file file handle to write to
- *  \param[in] name name to be given to this set of coordinates
- *  \param[in] coords the lat/long coords to print to the file
+ *  @param[in,out] file file handle to write to
+ *  @param[in] name name to be given to this set of coordinates
+ *  @param[in] coords the lat/long coords to print to the file
  */
 void addLine(std::ofstream &file, std::string name, std::vector<CoordElem> coords)
 {
@@ -52,7 +52,7 @@ void addLine(std::ofstream &file, std::string name, std::vector<CoordElem> coord
 }
 
 /*! close the kml outpuut file
- *  \param[in,out] file file handle to close
+ *  @param[in,out] file file handle to close
  */
 void closeKML(std::ofstream &file)
 {
@@ -61,11 +61,11 @@ void closeKML(std::ofstream &file)
 }
 
 /*! Compute a lat long value from a UTM input
- *  \param[in] easting UTM easting coordinate
- *  \param[in] northing UTM northing coordinate
- *  \param[in] utmZone the UTM zone the coordinates lie in
- *  \param[out] lat latitude coordinate
- *  \param[out] lng longitude coordinate
+ *  @param[in] easting UTM easting coordinate
+ *  @param[in] northing UTM northing coordinate
+ *  @param[in] utmZone the UTM zone the coordinates lie in
+ *  @param[out] lat latitude coordinate
+ *  @param[out] lng longitude coordinate
  */
 // Formulas is from https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM (Excel Spreadsheet is clearer than formula)
 void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  & lat, geom_t & lng)
@@ -96,9 +96,9 @@ void utm2LatLong(geom_t easting, geom_t northing, std::string utmZone, geom_t  &
 
 /*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
- *  \param[in] piol Piol constructor
- *  \param[in] iname Input file
- *  \param[in] minmax Minimum and maximum coordinates
+ *  @param[in] piol Piol constructor
+ *  @param[in] iname Input file
+ *  @param[in] minmax Minimum and maximum coordinates
  */
 void calcMin(std::shared_ptr<ExSeis> piol, std::string iname, std::vector<CoordElem> & minmax)
 {
@@ -116,10 +116,10 @@ void calcMin(std::shared_ptr<ExSeis> piol, std::string iname, std::vector<CoordE
 }
 
 /* Main function for segy to kml
- *  \param[in] argc The number of input strings.
- *  \param[in] argv The array of input strings.
- *  \return zero on success, non-zero on failure
- *  \details Options:
+ *  @param[in] argc The number of input strings.
+ *  @param[in] argv The array of input strings.
+ *  @return zero on success, non-zero on failure
+ *  @details Options:
  *           -i \<file\> : input file name
  *           -o \<file\> : output file name
  *           -f \<folder\> : name of folder in KML file that contains the trace lines

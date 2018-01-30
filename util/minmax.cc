@@ -8,8 +8,8 @@ using namespace File;
 
 /*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
- *  \param[in] iname Input file
- *  \param[in] oname Output file
+ *  @param[in] iname Input file
+ *  @param[in] oname Output file
  */
 void calcMin(std::string iname, std::string oname)
 {
@@ -70,10 +70,10 @@ void calcMin(std::string iname, std::string oname)
 }
 
 /* Main function for minmax.
- *  \param[in] argc The number of input strings.
- *  \param[in] argv The array of input strings.
- *  \return zero on success, non-zero on failure
- *  \details Options:
+ *  @param[in] argc The number of input strings.
+ *  @param[in] argv The array of input strings.
+ *  @return zero on success, non-zero on failure
+ *  @details Options:
  *           -i \<file\> : input file name
  *           -o \<file\> : output file name
  */

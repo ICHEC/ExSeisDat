@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date February 2017
- *   \brief This example shows how to make a new file with the file api
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date February 2017
+ *   @brief This example shows how to make a new file with the file api
  *   is complete.
 *//*******************************************************************************************/
 #include "sglobal.hh"

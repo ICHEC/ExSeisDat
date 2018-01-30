@@ -1,10 +1,10 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \copyright TBD. Do not distribute
- *   \date November 2016
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @copyright TBD. Do not distribute
+ *   @date November 2016
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #include <glob.h>
 #include <assert.h>
@@ -34,9 +34,9 @@ namespace PIOL {
 /*! For CoordElem. Update the dst element based on if the operation gives true.
  *  If the elements have the same value, set the trace number to the
  *  smallest trace number.
- *  \tparam Op The true/false operation to use for comparison
- *  \param[in] src The source one will be using for updating
- *  \param[in, out] dst The destination which will be updated.
+ *  @tparam Op The true/false operation to use for comparison
+ *  @param[in] src The source one will be using for updating
+ *  @param[in, out] dst The destination which will be updated.
  */
 template <typename Op>
 void updateElem(CoordElem * src, CoordElem * dst)

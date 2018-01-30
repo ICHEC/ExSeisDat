@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date January 2017
- *   \brief
- *   \details This utility searches for files matching a wildcard, filters out the SEGY matches
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date January 2017
+ *   @brief
+ *   @details This utility searches for files matching a wildcard, filters out the SEGY matches
  *            and provides details about what is in the files.
  *//*******************************************************************************************/
 #include "cppfileapi.hh"
@@ -13,10 +13,10 @@
 using namespace PIOL;
 
 /*! Main function for assess.
- *  \param[in] argc The number of arguments. Should be at least 2.
- *  \param[in] argv The cstring array. The second array should be a globbing pattern.
- *  \todo Switch globbing with regex
- *  \return Return 0 on success, -1 on failure
+ *  @param[in] argc The number of arguments. Should be at least 2.
+ *  @param[in] argv The cstring array. The second array should be a globbing pattern.
+ *  @todo Switch globbing with regex
+ *  @return Return 0 on success, -1 on failure
  */
 int main(int argc, char ** argv)
 {

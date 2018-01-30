@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date Q4 2016
- *   \brief
- *   \details This function takes one or more files as input and produces a new file or files
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date Q4 2016
+ *   @brief
+ *   @details This function takes one or more files as input and produces a new file or files
  *            which contain all traces with identical ns and increment.
  *//*******************************************************************************************/
 #include <assert.h>
@@ -14,7 +14,7 @@
 using namespace PIOL;
 
 /*! Prompt the user asking them if they want to continue with concatenation. Multi-process safe.
- *  \param[in] piol The piol object.
+ *  @param[in] piol The piol object.
  */
 void doPrompt(ExSeisPIOL * piol)
 {
@@ -42,14 +42,14 @@ void doPrompt(ExSeisPIOL * piol)
 }
 
 /*! The main functon for concatenation.
- *  \param[in] argc The number of arguments.
- *  \param[in] argv The array of cstrings.
- *  \details The options -i and -o must be specified, there are no defaults.
+ *  @param[in] argc The number of arguments.
+ *  @param[in] argv The array of cstrings.
+ *  @details The options -i and -o must be specified, there are no defaults.
  *           -i \<pattern\> : input files (glob)
  *           -o \<pattern\> : output file prefix
  *           -m \<msg\> :  Message to write to the text header
  *           -p : Prompt the user to OK before concatenation
- *  \return Return zero on success, non-zero on failure.
+ *  @return Return zero on success, non-zero on failure.
  */
 int main(int argc, char ** argv)
 {

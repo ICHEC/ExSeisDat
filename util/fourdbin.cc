@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date November 2016
- *   \brief
- *   \details
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date November 2016
+ *   @brief
+ *   @details
  *//*******************************************************************************************/
 #include <assert.h>
 #include <stdlib.h>
@@ -28,17 +28,17 @@ namespace PIOL {
 }
 
 /*! Main function for fourdbin.
- *  \param[in] argc The number of input strings.
- *  \param[in] argv The array of input strings.
- *  \return zero on success, non-zero on failure
- *  \details 4 files must be specified on the command line:
+ *  @param[in] argc The number of input strings.
+ *  @param[in] argv The array of input strings.
+ *  @return zero on success, non-zero on failure
+ *  @details 4 files must be specified on the command line:
  *           -a \<inp1\> : First input file
  *           -b \<inp2\> : Second input file
  *           -c \<out1\> : First output file
  *           -d \<out2\> : Second output file
  *           -t \<val\> : floating value for dsrmax
  *           -v : Use this option for extra verbosity
- *  \return Return zero on success, non-zero on failure.
+ *  @return Return zero on success, non-zero on failure.
  */
 int main(int argc, char ** argv)
 {

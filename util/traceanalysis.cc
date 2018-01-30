@@ -1,9 +1,9 @@
 /*******************************************************************************************//*!
- *   \file
- *   \author Cathal O Broin - cathal@ichec.ie - first commit
- *   \date March 2017
- *   \brief
- *   \details Perform an analysis of a single trace.
+ *   @file
+ *   @author Cathal O Broin - cathal@ichec.ie - first commit
+ *   @date March 2017
+ *   @brief
+ *   @details Perform an analysis of a single trace.
  *//*******************************************************************************************/
 #include <unistd.h> //getopt
 #include <iostream>
@@ -11,10 +11,10 @@
 using namespace PIOL;
 
 /*! Main function for traceanalysis.
- *  \param[in] argc The number of input strings.
- *  \param[in] argv The array of input strings.
- *  \return zero on success, non-zero on failure
- *  \details Two command line options:
+ *  @param[in] argc The number of input strings.
+ *  @param[in] argv The array of input strings.
+ *  @return zero on success, non-zero on failure
+ *  @details Two command line options:
  *           -i \<inp\> : input file
  *           -t \<num\> : input trace number (default 0)
  */

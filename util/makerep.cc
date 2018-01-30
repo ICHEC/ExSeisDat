@@ -121,10 +121,10 @@ std::pair<size_t, size_t> writeArb(size_t rank, size_t numRank, Data::Interface 
 
 /*! Make a SEGY file by copying the header object and the data payload of an existing file
  *  and writng the header object and then repeatedly writing the payload.
- *  \param[in] piol The piol object
- *  \param[in] iname The SEG-Y input file name
- *  \param[in] oname The SEG-Y output file name
- *  \param[in] repRate The repetition rate
+ *  @param[in] piol The piol object
+ *  @param[in] iname The SEG-Y input file name
+ *  @param[in] oname The SEG-Y output file name
+ *  @param[in] repRate The repetition rate
  */
 void mpiMakeSEGYCopy(const ExSeis& piol, Interface * in, Interface * out, size_t repRate)
 {
