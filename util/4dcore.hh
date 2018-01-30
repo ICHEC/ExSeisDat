@@ -6,6 +6,7 @@
  *   @details
  *//*******************************************************************************************/
 #include "4dio.hh"
+#include <cassert>
 namespace PIOL { namespace FOURD {
 /*! Error check the mpi error value.
  *  @param[in] err The mpi error value.
