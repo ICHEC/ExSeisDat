@@ -6,9 +6,12 @@
  *   @brief
  *   @details
  *//*******************************************************************************************/
-#include "global.hh"
+
 #include "anc/piol.hh"
+#include "global.hh"
+
 namespace PIOL {
+
 /*! Perform a 1d decomposition so that the load is optimally balanced.
  *  @param[in] sz The sz of the 1d domain
  *  @param[in] numRank The number of ranks to perform the decomposition over
@@ -25,5 +28,7 @@ std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);
  *  @return Return a pair, the first element is the offset for the local process,
  *          the second is the size for the local process.
  */
-std::pair<size_t, size_t> decompose(ExSeisPIOL * piol, File::ReadInterface * file);
-}
+std::pair<size_t, size_t> decompose(
+  ExSeisPIOL* piol, File::ReadInterface* file);
+
+}  // namespace PIOL

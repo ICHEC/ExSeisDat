@@ -1,13 +1,15 @@
-#include "sglobal.h"
 #include "cfileapi.h"
+#include "sglobal.h"
+
 #include <assert.h>
-int main(int argc, char ** argv)
+
+int main(int argc, char** argv)
 {
     //Initialise the PIOL by creating an ExSeis object
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
 
-    char * opt = "o:";  //TODO: uses a GNU extension
-    char * name = NULL;
+    char* opt  = "o:";  //TODO: uses a GNU extension
+    char* name = NULL;
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
         if (c == 'o')
             name = copyString(optarg);
@@ -24,7 +26,8 @@ int main(int argc, char ** argv)
     double inc = 4.0;
 
     //Perform some decomposition (user decides how they will decompose)
-    Extent dec = decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    Extent dec =
+      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
 
     //The offset for the local process
     size_t offset = dec.start;
@@ -39,9 +42,8 @@ int main(int argc, char ** argv)
 
     //Set some trace parameters
     PIOL_File_Param* prm = PIOL_File_Param_new(NULL, lnt);
-    for (size_t j = 0; j < lnt; j++)
-    {
-        float k = offset+j;
+    for (size_t j = 0; j < lnt; j++) {
+        float k = offset + j;
         PIOL_File_setPrm_double(j, PIOL_META_xSrc, 1600.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_ySrc, 2400.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_xRcv, 100000.0 + k, prm);
@@ -54,10 +56,9 @@ int main(int argc, char ** argv)
     }
 
     //Set some traces
-    float * trc = calloc(lnt*ns, sizeof(float));
-    for (size_t j = 0; j < lnt*ns; j++)
-    {
-        trc[j] = (float)(offset*ns+j);
+    float* trc = calloc(lnt * ns, sizeof(float));
+    for (size_t j = 0; j < lnt * ns; j++) {
+        trc[j] = (float)(offset * ns + j);
     }
 
     //Write the traces and trace parameters
@@ -73,4 +74,3 @@ int main(int argc, char ** argv)
 
     return 0;
 }
-

@@ -1,4 +1,5 @@
 #include "objsegytest.hh"
+
 TEST_F(ObjSpecTest, SEGYHORead1)
 {
     readHOPatternTest(7, 107);
@@ -105,4 +106,3 @@ TEST_F(ObjSpecTest, FarmSEGYRandomBigRead)
     readRandomTest<Block::DODF>(5000, vec);
     readRandomTest<Block::DO>(5000, vec);
 }
-

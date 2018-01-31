@@ -9,26 +9,30 @@
  *//*******************************************************************************************/
 #ifndef PIOLSHAREUNITS_INCLUDE_GUARD
 #define PIOLSHAREUNITS_INCLUDE_GUARD
+
 #define _USE_MATH_DEFINES
-#include <cmath>
+
 #include "global.hh"
 
+#include <cmath>
+
 namespace PIOL {
-namespace SI                            //!< This namespace is being used like an enum
+
+namespace SI  //!< This namespace is being used like an enum
 {
-    constexpr unit_t Micro = 1e-6L;     //!< Micro in SI units
+constexpr unit_t Micro = 1e-6L;  //!< Micro in SI units
 }
 
-namespace Physics                       //!< For physical constants
+namespace Physics  //!< For physical constants
 {
-
 }
 
-namespace Math                          //!< Mathematical constants
+namespace Math  //!< Mathematical constants
 {
-    constexpr unit_t pi = M_PI;         //!< Pi
-    constexpr trace_t pi_t = M_PI;         //!< Pi
-}
+constexpr unit_t pi    = M_PI;  //!< Pi
+constexpr trace_t pi_t = M_PI;  //!< Pi
+}  // namespace Math
 
-}
+}  // namespace PIOL
+
 #endif

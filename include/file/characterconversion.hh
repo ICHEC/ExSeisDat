@@ -8,9 +8,12 @@
  *//*******************************************************************************************/
 #ifndef PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 #define PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
-#include "global.hh"
+
 #include "anc/piol.hh"
+#include "global.hh"
+
 #include <string>
+
 namespace PIOL {
 
 char ebcdicToAscii(uchar ebcdic_char);
@@ -23,6 +26,8 @@ char asciiToEbcdic(uchar ascii_char);
  * @param[in] sz The length of the string.
  * @param[in, out] src The EBCDIC or ASCII string. After the function ends, the string is ASCII
  */
-void getAscii(ExSeisPIOL * piol, const std::string & file, size_t sz, uchar * src);
-}
+void getAscii(ExSeisPIOL* piol, const std::string& file, size_t sz, uchar* src);
+
+}  // namespace PIOL
+
 #endif

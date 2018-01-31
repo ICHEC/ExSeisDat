@@ -9,23 +9,27 @@
 *//*******************************************************************************************/
 #ifndef PIOLSHAREPARAM_INCLUDE_GUARD
 #define PIOLSHAREPARAM_INCLUDE_GUARD
-#include "global.hh"
-#include "api.hh"
 
-namespace PIOL { namespace File {
+#include "api.hh"
+#include "global.hh"
+
+namespace PIOL {
+namespace File {
+
 struct Rule;
+
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
  */
-struct Param
-{
-    std::vector<geom_t> f;    //!< Floating point array.
-    std::vector<llint> i;     //!< Integer array.
-    std::vector<int16_t> s;   //!< Short array.
-    std::vector<size_t> t;    //!< trace number array.
-    std::vector<uchar> c;     //!< storage for a file format specific copy
-    std::shared_ptr<Rule> r;  //!< The rules which describe the indexing of the arrays.
-    size_t sz;                //!< The number of sets of trace parameters.
+struct Param {
+    std::vector<geom_t> f;   //!< Floating point array.
+    std::vector<llint> i;    //!< Integer array.
+    std::vector<int16_t> s;  //!< Short array.
+    std::vector<size_t> t;   //!< trace number array.
+    std::vector<uchar> c;    //!< storage for a file format specific copy
+    std::shared_ptr<Rule>
+      r;        //!< The rules which describe the indexing of the arrays.
+    size_t sz;  //!< The number of sets of trace parameters.
 
     /*! Allocate the basic space required to store the arrays and store the rules.
      *  @param[in] r_ The rules which describe the layout of the arrays.
@@ -57,28 +61,29 @@ struct Param
      *  @return Return true if the index of the current object is less than
      *  the right operand.
      */
-    bool operator<(Param & a)
+    bool operator<(Param& a)
     {
-        return f.size() < a.f.size();   //Arbitrary function
+        return f.size() < a.f.size();  //Arbitrary function
     }
 
     /*! Equality operator
      * @param[in] p Param Structure to compare with.
      * @return Return true if the structures are equivalent.
      */
-    bool operator==(Param & p) const;
+    bool operator==(Param& p) const;
 
     /*! Not-Equal operator
      * @param[in] p Param Structure to compare with.
      * @return Return true if the structures are equivalent.
      */
-    bool operator!=(Param & p) const
-    {
-        return !this->operator==(p);
-    }
+    bool operator!=(Param& p) const { return !this->operator==(p); }
 };
-}
-typedef std::function<bool(const File::Param *, const size_t, const size_t)>  CompareP;   //!< A template for the Compare less-than function
-}
-#endif
 
+}  // namespace File
+
+typedef std::function<bool(const File::Param*, const size_t, const size_t)>
+  CompareP;  //!< A template for the Compare less-than function
+
+}  // namespace PIOL
+
+#endif

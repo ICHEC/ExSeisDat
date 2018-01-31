@@ -3,15 +3,19 @@
 namespace PIOL {
 
 Set::Set(
-    std::shared_ptr<ExSeisPIOL> piol_, std::string pattern, std::string outfix_,
-    std::shared_ptr<File::Rule> rule_):
-    rule(rule_), cache(piol_)
+  std::shared_ptr<ExSeisPIOL> piol_,
+  std::string pattern,
+  std::string outfix_,
+  std::shared_ptr<File::Rule> rule_) :
+    rule(rule_),
+    cache(piol_)
 {
     mockSet().ctor(this, piol_, pattern, outfix_, rule_);
 }
 
-Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_):
-    rule(rule_), cache(piol_)
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_) :
+    rule(rule_),
+    cache(piol_)
 {
     mockSet().ctor(this, piol_, rule_);
 }
@@ -37,8 +41,7 @@ std::vector<std::string> Set::output(std::string oname)
 }
 
 void Set::getMinMax(
-    MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam,
-    CoordElem * minmax)
+  MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem* minmax)
 {
     mockSet().getMinMax(this, xlam, ylam, minmax);
 }
@@ -74,7 +77,7 @@ void Set::add(std::string name)
 }
 
 void Set::toAngle(
-    std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
+  std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
 {
     mockSet().toAngle(this, vmName, vBin, oGSz, oInc);
 }
@@ -84,7 +87,7 @@ void Set::sort(SortType type)
     mockSet().sort(this, type);
 }
 
-void Set::getMinMax(Meta m1, Meta m2, CoordElem * minmax)
+void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
 {
     mockSet().getMinMax(this, m1, m2, minmax);
 }
@@ -100,25 +103,29 @@ void Set::AGC(AGCType type, size_t window, trace_t normR)
 }
 
 void Set::temporalFilter(
-    FltrType type, FltrDmn domain, PadType pad, trace_t fs,
-    std::vector<trace_t> corners, size_t nw, size_t winCntr)
+  FltrType type,
+  FltrDmn domain,
+  PadType pad,
+  trace_t fs,
+  std::vector<trace_t> corners,
+  size_t nw,
+  size_t winCntr)
 {
-    mockSet().temporalFilter(
-        this,
-        type, domain, pad, fs,
-        corners, nw, winCntr
-    );
+    mockSet().temporalFilter(this, type, domain, pad, fs, corners, nw, winCntr);
 }
 
 void Set::temporalFilter(
-    FltrType type, FltrDmn domain, PadType pad, trace_t fs,
-    size_t N, std::vector<trace_t> corners, size_t nw, size_t winCntr)
+  FltrType type,
+  FltrDmn domain,
+  PadType pad,
+  trace_t fs,
+  size_t N,
+  std::vector<trace_t> corners,
+  size_t nw,
+  size_t winCntr)
 {
     mockSet().temporalFilter(
-        this,
-        type, domain, pad, fs,
-        N, corners, nw, winCntr
-    );
+      this, type, domain, pad, fs, N, corners, nw, winCntr);
 }
 
-} // namespace PIOL
+}  // namespace PIOL

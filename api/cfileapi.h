@@ -9,13 +9,14 @@
 #ifndef PIOLCFILEAPI_INCLUDE_GUARD
 #define PIOLCFILEAPI_INCLUDE_GUARD
 
+#include "anc/verbosity.h"
+#include "global.hh"
+#include "share/api.hh"
+
 #include <mpi.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
-#include "share/api.hh"
-#include "global.hh"
-#include "anc/verbosity.h"
 
 
 //
@@ -25,36 +26,38 @@
 #include <memory>
 
 namespace PIOL {
-    class ExSeis;
 
-    namespace File {
-        struct Rule;
-        struct Param;
-        class ReadDirect;
-        class WriteDirect;
-    }
-}
+class ExSeis;
+
+namespace File {
+
+struct Rule;
+struct Param;
+class ReadDirect;
+class WriteDirect;
+
+}  // namespace File
+}  // namespace PIOL
 
 typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeis;
-typedef std::shared_ptr<PIOL::File::Rule>  PIOL_File_Rule;
+typedef std::shared_ptr<PIOL::File::Rule> PIOL_File_Rule;
 typedef PIOL::File::Param PIOL_File_Param;
-typedef PIOL::File::ReadDirect  PIOL_File_ReadDirect;
+typedef PIOL::File::ReadDirect PIOL_File_ReadDirect;
 typedef PIOL::File::WriteDirect PIOL_File_WriteDirect;
 
 #else
 // Forward declare opaque structs in C
 typedef struct PIOL_ExSeis PIOL_ExSeis;
-typedef struct PIOL_File_Rule  PIOL_File_Rule;
+typedef struct PIOL_File_Rule PIOL_File_Rule;
 typedef struct PIOL_File_Param PIOL_File_Param;
-typedef struct PIOL_File_ReadDirect  PIOL_File_ReadDirect;
+typedef struct PIOL_File_ReadDirect PIOL_File_ReadDirect;
 typedef struct PIOL_File_WriteDirect PIOL_File_WriteDirect;
 #endif
 
 
 #ifdef __cplusplus
 // Everything from here on is C API functions needing C linkage.
-extern "C"
-{
+extern "C" {
 #endif
 
 
@@ -135,7 +138,7 @@ PIOL_File_Rule* PIOL_File_Rule_new(bool def);
  * @param[in] m List of Meta values (size n).
  * @param[in] n Number of elements in m
  */
-PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta * m, size_t n);
+PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta* m, size_t n);
 
 /*! Free a Rule structure.
  *  @param[in,out] rule The Rule handle associated with the structure to free
@@ -154,7 +157,8 @@ bool PIOL_File_Rule_addRule_Meta(PIOL_File_Rule* rule, PIOL_Meta m);
  *  @param[in] ruleToCopy The rule handle to copy the rules from.
  *  @return Return true if no errors
  */
-bool PIOL_File_Rule_addRule_Rule(PIOL_File_Rule* rule, const PIOL_File_Rule* ruleToCopy);
+bool PIOL_File_Rule_addRule_Rule(
+  PIOL_File_Rule* rule, const PIOL_File_Rule* ruleToCopy);
 
 /*! Add a Rule for longs (int64_t)
  *  @param[in,out] rule The Rule handle
@@ -177,8 +181,7 @@ void PIOL_File_Rule_addShort(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc);
  *  @param[in] scalLoc The location in the trace header for the shared scaler;
  */
 void PIOL_File_Rule_addSEGYFloat(
-    PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc, PIOL_Tr scalLoc
-);
+  PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc, PIOL_Tr scalLoc);
 
 /*! Add a rule for an index.
  *  @param[in,out] rule The Rule handle
@@ -252,8 +255,7 @@ size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param);
  *  @return The associated parameter
  */
 int16_t PIOL_File_getPrm_short(
-    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
-);
+  size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Get a long parameter which is in a particular set in a parameter structure.
  *  @param[in] i The parameter set number
@@ -262,8 +264,7 @@ int16_t PIOL_File_getPrm_short(
  *  @return The associated parameter
  */
 PIOL_llint PIOL_File_getPrm_llint(
-    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
-);
+  size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Get a double parameter which is in a particular set in a parameter structure.
  *  @param[in] i The parameter set number
@@ -272,8 +273,7 @@ PIOL_llint PIOL_File_getPrm_llint(
  *  @return The associated parameter
  */
 PIOL_geom_t PIOL_File_getPrm_double(
-    size_t i, PIOL_Meta entry, const PIOL_File_Param* param
-);
+  size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Set a short parameter within the parameter structure.
  *  @param[in] i The parameter set number
@@ -282,8 +282,7 @@ PIOL_geom_t PIOL_File_getPrm_double(
  *  @param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_short(
-    size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param
-);
+  size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param);
 
 /*! Set a long parameter within the parameter structure.
  *  @param[in] i The parameter set number
@@ -292,8 +291,7 @@ void PIOL_File_setPrm_short(
  *  @param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_llint(
-    size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param
-);
+  size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param);
 
 /*! Set a double parameter within the parameter structure.
  *  @param[in] i The parameter set number
@@ -302,8 +300,7 @@ void PIOL_File_setPrm_llint(
  *  @param[in] prm The parameter structure
  */
 void PIOL_File_setPrm_double(
-    size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param
-);
+  size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param);
 
 /*! Copy parameter within the parameter structure.
  *  @param[in] i The parameter set number of the source
@@ -312,9 +309,7 @@ void PIOL_File_setPrm_double(
  *  @param[in,out] dst The parameter structure of the destination
  */
 void PIOL_File_cpyPrm(
-    size_t i, const PIOL_File_Param* src,
-    size_t j, PIOL_File_Param* dst
-);
+  size_t i, const PIOL_File_Param* src, size_t j, PIOL_File_Param* dst);
 
 /*
  * Operations
@@ -327,10 +322,13 @@ void PIOL_File_cpyPrm(
  *  @param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
  */
 void PIOL_File_getMinMax(
-    const PIOL_ExSeis* piol,
-    size_t offset, size_t sz, PIOL_Meta m1, PIOL_Meta m2,
-    const PIOL_File_Param* param, struct PIOL_CoordElem * minmax
-);
+  const PIOL_ExSeis* piol,
+  size_t offset,
+  size_t sz,
+  PIOL_Meta m1,
+  PIOL_Meta m2,
+  const PIOL_File_Param* param,
+  struct PIOL_CoordElem* minmax);
 
 /*
  * Opening and closing files
@@ -341,8 +339,7 @@ void PIOL_File_getMinMax(
  * @return A handle for the file.
  */
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
-    const PIOL_ExSeis* piol, const char * name
-);
+  const PIOL_ExSeis* piol, const char* name);
 
 /*! Open a write-only file and return a handle for the file
  * @param[in] piol A handle to the PIOL.
@@ -350,8 +347,7 @@ PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
  * @return A handle for the file.
  */
 PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
-    const PIOL_ExSeis* piol, const char * name
-);
+  const PIOL_ExSeis* piol, const char* name);
 
 /*! @brief Close the file associated with the handle
  *  @param[in,out] f A handle for the file.
@@ -373,9 +369,8 @@ void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
  *  @param[in] f A handle for the file.
  *  @return A string containing the text (in ASCII format)
  */
-const char * PIOL_File_ReadDirect_readText(
-    const PIOL_File_ReadDirect* readDirect
-);
+const char* PIOL_File_ReadDirect_readText(
+  const PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Read the number of samples per trace
  *  @param[in] f A handle for the file.
@@ -400,32 +395,28 @@ double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect);
  *  @param[in] text The new null-terminated string containing the text (in ASCII format).
  */
 void PIOL_File_WriteDirect_writeText(
-    PIOL_File_WriteDirect* writeDirect, const char * text
-);
+  PIOL_File_WriteDirect* writeDirect, const char* text);
 
 /*! @brief Write the number of samples per trace
  *  @param[in] f A handle for the file.
  *  @param[in] ns The new number of samples per trace.
  */
 void PIOL_File_WriteDirect_writeNs(
-    PIOL_File_WriteDirect* writeDirect, size_t ns
-);
+  PIOL_File_WriteDirect* writeDirect, size_t ns);
 
 /*! @brief Write the number of traces in the file
  *  @param[in] f A handle for the file.
  *  @param[in] nt The new number of traces.
  */
 void PIOL_File_WriteDirect_writeNt(
-    PIOL_File_WriteDirect* writeDirect, size_t nt
-);
+  PIOL_File_WriteDirect* writeDirect, size_t nt);
 
 /*! @brief Write the increment between trace samples.
  *  @param[in] f A handle for the file.
  *  @param[in] inc The new increment between trace samples.
  */
 void PIOL_File_WriteDirect_writeInc(
-    PIOL_File_WriteDirect* writeDirect, PIOL_geom_t inc
-);
+  PIOL_File_WriteDirect* writeDirect, PIOL_geom_t inc);
 
 /*
  *    Reading/writing data from the trace headers
@@ -442,9 +433,10 @@ void PIOL_File_WriteDirect_writeInc(
  *  contents of the trace header will be overwritten.
  */
 void PIOL_File_WriteDirect_writeParam(
-    PIOL_File_WriteDirect* writeDirect,
-    size_t offset, size_t sz, const PIOL_File_Param* param
-);
+  PIOL_File_WriteDirect* writeDirect,
+  size_t offset,
+  size_t sz,
+  const PIOL_File_Param* param);
 
 /*! @brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
@@ -454,9 +446,10 @@ void PIOL_File_WriteDirect_writeParam(
  *  @param[in] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readParam(
-    const PIOL_File_ReadDirect* readDirect, size_t offset, size_t sz,
-    PIOL_File_Param* param
-);
+  const PIOL_File_ReadDirect* readDirect,
+  size_t offset,
+  size_t sz,
+  PIOL_File_Param* param);
 
 /*
  *    Reading the traces themselves
@@ -469,9 +462,11 @@ void PIOL_File_ReadDirect_readParam(
  *  @param[out] prm A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readTrace(
-    const PIOL_File_ReadDirect* readDirect,
-    size_t offset, size_t sz, PIOL_trace_t * trace, PIOL_File_Param* param
-);
+  const PIOL_File_ReadDirect* readDirect,
+  size_t offset,
+  size_t sz,
+  PIOL_trace_t* trace,
+  PIOL_File_Param* param);
 
 /*! @brief Read the traces and trace parameters from offset to offset+sz.
  *  @param[in] f A handle for the file.
@@ -482,10 +477,11 @@ void PIOL_File_ReadDirect_readTrace(
  *  @warning This function is not thread safe.
  */
 void PIOL_File_WriteDirect_writeTrace(
-    PIOL_File_WriteDirect* writeDirect,
-    size_t offset, size_t sz, PIOL_trace_t * trace,
-    const PIOL_File_Param* param
-);
+  PIOL_File_WriteDirect* writeDirect,
+  size_t offset,
+  size_t sz,
+  PIOL_trace_t* trace,
+  const PIOL_File_Param* param);
 
 //Lists
 
@@ -497,9 +493,11 @@ void PIOL_File_WriteDirect_writeTrace(
  *  @param[out] prm A handle for the parameter structure (pass NULL to ignore).
  */
 void PIOL_File_ReadDirect_readTraceNonContiguous(
-    PIOL_File_ReadDirect* readDirect,
-    size_t sz, const size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
-);
+  PIOL_File_ReadDirect* readDirect,
+  size_t sz,
+  const size_t* offset,
+  PIOL_trace_t* trace,
+  PIOL_File_Param* param);
 
 /*! @brief Read the traces and trace parameters corresponding to the non-monotonic list of trace numbers.
  *  @param[in] f A handle for the file.
@@ -509,9 +507,11 @@ void PIOL_File_ReadDirect_readTraceNonContiguous(
  *  @param[out] prm A handle for the parameter structure (pass NULL to ignore).
  */
 void PIOL_File_ReadDirect_readTraceNonMonotonic(
-    PIOL_File_ReadDirect* readDirect,
-    size_t sz, const size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
-);
+  PIOL_File_ReadDirect* readDirect,
+  size_t sz,
+  const size_t* offset,
+  PIOL_trace_t* trace,
+  PIOL_File_Param* param);
 
 /*! @brief Write the traces corresponding to the list of trace numbers.
  *  @param[in] f A handle for the file.
@@ -521,9 +521,11 @@ void PIOL_File_ReadDirect_readTraceNonMonotonic(
  *  @param[in] prm A handle to the parameter structure (pass NULL to ignore).
  */
 void PIOL_File_WriteDirect_writeTraceNonContiguous(
-    PIOL_File_WriteDirect* writeDirect,
-    size_t sz, const size_t * offset, PIOL_trace_t * trace, PIOL_File_Param* param
-);
+  PIOL_File_WriteDirect* writeDirect,
+  size_t sz,
+  const size_t* offset,
+  PIOL_trace_t* trace,
+  PIOL_File_Param* param);
 
 /*! @brief Write the trace parameters corresponding to the list of trace numbers.
  *  @param[in] f A handle for the file.
@@ -532,9 +534,10 @@ void PIOL_File_WriteDirect_writeTraceNonContiguous(
  *  @param[in] prm An handle to the parameter structure.
  */
 void PIOL_File_WriteDirect_writeParamNonContiguous(
-    PIOL_File_WriteDirect* writeDirect,
-    size_t sz, const size_t * offset, PIOL_File_Param* param
-);
+  PIOL_File_WriteDirect* writeDirect,
+  size_t sz,
+  const size_t* offset,
+  PIOL_File_Param* param);
 
 /*! @brief Read the trace parameters corresponding to the list of trace numbers.
  *  @param[in] f A handle for the file.
@@ -543,9 +546,10 @@ void PIOL_File_WriteDirect_writeParamNonContiguous(
  *  @param[in] prm An handle to the parameter structure.
  */
 void PIOL_File_ReadDirect_readParamNonContiguous(
-    PIOL_File_ReadDirect* readDirect,
-    size_t sz, const size_t * offset, PIOL_File_Param* param
-);
+  PIOL_File_ReadDirect* readDirect,
+  size_t sz,
+  const size_t* offset,
+  PIOL_File_Param* param);
 
 #ifdef DISABLED_OPTIONS
 /*
@@ -553,40 +557,38 @@ void PIOL_File_ReadDirect_readParamNonContiguous(
  */
 /*! A list of the different modes of file access.
  */
-enum Mode
-{
-    ReadMode,       //!< The file is opened as read only.
-    WriteMode,      //!< The file is opened as write only.
-    ReadWriteMode   //!< The file is opened as Read/Write.
+enum Mode {
+    ReadMode,      //!< The file is opened as read only.
+    WriteMode,     //!< The file is opened as write only.
+    ReadWriteMode  //!< The file is opened as Read/Write.
 };
 
 /*! A structure specifying all MPI-IO options
  */
-typedef struct
-{
-    enum Mode mode; //!< The file access mode
-    MPI_Info info;  //!< The MPI_Info object
-    size_t maxSize; //!< The maximum size to write in an MPI-IO call.
-    MPI_Comm fcomm; //!< The MPI communicator which should be used.
+typedef struct {
+    enum Mode mode;  //!< The file access mode
+    MPI_Info info;   //!< The MPI_Info object
+    size_t maxSize;  //!< The maximum size to write in an MPI-IO call.
+    MPI_Comm fcomm;  //!< The MPI communicator which should be used.
 } MPIIOOptions;
 
 /*! A structure specifying MPI options.
  */
-typedef struct
-{
+typedef struct {
     MPI_Comm comm;  //!< The MPI communicator
     bool initMPI;   //!< Whether the PIOL should initialise MPI or not
 } MPIOptions;
 
 /*! A structure specifying file layer options.
  */
-typedef struct
-{
-    double incFactor;   //!< The increment factor which should be used with inc.
+typedef struct {
+    double incFactor;  //!< The increment factor which should be used with inc.
 } SEGYOptions;
-#endif
+
+#endif  // DISABLED_OPTIONS
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif
+
 #endif

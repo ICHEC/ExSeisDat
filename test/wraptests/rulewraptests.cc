@@ -1,6 +1,6 @@
-#include "wraptesttools.hh"
-#include "rulewraptests.hh"
 #include "mockrule.hh"
+#include "rulewraptests.hh"
+#include "wraptesttools.hh"
 
 using namespace PIOL;
 using namespace PIOL::File;
@@ -11,63 +11,48 @@ std::shared_ptr<PIOL::File::Rule*> test_PIOL_File_Rule()
 {
     auto rule_ptr = std::make_shared<Rule*>();
     EXPECT_CALL(mockRule(), ctor(_, true, true, false))
-        .WillOnce(SaveArg<0>(rule_ptr));
+      .WillOnce(SaveArg<0>(rule_ptr));
 
     auto rule_tmp_ptr = std::make_shared<const Rule*>();
     EXPECT_CALL(mockRule(), ctor(_, true, false, false))
-        .WillOnce(SaveArg<0>(rule_tmp_ptr));
+      .WillOnce(SaveArg<0>(rule_tmp_ptr));
 
     const std::vector<Meta> metas = {
-        PIOL_META_COPY,
-        PIOL_META_ltn,
-        PIOL_META_gtn,
-        PIOL_META_tnl,
-        PIOL_META_tnr,
-        PIOL_META_tn,
-        PIOL_META_tne,
-        PIOL_META_ns,
-        PIOL_META_inc,
-        PIOL_META_Tic,
-        PIOL_META_SrcNum,
-        PIOL_META_ShotNum,
-        PIOL_META_VStack,
-        PIOL_META_HStack,
-        PIOL_META_Offset,
-        PIOL_META_RGElev,
-        PIOL_META_SSElev,
-        PIOL_META_SDElev,
-        PIOL_META_WtrDepSrc,
-        PIOL_META_WtrDepRcv,
-        PIOL_META_xSrc,
-        PIOL_META_ySrc,
-        PIOL_META_xRcv,
-        PIOL_META_yRcv,
-        PIOL_META_xCmp,
-        PIOL_META_yCmp,
-        PIOL_META_il,
-        PIOL_META_xl,
-        PIOL_META_TransUnit,
-        PIOL_META_TraceUnit,
-        PIOL_META_dsdr,
-        PIOL_META_Misc1,
-        PIOL_META_Misc2,
-        PIOL_META_Misc3,
-        PIOL_META_Misc4,
+      PIOL_META_COPY,      PIOL_META_ltn,       PIOL_META_gtn,
+      PIOL_META_tnl,       PIOL_META_tnr,       PIOL_META_tn,
+      PIOL_META_tne,       PIOL_META_ns,        PIOL_META_inc,
+      PIOL_META_Tic,       PIOL_META_SrcNum,    PIOL_META_ShotNum,
+      PIOL_META_VStack,    PIOL_META_HStack,    PIOL_META_Offset,
+      PIOL_META_RGElev,    PIOL_META_SSElev,    PIOL_META_SDElev,
+      PIOL_META_WtrDepSrc, PIOL_META_WtrDepRcv, PIOL_META_xSrc,
+      PIOL_META_ySrc,      PIOL_META_xRcv,      PIOL_META_yRcv,
+      PIOL_META_xCmp,      PIOL_META_yCmp,      PIOL_META_il,
+      PIOL_META_xl,        PIOL_META_TransUnit, PIOL_META_TraceUnit,
+      PIOL_META_dsdr,      PIOL_META_Misc1,     PIOL_META_Misc2,
+      PIOL_META_Misc3,     PIOL_META_Misc4,
     };
 
     auto rule_tmp2_ptr = std::make_shared<Rule*>();
     EXPECT_CALL(mockRule(), ctor(_, metas, true, false, false))
-        .WillOnce(SaveArg<0>(rule_tmp2_ptr));
+      .WillOnce(SaveArg<0>(rule_tmp2_ptr));
 
-    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(true));
-    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
-    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY)).WillOnce(CheckReturn(false));
+    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY))
+      .WillOnce(CheckReturn(true));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), Matcher<const Rule&>(AddressEqDeref(rule_tmp_ptr))));
+    EXPECT_CALL(mockRule(), addRule(EqDeref(rule_ptr), PIOL_META_COPY))
+      .WillOnce(CheckReturn(false));
+    EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
+
+    EXPECT_CALL(
+      mockRule(),
+      addRule(
+        EqDeref(rule_ptr), Matcher<const Rule&>(AddressEqDeref(rule_tmp_ptr))));
 
     EXPECT_CALL(mockRule(), addLong(_, PIOL_META_COPY, PIOL_TR_SeqNum));
-    EXPECT_CALL(mockRule(), addSEGYFloat(_, PIOL_META_COPY, PIOL_TR_SeqNum, PIOL_TR_SeqNum));
+    EXPECT_CALL(
+      mockRule(),
+      addSEGYFloat(_, PIOL_META_COPY, PIOL_TR_SeqNum, PIOL_TR_SeqNum));
     EXPECT_CALL(mockRule(), addShort(_, PIOL_META_COPY, PIOL_TR_SeqNum));
     EXPECT_CALL(mockRule(), addIndex(_, PIOL_META_COPY));
     EXPECT_CALL(mockRule(), addCopy(_));

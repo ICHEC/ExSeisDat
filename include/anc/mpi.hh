@@ -10,10 +10,14 @@
 *//*******************************************************************************************/
 #ifndef PIOLANCCMPI_INCLUDE_GUARD
 #define PIOLANCCMPI_INCLUDE_GUARD
-#include <mpi.h>
+
 #include "anc/comm.hh"
 #include "anc/log.hh"
-namespace PIOL { namespace Comm {
+
+#include <mpi.h>
+
+namespace PIOL {
+namespace Comm {
 
 /*! @brief Set whether PIOL should manage MPI initialization / finalization.
  *      By default, PIOL will manage MPI if it calls MPI_Init, and it will call
@@ -26,41 +30,42 @@ void manageMPI(bool);
 
 /*! @brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.
  */
-class MPI : public Comm::Interface
-{
-    private :
-    MPI_Comm comm;      //!< The MPI communicator.
-    Log::Logger * log;  //!< For logging messages
+class MPI : public Comm::Interface {
+  private:
+    MPI_Comm comm;     //!< The MPI communicator.
+    Log::Logger* log;  //!< For logging messages
 
-    public :
+  public:
     /*! @brief The MPI-Communicator options structure.
      */
-    struct Opt
-    {
-        MPI_Comm comm = MPI_COMM_WORLD; //!< This variable defines the default MPI communicator.
+    struct Opt {
+        MPI_Comm comm =
+          MPI_COMM_WORLD;  //!< This variable defines the default MPI communicator.
     };
 
     /*! @brief The constructor.
      *  @param[in] log_ Pointer to log object
      *  @param[in] opt Any options for the communication layer.
      */
-    MPI(Log::Logger * log_, const MPI::Opt & opt);
+    MPI(Log::Logger* log_, const MPI::Opt& opt);
 
     /*! @brief Retrieve the MPI communicator associated with the ExSeisPIOL.
      *  @return The MPI communicator.
      */
     MPI_Comm getComm() const;
 
-    std::vector<float> gather(const std::vector<float> & in) const;
-    std::vector<double> gather(const std::vector<double> & in) const;
-    std::vector<llint> gather(const std::vector<llint> & in) const;
-    std::vector<size_t> gather(const std::vector<size_t> & in) const;
+    std::vector<float> gather(const std::vector<float>& in) const;
+    std::vector<double> gather(const std::vector<double>& in) const;
+    std::vector<llint> gather(const std::vector<llint>& in) const;
+    std::vector<size_t> gather(const std::vector<size_t>& in) const;
     size_t sum(size_t val);
     size_t max(size_t val);
     size_t min(size_t val);
     size_t offset(size_t val);
     void barrier(void) const;
 };
-}}
-#endif
 
+}  // namespace Comm
+}  // namespace PIOL
+
+#endif

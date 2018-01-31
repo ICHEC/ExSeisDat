@@ -9,5 +9,5 @@ namespace File {
     return mockGetMinMax;
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

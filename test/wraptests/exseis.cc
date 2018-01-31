@@ -37,4 +37,4 @@ void ExSeis::isErr(const std::string& msg) const
     mockExSeis().isErr(this, msg);
 }
 
-} // namespace PIOL
+}  // namespace PIOL

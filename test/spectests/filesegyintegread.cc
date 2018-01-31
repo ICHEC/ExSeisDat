@@ -2,7 +2,7 @@
 
 const size_t largens = 1000U;
 const size_t largent = 2000000U;
-const size_t bigtns = 32000U;
+const size_t bigtns  = 32000U;
 const size_t smallns = 261U;
 const size_t smallnt = 400U;
 
@@ -42,9 +42,9 @@ TEST_F(FileSEGYIntegRead, FileReadTraceWPrmSmall)
 
 TEST_F(FileSEGYIntegRead, FileReadRandomTraceSmall)
 {
-    nt = smallnt;
-    ns = smallns;
-    size_t size = nt;
+    nt           = smallnt;
+    ns           = smallns;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(smallSEGYFile);
     readRandomTraceTest<false, false>(size, offsets);
@@ -52,9 +52,9 @@ TEST_F(FileSEGYIntegRead, FileReadRandomTraceSmall)
 
 TEST_F(FileSEGYIntegRead, FileReadRandomTraceWPrmSmall)
 {
-    nt = smallnt;
-    ns = smallns;
-    size_t size = nt;
+    nt           = smallnt;
+    ns           = smallns;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(smallSEGYFile);
     readRandomTraceTest<true, false>(size, offsets);
@@ -78,9 +78,9 @@ TEST_F(FileSEGYIntegRead, FileReadTraceWPrmSmallOpts)
 
 TEST_F(FileSEGYIntegRead, FileReadRandomTraceSmallOpts)
 {
-    nt = smallnt;
-    ns = smallns;
-    size_t size = nt;
+    nt           = smallnt;
+    ns           = smallns;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(smallSEGYFile);
     readRandomTraceTest<false, false>(size, offsets);
@@ -88,9 +88,9 @@ TEST_F(FileSEGYIntegRead, FileReadRandomTraceSmallOpts)
 
 TEST_F(FileSEGYIntegRead, FileReadRandomTraceWPrmSmallOpts)
 {
-    nt = smallnt;
-    ns = smallns;
-    size_t size = nt;
+    nt           = smallnt;
+    ns           = smallns;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(smallSEGYFile);
     readRandomTraceTest<true, false>(size, offsets);
@@ -114,9 +114,9 @@ TEST_F(FileSEGYIntegRead, FileReadTraceWPrmBigNS)
 
 TEST_F(FileSEGYIntegRead, FileReadRandomTraceBigNS)
 {
-    nt = 200;
-    ns = bigtns;
-    size_t size = 2;
+    nt           = 200;
+    ns           = bigtns;
+    size_t size  = 2;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(bigTraceSEGYFile);
     readRandomTraceTest<false, false>(size, offsets);
@@ -124,9 +124,9 @@ TEST_F(FileSEGYIntegRead, FileReadRandomTraceBigNS)
 
 TEST_F(FileSEGYIntegRead, FileReadRandomTraceWPrmBigNS)
 {
-    nt = 200;
-    ns = bigtns;
-    size_t size = nt;
+    nt           = 200;
+    ns           = bigtns;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(bigTraceSEGYFile);
     readRandomTraceTest<true, false>(size, offsets);
@@ -166,9 +166,9 @@ TEST_F(FileSEGYIntegRead, FarmFileReadTraceWPrmBigNt)
 
 TEST_F(FileSEGYIntegRead, FarmFileReadRandomTraceBigNt)
 {
-    nt = largent;
-    ns = largens;
-    size_t size = nt/2;
+    nt           = largent;
+    ns           = largens;
+    size_t size  = nt / 2;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(largeSEGYFile);
     readRandomTraceTest<false, false>(size, offsets);
@@ -176,9 +176,9 @@ TEST_F(FileSEGYIntegRead, FarmFileReadRandomTraceBigNt)
 
 TEST_F(FileSEGYIntegRead, FarmFileReadRandomTraceWPrmBigNt)
 {
-    nt = largent;
-    ns = largens;
-    size_t size = nt/2;
+    nt           = largent;
+    ns           = largens;
+    size_t size  = nt / 2;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(largeSEGYFile);
     readRandomTraceTest<true, false>(size, offsets);
@@ -202,9 +202,9 @@ TEST_F(FileSEGYIntegRead, FileReadTraceWPrmZeroNt)
 
 TEST_F(FileSEGYIntegRead, FarmFileReadRandomTraceZeroNt)
 {
-    nt = 0U;
-    ns = largens;
-    size_t size = nt;
+    nt           = 0U;
+    ns           = largens;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(largeSEGYFile);
     readRandomTraceTest<false, false>(size, offsets);
@@ -212,11 +212,10 @@ TEST_F(FileSEGYIntegRead, FarmFileReadRandomTraceZeroNt)
 
 TEST_F(FileSEGYIntegRead, FarmFileReadRandomTraceWPrmZeroNt)
 {
-    nt = 0U;
-    ns = largens;
-    size_t size = nt;
+    nt           = 0U;
+    ns           = largens;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY<false>(largeSEGYFile);
     readRandomTraceTest<true, false>(size, offsets);
 }
-

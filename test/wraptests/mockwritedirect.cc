@@ -9,5 +9,5 @@ namespace File {
     return mockWriteDirect;
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

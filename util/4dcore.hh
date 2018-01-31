@@ -5,9 +5,14 @@
  *   @brief
  *   @details
  *//*******************************************************************************************/
+
 #include "4dio.hh"
+
 #include <cassert>
-namespace PIOL { namespace FOURD {
+
+namespace PIOL {
+namespace FOURD {
+
 /*! Error check the mpi error value.
  *  @param[in] err The mpi error value.
  */
@@ -31,7 +36,14 @@ inline void MPIErr(int err)
  *             away.
  *  @param[out] minrs The dsr value associated with the trace match in min.
  */
-extern void calc4DBin(ExSeisPIOL * piol, const fourd_t dsrmax, const Coords * coords1, const Coords * coords2,
-                                         const FourDOpt opt, vec<size_t> & min, vec<fourd_t> & minrs);
+void calc4DBin(
+  ExSeisPIOL* piol,
+  const fourd_t dsrmax,
+  const Coords* coords1,
+  const Coords* coords2,
+  const FourDOpt opt,
+  vec<size_t>& min,
+  vec<fourd_t>& minrs);
 
-}}
+}  // namespace FOURD
+}  // namespace PIOL

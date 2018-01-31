@@ -4,11 +4,14 @@
  *   @copyright TBD. Do not distribute
  *   @date May 2017
  *//*******************************************************************************************/
-
 #ifndef PIOLOPSTAPER_INCLUDE_GUARD
 #define PIOLOPSTAPER_INCLUDE_GUARD
+
 #include "global.hh"
-namespace PIOL { namespace File {
+
+namespace PIOL {
+namespace File {
+
 /******************************************** Core *********************************************/
 /*! Apply a taper to a set of traces.
  * @param[in] sz The number of traces
@@ -19,13 +22,22 @@ namespace PIOL { namespace File {
  * @param[in] nTailRt Length of right tail of taper
  * @return Vector of tapered traces
  */
-extern void taper(size_t sz, size_t ns, trace_t * trc, TaperFunc func, size_t nTailLft, size_t nTailRt);
+void taper(
+  size_t sz,
+  size_t ns,
+  trace_t* trc,
+  TaperFunc func,
+  size_t nTailLft,
+  size_t nTailRt);
 
 /******************************************** Non-core *********************************************/
 /*! Choose the window type for taper function
  *  @param[in] type The window type
  *  @return Return the appropriate taper function
  */
-extern TaperFunc getTap(TaperType type);
-}}
+TaperFunc getTap(TaperType type);
+
+}  // namespace File
+}  // namespace PIOL
+
 #endif

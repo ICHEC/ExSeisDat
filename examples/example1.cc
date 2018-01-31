@@ -6,24 +6,29 @@
  *   @brief This example shows how to make a new file with the file api
  *   is complete.
 *//*******************************************************************************************/
+
+#include "cppfileapi.hh"
 #include "sglobal.hh"
+
+#include <assert.h>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <iostream>
 #include <unistd.h>
-#include <assert.h>
-#include "cppfileapi.hh"
+
 using namespace PIOL;
-int main(int argc, char ** argv)
+
+int main(int argc, char** argv)
 {
-    std::string opt = "o:";  //TODO: uses a GNU extension
+    std::string opt  = "o:";  //TODO: uses a GNU extension
     std::string name = "";
-    for (int c = getopt(argc, argv, opt.c_str()); c != -1; c = getopt(argc, argv, opt.c_str()))
+    for (int c = getopt(argc, argv, opt.c_str()); c != -1;
+         c     = getopt(argc, argv, opt.c_str()))
         if (c == 'o')
             name = optarg;
-        else
-        {
-            std::cerr << "One of the command line arguments is invalid" << std::endl;
+        else {
+            std::cerr << "One of the command line arguments is invalid"
+                      << std::endl;
             return -1;
         }
     assert(name.size() > 0);
@@ -39,9 +44,9 @@ int main(int argc, char ** argv)
     //inc is the increment step between traces (microseconds)
     double inc = 4.0;
 
-    auto dec = decompose(nt, piol->getNumRank(), piol->getRank());
+    auto dec      = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.first;
-    size_t lnt = dec.second;
+    size_t lnt    = dec.second;
 
     //Write some header parameters
     file.writeNs(ns);
@@ -51,9 +56,8 @@ int main(int argc, char ** argv)
 
     //Set and write some trace parameters
     File::Param prm(lnt);
-    for (size_t j = 0; j < lnt; j++)
-    {
-        float k = offset+j;
+    for (size_t j = 0; j < lnt; j++) {
+        float k = offset + j;
         setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
         setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
         setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
@@ -62,15 +66,14 @@ int main(int argc, char ** argv)
         setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
         setPrm(j, PIOL_META_il, 2400 + k, &prm);
         setPrm(j, PIOL_META_xl, 1600 + k, &prm);
-        setPrm(j, PIOL_META_tn, offset+j, &prm);
+        setPrm(j, PIOL_META_tn, offset + j, &prm);
     }
     file.writeParam(offset, lnt, &prm);
 
     //Set and write some traces
-    std::vector<float> trc(lnt*ns);
-    for (size_t j = 0; j < lnt*ns; j++)
-        trc[j] = float(offset*ns+j);
+    std::vector<float> trc(lnt * ns);
+    for (size_t j = 0; j < lnt * ns; j++)
+        trc[j] = float(offset * ns + j);
     file.writeTrace(offset, lnt, trc.data());
     return 0;
 }
-

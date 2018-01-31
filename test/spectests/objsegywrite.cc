@@ -1,4 +1,5 @@
 #include "objsegytest.hh"
+
 TEST_F(ObjSpecTest, SEGYHOWrite1)
 {
     writeHOPattern(0, 107);
@@ -105,4 +106,3 @@ TEST_F(ObjSpecTest, FarmSEGYRandomBigWrite)
     writeRandomTest<Block::DODF>(5000U, vec);
     writeRandomTest<Block::DO>(5000U, vec);
 }
-

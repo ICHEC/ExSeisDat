@@ -16,8 +16,8 @@
 //
 #ifdef __cplusplus
 namespace PIOL {
-    class Set;
-}
+class Set;
+}  // namespace PIOL
 typedef PIOL::Set PIOL_Set;
 #else
 // Forward declare an opaque struct in C
@@ -27,8 +27,7 @@ typedef struct PIOL_Set PIOL_Set;
 
 #ifdef __cplusplus
 // Everything from here on is C API functions needing C linkage.
-extern "C"
-{
+extern "C" {
 #endif
 
 
@@ -36,7 +35,7 @@ extern "C"
  *  @param[in] piol The PIOL handle
  *  @param[in] pattern The file-matching pattern
  */
-PIOL_Set* PIOL_Set_new(const PIOL_ExSeis* piol, const char * ptrn);
+PIOL_Set* PIOL_Set_new(const PIOL_ExSeis* piol, const char* ptrn);
 
 /*! Free (deinit) the set.
  *  @param[in,out] s The set handle
@@ -52,8 +51,7 @@ void PIOL_Set_delete(PIOL_Set* set);
  *  and their respective trace numbers.
  */
 void PIOL_Set_getMinMax(
-    PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem * minmax
-);
+  PIOL_Set* set, PIOL_Meta m1, PIOL_Meta m2, struct PIOL_CoordElem* minmax);
 
 /*! Sort the set by the specified sort type.
  *  @param[in,out] s The set handle
@@ -66,9 +64,8 @@ void PIOL_Set_sort(PIOL_Set* set, PIOL_SortType type);
  *  @param[in] func The custom comparison function to sort set
  */
 void PIOL_Set_sort_fn(
-    PIOL_Set* set,
-    bool (* func)(const PIOL_File_Param* param, size_t i, size_t j)
-);
+  PIOL_Set* set,
+  bool (*func)(const PIOL_File_Param* param, size_t i, size_t j));
 
 /*! Preform tailed taper on a set of traces
  * @param[in,out] s A handle for the set
@@ -77,20 +74,19 @@ void PIOL_Set_sort_fn(
  * @param[in] ntpend The length of right-tail taper ramp (pass 0 for no ramp).
  */
 void PIOL_Set_taper(
-    PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend
-);
+  PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend);
 
 /*! Output using the given output prefix
  *  @param[in,out] s The set handle
  *  @param[in] oname The output prefix
  */
-void PIOL_Set_output(PIOL_Set* set, const char * oname);
+void PIOL_Set_output(PIOL_Set* set, const char* oname);
 
 /*! Set the text-header of the output
  *  @param[in,out] s The set handle
  *  @param[in] outmsg The output message
  */
-void PIOL_Set_text(PIOL_Set* set, const char * outmsg);
+void PIOL_Set_text(PIOL_Set* set, const char* outmsg);
 
 /*! Summarise the current status by whatever means the PIOL instrinsically supports
  *  @param[in] s The set handle
@@ -101,7 +97,7 @@ void PIOL_Set_summary(const PIOL_Set* set);
  *  @param[in,out] s The set handle
  *  @param[in] name The input name
  */
-void PIOL_Set_add(PIOL_Set* set, const char * name);
+void PIOL_Set_add(PIOL_Set* set, const char* name);
 
 /*! Scale traces using automatic gain control for visualization
  * @param[in,out] s The set handle
@@ -109,9 +105,11 @@ void PIOL_Set_add(PIOL_Set* set, const char * name);
  * @param[in] window Length of the agc window
  * @param[in] normR Normalization value
  */
-void PIOL_Set_AGC(PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR);
+void PIOL_Set_AGC(
+  PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif
+
 #endif

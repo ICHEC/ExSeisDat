@@ -1,4 +1,5 @@
 #include "objsegytest.hh"
+
 TEST_F(ObjIntegTest, SEGYHOWrite1)
 {
     makeRealSEGY<true>(tempFile);
@@ -119,4 +120,3 @@ TEST_F(ObjIntegTest, FarmSEGYRandomBigWrite)
     writeRandomTest<Block::DODF, false>(5000U, vec);
     writeRandomTest<Block::DO, false>(5000U, vec);
 }
-

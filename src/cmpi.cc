@@ -6,11 +6,13 @@
  *   @brief
  *   @details
  *//*******************************************************************************************/
-#include "global.hh"
-#include "anc/mpi.hh"
-#include "share/mpi.hh"
-namespace PIOL { namespace Comm {
 
+#include "anc/mpi.hh"
+#include "global.hh"
+#include "share/mpi.hh"
+
+namespace PIOL {
+namespace Comm {
 
 // We define functions and classes to delegate initialization and finalization
 // if MPI to initialization and destruction of function-local static variables.
@@ -19,17 +21,16 @@ namespace PIOL { namespace Comm {
 //
 // We also allow the user to circumvent this behaviour with a global variable,
 // set by calling manageMPI(bool).
+
 namespace {
 
-enum class ManagingMPI
-{
-    unset, yes, no
-};
+enum class ManagingMPI { unset, yes, no };
 
 // A static variable tracking whether we're managing MPI or not.
 // By default it's "unset", but after MPIManager() is called, it will definitely
 // be set.
-ManagingMPI& managingMPI() {
+ManagingMPI& managingMPI()
+{
     static auto managingMPI = ManagingMPI::unset;
     return managingMPI;
 }
@@ -41,14 +42,13 @@ ManagingMPI& managingMPI() {
 ///     from main, or when std::exit() is called.
 ///     It uses the managingMPI() static variable to track management, which
 ///     users can explicitly set using the manageMPI(bool) function.
-struct MPIManager
-{
+struct MPIManager {
     /// @brief Initialize MPI if it hasn't been already, and we're responsible
     ///     for it.
     MPIManager()
     {
         // If we're not managing MPI, just do nothing.
-        if(managingMPI() == ManagingMPI::no) return;
+        if (managingMPI() == ManagingMPI::no) return;
 
         int initialized = 0;
         MPI_Initialized(&initialized);
@@ -56,15 +56,12 @@ struct MPIManager
         if (!initialized) MPI_Init(NULL, NULL);
 
         // Set managingMPI value if the user hasn't already
-        if(managingMPI() == ManagingMPI::unset)
-        {
-            if(initialized)
-            {
+        if (managingMPI() == ManagingMPI::unset) {
+            if (initialized) {
                 // MPI was already initialized
                 managingMPI() = ManagingMPI::no;
             }
-            else
-            {
+            else {
                 // We initialized MPI
                 managingMPI() = ManagingMPI::yes;
             }
@@ -74,19 +71,16 @@ struct MPIManager
     /// @brief Finalize MPI if we're responsible for it.
     ~MPIManager()
     {
-        if (managingMPI() == ManagingMPI::yes)
-        {
+        if (managingMPI() == ManagingMPI::yes) {
             int finalized = false;
             MPI_Finalized(&finalized);
 
-            if(!finalized)
-            {
+            if (!finalized) {
                 MPI_Finalize();
             }
         }
     }
 };
-
 
 
 /// @brief A static instance of MPIManager so the destructor, and MPI_Finalize
@@ -99,24 +93,21 @@ MPIManager& MPIManagerInstance()
     return MPIManagerInstance;
 }
 
-} // namespace
-
+}  // namespace
 
 
 void manageMPI(bool manage)
 {
-    if(manage)
-    {
+    if (manage) {
         managingMPI() = ManagingMPI::yes;
     }
-    else
-    {
+    else {
         managingMPI() = ManagingMPI::no;
     }
 }
 
 
-MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), log(log_)
+MPI::MPI(Log::Logger* log_, const MPI::Opt& opt) : comm(opt.comm), log(log_)
 {
     // Initialize MPI and set up MPI_Finalize to be called at program close.
     MPIManager& mpi_manager = MPIManagerInstance();
@@ -126,7 +117,7 @@ MPI::MPI(Log::Logger * log_, const MPI::Opt & opt) : comm(opt.comm), log(log_)
     int inumRank;
     MPI_Comm_rank(comm, &irank);
     MPI_Comm_size(comm, &inumRank);
-    rank = irank;
+    rank    = irank;
     numRank = inumRank;
 }
 
@@ -144,11 +135,14 @@ MPI_Comm MPI::getComm() const
  * @param[in] in The local value to use in the gather
  * @return Return a vector where the nth element is the value from the nth rank.
  */
-template <typename T>
-std::vector<T> MPIGather(Log::Logger * log, const MPI * mpi, const std::vector<T> & in)
+template<typename T>
+std::vector<T> MPIGather(
+  Log::Logger* log, const MPI* mpi, const std::vector<T>& in)
 {
     std::vector<T> arr(mpi->getNumRank() * in.size());
-    int err = MPI_Allgather(in.data(), in.size(), MPIType<T>(), arr.data(), in.size(), MPIType<T>(), mpi->getComm());
+    int err = MPI_Allgather(
+      in.data(), in.size(), MPIType<T>(), arr.data(), in.size(), MPIType<T>(),
+      mpi->getComm());
     printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Allgather failure");
     return arr;
 }
@@ -161,8 +155,8 @@ std::vector<T> MPIGather(Log::Logger * log, const MPI * mpi, const std::vector<T
  *  @param[in] op The operation
  *  @return Return the result of the reduce operation
  */
-template <typename T>
-T getMPIOp(Log::Logger * log, const MPI * mpi, T val, MPI_Op op)
+template<typename T>
+T getMPIOp(Log::Logger* log, const MPI* mpi, T val, MPI_Op op)
 {
     T result = 0;
     int err = MPI_Allreduce(&val, &result, 1, MPIType<T>(), op, mpi->getComm());
@@ -192,22 +186,22 @@ size_t MPI::offset(size_t val)
     return (!rank ? 0LU : offset);
 }
 
-std::vector<llint> MPI::gather(const std::vector<llint> & in) const
+std::vector<llint> MPI::gather(const std::vector<llint>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-std::vector<size_t> MPI::gather(const std::vector<size_t> & in) const
+std::vector<size_t> MPI::gather(const std::vector<size_t>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-std::vector<float> MPI::gather(const std::vector<float> & in) const
+std::vector<float> MPI::gather(const std::vector<float>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-std::vector<double> MPI::gather(const std::vector<double> & in) const
+std::vector<double> MPI::gather(const std::vector<double>& in) const
 {
     return MPIGather(log, this, in);
 }
@@ -216,4 +210,6 @@ void MPI::barrier(void) const
 {
     MPI_Barrier(comm);
 }
-}}
+
+}  // namespace Comm
+}  // namespace PIOL

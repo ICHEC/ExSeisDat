@@ -8,28 +8,29 @@
 #ifndef PIOLPIOL_INCLUDE_GUARD
 #define PIOLPIOL_INCLUDE_GUARD
 
-#include <memory>
-#include "anc/log.hh"
 #include "anc/comm.hh"
+#include "anc/log.hh"
 #include "anc/mpi.hh"
+
+#include <memory>
 
 namespace PIOL {
 
 /*! @brief The ExSeisPIOL structure. A single instance of this structure should be created and
  *         passed to each subsequent PIOL object which is created.
  */
-class ExSeisPIOL
-{
+class ExSeisPIOL {
 
-    protected:
+  protected:
     /*! Constructor which initialized the logging level and MPI.
      *  @param[in] copt An options structure for MPI
      *  @param[in] maxLevel The maximum log level to be recorded.
      */
-    ExSeisPIOL(const Verbosity maxLevel = PIOL_VERBOSITY_NONE, const Comm::MPI::Opt & copt = Comm::MPI::Opt());
+    ExSeisPIOL(
+      const Verbosity maxLevel   = PIOL_VERBOSITY_NONE,
+      const Comm::MPI::Opt& copt = Comm::MPI::Opt());
 
-    public :
-
+  public:
     std::unique_ptr<Log::Logger> log;       //!< The ExSeisPIOL logger
     std::unique_ptr<Comm::Interface> comm;  //!< The ExSeisPIOL communication
 
@@ -40,5 +41,6 @@ class ExSeisPIOL
     void isErr(const std::string& msg = "") const;
 };
 
-} // namespace PIOL
-#endif // PIOLPIOL_INCLUDE_GUARD
+}  // namespace PIOL
+
+#endif  // PIOLPIOL_INCLUDE_GUARD

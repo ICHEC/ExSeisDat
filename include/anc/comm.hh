@@ -12,18 +12,23 @@
  *//*******************************************************************************************/
 #ifndef PIOLANCCOMM_INCLUDE_GUARD
 #define PIOLANCCOMM_INCLUDE_GUARD
+
 #include "global.hh"
-namespace PIOL { namespace Comm {
+
+namespace PIOL {
+namespace Comm {
+
 /*! @brief The Communication layer interface. Specific communication implementations
  *  work off this base class.
  */
-class Interface
-{
-    protected :
-    size_t rank;            //!< A number in the sequence from 0 to some maximum (numRank-1) which indicates the process number.
-    size_t numRank;         //!< The total number of processes which are executing together.
+class Interface {
+  protected:
+    size_t
+      rank;  //!< A number in the sequence from 0 to some maximum (numRank-1) which indicates the process number.
+    size_t
+      numRank;  //!< The total number of processes which are executing together.
 
-    public :
+  public:
     /*! @brief A virtual destructor to allow deletion.
      */
     virtual ~Interface(void) = default;
@@ -31,47 +36,43 @@ class Interface
     /*! @brief Returns the rank of the process executing the function/
      *  @return The rank.
      */
-    virtual size_t getRank() const
-    {
-        return rank;
-    }
+    virtual size_t getRank() const { return rank; }
     /*! @brief Returns the number of processes which are executing together.
      *  @return The number of processes (i.e number of ranks).
      */
-    virtual size_t getNumRank() const
-    {
-        return numRank;
-    }
+    virtual size_t getNumRank() const { return numRank; }
 
     /*! @brief Pass a vector of double and return the corresponding values to each process
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<double> gather(const std::vector<double> & val) const = 0;
+    virtual std::vector<double> gather(
+      const std::vector<double>& val) const = 0;
 
     /*! @brief Pass a vector of double and return the corresponding values to each process
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<float> gather(const std::vector<float> & val) const = 0;
+    virtual std::vector<float> gather(const std::vector<float>& val) const = 0;
 
     /*! @brief Pass a vector of llint and return the corresponding values to each process
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<llint> gather(const std::vector<llint> & val) const = 0;
+    virtual std::vector<llint> gather(const std::vector<llint>& val) const = 0;
 
     /*! @brief Pass a vector of size_t and return the corresponding values to each process
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth rank.
      */
-    virtual std::vector<size_t> gather(const std::vector<size_t> & val) const = 0;
+    virtual std::vector<size_t> gather(
+      const std::vector<size_t>& val) const = 0;
 
     /*! @brief Pass a value and return the corresponding values to each process
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth rank.
      */
-    template <class T>
+    template<class T>
     std::vector<T> gather(T val) const
     {
         return gather(std::vector<T>{val});
@@ -103,7 +104,11 @@ class Interface
 
     /*! @brief A barrier between all processes which are members of the communication collective.
      */
-    virtual void barrier(void) const = 0;    //!< Implementations of this pure virtual function will perform a collective wait.
+    virtual void barrier(void)
+      const = 0;  //!< Implementations of this pure virtual function will perform a collective wait.
 };
-}}
+
+}  // namespace Comm
+}  // namespace PIOL
+
 #endif

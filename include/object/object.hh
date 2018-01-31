@@ -9,45 +9,48 @@
 *//*******************************************************************************************/
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
-#include "global.hh"
-#include "anc/piol.hh"
 
-namespace PIOL { namespace Obj {
+#include "anc/piol.hh"
+#include "global.hh"
+
+namespace PIOL {
+namespace Obj {
+
 /*! @brief The Obj layer interface. Specific Obj implementations
  *  work off this base class.
  */
-class Interface
-{
-    protected :
-    std::shared_ptr<ExSeisPIOL> piol_;       //!< Pointer to the PIOL object.
-    std::string name_;                       //!< Store the file name for debugging purposes.
-    std::shared_ptr<Data::Interface> data_;  //!< Pointer to the Data layer object (polymorphic).
+class Interface {
+  protected:
+    std::shared_ptr<ExSeisPIOL> piol_;  //!< Pointer to the PIOL object.
+    std::string name_;  //!< Store the file name for debugging purposes.
+    std::shared_ptr<Data::Interface>
+      data_;  //!< Pointer to the Data layer object (polymorphic).
 
-    public :
+  public:
     /*! @brief The constructor.
      *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] data_ Pointer to the Data layer object (polymorphic).
      */
-    Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name, std::shared_ptr<Data::Interface> data) : piol_(piol), name_(name), data_(data)
+    Interface(
+      std::shared_ptr<ExSeisPIOL> piol,
+      const std::string name,
+      std::shared_ptr<Data::Interface> data) :
+        piol_(piol),
+        name_(name),
+        data_(data)
     {
     }
 
     /*! @brief A virtual destructor to allow deletion.
      */
-    virtual ~Interface(void) { }
+    virtual ~Interface(void) {}
 
-    virtual std::shared_ptr<ExSeisPIOL> piol() {
-        return piol_;
-    }
+    virtual std::shared_ptr<ExSeisPIOL> piol() { return piol_; }
 
-    virtual std::string name() {
-        return name_;
-    }
+    virtual std::string name() { return name_; }
 
-    virtual std::shared_ptr<Data::Interface> data() {
-        return data_;
-    }
+    virtual std::shared_ptr<Data::Interface> data() { return data_; }
 
     /*! @brief Find out the file size.
      *  @return The file size in bytes.
@@ -63,12 +66,12 @@ class Interface
      *  @param[out] ho An array which the caller guarantees is long enough
      *  to hold the header object.
      */
-    virtual void readHO(uchar * ho) const = 0;
+    virtual void readHO(uchar* ho) const = 0;
 
     /*! @brief Write the header object.
      *  @param[in] ho An array which the caller guarantees is long enough to hold the header object.
      */
-    virtual void writeHO(const uchar * ho) const = 0;
+    virtual void writeHO(const uchar* ho) const = 0;
 
     /*! @brief Read a sequence of DOMDs.
      *  @param[in] offset The starting data-object we are interested in.
@@ -77,7 +80,11 @@ class Interface
      *  @param[out] md An array which the caller guarantees is long enough for
      *  the DO metadata.
      */
-    virtual void readDOMD(const size_t offset, const size_t ns, const size_t sz, uchar * md) const = 0;
+    virtual void readDOMD(
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      uchar* md) const = 0;
 
     /*! @brief Write the data-object metadata.
      *  @param[in] offset The starting data-object we are interested in.
@@ -86,7 +93,11 @@ class Interface
      *  @param[in] md An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void writeDOMD(const size_t offset, const size_t ns, const size_t sz, const uchar * md) const = 0;
+    virtual void writeDOMD(
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      const uchar* md) const = 0;
 
     /*! @brief Read a sequence of data-fields.
      *  @param[in] offset The starting data-object we are interested in.
@@ -95,7 +106,11 @@ class Interface
      *  @param[out] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void readDODF(const size_t offset, const size_t ns, const size_t sz, uchar * df) const = 0;
+    virtual void readDODF(
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      uchar* df) const = 0;
 
     /*! @brief Write a sequence of data-fields.
      *  @param[in] offset The starting data-object we are interested in.
@@ -104,7 +119,11 @@ class Interface
      *  @param[in] df An array which the caller guarantees is long enough for
      *  the data-field.
      */
-    virtual void writeDODF(const size_t offset, const size_t ns, const size_t sz, const uchar * df) const = 0;
+    virtual void writeDODF(
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      const uchar* df) const = 0;
 
     /*! @brief Read a sequence of data-objects.
      *  @param[in] offset The starting data-object we are interested in.
@@ -113,7 +132,11 @@ class Interface
      *  @param[out] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void readDO(const size_t offset, const size_t ns, const size_t sz, uchar * d) const = 0;
+    virtual void readDO(
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      uchar* d) const = 0;
 
     /*! @brief Write a sequence of data-objects.
      *  @param[in] offset The starting data-object we are interested in.
@@ -122,7 +145,11 @@ class Interface
      *  @param[in] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void writeDO(const size_t offset, const size_t ns, const size_t sz, const uchar * d) const = 0;
+    virtual void writeDO(
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      const uchar* d) const = 0;
 
     /*! @brief Read a list of data-objects.
      *  @param[in] offset An array of the starting data-objects we are interested in
@@ -131,7 +158,11 @@ class Interface
      *  @param[out] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void readDO(const size_t * offset, const size_t ns, const size_t sz, uchar * d) const = 0;
+    virtual void readDO(
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      uchar* d) const = 0;
 
     /*! @brief Write a list of data-objects.
      *  @param[in] ns The number of elements per data field.
@@ -140,7 +171,11 @@ class Interface
      *  @param[in] d An array which the caller guarantees is long enough for
      *  the data-objects.
      */
-    virtual void writeDO(const size_t * offset, const size_t ns, const size_t sz, const uchar * d) const = 0;
+    virtual void writeDO(
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      const uchar* d) const = 0;
 
     /*! @brief read a list of data-object metadata blocks.
      *  @param[in] offset an array of the starting data-objects we are interested in
@@ -149,7 +184,11 @@ class Interface
      *  @param[out] md an array which the caller guarantees is long enough for
      *  the metadata blocks.
      */
-    virtual void readDOMD(const size_t * offset, const size_t ns, const size_t sz, uchar * md) const = 0;
+    virtual void readDOMD(
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      uchar* md) const = 0;
 
     /*! @brief Write a list of data-object metadata blocks.
      *  @param[in] offset An array of the starting data-object we are interested in.
@@ -158,7 +197,11 @@ class Interface
      *  @param[in] md An array which the caller guarantees is long enough for
      *  the metadata blocks.
      */
-    virtual void writeDOMD(const size_t * offset, const size_t ns, const size_t sz, const uchar * md) const = 0;
+    virtual void writeDOMD(
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      const uchar* md) const = 0;
 
     /*! @brief Read a list of data-fields.
      *  @param[in] offset An array of the starting data-objects we are interested in
@@ -167,7 +210,11 @@ class Interface
      *  @param[out] df An array which the caller guarantees is long enough for
      *  the data-fields.
      */
-    virtual void readDODF(const size_t * offset, const size_t ns, const size_t sz, uchar * df) const = 0;
+    virtual void readDODF(
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      uchar* df) const = 0;
 
     /*! @brief Write a list of data-fields
      *  @param[in] offset An array of the starting data-object we are interested in.
@@ -176,7 +223,14 @@ class Interface
      *  @param[in] df An array which the caller guarantees is long enough for
      *  the data-fields.
      */
-    virtual void writeDODF(const size_t * offset, const size_t ns, const size_t sz, const uchar * df) const = 0;
+    virtual void writeDODF(
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      const uchar* df) const = 0;
 };
-}}
+
+}  // namespace Obj
+}  // namespace PIOL
+
 #endif

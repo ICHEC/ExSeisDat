@@ -5,8 +5,7 @@
 #include <memory>
 
 void test_PIOL_File_getMinMax(
-    std::shared_ptr<PIOL::ExSeis*> piol,
-    std::shared_ptr<PIOL::File::Param*> param
-);
+  std::shared_ptr<PIOL::ExSeis*> piol,
+  std::shared_ptr<PIOL::File::Param*> param);
 
-#endif // PIOLWRAPTESTSGETMINMAX_INCLUDE_GUARD
+#endif  // PIOLWRAPTESTSGETMINMAX_INCLUDE_GUARD

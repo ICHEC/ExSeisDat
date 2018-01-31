@@ -78,10 +78,10 @@ size_t Rule::paramMem() const
     return mockRule().paramMem(this);
 }
 
-RuleEntry * Rule::getEntry(Meta entry)
+RuleEntry* Rule::getEntry(Meta entry)
 {
     return mockRule().getEntry(this, entry);
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

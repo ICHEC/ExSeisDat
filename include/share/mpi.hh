@@ -8,13 +8,16 @@
  *//*******************************************************************************************/
 #ifndef PIOLSHAREDMPI_INCLUDE_GUARD
 #define PIOLSHAREDMPI_INCLUDE_GUARD
+
+#include "anc/log.hh"
+#include "global.hh"
+
 #include <limits>
 #include <mpi.h>
 #include <typeinfo>
-#include "global.hh"
-#include "anc/log.hh"
 
 namespace PIOL {
+
 /*! @brief Check the MPI error code and log an error event if there is an error.
  *  @param[in,out] log  The log object
  *  @param[in] file The related file. Use "" if the option is not applicable.
@@ -26,54 +29,96 @@ namespace PIOL {
  *  The side-effect of the function is to log an item with \c piol if there is an error
  *  otherwise no side-effect occurs. The function always returns.
  */
-extern void printErr(Log::Logger * log, const std::string file, const Log::Layer layer, const int err,
-                                        const MPI_Status * stat, std::string msg);
+void printErr(
+  Log::Logger* log,
+  const std::string file,
+  const Log::Layer layer,
+  const int err,
+  const MPI_Status* stat,
+  std::string msg);
 
 /*! @brief Return the fundamental MPI datatype associated with a fundamental datatype.
  *  @return The datatype.
  *  @tparam T The C++ datatype
  */
-template <typename T>
-constexpr MPI_Datatype MPIType() {
+template<typename T>
+constexpr MPI_Datatype MPIType()
+{
     static_assert(sizeof(T) == 0, "Unknown MPI type!");
     return MPI_BYTE;
 }
 
 template<>
-constexpr MPI_Datatype MPIType<double>() { return MPI_DOUBLE; }
+constexpr MPI_Datatype MPIType<double>()
+{
+    return MPI_DOUBLE;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<long double>() { return MPI_LONG_DOUBLE; }
+constexpr MPI_Datatype MPIType<long double>()
+{
+    return MPI_LONG_DOUBLE;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<char>() { return MPI_CHAR; }
+constexpr MPI_Datatype MPIType<char>()
+{
+    return MPI_CHAR;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<unsigned char>() { return MPI_UNSIGNED_CHAR; }
+constexpr MPI_Datatype MPIType<unsigned char>()
+{
+    return MPI_UNSIGNED_CHAR;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<int>() { return MPI_INT; }
+constexpr MPI_Datatype MPIType<int>()
+{
+    return MPI_INT;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<long int>() { return MPI_LONG; }
+constexpr MPI_Datatype MPIType<long int>()
+{
+    return MPI_LONG;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<unsigned long int>() { return MPI_UNSIGNED_LONG; }
+constexpr MPI_Datatype MPIType<unsigned long int>()
+{
+    return MPI_UNSIGNED_LONG;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<unsigned int>() { return MPI_UNSIGNED; }
+constexpr MPI_Datatype MPIType<unsigned int>()
+{
+    return MPI_UNSIGNED;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<long long int>() { return MPI_LONG_LONG_INT; }
+constexpr MPI_Datatype MPIType<long long int>()
+{
+    return MPI_LONG_LONG_INT;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<float>() { return MPI_FLOAT; }
+constexpr MPI_Datatype MPIType<float>()
+{
+    return MPI_FLOAT;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<signed short>() { return MPI_SHORT; }
+constexpr MPI_Datatype MPIType<signed short>()
+{
+    return MPI_SHORT;
+}
 
 template<>
-constexpr MPI_Datatype MPIType<unsigned short>() { return MPI_UNSIGNED_SHORT; }
+constexpr MPI_Datatype MPIType<unsigned short>()
+{
+    return MPI_UNSIGNED_SHORT;
+}
 
 
 /*! @brief Return the known limit for Intel MPI on Fionn for a type of the given size
@@ -91,7 +136,7 @@ inline size_t getLimSz(size_t sz)
  *  @tparam T The type one wishes to find the limit for
  *  @return The size in counts
  */
-template <typename T>
+template<typename T>
 constexpr size_t getLim()
 {
     //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
@@ -100,5 +145,7 @@ constexpr size_t getLim()
     //return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
     return getLimSz(sizeof(T));
 }
-}
+
+}  // namespace PIOL
+
 #endif

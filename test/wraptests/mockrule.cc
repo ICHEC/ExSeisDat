@@ -9,5 +9,5 @@ namespace File {
     return mockRule;
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

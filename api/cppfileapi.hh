@@ -8,24 +8,26 @@
  *//*******************************************************************************************/
 #ifndef PIOLCPPFILEAPI_INCLUDE_GUARD
 #define PIOLCPPFILEAPI_INCLUDE_GUARD
-#include "global.hh"
-#include "file/file.hh"
+
 #include "file/dynsegymd.hh"
+#include "file/file.hh"
+#include "global.hh"
 
 
 namespace PIOL {
+
 /*! This class provides access to the ExSeisPIOL class but with a simpler API
  */
-class ExSeis: public ExSeisPIOL
-{
-    public :
+class ExSeis : public ExSeisPIOL {
+  public:
     /*! Constructor with optional maxLevel and which initialises MPI.
      *  @param[in] comm The MPI communicator
      *  @param[in] maxLevel The maximum log level to be recorded.
      */
     static std::shared_ptr<ExSeis> New(
-        const Verbosity maxLevel = PIOL_VERBOSITY_NONE, MPI_Comm comm = MPI_COMM_WORLD
-    ) {
+      const Verbosity maxLevel = PIOL_VERBOSITY_NONE,
+      MPI_Comm comm            = MPI_COMM_WORLD)
+    {
         return std::shared_ptr<ExSeis>(new ExSeis(maxLevel, comm));
     }
 
@@ -59,21 +61,24 @@ class ExSeis: public ExSeisPIOL
      */
     void isErr(const std::string& msg = "") const;
 
-    private:
+  private:
     // The constructor is private! Use the ExSeis::New(...) function.
-    ExSeis(const Verbosity maxLevel = PIOL_VERBOSITY_NONE, MPI_Comm comm = MPI_COMM_WORLD);
+    ExSeis(
+      const Verbosity maxLevel = PIOL_VERBOSITY_NONE,
+      MPI_Comm comm            = MPI_COMM_WORLD);
 };
 
 
 namespace File {
+
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
-class ReadDirect
-{
-    protected :
-    std::shared_ptr<ReadInterface> file;      //!< The pointer to the base class (polymorphic)
+class ReadDirect {
+  protected:
+    std::shared_ptr<ReadInterface>
+      file;  //!< The pointer to the base class (polymorphic)
 
-    public :
+  public:
     /*! Constructor with options.
      *  @tparam D The nested options structure of interest for the data layer.
      *  @tparam O The nested options structure of interest for the object layer.
@@ -84,15 +89,24 @@ class ReadDirect
      *  @param[in] o The Object options.
      *  @param[in] f The File options.
      */
-    template <class F, class O, class D>
-    ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name, const D & d, const O & o, const F & f)
+    template<class F, class O, class D>
+    ReadDirect(
+      std::shared_ptr<ExSeisPIOL> piol,
+      const std::string name,
+      const D& d,
+      const O& o,
+      const F& f)
     {
-        auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
-        auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Read);
+        auto data =
+          std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
+        auto obj = std::make_shared<typename O::Type>(
+          piol, name, o, data, FileMode::Read);
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
         if (!file)
-            piol->log->record(name, Log::Layer::API, Log::Status::Error,
-            "ReadInterface creation failure in ReadDirect<F,O,D>()", PIOL_VERBOSITY_NONE);
+            piol->log->record(
+              name, Log::Layer::API, Log::Status::Error,
+              "ReadInterface creation failure in ReadDirect<F,O,D>()",
+              PIOL_VERBOSITY_NONE);
     }
 
     /*! Constructor without options.
@@ -115,23 +129,17 @@ class ReadDirect
     /*! Overload of member of pointer access
      *  @return Return the base File layer class Interface.
      */
-    ReadInterface * operator->() const
-    {
-        return file.get();
-    }
+    ReadInterface* operator->() const { return file.get(); }
 
     /*! Operator to convert to an Interface object.
      *  @return Return the internal \c Interface pointer.
      */
-    operator ReadInterface * () const
-    {
-        return file.get();
-    }
+    operator ReadInterface*() const { return file.get(); }
 
     /*! @brief Read the human readable text from the file.
      *  @return A string containing the text (in ASCII format).
      */
-    const std::string & readText(void) const;
+    const std::string& readText(void) const;
 
     /*! @brief Read the number of samples per trace
      *  @return The number of samples per trace
@@ -156,7 +164,11 @@ class ReadDirect
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTrace(const size_t offset, const size_t sz, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTrace(
+      const size_t offset,
+      const size_t sz,
+      trace_t* trace,
+      Param* prm = PIOL_PARAM_NULL) const;
 
     /*! @brief Function to read the trace parameters from offset to offset+sz of the respective
      *  trace headers.
@@ -164,9 +176,9 @@ class ReadDirect
      *  @param[in] sz The number of traces to process.
      *  @param[out] prm The parameter structure
      */
-    void readParam(const size_t offset, const size_t sz, Param * prm) const;
+    void readParam(const size_t offset, const size_t sz, Param* prm) const;
 
-     /*! @brief Read the traces specified by the offsets in the passed offset array.
+    /*! @brief Read the traces specified by the offsets in the passed offset array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read.
      *  @param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
@@ -174,26 +186,35 @@ class ReadDirect
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
-    void readTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTraceNonContiguous(
+      const size_t sz,
+      const size_t* offset,
+      trace_t* trace,
+      Param* prm = PIOL_PARAM_NULL) const;
 
-    void readTraceNonMonotonic(const size_t sz, const size_t * offset, trace_t * trace, Param * prm = PIOL_PARAM_NULL) const;
+    void readTraceNonMonotonic(
+      const size_t sz,
+      const size_t* offset,
+      trace_t* trace,
+      Param* prm = PIOL_PARAM_NULL) const;
 
     /*! @brief Read the traces specified by the offsets in the passed offset array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read.
      *  @param[out] prm The parameter structure
      */
-    void readParamNonContiguous(const size_t sz, const size_t * offset, Param * prm) const;
+    void readParamNonContiguous(
+      const size_t sz, const size_t* offset, Param* prm) const;
 };
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
  */
-class WriteDirect
-{
-    protected :
-    std::shared_ptr<WriteInterface> file;      //!< The pointer to the base class (polymorphic)
+class WriteDirect {
+  protected:
+    std::shared_ptr<WriteInterface>
+      file;  //!< The pointer to the base class (polymorphic)
 
-    public :
+  public:
     /*! Constructor with options.
      *  @tparam D The nested options structure of interest for the data layer.
      *  @tparam O The nested options structure of interest for the object layer.
@@ -204,15 +225,24 @@ class WriteDirect
      *  @param[in] o The Object options.
      *  @param[in] f The File options.
      */
-    template <class D, class O, class F>
-    WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name, const D & d, const O & o, const F & f)
+    template<class D, class O, class F>
+    WriteDirect(
+      std::shared_ptr<ExSeisPIOL> piol,
+      const std::string name,
+      const D& d,
+      const O& o,
+      const F& f)
     {
-        auto data = std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
-        auto obj = std::make_shared<typename O::Type>(piol, name, o, data, FileMode::Write);
+        auto data =
+          std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
+        auto obj = std::make_shared<typename O::Type>(
+          piol, name, o, data, FileMode::Write);
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
         if (!file)
-            piol->log->record(name, Log::Layer::API, Log::Status::Error,
-                              "WriteInterface creation failure in WriteDirect<F,O,D>()", PIOL_VERBOSITY_NONE);
+            piol->log->record(
+              name, Log::Layer::API, Log::Status::Error,
+              "WriteInterface creation failure in WriteDirect<F,O,D>()",
+              PIOL_VERBOSITY_NONE);
     }
 
     /*! Constructor without options.
@@ -233,18 +263,12 @@ class WriteDirect
     /*! Overload of member of pointer access
      *  @return Return the base File layer class Interface.
      */
-    WriteInterface& operator->() const
-    {
-        return *file;
-    }
+    WriteInterface& operator->() const { return *file; }
 
     /*! Operator to convert to an Interface object.
      *  @return Return the internal \c Interface pointer.
      */
-    operator WriteInterface& () const
-    {
-        return *file;
-    }
+    operator WriteInterface&() const { return *file; }
 
     /*! @brief Write the human readable text from the file.
      *  @param[in] text_ The new string containing the text (in ASCII format).
@@ -275,7 +299,11 @@ class WriteDirect
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.
      */
-    void writeTrace(const size_t offset, const size_t sz, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
+    void writeTrace(
+      const size_t offset,
+      const size_t sz,
+      trace_t* trace,
+      const Param* prm = PIOL_PARAM_NULL);
 
     /*! @brief Write the trace parameters from offset to offset+sz to the respective
      *  trace headers.
@@ -286,7 +314,7 @@ class WriteDirect
      *  @details It is assumed that this operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParam(const size_t offset, const size_t sz, const Param * prm);
+    void writeParam(const size_t offset, const size_t sz, const Param* prm);
 
     /*! @brief write the traces specified by the offsets in the passed offset array.
      *  @param[in] sz The number of traces to process
@@ -298,7 +326,11 @@ class WriteDirect
      *  It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeTraceNonContiguous(const size_t sz, const size_t * offset, trace_t * trace, const Param * prm = PIOL_PARAM_NULL);
+    void writeTraceNonContiguous(
+      const size_t sz,
+      const size_t* offset,
+      trace_t* trace,
+      const Param* prm = PIOL_PARAM_NULL);
 
     /*! @brief write the traces specified by the offsets in the passed offset array.
      *  @param[in] sz The number of traces to process
@@ -308,16 +340,19 @@ class WriteDirect
      *  @details It is assumed that the parameter writing operation is not an update. Any previous
      *  contents of the trace header will be overwritten.
      */
-    void writeParamNonContiguous(const size_t sz, const size_t * offset, const Param * prm);
+    void writeParamNonContiguous(
+      const size_t sz, const size_t* offset, const Param* prm);
 };
 
 
-class ReadModel : public ReadDirect
-{
-    public :
+class ReadModel : public ReadDirect {
+  public:
     ReadModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_);
-    std::vector<trace_t> virtual readModel(size_t gOffset, size_t numGather, Uniray<size_t, llint, llint> & gather);
+    std::vector<trace_t> virtual readModel(
+      size_t gOffset, size_t numGather, Uniray<size_t, llint, llint>& gather);
 };
 
-}}
+}  // namespace File
+}  // namespace PIOL
+
 #endif

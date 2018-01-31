@@ -5,28 +5,29 @@
  *   @brief
  *   @details
  *//*******************************************************************************************/
-
 #ifndef FOURDBIN4DIO_INCLUDE_GUARD
 #define FOURDBIN4DIO_INCLUDE_GUARD
-#include <limits>
+
 #include "4d.hh"
 #include "share/segy.hh"
 
-namespace PIOL { namespace FOURD {
+#include <limits>
+
+namespace PIOL {
+namespace FOURD {
 /*! This structure is for holding ALIGN aligned memory containing the coordinates.
  */
-struct Coords
-{
-    size_t sz;              //!< The number of sets of coordinates
-    fourd_t * xSrc = NULL;  //!< The x src coordinates
-    fourd_t * ySrc = NULL;  //!< The y src coordinates
-    fourd_t * xRcv = NULL;  //!< The x rcv coordinates
-    fourd_t * yRcv = NULL;  //!< The y rcv coordinates
-    size_t * tn = NULL;     //!< The trace number
-    size_t allocSz;         //!< The size which was actually allocated
+struct Coords {
+    size_t sz;             //!< The number of sets of coordinates
+    fourd_t* xSrc = NULL;  //!< The x src coordinates
+    fourd_t* ySrc = NULL;  //!< The y src coordinates
+    fourd_t* xRcv = NULL;  //!< The x rcv coordinates
+    fourd_t* yRcv = NULL;  //!< The y rcv coordinates
+    size_t* tn    = NULL;  //!< The trace number
+    size_t allocSz;        //!< The size which was actually allocated
 
-    llint * il = NULL;      //!< The inline number
-    llint * xl = NULL;      //!< The crossline number
+    llint* il = NULL;  //!< The inline number
+    llint* xl = NULL;  //!< The crossline number
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
@@ -38,19 +39,26 @@ struct Coords
 
         //posix_memalign() guarantees the memory allocated is alligned according to the alignment
         //value
-        posix_memalign(reinterpret_cast<void **>(&xSrc), ALIGN, allocSz * sizeof(fourd_t));
-        posix_memalign(reinterpret_cast<void **>(&ySrc), ALIGN, allocSz * sizeof(fourd_t));
-        posix_memalign(reinterpret_cast<void **>(&xRcv), ALIGN, allocSz * sizeof(fourd_t));
-        posix_memalign(reinterpret_cast<void **>(&yRcv), ALIGN, allocSz * sizeof(fourd_t));
-        posix_memalign(reinterpret_cast<void **>(&tn), ALIGN, allocSz * sizeof(size_t));
+        posix_memalign(
+          reinterpret_cast<void**>(&xSrc), ALIGN, allocSz * sizeof(fourd_t));
+        posix_memalign(
+          reinterpret_cast<void**>(&ySrc), ALIGN, allocSz * sizeof(fourd_t));
+        posix_memalign(
+          reinterpret_cast<void**>(&xRcv), ALIGN, allocSz * sizeof(fourd_t));
+        posix_memalign(
+          reinterpret_cast<void**>(&yRcv), ALIGN, allocSz * sizeof(fourd_t));
+        posix_memalign(
+          reinterpret_cast<void**>(&tn), ALIGN, allocSz * sizeof(size_t));
 
-        if (ixline)
-        {
-            posix_memalign(reinterpret_cast<void **>(&il), ALIGN, allocSz * sizeof(llint));
-            posix_memalign(reinterpret_cast<void **>(&xl), ALIGN, allocSz * sizeof(llint));
+        if (ixline) {
+            posix_memalign(
+              reinterpret_cast<void**>(&il), ALIGN, allocSz * sizeof(llint));
+            posix_memalign(
+              reinterpret_cast<void**>(&xl), ALIGN, allocSz * sizeof(llint));
         }
         for (size_t i = 0; i < allocSz; i++)
-            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] = std::numeric_limits<fourd_t>::max();
+            xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] =
+              std::numeric_limits<fourd_t>::max();
         for (size_t i = 0; ixline && i < allocSz; i++)
             il[i] = xl[i] = std::numeric_limits<llint>::max();
     }
@@ -59,20 +67,13 @@ struct Coords
      */
     ~Coords(void)
     {
-        if (xSrc)
-            free(xSrc);
-        if (ySrc)
-            free(ySrc);
-        if (xRcv)
-            free(xRcv);
-        if (yRcv)
-            free(yRcv);
-        if (tn)
-            free(tn);
-        if (il)
-            free(il);
-        if (xl)
-            free(xl);
+        if (xSrc) free(xSrc);
+        if (ySrc) free(ySrc);
+        if (xRcv) free(xRcv);
+        if (yRcv) free(yRcv);
+        if (tn) free(tn);
+        if (il) free(il);
+        if (xl) free(xl);
     }
 };
 
@@ -83,7 +84,8 @@ struct Coords
  *  @param[in] ixline Inline/Xline enabled
  *  @return Return a unique_ptr to the structure containing the coordinates read by the local process.
  */
-extern std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
+std::unique_ptr<Coords> getCoords(
+  std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
 
 /*! Extract traces and coordinates from an input file \c sname according to what traces are listed in \c list.
  *  @param[in] piol The piol object (in a shared pointer).
@@ -93,6 +95,15 @@ extern std::unique_ptr<Coords> getCoords(std::shared_ptr<ExSeisPIOL> piol, std::
  *  @param[in] minrs The value of minrs which should be stored with the trace header of each trace.
  *  @param[in] printDsr Print the dsdr value if true.
  */
-extern void outputNonMono(std::shared_ptr<ExSeisPIOL> piol, std::string dname, std::string sname, vec<size_t> & list, vec<fourd_t> & minrs, const bool printDsr);
-}}
+void outputNonMono(
+  std::shared_ptr<ExSeisPIOL> piol,
+  std::string dname,
+  std::string sname,
+  vec<size_t>& list,
+  vec<fourd_t>& minrs,
+  const bool printDsr);
+
+}  // namespace FOURD
+}  // namespace PIOL
+
 #endif

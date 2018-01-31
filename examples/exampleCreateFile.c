@@ -1,8 +1,9 @@
-#include "sglobal.h"
 #include "cfileapi.h"
+#include "sglobal.h"
+
 #include <assert.h>
 
-void createFile(const char * name, size_t nt, size_t ns, size_t inc)
+void createFile(const char* name, size_t nt, size_t ns, size_t inc)
 {
     //Initialise the PIOL by creating an ExSeis object
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -11,7 +12,8 @@ void createFile(const char * name, size_t nt, size_t ns, size_t inc)
     PIOL_File_WriteDirect* fh = PIOL_File_WriteDirect_new(piol, name);
 
     //Perform some decomposition (user decides how they will decompose)
-    Extent dec = decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    Extent dec =
+      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
 
     //The offset for the local process
     size_t offset = dec.start;
@@ -26,9 +28,8 @@ void createFile(const char * name, size_t nt, size_t ns, size_t inc)
 
     //Set some trace parameters
     PIOL_File_Param* prm = PIOL_File_Param_new(NULL, lnt);
-    for (size_t j = 0; j < lnt; j++)
-    {
-        float k = offset+j;
+    for (size_t j = 0; j < lnt; j++) {
+        float k = offset + j;
         PIOL_File_setPrm_double(j, PIOL_META_xSrc, 1600.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_ySrc, 2400.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_xRcv, 100000.0 + k, prm);
@@ -41,10 +42,9 @@ void createFile(const char * name, size_t nt, size_t ns, size_t inc)
     }
 
     //Set some traces
-    float * trc = calloc(lnt*ns, sizeof(float));
-    for (size_t j = 0; j < lnt*ns; j++)
-    {
-        trc[j] = (float)(offset*ns+j);
+    float* trc = calloc(lnt * ns, sizeof(float));
+    for (size_t j = 0; j < lnt * ns; j++) {
+        trc[j] = (float)(offset * ns + j);
     }
 
     //Write the traces and trace parameters
@@ -63,12 +63,11 @@ void createFile(const char * name, size_t nt, size_t ns, size_t inc)
 int main(void)
 {
     //Set output file name, number of traces, number of samples per trace, and sampling rate
-    const char * name = "CreateFileOutputC";
-    size_t nt = 8000;
-    size_t ns = 4000;
-    double inc = .01;
+    const char* name = "CreateFileOutputC";
+    size_t nt        = 8000;
+    size_t ns        = 4000;
+    double inc       = .01;
 
     createFile(name, nt, ns, inc);
     return 0;
 }
-

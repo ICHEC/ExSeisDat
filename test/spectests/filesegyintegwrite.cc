@@ -68,9 +68,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmNormal)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceNormal)
 {
-    nt = 100;
-    ns = 300;
-    size_t size = nt;
+    nt           = 100;
+    ns           = 300;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<false, false>(size, offsets);
@@ -78,9 +78,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceNormal)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceWPrmNormal)
 {
-    nt = 100;
-    ns = 300;
-    size_t size = nt;
+    nt           = 100;
+    ns           = 300;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<true, false>(size, offsets);
@@ -104,9 +104,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmNormalOpt)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceNormalOpt)
 {
-    nt = 100;
-    ns = 300;
-    size_t size = nt;
+    nt           = 100;
+    ns           = 300;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<false, false>(size, offsets);
@@ -114,9 +114,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceNormalOpt)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceWPrmNormalOpt)
 {
-    nt = 100;
-    ns = 300;
-    size_t size = nt;
+    nt           = 100;
+    ns           = 300;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<true, false>(size, offsets);
@@ -140,9 +140,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmBigNs)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceBigNs)
 {
-    nt = 100;
-    ns = 10000;
-    size_t size = nt;
+    nt           = 100;
+    ns           = 10000;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<false, false>(size, offsets);
@@ -150,9 +150,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceBigNs)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceWPrmBigNs)
 {
-    nt = 100;
-    ns = 10000;
-    size_t size = nt;
+    nt           = 100;
+    ns           = 10000;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<true, false>(size, offsets);
@@ -192,9 +192,9 @@ TEST_F(FileSEGYIntegWrite, FarmFileWriteTraceWPrmBigNt)
 
 TEST_F(FileSEGYIntegWrite, FarmFileWriteRandomTraceBigNt)
 {
-    nt = 3728270;
-    ns = 300;
-    size_t size = nt/100;
+    nt           = 3728270;
+    ns           = 300;
+    size_t size  = nt / 100;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<false, false>(size, offsets);
@@ -202,9 +202,9 @@ TEST_F(FileSEGYIntegWrite, FarmFileWriteRandomTraceBigNt)
 
 TEST_F(FileSEGYIntegWrite, FarmFileWriteRandomTraceWPrmBigNt)
 {
-    nt = 3728270;
-    ns = 300;
-    size_t size = nt/100;
+    nt           = 3728270;
+    ns           = 300;
+    size_t size  = nt / 100;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<true, false>(size, offsets);
@@ -228,9 +228,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmZeroNt)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceZeroNt)
 {
-    nt = 0;
-    ns = 10;
-    size_t size = nt;
+    nt           = 0;
+    ns           = 10;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<false, false>(size, offsets);
@@ -238,9 +238,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceZeroNt)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceWPrmZeroNt)
 {
-    nt = 0;
-    ns = 10;
-    size_t size = nt;
+    nt           = 0;
+    ns           = 10;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<true, false>(size, offsets);
@@ -264,9 +264,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteTraceWPrmZeroNs)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceZeroNs)
 {
-    nt = 10;
-    ns = 0;
-    size_t size = nt;
+    nt           = 10;
+    ns           = 0;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<false, false>(size, offsets);
@@ -274,9 +274,9 @@ TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceZeroNs)
 
 TEST_F(FileSEGYIntegWrite, FileWriteRandomTraceWPrmZeroNs)
 {
-    nt = 10;
-    ns = 0;
-    size_t size = nt;
+    nt           = 10;
+    ns           = 0;
+    size_t size  = nt;
     auto offsets = getRandomVec(size, nt, 1337);
     makeSEGY(tempFile);
     writeRandomTraceTest<true, false>(size, offsets);

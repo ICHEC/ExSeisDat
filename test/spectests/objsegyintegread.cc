@@ -1,4 +1,5 @@
 #include "objsegytest.hh"
+
 TEST_F(ObjIntegTest, SEGYHORead1)
 {
     makeRealSEGY<false>(plargeFile);
@@ -119,4 +120,3 @@ TEST_F(ObjIntegTest, FarmSEGYRandomBigRead)
     readRandomTest<Block::DODF, false>(5000U, vec);
     readRandomTest<Block::DO, false>(5000U, vec);
 }
-

@@ -14,10 +14,13 @@
  *//*******************************************************************************************/
 #ifndef PIOLOPSAGC_INCLUDE_GUARD
 #define PIOLOPSAGC_INCLUDE_GUARD
+
 #include "global.hh"
 #include "share/api.hh"
 
-namespace PIOL { namespace File {
+namespace PIOL {
+namespace File {
+
 /************************************** Core ***********************************************************/
 /*! Apply automatic gain control to a set of tapers --> used for actual operation during output
  * @param[in] nt The number of traces
@@ -27,7 +30,13 @@ namespace PIOL { namespace File {
  * @param[in] window Length of the agc window
  * @param[in] normR Value to which traces are normalised
  */
-extern void AGC(const size_t nt, const size_t ns, trace_t * trc, AGCFunc func, size_t window, trace_t normR);
+void AGC(
+  const size_t nt,
+  const size_t ns,
+  trace_t* trc,
+  AGCFunc func,
+  size_t window,
+  trace_t normR);
 
 /************************************** Non-core ***********************************************************/
 /*! Find the normalised root mean square (RMS) of traces in a rectangular window
@@ -37,7 +46,7 @@ extern void AGC(const size_t nt, const size_t ns, trace_t * trc, AGCFunc func, s
  * @param[in] winCntr Window center iterator
  * @return The normalised trace value using RMS
  */
-extern trace_t AGCRMS(trace_t * trc, size_t window, trace_t normR, llint winCntr);
+trace_t AGCRMS(trace_t* trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Find the normalised root mean square (RMS) of traces in a triangular window
  * @param[in] trc Trace amplitudes
@@ -46,7 +55,7 @@ extern trace_t AGCRMS(trace_t * trc, size_t window, trace_t normR, llint winCntr
  * @param[in] winCntr Window center iterator
  * @return The normalised trace value using RMS with a triangular window
  */
-extern trace_t AGCRMSTri(trace_t * trc, size_t window, trace_t normR, llint winCntr);
+trace_t AGCRMSTri(trace_t* trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Find the normalised mean absolute value (MAV) of traces in a rectangualr window
  * @param[in] trc Trace amplitudes
@@ -55,7 +64,7 @@ extern trace_t AGCRMSTri(trace_t * trc, size_t window, trace_t normR, llint winC
  * @param[in] winCntr Window center iterator
  * @return The normalised trace value using MAV
  */
-extern trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint winCntr);
+trace_t AGCMeanAbs(trace_t* trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Find the normalised median value inside a window trace amplitude
  * @param[in] trc Trace amplitudes
@@ -64,12 +73,15 @@ extern trace_t AGCMeanAbs(trace_t * trc, size_t window, trace_t normR, llint win
  * @param[in] winCntr Window center iterator
  * @return The normalised median trace value
  */
-extern trace_t AGCMedian(trace_t * trc, size_t window, trace_t normR, llint winCntr);
+trace_t AGCMedian(trace_t* trc, size_t window, trace_t normR, llint winCntr);
 
 /*! Chooses the type of AGC function
  * @param[in] type The statistical fucntion type
  * @return Return the appropriate AGC function
  */
-extern AGCFunc getAGCFunc(AGCType type);
-}}
+AGCFunc getAGCFunc(AGCType type);
+
+}  // namespace File
+}  // namespace PIOL
+
 #endif

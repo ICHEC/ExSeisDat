@@ -5,18 +5,20 @@
  *   @date July 2016
  *   @brief
  *//*******************************************************************************************/
-#include "global.hh"
 #ifndef PIOLSHARESEGY_INCLUDE_GUARD
 #define PIOLSHARESEGY_INCLUDE_GUARD
 
-namespace PIOL { namespace SEGSz {
+#include "global.hh"
+
+namespace PIOL {
+namespace SEGSz {
+
 /*! @brief An enumeration containing important SEG-Y sizes
  */
-enum class Size : size_t
-{
+enum class Size : size_t {
     Text = 3200U,
-    HO = 3600U,  //!< The size of the SEG-Y header (text extensions not used)
-    DOMd = 240U  //!< The SEG-Y trace header size
+    HO   = 3600U,  //!< The size of the SEG-Y header (text extensions not used)
+    DOMd = 240U    //!< The SEG-Y trace header size
 };
 
 /*! @brief Return the size of the text field
@@ -47,7 +49,7 @@ constexpr size_t getMDSz()
  *  @param[in] ns The number of elements in the data-field.
  *  @return Returns the size of the data-field in bytes
  */
-template <typename T = float>
+template<typename T = float>
 constexpr size_t getDFSz(const size_t ns)
 {
     return ns * sizeof(T);
@@ -58,7 +60,7 @@ constexpr size_t getDFSz(const size_t ns)
  *  @tparam T The datatype of the data-field. The default value is float.
  *  @return Returns the DO size.
  */
-template <typename T = float>
+template<typename T = float>
 size_t getDOSz(const size_t ns)
 {
     return getMDSz() + getDFSz<T>(ns);
@@ -71,10 +73,10 @@ size_t getDOSz(const size_t ns)
  *  @tparam T The datatype of the data-field. The default value is float.
  *  @return Returns the expected file size.
  */
-template <typename T = float>
+template<typename T = float>
 size_t getFileSz(const size_t nt, const size_t ns)
 {
-    return getHOSz() + nt*getDOSz<T>(ns);
+    return getHOSz() + nt * getDOSz<T>(ns);
 }
 
 /*! @brief Return the offset location of a specific data object.
@@ -83,7 +85,7 @@ size_t getFileSz(const size_t nt, const size_t ns)
  *  @tparam T The datatype of the data-field. The default value is float.
  *  @return Returns the location.
  */
-template <typename T = float>
+template<typename T = float>
 size_t getDOLoc(const size_t i, const size_t ns)
 {
     return getFileSz<T>(i, ns);
@@ -95,7 +97,7 @@ size_t getDOLoc(const size_t i, const size_t ns)
  *  @tparam T The datatype of the data-field. The default value is float.
  *  @return Returns the location.
  */
-template <typename T = float>
+template<typename T = float>
 size_t getDODFLoc(const size_t i, const size_t ns)
 {
     return getFileSz<T>(i, ns) + getMDSz();
@@ -107,11 +109,13 @@ size_t getDODFLoc(const size_t i, const size_t ns)
  *  @tparam T The datatype of the data-field. The default value is float.
  *  @return Returns the number of traces.
  */
-template <typename T = float>
+template<typename T = float>
 size_t getNt(const size_t fsz, const size_t ns)
 {
     return (fsz - SEGSz::getHOSz()) / SEGSz::getDOSz<T>(ns);
 }
-}}
-#endif
 
+}  // namespace SEGSz
+}  // namespace PIOL
+
+#endif

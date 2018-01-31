@@ -6,12 +6,20 @@
  *   @brief
  *   @details
  *//*******************************************************************************************/
+
 #include "share/mpi.hh"
+
 namespace PIOL {
-void printErr(Log::Logger * log, const std::string file, const Log::Layer layer, const int err, const MPI_Status * stat, std::string msg)
+
+void printErr(
+  Log::Logger* log,
+  const std::string file,
+  const Log::Layer layer,
+  const int err,
+  const MPI_Status* stat,
+  std::string msg)
 {
-    if (err != MPI_SUCCESS)
-    {
+    if (err != MPI_SUCCESS) {
         if ((err == MPI_ERR_IN_STATUS) && (stat != NULL || stat != nullptr))
             msg += " MPI_Status: " + std::to_string(stat->MPI_ERROR);
         else
@@ -19,4 +27,5 @@ void printErr(Log::Logger * log, const std::string file, const Log::Layer layer,
         log->record(file, layer, Log::Status::Error, msg, PIOL_VERBOSITY_NONE);
     }
 }
-}
+
+}  // namespace PIOL
