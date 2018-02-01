@@ -87,7 +87,6 @@ int main(int argc, char ** argv)
 {
     auto piol = ExSeis::New();
     InitGoogleTest(&argc, argv);
-
     if (!piol->getRank())
     {
         makeFile(zeroFile, 0U);

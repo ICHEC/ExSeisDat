@@ -5,15 +5,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-//#define private public
-//#define protected public
 #include "tglobal.hh"
 #include "cppfileapi.hh"
 #include "share/segy.hh"
 #include "share/datatype.hh"
 #include "data/datampiio.hh"
-//#undef private
-//#undef protected
 
 using namespace testing;
 using namespace PIOL;
