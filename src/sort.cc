@@ -77,7 +77,8 @@ bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Src X, Src Y and Offset.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
+ *                  from the header
  *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
  *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
  *  @return Return true if e1 is less than e2 in terms of the sort.
@@ -120,7 +121,8 @@ bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Rcv X, Rcv Y and Offset.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
+ *                  from the header
  *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
  *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
  *  @return Return true if e1 is less than e2 in terms of the sort.
@@ -163,7 +165,8 @@ bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Inline, Crossline and Offset.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
+ *                  from the header
  *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
  *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
  *  @return Return true if e1 is less than e2 in terms of the sort.
@@ -209,7 +212,8 @@ bool lessLineOff(const Param* prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Offset, Inline and Crossline.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset from the header
+ *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
+ *                  from the header
  *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
  *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
  *  @return Return true if e1 is less than e2 in terms of the sort.
@@ -303,11 +307,13 @@ bool checkOrder(
     return true;
 }
 
-/************************** Core Implementation **************************************/
+/**************************** Core Implementation *****************************/
 
-/*! Wait on two requests to finish. The largest and smallest rank only wait on one request.
+/*! Wait on two requests to finish. The largest and smallest rank only wait on
+ *  one request.
  *  @param[in] piol The PIOL object.
- *  @param[in] req1 The request that all processes except rank of numRank-1 wait on.
+ *  @param[in] req1 The request that all processes except rank of numRank-1 wait
+ *                  on.
  *  @param[in] req2 The request that all processes except rank of 0 wait on..
  */
 void Wait(
@@ -408,8 +414,8 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
  *  @param[in] regionSz The size of the region which will be shared
  *  @param[in, out] temp1 Temporary vector which is the dat.size()+regionSz.
  *  @param[in,out] dat The vector to sort
- *  @param[in] comp The function to use for less-than comparisons between objects in the
- *                  vector.
+ *  @param[in] comp The function to use for less-than comparisons between
+ *                  objects in the vector.
  */
 template<class T>
 void sort(
@@ -498,7 +504,8 @@ std::vector<size_t> sort(ExSeisPIOL* piol, std::vector<size_t> list)
     {
         std::vector<std::pair<size_t, size_t>> temp1(lnt + edge2);
 
-//Work-around for bug in the intel compiler (intel/2016-u3) on Fionn with std::pair less-than operator
+//Work-around for bug in the intel compiler (intel/2016-u3) on Fionn with
+//std::pair less-than operator
 #if defined(__INTEL_COMPILER)
         Compare<std::pair<size_t, size_t>> check =
           [](

@@ -48,8 +48,8 @@ void makeFile(std::string name, size_t sz)
     FILE* fs               = fopen(name.c_str(), "w");
 
     if (sz != 0) {
-        //Seek beyond the end of the file and write a single null byte. This ensures the file is all zeroes
-        //according to IEEE Std 1003.1-2013
+        //Seek beyond the end of the file and write a single null byte. This
+        //ensures the file is all zeroes according to IEEE Std 1003.1-2013
         fseek(fs, sz - 1ll, SEEK_SET);
         fwrite(&zero, sizeof(uchar), 1, fs);
     }

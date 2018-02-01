@@ -172,7 +172,8 @@ char asciiToEbcdic(uchar ascii_char)
 }
 
 
-// Do conversion, if more printable letters and spaces etc post-conversion use it.
+// Do conversion, if more printable letters and spaces etc post-conversion use
+// it.
 // This is the old interface which used to be able to fail.
 // It should probably be removed!
 void getAscii(ExSeisPIOL*, const std::string&, size_t sz, uchar* src)

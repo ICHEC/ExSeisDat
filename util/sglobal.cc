@@ -55,7 +55,8 @@ std::pair<size_t, size_t> blockDecomp(
     newdec.second *= bsz;
     if (newdec.second == 0) return {sz, 0};
 
-    //Now we compensate for the fact that the start and end block sizes can be different.
+    //Now we compensate for the fact that the start and end block sizes can be
+    //different.
     if (!rank)  //If the rank is zero, we shrink the first block by the leftover
         newdec.second -= bsz - rstart;
     else  //The subtraction above means every block is shifted

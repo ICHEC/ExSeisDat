@@ -1,6 +1,7 @@
 #include "dynsegymdtest.hh"
 
-//TODO: Add test for cpyPrm called with different sets of rules, i.e dst and src disagree on rules
+//TODO: Add test for cpyPrm called with different sets of rules, i.e dst and src
+//      disagree on rules
 
 TEST(RuleEntry, SEGYFloat)
 {

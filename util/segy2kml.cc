@@ -9,7 +9,8 @@
 
 using namespace PIOL;
 
-/*! Create the initial KML file settings to order to describe the output in general
+/*! Create the initial KML file settings to order to describe the output in
+ *  general
  *  @param[in,out] file file handle opened file is assigned to
  *  @param[in] oname name of the file to open
  *  @param[in] folder KML folder name containing all trace lines
@@ -32,7 +33,8 @@ void initKML(std::ofstream& file, std::string oname, std::string folder)
       << "\n\t<SimpleField name=\"Description\" type=\"string\"></SimpleField>\n</Schema>\n\n";
 }
 
-/*! Creates a high precision 10 decimals() string from a single coordinate (i.e. not a pair)
+/*! Creates a high precision 10 decimals() string from a single coordinate
+ *  (i.e. not a pair)
  *  @param[in] coord lat/long coords to change to string
  *  @return the coordinates as a string
  */
@@ -81,8 +83,11 @@ void closeKML(std::ofstream& file)
  *  @param[in] utmZone the UTM zone the coordinates lie in
  *  @param[out] lat latitude coordinate
  *  @param[out] lng longitude coordinate
+ *
+ *  @detail Formula is from
+ *          https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM
+ *          (Excel Spreadsheet is clearer than formula)
  */
-// Formulas is from https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM (Excel Spreadsheet is clearer than formula)
 void utm2LatLong(
   geom_t easting,
   geom_t northing,
@@ -169,7 +174,8 @@ void calcMin(
  *  @details Options:
  *           -i \<file\> : input file name
  *           -o \<file\> : output file name
- *           -f \<folder\> : name of folder in KML file that contains the trace lines
+ *           -f \<folder\> : name of folder in KML file that contains the
+ *                           trace lines
  *           -z \<UTMZone\> : UTM Zone if coordinates in UTM
  *           -h \<help\> : prints available command line options
  */
@@ -220,7 +226,8 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    // Expect UTM zone to have the form xS or xN where x is an integer between 1 and 60
+    // Expect UTM zone to have the form xS or xN where x is an integer between 1
+    // and 60
     if (
       utmZone != ""
       && ((std::toupper(utmZone.back()) != 'N'
@@ -251,8 +258,9 @@ int main(int argc, char** argv)
     auto piol = ExSeis::New();
     for (size_t i = 0; i < iname.size(); i++) {
         calcMin(piol, iname[i], minmax);
-        // If Longitude/Easting is greater than 180, coordinate is in UTM format and must be
-        // converted to latitude/longitude (mimimum UTM Easting is 100,000)
+        // If Longitude/Easting is greater than 180, coordinate is in UTM format
+        // and must be converted to latitude/longitude (mimimum UTM Easting is
+        // 100,000)
         if (minmax[0].val > 180 && utmZone != "") {
             utm2LatLong(
               minmax[0].val, minmax[2].val, utmZone, minmax[0].val,

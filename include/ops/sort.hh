@@ -22,40 +22,46 @@
 namespace PIOL {
 namespace File {
 
-/******************************************* Core *****************************************************/
-/*! Function to sort the metadata in a Param struct. The returned vector is the location where the nth parameter
- *  is located in the sorted list. Implementation note: the Param vector is used internally
- *  to allow random-access iterator support.
+/************************************ Core ************************************/
+/*! Function to sort the metadata in a Param struct. The returned vector is the
+ *  location where the nth parameter is located in the sorted list.
+ *  Implementation note: the Param vector is used internally to allow
+ *  random-access iterator support.
  *  @param[in] piol The PIOL object.
  *  @param[in,out] prm The parameter structure to sort
- *  @param[in] comp The Param function to use for less-than comparisons between objects in the
- *                  vector. It assumes each Param structure has exactly one entry.
- *  @param[in] FileOrder Do we wish to have the sort in the sorted input order (true) or sorted order (false)
- *  @return Return the correct order of traces from those which are smallest with respect to the comp function.
+ *  @param[in] comp The Param function to use for less-than comparisons between
+ *                  objects in the vector. It assumes each Param structure has
+ *                  exactly one entry.
+ *  @param[in] FileOrder Do we wish to have the sort in the sorted input order
+ *                       (true) or sorted order (false)
+ *  @return Return the correct order of traces from those which are smallest
+ *          with respect to the comp function.
  */
 std::vector<size_t> sort(
   ExSeisPIOL* piol, Param* prm, CompareP comp, bool FileOrder = true);
 
 /*! Check that the file obeys the expected ordering.
  *  @param[in] src The input file.
- *  @param[in] dec The decomposition: a pair which contains the offset (first) and the number of traces for the local process.
+ *  @param[in] dec The decomposition: a pair which contains the offset (first)
+ *                 and the number of traces for the local process.
  *  @return Return true if the local ordering is correct.
  */
 bool checkOrder(ReadInterface* src, std::pair<size_t, size_t> dec);
 
-/******************************************* Non-Core *****************************************************/
+/********************************** Non-Core **********************************/
 /*! Perform a sort on the given parameter structure.
  *  @param[in] piol The PIOL object
  *  @param[in] type The sort type
  *  @param[in,out] prm The trace parameter structure.
- *  @return Return a vector which is a list of the ordered trace numbers. i.e the 0th member
- *          is the position of the 0th trace post-sort.
+ *  @return Return a vector which is a list of the ordered trace numbers. i.e
+ *          the 0th member is the position of the 0th trace post-sort.
  */
 std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm);
 
 /*! Check that the file obeys the expected ordering.
  *  @param[in] src The input file.
- *  @param[in] dec The decomposition: a pair which contains the offset (first) and the number of traces for the local process.
+ *  @param[in] dec The decomposition: a pair which contains the offset (first)
+ *                 and the number of traces for the local process.
  *  @param[in] type The sort type
  *  @return Return true if the local ordering is correct.
  */

@@ -23,8 +23,9 @@ using cvec = const std::vector<T>;
 template<class T>
 using vec = std::vector<T>;
 
+/// A typedef for the precision used for coordinates during the 4dbin
 typedef float
-  fourd_t;  //!< A typedef for the precision used for coordinates during the 4dbin
+  fourd_t;
 
 /*! Structure for 4d binning options
  */

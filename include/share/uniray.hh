@@ -33,9 +33,10 @@ class Uniray {
     size_t rank;     //!< The rank of the local process.
     size_t numRank;  //!< The number of ranks.
   public:
-    /*! Construct the global array. This operation is collective across all processes.
-     * @param[in] piol_ The PIOL object.
-     * @param[in] sz_ The number of elements in the global array.
+    /*! Construct the global array. This operation is collective across all
+     *  processes.
+     *  @param[in] piol_ The PIOL object.
+     *  @param[in] sz_ The number of elements in the global array.
      */
     Uniray(ExSeisPIOL* piol_, const size_t sz_) : piol(piol_), sz(sz_)
     {

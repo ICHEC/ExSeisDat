@@ -53,7 +53,7 @@ void updateElem(CoordElem* src, CoordElem* dst)
     }
 }
 
-//////////////////////////////////////////////CLASS MEMBERS///////////////////////////////////////////////////////////
+//////////////////////////////// CLASS MEMBERS /////////////////////////////////
 
 Set::Set(
   std::shared_ptr<ExSeisPIOL> piol_,
@@ -222,7 +222,8 @@ std::vector<std::string> Set::startSingle(
 
         std::unique_ptr<File::WriteInterface> out =
           File::makeFile<File::WriteSEGY>(piol, name);
-        //TODO: Will need to delay ns call depending for operations that modify the number of samples per trace
+        //TODO: Will need to delay ns call depending for operations that modify
+        //      the number of samples per trace
         out->writeNs(ns);
         out->writeInc(inc);
         out->writeText(outmsg);
@@ -330,7 +331,8 @@ std::string Set::startGather(
         }
 
         //TODO: Loop and add rules
-        //TODO: need better rule handling, create rule of all rules in gather functions
+        //TODO: need better rule handling, create rule of all rules in gather
+        //      functions
         auto rule = std::make_shared<File::Rule>(
           std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
 
@@ -468,12 +470,15 @@ std::vector<std::string> Set::calcFunc(
             fCurr = startSubset(fCurr, fEnd);
         else if ((*fCurr)->opt.check(FuncOpt::Gather)) {
             std::string gname = startGather(fCurr, fEnd);
+            //If startGather returned an empty string, then fCurr == fEnd was
+            //reached.
             if (
               gname
-              != "")  //If startGather returned an empty string, then fCurr == fEnd was reached.
+              != "")
                 return std::vector<std::string>{gname};
 
-//TODO: Later this will need to be changed when the gather also continues with single trace cases
+//TODO: Later this will need to be changed when the gather also continues with
+//      single trace cases
 #warning Trick goes here
             for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather);
                  ++fCurr)
@@ -554,7 +559,8 @@ void Set::sort(CompareP sortFunc)
       PIOL_META_xRcv, PIOL_META_yRcv, PIOL_META_xCmp, PIOL_META_yCmp,
       PIOL_META_Offset, PIOL_META_WtrDepRcv, PIOL_META_tn});
 
-    //TODO: This is not the ideal mechanism, hack for now. See the note in the calcFunc for single traces
+    //TODO: This is not the ideal mechanism, hack for now. See the note in the
+    //      calcFunc for single traces
     rule->addRule(*r);
     sort(r, sortFunc);
 }
@@ -566,9 +572,10 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
 
     func.push_back(std::make_shared<Op<InPlaceMod>>(
       opt, r, nullptr, [this, sortFunc](TraceBlock* in) -> std::vector<size_t> {
+          //TODO: It will eventually be necessary to support this use case.
           if (
             piol->comm->min(in->prm->size())
-            < 3LU)  //TODO: It will eventually be necessary to support this use case.
+            < 3LU)
           {
               piol->log->record(
                 "", Log::Layer::Set, Log::Status::Error,
@@ -603,7 +610,8 @@ void Set::toAngle(
               for (size_t z = 0; z < in->ns;
                    z++)  //For each sample (angle + radon)
               {
-                  //We are using coordinate level accuracy when its not performance critical.
+                  //We are using coordinate level accuracy when its not
+                  //performance critical.
                   geom_t vmModel =
                     state->vtrc
                       [in->gNum * state->vNs
@@ -660,7 +668,7 @@ void Set::text(std::string outmsg_)
     outmsg = outmsg_;
 }
 
-/********************************************** Non-Core **************************************************************/
+/********************************** Non-Core **********************************/
 void Set::sort(SortType type)
 {
     Set::sort(File::getComp(type));

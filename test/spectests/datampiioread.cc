@@ -3,10 +3,10 @@
 size_t modifyNt(
   const size_t fs, const size_t offset, const size_t nt, const size_t ns)
 {
-    //We shouldn't have our ASSERT_EQ test beyond the actual number of traces which are
-    //so we reduce the number of traces down to the number of traces present after
-    //the given offset if the real number of traces is less than expected.
-    //We support this because it is allowed behaviour.
+    //We shouldn't have our ASSERT_EQ test beyond the actual number of traces
+    //which are so we reduce the number of traces down to the number of traces
+    //present after the given offset if the real number of traces is less than
+    //expected.  We support this because it is allowed behaviour.
 
     size_t realnt = SEGSz::getNt(fs, ns);
     if (realnt >= offset + nt)
@@ -37,7 +37,7 @@ TEST_F(MPIIODeathTest, FailedConstructor)
       ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
 }
 
-////////////////////////////// MPI-IO getting the file size ///////////////////////////////////
+///////////////////////// MPI-IO getting the file size /////////////////////////
 TEST_F(MPIIOTest, Constructor)
 {
     makeMPIIO(zeroFile);
@@ -71,7 +71,7 @@ TEST_F(MPIIOTest, LargeFileSize)
     EXPECT_EQ(largeSize, data->getFileSz());
 }
 
-////////////////////////////// MPI-IO reading contiguous data ///////////////////////////////////
+//////////////////////// MPI-IO reading contiguous data ////////////////////////
 
 TEST_F(MPIIOTest, BlockingReadSmall)
 {
@@ -137,7 +137,7 @@ TEST_F(MPIIOTest, BlockingOneByteReadLarge)
     }
 }
 
-////////////////////////////// MPI-IO reading non-contiguous blocks of data ///////////////////////////////////
+///////////////// MPI-IO reading non-contiguous blocks of data /////////////////
 TEST_F(MPIIOTest, ReadContigZero)
 {
     makeMPIIO(smallSEGYFile);
@@ -156,8 +156,9 @@ TEST_F(MPIIOTest, ReadContigSSS)
     piol->isErr();
 }
 
-//Intentionally read much beyond the end of the file to make sure that MPI-IO doesn't abort/fails.
-//MPI 3.1 spec says (or at least strongly implies) it should work.
+//Intentionally read much beyond the end of the file to make sure that MPI-IO
+//doesn't abort/fails.  MPI 3.1 spec says (or at least strongly implies) it
+//should work.
 TEST_F(MPIIOTest, FarmReadContigEnd)
 {
     makeMPIIO(smallSEGYFile);

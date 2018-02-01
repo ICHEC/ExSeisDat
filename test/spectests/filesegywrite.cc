@@ -331,16 +331,18 @@ TEST_F(FileSEGYWrite, FileWriteParamBigOffsetCopy)
     makeMockSEGY<true>();
     writeTraceHeaderTest<true>(nt - 1, 1);
 }
-//Akward to fit this into the current functions
-/*TEST_F(FileSEGYDeath, FileWriteTraceParamBigOffset)
-{
-    makeMockSEGY<true>();
-    writeTraceHeaderTest<false, false>(NT_LIMITS+1);
-    EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
-}*/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////// DEATH TESTS ////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* clang-format off */
+// //Akward to fit this into the current functions
+// TEST_F(FileSEGYDeath, FileWriteTraceParamBigOffset)
+// {
+//     makeMockSEGY<true>();
+//     writeTraceHeaderTest<false, false>(NT_LIMITS+1);
+//     EXPECT_EXIT(piol->isErr(), ExitedWithCode(EXIT_FAILURE), ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
+// }
+/* clang-format on */
+
+////////////////////////////////// DEATH TESTS /////////////////////////////////
 typedef FileSEGYWrite FileSEGYDeath;
 
 TEST_F(FileSEGYDeath, FileWriteAPIBadns)

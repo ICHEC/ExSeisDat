@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     if (!piol->getRank())
         std::cout << "MPI Version " << MPIVersion << std::endl;
 
-    /*******************  Reading options from the command line ***********************************************/
+    /*****************  Reading options from the command line *****************/
     std::string opt = "a:b:c:d:t:vpx";  //TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
@@ -95,7 +95,9 @@ int main(int argc, char** argv)
                 break;
         }
     assert(name1.size() && name2.size() && name3.size() && name4.size());
-    /**********************************************************************************************************/
+
+    /**************************************************************************/
+
     //Open the two input files
     cmsg(piol.get(), "Parameter-read phase");
 

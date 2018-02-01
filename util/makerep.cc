@@ -115,8 +115,8 @@ void distribToDistrib(
     vec->resize(newd.second);
 }
 
-//Write an arbitrary parallelised block sz to an arbitrary offset with the minimal block contention
-//possible between processes.
+//Write an arbitrary parallelised block sz to an arbitrary offset with the
+//minimal block contention possible between processes.
 //writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
 //off is the global offset
 std::pair<size_t, size_t> writeArb(
@@ -140,8 +140,9 @@ std::pair<size_t, size_t> writeArb(
     return newdec;
 }
 
-/*! Make a SEGY file by copying the header object and the data payload of an existing file
- *  and writng the header object and then repeatedly writing the payload.
+/*! Make a SEGY file by copying the header object and the data payload of an
+ *  existing file and writng the header object and then repeatedly writing the
+ *  payload.
  *  @param[in] piol The piol object
  *  @param[in] iname The SEG-Y input file name
  *  @param[in] oname The SEG-Y output file name

@@ -30,7 +30,8 @@ class SEGY : public Interface {
     };
 
     /*! @brief The SEGY-Obj class constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] opt_  The SEGY options
      *  @param[in] data_ Pointer to the Data layer object (polymorphic).
@@ -44,7 +45,8 @@ class SEGY : public Interface {
       FileMode mode = FileMode::Read);
 
     /*! @brief The SEGY-Obj class constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] data_ Pointer to the Data layer object (polymorphic).
      *  @param[in] mode  The file mode

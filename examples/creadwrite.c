@@ -136,7 +136,8 @@ int main(int argc, char** argv)
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
         switch (c) {
             case 'i':
-                //TODO: POSIX is vague about the lifetime of optarg. Next function may be unnecessary
+                //TODO: POSIX is vague about the lifetime of optarg. Next
+                //      function may be unnecessary
                 iname = copyString(optarg);
                 break;
             case 'o':

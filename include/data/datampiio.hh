@@ -15,7 +15,8 @@
 namespace PIOL {
 namespace Data {
 
-/*! @brief This templated function pointer type allows us to refer to MPI functions more compactly.
+/*! @brief This templated function pointer type allows us to refer to MPI
+ *         functions more compactly.
  */
 template<typename U>
 using MFp =
@@ -28,12 +29,17 @@ class MPIIO : public Interface {
     /*! @brief The MPI-IO options structure.
      */
     struct Opt {
+        /// The Type of the class this structure is nested in
         typedef MPIIO
-          Type;     //!< The Type of the class this structure is nested in
-        bool coll;  //!< Whether collective read/write operations will be used
-        MPI_Info info;  //!< The info structure to use
+          Type;
+        /// Whether collective read/write operations will be used
+        bool coll;
+        /// The info structure to use
+        MPI_Info info;
+        /// The maximum size to allow to be written to disk per process in one
+        /// operation
         size_t
-          maxSize;  //!< The maximum size to allow to be written to disk per process in one operation
+          maxSize;
         MPI_Comm fcomm;  //!< The MPI communicator to use for file access
         Opt(void);       //!< The constructor to set default options
         ~Opt(void);      //!< The destructor
@@ -46,8 +52,10 @@ class MPIIO : public Interface {
     MPI_Info info;   //!< @copydoc MPIIO::Opt::info
     size_t maxSize;  //!< @copydoc MPIIO::Opt::maxSize
 
-    /*! Read a file using MPI-IO views. This function does not handle the integer limit
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
+    /*! Read a file using MPI-IO views. This function does not handle the
+     *  integer limit
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
      *  @param[in] bsz    The size of a block in bytes
      *  @param[in] osz    The number of bytes between the \c start of blocks
      *  @param[in] sz     The number of blocks
@@ -60,8 +68,10 @@ class MPIIO : public Interface {
       const size_t sz,
       uchar* d) const;
 
-    /*! Write a file using MPI-IO views. This function does not handle the integer limit
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
+    /*! Write a file using MPI-IO views. This function does not handle the
+     *  integer limit
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
      *  @param[in] bsz    The size of a block in bytes
      *  @param[in] osz    The number of bytes between the \c start of blocks
      *  @param[in] sz     The number of blocks
@@ -80,12 +90,15 @@ class MPIIO : public Interface {
      */
     void Init(const MPIIO::Opt& opt, FileMode mode);
 
-    /*! @brief Perform I/O on contiguous or monotonically increasing blocked data
+    /*! @brief Perform I/O on contiguous or monotonically increasing blocked
+     *         data
      *  @param[in] fn The MPI-IO style function to perform the I/O with
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
-     *  @param[in] sz The amount of data to read from disk. d must be an array with
-     *             sz elements.
-     *  @param[in, out] d The array to get the input from or store the output in.
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
+     *  @param[in] sz The amount of data to read from disk. d must be an array
+     *                with sz elements.
+     *  @param[in, out] d The array to get the input from or store the output
+     *                    in.
      *  @param[in] msg The message to be written if there is an error
      *  @param[in] bsz The block size in bytes (if not contiguous)
      *  @param[in] osz The stride size in bytes (block start to block start)
@@ -99,12 +112,15 @@ class MPIIO : public Interface {
       const size_t bsz = 1U,
       const size_t osz = 1U) const;
 
-    /*! @brief Perform I/O on blocks of data where each block starts at the location specified by an array of offsets.
+    /*! @brief Perform I/O on blocks of data where each block starts at the
+     *         location specified by an array of offsets.
      *  @param[in] fn The MPI-IO style function to perform the I/O with
      *  @param[in] bsz The block size in bytes.
      *  @param[in] sz The amount of blocks to read
-     *  @param[in] offset An array of offsets in bytes from the current internal shared pointer
-     *  @param[in, out] d The array to get the input from or store the output in.
+     *  @param[in] offset An array of offsets in bytes from the current internal
+     *                    shared pointer
+     *  @param[in, out] d The array to get the input from or store the output
+     *                    in.
      *  @param[in] msg The message to be written if there is an error
      */
     void listIO(
@@ -117,7 +133,8 @@ class MPIIO : public Interface {
 
   public:
     /*! @brief The MPI-IO class constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] opt   The MPI-IO options
      *  @param[in] mode The filemode
@@ -129,7 +146,8 @@ class MPIIO : public Interface {
       FileMode mode = FileMode::Read);
 
     /*! @brief The MPI-IO class constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] mode The filemode
      */

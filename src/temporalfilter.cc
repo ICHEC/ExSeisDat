@@ -25,17 +25,19 @@
 namespace PIOL {
 namespace File {
 
-//TODO: Use complex literals when newer compilers are available (Current is gcc (GCC) 5.3.0)
+//TODO: Use complex literals when newer compilers are available (Current is gcc
+//      (GCC) 5.3.0)
 const cmtrace_t I(0_t, 1_t);
 
 //TODO: Use this when intel supports it
 //using namespace std::complex_literals;
-/********************************************** Core *****************************************/
+/************************************ Core ************************************/
 
-/********************************************* Non-Core **************************************/
+/********************************** Non-Core **********************************/
 size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
 {
-    //unfortunately the standard doesnt require math functions to provide constexpr functions
+    //unfortunately the standard doesnt require math functions to provide
+    //constexpr functions
     static const trace_t val =
       geom_t(0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
     return std::ceil(
@@ -271,7 +273,8 @@ void filterFreq(
   FltrPad)
 {
     //TODO: Generalize fftwf for other data types besides floats
-    //TODO: If creating + destroying plans becomes a bottleneck, re-use the plans
+    //TODO: If creating + destroying plans becomes a bottleneck, re-use the
+    //      plans
     std::vector<cmtrace_t> frequency(nss);
     std::vector<cmtrace_t> frequency1(nss);
     fftwf_plan planFFT = fftwf_plan_dft_r2c_1d(

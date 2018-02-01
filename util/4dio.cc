@@ -19,7 +19,8 @@ namespace PIOL {
 namespace FOURD {
 
 //TODO: Integration candidate
-//TODO: Simple IME optimisation: Contig Read all headers, sort, random write all headers to order, IME shuffle, contig read all headers again
+//TODO: Simple IME optimisation: Contig Read all headers, sort, random write all
+//      headers to order, IME shuffle, contig read all headers again
 std::unique_ptr<Coords> getCoords(
   std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
@@ -35,16 +36,20 @@ std::unique_ptr<Coords> getCoords(
     assert(coords.get());
     auto rule = std::make_shared<File::Rule>(
       std::initializer_list<Meta>{PIOL_META_gtn, PIOL_META_xSrc});
-    /*These two lines are for some basic memory limitation calculations. In future versions of the PIOL this will be
-      handled internally and in a more accurate way. User Story S-01490. The for loop a few lines below reads the trace
-      parameters in batches because of this memory limit.*/
+    /* These two lines are for some basic memory limitation calculations. In
+     * future versions of the PIOL this will be handled internally and in a more
+     * accurate way. User Story S-01490. The for loop a few lines below reads
+     * the trace parameters in batches because of this memory limit.
+     */
     size_t biggest = piol->comm->max(lnt);
     size_t memlim =
       2LU * 1024LU * 1024LU * 1024LU - 4LU * biggest * sizeof(geom_t);
     size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
 
-    //Collective I/O requries an equal number of MPI-IO calls on every process in exactly the same sequence as each other.
-    //If not, the code will deadlock. Communication is done to ensure we balance out the correct number of redundant calls
+    //Collective I/O requries an equal number of MPI-IO calls on every process
+    //in exactly the same sequence as each other.
+    //If not, the code will deadlock. Communication is done to ensure we balance
+    //out the correct number of redundant calls
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
 
@@ -52,7 +57,8 @@ std::unique_ptr<Coords> getCoords(
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
-        //WARNING: Treat ReadDirect like the internal API for using a non-exposed function
+        //WARNING: Treat ReadDirect like the internal API for using a
+        //         non-exposed function
         file->readParam(offset + i, rblock, &prm, i);
 
         for (size_t j = 0; j < rblock; j++)
@@ -80,7 +86,7 @@ std::unique_ptr<Coords> getCoords(
 
     cmsg(piol.get(), "getCoords post-sort I/O");
 
-    /////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     std::shared_ptr<File::Rule> crule;
     if (ixline)
@@ -130,8 +136,9 @@ std::unique_ptr<Coords> getCoords(
     for (size_t i = 0; i < extra; i++)
         file.readParamNonContiguous(0LU, nullptr, nullptr);
 
+    // This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     piol->comm
-      ->barrier();  //This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
+      ->barrier();
     cmsg(
       piol.get(), "Read sets of coordinates from file " + name + " in "
                     + std::to_string(MPI_Wtime() - time) + " seconds");

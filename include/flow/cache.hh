@@ -15,7 +15,8 @@
 
 namespace PIOL {
 
-/*! A structure to store cache elements of traces and parameters corresponding to a collection of files
+/*! A structure to store cache elements of traces and parameters corresponding
+ *  to a collection of files
  */
 struct CacheElem {
     FileDeque desc;  //!< A deque of unique pointers to file descriptors
@@ -23,7 +24,8 @@ struct CacheElem {
 
     /*! Construct the cache element with the given parameter structure.
      *  @param[in] desc_ A deque of unique pointers to file descriptors
-     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache element takes ownership.
+     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache
+     *                element takes ownership.
      */
     CacheElem(FileDeque& desc_, std::unique_ptr<File::Param> prm_)
     {
@@ -35,8 +37,8 @@ struct CacheElem {
     /*! Construct the cache element with the given parameter structure.
      *  @param[in] desc_ A deque of unique pointers to file descriptors
      *  @param[in] trc_ A vector of traces for caching.
-     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache element takes ownership
-     *                if it exists.
+     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache
+     *                element takes ownership if it exists.
      */
     CacheElem(
       FileDeque& desc_,
@@ -79,7 +81,8 @@ class Cache {
      */
     Cache(std::shared_ptr<ExSeisPIOL> piol_) : piol(piol_) {}
 
-    /*! Get a given cache of parameters or traces. Perform I/O and cache the result if not already done so.
+    /*! Get a given cache of parameters or traces. Perform I/O and cache the
+     *  result if not already done so.
      *  @param[in] rule The rule to use for the parameters.
      *  @param[in] desc A deque of unique pointers to file descriptors.
      *  @param[in] cPrm if True, get the parameters.
@@ -89,7 +92,8 @@ class Cache {
     std::shared_ptr<TraceBlock> getCache(
       std::shared_ptr<File::Rule> rule, FileDeque& desc, bool cPrm, bool cTrc);
 
-    /*! Get a given cache of parameters. Perform I/O and cache the result if not already done so.
+    /*! Get a given cache of parameters. Perform I/O and cache the result if not
+     *  already done so.
      *  @param[in] rule The rule to use for the parameters.
      *  @param[in] desc A deque of unique pointers to file descriptors.
      *  @return Return a block with the parameters.
@@ -100,7 +104,8 @@ class Cache {
         return getCache(rule, desc, true, false);
     }
 
-    /*! Get a given cache of traces. Perform I/O and cache the result if not already done so.
+    /*! Get a given cache of traces. Perform I/O and cache the result if not
+     *  already done so.
      *  @param[in] desc A deque of unique pointers to file descriptors.
      *  @return Return a block with the traces.
      */

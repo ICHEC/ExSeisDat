@@ -28,7 +28,8 @@ class Interface {
 
   public:
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] data_ Pointer to the Data layer object (polymorphic).
      */
@@ -64,12 +65,13 @@ class Interface {
 
     /*! @brief Read the header object.
      *  @param[out] ho An array which the caller guarantees is long enough
-     *  to hold the header object.
+     *                 to hold the header object.
      */
     virtual void readHO(uchar* ho) const = 0;
 
     /*! @brief Write the header object.
-     *  @param[in] ho An array which the caller guarantees is long enough to hold the header object.
+     *  @param[in] ho An array which the caller guarantees is long enough to
+     *                hold the header object.
      */
     virtual void writeHO(const uchar* ho) const = 0;
 
@@ -78,7 +80,7 @@ class Interface {
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of DOMDs to be read in a row.
      *  @param[out] md An array which the caller guarantees is long enough for
-     *  the DO metadata.
+     *                 the DO metadata.
      */
     virtual void readDOMD(
       const size_t offset,
@@ -91,7 +93,7 @@ class Interface {
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of DOMDs to be written in a row.
      *  @param[in] md An array which the caller guarantees is long enough for
-     *  the data-field.
+     *                the data-field.
      */
     virtual void writeDOMD(
       const size_t offset,
@@ -104,7 +106,7 @@ class Interface {
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-fields to be read in a row.
      *  @param[out] df An array which the caller guarantees is long enough for
-     *  the data-field.
+     *                 the data-field.
      */
     virtual void readDODF(
       const size_t offset,
@@ -117,7 +119,7 @@ class Interface {
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-fields to be written in a row.
      *  @param[in] df An array which the caller guarantees is long enough for
-     *  the data-field.
+     *                the data-field.
      */
     virtual void writeDODF(
       const size_t offset,
@@ -130,7 +132,7 @@ class Interface {
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-objects to be read in a row.
      *  @param[out] d An array which the caller guarantees is long enough for
-     *  the data-objects.
+     *                the data-objects.
      */
     virtual void readDO(
       const size_t offset,
@@ -143,7 +145,7 @@ class Interface {
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-objects to be written in a row.
      *  @param[in] d An array which the caller guarantees is long enough for
-     *  the data-objects.
+     *               the data-objects.
      */
     virtual void writeDO(
       const size_t offset,
@@ -152,11 +154,12 @@ class Interface {
       const uchar* d) const = 0;
 
     /*! @brief Read a list of data-objects.
-     *  @param[in] offset An array of the starting data-objects we are interested in
+     *  @param[in] offset An array of the starting data-objects we are
+     *                    interested in
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-objects to be read
      *  @param[out] d An array which the caller guarantees is long enough for
-     *  the data-objects.
+     *                the data-objects.
      */
     virtual void readDO(
       const size_t* offset,
@@ -167,9 +170,10 @@ class Interface {
     /*! @brief Write a list of data-objects.
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-objects to be written.
-     *  @param[in] offset An array of the starting data-object we are interested in.
+     *  @param[in] offset An array of the starting data-object we are interested
+     *                    in.
      *  @param[in] d An array which the caller guarantees is long enough for
-     *  the data-objects.
+     *               the data-objects.
      */
     virtual void writeDO(
       const size_t* offset,
@@ -178,7 +182,8 @@ class Interface {
       const uchar* d) const = 0;
 
     /*! @brief read a list of data-object metadata blocks.
-     *  @param[in] offset an array of the starting data-objects we are interested in
+     *  @param[in] offset an array of the starting data-objects we are
+     *                    interested in
      *  @param[in] ns the number of elements per data field.
      *  @param[in] sz the number of DOMD objects to be read
      *  @param[out] md an array which the caller guarantees is long enough for
@@ -191,11 +196,12 @@ class Interface {
       uchar* md) const = 0;
 
     /*! @brief Write a list of data-object metadata blocks.
-     *  @param[in] offset An array of the starting data-object we are interested in.
+     *  @param[in] offset An array of the starting data-object we are interested
+     *                    in.
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of DOMD objects to be written.
      *  @param[in] md An array which the caller guarantees is long enough for
-     *  the metadata blocks.
+     *                the metadata blocks.
      */
     virtual void writeDOMD(
       const size_t* offset,
@@ -204,11 +210,12 @@ class Interface {
       const uchar* md) const = 0;
 
     /*! @brief Read a list of data-fields.
-     *  @param[in] offset An array of the starting data-objects we are interested in
+     *  @param[in] offset An array of the starting data-objects we are
+     *                    interested in
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-fields to be read
      *  @param[out] df An array which the caller guarantees is long enough for
-     *  the data-fields.
+     *                 the data-fields.
      */
     virtual void readDODF(
       const size_t* offset,
@@ -217,11 +224,12 @@ class Interface {
       uchar* df) const = 0;
 
     /*! @brief Write a list of data-fields
-     *  @param[in] offset An array of the starting data-object we are interested in.
+     *  @param[in] offset An array of the starting data-object we are interested
+     *                    in.
      *  @param[in] ns The number of elements per data field.
      *  @param[in] sz The number of data-fields to be written.
      *  @param[in] df An array which the caller guarantees is long enough for
-     *  the data-fields.
+     *                the data-fields.
      */
     virtual void writeDODF(
       const size_t* offset,

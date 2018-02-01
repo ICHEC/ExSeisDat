@@ -55,8 +55,9 @@ class ExSeis : public ExSeisPIOL {
      */
     size_t max(size_t n) const;
 
-    /*! @brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
-     *  and the code aborts.
+    /*! @brief A function to check if an error has occured in the PIOL. If an
+     *         error has occured the log is printed, the object destructor is
+     *         called and the code aborts.
      * @param[in] msg A message to be printed to the log.
      */
     void isErr(const std::string& msg = "") const;
@@ -71,7 +72,8 @@ class ExSeis : public ExSeisPIOL {
 
 namespace File {
 
-/*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
+/*! This class implements the C++14 File Layer API for the PIOL. It constructs
+ *  the Data, Object and File layers.
  */
 class ReadDirect {
   protected:
@@ -83,7 +85,8 @@ class ReadDirect {
      *  @tparam D The nested options structure of interest for the data layer.
      *  @tparam O The nested options structure of interest for the object layer.
      *  @tparam F The nested options structure of interest for the file layer.
-     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate
+     *             another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      *  @param[in] d The Data options.
      *  @param[in] o The Object options.
@@ -110,7 +113,8 @@ class ReadDirect {
     }
 
     /*! Constructor without options.
-     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate
+     *             another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      */
     ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name);
@@ -159,7 +163,8 @@ class ReadDirect {
     /*! @brief Read the traces from offset to offset+sz.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process
-     *  @param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[out] trace A contiguous array of each trace
+     *              (size sz*ns*sizeof(trace_t))
      *  @param[out] prm The parameter structure
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
@@ -170,18 +175,20 @@ class ReadDirect {
       trace_t* trace,
       Param* prm = PIOL_PARAM_NULL) const;
 
-    /*! @brief Function to read the trace parameters from offset to offset+sz of the respective
-     *  trace headers.
+    /*! @brief Function to read the trace parameters from offset to offset+sz of
+     *         the respective trace headers.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process.
      *  @param[out] prm The parameter structure
      */
     void readParam(const size_t offset, const size_t sz, Param* prm) const;
 
-    /*! @brief Read the traces specified by the offsets in the passed offset array.
+    /*! @brief Read the traces specified by the offsets in the passed offset
+     *         array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read.
-     *  @param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[out] trace A contiguous array of each trace
+     *              (size sz*ns*sizeof(trace_t))
      *  @param[out] prm The parameter structure
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
@@ -198,7 +205,8 @@ class ReadDirect {
       trace_t* trace,
       Param* prm = PIOL_PARAM_NULL) const;
 
-    /*! @brief Read the traces specified by the offsets in the passed offset array.
+    /*! @brief Read the traces specified by the offsets in the passed offset
+     *         array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read.
      *  @param[out] prm The parameter structure
@@ -207,7 +215,8 @@ class ReadDirect {
       const size_t sz, const size_t* offset, Param* prm) const;
 };
 
-/*! This class implements the C++14 File Layer API for the PIOL. It constructs the Data, Object and File layers.
+/*! This class implements the C++14 File Layer API for the PIOL. It constructs
+ *  the Data, Object and File layers.
  */
 class WriteDirect {
   protected:
@@ -219,7 +228,8 @@ class WriteDirect {
      *  @tparam D The nested options structure of interest for the data layer.
      *  @tparam O The nested options structure of interest for the object layer.
      *  @tparam F The nested options structure of interest for the file layer.
-     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate
+     *             another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      *  @param[in] d The Data options.
      *  @param[in] o The Object options.
@@ -246,7 +256,8 @@ class WriteDirect {
     }
 
     /*! Constructor without options.
-     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol This PIOL ptr is not modified but is used to instantiate
+     *             another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      */
     WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name);
@@ -293,7 +304,8 @@ class WriteDirect {
     /*! @brief Read the traces from offset to offset+sz.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process
-     *  @param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[in] trace A contiguous array of each trace
+     *             (size sz*ns*sizeof(trace_t))
      *  @param[in] prm The parameter structure
      *  @warning This function is not thread safe.
      *
@@ -305,26 +317,28 @@ class WriteDirect {
       trace_t* trace,
       const Param* prm = PIOL_PARAM_NULL);
 
-    /*! @brief Write the trace parameters from offset to offset+sz to the respective
-     *  trace headers.
+    /*! @brief Write the trace parameters from offset to offset+sz to the
+     *         respective trace headers.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process.
      *  @param[in] prm The parameter structure
      *
-     *  @details It is assumed that this operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
+     *  @details It is assumed that this operation is not an update. Any
+     *           previous contents of the trace header will be overwritten.
      */
     void writeParam(const size_t offset, const size_t sz, const Param* prm);
 
-    /*! @brief write the traces specified by the offsets in the passed offset array.
+    /*! @brief write the traces specified by the offsets in the passed offset
+     *         array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to write.
-     *  @param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[in] trace A contiguous array of each trace
+     *             (size sz*ns*sizeof(trace_t))
      *  @param[in] prm The parameter structure
      *
-     *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.
-     *  It is assumed that the parameter writing operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
+     *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.  It is
+     *           assumed that the parameter writing operation is not an update.
+     *           Any previous contents of the trace header will be overwritten.
      */
     void writeTraceNonContiguous(
       const size_t sz,
@@ -332,13 +346,15 @@ class WriteDirect {
       trace_t* trace,
       const Param* prm = PIOL_PARAM_NULL);
 
-    /*! @brief write the traces specified by the offsets in the passed offset array.
+    /*! @brief write the traces specified by the offsets in the passed offset
+     *         array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to write.
      *  @param[in] prm The parameter structure
      *
-     *  @details It is assumed that the parameter writing operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
+     *  @details It is assumed that the parameter writing operation is not an
+     *           update. Any previous contents of the trace header will be
+     *           overwritten.
      */
     void writeParamNonContiguous(
       const size_t sz, const size_t* offset, const Param* prm);

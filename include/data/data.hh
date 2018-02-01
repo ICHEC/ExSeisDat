@@ -27,7 +27,8 @@ class Interface {
 
   public:
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      */
     Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
@@ -61,14 +62,16 @@ class Interface {
     virtual void setFileSz(const size_t sz) const = 0;
 
     /*! @brief Read from storage.
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
      *  @param[in] sz     The amount of data to read from disk
      *  @param[out] d     The array to store the output in
      */
     virtual void read(const size_t offset, const size_t sz, uchar* d) const = 0;
 
     /*! @brief Read data from storage in blocks.
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
      *  @param[in] bsz    The size of a block in bytes
      *  @param[in] osz    The number of bytes between the \c start of blocks
      *  @param[in] nb     The number of blocks
@@ -83,8 +86,10 @@ class Interface {
 
     /*! read a file where each block is determined from the list of offset
      *  @param[in] bsz    The size of a block in bytes
-     *  @param[in] sz     The number of blocks to read and so the size of the offset array
-     *  @param[in] offset The list of offsets (in bytes from the current internal shared pointer)
+     *  @param[in] sz     The number of blocks to read and so the size of the
+     *                    offset array
+     *  @param[in] offset The list of offsets (in bytes from the current
+     *                    internal shared pointer)
      *  @param[out] d     The array to store the output in
      */
     virtual void read(
@@ -95,9 +100,11 @@ class Interface {
 
     /*! write a file where each block is determined from the list of offset
      *  @param[in] bsz    The size of a block in bytes
-     *  @param[in] sz     The number of blocks to write and so the size of the offset array
-     *  @param[in] offset The list of offsets (in bytes from the current internal shared pointer)
-     *  @param[in] d     The array to get the input from
+     *  @param[in] sz     The number of blocks to write and so the size of the
+     *                    offset array
+     *  @param[in] offset The list of offsets (in bytes from the current
+     *                    internal shared pointer)
+     *  @param[in] d      The array to get the input from
      */
     virtual void write(
       const size_t bsz,
@@ -106,7 +113,8 @@ class Interface {
       const uchar* d) const = 0;
 
     /*! @brief Write to storage.
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
      *  @param[in] sz     The amount of data to write to disk
      *  @param[in] d      The array to read data output from
      */
@@ -114,7 +122,8 @@ class Interface {
       const size_t offset, const size_t sz, const uchar* d) const = 0;
 
     /*! @brief Write data to storage in blocks.
-     *  @param[in] offset The offset in bytes from the current internal shared pointer
+     *  @param[in] offset The offset in bytes from the current internal shared
+     *                    pointer
      *  @param[in] bsz    The size of a block in bytes
      *  @param[in] osz    The number of bytes between the \c start of blocks
      *  @param[in] nb     The number of blocks

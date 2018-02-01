@@ -42,12 +42,14 @@ PIOL_Set* PIOL_Set_new(const PIOL_ExSeis* piol, const char* ptrn);
  */
 void PIOL_Set_delete(PIOL_Set* set);
 
-/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
- *  the collective min and max across all processes (which also must all call this file).
+/*! Get the min and the max of a set of parameters passed. This is a parallel
+ *  operation. It is the collective min and max across all processes (which also
+ *  must all call this file).
  *  @param[in,out] s The set handle
  *  @param[in] m1 The first parameter type
  *  @param[in] m2 The second parameter type
- *  @param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
+ *  @param[out] minmax An array of structures containing the minimum item.x,
+ *              maximum item.x, minimum item.y, maximum item.y
  *  and their respective trace numbers.
  */
 void PIOL_Set_getMinMax(
@@ -68,10 +70,10 @@ void PIOL_Set_sort_fn(
   bool (*func)(const PIOL_File_Param* param, size_t i, size_t j));
 
 /*! Preform tailed taper on a set of traces
- * @param[in,out] s A handle for the set
- * @param[in] type The type of taper to be applied to traces.
- * @param[in] ntpstr The length of left-tail taper ramp.
- * @param[in] ntpend The length of right-tail taper ramp (pass 0 for no ramp).
+ *  @param[in,out] s A handle for the set
+ *  @param[in] type The type of taper to be applied to traces.
+ *  @param[in] ntpstr The length of left-tail taper ramp.
+ *  @param[in] ntpend The length of right-tail taper ramp (pass 0 for no ramp).
  */
 void PIOL_Set_taper(
   PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend);
@@ -88,7 +90,8 @@ void PIOL_Set_output(PIOL_Set* set, const char* oname);
  */
 void PIOL_Set_text(PIOL_Set* set, const char* outmsg);
 
-/*! Summarise the current status by whatever means the PIOL instrinsically supports
+/*! Summarise the current status by whatever means the PIOL instrinsically
+ *  supports
  *  @param[in] s The set handle
  */
 void PIOL_Set_summary(const PIOL_Set* set);
@@ -100,10 +103,10 @@ void PIOL_Set_summary(const PIOL_Set* set);
 void PIOL_Set_add(PIOL_Set* set, const char* name);
 
 /*! Scale traces using automatic gain control for visualization
- * @param[in,out] s The set handle
- * @param[in] type They type of agc scaling function used
- * @param[in] window Length of the agc window
- * @param[in] normR Normalization value
+ *  @param[in,out] s The set handle
+ *  @param[in] type They type of agc scaling function used
+ *  @param[in] window Length of the agc window
+ *  @param[in] normR Normalization value
  */
 void PIOL_Set_AGC(
   PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR);

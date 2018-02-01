@@ -16,11 +16,10 @@
 namespace PIOL {
 namespace Data {
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////       Non-Class       ///////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////       Non-Class      /////////////////////////////
 
-/*! Set a view on a file so that a read of blocks separated by (stride-block) bytes appears contiguous
+/*! Set a view on a file so that a read of blocks separated by (stride-block)
+ *  bytes appears contiguous
  *  @param[in] file The MPI-IO file handle
  *  @param[in] info The info structure to use
  *  @param[in] offset The offset in bytes from the start of the file
@@ -53,7 +52,8 @@ int strideView(
  *  @param[in] info The info structure to use
  *  @param[in] count The number of offsets
  *  @param[in] block The block size in bytes
- *  @param[in] offset An array of offsets in bytes from the start of the file of sizze count
+ *  @param[in] offset An array of offsets in bytes from the start of the file of
+ *                    size count
  *  @param[out] type The datatype which will have been used to create a view
  *  @return Return an MPI error code.
  */
@@ -87,7 +87,8 @@ int randBlockView(
     return MPI_File_set_view(file, 0, MPI_BYTE, *type, "native", info);
 }
 
-/*! @brief This function exists to hide the const from the MPI_File_write_at function signature
+/*! @brief This function exists to hide the const from the MPI_File_write_at
+ *         function signature
  *  @param[in] f The MPI file handle
  *  @param[in] o The offset in bytes from the current internal shared pointer
  *  @param[in] d The array to read data output from
@@ -102,7 +103,8 @@ int mpiio_write_at(
     return MPI_File_write_at(f, o, d, s, da, st);
 }
 
-/*! @brief This function exists to hide the const from the MPI_File_write_at_all function signature
+/*! @brief This function exists to hide the const from the MPI_File_write_at_all
+ *         function signature
  *  @param[in] f The MPI file handle
  *  @param[in] o The offset in bytes from the current internal shared pointer
  *  @param[in] d The array to read data output from
@@ -153,11 +155,9 @@ int iol(
     return MPI_Type_free(&type);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////    Class functions    ///////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////    Class functions    ////////////////////////////
 
-///////////////////////////////      Constructor & Destructor      ///////////////////////////////
+//////////////////////      Constructor & Destructor      //////////////////////
 Data::MPIIO::Opt::Opt(void)
 {
 #ifdef EXSEISDAT_MPIIO_COLLECTIVES
@@ -183,7 +183,8 @@ Data::MPIIO::Opt::Opt(void)
     //    MPI_Info_set(info, "striping_factor", "10");
     //    MPI_Info_set(info, "striping_unit", "2097152");
 
-    //    MPI_Info_set(info, "panfs_concurrent_write", "false");    //ROMIO has this on by default. Annoying.
+    //    // ROMIO has this on by default. Annoying.
+    //    MPI_Info_set(info, "panfs_concurrent_write", "false");
     maxSize = getLim<int32_t>();
 }
 
@@ -283,7 +284,7 @@ void MPIIO::Init(const MPIIO::Opt& opt, FileMode mode)
     }
 }
 
-///////////////////////////////////       Member functions      ///////////////////////////////////
+/////////////////////////       Member functions      //////////////////////////
 
 bool MPIIO::isFileNull() const
 {
@@ -396,7 +397,8 @@ void MPIIO::contigIO(
     }
 }
 
-//Perform I/O to acquire data corresponding to fixed-size blocks of data located according to a list of offsets.
+//Perform I/O to acquire data corresponding to fixed-size blocks of data located
+//according to a list of offsets.
 void MPIIO::listIO(
   const MFp<MPI_Status> fn,
   const size_t bsz,

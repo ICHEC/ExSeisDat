@@ -17,7 +17,8 @@ using namespace PIOL;
 
 /*! Main function for assess.
  *  @param[in] argc The number of arguments. Should be at least 2.
- *  @param[in] argv The cstring array. The second array should be a globbing pattern.
+ *  @param[in] argv The cstring array. The second array should be a globbing
+ *                  pattern.
  *  @todo Switch globbing with regex
  *  @return Return 0 on success, -1 on failure
  */

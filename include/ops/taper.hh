@@ -12,7 +12,7 @@
 namespace PIOL {
 namespace File {
 
-/******************************************** Core *********************************************/
+/************************************ Core ************************************/
 /*! Apply a taper to a set of traces.
  * @param[in] sz The number of traces
  * @param[in] ns The number of samples per trace
@@ -30,7 +30,7 @@ void taper(
   size_t nTailLft,
   size_t nTailRt);
 
-/******************************************** Non-core *********************************************/
+/********************************** Non-core **********************************/
 /*! Choose the window type for taper function
  *  @param[in] type The window type
  *  @return Return the appropriate taper function

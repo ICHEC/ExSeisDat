@@ -62,7 +62,8 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
 
 int main(void)
 {
-    //Set output file name, number of traces, number of samples per trace, and sampling rate
+    //Set output file name, number of traces, number of samples per trace, and
+    //sampling rate
     const char* name = "CreateFileOutputC";
     size_t nt        = 8000;
     size_t ns        = 4000;

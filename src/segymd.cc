@@ -46,11 +46,13 @@ int16_t deScale(const geom_t val)
         llint digits = std::llround(val * geom_t(tenk)) - llintpart * tenk;
         //if the digits are all zero we don't need any scaling
         if (digits != 0) {
-            //We try the most negative scale values we can first. (scale = - 10000 / i)
+            //We try the most negative scale values we can first.
+            //(scale = - 10000 / i)
             for (int32_t i = 1; i < tenk; i *= 10) {
                 if (digits % (i * 10)) {
                     int16_t scaleFactor = -tenk / i;
-                    //Now we test that we can still store the most significant byte
+                    //Now we test that we can still store the most significant
+                    //byte
                     geom_t scal = scaleConv(scaleFactor);
 
                     //int32_t t = llint(val / scal) - digits;

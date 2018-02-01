@@ -16,8 +16,9 @@
 
 namespace PIOL {
 
-/*! @brief The ExSeisPIOL structure. A single instance of this structure should be created and
- *         passed to each subsequent PIOL object which is created.
+/*! @brief The ExSeisPIOL structure. A single instance of this structure should
+ *         be created and passed to each subsequent PIOL object which is
+ *         created.
  */
 class ExSeisPIOL {
 
@@ -34,9 +35,10 @@ class ExSeisPIOL {
     std::unique_ptr<Log::Logger> log;       //!< The ExSeisPIOL logger
     std::unique_ptr<Comm::Interface> comm;  //!< The ExSeisPIOL communication
 
-    /*! @brief A function to check if an error has occured in the PIOL. If an error has occured the log is printed, the object destructor is called
-     *  and the code aborts.
-     * @param[in] msg A message to be printed to the log.
+    /*! @brief A function to check if an error has occured in the PIOL. If an
+     *         error has occured the log is printed, the object destructor is
+     *         called and the code aborts.
+     *  @param[in] msg A message to be printed to the log.
      */
     void isErr(const std::string& msg = "") const;
 };

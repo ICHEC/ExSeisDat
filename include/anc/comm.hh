@@ -20,15 +20,18 @@
 namespace PIOL {
 namespace Comm {
 
-/*! @brief The Communication layer interface. Specific communication implementations
- *  work off this base class.
+/*! @brief The Communication layer interface. Specific communication
+ *         implementations work off this base class.
  */
 class Interface {
   protected:
+    /// A number in the sequence from 0 to some maximum (numRank-1) which
+    /// indicates the process number.
     size_t
-      rank;  //!< A number in the sequence from 0 to some maximum (numRank-1) which indicates the process number.
+      rank;
+    /// The total number of processes which are executing together.
     size_t
-      numRank;  //!< The total number of processes which are executing together.
+      numRank;  
 
   public:
     /*! @brief A virtual destructor to allow deletion.
@@ -44,35 +47,44 @@ class Interface {
      */
     virtual size_t getNumRank() const { return numRank; }
 
-    /*! @brief Pass a vector of double and return the corresponding values to each process
+    /*! @brief Pass a vector of double and return the corresponding values to
+     *         each process
      *  @param[in] val The local value to use in the gather
-     *  @return Return a vector where the nth element is the value from the nth rank.
+     *  @return Return a vector where the nth element is the value from the nth
+     *          rank.
      */
     virtual std::vector<double> gather(
       const std::vector<double>& val) const = 0;
 
-    /*! @brief Pass a vector of double and return the corresponding values to each process
+    /*! @brief Pass a vector of double and return the corresponding values to
+     *         each process
      *  @param[in] val The local value to use in the gather
-     *  @return Return a vector where the nth element is the value from the nth rank.
+     *  @return Return a vector where the nth element is the value from the nth
+     *          rank.
      */
     virtual std::vector<float> gather(const std::vector<float>& val) const = 0;
 
-    /*! @brief Pass a vector of llint and return the corresponding values to each process
+    /*! @brief Pass a vector of llint and return the corresponding values to
+     *         each process
      *  @param[in] val The local value to use in the gather
-     *  @return Return a vector where the nth element is the value from the nth rank.
+     *  @return Return a vector where the nth element is the value from the nth
+     *          rank.
      */
     virtual std::vector<llint> gather(const std::vector<llint>& val) const = 0;
 
-    /*! @brief Pass a vector of size_t and return the corresponding values to each process
+    /*! @brief Pass a vector of size_t and return the corresponding values to
+     *         each process
      *  @param[in] val The local value to use in the gather
-     *  @return Return a vector where the nth element is the value from the nth rank.
+     *  @return Return a vector where the nth element is the value from the nth
+     *          rank.
      */
     virtual std::vector<size_t> gather(
       const std::vector<size_t>& val) const = 0;
 
     /*! @brief Pass a value and return the corresponding values to each process
      *  @param[in] val The local value to use in the gather
-     *  @return Return a vector where the nth element is the value from the nth rank.
+     *  @return Return a vector where the nth element is the value from the nth
+     *          rank.
      */
     template<class T>
     std::vector<T> gather(T val) const
@@ -81,33 +93,35 @@ class Interface {
     }
 
     /*! Perform a reduce across all process to get the sum of the passed values
-     * @param[in] val variable to be used in the operation from this process
-     * @return the global sum (same value on all processes)
+     *  @param[in] val variable to be used in the operation from this process
+     *  @return the global sum (same value on all processes)
      */
     virtual size_t sum(size_t val) = 0;
 
     /*! Perform a reduce across all process to get the max of the passed values
-     * @param[in] val variable to be used in the operation from this process
-     * @return the global max (same value on all processes)
+     *  @param[in] val variable to be used in the operation from this process
+     *  @return the global max (same value on all processes)
      */
     virtual size_t max(size_t val) = 0;
 
     /*! Perform a reduce across all process to get the min of the passed values
-     * @param[in] val variable to be used in the operation from this process
-     * @return the global min (same value on all processes)
+     *  @param[in] val variable to be used in the operation from this process
+     *  @return the global min (same value on all processes)
      */
     virtual size_t min(size_t val) = 0;
 
     /*! Calculate the offset assuming a local given contribution
-     * @param[in] val variable to be used in the operation from this process
-     * @return the local offset (equivalent to an MPI exscan)
+     *  @param[in] val variable to be used in the operation from this process
+     *  @return the local offset (equivalent to an MPI exscan)
      */
     virtual size_t offset(size_t val) = 0;
 
-    /*! @brief A barrier between all processes which are members of the communication collective.
+    /*! @brief A barrier between all processes which are members of the
+     *         communication collective.
+     *         Implementations of this pure virtual function will perform a
+     *         collective wait.
      */
-    virtual void barrier(void)
-      const = 0;  //!< Implementations of this pure virtual function will perform a collective wait.
+    virtual void barrier(void) const = 0;
 };
 
 }  // namespace Comm

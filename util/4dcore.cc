@@ -33,15 +33,16 @@ void printxSrcMinMax(ExSeisPIOL* piol, vec<fourd_t>& xsmin, vec<fourd_t>& xsmax)
     piol->comm->barrier();
 }
 
-/*! Each process will print their xSrc min/max and active ranks to an output file.
+/*! Each process will print their xSrc min/max and active ranks to an output
+ *  file.
  *  xSrc min/max will also be printed to the terminal.
  * @param[in] piol The piol object.
  * @param[in] xslmin The minimum local value for xSrc from file 1.
  * @param[in] xslmax The maximum local value for xSrc from file 1.
  * @param[in] xsrmin The minimum local value for xSrc from file 2.
  * @param[in] xsrmax The maximum local value for xSrc from file 2.
- * @param[in] active An array of active ranks for the local process. That is, processes the
- *            local process will do a one-sided MPI_Get on.
+ * @param[in] active An array of active ranks for the local process. That is,
+ *                   processes the local process will do a one-sided MPI_Get on.
  */
 void printxSMinMax(
   ExSeisPIOL* piol,
@@ -69,8 +70,8 @@ void printxSMinMax(
 /*! Calculate the hypotenuse of a RH triangle using x and y as lengths.
  *  @param[in] x One side.
  *  @param[in] y The other.
- *  \note The intel compiler uses an incorrect hypotenuse function when it vectorises, so this
- *        is defined (intel 2016).
+ *  @note The intel compiler uses an incorrect hypotenuse function when it
+ *        vectorises, so this is defined (intel 2016).
  *  @return Return the hypotenuse.
  */
 fourd_t hypot(const fourd_t x, const fourd_t y)
@@ -116,7 +117,8 @@ vec<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
     return win;
 }
 
-/*! One-sided retrieval from data in window on processor lrank. Processor lrank is passive.
+/*! One-sided retrieval from data in window on processor lrank. Processor lrank
+ *  is passive.
  *  @param[in] lrank The rank
  *  @param[in] sz The number of coordinates
  *  @param[in] win The vector of windows to access with.
@@ -161,7 +163,8 @@ std::unique_ptr<Coords> getCoordsWin(
     return crd;
 }
 
-/*! Calcuate the difference criteria between source/receiver pairs between traces.
+/*! Calcuate the difference criteria between source/receiver pairs between
+ *  traces.
  *  @param[in] xs1 xSrc from pair 1
  *  @param[in] ys1 ySrc from pair 1
  *  @param[in] xr1 xRcv from pair 1
@@ -173,14 +176,15 @@ std::unique_ptr<Coords> getCoordsWin(
  *  @return Return the dsr value
  *
  * @details The definitions of ds and dr are:
- * \f$ds = \sqrt((sx1-sx2)^2+(sy1-sy2)^2)\f$
- * \f$dr = \sqrt((rx1-rx2)^2+(ry1-ry2)^2)\f$
- * The boat may be going in the opposite direction for the data in file2 so that the source from file1
- * is closer to the receiver in file2 and vice-versa. We interchange _sx->rx, _sy->ry _rx->sx _ry->sy
- * for prm2 in that case (prm2).
- * \f$rds = \sqrt((sx1-rx2)^2+(sy1-ry2)^2)\f$
- * \f$rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)\f$
- * \f$dsr = (min(ds, rds) + min(dr, rdr))^2\f$
+ *              \f$ds = \sqrt((sx1-sx2)^2+(sy1-sy2)^2)\f$
+ *              \f$dr = \sqrt((rx1-rx2)^2+(ry1-ry2)^2)\f$
+ *          The boat may be going in the opposite direction for the data in
+ *          file2 so that the source from file1 is closer to the receiver in
+ *          file2 and vice-versa. We interchange _sx->rx, _sy->ry, _rx->sx,
+ *          _ry->sy for prm2 in that case (prm2).
+ *              \f$rds = \sqrt((sx1-rx2)^2+(sy1-ry2)^2)\f$
+ *              \f$rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)\f$
+ *              \f$dsr = (min(ds, rds) + min(dr, rdr))^2\f$
 */
 fourd_t dsr(
   const fourd_t xs1,
@@ -201,13 +205,16 @@ fourd_t dsr(
 
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  @tparam Init If true, perform the initialisation sequence.
- *  @param[in] crd1 A vector containing the process's parameter data from the first input file. This data
- *             is never sent to any crd2 process.
+ *  @param[in] crd1 A vector containing the process's parameter data from the
+ *                  first input file. This data is never sent to any crd2
+ *                  process.
  *  @param[in] crd2 A vector containing the parameter data from another process.
- *  @param[out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
- *                 This vector is updated by the loop.
- *  @param[out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
- *                 This vector is updated by the loop.
+ *  @param[out] min A vector containing the trace number of the trace that
+ *                  minimises the dsdr criteria.  This vector is updated by the
+ *                  loop.
+ *  @param[out] minrs A vector containing the dsdr value of the trace that
+ *                    minimises the dsdr criteria.  This vector is updated by
+ *                    the loop.
  */
 template<const bool ixline>
 void initUpdate(
@@ -227,13 +234,16 @@ void initUpdate(
 
 /*! Perform a minimisation check with the current two vectors of parameters.
  *  @tparam Init If true, perform the initialisation sequence.
- *  @param[in] crd1 A vector containing the process's parameter data from the first input file. This data
- *             is never sent to any other process.
+ *  @param[in] crd1 A vector containing the process's parameter data from the
+ *                  first input file. This data is never sent to any other
+ *                  process.
  *  @param[in] crd2 A vector containing the parameter data from another process.
- *  @param[in,out] min A vector containing the trace number of the trace that minimises the dsdr criteria.
- *                 This vector is updated by the loop.
- *  @param[in,out] minrs A vector containing the dsdr value of the trace that minimises the dsdr criteria.
- *                 This vector is updated by the loop.
+ *  @param[in,out] min A vector containing the trace number of the trace that
+ *                     minimises the dsdr criteria.  This vector is updated by
+ *                     the loop.
+ *  @param[in,out] minrs A vector containing the dsdr value of the trace that
+ *                       minimises the dsdr criteria.  This vector is updated by
+ *                       the loop.
  *  @param[in] dsrmax The maximum distance a pair from crd2 can be from crd1.
  *  @return Return the number of dsr calculations performed.
  */
@@ -251,7 +261,8 @@ size_t update(
     size_t rstart = 0LU;
     size_t rend   = crd2->sz;
 
-    //Ignore all file2 traces that can not possibly match our criteria within the min/max
+    //Ignore all file2 traces that can not possibly match our criteria within
+    //the min/max
     //of src x.
     for (; rstart < rend && crd2->xSrc[rstart] < crd1->xSrc[lstart] - dsrmax;
          rstart++)
@@ -292,9 +303,10 @@ size_t update(
     const fourd_t* yR2 = crd2->yRcv;
     const size_t* tn   = crd2->tn;
 
-    #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) aligned(yR2:ALIGN) \
-                     aligned(xS1:ALIGN) aligned(yS1:ALIGN) aligned(xR1:ALIGN) aligned(yR1:ALIGN) \
-                     aligned(lminrs:ALIGN) aligned(lmin:ALIGN) aligned(tn:ALIGN)
+    #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) \
+                     aligned(yR2:ALIGN) aligned(xS1:ALIGN) aligned(yS1:ALIGN) \
+                     aligned(xR1:ALIGN) aligned(yR1:ALIGN) aligned(tn:ALIGN)  \
+                     aligned(lminrs:ALIGN) aligned(lmin:ALIGN)
     for (size_t i = lstart; i < lend; i++)  //Loop through every file1 trace
     {
         const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
@@ -433,7 +445,8 @@ void calc4DBin(
     else
         initUpdate<false>(crd1, crd2, min, minrs);
 
-    //This for loop determines the processes the local process will need to be communicating with.
+    //This for loop determines the processes the local process will need to be
+    //communicating with.
     vec<size_t> active;
     for (size_t i = 0LU; i < numRank; i++)
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))

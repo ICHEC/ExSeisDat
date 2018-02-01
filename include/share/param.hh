@@ -31,13 +31,15 @@ struct Param {
       r;        //!< The rules which describe the indexing of the arrays.
     size_t sz;  //!< The number of sets of trace parameters.
 
-    /*! Allocate the basic space required to store the arrays and store the rules.
+    /*! Allocate the basic space required to store the arrays and store the
+     *  rules.
      *  @param[in] r_ The rules which describe the layout of the arrays.
      *  @param[in] sz The number of sets of trace parameters.
      */
     Param(std::shared_ptr<Rule> r_, const size_t sz);
 
-    /*! Allocate the basic space required to store the arrays and store the rules. Default rules
+    /*! Allocate the basic space required to store the arrays and store the
+     *  rules. Default rules
      *  @param[in] sz The number of sets of trace parameters.
      */
     Param(const size_t sz = 1);
@@ -56,10 +58,11 @@ struct Param {
      */
     size_t memUsage(void) const;
 
-    /*! Less-than operator. An operator overload required for template subsitution
+    /*! Less-than operator. An operator overload required for template
+     *  subsitution
      *  @param[in] a The Param object to compare with
      *  @return Return true if the index of the current object is less than
-     *  the right operand.
+     *          the right operand.
      */
     bool operator<(Param& a)
     {
@@ -67,8 +70,8 @@ struct Param {
     }
 
     /*! Equality operator
-     * @param[in] p Param Structure to compare with.
-     * @return Return true if the structures are equivalent.
+     *  @param[in] p Param Structure to compare with.
+     *  @return Return true if the structures are equivalent.
      */
     bool operator==(Param& p) const;
 

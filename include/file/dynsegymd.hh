@@ -36,9 +36,9 @@ namespace File {
  */
 struct EnumHash {
     /*! This overload describes how to convert from the enum to a size_t
-     * @tparam T The enum type
-     * @param[in] t The enum value
-     * @return Return a cast to size_t
+     *  @tparam T The enum type
+     *  @param[in] t The enum value
+     *  @return Return a cast to size_t
      */
     template<typename T>
     size_t operator()(T t) const
@@ -62,9 +62,10 @@ enum class MdType : size_t {
  *
  */
 struct RuleEntry {
-    size_t
-      num;  //!< A counter showing this is the numth rule for the given data type.
-    size_t loc;  //!< The memory location for the primary data.
+    /// A counter showing this is the numth rule for the given data type.
+    size_t num;
+    /// The memory location for the primary data.
+    size_t loc;
 
     /*! The constructor for storing the rule number and location.
      *  @param[in] num_ The numth rule of the given type for indexing
@@ -76,14 +77,14 @@ struct RuleEntry {
      */
     virtual ~RuleEntry(){};
 
-    /*! Pure virtual function to return the minimum location stored, in derived cases, more data can be stored than
-     *  just loc
+    /*! Pure virtual function to return the minimum location stored, in derived
+     *  cases, more data can be stored than just loc
      *  @return the minimum location
      */
     virtual size_t min(void) = 0;
 
-    /*! Pure virtual function to return the maximum location stored up to, in derived cases, more data can be stored than
-     *  just loc
+    /*! Pure virtual function to return the maximum location stored up to, in
+     *  derived cases, more data can be stored than just loc
      *  @return the maximum location
      */
     virtual size_t max(void) = 0;
@@ -103,13 +104,13 @@ struct SEGYLongRuleEntry : public RuleEntry {
      */
     SEGYLongRuleEntry(size_t num_, Tr loc_) : RuleEntry(num_, size_t(loc_)) {}
 
-    /*! Return the minimum location stored, i.e loc
-     *  just loc
+    /*! Return the minimum location stored, i.e loc just loc
      *  @return the minimum location
      */
     size_t min(void) { return loc; }
 
-    /*! Return the maximum location stored up to, including the size of the data stored
+    /*! Return the maximum location stored up to, including the size of the data
+     *  stored
      *  @return the maximum location plus 4 bytes to store an int32_t
      */
     size_t max(void) { return loc + 4U; }
@@ -182,7 +183,8 @@ struct SEGYShortRuleEntry : public RuleEntry {
      */
     size_t min(void) { return loc; }
 
-    /*! Return the maximum location stored up to, including the size of the data stored
+    /*! Return the maximum location stored up to, including the size of the data
+     *  stored
      *  @return the maximum location plus 2 bytes to store an int16_t
      */
     size_t max(void) { return loc + 2U; }
@@ -214,10 +216,11 @@ struct SEGYFloatRuleEntry : public RuleEntry {
      */
     size_t min(void) { return std::min(scalLoc, loc); }
 
-    /*! Return the maximum location stored up to, including the size of the data stored
-     *  @return the maximum location. If the scaler is in a location higher than the
-     *  the primary data store then the location + 2U is returned, otherwise the primary
-     *  location + 4U is returned.
+    /*! Return the maximum location stored up to, including the size of the data
+     *  stored
+     *  @return the maximum location. If the scaler is in a location higher than
+     *          the the primary data store then the location + 2U is returned,
+     *          otherwise the primary location + 4U is returned.
      */
     size_t max(void) { return std::max(scalLoc + 2U, loc + 4U); }
 
@@ -227,7 +230,8 @@ struct SEGYFloatRuleEntry : public RuleEntry {
     MdType type(void) { return MdType::Float; }
 };
 
-//TODO: When implementing alternative file formats, this Rule structure must be generalised
+//TODO: When implementing alternative file formats, this Rule structure must be
+//      generalised
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6  //Compiler defects
 typedef std::unordered_map<Meta, RuleEntry*, EnumHash>
   RuleMap;  //!< Typedef for RuleMap accounting for a compiler defect
@@ -236,8 +240,9 @@ typedef std::unordered_map<Meta, RuleEntry*>
   RuleMap;  //!< Typedef for the map holding the rules
 #endif
 
-/*! The structure which holds the rules associated with the trace parameters in a file.
- *  These rules describe how to interpret the metadata and also how to index the parameter structure of arrays.
+/*! The structure which holds the rules associated with the trace parameters in
+ *  a file.  These rules describe how to interpret the metadata and also how to
+ *  index the parameter structure of arrays.
  */
 struct Rule {
     size_t numLong  = 0;  //!< Number of long rules.
@@ -260,20 +265,23 @@ struct Rule {
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
-     *  @param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  @param[in] full Whether the extents are set to the default size or
+     *                  calculated dynamically.
      *  @param[in] defaults Whether the default SEG-Y rules should be set.
-     *  @param[in] extras Whether maximum amount of rules should be set. Useful when copying files
-     *              through the library.
+     *  @param[in] extras Whether maximum amount of rules should be set. Useful
+     *                    when copying files through the library.
      */
     Rule(bool full, bool defaults, bool extras = false);
 
     /*! The constructor for supplying a list of Meta entries which
      *  have default locations associated with them.
-     *  @param[in] m A list of meta entries with default entries. Entries without defaults will be ignored.
-     *  @param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  @param[in] m A list of meta entries with default entries. Entries
+     *               without defaults will be ignored.
+     *  @param[in] full Whether the extents are set to the default size or
+     *                  calculated dynamically.
      *  @param[in] defaults Whether the default SEG-Y rules should be set.
-     *  @param[in] extras Whether maximum amount of rules should be set. Useful when copying files
-     *              through the library.
+     *  @param[in] extras Whether maximum amount of rules should be set. Useful
+     *                    when copying files through the library.
      */
     Rule(
       const std::vector<Meta>& m,
@@ -283,8 +291,10 @@ struct Rule {
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.
-     *  @param[in] translate_ An unordered map to initialise the internal translate object with.
-     *  @param[in] full Whether the extents are set to the default size or calculated dynamically.
+     *  @param[in] translate_ An unordered map to initialise the internal
+     *                        translate object with.
+     *  @param[in] full Whether the extents are set to the default size or
+     *                  calculated dynamically.
      */
     Rule(RuleMap translate_, bool full = true);
 
@@ -312,14 +322,17 @@ struct Rule {
 
     /*! Add a rule for floats.
      *  @param[in] m The Meta entry.
-     *  @param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (4 bytes).
-     *  @param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be stored (2 bytes).
+     *  @param[in] loc The location in the SEG-Y DOMD for the primary data to be
+     *                 stored (4 bytes).
+     *  @param[in] scalLoc The location in the SEG-Y DOMD for the scaler to be
+     *                     stored (2 bytes).
      */
     void addSEGYFloat(Meta m, Tr loc, Tr scalLoc);
 
     /*! Add a rule for floats.
      *  @param[in] m The Meta entry.
-     *  @param[in] loc The location in the SEG-Y DOMD for the primary data to be stored (2 bytes).
+     *  @param[in] loc The location in the SEG-Y DOMD for the primary data to be
+     *                 stored (2 bytes).
      */
     void addShort(Meta m, Tr loc);
 
@@ -337,7 +350,8 @@ struct Rule {
      */
     void rmRule(Meta m);
 
-    /*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
+    /*! Return the size of the buffer space required for the metadata items when
+     *  converting to SEG-Y.
      *  @return Return the size.
      */
     size_t extent(void);
@@ -396,7 +410,8 @@ T getPrm(size_t i, Meta entry, const Param* prm)
  *  @tparam T The type of the value
  *  @param[in] i The trace number
  *  @param[in] entry The meta entry to retrieve.
- *  @param[in] ret The parameter return structure which is initialised by passing a geom_t, llint or short.
+ *  @param[in] ret The parameter return structure which is initialised by
+ *                 passing a geom_t, llint or short.
  *  @param[in] prm The parameter structure
  */
 template<typename T>
@@ -422,10 +437,10 @@ void setPrm(const size_t i, const Meta entry, T ret, Param* prm)
 }
 
 /*! Copy params from one parameter structure to another.
- * @param[in] j The trace number of the source.
- * @param[in] src The source parameter structure.
- * @param[in] k The trace number of the destination.
- * @param[out] dst The destination parameter structure.
+ *  @param[in] j The trace number of the source.
+ *  @param[in] src The source parameter structure.
+ *  @param[in] k The trace number of the destination.
+ *  @param[out] dst The destination parameter structure.
  */
 void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst);
 

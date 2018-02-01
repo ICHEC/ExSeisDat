@@ -62,7 +62,8 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
 
 int main(void)
 {
-    //Set output file name, number of traces, number of samples per trace, and sampling rate
+    //Set output file name, number of traces, number of samples per trace, and
+    //sampling rate
     std::string name = "CreateFileOutputCPP";
     size_t nt        = 8000;
     size_t ns        = 4000;

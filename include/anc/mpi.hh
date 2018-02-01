@@ -29,7 +29,8 @@ namespace Comm {
 void manageMPI(bool);
 
 
-/*! @brief The MPI communication class. All MPI communication specific routines should be wrapped up and accessible from this class.
+/*! @brief The MPI communication class. All MPI communication specific routines
+ *         should be wrapped up and accessible from this class.
  */
 class MPI : public Comm::Interface {
   private:
@@ -40,8 +41,8 @@ class MPI : public Comm::Interface {
     /*! @brief The MPI-Communicator options structure.
      */
     struct Opt {
-        MPI_Comm comm =
-          MPI_COMM_WORLD;  //!< This variable defines the default MPI communicator.
+        /// This variable defines the default MPI communicator.
+        MPI_Comm comm = MPI_COMM_WORLD;
     };
 
     /*! @brief The constructor.

@@ -19,7 +19,7 @@
 namespace PIOL {
 namespace File {
 
-///////////////////////////////      Constructor & Destructor      ///////////////////////////////
+//////////////////////      Constructor & Destructor      //////////////////////
 WriteSEGY::Opt::Opt(void)
 {
     incFactor = SI::Micro;
@@ -64,7 +64,7 @@ WriteSEGY::~WriteSEGY(void)
     }
 }
 
-///////////////////////////////////       Member functions      ///////////////////////////////////
+//////////////////////////       Member functions      /////////////////////////
 void WriteSEGY::packHeader(uchar* buf) const
 {
     for (size_t i = 0; i < text.size(); i++)
@@ -75,14 +75,18 @@ void WriteSEGY::packHeader(uchar* buf) const
     setMd(Hdr::Increment, int16_t(std::lround(inc / incFactor)), buf);
 
     //Currently these are hard-coded entries:
-    setMd(Hdr::Units, 0x0001, buf);       //The unit system.
-    setMd(Hdr::SEGYFormat, 0x0100, buf);  //The version of the SEGY format.
+    //The unit system.
+    setMd(Hdr::Units, 0x0001, buf);
+    //The version of the SEGY format.
+    setMd(Hdr::SEGYFormat, 0x0100, buf);
+    //We always deal with fixed traces at present.
     setMd(
       Hdr::FixedTrace, 0x0001,
-      buf);  //We always deal with fixed traces at present.
+      buf);
+    //We do not support text extensions at present.
     setMd(
       Hdr::Extensions, 0x0000,
-      buf);  //We do not support text extensions at present.
+      buf);
 }
 
 void WriteSEGY::Init(const WriteSEGY::Opt& opt)
@@ -158,11 +162,13 @@ void WriteSEGY::writeInc(const geom_t inc_)
     }
 }
 
-/*! Template function for writing SEG-Y traces and parameters, random and contiguous.
+/*! Template function for writing SEG-Y traces and parameters, random and
+ *  contiguous.
  *  @tparam T The type of offset (pointer or size_t)
  *  @param[in] obj The object-layer object.
  *  @param[in] ns The number of samples per trace.
- *  @param[in] offset The offset(s). If T == size_t * this is an array, otherwise its a single offset.
+ *  @param[in] offset The offset(s). If T == size_t * this is an array,
+ *                    otherwise its a single offset.
  *  @param[in] sz The number of traces to write
  *  @param[in] trc Pointer to trace array.
  *  @param[in] prm Pointer to parameter structure.

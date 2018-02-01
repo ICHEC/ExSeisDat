@@ -29,7 +29,8 @@ constexpr size_t getTextSz()
     return static_cast<size_t>(Size::Text);
 }
 
-/*! @brief Return the size of the Header Object (assuming text extensions are not used)
+/*! @brief Return the size of the Header Object (assuming text extensions are
+ *         not used)
  *  @return Returns the size of the HO in bytes.
  */
 constexpr size_t getHOSz()

@@ -1,4 +1,5 @@
-/* These unit tests might be fairly redundant since they are basically the same as the system tests.
+/* These unit tests might be fairly redundant since they are basically the same
+ * as the system tests.
  */
 #include "settest.hh"
 #include <string>

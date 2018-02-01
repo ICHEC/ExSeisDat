@@ -31,8 +31,9 @@ std::shared_ptr<Obj::Interface> makeDefaultObj(
 
 namespace File {
 
+/// The NULL parameter so that the correct internal read pattern is selected
 extern const trace_t*
-  TRACE_NULL;  //!< The NULL parameter so that the correct internal read pattern is selected
+  TRACE_NULL;
 
 /*! Class for all file interfaces
  */
@@ -48,7 +49,8 @@ class Interface {
     geom_t inc;        //!< The increment between samples in a trace
 
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
@@ -77,7 +79,8 @@ class Interface {
 class ReadInterface : public Interface {
   public:
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
@@ -116,11 +119,12 @@ class ReadInterface : public Interface {
      */
     virtual geom_t readInc(void) const;
 
-    /*! @brief Read the trace parameters from offset to offset+sz of the respective
-     *  trace headers.
+    /*! @brief Read the trace parameters from offset to offset+sz of the
+     *         respective trace headers.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process.
-     *  @param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
+     *  @param[in] prm An array of the parameter structures
+     *                 (size sizeof(Param)*sz)
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     void readParam(
@@ -129,7 +133,8 @@ class ReadInterface : public Interface {
       Param* prm,
       const size_t skip = 0) const;
 
-    /*! @brief Read the traces specified by the offsets in the passed offset array.
+    /*! @brief Read the traces specified by the offsets in the passed offset
+     *         array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read.
      *  @param[out] prm A parameter structure
@@ -145,7 +150,8 @@ class ReadInterface : public Interface {
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process.
      *  @param[out] trace The array of traces to fill from the file
-     *  @param[out] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
+     *  @param[out] prm A contiguous array of the parameter structures
+     *                  (size sizeof(Param)*sz)
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void readTrace(
@@ -155,10 +161,12 @@ class ReadInterface : public Interface {
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const = 0;
 
-    /*! @brief Read the traces specified by the offsets in the passed offset array. Assumes Monotonic.
+    /*! @brief Read the traces specified by the offsets in the passed offset
+     *         array. Assumes Monotonic.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read (monotonic list).
-     *  @param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[out] trace A contiguous array of each trace
+     *                    (size sz*ns*sizeof(trace_t))
      *  @param[out] prm A parameter structure
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      *
@@ -171,10 +179,13 @@ class ReadInterface : public Interface {
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const = 0;
 
-    /*! @brief Read the traces specified by the offsets in the passed offset array. Does not assume monotonic
+    /*! @brief Read the traces specified by the offsets in the passed offset
+     *         array. Does not assume monotonic
      *  @param[in] sz The number of traces to process
-     *  @param[in] offset An array of trace numbers to read (non-monotonic list).
-     *  @param[out] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[in] offset An array of trace numbers to read
+     *                    (non-monotonic list).
+     *  @param[out] trace A contiguous array of each trace
+     *                    (size sz*ns*sizeof(trace_t))
      *  @param[out] prm A parameter structure
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      *
@@ -194,7 +205,8 @@ class ReadInterface : public Interface {
 class WriteInterface : public Interface {
   public:
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to instantiate another shared_ptr.
+     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] obj_  Pointer to the Object-layer object (polymorphic).
      */
@@ -226,15 +238,16 @@ class WriteInterface : public Interface {
      */
     virtual void writeInc(const geom_t inc_) = 0;
 
-    /*! @brief Write the trace parameters from offset to offset+sz to the respective
-     *  trace headers.
+    /*! @brief Write the trace parameters from offset to offset+sz to the
+     *         respective trace headers.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process.
-     *  @param[in] prm An array of the parameter structures (size sizeof(Param)*sz)
+     *  @param[in] prm An array of the parameter structures
+     *                 (size sizeof(Param)*sz)
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      *
-     *  @details It is assumed that this operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
+     *  @details It is assumed that this operation is not an update. Any
+     *           previous contents of the trace header will be overwritten.
      */
     void writeParam(
       const size_t offset,
@@ -245,14 +258,16 @@ class WriteInterface : public Interface {
         writeTrace(offset, sz, const_cast<trace_t*>(TRACE_NULL), prm, skip);
     }
 
-    /*! @brief Write the parameters specified by the offsets in the passed offset array.
+    /*! @brief Write the parameters specified by the offsets in the passed
+     *         offset array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to write.
      *  @param[in] prm A parameter structure
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      *
-     *  @details It is assumed that the parameter writing operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
+     *  @details It is assumed that the parameter writing operation is not an
+     *           update. Any previous contents of the trace header will be
+     *           overwritten.
      */
     void writeParamNonContiguous(
       const size_t sz,
@@ -268,7 +283,8 @@ class WriteInterface : public Interface {
      *  @param[in] offset The starting trace number.
      *  @param[in] sz The number of traces to process.
      *  @param[in] trace The array of traces to write to the file
-     *  @param[in] prm A contiguous array of the parameter structures (size sizeof(Param)*sz)
+     *  @param[in] prm A contiguous array of the parameter structures
+     *                 (size sizeof(Param)*sz)
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      */
     virtual void writeTrace(
@@ -278,16 +294,18 @@ class WriteInterface : public Interface {
       const Param* prm  = PIOL_PARAM_NULL,
       const size_t skip = 0) = 0;
 
-    /*! @brief Write the traces specified by the offsets in the passed offset array.
+    /*! @brief Write the traces specified by the offsets in the passed offset
+     *         array.
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to write.
-     *  @param[in] trace A contiguous array of each trace (size sz*ns*sizeof(trace_t))
+     *  @param[in] trace A contiguous array of each trace
+     *                   (size sz*ns*sizeof(trace_t))
      *  @param[in] prm A parameter structure
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      *
-     *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.
-     *  It is assumed that the parameter writing operation is not an update. Any previous
-     *  contents of the trace header will be overwritten.
+     *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.  It is
+     *           assumed that the parameter writing operation is not an update.
+     *           Any previous contents of the trace header will be overwritten.
      */
     virtual void writeTraceNonContiguous(
       const size_t sz,
@@ -301,15 +319,19 @@ class WriteInterface : public Interface {
  */
 class Model3dInterface {
   public:
+    /// Parameters for the inline coordinate (start, count, increment)
     std::tuple<llint, llint, llint>
-      il;  //!< Parameters for the inline coordinate (start, count, increment)
+      il;
+    /// Parameters for the crossline coordinate (start, count, increment)
     std::tuple<llint, llint, llint>
-      xl;  //!< Parameters for the crossline coordinate (start, count, increment)
+      xl;
 
-    /*! read the 3d file based on il and xl that match those in the given \c gather array.
+    /*! read the 3d file based on il and xl that match those in the given
+     *  \c gather array.
      *  @param[in] offset the offset into the global array
      *  @param[in] sz the number of gathers for the local process
-     *  @param[in] gather a structure which contains the il and xl coordinates of interest
+     *  @param[in] gather a structure which contains the il and xl coordinates
+     *                    of interest
      *  @return return a vector of traces containing the trace values requested
      */
     virtual std::vector<trace_t> readModel(
@@ -317,10 +339,12 @@ class Model3dInterface {
       const size_t sz,
       const Uniray<size_t, llint, llint>& gather) = 0;
 
-    /*! Read the 3d file based on il and xl that match those in the given \c gather array.
+    /*! Read the 3d file based on il and xl that match those in the given
+     *  \c gather array.
      *  @param[in] sz The number of offsets for the local process
      *  @param[in] offset the offset into the global array
-     *  @param[in] gather A structure which contains the il and xl coordinates of interest
+     *  @param[in] gather A structure which contains the il and xl coordinates
+     *                    of interest
      *  @return Return a vector of traces containing the trace values requested
      */
     virtual std::vector<trace_t> readModel(

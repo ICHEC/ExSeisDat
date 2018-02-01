@@ -20,15 +20,17 @@ struct OpsTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::New(false);
 };
 
-/*! Get the min and the max of a set of parameters passed. This is a parallel operation. It is
- *  the collective min and max across all processes (which also must all call this file).
+/*! Get the min and the max of a set of parameters passed. This is a parallel
+ *  operation. It is the collective min and max across all processes (which also
+ *  must all call this file).
  *  @param[in, out] piol The PIOL object
  *  @param[in] offset The starting trace number (local).
  *  @param[in] lnt The local number of traces to process.
  *  @param[in] coord
- *  @param[out] minmax An array of structures containing the minimum item.x,  maximum item.x, minimum item.y, maximum item.y
- *  and their respective trace numbers.
-*/
+ *  @param[out] minmax An array of structures containing the minimum item.x,
+ *                     maximum item.x, minimum item.y, maximum item.y and their
+ *                     respective trace numbers.
+ */
 void getMinMax(
   ExSeisPIOL* piol,
   size_t offset,

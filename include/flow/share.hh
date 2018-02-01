@@ -16,7 +16,8 @@
 
 namespace PIOL {
 
-/*! A file-descriptor structure which describes an input file and the decomposition for the set layer
+/*! A file-descriptor structure which describes an input file and the
+ *  decomposition for the set layer
  */
 struct FileDesc {
     std::unique_ptr<File::ReadInterface> ifc;  //!< The file interface

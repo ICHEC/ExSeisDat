@@ -497,10 +497,10 @@ void insertParam(
                     int16_t scal2 =
                       deScale(prm->f[(i + skip) * r->numFloat + t->num]);
 
-                    //if the scale is bigger than 1 that means we need to use the largest
-                    //to ensure conservation of the most significant digit
-                    //otherwise we choose the scale that preserves the most digits
-                    //after the decimal place.
+                    //if the scale is bigger than 1 that means we need to use
+                    //the largest to ensure conservation of the most significant
+                    //digit otherwise we choose the scale that preserves the
+                    //most digits after the decimal place.
                     scal[tr] =
                       ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) :
                                                   std::min(scal1, scal2));

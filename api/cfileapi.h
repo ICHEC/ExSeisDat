@@ -70,58 +70,60 @@ extern "C" {
 PIOL_ExSeis* PIOL_ExSeis_new(PIOL_Verbosity);
 
 /*! close the PIOL (deinit MPI)
- * @param[in,out] piol A handle to the PIOL.
+ *  @param[in,out] piol A handle to the PIOL.
  */
 void PIOL_ExSeis_delete(PIOL_ExSeis* piol);
 
 /*! Get the rank of the process (in terms of the PIOL communicator)
- * @param[in] piol A handle to the PIOL.
+ *  @param[in] piol A handle to the PIOL.
  */
 size_t PIOL_ExSeis_getRank(const PIOL_ExSeis* piol);
 
 /*! Get the number of processes (in terms of the PIOL communicator)
- * @param[in] piol A handle to the PIOL.
+ *  @param[in] piol A handle to the PIOL.
  */
 size_t PIOL_ExSeis_getNumRank(const PIOL_ExSeis* piol);
 
 /*! Check if the PIOL has any error conditions
- * @param[in] piol A handle to the PIOL.
+ *  @param[in] piol A handle to the PIOL.
  */
 void PIOL_ExSeis_isErr(const PIOL_ExSeis* piol, const char* msg);
 
 /*!  A barrier. All PIOL processes must call this.
- * @param[in] piol A handle to the PIOL.
+ *  @param[in] piol A handle to the PIOL.
  */
 void PIOL_ExSeis_barrier(const PIOL_ExSeis* piol);
 
 /*! Return the maximum value amongst the processes
- * @param[in] piol A handle to the PIOL.
- * @param[in] n The value to take part in the reduction
- * @return Return the maximum value of (\c n) amongst the processes
+ *  @param[in] piol A handle to the PIOL.
+ *  @param[in] n The value to take part in the reduction
+ *  @return Return the maximum value of (\c n) amongst the processes
  */
 size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n);
 
 //SEG-Y Size functions
 /*! Get the size of the SEG-Y text field (3200 bytes)
- * @return The text size in bytes for SEG-Y
+ *  @return The text size in bytes for SEG-Y
  */
 size_t PIOL_SEGSz_getTextSz(void);
 
-/*! Get the size a SEGY file should be given the number of traces (\c nt) and sample size (\c ns)
- * @param[in] nt The number of traces
- * @param[in] ns The number of samples per trace
- * @return The corresponding file size in bytes for SEG-Y
+/*! Get the size a SEGY file should be given the number of traces (\c nt) and
+ *  sample size (\c ns)
+ *  @param[in] nt The number of traces
+ *  @param[in] ns The number of samples per trace
+ *  @return The corresponding file size in bytes for SEG-Y
  */
 size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns);
 
-/*! Get the size a SEGY trace should be given the sample size (\c ns) and a type of float
- * @param[in] ns The number of samples per trace
- * @return The corresponding trace size in bytes
+/*! Get the size a SEGY trace should be given the sample size (\c ns) and a type
+ *  of float
+ *  @param[in] ns The number of samples per trace
+ *  @return The corresponding trace size in bytes
  */
 size_t PIOL_SEGSz_getDFSz(size_t ns);
 
 /*! Get the size of a SEGY trace header
- * @return The trace header size in bytes
+ *  @return The trace header size in bytes
  */
 size_t PIOL_SEGSz_getMDSz(void);
 
@@ -135,8 +137,8 @@ size_t PIOL_SEGSz_getMDSz(void);
 PIOL_File_Rule* PIOL_File_Rule_new(bool def);
 
 /*! Initialise a Rule structure from a list of Metas.
- * @param[in] m List of Meta values (size n).
- * @param[in] n Number of elements in m
+ *  @param[in] m List of Meta values (size n).
+ *  @param[in] n Number of elements in m
  */
 PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta* m, size_t n);
 
@@ -191,7 +193,7 @@ void PIOL_File_Rule_addIndex(PIOL_File_Rule* rule, PIOL_Meta m);
 
 
 /*! Add a rule to buffer the original trace header.
-*  @param[in,out] rule The Rule handle
+ *  @param[in,out] rule The Rule handle
  */
 void PIOL_File_Rule_addCopy(PIOL_File_Rule* rule);
 
@@ -201,20 +203,21 @@ void PIOL_File_Rule_addCopy(PIOL_File_Rule* rule);
  */
 void PIOL_File_Rule_rmRule(PIOL_File_Rule* rule, PIOL_Meta m);
 
-/*! Return the size of the buffer space required for the metadata items when converting to SEG-Y.
-*  @param[in,out] rule The Rule handle
+/*! Return the size of the buffer space required for the metadata items when
+ *  converting to SEG-Y.
+ *  @param[in,out] rule The Rule handle
  *  @return Return the size.
  */
 size_t PIOL_File_Rule_extent(PIOL_File_Rule* rule);
 
 /*! Estimate of the total memory used
-*  @param[in] rule The Rule handle
+ *  @param[in] rule The Rule handle
  *  @return Return estimate in bytes.
  */
 size_t PIOL_File_Rule_memUsage(const PIOL_File_Rule* rule);
 
 /*! How much memory will each set of parameters require?
-*  @param[in] rule The Rule handle
+ *  @param[in] rule The Rule handle
  *  @return Amount of memory in bytes.
  */
 size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule);
@@ -266,7 +269,8 @@ int16_t PIOL_File_getPrm_short(
 PIOL_llint PIOL_File_getPrm_llint(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
-/*! Get a double parameter which is in a particular set in a parameter structure.
+/*! Get a double parameter which is in a particular set in a parameter
+ *  structure.
  *  @param[in] i The parameter set number
  *  @param[in] entry The parameter entry
  *  @param[in] prm The parameter structure
@@ -314,12 +318,14 @@ void PIOL_File_cpyPrm(
 /*
  * Operations
  */
-/*! Find the traces with the min and max of a supplied set of coordinates within a file.
+/*! Find the traces with the min and max of a supplied set of coordinates within
+ *  a file.
  *  @param[in] piol A handle to the PIOL.
  *  @param[in] offset The starting trace number.
  *  @param[in] sz The number of local traces to process.
  *  @param[in] coord The array of local coordinates which one wants to process
- *  @param[out] minmax Set \c minmax to structs corresponding to the minimum x, maximum x, minimum y, maximum y in that order.
+ *  @param[out] minmax Set \c minmax to structs corresponding to the minimum x,
+ *              maximum x, minimum y, maximum y in that order.
  */
 void PIOL_File_getMinMax(
   const PIOL_ExSeis* piol,
@@ -334,17 +340,17 @@ void PIOL_File_getMinMax(
  * Opening and closing files
  */
 /*! Open a read-only file and return a handle for the file
- * @param[in] piol A handle to the PIOL.
- * @param[in] name The name of the file.
- * @return A handle for the file.
+ *  @param[in] piol A handle to the PIOL.
+ *  @param[in] name The name of the file.
+ *  @return A handle for the file.
  */
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
   const PIOL_ExSeis* piol, const char* name);
 
 /*! Open a write-only file and return a handle for the file
- * @param[in] piol A handle to the PIOL.
- * @param[in] name The name of the file.
- * @return A handle for the file.
+ *  @param[in] piol A handle to the PIOL.
+ *  @param[in] name The name of the file.
+ *  @return A handle for the file.
  */
 PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
   const PIOL_ExSeis* piol, const char* name);
@@ -392,7 +398,8 @@ double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Write the human readable text from the file.
  *  @param[in] f A handle for the file.
- *  @param[in] text The new null-terminated string containing the text (in ASCII format).
+ *  @param[in] text The new null-terminated string containing the text (in ASCII
+ *             format).
  */
 void PIOL_File_WriteDirect_writeText(
   PIOL_File_WriteDirect* writeDirect, const char* text);
@@ -485,7 +492,8 @@ void PIOL_File_WriteDirect_writeTrace(
 
 //Lists
 
-/*! @brief Read the traces and trace parameters corresponding to the list of trace numbers.
+/*! @brief Read the traces and trace parameters corresponding to the list of
+ *         trace numbers.
  *  @param[in] f A handle for the file.
  *  @param[in] sz The number of traces to process.
  *  @param[in] offset A list of trace numbers (size sz).
@@ -499,7 +507,8 @@ void PIOL_File_ReadDirect_readTraceNonContiguous(
   PIOL_trace_t* trace,
   PIOL_File_Param* param);
 
-/*! @brief Read the traces and trace parameters corresponding to the non-monotonic list of trace numbers.
+/*! @brief Read the traces and trace parameters corresponding to the
+ *         non-monotonic list of trace numbers.
  *  @param[in] f A handle for the file.
  *  @param[in] sz The number of traces to process.
  *  @param[in] offset A non-monotonic list of trace numbers (size sz).
@@ -527,7 +536,8 @@ void PIOL_File_WriteDirect_writeTraceNonContiguous(
   PIOL_trace_t* trace,
   PIOL_File_Param* param);
 
-/*! @brief Write the trace parameters corresponding to the list of trace numbers.
+/*! @brief Write the trace parameters corresponding to the list of trace
+ *         numbers.
  *  @param[in] f A handle for the file.
  *  @param[in] sz The number of traces to process
  *  @param[in] offset A list of trace numbers (size sz).

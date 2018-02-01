@@ -141,11 +141,6 @@ ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
       Obj::SEGY::Opt(),
       File::ReadSEGYModel::Opt())
 {
-    //const Obj::SEGY::Opt o;
-    //const Data::MPIIO::Opt d;
-    //auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
-    //auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
-    //file = std::make_shared<File::ReadSEGYModel>(piol, name, obj);
 }
 
 std::vector<trace_t> ReadModel::readModel(

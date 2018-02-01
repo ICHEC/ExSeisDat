@@ -17,7 +17,8 @@
 
 using namespace PIOL;
 
-/*! Prompt the user asking them if they want to continue with concatenation. Multi-process safe.
+/*! Prompt the user asking them if they want to continue with concatenation.
+ *  Multi-process safe.
  *  @param[in] piol The piol object.
  */
 void doPrompt(ExSeisPIOL* piol)

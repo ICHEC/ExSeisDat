@@ -23,11 +23,12 @@ namespace PIOL {
  *  @param[in] file The related file. Use "" if the option is not applicable.
  *  @param[in] layer The layer one was working with (generally Comm or Data).
  *  @param[in] err The MPI error code.
- *  @param[in] stat The MPI_Status object. Provide NULL or nullptr if it is not used.
+ *  @param[in] stat The MPI_Status object. Provide NULL or nullptr if it is not
+ *             used.
  *  @param[in] msg The message one wishes to record.
  *
- *  The side-effect of the function is to log an item with \c piol if there is an error
- *  otherwise no side-effect occurs. The function always returns.
+ *  The side-effect of the function is to log an item with \c piol if there is
+ *  an error otherwise no side-effect occurs. The function always returns.
  */
 void printErr(
   Log::Logger* log,
@@ -37,7 +38,8 @@ void printErr(
   const MPI_Status* stat,
   std::string msg);
 
-/*! @brief Return the fundamental MPI datatype associated with a fundamental datatype.
+/*! @brief Return the fundamental MPI datatype associated with a fundamental
+ *         datatype.
  *  @return The datatype.
  *  @tparam T The C++ datatype
  */
@@ -121,14 +123,15 @@ constexpr MPI_Datatype MPIType<unsigned short>()
 }
 
 
-/*! @brief Return the known limit for Intel MPI on Fionn for a type of the given size
+/*! @brief Return the known limit for Intel MPI on Fionn for a type of the given
+ *         size
  *  @param[in] sz The datatype size one wishes to find the limit for
  *  @return The size in counts
  */
 inline size_t getLimSz(size_t sz)
 {
-    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
-    //Probably something to do with pages.
+    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on
+    //Fionn.  Probably something to do with pages.
     return (std::numeric_limits<int>::max() - (4096U - sz)) / sz;
 }
 
@@ -139,10 +142,12 @@ inline size_t getLimSz(size_t sz)
 template<typename T>
 constexpr size_t getLim()
 {
-    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on Fionn.
-    //Probably something to do with pages.
-    //return MPI_Offset((std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
-    //return (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T);
+    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on
+    //Fionn.  Probably something to do with pages.
+    //return MPI_Offset(
+    //  (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
+    //return (std::numeric_limits<int>::max() - (4096U - sizeof(T)))
+    //       / sizeof(T);
     return getLimSz(sizeof(T));
 }
 

@@ -15,7 +15,8 @@
 
 namespace PIOL {
 namespace FOURD {
-/*! This structure is for holding ALIGN aligned memory containing the coordinates.
+/*! This structure is for holding ALIGN aligned memory containing the
+ *  coordinates.
  */
 struct Coords {
     size_t sz;             //!< The number of sets of coordinates
@@ -37,8 +38,8 @@ struct Coords {
     {
         allocSz = ((sz + ALIGN) / ALIGN) * ALIGN;
 
-        //posix_memalign() guarantees the memory allocated is alligned according to the alignment
-        //value
+        //posix_memalign() guarantees the memory allocated is alligned according
+        //to the alignment value
         posix_memalign(
           reinterpret_cast<void**>(&xSrc), ALIGN, allocSz * sizeof(fourd_t));
         posix_memalign(
@@ -77,22 +78,27 @@ struct Coords {
     }
 };
 
-/*! Given an input file, perform a decomposition over the traces and return a subset of the coordinates to
- *  each process. The coordinates returned have been sorted into xSrc order.
+/*! Given an input file, perform a decomposition over the traces and return a
+ *  subset of the coordinates to each process. The coordinates returned have
+ *  been sorted into xSrc order.
  *  @param[in] piol The piol object (in a shared pointer).
  *  @param[in] name The name of the input file.
  *  @param[in] ixline Inline/Xline enabled
- *  @return Return a unique_ptr to the structure containing the coordinates read by the local process.
+ *  @return Return a unique_ptr to the structure containing the coordinates read
+ *          by the local process.
  */
 std::unique_ptr<Coords> getCoords(
   std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
 
-/*! Extract traces and coordinates from an input file \c sname according to what traces are listed in \c list.
+/*! Extract traces and coordinates from an input file \c sname according to what
+ *  traces are listed in \c list.
  *  @param[in] piol The piol object (in a shared pointer).
  *  @param[in] dname The name of the destination file.
  *  @param[in] sname The name of the source file.
- *  @param[in] list The list of traces to read from the input file in the order they should appear in the output file.
- *  @param[in] minrs The value of minrs which should be stored with the trace header of each trace.
+ *  @param[in] list The list of traces to read from the input file in the order
+ *                  they should appear in the output file.
+ *  @param[in] minrs The value of minrs which should be stored with the trace
+ *                   header of each trace.
  *  @param[in] printDsr Print the dsdr value if true.
  */
 void outputNonMono(

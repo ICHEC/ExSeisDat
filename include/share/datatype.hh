@@ -15,12 +15,14 @@
 
 namespace PIOL {
 
-/*! @brief Convert a 2 byte \c char array in big endian to a host 2 byte datatype
+/*! @brief Convert a 2 byte \c char array in big endian to a host 2 byte
+ *         datatype
  *  @param[in] src Data in big endian order to stuff into the host datatype
  *  @return Return a 2 byte datatype (host endianness)
- *  @details src[0] contains the most significant byte in big endian. src[1] contains
- *  the least significant. Shift src[0] to be in the position of the most significant byte
- *  and OR it with src[1] which is not shifted (as it is the least significant byte.
+ *  @details src[0] contains the most significant byte in big endian. src[1]
+ *           contains the least significant. Shift src[0] to be in the position
+ *           of the most significant byte and OR it with src[1] which is not
+ *           shifted (as it is the least significant byte.
  */
 template<typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
 T getHost(const uchar* src)
@@ -43,8 +45,9 @@ T getHost(const uchar* src)
  *  @tparam T The host type
  *  @param[in] src The input 4 byte type with host endianness
  *  @param[out] dst A pointer to 4 bytes of data where the big endian
- *  data will be stored.
- *  @details Big endian means dst[0] holds the most significant byte and d[3] the least.
+ *              data will be stored.
+ *  @details Big endian means dst[0] holds the most significant byte and d[3]
+ *           the least.
  */
 //template <typename T,
 //typename std::enable_if<sizeof(T) == 4U, T>::type = 0 >
@@ -62,8 +65,9 @@ void getBigEndian(const T src, uchar* dst)
  *  @tparam The return type (type must be 2 bytes long)
  *  @param[in] src The input short with host endianness
  *  @param[out] dst A pointer to 2 bytes of data where the big endian
- *  data will be stored.
- *  @details Big endian means dst[0] holds the most significant byte and d[1] the least.
+ *              data will be stored.
+ *  @details Big endian means dst[0] holds the most significant byte and d[1]
+ *           the least.
  */
 template<typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
 void getBigEndian(const T src, uchar* dst)

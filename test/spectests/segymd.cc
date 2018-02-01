@@ -6,9 +6,7 @@
 #include <memory>
 #include <string.h>
 
-////////////////////////////////////////////////////////////////////////////////////
-//////////////////////// Unit tests of non-class functions /////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
+////////////////////// Unit tests of non-class functions ///////////////////////
 
 using namespace PIOL;
 using namespace File;
@@ -78,6 +76,7 @@ TEST(SEGYMd, ScaleDecimals)
     EXPECT_EQ(1, deScale(2147483647.0000999));
 }
 
+/* clang-format off */
 // TEST(SEGYMd, getSrc)
 // {
 //     auto p = std::pair<TrCrd, TrCrd>(static_cast<TrCrd>(73U), static_cast<TrCrd>(77U));
@@ -460,3 +459,4 @@ TEST(SEGYMd, ScaleDecimals)
 //     extractTraceParam(1U, md.data(), &prm);
 //     TestPrm(prm);
 // }
+/* clang-format on */

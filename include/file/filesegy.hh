@@ -30,10 +30,11 @@ class ReadSEGY : public ReadInterface {
     /*! @brief The SEG-Y options structure.
      */
     struct Opt {
-        typedef ReadSEGY
-          Type;  //!< The Type of the class this structure is nested in
-        unit_t
-          incFactor;  //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
+        /// The Type of the class this structure is nested in
+        typedef ReadSEGY Type;
+        /// The increment factor to multiply inc by (default to SEG-Y rev 1
+        /// standard definition)
+        unit_t incFactor;
 
         /*! Constructor which provides the default Rules
          */
@@ -44,16 +45,20 @@ class ReadSEGY : public ReadInterface {
     Format format;     //<! Type formats
     unit_t incFactor;  //!< The increment factor
 
-    /*! @brief Read the text and binary header and store the metadata variables in this SEGY object.
+    /*! @brief Read the text and binary header and store the metadata variables
+     *         in this SEGY object.
      *  @param[in] fsz The size of the file in bytes
-     *  @param[in, out] buf The buffer to parse. The buffer is destructively modified
+     *  @param[in, out] buf The buffer to parse. The buffer is destructively
+     *                      modified
      */
     void procHeader(const size_t fsz, uchar* buf);
 
   public:
     /*! @brief The SEGY-Object class constructor.
-     *  @param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
-     *  @param[in] name_   The name of the file associated with the instantiation.
+     *  @param[in] piol_   This PIOL ptr is not modified but is used to
+     *                     instantiate another shared_ptr.
+     *  @param[in] name_   The name of the file associated with the
+     *                     instantiation.
      *  @param[in] segyOpt The SEGY-File options
      *  @param[in] obj_    A shared pointer to the object layer
      */
@@ -64,8 +69,10 @@ class ReadSEGY : public ReadInterface {
       std::shared_ptr<Obj::Interface> obj_);
 
     /*! @brief The SEGY-Object class constructor.
-     *  @param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
-     *  @param[in] name_   The name of the file associated with the instantiation.
+     *  @param[in] piol_   This PIOL ptr is not modified but is used to
+     *                     instantiate another shared_ptr.
+     *  @param[in] name_   The name of the file associated with the
+     *                     instantiation.
      *  @param[in] obj_    A shared pointer to the object layer
      */
     ReadSEGY(
@@ -142,10 +149,11 @@ class WriteSEGY : public WriteInterface {
     /*! @brief The SEG-Y options structure.
      */
     struct Opt {
-        typedef WriteSEGY
-          Type;  //!< The Type of the class this structure is nested in
-        unit_t
-          incFactor;  //!< The increment factor to multiply inc by (default to SEG-Y rev 1 standard definition)
+        /// The Type of the class this structure is nested in
+        typedef WriteSEGY Type;
+        /// The increment factor to multiply inc by (default to SEG-Y rev 1
+        /// standard definition)
+        unit_t incFactor;
 
         /*! Constructor which provides the default Rules
          */
@@ -160,22 +168,26 @@ class WriteSEGY : public WriteInterface {
     /*! State flags structure for SEGY
      */
     struct Flags {
-        uint64_t
-          writeHO : 1;  //!< The header should be written before SEGY object is deleted
-        uint64_t
-          resize : 1;  //!< The file should be resized before SEGY object is deleted.
-        uint64_t
-          stalent : 1;  //!< The nt value is stale and should be resynced.
-    } state;            //!< State flags are stored in this structure
+        /// The header should be written before SEGY object is deleted
+        uint64_t writeHO : 1;
+        /// The file should be resized before SEGY object is deleted.
+        uint64_t resize : 1;
+        /// The nt value is stale and should be resynced.
+        uint64_t stalent : 1;
+    };
+    
+    Flags state;  //!< State flags are stored in this structure
 
     unit_t incFactor;  //!< The increment factor
 
-    /*! @brief This function packs the state of the class object into the header.
+    /*! @brief This function packs the state of the class object into the
+     *         header.
      *  @param[in] buf The header object buffer
      */
     void packHeader(uchar* buf) const;
 
-    /*! @brief This function initialises the SEGY specific portions of the class.
+    /*! @brief This function initialises the SEGY specific portions of the
+     *         class.
      *  @param[in] segyOpt The SEGY-File options
      */
     void Init(const WriteSEGY::Opt& segyOpt);
@@ -187,8 +199,10 @@ class WriteSEGY : public WriteInterface {
 
   public:
     /*! @brief The SEGY-Object class constructor.
-     *  @param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
-     *  @param[in] name_   The name of the file associated with the instantiation.
+     *  @param[in] piol_   This PIOL ptr is not modified but is used to
+     *                     instantiate another shared_ptr.
+     *  @param[in] name_   The name of the file associated with the
+     *                     instantiation.
      *  @param[in] segyOpt The SEGY-File options
      *  @param[in] obj_    A shared pointer to the object layer
      */
@@ -199,8 +213,10 @@ class WriteSEGY : public WriteInterface {
       std::shared_ptr<Obj::Interface> obj_);
 
     /*! @brief The SEGY-Object class constructor.
-     *  @param[in] piol_   This PIOL ptr is not modified but is used to instantiate another shared_ptr.
-     *  @param[in] name_   The name of the file associated with the instantiation.
+     *  @param[in] piol_   This PIOL ptr is not modified but is used to
+     *                     instantiate another shared_ptr.
+     *  @param[in] name_   The name of the file associated with the
+     *                     instantiation.
      *  @param[in] obj_    A shared pointer to the object layer
      */
     WriteSEGY(
