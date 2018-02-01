@@ -1,12 +1,12 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief The Data layer interface
- *   @details The Data layer interface is a base class which specific data I/O implementations
- *   work off
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief The Data layer interface
+/// @details The Data layer interface is a base class which specific data I/O
+///          implementations work off.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLDATA_INCLUDE_GUARD
 #define PIOLDATA_INCLUDE_GUARD
 

@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date May 2017
- *   @brief
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date May 2017
+/// @brief
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLSETCACHE_INCLUDE_GUARD
 #define PIOLSETCACHE_INCLUDE_GUARD
 

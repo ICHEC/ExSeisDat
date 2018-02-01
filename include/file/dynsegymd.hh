@@ -1,18 +1,20 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date October 2016
- *   @brief The state of this file is temporarily SEG-Y specific, when new formats are
- *          investigated this file should be split into a format-agnostic component and a
- *          SEG-Y specific component.
- *   @details The SEG-Y implementation of metadata is dynamic to reflect the actual usage
- *   by geophysicists where SEG-Y metadata fields are routinely used for other purposes.
- *   as such, the SEG-Y standard is treated as a default series of rules which can be removed
- *   and replaced. A rule specifies a specific type of metadata and particular locations
- *   associated with that rule. For example, each Float rule requires two locations to be
- *   specified, a location for a corresponding integer and a location for a scaling factor.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date October 2016
+/// @brief The state of this file is temporarily SEG-Y specific, when new
+///        formats are investigated this file should be split into a
+///        format-agnostic component and a SEG-Y specific component.
+/// @details The SEG-Y implementation of metadata is dynamic to reflect the
+///          actual usage by geophysicists where SEG-Y metadata fields are
+///          routinely used for other purposes.  as such, the SEG-Y standard is
+///          treated as a default series of rules which can be removed and
+///          replaced. A rule specifies a specific type of metadata and
+///          particular locations associated with that rule. For example, each
+///          Float rule requires two locations to be specified, a location for a
+///          corresponding integer and a location for a scaling factor.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 #define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 

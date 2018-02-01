@@ -1,12 +1,12 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date January 2017
- *   @brief The File layer interface
- *   @details The File layer interface is a base class which specific File implementations
- *   work off
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date January 2017
+/// @brief The File layer interface
+/// @details The File layer interface is a base class which specific File
+///          implementations work off
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLFILE_INCLUDE_GUARD
 #define PIOLFILE_INCLUDE_GUARD
 

@@ -1,17 +1,19 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date May 2017
- *   @brief The Automatic Gain Control Operation
- *   @details This function allows for automatic gain control to be applied to traces in order
- *   to equalize signal amplitude for display purposes. It uses a user defined window to adjust
- *   the gain using a user defined normalization value.  Gain is normalised against  a) RMS
- *   amplitude, b) RMS amplitude with triangle window, c) Mean Absolute Value amplitude or
- *   d) Median amplitude. AGC can be performed on individual traces or entire gathers, where
- *   the same gain is applied to the jth sample in every trace. The window has a spatial
- *   componet.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date May 2017
+/// @brief The Automatic Gain Control Operation
+/// @details This function allows for automatic gain control to be applied to
+///          traces in order to equalize signal amplitude for display purposes.
+///          It uses a user defined window to adjust the gain using a user
+///          defined normalization value.  Gain is normalised against  a) RMS
+///          amplitude, b) RMS amplitude with triangle window, c) Mean Absolute
+///          Value amplitude or d) Median amplitude. AGC can be performed on
+///          individual traces or entire gathers, where the same gain is applied
+///          to the jth sample in every trace. The window has a spatial
+///          componet.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLOPSAGC_INCLUDE_GUARD
 #define PIOLOPSAGC_INCLUDE_GUARD
 

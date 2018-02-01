@@ -1,10 +1,12 @@
 #include "cppfileapi.hh"
 #include "ops/minmax.hh"
 #include "sglobal.hh"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sys/stat.h>
+
 using namespace PIOL;
 
 /*! Create the initial KML file settings to order to describe the output in general

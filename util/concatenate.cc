@@ -1,11 +1,12 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @date Q4 2016
- *   @brief
- *   @details This function takes one or more files as input and produces a new file or files
- *            which contain all traces with identical ns and increment.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @date Q4 2016
+/// @brief
+/// @details This function takes one or more files as input and produces a new
+///          file or files which contain all traces with identical ns and
+///          increment.
+////////////////////////////////////////////////////////////////////////////////
 
 #include "flow.hh"
 #include "sglobal.hh"

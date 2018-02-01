@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date December 2016
- *   @brief
- *   @details C11 Set API header
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date December 2016
+/// @brief
+/// @details C11 Set API header
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLCSET_INCLUDE_GUARD
 #define PIOLCSET_INCLUDE_GUARD
 

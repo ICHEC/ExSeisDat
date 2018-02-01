@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date May 2017
- *   @brief
- *   @details
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date May 2017
+/// @brief
+/// @details
+////////////////////////////////////////////////////////////////////////////////
 
 #include "anc/piol.hh"
 #include "global.hh"

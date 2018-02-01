@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief
- *   @details ReadSEGY functions
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief
+/// @details ReadSEGY functions
+////////////////////////////////////////////////////////////////////////////////
 
 #include "file/characterconversion.hh"
 #include "file/filesegy.hh"

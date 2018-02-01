@@ -1,4 +1,5 @@
 #include "datampiiotest.hh"
+
 size_t modifyNt(
   const size_t fs, const size_t offset, const size_t nt, const size_t ns)
 {
@@ -16,6 +17,7 @@ size_t modifyNt(
 }
 
 typedef MPIIOTest MPIIODeathTest;
+
 TEST_F(MPIIODeathTest, FailedConstructor)
 {
     makeMPIIO(notFile);

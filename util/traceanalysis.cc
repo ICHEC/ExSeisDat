@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @date March 2017
- *   @brief
- *   @details Perform an analysis of a single trace.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @date March 2017
+/// @brief
+/// @details Perform an analysis of a single trace.
+////////////////////////////////////////////////////////////////////////////////
 
 #include "cppfileapi.hh"
 #include <iostream>

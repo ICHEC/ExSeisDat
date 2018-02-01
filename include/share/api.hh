@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date December 2016
- *   @details This file will be called by C++ and C11 code as well as internal code and external
- *            facing library headers.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date December 2016
+/// @details This file will be called by C++ and C11 code as well as internal
+///          code and external facing library headers.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLSHAREAPI_INCLUDE_GUARD
 #define PIOLSHAREAPI_INCLUDE_GUARD
 

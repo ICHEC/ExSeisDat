@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief The SEGY specific File layer interface
- *   @details SEGY implementations for File layer
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief The SEGY specific File layer interface
+/// @details SEGY implementations for File layer
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLFILESEGY_INCLUDE_GUARD
 #define PIOLFILESEGY_INCLUDE_GUARD
 

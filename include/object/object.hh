@@ -1,12 +1,12 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief The Object layer interface
- *   @details The Object layer interface is a base class which specific Obj implementations
- *   work off
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief The Object layer interface
+/// @details The Object layer interface is a base class which specific Obj
+///          implementations work off.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
 

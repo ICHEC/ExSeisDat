@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date May 2017
- *   @brief
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date May 2017
+/// @brief
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLOPSTEMPORALFILTER_INCLUDE_GUARD
 #define PIOLOPSTEMPORALFILTER_INCLUDE_GUARD
 

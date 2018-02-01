@@ -1,9 +1,9 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date May 2017
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date May 2017
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLOPSTAPER_INCLUDE_GUARD
 #define PIOLOPSTAPER_INCLUDE_GUARD
 

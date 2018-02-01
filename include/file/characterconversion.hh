@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief A Conversion function to convert from EBCDIC to ASCII
- *   @details
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief A Conversion function to convert from EBCDIC to ASCII
+/// @details
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 #define PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 

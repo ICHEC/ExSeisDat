@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date November 2016
- *   @brief The Set layer interface
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date November 2016
+/// @brief The Set layer interface
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLSET_INCLUDE_GUARD
 #define PIOLSET_INCLUDE_GUARD
 

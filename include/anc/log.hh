@@ -1,12 +1,13 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief The logging layer
- *   @details The logging layer provides a standard approach to logging and error handling throughout
- *   the PIOL while respecting the boundary between layers.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief The logging layer
+/// @details The logging layer provides a standard approach to logging and error
+///          handling throughout the PIOL while respecting the boundary between
+///          layers.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLANCLOG_INCLUDE_GUARD
 #define PIOLANCLOG_INCLUDE_GUARD
 

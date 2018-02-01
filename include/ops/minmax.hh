@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date November 2016
- *   @brief
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date November 2016
+/// @brief
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLOPSMINMAX_INCLUDE_GUARD
 #define PIOLOPSMINMAX_INCLUDE_GUARD
 

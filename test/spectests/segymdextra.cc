@@ -1,12 +1,12 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date October 2016
- *   @brief Contains functions which have become redundant in the main code but can be used
- *   as an alternative implementation for test purposes
- *   @details
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date October 2016
+/// @brief Contains functions which have become redundant in the main code but
+///        can be used as an alternative implementation for test purposes
+/// @details
+////////////////////////////////////////////////////////////////////////////////
 
 #include "cppfileapi.hh"
 #include "segymdextra.hh"

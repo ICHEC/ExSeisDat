@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date September 2016
- *   @brief The ExSeis PIOL C++ API
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date September 2016
+/// @brief The ExSeis PIOL C++ API
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLPIOL_INCLUDE_GUARD
 #define PIOLPIOL_INCLUDE_GUARD
 

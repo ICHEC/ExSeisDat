@@ -1,13 +1,14 @@
-/************************************************************************ *******************//*!
- *   @file
- *   @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date May 2017
- *   @brief The Temporal Bandpass operation
- *   @details The algorithm finds some type of moving average (RMS, RMS with Triangle window,
- *   Mean Abs, and Median) to trace amplitudes for visualization purposes. It can be applied to
- *   traces independantly or applies the same scalar to all traces at the same height.
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date May 2017
+/// @brief The Temporal Bandpass operation
+/// @details The algorithm finds some type of moving average (RMS, RMS with
+///          Triangle window, Mean Abs, and Median) to trace amplitudes for
+///          visualization purposes. It can be applied to traces independantly
+///          or applies the same scalar to all traces at the same height.
+////////////////////////////////////////////////////////////////////////////////
 
 #include "global.hh"
 #include "ops/temporalfilter.hh"

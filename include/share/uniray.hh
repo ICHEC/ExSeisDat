@@ -1,10 +1,10 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @date May 2017
- *   @brief
- *   @details
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @date May 2017
+/// @brief
+/// @details
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLSHAREUNIRAY_INCLUDE_GUARD
 #define PIOLSHAREUNIRAY_INCLUDE_GUARD
 

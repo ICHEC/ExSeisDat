@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author cathal o broin - cathal@ichec.ie - first commit
- *   @copyright tbd. do not distribute
- *   @date july 2016
- *   @brief
- *   @details
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author cathal o broin - cathal@ichec.ie - first commit
+/// @copyright tbd. do not distribute
+/// @date july 2016
+/// @brief
+/// @details
+////////////////////////////////////////////////////////////////////////////////
 
 #include "anc/mpi.hh"
 #include "global.hh"

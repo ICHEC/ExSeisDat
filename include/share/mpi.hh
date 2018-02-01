@@ -1,11 +1,11 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date Summer 2016
- *   @brief
- *   @details MPI Functions etc which are shared between communication and MPI-IO
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date Summer 2016
+/// @brief
+/// @details MPI Functions etc which are shared between communication and MPI-IO
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLSHAREDMPI_INCLUDE_GUARD
 #define PIOLSHAREDMPI_INCLUDE_GUARD
 

@@ -1,12 +1,12 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief
- *   @details Insert trivial typdefs etc into this file which will be used throughout the
- *            code-base.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief
+/// @details Insert trivial typdefs etc into this file which will be used
+///          throughout the code-base.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLGLOBAL_INCLUDE_GUARD
 #define PIOLGLOBAL_INCLUDE_GUARD
 

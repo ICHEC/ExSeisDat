@@ -1,13 +1,14 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief The MPI communicator
- *   @details The MPI communicator class is responsible for the concrete implementation of
- *   all MPI communication specific features. That is, everything within the MPI specification
- *   except those features which are related to MPI-IO or overlap with MPI-IO.
-*//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief The MPI communicator
+/// @details The MPI communicator class is responsible for the concrete
+///          implementation of all MPI communication specific features. That is,
+///          everything within the MPI specification except those features which
+///          are related to MPI-IO or overlap with MPI-IO.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLANCCMPI_INCLUDE_GUARD
 #define PIOLANCCMPI_INCLUDE_GUARD
 

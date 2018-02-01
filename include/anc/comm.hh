@@ -1,15 +1,17 @@
-/*******************************************************************************************//*!
- *   @file
- *   @author Cathal O Broin - cathal@ichec.ie - first commit
- *   @copyright TBD. Do not distribute
- *   @date July 2016
- *   @brief The base communicator layer
- *   @details The base class exists so that the ExSeisPIOL is not completely tied to MPI.
- *   This is useful for two reasons. Firstly, it means that MPI specific work is localised in a
- *   specific portion of the code rather than being distributed throughout and common functionality
- *   can be grouped up, but also MPI could be switched for another inter-process communication
- *   technology if one is of particular interest.
- *//*******************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @author Cathal O Broin - cathal@ichec.ie - first commit
+/// @copyright TBD. Do not distribute
+/// @date July 2016
+/// @brief The base communicator layer
+/// @details The base class exists so that the ExSeisPIOL is not completely tied
+///          to MPI.  This is useful for two reasons. Firstly, it means that MPI
+///          specific work is localised in a specific portion of the code rather
+///          than being distributed throughout and common functionality can be
+///          grouped up, but also MPI could be switched for another
+///          inter-process communication technology if one is of particular
+///          interest.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef PIOLANCCOMM_INCLUDE_GUARD
 #define PIOLANCCOMM_INCLUDE_GUARD
 
