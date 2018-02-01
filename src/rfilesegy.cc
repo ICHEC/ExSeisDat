@@ -223,10 +223,12 @@ void ReadSEGY::readTrace(
   const size_t skip) const
 {
     size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
-    if (offset >= nt && sz)  //Nothing to be read.
+    if (offset >= nt && sz) {
+        // Nothing to be read.
         piol->log->record(
           name, Log::Layer::File, Log::Status::Warning,
           "readParam() was called for a zero byte read", PIOL_VERBOSITY_NONE);
+    }
     readTraceT(
       obj.get(), format, ns, offset,
       [offset](size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);

@@ -19,16 +19,25 @@ namespace FOURD {
  *  coordinates.
  */
 struct Coords {
-    size_t sz;             //!< The number of sets of coordinates
-    fourd_t* xSrc = NULL;  //!< The x src coordinates
-    fourd_t* ySrc = NULL;  //!< The y src coordinates
-    fourd_t* xRcv = NULL;  //!< The x rcv coordinates
-    fourd_t* yRcv = NULL;  //!< The y rcv coordinates
-    size_t* tn    = NULL;  //!< The trace number
-    size_t allocSz;        //!< The size which was actually allocated
+    /// The number of sets of coordinates
+    size_t sz;
+    /// The x src coordinates
+    fourd_t* xSrc = NULL;
+    /// The y src coordinates
+    fourd_t* ySrc = NULL;
+    /// The x rcv coordinates
+    fourd_t* xRcv = NULL;
+    /// The y rcv coordinates
+    fourd_t* yRcv = NULL;
+    /// The trace number
+    size_t* tn = NULL;
+    /// The size which was actually allocated
+    size_t allocSz;
 
-    llint* il = NULL;  //!< The inline number
-    llint* xl = NULL;  //!< The crossline number
+    /// The inline number
+    llint* il = NULL;
+    /// The crossline number
+    llint* xl = NULL;
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.

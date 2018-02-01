@@ -196,10 +196,12 @@ fourd_t dsr(
   const fourd_t xr2,
   const fourd_t yr2)
 {
-    const fourd_t forward = hypot(xs1 - xs2, ys1 - ys2)
-                            + hypot(xr1 - xr2, yr1 - yr2);  //Forward-boat case
-    const fourd_t reverse = hypot(xs1 - xr2, ys1 - yr2)
-                            + hypot(xr1 - xs2, yr1 - ys2);  //Reverse-boat case
+    // Forward-boat case
+    const fourd_t forward =
+      hypot(xs1 - xs2, ys1 - ys2) + hypot(xr1 - xr2, yr1 - yr2);
+    // Reverse-boat case
+    const fourd_t reverse =
+      hypot(xs1 - xr2, ys1 - yr2) + hypot(xr1 - xs2, yr1 - ys2);
     return std::min(forward, reverse);
 }
 
@@ -255,7 +257,7 @@ size_t update(
   vec<fourd_t>& minrs,
   const fourd_t dsrmax)
 {
-    //For the vectorisation
+    // For the vectorisation
     size_t lstart = 0LU;
     size_t lend   = crd1->sz;
     size_t rstart = 0LU;
@@ -303,18 +305,17 @@ size_t update(
     const fourd_t* yR2 = crd2->yRcv;
     const size_t* tn   = crd2->tn;
 
+    // Loop through every file1 trace
     #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) \
                      aligned(yR2:ALIGN) aligned(xS1:ALIGN) aligned(yS1:ALIGN) \
                      aligned(xR1:ALIGN) aligned(yR1:ALIGN) aligned(tn:ALIGN)  \
                      aligned(lminrs:ALIGN) aligned(lmin:ALIGN)
-    for (size_t i = lstart; i < lend; i++)  //Loop through every file1 trace
-    {
+    for (size_t i = lstart; i < lend; i++) {
         const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
         size_t lm    = lmin[i];
         fourd_t lmrs = lminrs[i];
-        for (size_t j = rstart; j < rend;
-             j++)  //loop through a multiple of the alignment
-        {
+        // loop through a multiple of the alignment
+        for (size_t j = rstart; j < rend; j++) {
             const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j],
                           yr2 = yR2[j];
             fourd_t dval =
@@ -323,8 +324,10 @@ size_t update(
                        && crd1->xl[i] == crd2->xl[j]) ?
                  dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2) :
                  std::numeric_limits<fourd_t>::max());
-            lm   = (dval < lmrs ? tn[j] : lm);  //Update min if applicable
-            lmrs = std::min(dval, lmrs);        //Update minrs if applicable
+            //Update min if applicable
+            lm = (dval < lmrs ? tn[j] : lm);
+            // Update minrs if applicable
+            lmrs = std::min(dval, lmrs);
         }
         lmin[i]   = lm;
         lminrs[i] = lmrs;

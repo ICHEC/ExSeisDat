@@ -21,7 +21,8 @@
 namespace PIOL {
 namespace File {
 
-enum class Format : int16_t;  //!< Data Format options
+/// Data Format options
+enum class Format : int16_t;
 
 /*! The SEG-Y implementation of the file layer
  */
@@ -42,8 +43,10 @@ class ReadSEGY : public ReadInterface {
     };
 
   private:
-    Format format;     //<! Type formats
-    unit_t incFactor;  //!< The increment factor
+    /// Type formats
+    Format format;
+    /// The increment factor
+    unit_t incFactor;
 
     /*! @brief Read the text and binary header and store the metadata variables
      *         in this SEGY object.
@@ -111,8 +114,8 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
     /*! @brief The SEG-Y Model options structure.
      */
     struct Opt : public ReadSEGY::Opt {
-        typedef ReadSEGYModel
-          Type;  //!< The Type of the class this structure is nested in
+        /// The Type of the class this structure is nested in
+        typedef ReadSEGYModel Type;
     };
 
     /*!
@@ -163,7 +166,8 @@ class WriteSEGY : public WriteInterface {
   private:
     bool nsSet = false;
 
-    Format format;  //<! Type formats
+    /// Type formats
+    Format format;
 
     /*! State flags structure for SEGY
      */
@@ -175,10 +179,12 @@ class WriteSEGY : public WriteInterface {
         /// The nt value is stale and should be resynced.
         uint64_t stalent : 1;
     };
-    
-    Flags state;  //!< State flags are stored in this structure
 
-    unit_t incFactor;  //!< The increment factor
+    /// State flags are stored in this structure
+    Flags state;
+
+    /// The increment factor
+    unit_t incFactor;
 
     /*! @brief This function packs the state of the class object into the
      *         header.

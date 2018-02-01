@@ -84,7 +84,7 @@ struct MPIManager {
 
 
 /// @brief A static instance of MPIManager so the destructor, and MPI_Finalize
-///     will be called at program exit.
+///        will be called at program exit.
 MPIManager& MPIManagerInstance()
 {
     static auto& managing_mpi = managingMPI();

@@ -19,8 +19,10 @@ namespace PIOL {
  *  to a collection of files
  */
 struct CacheElem {
-    FileDeque desc;  //!< A deque of unique pointers to file descriptors
-    std::shared_ptr<TraceBlock> block;  //!< The cached data
+    /// A deque of unique pointers to file descriptors
+    FileDeque desc;
+    /// The cached data
+    std::shared_ptr<TraceBlock> block;
 
     /*! Construct the cache element with the given parameter structure.
      *  @param[in] desc_ A deque of unique pointers to file descriptors
@@ -73,8 +75,11 @@ struct CacheElem {
 /*! The class which holds all cache elements.
  */
 class Cache {
-    std::vector<CacheElem> cache;      //!< A vector of cache elements
-    std::shared_ptr<ExSeisPIOL> piol;  //!< The PIOL object
+    /// A vector of cache elements
+    std::vector<CacheElem> cache;
+    /// The PIOL object
+    std::shared_ptr<ExSeisPIOL> piol;
+
   public:
     /*! Initialise the cache.
      * @param[in] piol_ The PIOL object

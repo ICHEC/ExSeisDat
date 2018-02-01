@@ -22,14 +22,20 @@ struct Rule;
  *  and storing a structure with the necessary rules.
  */
 struct Param {
-    std::vector<geom_t> f;   //!< Floating point array.
-    std::vector<llint> i;    //!< Integer array.
-    std::vector<int16_t> s;  //!< Short array.
-    std::vector<size_t> t;   //!< trace number array.
-    std::vector<uchar> c;    //!< storage for a file format specific copy
-    std::shared_ptr<Rule>
-      r;        //!< The rules which describe the indexing of the arrays.
-    size_t sz;  //!< The number of sets of trace parameters.
+    /// Floating point array.
+    std::vector<geom_t> f;
+    /// Integer array.
+    std::vector<llint> i;
+    /// Short array.
+    std::vector<int16_t> s;
+    /// trace number array.
+    std::vector<size_t> t;
+    /// storage for a file format specific copy
+    std::vector<uchar> c;
+    /// The rules which describe the indexing of the arrays.
+    std::shared_ptr<Rule> r;
+    /// The number of sets of trace parameters.
+    size_t sz;
 
     /*! Allocate the basic space required to store the arrays and store the
      *  rules.
@@ -66,7 +72,8 @@ struct Param {
      */
     bool operator<(Param& a)
     {
-        return f.size() < a.f.size();  //Arbitrary function
+        // Arbitrary function
+        return f.size() < a.f.size();
     }
 
     /*! Equality operator
@@ -84,8 +91,9 @@ struct Param {
 
 }  // namespace File
 
+/// A template for the Compare less-than function
 typedef std::function<bool(const File::Param*, const size_t, const size_t)>
-  CompareP;  //!< A template for the Compare less-than function
+  CompareP;
 
 }  // namespace PIOL
 

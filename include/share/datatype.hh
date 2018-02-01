@@ -49,8 +49,6 @@ T getHost(const uchar* src)
  *  @details Big endian means dst[0] holds the most significant byte and d[3]
  *           the least.
  */
-//template <typename T,
-//typename std::enable_if<sizeof(T) == 4U, T>::type = 0 >
 template<typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
 void getBigEndian(const T src, uchar* dst)
 {

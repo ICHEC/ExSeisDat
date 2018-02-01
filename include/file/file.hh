@@ -32,21 +32,26 @@ std::shared_ptr<Obj::Interface> makeDefaultObj(
 namespace File {
 
 /// The NULL parameter so that the correct internal read pattern is selected
-extern const trace_t*
-  TRACE_NULL;
+extern const trace_t* TRACE_NULL;
 
 /*! Class for all file interfaces
  */
 class Interface {
   protected:
-    std::shared_ptr<ExSeisPIOL> piol;  //!< The PIOL object.
-    std::string name;  //!< Store the file name for debugging purposes.
-    std::shared_ptr<Obj::Interface>
-      obj;             //!< Pointer to the Object-layer object (polymorphic).
-    size_t ns;         //!< The number of samples per trace.
-    size_t nt;         //!< The number of traces.
-    std::string text;  //!< Human readable text extracted from the file
-    geom_t inc;        //!< The increment between samples in a trace
+    /// The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;
+    /// Store the file name for debugging purposes.
+    std::string name;
+    /// Pointer to the Object-layer object (polymorphic).
+    std::shared_ptr<Obj::Interface> obj;
+    /// The number of samples per trace.
+    size_t ns;
+    /// The number of traces.
+    size_t nt;
+    /// Human readable text extracted from the file
+    std::string text;
+    /// The increment between samples in a trace
+    geom_t inc;
 
     /*! @brief The constructor.
      *  @param[in] piol_ This PIOL ptr is not modified but is used to
@@ -320,11 +325,9 @@ class WriteInterface : public Interface {
 class Model3dInterface {
   public:
     /// Parameters for the inline coordinate (start, count, increment)
-    std::tuple<llint, llint, llint>
-      il;
+    std::tuple<llint, llint, llint> il;
     /// Parameters for the crossline coordinate (start, count, increment)
-    std::tuple<llint, llint, llint>
-      xl;
+    std::tuple<llint, llint, llint> xl;
 
     /*! read the 3d file based on il and xl that match those in the given
      *  \c gather array.

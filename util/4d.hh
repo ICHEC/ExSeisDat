@@ -11,7 +11,8 @@
 #include "cppfileapi.hh"
 #include <iostream>
 
-#define ALIGN 32U  //!< Constant for alignment reasons.
+/// Constant for alignment reasons.
+#define ALIGN 32U
 
 /*! A typedef to simplify const std::vector
  */
@@ -24,15 +25,17 @@ template<class T>
 using vec = std::vector<T>;
 
 /// A typedef for the precision used for coordinates during the 4dbin
-typedef float
-  fourd_t;
+typedef float fourd_t;
 
 /*! Structure for 4d binning options
  */
 struct FourDOpt {
-    uint64_t verbose : 1;   //!< Be verbose in the output
-    uint64_t printDsr : 1;  //!< print the dsr value to the SEG-Y output files
-    uint64_t ixline : 1;    //!< Constrain by inline and crossline
+    /// Be verbose in the output
+    uint64_t verbose : 1;
+    /// print the dsr value to the SEG-Y output files
+    uint64_t printDsr : 1;
+    /// Constrain by inline and crossline
+    uint64_t ixline : 1;
 
     /*! FourdOpt constructor
      */

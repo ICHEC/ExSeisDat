@@ -21,29 +21,44 @@ namespace File {
 /*! The Datatype (or format in SEG-Y terminology)
  */
 enum class Format : int16_t {
-    IBM  = 1,  //<! IBM format, big endian
-    TC4  = 2,  //<! Two's complement, 4 byte
-    TC2  = 3,  //<! Two's complement, 2 byte
-    FPG  = 4,  //<! Fixed-point gain (obsolete)
-    IEEE = 5,  //<! The IEEE format, big endian
-    NA1  = 6,  //<! Unused
-    NA2  = 7,  //<! Unused
-    TC1  = 8   //<! Two's complement, 1 byte
+    /// IBM format, big endian
+    IBM = 1,
+    /// Two's complement, 4 byte
+    TC4 = 2,
+    /// Two's complement, 2 byte
+    TC2 = 3,
+    /// Fixed-point gain (obsolete)
+    FPG = 4,
+    /// The IEEE format, big endian
+    IEEE = 5,
+    /// Unused
+    NA1 = 6,
+    /// Unused
+    NA2 = 7,
+    /// Two's complement, 1 byte
+    TC1 = 8
 };
 
 /*! Header offsets as defined in the specification. Actual offset is the value
  *  minus one.
  */
 enum class Hdr : size_t {
-    Increment =
-      3217U,  //!< int16_t. The increment between traces in microseconds
-    NumSample = 3221U,  //!< int16_t. The number of samples per trace
-    Type = 3225U,  //!< int16_t. Trace data type. AKA format in SEGY terminology
-    Sort = 3229U,  //!< int16_t. The sort order of the traces.
-    Units      = 3255U,  //!< int16_t. The unit system, i.e SI or imperial.
-    SEGYFormat = 3501U,  //!< int16_t. The SEG-Y Revision number
-    FixedTrace = 3503U,  //!< int16_t. Whether we are using fixed traces or not.
-    Extensions = 3505U,  //!< int16_t. If we use header extensions or not.
+    /// int16_t. The increment between traces in microseconds
+    Increment = 3217U,
+    /// int16_t. The number of samples per trace
+    NumSample = 3221U,
+    /// int16_t. Trace data type. AKA format in SEGY terminology
+    Type = 3225U,
+    /// int16_t. The sort order of the traces.
+    Sort = 3229U,
+    /// int16_t. The unit system, i.e SI or imperial.
+    Units = 3255U,
+    /// int16_t. The SEG-Y Revision number
+    SEGYFormat = 3501U,
+    /// int16_t. Whether we are using fixed traces or not.
+    FixedTrace = 3503U,
+    /// int16_t. If we use header extensions or not.
+    Extensions = 3505U,
 };
 
 /*! @brief Convert a SEG-Y scale integer to a floating point type

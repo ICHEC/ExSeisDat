@@ -17,8 +17,10 @@ namespace SEGSz {
  */
 enum class Size : size_t {
     Text = 3200U,
-    HO   = 3600U,  //!< The size of the SEG-Y header (text extensions not used)
-    DOMd = 240U    //!< The SEG-Y trace header size
+    /// The size of the SEG-Y header (text extensions not used)
+    HO = 3600U,
+    /// The SEG-Y trace header size
+    DOMd = 240U
 };
 
 /*! @brief Return the size of the text field

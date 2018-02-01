@@ -1,4 +1,5 @@
-#define _POSIX_C_SOURCE 200809L  //POSIX includes
+// POSIX includes
+#define _POSIX_C_SOURCE 200809L
 
 #include "flow.hh"
 

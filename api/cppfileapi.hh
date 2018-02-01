@@ -77,8 +77,8 @@ namespace File {
  */
 class ReadDirect {
   protected:
-    std::shared_ptr<ReadInterface>
-      file;  //!< The pointer to the base class (polymorphic)
+    /// The pointer to the base class (polymorphic)
+    std::shared_ptr<ReadInterface> file;
 
   public:
     /*! Constructor with options.
@@ -123,8 +123,6 @@ class ReadDirect {
      * @param[in] file The ReadInterface shared_ptr object.
      */
     ReadDirect(std::shared_ptr<ReadInterface> file);
-
-    //ReadDirect(void) { }
 
     /*! Empty destructor
      */
@@ -220,8 +218,8 @@ class ReadDirect {
  */
 class WriteDirect {
   protected:
-    std::shared_ptr<WriteInterface>
-      file;  //!< The pointer to the base class (polymorphic)
+    /// The pointer to the base class (polymorphic)
+    std::shared_ptr<WriteInterface> file;
 
   public:
     /*! Constructor with options.

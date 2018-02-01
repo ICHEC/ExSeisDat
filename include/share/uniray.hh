@@ -21,17 +21,26 @@ namespace PIOL {
  */
 template<class... T>
 class Uniray {
-    const size_t TupleSz =
-      sizeof(std::tuple<T...>);  //!< The number of elements per tuple.
-    ExSeisPIOL* piol;            //!< The piol object.
-    size_t sz;                  //!< The number of elements in the global array.
-    size_t offset;              //!< The local offset.
-    std::vector<size_t> szall;  //!< The size of each block per process.
-    std::vector<std::tuple<T...>> vec;  //!< The underlying local storage.
+    /// The number of elements per tuple.
+    const size_t TupleSz = sizeof(std::tuple<T...>);
+    /// The piol object.
+    ExSeisPIOL* piol;
+    /// The number of elements in the global array.
+    size_t sz;
+    /// The local offset.
+    size_t offset;
+    /// The size of each block per process.
+    std::vector<size_t> szall;
+    /// The underlying local storage.
+    std::vector<std::tuple<T...>> vec;
 
-    MPI_Win win;     //!< The memory window.
-    size_t rank;     //!< The rank of the local process.
-    size_t numRank;  //!< The number of ranks.
+    /// The memory window.
+    MPI_Win win;
+    /// The rank of the local process.
+    size_t rank;
+    /// The number of ranks.
+    size_t numRank;
+
   public:
     /*! Construct the global array. This operation is collective across all
      *  processes.

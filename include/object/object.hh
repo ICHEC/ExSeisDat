@@ -21,10 +21,12 @@ namespace Obj {
  */
 class Interface {
   protected:
-    std::shared_ptr<ExSeisPIOL> piol_;  //!< Pointer to the PIOL object.
-    std::string name_;  //!< Store the file name for debugging purposes.
-    std::shared_ptr<Data::Interface>
-      data_;  //!< Pointer to the Data layer object (polymorphic).
+    /// Pointer to the PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol_;
+    /// Store the file name for debugging purposes.
+    std::string name_;
+    /// Pointer to the Data layer object (polymorphic).
+    std::shared_ptr<Data::Interface> data_;
 
   public:
     /*! @brief The constructor.

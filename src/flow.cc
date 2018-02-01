@@ -115,11 +115,12 @@ void Set::add(std::string pattern)
       ".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize
                     | std::regex::extended);
 
-    for (size_t i = 0; i < globs.gl_pathc; i++)
-        if (std::regex_match(
-              globs.gl_pathv[i],
-              reg))  //For each input file which matches the regex
+    for (size_t i = 0; i < globs.gl_pathc; i++) {
+        //For each input file which matches the regex
+        if (std::regex_match(globs.gl_pathv[i], reg)) {
             add(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i]));
+        }
+    }
     globfree(&globs);
     piol->isErr();
 }
@@ -152,9 +153,9 @@ void Set::summary(void) const
 void RadonState::makeState(
   const std::vector<size_t>& offset, const Uniray<size_t, llint, llint>& gather)
 {
+    //TODO: DON'T USE MAGIC NAME
     std::unique_ptr<File::ReadSEGYModel> vm =
-      File::makeFile<File::ReadSEGYModel>(
-        piol, vmname);  //TODO:DON'T USE MAGIC NAME
+      File::makeFile<File::ReadSEGYModel>(piol, vmname);
     vNs  = vm->readNs();
     vInc = vm->readInc();
 
@@ -308,8 +309,10 @@ std::string Set::startGather(
         std::vector<std::string> names = calcFunc(tFunc.begin(), tFunc.end());
         outfix                         = tOutfix;
         drop();
-        for (std::string n : names)
-            add(n);  //TODO: Open with delete on close?
+        for (std::string n : names) {
+            //TODO: Open with delete on close?
+            add(n);
+        }
     }
     std::string gname;
     for (auto& o : file) {
@@ -453,9 +456,11 @@ FuncLst::iterator Set::startSubset(
 {
     std::vector<FuncLst::iterator> flist;
 
-    for (auto& o : fmap)  //TODO: Parallelisable
-        flist.push_back(calcFuncS(
-          fCurr, fEnd, o.second));  //Iterate across the full function list
+    //TODO: Parallelisable
+    for (auto& o : fmap) {
+        //Iterate across the full function list
+        flist.push_back(calcFuncS(fCurr, fEnd, o.second));
+    }
 
     assert(std::equal(flist.begin() + 1LU, flist.end(), flist.begin()));
 
@@ -472,10 +477,9 @@ std::vector<std::string> Set::calcFunc(
             std::string gname = startGather(fCurr, fEnd);
             //If startGather returned an empty string, then fCurr == fEnd was
             //reached.
-            if (
-              gname
-              != "")
+            if (gname != "") {
                 return std::vector<std::string>{gname};
+            }
 
 //TODO: Later this will need to be changed when the gather also continues with
 //      single trace cases
@@ -573,10 +577,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
     func.push_back(std::make_shared<Op<InPlaceMod>>(
       opt, r, nullptr, [this, sortFunc](TraceBlock* in) -> std::vector<size_t> {
           //TODO: It will eventually be necessary to support this use case.
-          if (
-            piol->comm->min(in->prm->size())
-            < 3LU)
-          {
+          if (piol->comm->min(in->prm->size()) < 3LU) {
               piol->log->record(
                 "", Log::Layer::Set, Log::Status::Error,
                 "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.",
@@ -605,11 +606,10 @@ void Set::toAngle(
           out->prm.reset(new File::Param(in->prm->r, state->oGSz));
           if (!in->prm->size()) return;
 
-          for (size_t j = 0; j < state->oGSz;
-               j++)  //For each angle in the angle gather
-              for (size_t z = 0; z < in->ns;
-                   z++)  //For each sample (angle + radon)
-              {
+          //For each angle in the angle gather
+          for (size_t j = 0; j < state->oGSz; j++) {
+              //For each sample (angle + radon)
+              for (size_t z = 0; z < in->ns; z++) {
                   //We are using coordinate level accuracy when its not
                   //performance critical.
                   geom_t vmModel =
@@ -623,6 +623,7 @@ void Set::toAngle(
                   if (k > 0 && size_t(k) < iGSz)
                       out->trc[j * out->ns + z] = in->trc[k * in->ns + z];
               }
+          }
 
           for (size_t j = 0; j < state->oGSz; j++) {
               //TODO: Set the rest of the parameters

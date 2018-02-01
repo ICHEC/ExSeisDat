@@ -47,9 +47,8 @@ WriteSEGY::WriteSEGY(
 
 WriteSEGY::~WriteSEGY(void)
 {
-    if (!piol->log
-           ->isErr())  //TODO: On error this can be a source of a deadlock
-    {
+    //TODO: On error this can be a source of a deadlock
+    if (!piol->log->isErr()) {
         calcNt();
         if (state.resize) obj->setFileSz(SEGSz::getFileSz(nt, ns));
         if (state.writeHO) {
@@ -80,13 +79,9 @@ void WriteSEGY::packHeader(uchar* buf) const
     //The version of the SEGY format.
     setMd(Hdr::SEGYFormat, 0x0100, buf);
     //We always deal with fixed traces at present.
-    setMd(
-      Hdr::FixedTrace, 0x0001,
-      buf);
+    setMd(Hdr::FixedTrace, 0x0001, buf);
     //We do not support text extensions at present.
-    setMd(
-      Hdr::Extensions, 0x0000,
-      buf);
+    setMd(Hdr::Extensions, 0x0000, buf);
 }
 
 void WriteSEGY::Init(const WriteSEGY::Opt& opt)

@@ -48,16 +48,17 @@ void distribToDistrib(
   std::vector<uchar>* vec)
 {
     std::vector<MPI_Request> msg;
+
     //if the old offset is less than the new offset
     //Then the local process must give the data over to the
     //-1 lower ranked process
-    if (old.first > newd.first)  //Cases 2, 3, 8
-    {
+
+    // Cases 2, 3, 8
+    if (old.first > newd.first) {
         size_t incStart = old.first - newd.first;
         vec->resize(vec->size() + incStart);
-        std::move_backward(
-          vec->begin(), vec->end() - incStart,
-          vec->end());  //Making space for the move
+        // Making space for the move
+        std::move_backward(vec->begin(), vec->end() - incStart, vec->end());
     }
 
     if (old.first + old.second < newd.first + newd.second)
@@ -106,8 +107,8 @@ void distribToDistrib(
         }
     }
 
-    if (old.first < newd.first)  //Cases 1, 4, 7
-    {
+    // Cases 1, 4, 7
+    if (old.first < newd.first) {
         size_t decStart = newd.first - old.first;
         std::move(vec->begin() + decStart, vec->end(), vec->begin());
     }
@@ -131,9 +132,11 @@ std::pair<size_t, size_t> writeArb(
 {
     auto newdec = blockDecomp(tsz, bsz, numRank, rank, off);
 
-    if (numRank != 1)  //If there is one rank this is pointless
-        distribToDistrib(
-          rank, dec, newdec, vec);  //Reorder operations along new boundaries
+    // If there is one rank this is pointless
+    if (numRank != 1) {
+        // Reorder operations along new boundaries
+        distribToDistrib(rank, dec, newdec, vec);
+    }
 
     out->write(off + newdec.first, newdec.second, vec->data());
 
@@ -172,10 +175,8 @@ void mpiMakeSEGYCopy(
         out->write(i + dec.first, dec.second, buf.data());
         piol.isErr();
         if (i == 0) {
-            if (
-              dec.first
-              == 0)  //If zero, then current process has read the header object
-            {
+            // If zero, then current process has read the header object
+            if (dec.first == 0) {
                 std::move(buf.begin() + hosz, buf.end(), buf.begin());
                 dec.second -= hosz;
                 buf.resize(dec.second);
@@ -214,10 +215,8 @@ void mpiMakeSEGYCopyNaive(
         in->read(i + dec.first, dec.second, buf.data());
         out->write(i + dec.first, dec.second, buf.data());
         if (i == 0) {
-            if (
-              dec.first
-              == 0)  //If zero, then current process has read the header object
-            {
+            // If zero, then current process has read the header object
+            if (dec.first == 0) {
                 std::move(
                   buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
                 dec.second -= hosz;

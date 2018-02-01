@@ -1,7 +1,8 @@
 #ifndef UTIL_SGLOBALH_INCLUDE_GUARD
 #define UTIL_SGLOBALH_INCLUDE_GUARD
 
-#define _POSIX_C_SOURCE 200809L  //POSIX includes
+// POSIX includes
+#define _POSIX_C_SOURCE 200809L
 
 #include "cfileapi.h"
 
@@ -18,8 +19,10 @@
  * (sz).  Used in decomposition of problems.
  */
 typedef struct {
-    size_t start;  //!< The starting point for the extent
-    size_t sz;     //!< The size of the extent
+    /// The starting point for the extent
+    size_t start;
+    /// The size of the extent
+    size_t sz;
 } Extent;
 
 /*! Function which takes the size of a problem, the number of ranks to decompose
@@ -33,13 +36,11 @@ typedef struct {
  */
 Extent decompose(const size_t sz, const size_t nrank, const size_t rank);
 
-typedef void (*ModPrm)(
-  size_t,
-  size_t,
-  PIOL_File_Param*);  //!< Typedef for function which modifies parameters
+/// Typedef for function which modifies parameters
+typedef void (*ModPrm)(size_t, size_t, PIOL_File_Param*);
 
-typedef void (*ModTrc)(
-  size_t, size_t, float*);  //!< Typedef for function which modifies traces
+/// Typedef for function which modifies traces
+typedef void (*ModTrc)(size_t, size_t, float*);
 
 /*! Function which copies a string onto newly allocated memory. The caller is
  *  responsible for deallocating the memory with free. The newly allocated

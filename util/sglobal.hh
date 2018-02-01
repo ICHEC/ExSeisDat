@@ -1,7 +1,8 @@
 #ifndef UTIL_SGLOBALHH_INCLUDE_GUARD
 #define UTIL_SGLOBALHH_INCLUDE_GUARD
 
-#define _POSIX_C_SOURCE 200809L  //POSIX includes
+// POSIX includes
+#define _POSIX_C_SOURCE 200809L
 
 #include "global.hh"
 #include "share/decomp.hh"

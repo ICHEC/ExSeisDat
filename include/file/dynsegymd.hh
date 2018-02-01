@@ -30,7 +30,8 @@
 namespace PIOL {
 namespace File {
 
-#if defined(__INTEL_COMPILER) || __GNUC__ < 6  //Compiler defects
+//Compiler defects
+#if defined(__INTEL_COMPILER) || __GNUC__ < 6
 /*! This function exists to address a defect in enum usage in a map
  *  that is present in the intel and older GNU compilers.
  */
@@ -51,11 +52,16 @@ struct EnumHash {
 /*! The type of data
  */
 enum class MdType : size_t {
-    Long,   //!< Long int data
-    Short,  //!< Short int data
-    Float,  //!< Floating point data
-    Index,  //!< For indexing purposes
-    Copy    //!< Copy all relevant headers. Not file format agnostic.
+    /// Long int data
+    Long,
+    /// Short int data
+    Short,
+    /// Floating point data
+    Float,
+    /// For indexing purposes
+    Index,
+    /// Copy all relevant headers. Not file format agnostic.
+    Copy
 };
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -198,7 +204,8 @@ struct SEGYShortRuleEntry : public RuleEntry {
 /*! The Float rule entry structure for the SEG-Y format.
  */
 struct SEGYFloatRuleEntry : public RuleEntry {
-    size_t scalLoc;  //!< The location of the scaler field.
+    /// The location of the scaler field.
+    size_t scalLoc;
 
     /*! The constructor.
      *  @param[in] num_ The numth entry for indexing purposes
@@ -232,12 +239,14 @@ struct SEGYFloatRuleEntry : public RuleEntry {
 
 //TODO: When implementing alternative file formats, this Rule structure must be
 //      generalised
-#if defined(__INTEL_COMPILER) || __GNUC__ < 6  //Compiler defects
-typedef std::unordered_map<Meta, RuleEntry*, EnumHash>
-  RuleMap;  //!< Typedef for RuleMap accounting for a compiler defect
+
+//Compiler defects
+#if defined(__INTEL_COMPILER) || __GNUC__ < 6
+/// Typedef for RuleMap accounting for a compiler defect
+typedef std::unordered_map<Meta, RuleEntry*, EnumHash> RuleMap;
 #else
-typedef std::unordered_map<Meta, RuleEntry*>
-  RuleMap;  //!< Typedef for the map holding the rules
+/// Typedef for the map holding the rules
+typedef std::unordered_map<Meta, RuleEntry*> RuleMap;
 #endif
 
 /*! The structure which holds the rules associated with the trace parameters in
@@ -245,19 +254,30 @@ typedef std::unordered_map<Meta, RuleEntry*>
  *  index the parameter structure of arrays.
  */
 struct Rule {
-    size_t numLong  = 0;  //!< Number of long rules.
-    size_t numFloat = 0;  //!< Number of float rules.
-    size_t numShort = 0;  //!< Number of short rules.
-    size_t numIndex = 0;  //!< Number of index rules.
-    size_t numCopy  = 0;  //!< Number of copy rules. either 0 or 1.
-    size_t start;         //!< The starting byte position in the SEG-Y header.
-    size_t end;           //!< The end byte position (+ 1) in the SEG-Y header.
-    struct {
-        uint32_t
-          badextent;  //!< Flag marking if the extent calculation is stale.
-        uint32_t
-          fullextent;  //!< Flag marking if the full header buffer is processed.
-    } flag;            //!< State flags
+    /// Number of long rules.
+    size_t numLong = 0;
+    /// Number of float rules.
+    size_t numFloat = 0;
+    /// Number of short rules.
+    size_t numShort = 0;
+    /// Number of index rules.
+    size_t numIndex = 0;
+    /// Number of copy rules. either 0 or 1.
+    size_t numCopy = 0;
+    /// The starting byte position in the SEG-Y header.
+    size_t start;
+    /// The end byte position (+ 1) in the SEG-Y header.
+    size_t end;
+
+    struct StateFlags {
+        /// Flag marking if the extent calculation is stale.
+        uint32_t badextent;
+        /// Flag marking if the full header buffer is processed.
+        uint32_t fullextent;
+    };
+
+    /// State flags
+    StateFlags flag;
 
     /*! The unordered map which stores all current rules.
      *  A map ensures there are no duplicates. */
@@ -381,7 +401,6 @@ struct Rule {
  *  @param[in] prm The parameter structure
  *  @return Return the value associated with the entry
  */
-//prmRet getPrm(const size_t i, const Meta entry, const Param * prm);
 template<typename T>
 T getPrm(size_t i, Meta entry, const Param* prm)
 {

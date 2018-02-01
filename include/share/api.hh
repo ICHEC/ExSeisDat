@@ -277,26 +277,36 @@ namespace PIOL {
 /*! An enum class of the different types of filters.
  */
 enum class FltrType : int {
-    Lowpass,   //!< Create Lowpass IIR Butterworth filter
-    Highpass,  //!< Create Highpass IIR Butterworth filter
-    Bandpass,  //!< Create Bandpass IIR Butterworth filter
-    Bandstop   //!< Create Bandstop IIR Butterworth filter
+    /// Create Lowpass IIR Butterworth filter
+    Lowpass,
+    /// Create Highpass IIR Butterworth filter
+    Highpass,
+    /// Create Bandpass IIR Butterworth filter
+    Bandpass,
+    /// Create Bandstop IIR Butterworth filter
+    Bandstop
 };
 
 /*! An enum class of the different types of filtering domains.
  */
 enum class FltrDmn : int {
-    Time,  //!< Filter in time domain
-    Freq   //!< Filter in frequency domain
+    /// Filter in time domain
+    Time,
+    /// Filter in frequency domain
+    Freq
 };
 
 /*! An enum class of the different types of trace padding functions.
  */
 enum class PadType : int {
-    Zero,       //!< Pad using zeros
-    Symmetric,  //!< Pad using reflection of trace
-    Replicate,  //!< Pad using closest value in trace
-    Cyclic      //!< Pad using values from other end of trace
+    /// Pad using zeros
+    Zero,
+    /// Pad using reflection of trace
+    Symmetric,
+    /// Pad using closest value in trace
+    Replicate,
+    /// Pad using values from other end of trace
+    Cyclic
 };
 
 }  // namespace PIOL
@@ -307,8 +317,10 @@ enum class PadType : int {
  *  trace number
  */
 struct PIOL_CoordElem {
-    PIOL_geom_t val;  //!< The value
-    size_t num;       //!< The trace number
+    /// The value
+    PIOL_geom_t val;
+    /// The trace number
+    size_t num;
 };
 
 #ifdef __cplusplus

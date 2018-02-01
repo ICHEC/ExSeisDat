@@ -47,20 +47,27 @@ struct gState {
 /*! The radon state structure.
  */
 struct RadonState : public gState {
-    std::shared_ptr<ExSeisPIOL> piol;  //!< The piol object.
-    std::string vmname;         //!< The name of the Velocity Model (VM) file.
-    std::vector<trace_t> vtrc;  //!< Trace data read from the VM file.
-    std::vector<llint>
-      il;  //!< A list of inlines corresponding to the VM data read.
-    std::vector<llint>
-      xl;  //!< A list of crosslines corresponding to the VM data read.
+    /// The piol object.
+    std::shared_ptr<ExSeisPIOL> piol;
+    /// The name of the Velocity Model (VM) file.
+    std::string vmname;
+    /// Trace data read from the VM file.
+    std::vector<trace_t> vtrc;
+    /// A list of inlines corresponding to the VM data read.
+    std::vector<llint> il;
+    /// A list of crosslines corresponding to the VM data read.
+    std::vector<llint> xl;
 
-    size_t vNs;   //!< The number of samples per trace for the VM.
-    size_t vBin;  //!< The binning factor to be used.
-    size_t oGSz;  //!< The number of traces per gather in the angle output.
-    geom_t vInc;  //!< The increment between samples in the VM file.
-    geom_t
-      oInc;  //!< The increment between samples in the output file (radians).
+    /// The number of samples per trace for the VM.
+    size_t vNs;
+    /// The binning factor to be used.
+    size_t vBin;
+    /// The number of traces per gather in the angle output.
+    size_t oGSz;
+    /// The increment between samples in the VM file.
+    geom_t vInc;
+    /// The increment between samples in the output file (radians).
+    geom_t oInc;
 
     /*! Constructor for the radon state.
      * @param[in] piol_ The piol object.
@@ -94,37 +101,58 @@ struct RadonState : public gState {
  */
 enum class FuncOpt : size_t {
     //Data type dependencies
-    NeedMeta,    //!< Metadata required to be read.
-    NeedTrcVal,  //!< Trace values required to be read.
+
+    /// Metadata required to be read.
+    NeedMeta,
+    /// Trace values required to be read.
+    NeedTrcVal,
 
     //Modification level:
-    AddTrc,      //!< Traces are added by the operation.
-    DelTrc,      //!< Traces are deleted by the operation.
-    ModTrcVal,   //!< Trace values are modified by the operation.
-    ModTrcLen,   //!< Trace lengths are modified by the operation.
-    ModMetaVal,  //!< Metadata values are modified by the operation.
-    ReorderTrc,  //!< Traces are reordered by the operation.
+
+    /// Traces are added by the operation.
+    AddTrc,
+    /// Traces are deleted by the operation.
+    DelTrc,
+    /// Trace values are modified by the operation.
+    ModTrcVal,
+    /// Trace lengths are modified by the operation.
+    ModTrcLen,
+    /// Metadata values are modified by the operation.
+    ModMetaVal,
+    /// Traces are reordered by the operation.
+    ReorderTrc,
 
     //Modification dependencies
-    DepTrcCnt,    //!< There is a dependency on the number of traces.
-    DepTrcOrder,  //!< There is a dependency on the order of traces.
-    DepTrcVal,    //!< There is a dependency on the value of traces.
-    DepMetaVal,   //!< There is a dependency on the metadata values.
+
+    /// There is a dependency on the number of traces.
+    DepTrcCnt,
+    /// There is a dependency on the order of traces.
+    DepTrcOrder,
+    /// There is a dependency on the value of traces.
+    DepTrcVal,
+    /// There is a dependency on the metadata values.
+    DepMetaVal,
 
     //Comms level:
-    SingleTrace,  //!< Each output trace requires info from one input trace.
+
+    /// Each output trace requires info from one input trace.
+    SingleTrace,
     /// Each output trace requires info from traces in the same gather.
     Gather,
     /// Each output trace requires info from all traces in a subset of files.
     SubSetOnly,
-    AllTraces,  //!< Each output trace requires info from all traces in the set.
-    OwnIO       //!< Management of traces is complicated and custom.
+    /// Each output trace requires info from all traces in the set.
+    AllTraces,
+    /// Management of traces is complicated and custom.
+    OwnIO
 };
 
 /*! A structure to hold operation options.
  */
 class OpOpt {
-    std::vector<FuncOpt> optList;  //!< A list of the function options.
+    /// A list of the function options.
+    std::vector<FuncOpt> optList;
+
   public:
     /*! Empty constructor.
      */
@@ -154,10 +182,12 @@ class OpOpt {
 /*! Operations parents. Specific classes of operations inherit from this parent
  */
 struct OpParent {
-    OpOpt opt;  //!< Operation options.
-    std::shared_ptr<File::Rule>
-      rule;  //!< Relevant parameter rules for the operation.
-    std::shared_ptr<gState> state;  //!< Gather state if applicable.
+    /// Operation options.
+    OpOpt opt;
+    /// Relevant parameter rules for the operation.
+    std::shared_ptr<File::Rule> rule;
+    /// Gather state if applicable.
+    std::shared_ptr<gState> state;
 
     /*! Construct.
      *  @param[in] opt_ Operation options.
@@ -183,7 +213,8 @@ struct OpParent {
  */
 template<typename T>
 struct Op : public OpParent {
-    T func;  //!< The particular std::function object for the operaton
+    /// The particular std::function object for the operaton
+    T func;
 
     /*! Construct.
      *  @param[in] opt_ Operation options.
@@ -203,27 +234,35 @@ struct Op : public OpParent {
 };
 
 //If this was C++17 then a std::variant could be used
-typedef std::list<std::shared_ptr<OpParent>>
-  FuncLst;  //!< The function list type for the set layer
+/// The function list type for the set layer
+typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 
 /*! The internal set class
  */
 class Set {
   protected:
-    std::shared_ptr<ExSeisPIOL> piol;  //!< The PIOL object.
-    std::string outfix;                //!< The output prefix
-    std::string outmsg;                //!< The output text-header message
-    FileDeque file;  //!< A deque of unique pointers to file descriptors
-    std::map<std::pair<size_t, geom_t>, FileDeque>
-      fmap;  //!< A map of (ns, inc) key to a deque of file descriptor pointers
-    std::map<std::pair<size_t, geom_t>, size_t>
-      offmap;  //!< A map of (ns, inc) key to the current offset
-    std::shared_ptr<File::Rule>
-      rule;          //!< Contains a pointer to the Rules for parameters
-    Cache cache;     //!< The cache of parameters and traces
-    FuncLst func;    //!< The list of functions and related data
-    size_t rank;     //!< The rank of the particular process
-    size_t numRank;  //!< The number of ranks
+    /// The PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol;
+    /// The output prefix
+    std::string outfix;
+    /// The output text-header message
+    std::string outmsg;
+    /// A deque of unique pointers to file descriptors
+    FileDeque file;
+    /// A map of (ns, inc) key to a deque of file descriptor pointers
+    std::map<std::pair<size_t, geom_t>, FileDeque> fmap;
+    /// A map of (ns, inc) key to the current offset
+    std::map<std::pair<size_t, geom_t>, size_t> offmap;
+    /// Contains a pointer to the Rules for parameters
+    std::shared_ptr<File::Rule> rule;
+    /// The cache of parameters and traces
+    Cache cache;
+    /// The list of functions and related data
+    FuncLst func;
+    /// The rank of the particular process
+    size_t rank;
+    /// The number of ranks
+    size_t numRank;
 
     /*! Drop all file descriptors without output.
      */

@@ -34,8 +34,10 @@ void manageMPI(bool);
  */
 class MPI : public Comm::Interface {
   private:
-    MPI_Comm comm;     //!< The MPI communicator.
-    Log::Logger* log;  //!< For logging messages
+    /// The MPI communicator.
+    MPI_Comm comm;
+    /// For logging messages
+    Log::Logger* log;
 
   public:
     /*! @brief The MPI-Communicator options structure.

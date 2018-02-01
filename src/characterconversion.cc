@@ -149,7 +149,8 @@ char ebcdicToAscii(uchar ebcdic_char)
     const auto& ascii_char_it = std::lower_bound(
       std::begin(ebcdicToAsciiMap), std::end(ebcdicToAsciiMap), ebcdic_char,
       [](EbcdicAsciiPair a, uchar b) {
-          return a.ebcdic < b;  // Search by EBCDIC
+          // Search by EBCDIC
+          return a.ebcdic < b;
       });
     if (ascii_char_it == std::end(ebcdicToAsciiMap)) {
         return char_sub.ascii;
@@ -163,7 +164,8 @@ char asciiToEbcdic(uchar ascii_char)
     const auto& ebcdic_char_it = std::lower_bound(
       std::begin(ebcdicToAsciiMap), std::end(ebcdicToAsciiMap), ascii_char,
       [](EbcdicAsciiPair a, uchar b) {
-          return a.ascii < b;  // Search by ASCII
+          // Search by ASCII
+          return a.ascii < b;
       });
     if (ebcdic_char_it == std::end(ebcdicToAsciiMap)) {
         return char_sub.ebcdic;

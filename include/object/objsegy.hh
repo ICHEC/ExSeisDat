@@ -22,9 +22,10 @@ class SEGY : public Interface {
     /*! @brief The SEG-Y options structure. Currently empty.
     */
     struct Opt {
-        typedef SEGY
-          Type;  //!< The Type of the class this structure is nested in
-        /* @brief Default constructor to prevent intel warnings
+        /// The Type of the class this structure is nested in
+        typedef SEGY Type;
+
+        /*! @brief Default constructor to prevent intel warnings
          */
         Opt(void) {}
     };

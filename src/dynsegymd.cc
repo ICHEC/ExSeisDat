@@ -326,8 +326,8 @@ Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
 
     if (r->numIndex) t.resize(sz * r->numIndex);
 
-    if (r->numCopy)  //TODO: This must be file format agnostic
-        c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
+    // TODO: This must be file format agnostic
+    if (r->numCopy) c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
 Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
@@ -479,7 +479,8 @@ void insertParam(
 
     for (size_t i = 0; i < sz; i++) {
         uchar* md = &buf[(r->extent() + stride) * i];
-#if defined(__INTEL_COMPILER) || __GNUC__ < 6  //Compiler defects
+// Compiler defects
+#if defined(__INTEL_COMPILER) || __GNUC__ < 6
         std::unordered_map<Tr, int16_t, EnumHash> scal;
 #else
         std::unordered_map<Tr, int16_t> scal;

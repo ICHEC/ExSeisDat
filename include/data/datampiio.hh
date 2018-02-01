@@ -30,27 +30,33 @@ class MPIIO : public Interface {
      */
     struct Opt {
         /// The Type of the class this structure is nested in
-        typedef MPIIO
-          Type;
+        typedef MPIIO Type;
         /// Whether collective read/write operations will be used
         bool coll;
         /// The info structure to use
         MPI_Info info;
         /// The maximum size to allow to be written to disk per process in one
         /// operation
-        size_t
-          maxSize;
-        MPI_Comm fcomm;  //!< The MPI communicator to use for file access
-        Opt(void);       //!< The constructor to set default options
-        ~Opt(void);      //!< The destructor
+        size_t maxSize;
+        /// The MPI communicator to use for file access
+        MPI_Comm fcomm;
+        /// The constructor to set default options
+        Opt(void);
+        /// The destructor
+        ~Opt(void);
     };
 
   private:
-    bool coll;       //!< Whether collective read/write operations will be used
-    MPI_File file;   //!< The MPI-IO file handle
-    MPI_Comm fcomm;  //!< The MPI-IO file communicator
-    MPI_Info info;   //!< @copydoc MPIIO::Opt::info
-    size_t maxSize;  //!< @copydoc MPIIO::Opt::maxSize
+    /// Whether collective read/write operations will be used
+    bool coll;
+    /// The MPI-IO file handle
+    MPI_File file;
+    /// The MPI-IO file communicator
+    MPI_Comm fcomm;
+    /// @copydoc MPIIO::Opt::info
+    MPI_Info info;
+    /// @copydoc MPIIO::Opt::maxSize
+    size_t maxSize;
 
     /*! Read a file using MPI-IO views. This function does not handle the
      *  integer limit

@@ -57,8 +57,7 @@ void makeSEGY(const char* out, size_t ns, size_t nt, size_t maxBlock)
     size_t sz         = hsz + (thsz + ns * sizeof(float)) * nt;
     FILE* fs          = fopen(out, "w");
     //If you are trapped here, make sure you created the required folders
-    assert(
-      fs);
+    assert(fs);
     if (sz >= hsz) {
         int16_t inc    = 20;
         uchar cinc[2U] = {(inc & 0xFF00) >> 8U, inc & 0xFF};

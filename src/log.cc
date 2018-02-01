@@ -41,10 +41,10 @@ void Logger::record(
 size_t Logger::numStat(const Status stat) const
 {
     size_t sz = 0;
-    for (auto& item : loglist_)
-        sz +=
-          (item.stat
-           == stat);  //The spec guarantees this is one if the equality holds
+    for (auto& item : loglist_) {
+        //The spec guarantees this is one if the equality holds
+        sz += (item.stat == stat);
+    }
     return sz;
 }
 

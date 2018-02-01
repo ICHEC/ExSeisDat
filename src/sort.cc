@@ -440,21 +440,20 @@ void sort(
 
     std::copy(dat.begin(), dat.end(), temp1.begin());
     std::vector<T> temp2;
-    while (
-      numRank
-      > 1)  //Infinite loop if there is more than one process, otherwise no loop
-    {
+    // Infinite loop if there is more than one process, otherwise no loop
+    while (numRank > 1) {
         temp2 = temp1;
         sendLeft(piol, regionSz, temp1);
 
-        if (comp != nullptr)
+        if (comp != nullptr) {
             std::sort(
               temp1.begin() + edge1, temp1.end(),
               [comp](auto& a, auto& b) -> bool { return comp(a, b); });
-        else
-            std::sort(
-              temp1.begin() + edge1,
-              temp1.end());  // default pair sorting is first then second
+        }
+        else {
+            // default pair sorting is first then second
+            std::sort(temp1.begin() + edge1, temp1.end());
+        }
 
         sendRight(piol, regionSz, temp1);
 
@@ -704,10 +703,8 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
     for (size_t i = 0; i < lnt; i++)
         cpyPrm(t1[i], prm, i, &temp1);
 
-    while (
-      numRank
-      > 1)  //Infinite loop if there is more than one process, otherwise no loop
-    {
+    // Infinite loop if there is more than one process, otherwise no loop
+    while (numRank > 1) {
         temp2 = temp1;
         sendLeft(piol, regionSz, &temp1);
 

@@ -17,8 +17,10 @@ extern const std::string notFile;
 extern const std::string zeroFile;
 extern const std::string smallFile;
 extern const std::string largeFile;
-extern const std::string plargeFile;  //Large file with a pattern
-extern const std::string tempFile;  //File which is deleted after each creation
+// Large file with a pattern
+extern const std::string plargeFile;
+// File which is deleted after each creation
+extern const std::string tempFile;
 extern const std::string smallSEGYFile;
 extern const std::string largeSEGYFile;
 extern const std::string bigTraceSEGYFile;

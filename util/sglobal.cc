@@ -39,17 +39,18 @@ std::vector<size_t> lobdecompose(
 std::pair<size_t, size_t> blockDecomp(
   size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off)
 {
-    size_t rstart = bsz - off % bsz;   //Size of the first block
-    size_t rend   = (off + sz) % bsz;  //Size of the last block
-    size_t bcnt   = (sz - rstart - rend) / bsz
-                  + 2;  //The total number of blocks, +2 accounts for start+end
+    // Size of the first block
+    size_t rstart = bsz - off % bsz;
+    // Size of the last block
+    size_t rend = (off + sz) % bsz;
+    // The total number of blocks, +2 accounts for start+end
+    size_t bcnt = (sz - rstart - rend) / bsz + 2;
 
-    assert(!(
-      (sz - rstart - rend)
-      % bsz));  //Make sure there isn't any leftover, this shouldn't be possible
+    // Make sure there isn't any leftover, this shouldn't be possible
+    assert(!((sz - rstart - rend) % bsz));
 
-    auto newdec = decompose(
-      bcnt, numRank, rank);  //Do a regular decomposition of the blocks
+    // Do a regular decomposition of the blocks
+    auto newdec = decompose(bcnt, numRank, rank);
 
     newdec.first *= bsz;
     newdec.second *= bsz;
@@ -57,10 +58,14 @@ std::pair<size_t, size_t> blockDecomp(
 
     //Now we compensate for the fact that the start and end block sizes can be
     //different.
-    if (!rank)  //If the rank is zero, we shrink the first block by the leftover
+    if (!rank) {
+        //If the rank is zero, we shrink the first block by the leftover
         newdec.second -= bsz - rstart;
-    else  //The subtraction above means every block is shifted
+    }
+    else {
+        //The subtraction above means every block is shifted
         newdec.first -= bsz - rstart;
+    }
 
     //The last rank with work must remove the leftover of its last block
     if (newdec.second && ((newdec.first + newdec.second) > sz)) {

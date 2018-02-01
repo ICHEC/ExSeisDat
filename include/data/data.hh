@@ -21,9 +21,12 @@ namespace Data {
  */
 class Interface {
   protected:
-    std::shared_ptr<ExSeisPIOL> piol_;  //!< Pointer to the PIOL object.
-    Log::Logger* log_;                  //!< For convienience
-    const std::string name_;  //!< Store the file name for debugging purposes.
+    /// Pointer to the PIOL object.
+    std::shared_ptr<ExSeisPIOL> piol_;
+    /// For convienience
+    Log::Logger* log_;
+    /// Store the file name for debugging purposes.
+    const std::string name_;
 
   public:
     /*! @brief The constructor.
@@ -42,13 +45,16 @@ class Interface {
      */
     virtual ~Interface(void) = default;
 
-    /// @brief The stored PIOL object.
+    /*! @brief The stored PIOL object.
+     */
     virtual std::shared_ptr<ExSeisPIOL> piol() { return piol_; }
 
-    /// @brief The stored log object.
+    /*! @brief The stored log object.
+     */
     virtual const Log::Logger* log() { return log_; }
 
-    /// @brief The stored file name.
+    /*! @brief The stored file name.
+     */
     virtual std::string name() { return name_; }
 
     /*! @brief find out the file size.

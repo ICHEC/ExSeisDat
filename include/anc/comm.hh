@@ -27,11 +27,9 @@ class Interface {
   protected:
     /// A number in the sequence from 0 to some maximum (numRank-1) which
     /// indicates the process number.
-    size_t
-      rank;
+    size_t rank;
     /// The total number of processes which are executing together.
-    size_t
-      numRank;  
+    size_t numRank;
 
   public:
     /*! @brief A virtual destructor to allow deletion.

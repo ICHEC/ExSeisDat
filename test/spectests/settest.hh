@@ -13,8 +13,8 @@
 
 namespace PIOL {
 
-std::pair<size_t, size_t> decompose(
-  size_t sz, size_t numRank, size_t rank);  //TODO: TEMP!
+// TODO: TEMP!
+std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);
 
 }  // namespace PIOL
 
@@ -213,7 +213,7 @@ struct SetTest : public Test {
       size_t nTailLft,
       size_t nTailRt)
     {
-        set.reset(new Set_public(piol));  //, "", "tmp/temp"));
+        set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
 
         std::vector<trace_t> trc(nt * ns);
@@ -268,9 +268,11 @@ struct SetTest : public Test {
         std::vector<trace_t> trc(nt * ns);
         std::vector<trace_t> trcMan(nt * ns);
 
-        for (size_t i = 0; i < nt; i++)
-            for (size_t j = 0; j < ns; j++)
+        for (size_t i = 0; i < nt; i++) {
+            for (size_t j = 0; j < ns; j++) {
                 trc[i * ns + j] = j;  //*pow(-1.0f,j);
+            }
+        }
 
         trcMan = trc;
 

@@ -38,15 +38,19 @@ typedef double PIOL_geom_t;
 
 namespace PIOL {
 
-typedef unsigned char
-  uchar;                   //!< The type to use for accessing individual bytes
-typedef PIOL_llint llint;  //!< A large signed integer type.
-typedef PIOL_trace_t trace_t;  //!< Real type for traces, use "*_t" convention
-typedef PIOL_geom_t geom_t;    //!< Real type for geometry
-typedef double unit_t;         //!< Real type for physical, SI and math units
+/// The type to use for accessing individual bytes
+typedef unsigned char uchar;
+/// A large signed integer type.
+typedef PIOL_llint llint;
+/// Real type for traces, use "*_t" convention
+typedef PIOL_trace_t trace_t;
+/// Real type for geometry
+typedef PIOL_geom_t geom_t;
+/// Real type for physical, SI and math units
+typedef double unit_t;
 
-typedef std::complex<trace_t>
-  cmtrace_t;  //!< Real type for traces, use "*_t" convention
+/// Real type for traces, use "*_t" convention
+typedef std::complex<trace_t> cmtrace_t;
 constexpr trace_t operator"" _t(long double x)
 {
     return x;
@@ -59,28 +63,32 @@ constexpr trace_t operator"" _t(unsigned long long int i)
 /*! The file modes possible for files.
  */
 enum class FileMode : size_t {
-    Read,       //!< Read-only mode
-    Write,      //!< Write-only mode
-    ReadWrite,  //!< Read or write
-    Test        //!< A test mode
+    /// Read-only mode
+    Read,
+    /// Write-only mode
+    Write,
+    /// Read or write
+    ReadWrite,
+    /// A test mode
+    Test
 };
 
-typedef std::function<trace_t(trace_t*, size_t, trace_t, llint)>
-  AGCFunc;  //!< A typedef for the agc stats function
+/// A typedef for the agc stats function
+typedef std::function<trace_t(trace_t*, size_t, trace_t, llint)> AGCFunc;
 
-typedef std::function<trace_t(trace_t, trace_t)>
-  TaperFunc;  //!< A typedef for the agc stats function
+/// A typedef for the agc stats function
+typedef std::function<trace_t(trace_t, trace_t)> TaperFunc;
 
-typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)>
-  FltrPad;  //!< Typedef for filter padding funcitons
+/// Typedef for filter padding funcitons
+typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)> FltrPad;
 
+/// Return the value associated with a particular parameter
 template<typename T>
-using MinMaxFunc = std::function<geom_t(
-  const T&)>;  //!< Return the value associated with a particular parameter
+using MinMaxFunc = std::function<geom_t(const T&)>;
 
+/// A template for the Compare less-than function
 template<class T>
-using Compare = std::function<bool(
-  const T&, const T&)>;  //!< A template for the Compare less-than function
+using Compare = std::function<bool(const T&, const T&)>;
 
 namespace Data {
 class Interface;

@@ -20,28 +20,35 @@ namespace PIOL {
  *  decomposition for the set layer
  */
 struct FileDesc {
-    std::unique_ptr<File::ReadInterface> ifc;  //!< The file interface
-    std::vector<size_t>
-      ilst;  //!< The size of this corresponds to the local decomposition
-    std::vector<size_t>
-      olst;  //!< The size of this corresponds to the local decomposition
+    /// The file interface
+    std::unique_ptr<File::ReadInterface> ifc;
+    /// The size of this corresponds to the local decomposition
+    std::vector<size_t> ilst;
+    /// The size of this corresponds to the local decomposition
+    std::vector<size_t> olst;
 };
 
 /*! The structure for holding all trace data.
  */
 struct TraceBlock {
-    size_t nt;    //!< Number of traces
-    size_t ns;    //!< Number of samples per trace
-    geom_t inc;   //!< Increment between trace samples
-    size_t gNum;  //!< Gather number (if applicable)
-    size_t numG;  //!< Number of gathers (if applicable)
-    std::unique_ptr<File::Param>
-      prm;  //!< unique pointer to parameter structure (if applicable)
-    std::vector<trace_t> trc;  //!< traces (if applicable)
+    /// Number of traces
+    size_t nt;
+    /// Number of samples per trace
+    size_t ns;
+    /// Increment between trace samples
+    geom_t inc;
+    /// Gather number (if applicable)
+    size_t gNum;
+    /// Number of gathers (if applicable)
+    size_t numG;
+    /// unique pointer to parameter structure (if applicable)
+    std::unique_ptr<File::Param> prm;
+    /// traces (if applicable)
+    std::vector<trace_t> trc;
 };
 
-typedef std::deque<std::shared_ptr<FileDesc>>
-  FileDeque;  //!< A typedef to simplify the list of file descriptors
+/// A typedef to simplify the list of file descriptors
+typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
 
 }  // namespace PIOL
 

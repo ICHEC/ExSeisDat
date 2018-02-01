@@ -137,8 +137,7 @@ std::unique_ptr<Coords> getCoords(
         file.readParamNonContiguous(0LU, nullptr, nullptr);
 
     // This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
-    piol->comm
-      ->barrier();
+    piol->comm->barrier();
     cmsg(
       piol.get(), "Read sets of coordinates from file " + name + " in "
                     + std::to_string(MPI_Wtime() - time) + " seconds");

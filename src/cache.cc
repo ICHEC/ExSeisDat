@@ -84,8 +84,8 @@ std::vector<size_t> Cache::getOutputTrace(
             size_t fsz  = desc[i]->olst.size();
             size_t nloc = loc + fsz;
 
-            if (nloc > offset)  //Some data should be copied from this file
-            {
+            // Some data should be copied from this file
+            if (nloc > offset) {
                 size_t lsz  = std::min(offset + sz, nloc) - offset;
                 size_t foff = offset - loc;
                 std::copy(

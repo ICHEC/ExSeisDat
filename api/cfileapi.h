@@ -568,31 +568,41 @@ void PIOL_File_ReadDirect_readParamNonContiguous(
 /*! A list of the different modes of file access.
  */
 enum Mode {
-    ReadMode,      //!< The file is opened as read only.
-    WriteMode,     //!< The file is opened as write only.
-    ReadWriteMode  //!< The file is opened as Read/Write.
+    /// The file is opened as read only.
+    ReadMode,
+    /// The file is opened as write only.
+    WriteMode,
+    /// The file is opened as Read/Write.
+    ReadWriteMode
 };
 
 /*! A structure specifying all MPI-IO options
  */
 typedef struct {
-    enum Mode mode;  //!< The file access mode
-    MPI_Info info;   //!< The MPI_Info object
-    size_t maxSize;  //!< The maximum size to write in an MPI-IO call.
-    MPI_Comm fcomm;  //!< The MPI communicator which should be used.
+    /// The file access mode
+    enum Mode mode;
+    /// The MPI_Info object
+    MPI_Info info;
+    /// The maximum size to write in an MPI-IO call.
+    size_t maxSize;
+    /// The MPI communicator which should be used.
+    MPI_Comm fcomm;
 } MPIIOOptions;
 
 /*! A structure specifying MPI options.
  */
 typedef struct {
-    MPI_Comm comm;  //!< The MPI communicator
-    bool initMPI;   //!< Whether the PIOL should initialise MPI or not
+    /// The MPI communicator
+    MPI_Comm comm;
+    /// Whether the PIOL should initialise MPI or not
+    bool initMPI;
 } MPIOptions;
 
 /*! A structure specifying file layer options.
  */
 typedef struct {
-    double incFactor;  //!< The increment factor which should be used with inc.
+    /// The increment factor which should be used with inc.
+    double incFactor;
 } SEGYOptions;
 
 #endif  // DISABLED_OPTIONS
