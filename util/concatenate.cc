@@ -61,7 +61,7 @@ int main(int argc, char** argv)
     std::string outprefix = "";
     std::string msg       = "Concatenated with ExSeisPIOL";
     bool prompt           = false;
-    std::string opt       = "i:o:m:p";  //TODO: uses a GNU extension
+    std::string opt       = "i:o:m:p";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {

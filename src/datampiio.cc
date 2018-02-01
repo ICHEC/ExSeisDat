@@ -140,7 +140,7 @@ int iol(
   uchar* d,
   MPI_Status* stat)
 {
-    //Set a view so that MPI_File_read... functions only see contiguous data.
+    // Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype type;
     int err = randBlockView(file, info, chunk, bsz, offset, &type);
     if (err != MPI_SUCCESS) return err;
@@ -148,7 +148,7 @@ int iol(
     fn(file, 0, d, chunk * bsz, MPI_CHAR, stat);
     if (err != MPI_SUCCESS) return err;
 
-    //Reset the view.
+    // Reset the view.
     err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     if (err != MPI_SUCCESS) return err;
 
@@ -332,7 +332,7 @@ void MPIIO::readv(
           "Read overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
-    //Set a view so that MPI_File_read... functions only see contiguous data.
+    // Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(
@@ -341,7 +341,7 @@ void MPIIO::readv(
 
     read(0LU, nb * bsz, d);
 
-    //Reset the view.
+    // Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     MPI_Type_free(&view);
 }
@@ -397,8 +397,8 @@ void MPIIO::contigIO(
     }
 }
 
-//Perform I/O to acquire data corresponding to fixed-size blocks of data located
-//according to a list of offsets.
+// Perform I/O to acquire data corresponding to fixed-size blocks of data
+// located  according to a list of offsets.
 void MPIIO::listIO(
   const MFp<MPI_Status> fn,
   const size_t bsz,
@@ -407,8 +407,8 @@ void MPIIO::listIO(
   uchar* d,
   std::string msg) const
 {
-    //TODO: More accurately determine a real limit for setting a view.
-    //      Is the problem strides that are too big?
+    // TODO: More accurately determine a real limit for setting a view.
+    //       Is the problem strides that are too big?
     size_t max     = maxSize / (bsz ? bsz * 2LU : 1LU);
     size_t remCall = 0;
     {
@@ -467,7 +467,7 @@ void MPIIO::writev(
           "Write overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
-    //Set a view so that MPI_File_read... functions only see contiguous data.
+    // Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     printErr(
@@ -476,7 +476,7 @@ void MPIIO::writev(
 
     write(0LU, nb * bsz, d);
 
-    //Reset the view.
+    // Reset the view.
     MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     MPI_Type_free(&view);
 }

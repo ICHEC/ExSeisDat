@@ -16,7 +16,7 @@ class FileTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::New();
 };
 
-//FakeFile to test the constructor of the abstract Interface class
+// FakeFile to test the constructor of the abstract Interface class
 struct FakeReadFile : public File::ReadInterface {
     struct Opt {
         typedef FakeReadFile Type;
@@ -101,7 +101,7 @@ void compareConstructor(ExSeisPIOL* piol, FakeReadFile& fake)
     EXPECT_EQ("test", fake.readText());
 }
 
-//We test the constructor
+// We test the constructor
 TEST_F(FileTest, Constructor)
 {
     std::shared_ptr<Obj::Interface> obj = nullptr;
@@ -113,7 +113,7 @@ TEST_F(FileTest, Constructor)
 typedef FileTest FileDeathTest;
 
 
-//In this test we pass the MPI-IO Data Options class within an invalid name
+// In this test we pass the MPI-IO Data Options class within an invalid name
 TEST_F(FileDeathTest, BadNameConstructor)
 {
     File::ReadDirect file(piol, notFile);

@@ -20,23 +20,23 @@ using namespace PIOL;
 
 void createFile(std::string name, size_t nt, size_t ns, double inc)
 {
-    //Initialize PIOL by creating an ExSeisPIOL object
+    // Initialize PIOL by creating an ExSeisPIOL object
     auto piol = ExSeis::New();
 
-    //Create new SEGY file
+    // Create new SEGY file
     File::WriteDirect file(piol, name);
 
     auto dec      = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.first;
     size_t lnt    = dec.second;
 
-    //Write some header parameters
+    // Write some header parameters
     file.writeNs(ns);
     file.writeNt(nt);
     file.writeInc(inc);
     file.writeText("Test file\n");
 
-    //Set and write some trace parameters
+    // Set and write some trace parameters
     File::Param prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
@@ -52,7 +52,7 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
     }
     file.writeParam(offset, lnt, &prm);
 
-    //Set and write some traces
+    // Set and write some traces
     std::vector<float> trc(lnt * ns);
     for (size_t j = 0; j < lnt * ns; j++)
         trc[j] = float(offset * ns + j);
@@ -62,8 +62,8 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
 
 int main(void)
 {
-    //Set output file name, number of traces, number of samples per trace, and
-    //sampling rate
+    // Set output file name, number of traces, number of samples per trace, and
+    // sampling rate
     std::string name = "CreateFileOutputCPP";
     size_t nt        = 8000;
     size_t ns        = 4000;

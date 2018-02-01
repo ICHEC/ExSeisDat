@@ -3,10 +3,10 @@
 size_t modifyNt(
   const size_t fs, const size_t offset, const size_t nt, const size_t ns)
 {
-    //We shouldn't have our ASSERT_EQ test beyond the actual number of traces
-    //which are so we reduce the number of traces down to the number of traces
-    //present after the given offset if the real number of traces is less than
-    //expected.  We support this because it is allowed behaviour.
+    // We shouldn't have our ASSERT_EQ test beyond the actual number of traces
+    // which are so we reduce the number of traces down to the number of traces
+    // present after the given offset if the real number of traces is less than
+    // expected.  We support this because it is allowed behaviour.
 
     size_t realnt = SEGSz::getNt(fs, ns);
     if (realnt >= offset + nt)
@@ -85,7 +85,7 @@ TEST_F(MPIIOTest, BlockingReadSmall)
 
     EXPECT_EQ(getPattern(d.size() - 2), d.back());
 
-    //Set the last element to zero
+    // Set the last element to zero
     d.back() = 0U;
     std::vector<uchar> test(smallSize);
     ASSERT_THAT(d, ElementsAreArray(test));
@@ -108,7 +108,7 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
     ioopt.maxSize = magicNum1;
     makeMPIIO(plargeFile);
 
-    //Test looping logic for big files, various offsets
+    // Test looping logic for big files, various offsets
     for (size_t j = 0; j < magicNum1; j += 10U) {
         size_t sz     = 16U * magicNum1 + j;
         size_t offset = (largeSize / magicNum1) * j;
@@ -125,7 +125,7 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
 TEST_F(MPIIOTest, BlockingOneByteReadLarge)
 {
     makeMPIIO(plargeFile);
-    //Test single value reads mid file
+    // Test single value reads mid file
     for (size_t i = 0; i < magicNum1; i++) {
         size_t offset = largeSize / 2U + i;
         uchar test[2] = {getPattern(offset - 2), getPattern(offset - 1)};
@@ -156,16 +156,16 @@ TEST_F(MPIIOTest, ReadContigSSS)
     piol->isErr();
 }
 
-//Intentionally read much beyond the end of the file to make sure that MPI-IO
-//doesn't abort/fails.  MPI 3.1 spec says (or at least strongly implies) it
-//should work.
+// Intentionally read much beyond the end of the file to make sure that MPI-IO
+// doesn't abort/fails.  MPI 3.1 spec says (or at least strongly implies) it
+// should work.
 TEST_F(MPIIOTest, FarmReadContigEnd)
 {
     makeMPIIO(smallSEGYFile);
     size_t nt       = 400;
     const size_t ns = 261;
 
-    //Read extra
+    // Read extra
     nt *= 1024;
     readSmallBlocks<false>(nt, ns, 200);
     piol->isErr();
@@ -240,7 +240,7 @@ TEST_F(MPIIOTest, ReadBlocksEnd)
     size_t nt       = 400;
     const size_t ns = 261;
 
-    //Read extra
+    // Read extra
     nt *= 1024;
     readSmallBlocks<true>(nt, ns, 200);
     piol->isErr();

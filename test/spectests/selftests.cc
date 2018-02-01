@@ -3,7 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-//Tests to make sure that functions only used in testing are as expected
+// Tests to make sure that functions only used in testing are as expected
 
 TEST(Prefix, SizeCheck)
 {

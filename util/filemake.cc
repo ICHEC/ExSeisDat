@@ -73,7 +73,7 @@ void writeRandom(
     size_t offcount = 0;
     size_t t        = 0;
 
-    //Work out offsets
+    // Work out offsets
     while (num[rank] > 0 && offcount < nt) {
         for (size_t j = 0; j < numRank; j++)
             if (j != rank) {
@@ -156,7 +156,7 @@ void FileMake(
         biggest  = piol->comm->max(lnt);
     }
 
-    //TODO: Add memusage for Param
+    // TODO: Add memusage for Param
     max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns) + sizeof(size_t));
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
@@ -182,15 +182,15 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    //TODO document these arguments
-    // o output file
-    // s number of samples
-    // t number of traces
-    // m max
-    // i increment
-    // l lobsided
-    // r 'random' offsets
-    std::string opt = "s:t:m:o:i:lr";  //TODO: uses a GNU extension
+    // TODO: document these arguments:
+    //           -o output file
+    //           -s number of samples
+    //           -t number of traces
+    //           -m max
+    //           -i increment
+    //           -l lobsided
+    //           -r 'random' offsets
+    std::string opt = "s:t:m:o:i:lr";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {

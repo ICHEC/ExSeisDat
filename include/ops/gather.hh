@@ -6,8 +6,8 @@
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 
-//TODO: Note, these functions are intentionally specific because we need
-//      further use cases to generalise the functionality.
+// TODO: Note, these functions are intentionally specific because we need
+//       further use cases to generalise the functionality.
 
 #ifndef PIOLOPSGATHER_INCLUDE_GUARD
 #define PIOLOPSGATHER_INCLUDE_GUARD

@@ -5,10 +5,10 @@
 
 int main(int argc, char** argv)
 {
-    //Initialise the PIOL by creating an ExSeisPIOL object
+    // Initialise the PIOL by creating an ExSeisPIOL object
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
 
-    char* opt  = "i:";  //TODO: uses a GNU extension
+    char* opt  = "i:";  // TODO: uses a GNU extension
     char* name = NULL;
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
         if (c == 'i')

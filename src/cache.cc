@@ -11,12 +11,12 @@
 #include "flow/cache.hh"
 #include "share/api.hh"
 
-//TODO: Remove when all options implemented
+// TODO: Remove when all options implemented
 #include <iostream>
 
 namespace PIOL {
 
-//TODO: Generalise this for parameters and traces
+// TODO: Generalise this for parameters and traces
 std::shared_ptr<TraceBlock> Cache::getCache(
   std::shared_ptr<File::Rule> rule, FileDeque& desc, bool, bool)
 {
@@ -33,7 +33,8 @@ std::shared_ptr<TraceBlock> Cache::getCache(
 
         size_t off = piol->comm->offset(lnt);
         auto prm   = std::make_unique<File::Param>(rule, lnt);
-        //TODO: Do not make assumptions about Parameter sizes fitting in memory.
+        // TODO: Do not make assumptions about Parameter sizes fitting in
+        //       memory.
         size_t loff = 0LU;
         size_t c    = 0LU;
         for (auto& f : desc) {
@@ -63,7 +64,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(
         it->block->inc = desc[0]->ifc->readInc();
     }
     else {
-        //TODO: Check if prm is cached and use PIOL_META_COPY
+        // TODO: Check if prm is cached and use PIOL_META_COPY
     }
     return it->block;
 }

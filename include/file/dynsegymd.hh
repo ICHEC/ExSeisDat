@@ -30,7 +30,7 @@
 namespace PIOL {
 namespace File {
 
-//Compiler defects
+// Compiler defects
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6
 /*! This function exists to address a defect in enum usage in a map
  *  that is present in the intel and older GNU compilers.
@@ -237,10 +237,10 @@ struct SEGYFloatRuleEntry : public RuleEntry {
     MdType type(void) { return MdType::Float; }
 };
 
-//TODO: When implementing alternative file formats, this Rule structure must be
-//      generalised
+// TODO: When implementing alternative file formats, this Rule structure must be
+//       generalised
 
-//Compiler defects
+// Compiler defects
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6
 /// Typedef for RuleMap accounting for a compiler defect
 typedef std::unordered_map<Meta, RuleEntry*, EnumHash> RuleMap;
@@ -393,7 +393,7 @@ struct Rule {
     RuleEntry* getEntry(Meta entry);
 };
 
-//Access
+// Access
 /*! Get the value associated with the particular entry.
  *  @tparam T The type of the value
  *  @param[in] i The trace number

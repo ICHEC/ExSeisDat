@@ -16,7 +16,7 @@
 namespace PIOL {
 namespace FOURD {
 
-//This function prints to stdio
+// This function prints to stdio
 /*! Process 0 will print the xSrc min and max values for each process
  *  @param[in] piol The piol object.
  *  @param[in] xsmin A vector of the min xSrc for each process.
@@ -93,7 +93,7 @@ vec<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
     MPI_Info_set(info, "same_disp_unit", "true");
     MPI_Info_set(info, "accumulate_ops", "same_op");
 
-    //Look at MPI_Info
+    // Look at MPI_Info
     MPIErr(MPI_Win_create(
       crd->xSrc, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[0]));
     MPIErr(MPI_Win_create(
@@ -185,7 +185,7 @@ std::unique_ptr<Coords> getCoordsWin(
  *              \f$rds = \sqrt((sx1-rx2)^2+(sy1-ry2)^2)\f$
  *              \f$rdr = \sqrt((rx1-sx2)^2+(ry1-sy2)^2)\f$
  *              \f$dsr = (min(ds, rds) + min(dr, rdr))^2\f$
-*/
+ */
 fourd_t dsr(
   const fourd_t xs1,
   const fourd_t ys1,
@@ -263,9 +263,9 @@ size_t update(
     size_t rstart = 0LU;
     size_t rend   = crd2->sz;
 
-    //Ignore all file2 traces that can not possibly match our criteria within
-    //the min/max
-    //of src x.
+    // Ignore all file2 traces that can not possibly match our criteria within
+    // the min/max
+    // of src x.
     for (; rstart < rend && crd2->xSrc[rstart] < crd1->xSrc[lstart] - dsrmax;
          rstart++)
         ;
@@ -279,12 +279,12 @@ size_t update(
          lend--)
         ;
 
-    //TODO: Check if theoretical speedup is realisable for this alignment
+    // TODO: Check if theoretical speedup is realisable for this alignment
     lstart     = size_t(lstart / ALIGN) * ALIGN;
     size_t lsz = lend - lstart;
     size_t rsz = rend - rstart;
 
-    //Copy min and minrs to aligned memory
+    // Copy min and minrs to aligned memory
     fourd_t* lminrs;
     size_t* lmin;
     posix_memalign(
@@ -294,7 +294,7 @@ size_t update(
     std::copy(min.begin(), min.begin() + crd1->sz, lmin);
     std::copy(minrs.begin(), minrs.begin() + crd1->sz, lminrs);
 
-    //These declarations are so that the compiler handles the pragma correctly
+    // These declarations are so that the compiler handles the pragma correctly
     const fourd_t* xS1 = crd1->xSrc;
     const fourd_t* xR1 = crd1->xRcv;
     const fourd_t* yS1 = crd1->ySrc;
@@ -324,7 +324,7 @@ size_t update(
                        && crd1->xl[i] == crd2->xl[j]) ?
                  dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2) :
                  std::numeric_limits<fourd_t>::max());
-            //Update min if applicable
+            // Update min if applicable
             lm = (dval < lmrs ? tn[j] : lm);
             // Update minrs if applicable
             lmrs = std::min(dval, lmrs);
@@ -434,22 +434,22 @@ void calc4DBin(
     size_t numRank = piol->comm->getNumRank();
     auto szall     = piol->comm->gather(vec<size_t>{crd2->sz});
 
-    //The File2 min/max from every process
+    // The File2 min/max from every process
     auto xsmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0LU]});
     auto xsmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz - 1LU]});
 
-    //The File1 local min and local maximum for the particular process
+    // The File1 local min and local maximum for the particular process
     auto xslmin = crd1->xSrc[0LU];
     auto xslmax = crd1->xSrc[crd1->sz - 1LU];
 
-    //Perform a local initialisation update of min and minrs
+    // Perform a local initialisation update of min and minrs
     if (opt.ixline)
         initUpdate<true>(crd1, crd2, min, minrs);
     else
         initUpdate<false>(crd1, crd2, min, minrs);
 
-    //This for loop determines the processes the local process will need to be
-    //communicating with.
+    // This for loop determines the processes the local process will need to be
+    // communicating with.
     vec<size_t> active;
     for (size_t i = 0LU; i < numRank; i++)
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
@@ -480,12 +480,12 @@ void calc4DBin(
     }
     piol->comm->barrier();
 #endif
-    //Load balancing would make sense since the workloads are non-symmetric.
-    //It might be difficult to do load-balancing though considering workload
-    //very much depends on the constraints from both processess
+    // Load balancing would make sense since the workloads are non-symmetric.
+    // It might be difficult to do load-balancing though considering workload
+    // very much depends on the constraints from both processess
 
-    //Perform the updates of min and minrs using data from other processes.
-    //This is the main loop.
+    // Perform the updates of min and minrs using data from other processes.
+    // This is the main loop.
     for (size_t i = 0; i < active.size(); i++) {
         double ltime = MPI_Wtime();
         size_t lrank = active[i];

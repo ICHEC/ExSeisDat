@@ -130,8 +130,8 @@ constexpr MPI_Datatype MPIType<unsigned short>()
  */
 inline size_t getLimSz(size_t sz)
 {
-    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on
-    //Fionn.  Probably something to do with pages.
+    // If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on
+    // Fionn.  Probably something to do with pages.
     return (std::numeric_limits<int>::max() - (4096U - sz)) / sz;
 }
 
@@ -142,12 +142,12 @@ inline size_t getLimSz(size_t sz)
 template<typename T>
 constexpr size_t getLim()
 {
-    //If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on
-    //Fionn.  Probably something to do with pages.
-    //return MPI_Offset(
-    //  (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
-    //return (std::numeric_limits<int>::max() - (4096U - sizeof(T)))
-    //       / sizeof(T);
+    // If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi breaks on
+    // Fionn.  Probably something to do with pages.
+    // return MPI_Offset(
+    //   (std::numeric_limits<int>::max() - (4096U - sizeof(T))) / sizeof(T));
+    // return (std::numeric_limits<int>::max() - (4096U - sizeof(T)))
+    //        / sizeof(T);
     return getLimSz(sizeof(T));
 }
 

@@ -29,7 +29,7 @@
 #include "share/misc.hh"  //For getSort..
 #include "share/uniray.hh"
 
-//TODO: remove this when all errors are addressed
+// TODO: remove this when all errors are addressed
 #include <iostream>
 
 namespace PIOL {
@@ -116,7 +116,7 @@ void Set::add(std::string pattern)
                     | std::regex::extended);
 
     for (size_t i = 0; i < globs.gl_pathc; i++) {
-        //For each input file which matches the regex
+        // For each input file which matches the regex
         if (std::regex_match(globs.gl_pathv[i], reg)) {
             add(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i]));
         }
@@ -153,7 +153,7 @@ void Set::summary(void) const
 void RadonState::makeState(
   const std::vector<size_t>& offset, const Uniray<size_t, llint, llint>& gather)
 {
-    //TODO: DON'T USE MAGIC NAME
+    // TODO: DON'T USE MAGIC NAME
     std::unique_ptr<File::ReadSEGYModel> vm =
       File::makeFile<File::ReadSEGYModel>(piol, vmname);
     vNs  = vm->readNs();
@@ -171,7 +171,7 @@ void RadonState::makeState(
     }
 }
 
-//TODO: Gather to Single is fine, Single to Gather is not
+// TODO: Gather to Single is fine, Single to Gather is not
 std::unique_ptr<TraceBlock> Set::calcFunc(
   FuncLst::iterator fCurr,
   const FuncLst::iterator fEnd,
@@ -223,8 +223,8 @@ std::vector<std::string> Set::startSingle(
 
         std::unique_ptr<File::WriteInterface> out =
           File::makeFile<File::WriteSEGY>(piol, name);
-        //TODO: Will need to delay ns call depending for operations that modify
-        //      the number of samples per trace
+        // TODO: Will need to delay ns call depending for operations that modify
+        //       the number of samples per trace
         out->writeNs(ns);
         out->writeInc(inc);
         out->writeText(outmsg);
@@ -238,14 +238,14 @@ std::vector<std::string> Set::startSingle(
             File::ReadInterface* in = f->ifc.get();
             size_t lnt              = f->ilst.size();
             size_t ns               = in->readNs();
-            //Initialise the blocks
+            // Initialise the blocks
             auto biggest = piol->comm->max(lnt);
             size_t extra =
               biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
             for (size_t i = 0; i < lnt; i += max) {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
                 std::vector<trace_t> trc(rblock * ns);
-//TODO: Rule should be made of rules stored in function list
+// TODO: Rule should be made of rules stored in function list
 #warning Use non-monotonic call here
                 File::Param prm(rule, rblock);
 
@@ -310,13 +310,13 @@ std::string Set::startGather(
         outfix                         = tOutfix;
         drop();
         for (std::string n : names) {
-            //TODO: Open with delete on close?
+            // TODO: Open with delete on close?
             add(n);
         }
     }
     std::string gname;
     for (auto& o : file) {
-        //Locate gather boundaries.
+        // Locate gather boundaries.
         auto gather = File::getIlXlGathers(piol.get(), o->ifc.get());
         auto gdec   = decompose(gather.size(), numRank, rank);
 
@@ -333,9 +333,9 @@ std::string Set::startGather(
             p->state->makeState(gNums, gather);
         }
 
-        //TODO: Loop and add rules
-        //TODO: need better rule handling, create rule of all rules in gather
-        //      functions
+        // TODO: Loop and add rules
+        // TODO: need better rule handling, create rule of all rules in gather
+        //       functions
         auto rule = std::make_shared<File::Rule>(
           std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
 
@@ -345,7 +345,7 @@ std::string Set::startGather(
 
         gname = (fTemp != fEnd ? "gtemp.segy" : outfix + ".segy");
 
-        //Use inputs as default values. These can be changed later
+        // Use inputs as default values. These can be changed later
         std::unique_ptr<File::WriteInterface> out =
           File::makeFile<File::WriteSEGY>(piol, gname);
 
@@ -357,7 +357,7 @@ std::string Set::startGather(
             auto gval         = gather[gNum];
             const size_t iGSz = std::get<0>(gval);
 
-            //Initialise the blocks
+            // Initialise the blocks
             auto bIn = std::make_unique<TraceBlock>();
             bIn->prm.reset(new File::Param(rule, iGSz));
             bIn->trc.resize(iGSz * o->ifc->readNs());
@@ -376,7 +376,7 @@ std::string Set::startGather(
             auto bOut = calcFunc(fCurr, fEnd, FuncOpt::Gather, std::move(bIn));
 
             size_t woff = piol->comm->offset(bOut->prm->size());
-            //For simplicity, the output is now
+            // For simplicity, the output is now
             out->writeNs(bOut->ns);
             out->writeInc(bOut->inc);
 
@@ -420,7 +420,7 @@ std::string Set::startGather(
         return gname;
 }
 
-//calc for subsets only
+// calc for subsets only
 FuncLst::iterator Set::calcFuncS(
   FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque& fQue)
 {
@@ -435,7 +435,7 @@ FuncLst::iterator Set::calcFuncS(
     else if ((*fCurr)->opt.check(FuncOpt::NeedTrcVal))
         block = cache.cacheTrc(fQue);
 
-    //The operation call
+    // The operation call
     std::vector<size_t> trlist =
       dynamic_cast<Op<InPlaceMod>*>(fCurr->get())->func(block.get());
 
@@ -456,9 +456,9 @@ FuncLst::iterator Set::startSubset(
 {
     std::vector<FuncLst::iterator> flist;
 
-    //TODO: Parallelisable
+    // TODO: Parallelisable
     for (auto& o : fmap) {
-        //Iterate across the full function list
+        // Iterate across the full function list
         flist.push_back(calcFuncS(fCurr, fEnd, o.second));
     }
 
@@ -475,14 +475,14 @@ std::vector<std::string> Set::calcFunc(
             fCurr = startSubset(fCurr, fEnd);
         else if ((*fCurr)->opt.check(FuncOpt::Gather)) {
             std::string gname = startGather(fCurr, fEnd);
-            //If startGather returned an empty string, then fCurr == fEnd was
-            //reached.
+            // If startGather returned an empty string, then fCurr == fEnd was
+            // reached.
             if (gname != "") {
                 return std::vector<std::string>{gname};
             }
 
-//TODO: Later this will need to be changed when the gather also continues with
-//      single trace cases
+// TODO: Later this will need to be changed when the gather also continues with
+//       single trace cases
 #warning Trick goes here
             for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather);
                  ++fCurr)
@@ -524,7 +524,7 @@ std::vector<std::string> Set::output(std::string oname)
 void Set::getMinMax(
   MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem* minmax)
 {
-    //TODO: This needs to be changed to be compatible with ExSeisFlow
+    // TODO: This needs to be changed to be compatible with ExSeisFlow
     minmax[0].val = std::numeric_limits<geom_t>::max();
     minmax[1].val = std::numeric_limits<geom_t>::min();
     minmax[2].val = std::numeric_limits<geom_t>::max();
@@ -544,7 +544,7 @@ void Set::getMinMax(
             vprm.emplace_back(rule, 1LU);
             cpyPrm(i, &prm, 0, &vprm.back());
         }
-        //TODO: Minmax can't assume ordered data! Fix this!
+        // TODO: Minmax can't assume ordered data! Fix this!
         size_t offset = piol->comm->offset(f->ilst.size());
         File::getMinMax(
           piol.get(), offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
@@ -563,8 +563,8 @@ void Set::sort(CompareP sortFunc)
       PIOL_META_xRcv, PIOL_META_yRcv, PIOL_META_xCmp, PIOL_META_yCmp,
       PIOL_META_Offset, PIOL_META_WtrDepRcv, PIOL_META_tn});
 
-    //TODO: This is not the ideal mechanism, hack for now. See the note in the
-    //      calcFunc for single traces
+    // TODO: This is not the ideal mechanism, hack for now. See the note in the
+    //       calcFunc for single traces
     rule->addRule(*r);
     sort(r, sortFunc);
 }
@@ -576,7 +576,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
 
     func.push_back(std::make_shared<Op<InPlaceMod>>(
       opt, r, nullptr, [this, sortFunc](TraceBlock* in) -> std::vector<size_t> {
-          //TODO: It will eventually be necessary to support this use case.
+          // TODO: It will eventually be necessary to support this use case.
           if (piol->comm->min(in->prm->size()) < 3LU) {
               piol->log->record(
                 "", Log::Layer::Set, Log::Status::Error,
@@ -601,17 +601,17 @@ void Set::toAngle(
       opt, rule, state, [state](const TraceBlock* in, TraceBlock* out) {
           const size_t iGSz = in->prm->size();
           out->ns           = in->ns;
-          out->inc          = state->oInc;  //1 degree in radians
+          out->inc          = state->oInc;  // 1 degree in radians
           out->trc.resize(state->oGSz * out->ns);
           out->prm.reset(new File::Param(in->prm->r, state->oGSz));
           if (!in->prm->size()) return;
 
-          //For each angle in the angle gather
+          // For each angle in the angle gather
           for (size_t j = 0; j < state->oGSz; j++) {
-              //For each sample (angle + radon)
+              // For each sample (angle + radon)
               for (size_t z = 0; z < in->ns; z++) {
-                  //We are using coordinate level accuracy when its not
-                  //performance critical.
+                  // We are using coordinate level accuracy when its not
+                  // performance critical.
                   geom_t vmModel =
                     state->vtrc
                       [in->gNum * state->vNs
@@ -626,8 +626,8 @@ void Set::toAngle(
           }
 
           for (size_t j = 0; j < state->oGSz; j++) {
-              //TODO: Set the rest of the parameters
-              //TODO: Check the get numbers
+              // TODO: Set the rest of the parameters
+              // TODO: Check the get numbers
               File::setPrm(
                 j, PIOL_META_il, state->il[in->gNum], out->prm.get());
               File::setPrm(

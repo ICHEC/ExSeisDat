@@ -366,7 +366,7 @@ void PIOL_File_WriteDirect_writeInc(
     writeDirect->writeInc(inc);
 }
 
-//Contiguous traces
+// Contiguous traces
 void PIOL_File_ReadDirect_readTrace(
   const PIOL_File_ReadDirect* readDirect,
   size_t offset,
@@ -427,7 +427,7 @@ void PIOL_File_ReadDirect_readParam(
     readDirect->readParam(offset, sz, param);
 }
 
-//List traces
+// List traces
 void PIOL_File_ReadDirect_readTraceNonContiguous(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
@@ -525,7 +525,7 @@ size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns)
     return PIOL::SEGSz::getFileSz<float>(nt, ns);
 }
 
-//TODO UPDATE
+// TODO UPDATE
 size_t PIOL_SEGSz_getMDSz(void)
 {
     return PIOL::SEGSz::getMDSz();

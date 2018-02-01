@@ -84,7 +84,7 @@ int ReadWriteFile(
 
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
-    //Write all header metadata
+    // Write all header metadata
     PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
     PIOL_ExSeis_isErr(piol, NULL);
 
@@ -127,17 +127,17 @@ int main(int argc, char** argv)
     // -m maximum memory
     // -p modify trace paramaters
     // -t modify trace values
-    char* opt     = "i:o:m:pt";  //TODO: uses a GNU extension
+    char* opt     = "i:o:m:pt";  // TODO: uses a GNU extension
     char* iname   = NULL;
     char* oname   = NULL;
-    size_t memmax = 2U * 1024U * 1024U * 1024U;  //bytes
+    size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
     ModPrm modPrm = NULL;
     ModTrc modTrc = false;
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
         switch (c) {
             case 'i':
-                //TODO: POSIX is vague about the lifetime of optarg. Next
-                //      function may be unnecessary
+                // TODO: POSIX is vague about the lifetime of optarg. Next
+                //       function may be unnecessary
                 iname = copyString(optarg);
                 break;
             case 'o':

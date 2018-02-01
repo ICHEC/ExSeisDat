@@ -355,7 +355,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
     std::vector<MPI_Request> rsnd(1);
     std::vector<MPI_Request> rrcv(1);
 
-    //TODO: Move to the communication layer?
+    // TODO: Move to the communication layer?
     if (rank) {
         int err = MPI_Irecv(
           dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
@@ -503,8 +503,8 @@ std::vector<size_t> sort(ExSeisPIOL* piol, std::vector<size_t> list)
     {
         std::vector<std::pair<size_t, size_t>> temp1(lnt + edge2);
 
-//Work-around for bug in the intel compiler (intel/2016-u3) on Fionn with
-//std::pair less-than operator
+// Work-around for bug in the intel compiler (intel/2016-u3) on Fionn with
+// std::pair less-than operator
 #if defined(__INTEL_COMPILER)
         Compare<std::pair<size_t, size_t>> check =
           [](

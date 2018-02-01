@@ -68,7 +68,7 @@ Rule::Rule(
   const std::vector<Meta>& mlist, bool full, bool defaults, bool extras)
 {
 
-    //TODO: Change this when extents are flexible
+    // TODO: Change this when extents are flexible
     flag.fullextent = full;
     addIndex(PIOL_META_gtn);
     addIndex(PIOL_META_ltn);
@@ -199,7 +199,7 @@ bool Rule::addRule(Meta m)
             break;
         default:
             return false;
-            break;  //Non-default
+            break;  // Non-default
     }
     return true;
 }
@@ -220,7 +220,7 @@ size_t Rule::extent(void)
     return end - start;
 }
 
-//TODO: These can be optimised to stop the double lookup if required.
+// TODO: These can be optimised to stop the double lookup if required.
 void Rule::addLong(Meta m, Tr loc)
 {
     auto ent = translate.find(m);
@@ -337,7 +337,7 @@ Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
     s.resize(sz * r->numShort);
     t.resize(sz * r->numIndex);
 
-    //TODO: This must be file format agnostic
+    // TODO: This must be file format agnostic
     c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
 }
 
@@ -386,12 +386,12 @@ void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst)
             dst->t[k * r->numIndex + i] = src->t[j * r->numIndex + i];
     }
     else {
-        //For each rule in source
+        // For each rule in source
         for (auto& m : srule->translate) {
-            //Check for a rule in destination
+            // Check for a rule in destination
             auto valit = drule->translate.find(m.first);
 
-            //if the rule is in the destination and the types match
+            // if the rule is in the destination and the types match
             if (valit != drule->translate.end()) {
                 RuleEntry* dent = valit->second;
                 RuleEntry* sent = m.second;
@@ -498,10 +498,10 @@ void insertParam(
                     int16_t scal2 =
                       deScale(prm->f[(i + skip) * r->numFloat + t->num]);
 
-                    //if the scale is bigger than 1 that means we need to use
-                    //the largest to ensure conservation of the most significant
-                    //digit otherwise we choose the scale that preserves the
-                    //most digits after the decimal place.
+                    // if the scale is bigger than 1 that means we need to use
+                    // the largest to ensure conservation of the most
+                    // significant  digit otherwise we choose the scale that
+                    // preserves the  most digits after the decimal place.
                     scal[tr] =
                       ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) :
                                                   std::min(scal1, scal2));
@@ -519,7 +519,7 @@ void insertParam(
             }
         }
 
-        //Finish off the floats. Floats are inherently annoying in SEG-Y
+        // Finish off the floats. Floats are inherently annoying in SEG-Y
         for (const auto& s : scal) {
             getBigEndian(s.second, &md[size_t(s.first) - start - 1LU]);
         }
@@ -558,7 +558,7 @@ void extractParam(
 
     for (size_t i = 0; i < sz; i++) {
         const uchar* md = &buf[(r->extent() + stride) * i];
-        //Loop through each rule and extract data
+        // Loop through each rule and extract data
         for (const auto v : r->translate) {
             const auto t = v.second;
             size_t loc   = t->loc - r->start - 1LU;

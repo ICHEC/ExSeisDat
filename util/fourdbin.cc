@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    fourd_t dsrmax    = 1.0;  //Default dsdr criteria
+    fourd_t dsrmax    = 1.0;  // Default dsdr criteria
     std::string name1 = "";
     std::string name2 = "";
     std::string name3 = "";
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
         std::cout << "MPI Version " << MPIVersion << std::endl;
 
     /*****************  Reading options from the command line *****************/
-    std::string opt = "a:b:c:d:t:vpx";  //TODO: uses a GNU extension
+    std::string opt = "a:b:c:d:t:vpx";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {
@@ -98,10 +98,10 @@ int main(int argc, char** argv)
 
     /**************************************************************************/
 
-    //Open the two input files
+    // Open the two input files
     cmsg(piol.get(), "Parameter-read phase");
 
-    //Perform the decomposition and read the coordinates of interest.
+    // Perform the decomposition and read the coordinates of interest.
     auto coords1 = getCoords(piol, name1, fopt.ixline);
     auto coords2 = getCoords(piol, name2, fopt.ixline);
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
     coords2.release();
 
     cmsg(piol.get(), "Final list pass");
-    //Now we weed out traces that have a match that is too far away
+    // Now we weed out traces that have a match that is too far away
     vec<size_t> list1;
     vec<size_t> list2;
     vec<fourd_t> lminrs;
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
         fclose(fOut);
     }
 
-    //free up some memory
+    // free up some memory
     coords1.release();
 
     cmsg(piol.get(), "Output phase");

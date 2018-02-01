@@ -56,7 +56,7 @@ void makeSEGY(const char* out, size_t ns, size_t nt, size_t maxBlock)
     size_t dosz       = (thsz + ns * sizeof(float));
     size_t sz         = hsz + (thsz + ns * sizeof(float)) * nt;
     FILE* fs          = fopen(out, "w");
-    //If you are trapped here, make sure you created the required folders
+    // If you are trapped here, make sure you created the required folders
     assert(fs);
     if (sz >= hsz) {
         int16_t inc    = 20;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
     uchar pattern[PSZ_VALUE];
     for (size_t i = 0; i < psz; i++) {
         pattern[i] = i % psz;
-        //pattern[i] = i + i % 3 + i % 9 + i % (psz - 7);
+        // pattern[i] = i + i % 3 + i % 9 + i % (psz - 7);
     }
 
     for (int i = 1; i < argc; i++) {

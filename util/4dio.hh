@@ -47,8 +47,8 @@ struct Coords {
     {
         allocSz = ((sz + ALIGN) / ALIGN) * ALIGN;
 
-        //posix_memalign() guarantees the memory allocated is alligned according
-        //to the alignment value
+        // posix_memalign() guarantees the memory allocated is alligned
+        // according  to the alignment value
         posix_memalign(
           reinterpret_cast<void**>(&xSrc), ALIGN, allocSz * sizeof(fourd_t));
         posix_memalign(

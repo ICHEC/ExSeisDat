@@ -187,7 +187,7 @@ int main(int argc, char** argv)
     std::string folder  = "SEG-Y";
     bool help           = false;
 
-    std::string opt = "i:o:f:z:h";  //TODO: uses a GNU extension
+    std::string opt = "i:o:f:z:h";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {

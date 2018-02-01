@@ -27,7 +27,7 @@ TEST_F(FileSEGYRead, FileReadHO)
     std::string text = file->readText();
     EXPECT_EQ(SEGSz::getTextSz(), text.size());
 
-    //EBCDIC conversion check
+    // EBCDIC conversion check
     size_t slen = testString.size();
     for (size_t i = 0; i < text.size(); i++)
         ASSERT_EQ(testString[i % slen], text[i])
@@ -104,7 +104,7 @@ TEST_F(FileSEGYRead, FileReadTraceBigOffset)
     nt = 3738270;
     ns = 3000;
     makeMockSEGY();
-#warning  //TODO: should be readTraceTest( 3728270, nt)?
+#warning  // TODO: should be readTraceTest( 3728270, nt)?
     readTraceTest(3728270, 3000);
 }
 
@@ -113,7 +113,7 @@ TEST_F(FileSEGYRead, FileReadTraceWPrmBigOffset)
     nt = 3738270;
     ns = 3000;
     makeMockSEGY();
-#warning  //TODO: should be readTraceTest( 3728270, nt)?
+#warning  // TODO: should be readTraceTest( 3728270, nt)?
     initTrBlock();
     readTraceTest<true>(3728270, 3000);
 }

@@ -14,7 +14,7 @@ namespace File {
 
 const trace_t* TRACE_NULL = (trace_t*)1;
 
-//TODO: Unit test
+// TODO: Unit test
 void ReadInterface::readParam(
   const size_t offset, const size_t sz, Param* prm, const size_t skip) const
 {

@@ -126,7 +126,7 @@ MPI_Comm MPI::getComm() const
     return comm;
 }
 
-//Reduction for fundamental datatypes
+// Reduction for fundamental datatypes
 
 /*! Retrieve the corresponding values from every process in a collective call
  * @tparam T The datatype for the gather

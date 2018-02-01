@@ -12,7 +12,7 @@ using namespace PIOL;
 int main(int argc, char** argv)
 {
     auto piol         = ExSeis::New();
-    std::string opt   = "i:o:t:";  //TODO: uses a GNU extension
+    std::string opt   = "i:o:t:";  // TODO: uses a GNU extension
     std::string name1 = "";
     std::string name2 = "";
     auto type         = PIOL_SORTTYPE_SrcRcv;

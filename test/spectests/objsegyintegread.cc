@@ -66,7 +66,7 @@ TEST_F(ObjIntegTest, FarmSEGYBigRead)
     readTest<Block::DO, false>(10U, 300000, 5000);
 }
 
-//Random reads
+// Random reads
 TEST_F(ObjIntegTest, SEGYRandomReadSingle1)
 {
     makeRealSEGY<false>(plargeFile);

@@ -60,22 +60,23 @@ TEST_F(OpsTest, getMinMaxSimple)
         ASSERT_EQ(offset, minmax[3].num);
 
         if (sizeof(geom_t) == sizeof(double)) {
-            ASSERT_DOUBLE_EQ(minmax[0].val, 1500.);  //min x
-            ASSERT_DOUBLE_EQ(minmax[1].val, 2499.);  //max x
-            ASSERT_DOUBLE_EQ(minmax[2].val, 301.);   //min x
-            ASSERT_DOUBLE_EQ(minmax[3].val, 1300.);  //max x
+            ASSERT_DOUBLE_EQ(minmax[0].val, 1500.);  // min x
+            ASSERT_DOUBLE_EQ(minmax[1].val, 2499.);  // max x
+            ASSERT_DOUBLE_EQ(minmax[2].val, 301.);   // min x
+            ASSERT_DOUBLE_EQ(minmax[3].val, 1300.);  // max x
         }
         else {
-            ASSERT_FLOAT_EQ(minmax[0].val, 1500.);  //min x
-            ASSERT_FLOAT_EQ(minmax[1].val, 2499.);  //max x
-            ASSERT_FLOAT_EQ(minmax[2].val, 301.);   //min x
-            ASSERT_FLOAT_EQ(minmax[3].val, 1300.);  //max x
+            ASSERT_FLOAT_EQ(minmax[0].val, 1500.);  // min x
+            ASSERT_FLOAT_EQ(minmax[1].val, 2499.);  // max x
+            ASSERT_FLOAT_EQ(minmax[2].val, 301.);   // min x
+            ASSERT_FLOAT_EQ(minmax[3].val, 1300.);  // max x
         }
     }
 }
 
 TEST_F(
-  OpsTest, getMinMaxFail1)  //These fails won't surive a multi-processor example
+  OpsTest,
+  getMinMaxFail1)  // These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++)
@@ -87,7 +88,8 @@ TEST_F(
 }
 
 TEST_F(
-  OpsTest, getMinMaxFail2)  //These fails won't surive a multi-processor example
+  OpsTest,
+  getMinMaxFail2)  // These fails won't surive a multi-processor example
 {
     std::vector<CoordElem> minmax(4);
     getMinMax(piol.get(), 10, 0, NULL, minmax.data());
@@ -95,7 +97,8 @@ TEST_F(
 }
 
 TEST_F(
-  OpsTest, getMinMaxFail3)  //These fails won't surive a multi-processor example
+  OpsTest,
+  getMinMaxFail3)  // These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++)

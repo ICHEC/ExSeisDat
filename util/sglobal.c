@@ -15,8 +15,8 @@ Extent decompose(const size_t sz, const size_t nrank, const size_t rank)
 char* copyString(const char* oldstr)
 {
     size_t len = strlen(oldstr);
-    //Note that small sizes can generate false positives with valgrind
-    //due to copy optimisations.
+    // Note that small sizes can generate false positives with valgrind
+    // due to copy optimisations.
     char* newstr = calloc(len + 1, 1);
     assert(newstr);
     strncpy(newstr, oldstr, len);

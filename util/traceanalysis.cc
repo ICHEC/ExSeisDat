@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
     std::string name = "";
     size_t tn        = 0LU;
-    std::string opt  = "i:t:";  //TODO: uses a GNU extension
+    std::string opt  = "i:t:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {

@@ -8,7 +8,7 @@
 
 int testManyFiles(PIOL_ExSeis* piol, const char* name)
 {
-    //Don't go too crazy or systems won't like you.
+    // Don't go too crazy or systems won't like you.
     const size_t rnum            = 10;
     const size_t fnum            = 1000;
     PIOL_File_ReadDirect** files = calloc(fnum, sizeof(PIOL_File_ReadDirect*));
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
     // -i input file
     // -o output file
     // -m maximum memory
-    char* opt  = "i:";  //TODO: uses a GNU extension
+    char* opt  = "i:";  // TODO: uses a GNU extension
     char* name = NULL;
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
         if (c == 'i')

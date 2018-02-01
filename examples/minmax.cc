@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    std::string opt   = "i:";  //TODO: uses a GNU extension
+    std::string opt   = "i:";  // TODO: uses a GNU extension
     std::string iname = "";
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))

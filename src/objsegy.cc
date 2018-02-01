@@ -101,7 +101,7 @@ void SEGY::writeDODF(
       df);
 }
 
-//TODO: Add optional validation in this layer?
+// TODO: Add optional validation in this layer?
 void SEGY::readDO(
   const size_t* offset, const size_t ns, const size_t sz, uchar* d) const
 {

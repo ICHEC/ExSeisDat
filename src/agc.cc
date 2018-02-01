@@ -86,7 +86,7 @@ trace_t AGCMeanAbs(trace_t* trc, size_t window, trace_t normR, llint)
     return normR / (std::abs(amp) / trace_t(!num ? 1LU : num));
 }
 
-//This can be optimised with std::nth_element if required.
+// This can be optimised with std::nth_element if required.
 trace_t AGCMedian(trace_t* trc, size_t window, trace_t normR, llint)
 {
     std::vector<trace_t> trcTmp(trc, &trc[window]);

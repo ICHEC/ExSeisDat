@@ -20,7 +20,7 @@ namespace Obj {
 class SEGY : public Interface {
   public:
     /*! @brief The SEG-Y options structure. Currently empty.
-    */
+     */
     struct Opt {
         /// The Type of the class this structure is nested in
         typedef SEGY Type;

@@ -33,7 +33,7 @@ void getMinMax(
   CoordElem* minmax)
 {
     std::vector<Param> vprm;
-    //TODO: Just add the two meta options to the rules with defaults?
+    // TODO: Just add the two meta options to the rules with defaults?
     for (size_t i = 0; i < lnt; i++) {
         vprm.emplace_back(prm->r, 1LU);
         cpyPrm(i, prm, 0, &vprm.back());

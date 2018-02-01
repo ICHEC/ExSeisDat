@@ -78,7 +78,7 @@ void setCoord(
       int32_t(std::lround(coord.y / gscale)), &buf[size_t(pair.second) - 1U]);
 }
 
-//TODO: unit test
+// TODO: unit test
 /*! @brief Get a coordinate point from the trace header
  *  @param[in] item The coordinate point type of interest
  *  @param[in] scale The scale from the SEG-Y header
@@ -124,10 +124,10 @@ void setGrid(const Grid item, const grid_t grid, uchar* buf)
  */
 int16_t scalComp(int16_t scal1, int16_t scal2)
 {
-    //if the scale is bigger than 1 that means we need to use the largest
-    //to ensure conservation of the most significant digit
-    //otherwise we choose the scale that preserves the most digits
-    //after the decimal place.
+    // if the scale is bigger than 1 that means we need to use the largest
+    // to ensure conservation of the most significant digit
+    // otherwise we choose the scale that preserves the most digits
+    // after the decimal place.
     if (scal1 > 1 || scal2 > 1)
         return std::max(scal1, scal2);
     else
@@ -142,8 +142,8 @@ int16_t scalComp(int16_t scal1, int16_t scal2)
  */
 int16_t calcScale(const coord_t coord)
 {
-    //I get the minimum value so that I definitely store the result.
-    //This is at the expense of precision.
+    // I get the minimum value so that I definitely store the result.
+    // This is at the expense of precision.
     int16_t scal1 = deScale(coord.x);
     int16_t scal2 = deScale(coord.y);
     return scalComp(scal1, scal2);

@@ -328,7 +328,7 @@ TEST_F(SetTest, getActive)
         nt += f->ifc->readNt();
     EXPECT_EQ(nt, 1000U);
 
-    //EXPECT_EQ(set->getLNt(), 1000U - 10U);
+    // EXPECT_EQ(set->getLNt(), 1000U - 10U);
 }
 
 TEST_F(SetTest, getActive2)
@@ -339,7 +339,7 @@ TEST_F(SetTest, getActive2)
     for (auto& f : set->file)
         nt += f->ifc->readNt();
     EXPECT_EQ(nt, 3333U);
-    //EXPECT_EQ(set->getLNt(), 2222U);
+    // EXPECT_EQ(set->getLNt(), 2222U);
 }
 
 TEST_F(SetTest, getActive3)
@@ -350,7 +350,7 @@ TEST_F(SetTest, getActive3)
     for (auto& f : set->file)
         nt += f->ifc->readNt();
     EXPECT_EQ(nt, 2U * 3333U);
-    //EXPECT_EQ(set->getLNt(), 2U*2222U);
+    // EXPECT_EQ(set->getLNt(), 2U*2222U);
 }
 
 TEST_F(SetTest, Taper2TailLin)

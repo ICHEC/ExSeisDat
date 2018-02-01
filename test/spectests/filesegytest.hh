@@ -568,7 +568,7 @@ struct FileWriteSEGYTest : public Test {
 
         auto fi = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
         file    = std::make_unique<File::WriteDirect>(std::move(fi));
-        //file->file = std::move(fi);
+        // file->file = std::move(fi);
 
         writeHO<false>();
 

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <vector>
 
-//include two very large vectors
+// include two very large vectors
 #include "ibm-compare.hh"
 #include "ibm.hh"
 

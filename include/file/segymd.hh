@@ -78,7 +78,7 @@ geom_t scaleConv(int16_t scale);
  *           should have to use that scale factor.  firstly, anything smaller
  *           than 4 decimal points is discarded since the approach can not
  *           represent it.
-*//*
+ *//*
  * Shown is the
  * position of the least significant digit:
  * -10000 - \d0000.0000

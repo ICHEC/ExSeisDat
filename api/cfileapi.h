@@ -101,7 +101,7 @@ void PIOL_ExSeis_barrier(const PIOL_ExSeis* piol);
  */
 size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n);
 
-//SEG-Y Size functions
+// SEG-Y Size functions
 /*! Get the size of the SEG-Y text field (3200 bytes)
  *  @return The text size in bytes for SEG-Y
  */
@@ -490,7 +490,7 @@ void PIOL_File_WriteDirect_writeTrace(
   PIOL_trace_t* trace,
   const PIOL_File_Param* param);
 
-//Lists
+// Lists
 
 /*! @brief Read the traces and trace parameters corresponding to the list of
  *         trace numbers.

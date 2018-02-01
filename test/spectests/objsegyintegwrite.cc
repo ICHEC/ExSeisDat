@@ -66,7 +66,7 @@ TEST_F(ObjIntegTest, FarmSEGYBigWrite)
     writeTest<Block::DO, false>(10U, 300000, 5000);
 }
 
-//random write
+// random write
 TEST_F(ObjIntegTest, SEGYRandomWriteSingle1)
 {
     makeRealSEGY<true>(tempFile);

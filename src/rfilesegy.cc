@@ -253,7 +253,7 @@ void ReadSEGY::readTraceNonMonotonic(
   Param* prm,
   const size_t skip) const
 {
-    //Sort the initial offset and make a new offset without duplicates
+    // Sort the initial offset and make a new offset without duplicates
     auto idx = getSortIndex(sz, offset);
     std::vector<size_t> nodups;
     nodups.push_back(offset[idx[0]]);

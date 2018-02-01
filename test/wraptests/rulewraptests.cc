@@ -68,7 +68,7 @@ std::shared_ptr<PIOL::File::Rule*> test_PIOL_File_Rule()
     EXPECT_CALL(mockRule(), paramMem(_)).WillOnce(CheckReturn(120));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    //MOCK_METHOD1(getEntry, RuleEntry * (Meta entry));
+    // MOCK_METHOD1(getEntry, RuleEntry * (Meta entry));
 
     EXPECT_CALL(mockRule(), dtor(EqDeref(rule_tmp2_ptr)));
     EXPECT_CALL(mockRule(), dtor(EqDeref(rule_tmp_ptr)));

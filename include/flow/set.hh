@@ -100,14 +100,14 @@ struct RadonState : public gState {
 /*! Enum class for the various function options.
  */
 enum class FuncOpt : size_t {
-    //Data type dependencies
+    // Data type dependencies
 
     /// Metadata required to be read.
     NeedMeta,
     /// Trace values required to be read.
     NeedTrcVal,
 
-    //Modification level:
+    // Modification level:
 
     /// Traces are added by the operation.
     AddTrc,
@@ -122,7 +122,7 @@ enum class FuncOpt : size_t {
     /// Traces are reordered by the operation.
     ReorderTrc,
 
-    //Modification dependencies
+    // Modification dependencies
 
     /// There is a dependency on the number of traces.
     DepTrcCnt,
@@ -133,7 +133,7 @@ enum class FuncOpt : size_t {
     /// There is a dependency on the metadata values.
     DepMetaVal,
 
-    //Comms level:
+    // Comms level:
 
     /// Each output trace requires info from one input trace.
     SingleTrace,
@@ -233,7 +233,7 @@ struct Op : public OpParent {
     }
 };
 
-//If this was C++17 then a std::variant could be used
+// If this was C++17 then a std::variant could be used
 /// The function list type for the set layer
 typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 
@@ -545,7 +545,7 @@ class Set {
      * @param[in] N Filter order
      * @param[in] nw Size of trace filtering window
      * @param[in] winCntr Center of trace filtering window
-    */
+     */
     void temporalFilter(
       FltrType type,
       FltrDmn domain,

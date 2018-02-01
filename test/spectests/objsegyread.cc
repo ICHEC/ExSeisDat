@@ -57,7 +57,7 @@ TEST_F(ObjSpecTest, FarmSEGYBigRead)
     readTest<Block::DO>(10U, 300000, 5000);
 }
 
-//random read
+// random read
 
 TEST_F(ObjSpecTest, SEGYRandomReadSingle1)
 {

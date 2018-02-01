@@ -12,7 +12,7 @@ using namespace PIOL;
 int main(int argc, char** argv)
 {
     auto piol         = ExSeis::New();
-    std::string opt   = "i:o:v:b:a:";  //TODO: uses a GNU extension
+    std::string opt   = "i:o:v:b:a:";  // TODO: uses a GNU extension
     std::string radon = "", angle = "", velocity = "";
     auto vBin = 20LU;
     auto oInc = 60LU;

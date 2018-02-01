@@ -87,8 +87,8 @@ typedef PIOL_Meta Meta;
 /// The sum of the differences between sources and receivers of this trace and
 /// another
 #define PIOL_META_dsdr ((PIOL_Meta)30)
-//TODO: Don't add more of these, find out what they do and replace
-//      them with real names
+// TODO: Don't add more of these, find out what they do and replace them with
+//       real names
 /// Miscellaneous
 #define PIOL_META_Misc1 ((PIOL_Meta)31)
 /// Miscellaneous

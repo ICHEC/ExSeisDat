@@ -60,7 +60,7 @@ std::vector<CoordElem> getCoordMinMax(
     auto ttrace  = piol->comm->gather(ltrace);
     auto tsz     = piol->comm->gather(std::vector<size_t>{sz});
 
-    //Remove non-participants
+    // Remove non-participants
     for (llint i = tsz.size() - 1U; i >= 0; i--)
         if (!tsz[i]) {
             tminmax.erase(tminmax.begin() + 2U * i + 1U);
@@ -69,7 +69,7 @@ std::vector<CoordElem> getCoordMinMax(
             ttrace.erase(ttrace.begin() + 2U * i);
         }
 
-    //Global
+    // Global
     auto s = std::minmax_element(tminmax.begin(), tminmax.end());
     std::vector<CoordElem> minmax;
     if (s.first != s.second) {
@@ -120,7 +120,7 @@ void getMinMax(
 
 /********************************** Non-Core **********************************/
 
-//TODO: Write a test for this function
+// TODO: Write a test for this function
 /*! Get the min and the max of a set of parameters passed. This is a parallel
  *  operation. It is the collective min and max across all processes (which also
  *  must all call this file).

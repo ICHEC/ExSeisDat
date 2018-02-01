@@ -20,7 +20,7 @@ using namespace PIOL;
 
 int main(int argc, char** argv)
 {
-    std::string opt  = "o:";  //TODO: uses a GNU extension
+    std::string opt  = "o:";  // TODO: uses a GNU extension
     std::string name = "";
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
@@ -33,28 +33,28 @@ int main(int argc, char** argv)
         }
     assert(name.size() > 0);
 
-    //Initialise the PIOL by creating an ExSeisPIOL object
+    // Initialise the PIOL by creating an ExSeisPIOL object
     auto piol = ExSeis::New();
 
-    //Create a SEGY file object
+    // Create a SEGY file object
     File::WriteDirect file(piol, name);
 
-    //nt is the number of traces, ns the number of samples per trace
+    // nt is the number of traces, ns the number of samples per trace
     size_t nt = 40000, ns = 1000;
-    //inc is the increment step between traces (microseconds)
+    // inc is the increment step between traces (microseconds)
     double inc = 4.0;
 
     auto dec      = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.first;
     size_t lnt    = dec.second;
 
-    //Write some header parameters
+    // Write some header parameters
     file.writeNs(ns);
     file.writeNt(nt);
     file.writeInc(inc);
     file.writeText("Test file\n");
 
-    //Set and write some trace parameters
+    // Set and write some trace parameters
     File::Param prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     }
     file.writeParam(offset, lnt, &prm);
 
-    //Set and write some traces
+    // Set and write some traces
     std::vector<float> trc(lnt * ns);
     for (size_t j = 0; j < lnt * ns; j++)
         trc[j] = float(offset * ns + j);

@@ -47,7 +47,7 @@ WriteSEGY::WriteSEGY(
 
 WriteSEGY::~WriteSEGY(void)
 {
-    //TODO: On error this can be a source of a deadlock
+    // TODO: On error this can be a source of a deadlock
     if (!piol->log->isErr()) {
         calcNt();
         if (state.resize) obj->setFileSz(SEGSz::getFileSz(nt, ns));
@@ -73,14 +73,14 @@ void WriteSEGY::packHeader(uchar* buf) const
     setMd(Hdr::Type, int16_t(Format::IEEE), buf);
     setMd(Hdr::Increment, int16_t(std::lround(inc / incFactor)), buf);
 
-    //Currently these are hard-coded entries:
-    //The unit system.
+    // Currently these are hard-coded entries:
+    // The unit system.
     setMd(Hdr::Units, 0x0001, buf);
-    //The version of the SEGY format.
+    // The version of the SEGY format.
     setMd(Hdr::SEGYFormat, 0x0100, buf);
-    //We always deal with fixed traces at present.
+    // We always deal with fixed traces at present.
     setMd(Hdr::FixedTrace, 0x0001, buf);
-    //We do not support text extensions at present.
+    // We do not support text extensions at present.
     setMd(Hdr::Extensions, 0x0000, buf);
 }
 

@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     std::string iname = "";
     std::string oname = "";
 
-    std::string opt = "i:o:";  //TODO: uses a GNU extension
+    std::string opt = "i:o:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {

@@ -1,6 +1,6 @@
 #include "filesegytest.hh"
 
-//TODO:: Add tests were trace header writes cause a setFileSz call
+// TODO: Add tests were trace header writes cause a setFileSz call
 
 TEST_F(FileSEGYWrite, FileWriteHO)
 {
@@ -9,8 +9,8 @@ TEST_F(FileSEGYWrite, FileWriteHO)
 
 TEST_F(FileSEGYWrite, FileWriteHOLongString)
 {
-    //Extend the string beyond the text boundary
-    //Extended text should be dropped in write call
+    // Extend the string beyond the text boundary
+    // Extended text should be dropped in write call
     const size_t sz       = testString.size();
     const size_t extendSz = 3400U - sz;
     testString.resize(sz + extendSz);

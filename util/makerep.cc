@@ -49,8 +49,8 @@ void distribToDistrib(
 {
     std::vector<MPI_Request> msg;
 
-    //if the old offset is less than the new offset
-    //Then the local process must give the data over to the
+    // if the old offset is less than the new offset
+    // Then the local process must give the data over to the
     //-1 lower ranked process
 
     // Cases 2, 3, 8
@@ -99,7 +99,7 @@ void distribToDistrib(
     for (size_t i = 0; i < msg.size(); i++) {
         assert(msg[i] != MPI_REQUEST_NULL);
         int err = MPI_Wait(&msg[i], &stat);
-        //TODO: Replace with standard approach to error handling
+        // TODO: Replace with standard approach to error handling
         if (err != MPI_SUCCESS) {
             std::cerr << "Wait " << i << std::endl;
             std::cerr << " MPI Error " << stat.MPI_ERROR << std::endl;
@@ -116,10 +116,10 @@ void distribToDistrib(
     vec->resize(newd.second);
 }
 
-//Write an arbitrary parallelised block sz to an arbitrary offset with the
-//minimal block contention possible between processes.
-//writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
-//off is the global offset
+// Write an arbitrary parallelised block sz to an arbitrary offset with the
+// minimal block contention possible between processes.
+// writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
+// off is the global offset
 std::pair<size_t, size_t> writeArb(
   size_t rank,
   size_t numRank,
@@ -244,7 +244,7 @@ size_t getVersion(std::string version)
 
 int main(int argc, char** argv)
 {
-    std::string opt   = "i:o:v:r:";  //TODO: uses a GNU extension
+    std::string opt   = "i:o:v:r:";  // TODO: uses a GNU extension
     std::string iname = "";
     std::string oname = "";
     size_t rep        = 1;

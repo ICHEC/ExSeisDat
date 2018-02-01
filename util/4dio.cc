@@ -18,9 +18,9 @@
 namespace PIOL {
 namespace FOURD {
 
-//TODO: Integration candidate
-//TODO: Simple IME optimisation: Contig Read all headers, sort, random write all
-//      headers to order, IME shuffle, contig read all headers again
+// TODO: Integration candidate
+// TODO: Simple IME optimisation: Contig Read all headers, sort, random write
+//       all headers to order, IME shuffle, contig read all headers again
 std::unique_ptr<Coords> getCoords(
   std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
@@ -46,10 +46,10 @@ std::unique_ptr<Coords> getCoords(
       2LU * 1024LU * 1024LU * 1024LU - 4LU * biggest * sizeof(geom_t);
     size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
 
-    //Collective I/O requries an equal number of MPI-IO calls on every process
-    //in exactly the same sequence as each other.
-    //If not, the code will deadlock. Communication is done to ensure we balance
-    //out the correct number of redundant calls
+    // Collective I/O requries an equal number of MPI-IO calls on every process
+    // in exactly the same sequence as each other.
+    // If not, the code will deadlock. Communication is done to ensure we
+    // balance  out the correct number of redundant calls
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
 
@@ -57,7 +57,7 @@ std::unique_ptr<Coords> getCoords(
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
-        //WARNING: Treat ReadDirect like the internal API for using a
+        // WARNING: Treat ReadDirect like the internal API for using a
         //         non-exposed function
         file->readParam(offset + i, rblock, &prm, i);
 
@@ -65,7 +65,7 @@ std::unique_ptr<Coords> getCoords(
             setPrm(i + j, PIOL_META_gtn, offset + i + j, &prm);
     }
 
-    //Any extra readParam calls the particular process needs
+    // Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file.readParam(size_t(0), size_t(0), nullptr);
     cmsg(piol.get(), "getCoords sort");
@@ -132,7 +132,7 @@ std::unique_ptr<Coords> getCoords(
         }
     }
 
-    //Any extra readParam calls the particular process needs
+    // Any extra readParam calls the particular process needs
     for (size_t i = 0; i < extra; i++)
         file.readParamNonContiguous(0LU, nullptr, nullptr);
 
@@ -145,7 +145,7 @@ std::unique_ptr<Coords> getCoords(
     return coords;
 }
 
-//TODO: Have a mechanism to change from one Param representation to another?
+// TODO: Have a mechanism to change from one Param representation to another?
 // This is an output related function and doesn't change the core algorithm.
 void outputNonMono(
   std::shared_ptr<ExSeisPIOL> piol,
@@ -159,9 +159,9 @@ void outputNonMono(
     auto rule =
       std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY});
 
-    //Note: Set to TimeScal for OpenCPS viewing of dataset.
-    //OpenCPS is restrictive on what locations can be used
-    //as scalars.
+    // Note: Set to TimeScal for OpenCPS viewing of dataset.
+    // OpenCPS is restrictive on what locations can be used
+    // as scalars.
     if (printDsr)
         rule->addSEGYFloat(PIOL_META_dsdr, PIOL_TR_SrcMeas, PIOL_TR_TimeScal);
 
