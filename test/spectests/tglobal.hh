@@ -1,11 +1,12 @@
 #ifndef TGLOBAL_TEST_INCLUDE_GUARD
 #define TGLOBAL_TEST_INCLUDE_GUARD
 
-#include <string>
-#include <cstdlib>
 #include "global.hh"
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include <cstdlib>
+#include <string>
 
 extern const size_t magicNum1;
 extern const size_t smallSize;
@@ -16,8 +17,10 @@ extern const std::string notFile;
 extern const std::string zeroFile;
 extern const std::string smallFile;
 extern const std::string largeFile;
-extern const std::string plargeFile;    //Large file with a pattern
-extern const std::string tempFile;      //File which is deleted after each creation
+// Large file with a pattern
+extern const std::string plargeFile;
+// File which is deleted after each creation
+extern const std::string tempFile;
 extern const std::string smallSEGYFile;
 extern const std::string largeSEGYFile;
 extern const std::string bigTraceSEGYFile;
@@ -32,7 +35,7 @@ extern std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed);
 
 constexpr size_t prefix(const size_t pow)
 {
-    return (pow ? 1024U*prefix(pow-1U) : 1U);
+    return (pow ? 1024U * prefix(pow - 1U) : 1U);
 }
 
 ACTION_P2(check0, buf, sz)
@@ -64,4 +67,5 @@ ACTION_P2(check4, buf, sz)
     for (size_t i = 0; i < sz; i++)
         ASSERT_EQ(buf[i], arg4[i]) << "Error with byte: " << i << "\n";
 }
+
 #endif

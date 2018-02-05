@@ -15,5 +15,5 @@ namespace File {
     return mockParamFreeFunctions;
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

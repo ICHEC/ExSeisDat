@@ -1,10 +1,11 @@
-#include <stdio.h>
 #include "cfileapi.h"
+
+#include <stdio.h>
+
 int main(void)
 {
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    if (!PIOL_ExSeis_getRank(piol))
-    {
+    if (!PIOL_ExSeis_getRank(piol)) {
         size_t num = PIOL_ExSeis_getNumRank(piol);
         if (num == 1)
             printf("There is 1 process\n");

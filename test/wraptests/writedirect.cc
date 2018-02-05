@@ -3,7 +3,8 @@
 namespace PIOL {
 namespace File {
 
-WriteDirect::WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
+WriteDirect::WriteDirect(
+  std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
     mockWriteDirect().ctor(this, piol, name);
 }
@@ -39,28 +40,28 @@ void WriteDirect::writeInc(const geom_t inc_)
 }
 
 void WriteDirect::writeTrace(
-    const size_t offset, const size_t sz, trace_t * trace, const Param * prm)
+  const size_t offset, const size_t sz, trace_t* trace, const Param* prm)
 {
-    mockWriteDirect().writeTrace(
-        this, offset, sz, trace, prm
-    );
+    mockWriteDirect().writeTrace(this, offset, sz, trace, prm);
 }
 
-void WriteDirect::writeParam(const size_t offset, const size_t sz, const Param * prm)
+void WriteDirect::writeParam(
+  const size_t offset, const size_t sz, const Param* prm)
 {
     mockWriteDirect().writeParam(this, offset, sz, prm);
 }
 
 void WriteDirect::writeTraceNonContiguous(
-    const size_t sz, const size_t * offset, trace_t * trace, const Param * prm)
+  const size_t sz, const size_t* offset, trace_t* trace, const Param* prm)
 {
     mockWriteDirect().writeTraceNonContiguous(this, sz, offset, trace, prm);
 }
 
-void WriteDirect::writeParamNonContiguous(const size_t sz, const size_t * offset, const Param * prm)
+void WriteDirect::writeParamNonContiguous(
+  const size_t sz, const size_t* offset, const Param* prm)
 {
     mockWriteDirect().writeParamNonContiguous(this, sz, offset, prm);
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

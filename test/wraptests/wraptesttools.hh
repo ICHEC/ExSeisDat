@@ -1,10 +1,10 @@
 #ifndef PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
 #define PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
 
-
-#include "printers.hh"
-#include "gmock/gmock.h"
 #include "checkreturnlistener.hh"
+#include "printers.hh"
+
+#include "gmock/gmock.h"
 
 #include "cppfileapi.hh"
 
@@ -19,7 +19,7 @@ PIOL::CheckReturnListener*& checkReturnListener();
 // checkReturnListener->got_expected_return_value();
 ::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker();
 
-}
+}  // namespace PIOL
 
 
 // EqDeref(p): *p == arg

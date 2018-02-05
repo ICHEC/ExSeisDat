@@ -1,4 +1,5 @@
 #include "objsegytest.hh"
+
 TEST_F(ObjSpecTest, TestBypassConstructor)
 {
     makeSEGY();
@@ -43,12 +44,11 @@ TEST_F(ObjSpecTest, ZeroSEGYFileSize)
 TEST_F(ObjSpecTest, SmallSEGYFileSize)
 {
     makeSEGY();
-    SEGYFileSizeTest(40U*prefix(2U));
+    SEGYFileSizeTest(40U * prefix(2U));
 }
 
 TEST_F(ObjSpecTest, BigSEGYFileSize)
 {
     makeSEGY();
-    SEGYFileSizeTest(8U*prefix(4U));
+    SEGYFileSizeTest(8U * prefix(4U));
 }
-

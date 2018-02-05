@@ -18,7 +18,7 @@ ReadDirect::~ReadDirect()
     mockReadDirect().dtor(this);
 }
 
-const std::string & ReadDirect::readText() const
+const std::string& ReadDirect::readText() const
 {
     return mockReadDirect().readText(this);
 }
@@ -39,32 +39,34 @@ geom_t ReadDirect::readInc() const
 }
 
 void ReadDirect::readTrace(
-    const size_t offset, const size_t sz, trace_t * trace, Param * prm) const
+  const size_t offset, const size_t sz, trace_t* trace, Param* prm) const
 {
     mockReadDirect().readTrace(this, offset, sz, trace, prm);
 }
 
-void ReadDirect::readParam(const size_t offset, const size_t sz, Param * prm) const
+void ReadDirect::readParam(
+  const size_t offset, const size_t sz, Param* prm) const
 {
     mockReadDirect().readParam(this, offset, sz, prm);
 }
 
 void ReadDirect::readTraceNonContiguous(
-    const size_t sz, const size_t * offset, trace_t * trace, Param * prm) const
+  const size_t sz, const size_t* offset, trace_t* trace, Param* prm) const
 {
     mockReadDirect().readTraceNonContiguous(this, sz, offset, trace, prm);
 }
 
 void ReadDirect::readTraceNonMonotonic(
-    const size_t sz, const size_t * offset, trace_t * trace, Param * prm) const
+  const size_t sz, const size_t* offset, trace_t* trace, Param* prm) const
 {
     mockReadDirect().readTraceNonMonotonic(this, sz, offset, trace, prm);
 }
 
-void ReadDirect::readParamNonContiguous(const size_t sz, const size_t * offset, Param * prm) const
+void ReadDirect::readParamNonContiguous(
+  const size_t sz, const size_t* offset, Param* prm) const
 {
     mockReadDirect().readParamNonContiguous(this, sz, offset, prm);
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

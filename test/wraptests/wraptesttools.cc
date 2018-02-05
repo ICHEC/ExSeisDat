@@ -14,4 +14,4 @@ PIOL::CheckReturnListener*& checkReturnListener()
     return returnChecker;
 }
 
-} // namespace PIOL
+}  // namespace PIOL

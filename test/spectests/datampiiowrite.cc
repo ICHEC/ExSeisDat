@@ -1,19 +1,21 @@
-#include <sys/stat.h>
 #include "datampiiotest.hh"
+
+#include <sys/stat.h>
+
 TEST_F(MPIIOTest, SetZeroFileSz)
 {
     makeTestSz(0);
 }
 
-//Takes about 3 seconds on Fionn
+// Takes about 3 seconds on Fionn
 TEST_F(MPIIOTest, FarmSetNormalFileSz)
 {
-    makeTestSz(2*prefix(3));
+    makeTestSz(2 * prefix(3));
 }
 
 TEST_F(MPIIOTest, FarmSetLargeFileSz)
 {
-    makeTestSz(10*prefix(3));
+    makeTestSz(10 * prefix(3));
 }
 
 TEST_F(MPIIOTest, WriteContigZero)
@@ -170,4 +172,3 @@ TEST_F(MPIIOTest, FarmWriteListLarge)
     writeList(nt, ns);
     piol->isErr();
 }
-

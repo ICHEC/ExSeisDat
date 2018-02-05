@@ -2,9 +2,10 @@
 
 namespace PIOL {
 
-::testing::StrictMock<MockExSeis>& mockExSeis() {
+::testing::StrictMock<MockExSeis>& mockExSeis()
+{
     static ::testing::StrictMock<MockExSeis> mockExSeis;
     return mockExSeis;
 }
 
-} // namespace PIOL
+}  // namespace PIOL

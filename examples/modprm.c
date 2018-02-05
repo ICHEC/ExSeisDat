@@ -1,25 +1,30 @@
-#include "sglobal.h"
-#include <unistd.h>
-#include <stddef.h>
-#include <assert.h>
-#include "ctest.h"
 #include "cfileapi.h"
+#include "ctest.h"
+#include "sglobal.h"
+
+#include <assert.h>
+#include <stddef.h>
+#include <unistd.h>
 
 /*! Read nt parameters from the input file ifh and write it to
  *  the output file ofh. Parameters are read and written from
  *  the offset off.
- *  \param[in] piol The PIOL handle
- *  \param[in] off The offset in number of traces.
- *  \param[in] tcnt The number of traces.
- *  \param[in] ifh The input file handle
- *  \param[out] ofh The output file handle
+ *  @param[in] piol The PIOL handle
+ *  @param[in] off The offset in number of traces.
+ *  @param[in] tcnt The number of traces.
+ *  @param[in] ifh The input file handle
+ *  @param[out] ofh The output file handle
  */
-void readwriteParam(PIOL_ExSeis* piol, size_t off, size_t tcnt, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
+void readwriteParam(
+  PIOL_ExSeis* piol,
+  size_t off,
+  size_t tcnt,
+  PIOL_File_ReadDirect* ifh,
+  PIOL_File_WriteDirect* ofh)
 {
     PIOL_File_Param* prm = PIOL_File_Param_new(NULL, tcnt);
     PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
-    for (size_t i = 0; i < tcnt; i++)
-    {
+    for (size_t i = 0; i < tcnt; i++) {
         PIOL_geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
         PIOL_geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
         PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
@@ -32,69 +37,76 @@ void readwriteParam(PIOL_ExSeis* piol, size_t off, size_t tcnt, PIOL_File_ReadDi
 }
 
 /*! Write the output header details.
- *  \param[in] piol The PIOL handle
- *  \param[in] ifh The input file handle
- *  \param[out] ofh The output file handle
+ *  @param[in] piol The PIOL handle
+ *  @param[in] ifh The input file handle
+ *  @param[out] ofh The output file handle
  */
-void writeHeader(PIOL_ExSeis* piol, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
+void writeHeader(
+  PIOL_ExSeis* piol, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
 {
     PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
-    PIOL_File_WriteDirect_writeNs(ofh,  PIOL_File_ReadDirect_readNs(ifh));
-    PIOL_File_WriteDirect_writeNt(ofh,  PIOL_File_ReadDirect_readNt(ifh));
+    PIOL_File_WriteDirect_writeNs(ofh, PIOL_File_ReadDirect_readNs(ifh));
+    PIOL_File_WriteDirect_writeNt(ofh, PIOL_File_ReadDirect_readNt(ifh));
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
     PIOL_ExSeis_isErr(piol, "");
 }
 
 /*! Write the data from the input file to the output file
- *  \param[in] piol The PIOL handle
- *  \param[in] goff The global offset in number of traces.
- *  \param[in] lnt The lengthof each trace.
- *  \param[in] tcnt The number of traces.
- *  \param[in] ifh The input file handle
- *  \param[out] ofh The output file handle
+ *  @param[in] piol The PIOL handle
+ *  @param[in] goff The global offset in number of traces.
+ *  @param[in] lnt The lengthof each trace.
+ *  @param[in] tcnt The number of traces.
+ *  @param[in] ifh The input file handle
+ *  @param[out] ofh The output file handle
  */
-void writePayload(PIOL_ExSeis* piol, size_t goff, size_t lnt, size_t tcnt,
-                  PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
+void writePayload(
+  PIOL_ExSeis* piol,
+  size_t goff,
+  size_t lnt,
+  size_t tcnt,
+  PIOL_File_ReadDirect* ifh,
+  PIOL_File_WriteDirect* ofh)
 {
     size_t biggest = lnt;
-    MPI_Allreduce(&lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
-    size_t extra = biggest/tcnt - lnt/tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
+    MPI_Allreduce(
+      &lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
+    size_t extra =
+      biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
-    for (size_t i = 0U; i < lnt; i += tcnt)
-    {
+    for (size_t i = 0U; i < lnt; i += tcnt) {
         size_t rblock = (i + tcnt < lnt ? tcnt : lnt - i);
-        readwriteParam(piol, goff+i, rblock, ifh, ofh);
+        readwriteParam(piol, goff + i, rblock, ifh, ofh);
     }
 
-    for (size_t i = 0U; i < extra; i++)
-    {
+    for (size_t i = 0U; i < extra; i++) {
         readwriteParam(piol, goff, 0, ifh, ofh);
     }
 }
 
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
-//  Flags:
-// -i input file
-// -o output file
-// -m maximum memory
-    char * opt = "i:o:";  //TODO: uses a GNU extension
-    char * iname = NULL;
-    char * oname = NULL;
-    size_t memmax = 2U*1024U * 1024U * 1024U;   //bytes
+    //  Flags:
+    // -i input file
+    // -o output file
+    // -m maximum memory
+    char* opt     = "i:o:";  // TODO: uses a GNU extension
+    char* iname   = NULL;
+    char* oname   = NULL;
+    size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
     for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
-        switch (c)
-        {
-            case 'i' :
-                //TODO: POSIX is vague about the lifetime of optarg. Next function may be unnecessary
+        switch (c) {
+            case 'i':
+                // TODO: POSIX is vague about the lifetime of optarg. Next
+                //       function may be unnecessary
                 iname = copyString(optarg);
-            break;
-            case 'o' :
+                break;
+            case 'o':
                 oname = copyString(optarg);
-            break;
-            default :
-                fprintf(stderr, "One of the command line arguments is invalid\n");
-            break;
+                break;
+            default:
+                fprintf(
+                  stderr, "One of the command line arguments is invalid\n");
+                break;
         }
     assert(iname && oname);
 
@@ -106,14 +118,14 @@ int main(int argc, char ** argv)
 
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
-    //Write all header metadata
+    // Write all header metadata
     PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
     PIOL_ExSeis_isErr(piol, "");
 
     writeHeader(piol, ifh, ofh);
 
-    Extent dec = decompose(nt, PIOL_ExSeis_getNumRank(piol),
-                           PIOL_ExSeis_getRank(piol));
+    Extent dec =
+      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
     size_t tcnt = memmax / MAX(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
 
     writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
@@ -128,4 +140,3 @@ int main(int argc, char ** argv)
 
     return 0;
 }
-

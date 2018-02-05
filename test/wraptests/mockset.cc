@@ -8,4 +8,4 @@ namespace PIOL {
     return mockSet;
 }
 
-} // namespace PIOL
+}  // namespace PIOL

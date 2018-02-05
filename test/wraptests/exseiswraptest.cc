@@ -2,6 +2,7 @@
 
 #include "mockexseis.hh"
 #include "wraptesttools.hh"
+
 #include "gtest/gtest.h"
 
 #include <utility>
@@ -14,18 +15,13 @@ std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
 {
     auto exseis_ptr = std::make_shared<ExSeis*>();
     EXPECT_CALL(mockExSeis(), ctor(_, PIOL_VERBOSITY_NONE, _))
-        .WillOnce(SaveArg<0>(exseis_ptr));
+      .WillOnce(SaveArg<0>(exseis_ptr));
 
     const Verbosity verbosities[] = {
-        PIOL_VERBOSITY_NONE,
-        PIOL_VERBOSITY_MINIMAL,
-        PIOL_VERBOSITY_EXTENDED,
-        PIOL_VERBOSITY_VERBOSE,
-        PIOL_VERBOSITY_MAX
-    };
+      PIOL_VERBOSITY_NONE, PIOL_VERBOSITY_MINIMAL, PIOL_VERBOSITY_EXTENDED,
+      PIOL_VERBOSITY_VERBOSE, PIOL_VERBOSITY_MAX};
 
-    for(auto verbosity: verbosities)
-    {
+    for (auto verbosity : verbosities) {
         EXPECT_CALL(mockExSeis(), ctor(_, verbosity, _));
     }
 
@@ -45,7 +41,7 @@ std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
     EXPECT_CALL(mockExSeis(), isErr(_, ""));
     EXPECT_CALL(mockExSeis(), isErr(_, "Test isErr message"));
 
-    for(size_t i=0; i<5; i++) {
+    for (size_t i = 0; i < 5; i++) {
         EXPECT_CALL(mockExSeis(), dtor(_));
     }
 

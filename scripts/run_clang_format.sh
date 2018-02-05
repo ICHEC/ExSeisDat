@@ -3,12 +3,12 @@
 # Exit on first error
 set -o errexit
 
-# The clang-format executable.
-: ${CLANG_FORMAT_EXECUTABLE:=$(which clang-format)}
-
 # Assume current script is in exseisdat/scripts
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source_dir=${script_dir}/..
+
+# Get the format script
+FORMAT_EXECUTABLE="${script_dir}/format.sh"
 
 cd ${source_dir}
 
@@ -26,6 +26,6 @@ do
         # directory
         find $dir -iname "*.${ext}" \
             -exec printf "\nFormatting {}\n" \; \
-            -exec ${CLANG_FORMAT_EXECUTABLE} -style=file -i {} \;
+            -exec ${FORMAT_EXECUTABLE} {} \;
     done
 done

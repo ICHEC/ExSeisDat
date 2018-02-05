@@ -5,12 +5,11 @@
 
 namespace PIOL {
 
-class CheckReturnListener: public ::testing::EmptyTestEventListener
-{
-public:
+class CheckReturnListener : public ::testing::EmptyTestEventListener {
+  public:
     // Called after EXPECT_CALL throws
     virtual void OnTestPartResult(
-        const ::testing::TestPartResult& test_part_result);
+      const ::testing::TestPartResult& test_part_result);
 
     // When expecting the wrapped side to check a return value,
     // call this with a pretty printed string of the return value.
@@ -22,7 +21,7 @@ public:
     // Call this when the expected return value has been successfully tested.
     void got_expected_return_value();
 
-private:
+  private:
     // A flag to say if the listener is awaiting a return value.
     bool expecting_return_value = false;
 
@@ -30,6 +29,6 @@ private:
     std::string return_value;
 };
 
-} // namespace PIOL
+}  // namespace PIOL
 
-#endif
+#endif  // PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
