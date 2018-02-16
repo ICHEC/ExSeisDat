@@ -30,9 +30,9 @@ class Interface {
 
   public:
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to
+     *  @param[in] piol This PIOL ptr is not modified but is used to
      *                   instantiate another shared_ptr.
-     *  @param[in] name_ The name of the file associated with the instantiation.
+     *  @param[in] name The name of the file associated with the instantiation.
      */
     Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
         piol_(piol),
@@ -45,15 +45,18 @@ class Interface {
      */
     virtual ~Interface(void) = default;
 
-    /*! @brief The stored PIOL object.
+    /*! @brief The stored ExSeisPIOL object.
+     *  @return A shared_ptr to the ExSeisPIOL object.
      */
     virtual std::shared_ptr<ExSeisPIOL> piol() { return piol_; }
 
     /*! @brief The stored log object.
+     *  @return A pointer to the log object.
      */
     virtual const Log::Logger* log() { return log_; }
 
     /*! @brief The stored file name.
+     *  @return The stored file name.
      */
     virtual std::string name() { return name_; }
 

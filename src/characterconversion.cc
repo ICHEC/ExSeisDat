@@ -3,8 +3,11 @@
 /// @author Cathal O Broin - cathal@ichec.ie - first commit
 /// @copyright TBD. Do not distribute
 /// @date July 2016
-/// @brief
-/// @details
+/// @brief Functions for converting between ASCII and EBCDIC encoding.
+/// @details We define a list of ASCII / EBCDIC pairs of characters.  We use
+///          this list to create a map from ASCII characters to the equivalent
+///          EBCDIC character, and the reverse map, EBCDIC to ASCII.
+///          We then provide functions for these map lookups.
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "file/characterconversion.hh"
@@ -14,23 +17,20 @@
 
 namespace PIOL {
 
-//
-// We define a list of ASCII / EBCDIC pairs of characters.
-// We will use this list to create a map from ascii characters
-// to the equivalent ebcdic character, and the reverse map,
-// ebcdic to ascii.
-//
 
-// A structure to represent an ASCII / EBCDIC equivalent pair
+/// A structure to represent an ASCII / EBCDIC equivalent pair
 struct EbcdicAsciiPair {
+    /// Construct an ASCII / EBCDIC equivalent pair
+    /// @param ascii  The ASCII char code
+    /// @param ebcdic The EBCDIC char code
     explicit EbcdicAsciiPair(uchar ascii, uchar ebcdic) :
         ascii(ascii),
         ebcdic(ebcdic)
     {
     }
 
-    uchar ascii;
-    uchar ebcdic;
+    uchar ascii;  ///< The ASCII character
+    uchar ebcdic; ///< The EBCDIC character
 };
 
 // The SUB character.

@@ -24,18 +24,25 @@ struct Rule;
 struct Param {
     /// Floating point array.
     std::vector<geom_t> f;
+
     /// Integer array.
     std::vector<llint> i;
+
     /// Short array.
     std::vector<int16_t> s;
+
     /// trace number array.
     std::vector<size_t> t;
+
     /// storage for a file format specific copy
     std::vector<uchar> c;
+
     /// The rules which describe the indexing of the arrays.
     std::shared_ptr<Rule> r;
+
     /// The number of sets of trace parameters.
     size_t sz;
+
 
     /*! Allocate the basic space required to store the arrays and store the
      *  rules.

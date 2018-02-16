@@ -165,14 +165,42 @@ class MPIIO : public Interface {
     ~MPIIO(void);
 
     /// Test if file == MPI_FILE_NULL
+    /// @return Returns \c true if the MPI_File is MPI_FILE_NULL
     bool isFileNull() const;
 
+    /// Get the size of the file
+    /// @return The size of the file
     size_t getFileSz() const;
 
+    /// Set the size of the file, either by truncating or expanding it.
+    /// @param[in] sz The new size of the file.
     void setFileSz(const size_t sz) const;
 
+    /// Read a contiguous chunk of size \c sz beginning a position \c offset
+    /// from the file into the buffer \c d.
+    /// @param[in]  offset The file offset to start reading at
+    /// @param[in]  sz     The amount to read
+    /// @param[out] d      The buffer to read into
+    ///                    (pointer to array of size \c sz)
     void read(const size_t offset, const size_t sz, uchar* d) const;
 
+    /// Write a contiguous chunk of size \c sz beginning a position \c offset
+    /// from the buffer \c d into the file.
+    /// @param[in]  offset The file offset to start writing at
+    /// @param[in]  sz     The amount to write
+    /// @param[out] d      The buffer to write from
+    ///                    (pointer to array of size \c sz)
+    void write(const size_t offset, const size_t sz, const uchar* d) const;
+
+
+    /// Read a file in regularly spaced, non-contiguous blocks.
+    /// @param[in]  offset The position in the file to start reading from
+    /// @param[in]  bsz    The block size to read in bytes
+    /// @param[in]  osz    The stride size in bytes, i.e. the total size from
+    ///                    the start of one block to the next
+    /// @param[in]  sz     The number of blocks to be read
+    /// @param[out] d      Pointer to the buffer to read the data into
+    ///                    (pointer to array of size \c bsz*sz)
     void read(
       const size_t offset,
       const size_t bsz,
@@ -180,22 +208,41 @@ class MPIIO : public Interface {
       const size_t sz,
       uchar* d) const;
 
-    void read(
-      const size_t bsz, const size_t sz, const size_t* offset, uchar* d) const;
 
-    void write(
-      const size_t bsz,
-      const size_t sz,
-      const size_t* offset,
-      const uchar* d) const;
-
-    void write(const size_t offset, const size_t sz, const uchar* d) const;
-
+    /// Write to a file in regularly spaced, non-contiguous blocks.
+    /// @param[in]  offset The position in the file to start writing to
+    /// @param[in]  bsz    The block size to write in bytes
+    /// @param[in]  osz    The stride size in bytes, i.e. the total size from
+    ///                    the start of one block to the next
+    /// @param[in]  nb     The number of blocks to be written
+    /// @param[out] d      Pointer to the buffer to write the data from
+    ///                    (pointer to array of size \c bsz*sz)
     void write(
       const size_t offset,
       const size_t bsz,
       const size_t osz,
       const size_t nb,
+      const uchar* d) const;
+
+    /// Read a file in irregularly spaced, non-contiguous chunks
+    /// @param[in]  bsz    The block size to read in bytes
+    /// @param[in]  sz     The number of blocks to read
+    /// @param[in]  offset Pointer to array of block offsets (size \c sz)
+    /// @param[out] d      Pointer to the buffer to read the data into
+    ///                    (pointer to array of size \c bsz*sz)
+    void read(
+      const size_t bsz, const size_t sz, const size_t* offset, uchar* d) const;
+
+    /// Write to a file in irregularly spaced, non-contiguous chunks
+    /// @param[in]  bsz    The block size to write in bytes
+    /// @param[in]  sz     The number of blocks to write
+    /// @param[in]  offset Pointer to array of block offsets (size \c sz)
+    /// @param[out] d      Pointer to the buffer to write the data from
+    ///                    (pointer to array of size \c bsz*sz)
+    void write(
+      const size_t bsz,
+      const size_t sz,
+      const size_t* offset,
       const uchar* d) const;
 };
 

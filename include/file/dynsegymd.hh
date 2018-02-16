@@ -269,6 +269,8 @@ struct Rule {
     /// The end byte position (+ 1) in the SEG-Y header.
     size_t end;
 
+    /// A structure for storing the state of the extent and header buffer
+    /// processing.
     struct StateFlags {
         /// Flag marking if the extent calculation is stale.
         uint32_t badextent;
@@ -276,7 +278,7 @@ struct Rule {
         uint32_t fullextent;
     };
 
-    /// State flags
+    /// The StateFlags instance for the Rule instance.
     StateFlags flag;
 
     /*! The unordered map which stores all current rules.
@@ -395,7 +397,7 @@ struct Rule {
 
 // Access
 /*! Get the value associated with the particular entry.
- *  @tparam T The type of the value
+ *  @tparam    T The type of the value
  *  @param[in] i The trace number
  *  @param[in] entry The meta entry to retrieve.
  *  @param[in] prm The parameter structure

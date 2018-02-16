@@ -47,10 +47,20 @@ typedef PIOL::File::WriteDirect PIOL_File_WriteDirect;
 
 #else
 // Forward declare opaque structs in C
+
+/// @copydoc PIOL::ExSeis
 typedef struct PIOL_ExSeis PIOL_ExSeis;
+
+/// @copydoc PIOL::File::Rule
 typedef struct PIOL_File_Rule PIOL_File_Rule;
+
+/// @copydoc PIOL::File::Param
 typedef struct PIOL_File_Param PIOL_File_Param;
+
+/// @copydoc PIOL::File::ReadDirect
 typedef struct PIOL_File_ReadDirect PIOL_File_ReadDirect;
+
+/// @copydoc PIOL::File::WriteDirect
 typedef struct PIOL_File_WriteDirect PIOL_File_WriteDirect;
 #endif
 
@@ -76,16 +86,19 @@ void PIOL_ExSeis_delete(PIOL_ExSeis* piol);
 
 /*! Get the rank of the process (in terms of the PIOL communicator)
  *  @param[in] piol A handle to the PIOL.
+ *  @return The rank of the current process.
  */
 size_t PIOL_ExSeis_getRank(const PIOL_ExSeis* piol);
 
 /*! Get the number of processes (in terms of the PIOL communicator)
  *  @param[in] piol A handle to the PIOL.
+ *  @return The number of ranks the \c piol is running on.
  */
 size_t PIOL_ExSeis_getNumRank(const PIOL_ExSeis* piol);
 
 /*! Check if the PIOL has any error conditions
  *  @param[in] piol A handle to the PIOL.
+ *  @param[in] msg  The message to print to the log.
  */
 void PIOL_ExSeis_isErr(const PIOL_ExSeis* piol, const char* msg);
 
@@ -139,6 +152,7 @@ PIOL_File_Rule* PIOL_File_Rule_new(bool def);
 /*! Initialise a Rule structure from a list of Metas.
  *  @param[in] m List of Meta values (size n).
  *  @param[in] n Number of elements in m
+ *  @return Return a handle for the rule structure
  */
 PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta* m, size_t n);
 
@@ -237,33 +251,35 @@ size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule);
 PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz);
 
 /*! Free the given parameter structure
- *  @param[in,out] prm The parameter structure
+ *  @param[in,out] param The parameter structure
  */
 void PIOL_File_Param_delete(PIOL_File_Param* param);
 
 /*! Return the number of sets of trace parameters.
+ *  @param[in] param The parameter structure
  *  @return Number of sets
  */
 size_t PIOL_File_Param_size(const PIOL_File_Param* param);
 
 /*! Estimate of the total memory used
+ *  @param[in] param The parameter structure
  *  @return Return estimate in bytes.
  */
 size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param);
 
 /*! Get a short parameter which is in a particular set in a parameter structure.
- *  @param[in] i The parameter set number
+ *  @param[in] i     The parameter set number
  *  @param[in] entry The parameter entry
- *  @param[in] prm The parameter structure
+ *  @param[in] param The parameter structure
  *  @return The associated parameter
  */
 int16_t PIOL_File_getPrm_short(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Get a long parameter which is in a particular set in a parameter structure.
- *  @param[in] i The parameter set number
+ *  @param[in] i     The parameter set number
  *  @param[in] entry The parameter entry
- *  @param[in] prm The parameter structure
+ *  @param[in] param The parameter structure
  *  @return The associated parameter
  */
 PIOL_llint PIOL_File_getPrm_llint(
@@ -271,45 +287,45 @@ PIOL_llint PIOL_File_getPrm_llint(
 
 /*! Get a double parameter which is in a particular set in a parameter
  *  structure.
- *  @param[in] i The parameter set number
+ *  @param[in] i     The parameter set number
  *  @param[in] entry The parameter entry
- *  @param[in] prm The parameter structure
+ *  @param[in] param The parameter structure
  *  @return The associated parameter
  */
 PIOL_geom_t PIOL_File_getPrm_double(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Set a short parameter within the parameter structure.
- *  @param[in] i The parameter set number
+ *  @param[in] i     The parameter set number
  *  @param[in] entry The parameter entry
- *  @param[in] ret The value to set the parameter to
- *  @param[in] prm The parameter structure
+ *  @param[in] ret   The value to set the parameter to
+ *  @param[in] param The parameter structure
  */
 void PIOL_File_setPrm_short(
   size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param);
 
 /*! Set a long parameter within the parameter structure.
- *  @param[in] i The parameter set number
+ *  @param[in] i     The parameter set number
  *  @param[in] entry The parameter entry
- *  @param[in] ret The value to set the parameter to
- *  @param[in] prm The parameter structure
+ *  @param[in] ret   The value to set the parameter to
+ *  @param[in] param The parameter structure
  */
 void PIOL_File_setPrm_llint(
   size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param);
 
 /*! Set a double parameter within the parameter structure.
- *  @param[in] i The parameter set number
+ *  @param[in] i     The parameter set number
  *  @param[in] entry The parameter entry
- *  @param[in] ret The value to set the parameter to
- *  @param[in] prm The parameter structure
+ *  @param[in] ret   The value to set the parameter to
+ *  @param[in] param The parameter structure
  */
 void PIOL_File_setPrm_double(
   size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param);
 
 /*! Copy parameter within the parameter structure.
- *  @param[in] i The parameter set number of the source
- *  @param[in] src The parameter structure of the source
- *  @param[in] j The parameter set number of the destination
+ *  @param[in] i       The parameter set number of the source
+ *  @param[in] src     The parameter structure of the source
+ *  @param[in] j       The parameter set number of the destination
  *  @param[in,out] dst The parameter structure of the destination
  */
 void PIOL_File_cpyPrm(
@@ -320,12 +336,14 @@ void PIOL_File_cpyPrm(
  */
 /*! Find the traces with the min and max of a supplied set of coordinates within
  *  a file.
- *  @param[in] piol A handle to the PIOL.
- *  @param[in] offset The starting trace number.
- *  @param[in] sz The number of local traces to process.
- *  @param[in] coord The array of local coordinates which one wants to process
- *  @param[out] minmax Set \c minmax to structs corresponding to the minimum x,
- *              maximum x, minimum y, maximum y in that order.
+ *  @param[in]  piol    A handle to the PIOL.
+ *  @param[in]  offset  The starting trace number.
+ *  @param[in]  sz      The number of local traces to process.
+ *  @param[in]  m1      The first coordinate item of interest.
+ *  @param[in]  m2      The second coordinate item of interest.
+ *  @param[in]  param   A handle for the parameter structure.
+ *  @param[out] minmax  Set \c minmax to structs corresponding to the minimum x,
+ *                      maximum x, minimum y, maximum y in that order.
  */
 void PIOL_File_getMinMax(
   const PIOL_ExSeis* piol,
@@ -356,12 +374,12 @@ PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
   const PIOL_ExSeis* piol, const char* name);
 
 /*! @brief Close the file associated with the handle
- *  @param[in,out] f A handle for the file.
+ *  @param[in,out] readDirect A handle for the file.
  */
 void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Close the file associated with the handle
- *  @param[in,out] f A handle for the file.
+ *  @param[in,out] writeDirect A handle for the file.
  */
 void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
 
@@ -372,55 +390,55 @@ void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect);
  *  @details When readText is called the ExSeisPIOL is responsible for
  *  the memory returned. The string should not be dereferenced after the
  *  associated file is closed.
- *  @param[in] f A handle for the file.
+ *  @param[in] readDirect A handle for the file.
  *  @return A string containing the text (in ASCII format)
  */
 const char* PIOL_File_ReadDirect_readText(
   const PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Read the number of samples per trace
- *  @param[in] f A handle for the file.
+ *  @param[in] readDirect A handle for the file.
  *  @return The number of samples per trace
  */
 size_t PIOL_File_ReadDirect_readNs(const PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Read the number of traces in the file
- *  @param[in] f A handle for the file.
+ *  @param[in] readDirect A handle for the file.
  *  @return The number of traces
  */
 size_t PIOL_File_ReadDirect_readNt(const PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Read the increment between trace samples
- *  @param[in] f A handle for the file.
+ *  @param[in] readDirect A handle for the file.
  *  @return The increment between trace samples
  */
 double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect);
 
 /*! @brief Write the human readable text from the file.
- *  @param[in] f A handle for the file.
- *  @param[in] text The new null-terminated string containing the text (in ASCII
- *             format).
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] text        The new null-terminated string containing the text
+ *                         (in ASCII format).
  */
 void PIOL_File_WriteDirect_writeText(
   PIOL_File_WriteDirect* writeDirect, const char* text);
 
 /*! @brief Write the number of samples per trace
- *  @param[in] f A handle for the file.
- *  @param[in] ns The new number of samples per trace.
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] ns          The new number of samples per trace.
  */
 void PIOL_File_WriteDirect_writeNs(
   PIOL_File_WriteDirect* writeDirect, size_t ns);
 
 /*! @brief Write the number of traces in the file
- *  @param[in] f A handle for the file.
- *  @param[in] nt The new number of traces.
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] nt          The new number of traces.
  */
 void PIOL_File_WriteDirect_writeNt(
   PIOL_File_WriteDirect* writeDirect, size_t nt);
 
 /*! @brief Write the increment between trace samples.
- *  @param[in] f A handle for the file.
- *  @param[in] inc The new increment between trace samples.
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] inc         The new increment between trace samples.
  */
 void PIOL_File_WriteDirect_writeInc(
   PIOL_File_WriteDirect* writeDirect, PIOL_geom_t inc);
@@ -431,10 +449,10 @@ void PIOL_File_WriteDirect_writeInc(
 
 /*! @brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
- *  @param[in] f A handle for the file.
- *  @param[in] offset The starting trace number.
- *  @param[in] sz The number of traces to process.
- *  @param[in] prm A handle for the parameter structure.
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] offset      The starting trace number.
+ *  @param[in] sz          The number of traces to process.
+ *  @param[in] param       A handle for the parameter structure.
  *
  *  @details It is assumed that this operation is not an update. Any previous
  *  contents of the trace header will be overwritten.
@@ -447,10 +465,10 @@ void PIOL_File_WriteDirect_writeParam(
 
 /*! @brief Write the trace parameters from offset to offset+sz to the respective
  *  trace headers.
- *  @param[in] f A handle for the file.
- *  @param[in] offset The starting trace number.
- *  @param[in] sz The number of traces to process.
- *  @param[in] prm A handle for the parameter structure.
+ *  @param[in] readDirect A handle for the file.
+ *  @param[in] offset     The starting trace number.
+ *  @param[in] sz         The number of traces to process.
+ *  @param[in] param      A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readParam(
   const PIOL_File_ReadDirect* readDirect,
@@ -462,11 +480,11 @@ void PIOL_File_ReadDirect_readParam(
  *    Reading the traces themselves
  */
 /*! @brief Read the traces and trace parameters from offset to offset+sz.
- *  @param[in] f A handle for the file.
- *  @param[in] offset The starting trace number.
- *  @param[in] sz The number of traces to process.
- *  @param[out] trace A contiguous array of each trace (size sz*ns).
- *  @param[out] prm A handle for the parameter structure.
+ *  @param[in]  readDirect A handle for the file.
+ *  @param[in]  offset     The starting trace number.
+ *  @param[in]  sz         The number of traces to process.
+ *  @param[out] trace      A contiguous array of each trace (size sz*ns).
+ *  @param[out] param      A handle for the parameter structure.
  */
 void PIOL_File_ReadDirect_readTrace(
   const PIOL_File_ReadDirect* readDirect,
@@ -476,11 +494,11 @@ void PIOL_File_ReadDirect_readTrace(
   PIOL_File_Param* param);
 
 /*! @brief Read the traces and trace parameters from offset to offset+sz.
- *  @param[in] f A handle for the file.
- *  @param[in] offset The starting trace number.
- *  @param[in] sz The number of traces to process
- *  @param[out] trace A contiguous array of each trace (size sz*ns).
- *  @param[in] prm A handle for the parameter structure.
+ *  @param[in]  writeDirect A handle for the file.
+ *  @param[in]  offset      The starting trace number.
+ *  @param[in]  sz          The number of traces to process
+ *  @param[out] trace       A contiguous array of each trace (size sz*ns).
+ *  @param[in]  param       A handle for the parameter structure.
  *  @warning This function is not thread safe.
  */
 void PIOL_File_WriteDirect_writeTrace(
@@ -494,11 +512,12 @@ void PIOL_File_WriteDirect_writeTrace(
 
 /*! @brief Read the traces and trace parameters corresponding to the list of
  *         trace numbers.
- *  @param[in] f A handle for the file.
- *  @param[in] sz The number of traces to process.
- *  @param[in] offset A list of trace numbers (size sz).
- *  @param[out] trace A contiguous array of each trace (size sz*ns).
- *  @param[out] prm A handle for the parameter structure (pass NULL to ignore).
+ *  @param[in]  readDirect A handle for the file.
+ *  @param[in]  sz         The number of traces to process.
+ *  @param[in]  offset     A list of trace numbers (size sz).
+ *  @param[out] trace      A contiguous array of each trace (size sz*ns).
+ *  @param[out] param      A handle for the parameter structure
+ *                         (pass NULL to ignore).
  */
 void PIOL_File_ReadDirect_readTraceNonContiguous(
   PIOL_File_ReadDirect* readDirect,
@@ -509,11 +528,12 @@ void PIOL_File_ReadDirect_readTraceNonContiguous(
 
 /*! @brief Read the traces and trace parameters corresponding to the
  *         non-monotonic list of trace numbers.
- *  @param[in] f A handle for the file.
- *  @param[in] sz The number of traces to process.
- *  @param[in] offset A non-monotonic list of trace numbers (size sz).
- *  @param[out] trace A contiguous array of each trace (size sz*ns).
- *  @param[out] prm A handle for the parameter structure (pass NULL to ignore).
+ *  @param[in]  readDirect A handle for the file.
+ *  @param[in]  sz         The number of traces to process.
+ *  @param[in]  offset     A non-monotonic list of trace numbers (size sz).
+ *  @param[out] trace      A contiguous array of each trace (size sz*ns).
+ *  @param[out] param      A handle for the parameter structure
+ *                         (pass NULL to ignore).
  */
 void PIOL_File_ReadDirect_readTraceNonMonotonic(
   PIOL_File_ReadDirect* readDirect,
@@ -523,11 +543,12 @@ void PIOL_File_ReadDirect_readTraceNonMonotonic(
   PIOL_File_Param* param);
 
 /*! @brief Write the traces corresponding to the list of trace numbers.
- *  @param[in] f A handle for the file.
- *  @param[in] sz The number of traces to process.
- *  @param[in] offset A list of trace numbers (size sz).
- *  @param[in] trace A contiguous array of each trace (size sz*ns).
- *  @param[in] prm A handle to the parameter structure (pass NULL to ignore).
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] sz          The number of traces to process.
+ *  @param[in] offset      A list of trace numbers (size sz).
+ *  @param[in] trace       A contiguous array of each trace (size sz*ns).
+ *  @param[in] param       A handle to the parameter structure
+ *                         (pass NULL to ignore).
  */
 void PIOL_File_WriteDirect_writeTraceNonContiguous(
   PIOL_File_WriteDirect* writeDirect,
@@ -538,10 +559,10 @@ void PIOL_File_WriteDirect_writeTraceNonContiguous(
 
 /*! @brief Write the trace parameters corresponding to the list of trace
  *         numbers.
- *  @param[in] f A handle for the file.
- *  @param[in] sz The number of traces to process
- *  @param[in] offset A list of trace numbers (size sz).
- *  @param[in] prm An handle to the parameter structure.
+ *  @param[in] writeDirect A handle for the file.
+ *  @param[in] sz          The number of traces to process
+ *  @param[in] offset      A list of trace numbers (size sz).
+ *  @param[in] param       An handle to the parameter structure.
  */
 void PIOL_File_WriteDirect_writeParamNonContiguous(
   PIOL_File_WriteDirect* writeDirect,
@@ -550,10 +571,10 @@ void PIOL_File_WriteDirect_writeParamNonContiguous(
   PIOL_File_Param* param);
 
 /*! @brief Read the trace parameters corresponding to the list of trace numbers.
- *  @param[in] f A handle for the file.
- *  @param[in] sz The number of traces to process
- *  @param[in] offset A list of trace numbers (size sz).
- *  @param[in] prm An handle to the parameter structure.
+ *  @param[in] readDirect A handle for the file.
+ *  @param[in] sz         The number of traces to process
+ *  @param[in] offset     A list of trace numbers (size sz).
+ *  @param[in] param      An handle to the parameter structure.
  */
 void PIOL_File_ReadDirect_readParamNonContiguous(
   PIOL_File_ReadDirect* readDirect,

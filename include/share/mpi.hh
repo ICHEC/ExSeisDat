@@ -50,72 +50,96 @@ constexpr MPI_Datatype MPIType()
     return MPI_BYTE;
 }
 
+/// @brief Return the MPI datatype for a \c double.
+/// @return The MPI datatype for \c double.
 template<>
 constexpr MPI_Datatype MPIType<double>()
 {
     return MPI_DOUBLE;
 }
 
+/// @brief Return the MPI datatype for a \c long double.
+/// @return The MPI datatype for \c long \c double.
 template<>
 constexpr MPI_Datatype MPIType<long double>()
 {
     return MPI_LONG_DOUBLE;
 }
 
+/// @brief Return the MPI datatype for a \c long double.
+/// @return The MPI datatype for a \c long double.
 template<>
 constexpr MPI_Datatype MPIType<char>()
 {
     return MPI_CHAR;
 }
 
+/// @brief Return the MPI datatype for an \c unsigned \c char.
+/// @return The MPI datatype for an \c unsigned \c char.
 template<>
 constexpr MPI_Datatype MPIType<unsigned char>()
 {
     return MPI_UNSIGNED_CHAR;
 }
 
+/// @brief Return the MPI datatype for an \c int.
+/// @return The MPI datatype for an \c int.
 template<>
 constexpr MPI_Datatype MPIType<int>()
 {
     return MPI_INT;
 }
 
+/// @brief Return the MPI datatype for a \c long \c int.
+/// @return The MPI datatype for a \c long \c int.
 template<>
 constexpr MPI_Datatype MPIType<long int>()
 {
     return MPI_LONG;
 }
 
+/// @brief Return the MPI datatype for an \c unsigned \c long \c int.
+/// @return The MPI datatype for an \c unsigned \c long \c int.
 template<>
 constexpr MPI_Datatype MPIType<unsigned long int>()
 {
     return MPI_UNSIGNED_LONG;
 }
 
+/// @brief Return the MPI datatype for an \c unsigned \c int.
+/// @return The MPI datatype for an \c unsigned \c int.
 template<>
 constexpr MPI_Datatype MPIType<unsigned int>()
 {
     return MPI_UNSIGNED;
 }
 
+/// @brief Return the MPI datatype for a \c long \c long \c int.
+/// @return The MPI datatype for a \c long \c long \c int.
 template<>
 constexpr MPI_Datatype MPIType<long long int>()
 {
     return MPI_LONG_LONG_INT;
 }
 
+/// @brief Return the MPI datatype for a \c float.
+/// @return The MPI datatype for a \c float.
 template<>
 constexpr MPI_Datatype MPIType<float>()
 {
     return MPI_FLOAT;
 }
 
+/// @brief Return the MPI datatype for a \c signed \c short.
+/// @return The MPI datatype for a \c signed \c short.
 template<>
 constexpr MPI_Datatype MPIType<signed short>()
 {
     return MPI_SHORT;
 }
 
+/// @brief Return the MPI datatype for an \c unsigned \c short.
+/// @return The MPI datatype for an \c unsigned \c short.
 template<>
 constexpr MPI_Datatype MPIType<unsigned short>()
 {

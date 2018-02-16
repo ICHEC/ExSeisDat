@@ -25,8 +25,13 @@
 extern "C" {
 #endif  // __cplusplus
 
+/// A pointer diff type
 typedef ptrdiff_t PIOL_llint;
+
+/// The type used to store trace values
 typedef float PIOL_trace_t;
+
+/// The type used for manipulating geometry and physical values
 typedef double PIOL_geom_t;
 
 #ifdef __cplusplus

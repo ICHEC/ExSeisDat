@@ -23,13 +23,19 @@
 #include "share/segy.hh"
 
 
-// Test for pointer null, empty shared_ptr, or shared_ptr to null
+/// Test if a pointer is null
+/// @param t The pointer to test for nullness.
+/// @return Returns true if \c t is null.
 template<typename T>
 static inline bool not_null(const T* t)
 {
     return t != nullptr;
 }
 
+/// Test if a shared_ptr pointer is null, and test if its contents
+/// is null.
+/// @param t The pointer to shared_ptr to test for nullness.
+/// @return Returns true if \c t is null, and its contents are not null.
 template<typename T>
 static inline bool not_null(const std::shared_ptr<T>* t)
 {

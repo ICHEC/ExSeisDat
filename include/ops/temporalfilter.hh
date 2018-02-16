@@ -20,11 +20,11 @@ namespace File {
 /*! Determines the filter order if given passband and stopband frequecnies
  *  @param[in] cornerP Passband corner
  *  @param[in] cornerS Stopband corner
- *  @param[in] fs Sampling frequency
+ *  @param[in] fs      Sampling frequency
  *  @return Filter order
  */
 size_t filterOrder(
-  const trace_t conerP, const trace_t cornerS, const trace_t fs);
+  const trace_t cornerP, const trace_t cornerS, const trace_t fs);
 
 /*! Expands a series of polynomials of the form (z-b0)(z-b1)...(z-bn)
  *  @param[in] coef Vector of b coefficients
@@ -36,11 +36,12 @@ void expandPoly(
 
 /*! Creates a digital Butterworth lowpass filter for a given corner in
  *  zero/pole/gain form
- *  @param[in] N Filter order
- *  @param[in] z Vector of filter zeros
- *  @param[in] p Vector of filter poles
- *  @param[in] k Filter gain
+ *  @param[in] N   Filter order
+ *  @param[in] z   Vector of filter zeros
+ *  @param[in] p   Vector of filter poles
  *  @param[in] cf1 Corner passband frequency (Hz)
+ *  @return DOCUMENT ME
+ *  @todo   DOCUMENT ME
  */
 trace_t lowpass(
   const size_t N,
@@ -99,14 +100,15 @@ void bandstop(
 
 /*! Creates a discrete, digital Butterworth filter for a given corner in
  *  polynomial transfer function form
- *  @param[in] type Type of filter (lowpass, highpass, bandstop, bandpass)
+ *  @param[in] type  Type of filter (lowpass, highpass, bandstop, bandpass)
  *  @param[in] numer Array of polynomial coefficiences in the numerator of
  *                   filter transfer function
  *  @param[in] denom Array of polynomial coefficiences in the denominator of
  *                   filter transfer function
- *  @param[in] N Filter order
- *  @param[in] cf1 Left corner passband frequency (Hz)
- *  @param[in] cf2 Right corner passband frequency (Hz)
+ *  @param[in] N     Filter order
+ *  @param[in] fs    Sampling frequency
+ *  @param[in] cf1   Left corner passband frequency (Hz)
+ *  @param[in] cf2   Right corner passband frequency (Hz)
  */
 void makeFilter(
   FltrType type,
@@ -124,14 +126,14 @@ void makeFilter(
 FltrPad getPad(PadType type);
 
 /*! Filter trace in frequency domain
- *  @param[in] nss Number of Subtrace Samples
- *  @param[in] trcOrgnl Unfiltered windowed and padded trace
- *  @param[in] fs Sampling frequency
- *  @param[in] N Filter Order
- *  @param[in] numer Array of polynomial coefficiences in the numerator of
- *                   filter transfer function
- *  @param[in] denom Array of polynomial coefficiences in the denominator of
- *                   filter transfer function
+ *  @param[in] nss     Number of Subtrace Samples
+ *  @param[in] trcX    Unfiltered windowed and padded trace
+ *  @param[in] fs      Sampling frequency
+ *  @param[in] N       Filter Order
+ *  @param[in] numer   Array of polynomial coefficiences in the numerator of
+ *                     filter transfer function
+ *  @param[in] denom   Array of polynomial coefficiences in the denominator of
+ *                     filter transfer function
  *  @param[in] padding Funtion for padding trace
  */
 void filterFreq(

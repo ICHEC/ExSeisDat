@@ -359,6 +359,7 @@ class WriteDirect {
 };
 
 
+/// @todo DOCUMENT ME
 class ReadModel : public ReadDirect {
   public:
     ReadModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_);
