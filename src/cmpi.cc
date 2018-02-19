@@ -24,11 +24,14 @@ namespace Comm {
 
 namespace {
 
+/// An enum class encoding whether we're explicitly managing or not managing
+/// MPI, or if management has even been decided yet.
 enum class ManagingMPI { unset, yes, no };
 
-// A static variable tracking whether we're managing MPI or not.
-// By default it's "unset", but after MPIManager() is called, it will definitely
-// be set.
+/// A static variable tracking whether we're managing MPI or not.
+/// By default it's "unset", but after MPIManager() is called, it will
+/// definitely be set.
+/// @return Return (a reference to) whether we're managing MPI or not.
 ManagingMPI& managingMPI()
 {
     static auto managingMPI = ManagingMPI::unset;
@@ -85,6 +88,7 @@ struct MPIManager {
 
 /// @brief A static instance of MPIManager so the destructor, and MPI_Finalize
 ///        will be called at program exit.
+/// @return A reference to the static MPIManager instance.
 MPIManager& MPIManagerInstance()
 {
     static auto& managing_mpi = managingMPI();
@@ -96,6 +100,9 @@ MPIManager& MPIManagerInstance()
 }  // namespace
 
 
+/// @brief Set whether ExSeisDat should manage the initialization / finalization
+///        of the MPI library.
+/// @param[in] manage Whether ExSeisDat should manage MPI.
 void manageMPI(bool manage)
 {
     if (manage) {

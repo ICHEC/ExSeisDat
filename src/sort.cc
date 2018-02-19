@@ -37,51 +37,63 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
 }
 
 /*! For sorting by Src X, Src Y, Rcv X, Rcv Y.
- *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  @return Return true if e1 is less than e2 in terms of the sort.
+ *  @param[in] prm The parameter structure
+ *  @param[in] i   Structure to access 0th parameter of associated Param struct.
+ *  @param[in] j   Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *          of the sort.
  */
 bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
 
-    if (e1sx < e2sx)
+    if (e1sx < e2sx) {
         return true;
+    }
     else if (e1sx == e2sx) {
         auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
         auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
 
-        if (e1sy < e2sy)
+        if (e1sy < e2sy) {
             return true;
+        }
         else if (e1sy == e2sy) {
             auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
             auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
 
-            if (e1rx < e2rx)
+            if (e1rx < e2rx) {
                 return true;
+            }
             else if (e1rx == e2rx) {
                 auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
                 auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
 
-                if (e1ry < e2ry)
+                if (e1ry < e2ry) {
                     return true;
-                else if (e1ry == e2ry)
+                }
+                else if (e1ry == e2ry) {
                     return (
                       getPrm<llint>(i, PIOL_META_ltn, prm)
                       < getPrm<llint>(j, PIOL_META_ltn, prm));
+                }
             }
         }
     }
+
     return false;
 }
 
 /*! For sorting by Src X, Src Y and Offset.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
- *                  from the header
- *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  @return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam    CalcOff If true, calculate the offset, otherwise read the offset
+ *                     from the header
+ *  @param[in] prm     The parameter structure
+ *  @param[in] i       Structure to access 0th parameter of associated Param
+ *                     struct.
+ *  @param[in] j       Structure to access 0th parameter of associated Param
+ *                     struct.
+ *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *          of the sort.
  */
 template<bool CalcOff>
 bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
@@ -89,14 +101,16 @@ bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
 
-    if (e1sx < e2sx)
+    if (e1sx < e2sx) {
         return true;
+    }
     else if (e1sx == e2sx) {
         auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
         auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
 
-        if (e1sy < e2sy)
+        if (e1sy < e2sy) {
             return true;
+        }
         else if (e1sy == e2sy) {
             auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
             auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
@@ -121,11 +135,15 @@ bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Rcv X, Rcv Y and Offset.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
- *                  from the header
- *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  @return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam    CalcOff If true, calculate the offset, otherwise read the offset
+ *                     from the header
+ *  @param[in] prm     The parameter structure
+ *  @param[in] i       Structure to access 0th parameter of associated Param
+ *                     struct.
+ *  @param[in] j       Structure to access 0th parameter of associated Param
+ *                     struct.
+ *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *          of the sort.
  */
 template<bool CalcOff>
 bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
@@ -133,14 +151,16 @@ bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
     auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
     auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
 
-    if (e1rx < e2rx)
+    if (e1rx < e2rx) {
         return true;
+    }
     else if (e1rx == e2rx) {
         auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
         auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
 
-        if (e1ry < e2ry)
+        if (e1ry < e2ry) {
             return true;
+        }
         else if (e1ry == e2ry) {
             auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
             auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
@@ -167,9 +187,11 @@ bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
 /*! For sorting by Inline, Crossline and Offset.
  *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
  *                  from the header
- *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  @return Return true if e1 is less than e2 in terms of the sort.
+ *  @param[in] prm The parameter structure
+ *  @param[in] i   Structure to access 0th parameter of associated Param struct.
+ *  @param[in] j   Structure to access 0th parameter of associated Param struct.
+ *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *          of the sort.
  */
 template<bool CalcOff>
 bool lessLineOff(const Param* prm, const size_t i, const size_t j)
@@ -177,13 +199,15 @@ bool lessLineOff(const Param* prm, const size_t i, const size_t j)
     auto e1il = getPrm<llint>(i, PIOL_META_il, prm);
     auto e2il = getPrm<llint>(j, PIOL_META_il, prm);
 
-    if (e1il < e2il)
+    if (e1il < e2il) {
         return true;
+    }
     else if (e1il == e2il) {
         auto e1xl = getPrm<llint>(i, PIOL_META_xl, prm);
         auto e2xl = getPrm<llint>(j, PIOL_META_xl, prm);
-        if (e1xl < e2xl)
+        if (e1xl < e2xl) {
             return true;
+        }
         else if (e1xl == e2xl) {
             auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
             auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
@@ -212,11 +236,15 @@ bool lessLineOff(const Param* prm, const size_t i, const size_t j)
 }
 
 /*! For sorting by Offset, Inline and Crossline.
- *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
- *                  from the header
- *  @param[in] e1 Structure to access 0th parameter of associated Param struct.
- *  @param[in] e2 Structure to access 0th parameter of associated Param struct.
- *  @return Return true if e1 is less than e2 in terms of the sort.
+ *  @tparam    CalcOff If true, calculate the offset, otherwise read the offset
+ *                     from the header
+ *  @param[in] prm     The parameter structure
+ *  @param[in] i       Structure to access 0th parameter of associated Param
+ *                     struct.
+ *  @param[in] j       Structure to access 0th parameter of associated Param
+ *                     struct.
+ *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *          of the sort.
  */
 template<bool CalcOff>
 bool lessOffLine(const Param* prm, const size_t i, const size_t j)
@@ -237,13 +265,15 @@ bool lessOffLine(const Param* prm, const size_t i, const size_t j)
       (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
                  getPrm<size_t>(j, PIOL_META_Offset, prm));
 
-    if (off1 < off2)
+    if (off1 < off2) {
         return true;
+    }
     else if (off1 == off2) {
         auto e1il = getPrm<llint>(i, PIOL_META_il, prm);
         auto e2il = getPrm<llint>(j, PIOL_META_il, prm);
-        if (e1il < e2il)
+        if (e1il < e2il) {
             return true;
+        }
         else if (e1il == e2il) {
             auto e1xl = getPrm<llint>(i, PIOL_META_xl, prm);
             auto e2xl = getPrm<llint>(j, PIOL_META_xl, prm);
@@ -301,9 +331,15 @@ bool checkOrder(
 {
     auto comp = getComp(type);
     Param prm(dec.second);
+
     src->readParam(dec.first, dec.second, &prm);
-    for (size_t i = 1; i < dec.second; i++)
-        if (!comp(&prm, i - 1, i)) return false;
+
+    for (size_t i = 1; i < dec.second; i++) {
+        if (!comp(&prm, i - 1, i)) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -323,20 +359,23 @@ void Wait(
 {
     MPI_Status stat;
     int err;
-    if (piol->comm->getRank() != piol->comm->getNumRank() - 1)
+    if (piol->comm->getRank() != piol->comm->getNumRank() - 1) {
         for (size_t i = 0; i < req1.size(); i++) {
             err = MPI_Wait(&req1[i], &stat);
             printErr(
               piol->log.get(), "", Log::Layer::Ops, err, &stat,
               "Sort Rcv error");
         }
-    if (piol->comm->getRank())
+    }
+
+    if (piol->comm->getRank()) {
         for (size_t i = 0; i < req2.size(); i++) {
             err = MPI_Wait(&req2[i], &stat);
             printErr(
               piol->log.get(), "", Log::Layer::Ops, err, &stat,
               "Sort Snd error");
         }
+    }
 }
 
 /*! Send objects from the current processes to the process one rank higher if
@@ -363,6 +402,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Recv error");
     }
+
     if (rank != piol->comm->getNumRank() - 1) {
         int err = MPI_Isend(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 1,
@@ -371,6 +411,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Send error");
     }
+
     Wait(piol, rsnd, rrcv);
 }
 
@@ -397,6 +438,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Send error");
     }
+
     if (rank != piol->comm->getNumRank() - 1) {
         int err = MPI_Irecv(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 0,
@@ -405,6 +447,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Recv error");
     }
+
     Wait(piol, rrcv, rsnd);
 }
 
@@ -431,12 +474,14 @@ void sort(
     size_t edge1   = (rank ? regionSz : 0LU);
     size_t edge2   = (rank != numRank - 1LU ? regionSz : 0LU);
 
-    if (comp != nullptr)
+    if (comp != nullptr) {
         std::sort(
           dat.begin(), dat.begin() + lnt,
           [comp](auto& a, auto& b) -> bool { return comp(a, b); });
-    else
+    }
+    else {
         std::sort(dat.begin(), dat.begin() + lnt);
+    }
 
     std::copy(dat.begin(), dat.end(), temp1.begin());
     std::vector<T> temp2;
@@ -457,16 +502,19 @@ void sort(
 
         sendRight(piol, regionSz, temp1);
 
-        if (comp != nullptr)
+        if (comp != nullptr) {
             std::sort(
               temp1.begin(), temp1.end() - edge2,
               [comp](auto& a, auto& b) -> bool { return comp(a, b); });
-        else
+        }
+        else {
             std::sort(temp1.begin(), temp1.end() - edge2);
+        }
 
         int reduced = 0;
-        for (size_t j = 0; j < lnt && !reduced; j++)
+        for (size_t j = 0; j < lnt && !reduced; j++) {
             reduced += (temp1[j] != temp2[j]);
+        }
         int greduced = 1;
 
         int err = MPI_Allreduce(
@@ -477,8 +525,10 @@ void sort(
 
         if (!greduced) break;
     }
-    for (size_t i = 0; i < lnt; i++)
+
+    for (size_t i = 0; i < lnt; i++) {
         dat[i] = temp1[i];
+    }
 }
 
 /*! Parallel sort a list. Local vector is part of the entire list.
@@ -520,18 +570,19 @@ std::vector<size_t> sort(ExSeisPIOL* piol, std::vector<size_t> list)
 #endif
     }
 
-    for (size_t i = 0; i < lnt; i++)
+    for (size_t i = 0; i < lnt; i++) {
         list[i] = plist[i].second;
+    }
+
     return list;
 }
 
 /*! Send objects from the current processes to the process one rank higher if
  *  such a process exists. Objects are taken from the end of a vector.
  *  Receiving processes put the objects at the start of their vector.
- *  @tparam T Type of vector
- *  @param[in] piol The PIOL object.
- *  @param[in] regionSz The size of data to send/receive.
- *  @param[in,out] dat Vector to be accessed
+ *  @param[in]     piol     The PIOL object.
+ *  @param[in]     regionSz The size of data to send/receive.
+ *  @param[in,out] prm      The parameter structure to send/receive
  */
 void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 {
@@ -546,6 +597,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     auto err         = [log](int errc, std::string msg, size_t i) -> void {
         printErr(log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
     };
+
     if (rank) {
         std::string msg = "Sort right MPI_Irecv error ";
         err(
@@ -569,9 +621,11 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
             0, MPI_COMM_WORLD, &rrcv[3]),
           msg, 4);
     }
+
     if (rank != piol->comm->getNumRank() - 1) {
-        for (size_t i = 0; i < regionSz; i++)
+        for (size_t i = 0; i < regionSz; i++) {
             cpyPrm(i + prm->size() - regionSz, prm, i, &sprm);
+        }
 
         std::string msg = "Sort right MPI_Isend error ";
         err(
@@ -595,20 +649,22 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
             0, MPI_COMM_WORLD, &rsnd[3]),
           msg, 4);
     }
+
     Wait(piol, rsnd, rrcv);
 
-    if (rank)
-        for (size_t i = 0; i < regionSz; i++)
+    if (rank) {
+        for (size_t i = 0; i < regionSz; i++) {
             cpyPrm(i, &rprm, i, prm);
+        }
+    }
 }
 
 /*! Send objects from the current processes to the process one rank lower if
  *  such a process exists. Objects are taken from the start of a vector.
  *  Receiving processes put the objects at the end of their vector.
- *  @tparam T Type of vector
- *  @param[in] piol The PIOL object.
- *  @param[in] regionSz The size of data to send/receive.
- *  @param[in,out] dat Vector to be accessed
+ *  @param[in]     piol     The PIOL object.
+ *  @param[in]     regionSz The size of data to send/receive.
+ *  @param[in,out] prm      The parameter structure to send/receive
  */
 void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 {
@@ -625,8 +681,9 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     };
 
     if (rank) {
-        for (size_t i = 0; i < regionSz; i++)
+        for (size_t i = 0; i < regionSz; i++) {
             cpyPrm(i, prm, i, &sprm);
+        }
 
         std::string msg = "Sort left MPI_Irecv error ";
         err(
@@ -650,6 +707,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
             1, MPI_COMM_WORLD, &rsnd[3]),
           msg, 4);
     }
+
     if (rank != piol->comm->getNumRank() - 1) {
         std::string msg = "Sort left MPI_Isend error ";
         err(
@@ -676,11 +734,17 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 
     Wait(piol, rrcv, rsnd);
 
-    if (rank != piol->comm->getNumRank() - 1)
-        for (size_t i = 0; i < regionSz; i++)
+    if (rank != piol->comm->getNumRank() - 1) {
+        for (size_t i = 0; i < regionSz; i++) {
             cpyPrm(i, &rprm, i + prm->size() - regionSz, prm);
+        }
+    }
 }
 
+/// Sort the parameter structure across all processes
+/// @param[in] piol The ExSeisPIOL object
+/// @param[in] prm  The parameter structure
+/// @param[in] comp The comparison operator to sort the headers by.
 void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
 {
     size_t lnt      = prm->size();
@@ -700,8 +764,9 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
     File::Param temp2(temp1.r, temp1.size());
     File::Param temp3(prm->r, temp1.size());
 
-    for (size_t i = 0; i < lnt; i++)
+    for (size_t i = 0; i < lnt; i++) {
         cpyPrm(t1[i], prm, i, &temp1);
+    }
 
     // Infinite loop if there is more than one process, otherwise no loop
     while (numRank > 1) {
@@ -717,10 +782,13 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
                   return comp(&temp1, a, b);
               });
 
-            for (size_t i = 0; i < t1.size(); i++)
+            for (size_t i = 0; i < t1.size(); i++) {
                 cpyPrm(t1[i], &temp1, i, &temp3);
-            for (size_t i = 0; i < t1.size(); i++)
+            }
+
+            for (size_t i = 0; i < t1.size(); i++) {
                 cpyPrm(i, &temp3, i + edge1, &temp1);
+            }
         }
 
         sendRight(piol, regionSz, &temp1);
@@ -734,21 +802,26 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
                   return comp(&temp1, a, b);
               });
 
-            for (size_t i = 0; i < t1.size(); i++)
+            for (size_t i = 0; i < t1.size(); i++) {
                 cpyPrm(t1[i], &temp1, i, &temp3);
-            for (size_t i = 0; i < t1.size(); i++)
+            }
+
+            for (size_t i = 0; i < t1.size(); i++) {
                 cpyPrm(i, &temp3, i, &temp1);
+            }
         }
 
         int reduced = 0;
-        for (size_t j = 0; j < lnt && !reduced; j++)
+        for (size_t j = 0; j < lnt && !reduced; j++) {
             reduced +=
               (getPrm<llint>(j, PIOL_META_gtn, &temp1)
                != getPrm<llint>(j, PIOL_META_gtn, &temp2));
+        }
         int greduced = 1;
 
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
         printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Allreduce error");
@@ -756,8 +829,9 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
         if (!greduced) break;
     }
 
-    for (size_t i = 0; i < lnt; i++)
+    for (size_t i = 0; i < lnt; i++) {
         cpyPrm(i, &temp1, i, prm);
+    }
 }
 
 std::vector<size_t> sort(

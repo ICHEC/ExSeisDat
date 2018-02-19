@@ -23,17 +23,19 @@ class Interface {
   protected:
     /// Pointer to the PIOL object.
     std::shared_ptr<ExSeisPIOL> piol_;
+
     /// Store the file name for debugging purposes.
     std::string name_;
+
     /// Pointer to the Data layer object (polymorphic).
     std::shared_ptr<Data::Interface> data_;
 
   public:
     /*! @brief The constructor.
-     *  @param[in] piol_ This PIOL ptr is not modified but is used to
-     *                   instantiate another shared_ptr.
-     *  @param[in] name_ The name of the file associated with the instantiation.
-     *  @param[in] data_ Pointer to the Data layer object (polymorphic).
+     *  @param[in] piol A PIOL object. This PIOL ptr is not modified but is used
+     *                  to instantiate another shared_ptr.
+     *  @param[in] name The name of the file associated with the instantiation.
+     *  @param[in] data Pointer to the Data layer object (polymorphic).
      */
     Interface(
       std::shared_ptr<ExSeisPIOL> piol,
@@ -49,10 +51,16 @@ class Interface {
      */
     virtual ~Interface(void) {}
 
+    /// @brief  The stored PIOL object
+    /// @return The stored PIOL object
     virtual std::shared_ptr<ExSeisPIOL> piol() { return piol_; }
 
+    /// @brief  The stored file name
+    /// @return The stored file name
     virtual std::string name() { return name_; }
 
+    /// @brief  The stored Data layer object.
+    /// @return The stored Data layer object.
     virtual std::shared_ptr<Data::Interface> data() { return data_; }
 
     /*! @brief Find out the file size.

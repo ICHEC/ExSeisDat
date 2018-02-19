@@ -29,18 +29,23 @@ struct EbcdicAsciiPair {
     {
     }
 
-    uchar ascii;  ///< The ASCII character
-    uchar ebcdic; ///< The EBCDIC character
+    /// The ASCII character
+    uchar ascii;
+
+    /// The EBCDIC character
+    uchar ebcdic;
 };
 
-// The SUB character.
-// Used when a character is not representable in the given encoding.
+/// The SUB character.
+/// Used when a character is not representable in the given encoding.
 static const EbcdicAsciiPair char_sub{0x1Au, 0x3Fu};
 
-// A list of ASCII / EBCDIC pairs.
-// This list was generated with the iconv library using the
-// ASCII and EBCDICUS encodings.
+/// The array type for all the ASCII/EBCDIC pairs.
 using EbcdicAsciiPairs = std::array<EbcdicAsciiPair, 126>;
+
+/// A list of ASCII / EBCDIC pairs.
+/// This list was generated with the iconv library using the
+/// ASCII and EBCDICUS encodings.
 static const EbcdicAsciiPairs ebcdicAsciiPairs = {
   {EbcdicAsciiPair{0x00u, 0x00u}, EbcdicAsciiPair{0x01u, 0x01u},
    EbcdicAsciiPair{0x02u, 0x02u}, EbcdicAsciiPair{0x03u, 0x03u},
@@ -115,7 +120,8 @@ static const EbcdicAsciiPairs ebcdicAsciiPairs = {
 //
 
 
-// Build the EBCDIC -> ASCII map
+/// Build the EBCDIC -> ASCII map
+/// @return A list of ASCII/EBCDIC pairs sorted by EBCDIC character
 static EbcdicAsciiPairs buildEbcdicToAsciiMap()
 {
     EbcdicAsciiPairs a = ebcdicAsciiPairs;
@@ -125,7 +131,8 @@ static EbcdicAsciiPairs buildEbcdicToAsciiMap()
     return a;
 }
 
-// Build the ASCII -> EBCDIC map
+/// Build the ASCII -> EBCDIC map
+/// @return A list of ASCII/EBCDIC pairs sorted by ASCII character
 static EbcdicAsciiPairs buildAsciiToEbcdicMap()
 {
     EbcdicAsciiPairs a = ebcdicAsciiPairs;
@@ -137,12 +144,15 @@ static EbcdicAsciiPairs buildAsciiToEbcdicMap()
 
 // We use static const (namespace level) variables to build the maps only once
 // at startup.
+
+/// A list of ASCII/EBCDIC pairs sorted by EBCDIC character.
 static const auto ebcdicToAsciiMap = buildEbcdicToAsciiMap();
+
+/// A list of ASCII/EBCDIC pairs sorted by ASCII character.
 static const auto asciiToEbcdicMap = buildAsciiToEbcdicMap();
 
 // The accessor functions
 
-// Convert EBCDIC -> ASCII
 char ebcdicToAscii(uchar ebcdic_char)
 {
     // Use std::lower_bound for a binary search lookup
@@ -158,7 +168,6 @@ char ebcdicToAscii(uchar ebcdic_char)
     return ascii_char_it->ascii;
 }
 
-// Convert ASCII -> EBCDIC
 char asciiToEbcdic(uchar ascii_char)
 {
     const auto& ebcdic_char_it = std::lower_bound(
@@ -173,11 +182,6 @@ char asciiToEbcdic(uchar ascii_char)
     return ebcdic_char_it->ebcdic;
 }
 
-
-// Do conversion, if more printable letters and spaces etc post-conversion use
-// it.
-// This is the old interface which used to be able to fail.
-// It should probably be removed!
 void getAscii(ExSeisPIOL*, const std::string&, size_t sz, uchar* src)
 {
     for (size_t i = 0; i < sz; i++) {

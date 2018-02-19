@@ -11,7 +11,6 @@
 #include "global.hh"
 #include "share/api.hh"
 
-#include <complex>
 #include <vector>
 
 namespace PIOL {
@@ -20,11 +19,10 @@ namespace File {
 /*! Determines the filter order if given passband and stopband frequecnies
  *  @param[in] cornerP Passband corner
  *  @param[in] cornerS Stopband corner
- *  @param[in] fs      Sampling frequency
  *  @return Filter order
  */
 size_t filterOrder(
-  const trace_t cornerP, const trace_t cornerS, const trace_t fs);
+  const trace_t cornerP, const trace_t cornerS);
 
 /*! Expands a series of polynomials of the form (z-b0)(z-b1)...(z-bn)
  *  @param[in] coef Vector of b coefficients
@@ -32,7 +30,7 @@ size_t filterOrder(
  *  @param[in] poly Expanded polynomial coefficients
  */
 void expandPoly(
-  const std::complex<trace_t>* coef, const size_t nvx, trace_t* poly);
+  const cmtrace_t* coef, const size_t nvx, trace_t* poly);
 
 /*! Creates a digital Butterworth lowpass filter for a given corner in
  *  zero/pole/gain form
@@ -41,12 +39,12 @@ void expandPoly(
  *  @param[in] p   Vector of filter poles
  *  @param[in] cf1 Corner passband frequency (Hz)
  *  @return DOCUMENT ME
- *  @todo   DOCUMENT ME
+ *  @todo   DOCUMENT return type
  */
 trace_t lowpass(
   const size_t N,
-  std::complex<trace_t>* z,
-  std::complex<trace_t>* p,
+  cmtrace_t* z,
+  cmtrace_t* p,
   trace_t cf1);
 
 /*! Creates a digital Butterworth highpass filter for a given corner in
@@ -54,14 +52,14 @@ trace_t lowpass(
  *  @param[in] N Filter order
  *  @param[in] z Vector of filter zeros
  *  @param[in] p Vector of filter poles
- *  @param[in] k Filter gain
  *  @param[in] cf1 Corner passband frequency (Hz)
+ *  @return DOCUMENT ME
+ *  @todo DOCUMENT return type
  */
-void highpass(
+trace_t highpass(
   size_t N,
-  std::complex<trace_t>* z,
-  std::complex<trace_t>* p,
-  trace_t* k,
+  cmtrace_t* z,
+  cmtrace_t* p,
   trace_t cf1);
 
 /*! Creates a digital Butterworth bandpass filter for a given corner in
@@ -69,15 +67,15 @@ void highpass(
  *  @param[in] N Filter order
  *  @param[in] z Vector of filter zeros
  *  @param[in] p Vector of filter poles
- *  @param[in] k Filter gain
  *  @param[in] cf1 Left corner passband frequency (Hz)
  *  @param[in] cf2 Right corner passband frequecy (Hz)
+ *  @return DOCUMENT ME
+ *  @todo DOCUMENT return type
  */
-void bandpass(
+trace_t bandpass(
   size_t N,
-  std::complex<trace_t>* z,
-  std::complex<trace_t>* p,
-  trace_t* k,
+  cmtrace_t* z,
+  cmtrace_t* p,
   trace_t cf1,
   trace_t cf2);
 
@@ -86,15 +84,15 @@ void bandpass(
  *  @param[in] N Filter order
  *  @param[in] z Vector of filter zeros
  *  @param[in] p Vector of filter poles
- *  @param[in] k Filter gain
  *  @param[in] cf1 Left corner passband frequency (Hz)
  *  @param[in] cf2 Right corner passband frequecy (Hz)
+ *  @return DOCUMENT ME
+ *  @todo DOCUMENT return type
  */
-void bandstop(
+trace_t bandstop(
   size_t N,
-  std::complex<trace_t>* z,
-  std::complex<trace_t>* p,
-  trace_t* k,
+  cmtrace_t* z,
+  cmtrace_t* p,
   trace_t cf1,
   trace_t cf2);
 

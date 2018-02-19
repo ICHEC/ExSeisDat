@@ -27,7 +27,8 @@ namespace File {
 
 // TODO: Use complex literals when newer compilers are available
 //       (Current is gcc (GCC) 5.3.0)
-const cmtrace_t I(0_t, 1_t);
+/// The imaginary number, i = sqrt(-1).
+const cmtrace_t I = cmtrace_t(0_t, 1_t);
 
 // TODO: Use this when intel supports it
 // using namespace std::complex_literals;
@@ -40,6 +41,7 @@ size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
     // constexpr functions
     static const trace_t val =
       geom_t(0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
+
     return std::ceil(
       val
       / std::log(
@@ -56,15 +58,20 @@ void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
 
     for (size_t i = 1LU; i < nvx; i++) {
         vecXpnd[i + 1LU] = 1_t;
-        for (size_t j = 0LU; j < i; j++)
+        for (size_t j = 0LU; j < i; j++) {
             vecXpnd[i - j] = vecXpnd[i - j] * -coef[i] + vecXpnd[i - j - 1LU];
+        }
         vecXpnd[0] = vecXpnd[0] * -coef[i];
     }
-    for (size_t i = 0LU; i < nvx + 1LU; i++)
+
+    for (size_t i = 0LU; i < nvx + 1LU; i++) {
         poly[i] = vecXpnd[i].real();
+    }
 }
 
-//(4 + x)/(4 - x)
+/// Common filter division: (4 + x)/(4 - x)
+/// @param[in] x The \c x value
+/// @return (4+x)/(4-x)
 inline cmtrace_t filDiv(cmtrace_t x)
 {
     return (4_t + x) / (4_t - x);
@@ -163,21 +170,26 @@ void makeFilter(
     std::vector<cmtrace_t> z(tN);
     std::vector<cmtrace_t> p(tN);
 
-    for (llint i = 0; i < N; i++)
+    for (llint i = 0; i < N; i++) {
         p[i] =
           -exp(I * Math::pi_t * trace_t(1LL + 2LL * i - N) / trace_t(2LL * N));
+    }
+
     trace_t k;
     switch (type) {
         default:
         case FltrType::Lowpass:
             k = lowpass(N, z.data(), p.data(), Wn);
             break;
+
         case FltrType::Highpass:
             k = highpass(N, z.data(), p.data(), Wn);
             break;
+
         case FltrType::Bandpass:
             k = bandpass(N, z.data(), p.data(), Wn, W2);
             break;
+
         case FltrType::Bandstop:
             k = bandstop(N, z.data(), p.data(), Wn, W2);
             break;
@@ -186,10 +198,13 @@ void makeFilter(
     expandPoly(z.data(), tN, numer);
     expandPoly(p.data(), tN, denom);
 
-    for (size_t i = 0LU; i < tN + 1LU; i++)
+    for (size_t i = 0LU; i < tN + 1LU; i++) {
         numer[i] *= k;
-    for (size_t i = 0LU; i < (tN + 1LU) / 2LU; i++)
+    }
+
+    for (size_t i = 0LU; i < (tN + 1LU) / 2LU; i++) {
         std::swap(denom[i], denom[tN - i]);
+    }
 }
 
 void temporalFilter(
@@ -213,12 +228,14 @@ void temporalFilter(
             temporalFilter(
               nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
         } break;
+
         case FltrType::Highpass: {
             std::vector<trace_t> c = {corner[1LU], 0LU};
             size_t N               = filterOrder(corner[1LU], corner[0LU]);
             temporalFilter(
               nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
         } break;
+
         case FltrType::Bandpass: {
             std::vector<trace_t> c = {corner[1LU], corner[2LU]};
             temporalFilter(
@@ -227,6 +244,7 @@ void temporalFilter(
                 filterOrder(corner[1], corner[0]),
                 filterOrder(corner[2], corner[3])));
         } break;
+
         case FltrType::Bandstop: {
             std::vector<trace_t> c = {corner[0LU], corner[3LU]};
             temporalFilter(
@@ -245,16 +263,19 @@ FltrPad getPad(PadType type)
         case PadType::Zero:
             return [](trace_t*, size_t, size_t, size_t) { return 0.0_t; };
             break;
+
         case PadType::Symmetric:
             return [](trace_t* trc, size_t N, size_t nw, size_t j) {
                 return (j <= nw ? trc[N - j] : trc[2 * (nw + N) - j]);
             };
             break;
+
         case PadType::Replicate:
             return [](trace_t* trc, size_t, size_t nw, size_t j) {
                 return (j <= nw ? trc[0] : trc[nw]);
             };
             break;
+
         case PadType::Cyclic:
             return [](trace_t* trc, size_t N, size_t nw, size_t j) {
                 return (j <= nw ? trc[nw - (N - j)] : trc[j - nw - N]);
@@ -301,10 +322,22 @@ void filterFreq(
     fftwf_execute(planIFFT);
     fftwf_destroy_plan(planIFFT);
 
-    for (size_t i = 0; i < nss; i++)
+    for (size_t i = 0; i < nss; i++) {
         trcX[i] /= nss;
+    }
 }
 
+/// Infinite Impulse Response
+/// @param[in] N  Feedforwrd / Feedback filter order
+/// @param[in] ns Number of samples
+/// @param[in] b  Feedforward filter coefficients
+///               (pointer to array of size \c N)
+/// @param[in] a  Feedback filter coefficients
+///               (pointer to array of size \c N)
+/// @param[in] x  The input signal  (pointer to array of size \c ns)
+/// @param[in] y  The output signal (pointer to array of size \c ns)
+/// @param[in] zi Z-transform coefficients
+/// @todo Document Z-transform coefficients
 void IIR(
   size_t N,
   size_t ns,
@@ -337,22 +370,28 @@ void filterTime(
   FltrPad padding)
 {
     std::vector<trace_t> trcX(nw + 6LU * (numTail + 1LU));
+
     for (size_t i = 0LU; i < 3LU * (numTail + 1LU); i++) {
         trcX[i] = padding(trcOrgnl, 3LU * (numTail + 1LU), nw, i);
         trcX[i + 3LU * numTail + nw] = padding(
           trcOrgnl, 3LU * (numTail + 1LU), nw - 1LU, i + 3LU * numTail + nw);
     }
-    for (size_t i = 0; i < nw; i++)
+
+    for (size_t i = 0; i < nw; i++) {
         trcX[i + 3LU * (numTail + 1LU)] = trcOrgnl[i];
+    }
+
     std::vector<trace_t> zi(numTail);
     std::vector<trace_t> ziF(numTail);
     std::vector<trace_t> trcY(nw + 6LU * (numTail + 1LU));
+
     trace_t B    = 0;
     trace_t Imin = 1_t;
     for (size_t i = 1LU; i < numTail + 1LU; i++) {
         B += numer[i] - denom[i] * numer[0];
         Imin += denom[i];
     }
+
     zi[0]     = B / Imin;
     trace_t a = 1_t;
     trace_t c = 0_t;
@@ -361,22 +400,31 @@ void filterTime(
         c += numer[i] - denom[i] * numer[0];
         zi[i] = a * zi[0] - c;
     }
-    for (size_t i = 0; i < numTail; i++)
+
+    for (size_t i = 0; i < numTail; i++) {
         ziF[i] = zi[i] * trcX[0];
+    }
+
     IIR(
       numTail, nw + 6LU * (numTail + 1LU), numer, denom, trcX.data(),
       trcY.data(), ziF.data());
+
     for (size_t i = 0; i < nw + 6 * (numTail + 1); i++) {
         trcX[i] = trcY[nw + 6LU * (1LU + numTail) - i - 1LU];
         trcY[nw + 6 * (numTail + 1) - 1 - i] = 0;
     }
-    for (size_t i = 0; i < numTail; i++)
+
+    for (size_t i = 0; i < numTail; i++) {
         zi[i] *= trcX[0];
+    }
+
     IIR(
       numTail, nw + 6LU * (numTail + 1LU), numer, denom, trcX.data(),
       trcY.data(), zi.data());
-    for (size_t i = 0; i < nw; i++)
+
+    for (size_t i = 0; i < nw; i++) {
         trcOrgnl[i] = trcY[nw + 3LU * (numTail + 1LU) - i - 1LU];
+    }
 }
 
 void temporalFilter(

@@ -170,6 +170,8 @@ class WriteSEGY : public WriteInterface {
     };
 
   private:
+    /// Whether the number of samples (ns) has been set.
+    /// If it hasn't been set before file writing, the output is likely garbage.
     bool nsSet = false;
 
     /// Type formats

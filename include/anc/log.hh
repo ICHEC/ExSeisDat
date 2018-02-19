@@ -24,22 +24,31 @@ namespace Log {
 enum class Layer : size_t {
     /// The data layer
     Data,
+
     /// The object layer
     Object,
+
     /// The file layer
     File,
+
     /// The set layer
     Set,
+
     /// The ops layer
     Ops,
+
     /// The comms layer
     Comm,
+
     /// The Log layer itself.
     Log,
+
     /// Misc MPI.
     MPI,
+
     /// The PIOL itself
     PIOL,
+
     /// Within the APIs
     API
 };
@@ -49,12 +58,16 @@ enum class Layer : size_t {
 enum class Status : size_t {
     /// A general note item.
     Note,
+
     /// A debug item
     Debug,
+
     /// A PIOL warning item
     Warning,
+
     /// A serious error which should lead to program termination
     Error,
+
     /// A message the end-user has specifically requested.
     Request
 };
@@ -65,12 +78,16 @@ enum class Status : size_t {
 struct Item {
     /// The file associated with the item
     std::string file;
+
     /// The layer the item was recorded in
     Layer layer;
+
     /// The item status
     Status stat;
+
     /// The message for the end-user which is associated with the item.
     std::string msg;
+
     /// The item verbosity.
     Verbosity vrbsy;
 };
@@ -81,8 +98,10 @@ class Logger {
   private:
     /// The maximum verbosity level
     Verbosity maxLevel;
+
     /// The linked-list container which holds the log items
     std::forward_list<Item> loglist_;
+
     /// The error status.
     bool error;
 
@@ -100,6 +119,7 @@ class Logger {
     ~Logger(void) { procLog(); }
 
     /*! @brief The list of current log items.
+     *  @return The list of current log items.
      */
     const std::forward_list<Item>& loglist() const { return loglist_; }
 

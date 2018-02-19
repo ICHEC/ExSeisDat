@@ -19,11 +19,13 @@
 namespace PIOL {
 namespace File {
 
+/// A list of the default META values
 static std::vector<Meta> default_metas{
   PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv,   PIOL_META_yRcv,
   PIOL_META_xCmp, PIOL_META_yCmp, PIOL_META_Offset, PIOL_META_il,
   PIOL_META_xl,   PIOL_META_tn};
 
+/// A list of the extra META values
 static std::vector<Meta> extra_metas{
   PIOL_META_tnl,     PIOL_META_tnr,       PIOL_META_tne,      PIOL_META_SrcNum,
   PIOL_META_Tic,     PIOL_META_VStack,    PIOL_META_HStack,   PIOL_META_RGElev,
