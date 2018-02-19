@@ -163,10 +163,12 @@ void makeFilter(
     std::vector<cmtrace_t> z(tN);
     std::vector<cmtrace_t> p(tN);
 
+    //determines the analogue zero-pole-gain represntation of filter for given number of poles
     for (llint i = 0; i < N; i++)
         p[i] =
           -exp(I * Math::pi_t * trace_t(1LL + 2LL * i - N) / trace_t(2LL * N));
     trace_t k;
+    //determines the analogue zero-pole-gain for given filter type at specific frequency(ies)
     switch (type) {
         default:
         case FltrType::Lowpass:
@@ -353,6 +355,7 @@ void filterTime(
         B += numer[i] - denom[i] * numer[0];
         Imin += denom[i];
     }
+    //Applies a bilinear transform to convert analgue filter to digital filter
     zi[0]     = B / Imin;
     trace_t a = 1_t;
     trace_t c = 0_t;
