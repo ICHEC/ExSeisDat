@@ -1,0 +1,79 @@
+# Doxyfile 1.8.13
+
+#
+# This is a template file used for configuration in doc/CMakeLists.txt.
+#
+
+PROJECT_NAME           = ExSeisDat
+
+# The PROJECT_NUMBER tag can be used to enter a project or revision number. This
+# could be handy for archiving the generated documentation or if some version
+# control system is used.
+
+PROJECT_NUMBER         = @ExSeisDat_VERSION@
+
+# Extraction options
+EXTRACT_PRIVATE        = YES
+EXTRACT_PACKAGE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_METHODS  = YES
+EXTRACT_ANON_NSPACES   = YES
+
+# Generate case sensitive filenames
+CASE_SENSE_NAMES       = YES
+
+# Warning options
+# Warn on everything possible, and fail on warning
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_AS_ERROR          = YES
+
+# Input directories
+INPUT                  =       \
+    @CMAKE_SOURCE_DIR@/src     \
+    @CMAKE_SOURCE_DIR@/include \
+    @CMAKE_SOURCE_DIR@/api     \
+    @CMAKE_SOURCE_DIR@/util    \
+    @CMAKE_SOURCE_DIR@/README.md
+
+RECURSIVE              = YES
+
+# If the USE_MDFILE_AS_MAINPAGE tag refers to the name of a markdown file that
+# is part of the input, its contents will be placed on the main page
+# (index.html). This can be useful if you have a project on for instance GitHub
+# and want to reuse the introduction page also for the doxygen output.
+
+USE_MDFILE_AS_MAINPAGE = @CMAKE_SOURCE_DIR@/README.md
+
+# Documentation presentation options
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+
+# HTML output options
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+GENERATE_TREEVIEW      = YES
+
+# Latex font size
+FORMULA_FONTSIZE       = 10
+
+# Latex rendering: use images
+USE_MATHJAX            = NO
+
+# Make search engine without server
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+
+# Don't generate latex or manpage, but we might in future
+GENERATE_LATEX         = NO
+GENERATE_MAN           = NO
+
+# Macro options
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = NO
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = 
