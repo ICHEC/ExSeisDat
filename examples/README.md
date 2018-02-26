@@ -9,7 +9,7 @@ Below are a number of tutorials on how to use ExSeisDat.
           side bar!
 @endinternal
 
-- @subpage examples_hello_c
+- @subpage examples_hello_world_c
 - @subpage examples_creadwrite_c
 - @subpage examples_example1_c
 - @subpage examples_example1_cc
@@ -39,19 +39,21 @@ The examples in this directory are written in the following form:
 ///
 /// The `{#ref}` command is used to generate a page in doxygen. In this case,
 /// it's referenced by `example_my_example_c` with the title "Example: My
-/// Example". For a file in the examples folder named `my_file.c`, we'll give it
-/// the reference `example_my_file_c`. The title, then, is what will appear
-/// as the html title, and for any links referencing it.
-/// The reference should then be included in the list of subpages above for it
-/// to fall under the "Example" subtree of the table of contents. Unfortunately,
-/// we can't use slashes or dots in the reference names, because that confuses
-/// doxygen.
+/// Example".
 ///
-/// The "Example: My Example" header is then needed to make a nice header in the
-/// output.
+/// For a file in the examples folder named `my_example.c`, we'll give it
+/// the reference `examples_my_example_c`. The title, then, is what will appear
+/// as the html title, and for any links referencing it, along with being the
+/// main heading of the generated page.
+/// Unfortunately, we can't use slashes or dots in the reference names,
+/// because that confuses doxygen. So we'll simply replace those with `_`.
+///
+/// The reference should then be included in the list of subpages listed in
+/// examples/README.md for it to fall under the "ExSeisDat Examples" subtree of
+/// the table of contents. Otherwise it will appear as a standalone page.
 ///
 /// In general, the file will start with some preamble about the program,
-/// followed by includes etc
+/// followed by includes etc.
 ///
 
 #include <iostream>

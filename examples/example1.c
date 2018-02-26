@@ -19,7 +19,8 @@ int main(int argc, char** argv)
     //      -o OUTPUT_NAME
     char* opt  = "o:";  // TODO: uses a GNU extension
     char* name = NULL;
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt)) {
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
         if (c == 'o') {
             name = copyString(optarg);
         }

@@ -21,16 +21,14 @@ namespace File {
  *  @param[in] cornerS Stopband corner
  *  @return Filter order
  */
-size_t filterOrder(
-  const trace_t cornerP, const trace_t cornerS);
+size_t filterOrder(const trace_t cornerP, const trace_t cornerS);
 
 /*! Expands a series of polynomials of the form (z-b0)(z-b1)...(z-bn)
  *  @param[in] coef Vector of b coefficients
  *  @param[in] nvx  Number of b coefficients
  *  @param[in] poly Expanded polynomial coefficients
  */
-void expandPoly(
-  const cmtrace_t* coef, const size_t nvx, trace_t* poly);
+void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly);
 
 /*! Creates a digital Butterworth lowpass filter for a given corner in
  *  zero/pole/gain form
@@ -41,11 +39,7 @@ void expandPoly(
  *  @return DOCUMENT ME
  *  @todo   DOCUMENT return type
  */
-trace_t lowpass(
-  const size_t N,
-  cmtrace_t* z,
-  cmtrace_t* p,
-  trace_t cf1);
+trace_t lowpass(const size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1);
 
 /*! Creates a digital Butterworth highpass filter for a given corner in
  *  zero/pole/gain form
@@ -56,11 +50,7 @@ trace_t lowpass(
  *  @return DOCUMENT ME
  *  @todo DOCUMENT return type
  */
-trace_t highpass(
-  size_t N,
-  cmtrace_t* z,
-  cmtrace_t* p,
-  trace_t cf1);
+trace_t highpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1);
 
 /*! Creates a digital Butterworth bandpass filter for a given corner in
  *  zero/pole/gain form
@@ -73,11 +63,7 @@ trace_t highpass(
  *  @todo DOCUMENT return type
  */
 trace_t bandpass(
-  size_t N,
-  cmtrace_t* z,
-  cmtrace_t* p,
-  trace_t cf1,
-  trace_t cf2);
+  size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2);
 
 /*! Creates a digital Butterworth bandstop filter for a given corner in
  *  zero/pole/gain form
@@ -90,11 +76,7 @@ trace_t bandpass(
  *  @todo DOCUMENT return type
  */
 trace_t bandstop(
-  size_t N,
-  cmtrace_t* z,
-  cmtrace_t* p,
-  trace_t cf1,
-  trace_t cf2);
+  size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2);
 
 /*! Creates a discrete, digital Butterworth filter for a given corner in
  *  polynomial transfer function form

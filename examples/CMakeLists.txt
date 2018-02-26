@@ -8,8 +8,8 @@ link_libraries(exseisdat)
 # Keep a list of executables defined here
 set(EXSEISDAT_EXAMPLE_EXES)
 
-add_executable(hello hello.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES hello)
+add_executable(hello_world hello_world.c)
+list(APPEND EXSEISDAT_EXAMPLE_EXES hello_world)
 
 add_executable(creadwrite creadwrite.c)
 list(APPEND EXSEISDAT_EXAMPLE_EXES creadwrite)

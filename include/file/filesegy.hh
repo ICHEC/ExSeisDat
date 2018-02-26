@@ -109,9 +109,9 @@ class ReadSEGY : public ReadInterface {
 
 /*! A SEGY class for seismic velocity models
  */
-// Velocity models indicate the velocity anomolies within a subsurface, which indicate
-// areas with high velocity anomolies correspond to denser material, while lower
-// velocities correspond to materials that are less dense.
+// Velocity models indicate the velocity anomolies within a subsurface, which
+// indicate areas with high velocity anomolies correspond to denser material,
+// while lower velocities correspond to materials that are less dense.
 
 class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
   public:
