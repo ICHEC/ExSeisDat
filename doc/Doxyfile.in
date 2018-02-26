@@ -32,12 +32,17 @@ WARN_NO_PARAMDOC       = YES
 WARN_AS_ERROR          = YES
 
 # Input directories
-INPUT                  =       \
-    @CMAKE_SOURCE_DIR@/src     \
-    @CMAKE_SOURCE_DIR@/include \
-    @CMAKE_SOURCE_DIR@/api     \
-    @CMAKE_SOURCE_DIR@/util    \
-    @CMAKE_SOURCE_DIR@/README.md
+INPUT                  =         \
+    @CMAKE_SOURCE_DIR@/src       \
+    @CMAKE_SOURCE_DIR@/include   \
+    @CMAKE_SOURCE_DIR@/api       \
+    @CMAKE_SOURCE_DIR@/util      \
+    @CMAKE_SOURCE_DIR@/README.md \
+    @CMAKE_CURRENT_BINARY_DIR@/examples/documented \
+    @CMAKE_SOURCE_DIR@/examples/README.md
+
+EXAMPLE_PATH           = \
+    @CMAKE_CURRENT_BINARY_DIR@/examples/clean
 
 RECURSIVE              = YES
 

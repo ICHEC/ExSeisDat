@@ -1,3 +1,10 @@
+///
+/// Example: modprm.c    {#examples_modprm_c}
+/// =================
+///
+/// @todo DOCUMENT ME - Finish documenting example.
+///
+
 #include "cfileapi.h"
 #include "ctest.h"
 #include "sglobal.h"

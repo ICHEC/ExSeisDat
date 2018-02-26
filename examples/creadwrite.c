@@ -1,12 +1,13 @@
-////////////////////////////////////////////////////////////////////////////////
-/// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date Q4 2016
-/// @brief This file reads from an existing file, interprets it by the PIOL and
-///        writes out a new file. Since the input is interpreted by the PIOL it
-///        does not produce an identical copy.
-////////////////////////////////////////////////////////////////////////////////
+///
+/// Example: creadwrite.c    {#examples_creadwrite_c}
+/// =====================
+///
+/// @todo DOCUMENT ME - Finish documenting example.
+///
+/// This file reads from an existing file, interprets it by the PIOL and writes
+/// out a new file. Since the input is interpreted by the PIOL it does not
+/// produce an identical copy.
+///
 
 #include "cfileapi.h"
 #include "ctest.h"

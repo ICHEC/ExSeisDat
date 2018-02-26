@@ -1,3 +1,10 @@
+///
+/// Example: exampleCreateFile.c    {#examples_exampleCreateFile_c}
+/// ============================
+///
+/// @todo DOCUMENT ME - Finish documenting example.
+///
+
 #include "cfileapi.h"
 #include "sglobal.h"
 

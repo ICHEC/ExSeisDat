@@ -1,3 +1,10 @@
+///
+/// Example minmax.c    {#examples_minmax_c}
+/// ================
+///
+/// @todo DOCUMENT ME - Finish documenting example.
+///
+
 #include "flow.h"
 #include "sglobal.h"
 

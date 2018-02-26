@@ -1,10 +1,11 @@
-////////////////////////////////////////////////////////////////////////////////
-/// @file
-/// @author Cathal O Broin - ruairi.short@ichec.ie - first commit
-/// @copyright LGPL v3
-/// @date February 2017
-/// @brief Sort a file in 9 lines
-////////////////////////////////////////////////////////////////////////////////
+///
+/// Example: exampleFilterTaper.cc    {#examples_exampleFilterTaper_cc}
+/// ==============================
+///
+/// @todo DOCUMENT ME - Finish documenting example.
+///
+/// Sort a file in 9 lines
+///
 
 #include "flow.hh"
 
