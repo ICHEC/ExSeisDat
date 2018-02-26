@@ -1,6 +1,5 @@
-@page examples Examples
 
-ExSeisDat Examples
+ExSeisDat Examples    {#examples}
 ==================
 
 Below are a number of tutorials on how to use ExSeisDat.
