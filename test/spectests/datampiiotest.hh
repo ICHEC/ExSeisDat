@@ -54,14 +54,16 @@ class MPIIOTest : public Test {
             getBigEndian(xlNum(i + offset), &md[192]);
         }
 
-        if (block)
+        if (block) {
             data->write(
               SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns), SEGSz::getMDSz(),
               SEGSz::getDOSz(ns), nt, tr.data());
-        else
+        }
+        else {
             data->write(
               SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns),
               SEGSz::getDOSz(ns) * nt, tr.data());
+        }
 
         readSmallBlocks<block>(nt, ns, offset);
     }
