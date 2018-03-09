@@ -167,18 +167,16 @@ void makeSEGY(const char* filename, size_t ns, size_t nt, size_t maxBlock)
                 // Write the trace data
                 for (size_t k = 0; k < ns; k++) {
 
-                    union {
-                        float f;
-                        uint32_t i;
-                    } n = {.f = (i + j + k)};
+                    const float f = i + j + k;
+                    uint32_t i    = 0;
+                    memcpy(&i, &f, sizeof(uint32_t));
 
                     trace_buffer[trace_header_size + 4 * k + 0] =
-                      n.i >> 24 & 0xFF;
+                      i >> 24 & 0xFF;
                     trace_buffer[trace_header_size + 4 * k + 1] =
-                      n.i >> 16 & 0xFF;
-                    trace_buffer[trace_header_size + 4 * k + 2] =
-                      n.i >> 8 & 0xFF;
-                    trace_buffer[trace_header_size + 4 * k + 3] = n.i & 0xFF;
+                      i >> 16 & 0xFF;
+                    trace_buffer[trace_header_size + 4 * k + 2] = i >> 8 & 0xFF;
+                    trace_buffer[trace_header_size + 4 * k + 3] = i & 0xFF;
                 }
 
 
