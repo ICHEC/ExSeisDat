@@ -12,6 +12,13 @@ implement a number of seismic data workflows, e.g. sorting data, binning, trace
 analysis, file concatenation, etc.
 
 
+### Talks / Posters
+
+[EAGE Upstream 2017 Slides](doc/dissemination/EAGE_Upstream_2017.pdf)  
+[Rice HPC Oil & Gas 2017 Slides](doc/dissemination/Rice_HPC_O&G_2017.pdf)  
+[Rice HPC Oil & Gas 2018 Poster](doc/dissemination/Rice_HPC_O&G_2018_Poster.pdf)
+
+
 ## Building Instructions
 
 To configure and build ExSeisDat, a C++14 compatible compiler is needed, and
