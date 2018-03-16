@@ -1,7 +1,7 @@
 #ifndef PIOLWRAPTESTSMOCKEXSEIS_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKEXSEIS_HEADER_GUARD
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL.hh"
 
 #include "gmock/gmock.h"
 

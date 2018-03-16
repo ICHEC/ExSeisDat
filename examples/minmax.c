@@ -5,8 +5,9 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "flow.h"
 #include "sglobal.h"
+
+#include "ExSeisDat/Flow.h"
 
 #include <assert.h>
 

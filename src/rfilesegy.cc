@@ -7,11 +7,11 @@
 /// @details ReadSEGY functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/characterconversion.hh"
-#include "file/filesegy.hh"
-#include "global.hh"
-#include "object/object.hh"
-#include "share/misc.hh"
+#include "ExSeisDat/PIOL/file/characterconversion.hh"
+#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/share/misc.hh"
 
 namespace PIOL {
 namespace File {

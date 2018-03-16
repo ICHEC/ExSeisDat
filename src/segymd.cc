@@ -7,8 +7,8 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/segymd.hh"
-#include "global.hh"
+#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/global.hh"
 
 #include <cmath>
 

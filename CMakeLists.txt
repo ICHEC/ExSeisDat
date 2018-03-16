@@ -172,7 +172,6 @@ endif(NOT FFTW3_LIBRARIES)
 # Setup header includes ########################################################
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/api
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/util
 
@@ -185,18 +184,17 @@ include_directories(
 add_library(
     exseisdat
 
-    # Public API sources
-    api/cfileapi.cc
-    api/cppfileapi.cc
+    src/PIOL_C_bindings.cc
+    src/PIOL.cc
+    src/ExSeisPIOL.cc
+    src/Flow.cc
 
-    # Private API sources
     src/agc.cc
     src/cache.cc
     src/cmpi.cc
     src/datampiio.cc
     src/decomp.cc
     src/dynsegymd.cc
-    src/flow.cc
     src/gather.cc
     src/characterconversion.cc
     src/log.cc
@@ -204,7 +202,6 @@ add_library(
     src/misc.cc
     src/object.cc
     src/objsegy.cc
-    src/piol.cc
     src/rfile.cc
     src/rfilesegy.cc
     src/sdatatype.cc

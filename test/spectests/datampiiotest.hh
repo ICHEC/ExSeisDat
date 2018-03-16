@@ -1,15 +1,17 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <memory>
 #include <unistd.h>
 
-#include "cppfileapi.hh"
-#include "data/datampiio.hh"
-#include "share/datatype.hh"
-#include "share/segy.hh"
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
+
 #include "tglobal.hh"
 
 using namespace testing;

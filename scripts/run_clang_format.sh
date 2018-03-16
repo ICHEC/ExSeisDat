@@ -13,7 +13,7 @@ FORMAT_EXECUTABLE="${script_dir}/format.sh"
 cd ${source_dir}
 
 # All the directories containing source files
-source_dirs="api examples include src systest test util"
+source_dirs="examples include src systest test util"
 
 # All the extensions of source files
 source_exts="cc c hh h"

@@ -6,9 +6,9 @@
 /// @brief The taper operation
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "global.hh"
-#include "share/api.hh"
-#include "share/units.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
 
 #include <assert.h>
 

@@ -4,7 +4,7 @@
 // POSIX includes
 #define _POSIX_C_SOURCE 200809L
 
-#include "cfileapi.h"
+#include "ExSeisDat/PIOL.h"
 
 #include <stddef.h>
 #include <stdio.h>

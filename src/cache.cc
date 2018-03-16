@@ -7,9 +7,9 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "flow/cache.hh"
-#include "share/api.hh"
+#include "ExSeisDat/Flow/cache.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/share/api.hh"
 
 // TODO: Remove when all options implemented
 #include <iostream>

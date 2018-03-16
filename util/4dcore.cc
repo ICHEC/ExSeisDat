@@ -7,7 +7,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "4dcore.hh"
-#include "share/mpi.hh"
+
+#include "ExSeisDat/PIOL/share/mpi.hh"
 
 #include <algorithm>
 #include <assert.h>

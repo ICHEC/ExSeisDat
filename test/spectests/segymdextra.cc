@@ -8,7 +8,8 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL.hh"
+
 #include "segymdextra.hh"
 
 namespace PIOL {

@@ -1,4 +1,4 @@
-#include "file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

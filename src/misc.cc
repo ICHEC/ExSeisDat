@@ -7,7 +7,7 @@
 ///          anywhere else.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "share/misc.hh"
+#include "ExSeisDat/PIOL/share/misc.hh"
 
 #include <algorithm>
 #include <numeric>

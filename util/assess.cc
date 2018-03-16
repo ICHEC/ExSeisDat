@@ -7,7 +7,7 @@
 ///          the SEGY matches and provides details about what is in the files.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL.hh"
 
 #include <glob.h>
 #include <iostream>

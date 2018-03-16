@@ -6,9 +6,9 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "ops/gather.hh"
-#include "share/decomp.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/ops/gather.hh"
+#include "ExSeisDat/PIOL/share/decomp.hh"
 
 namespace PIOL {
 namespace File {

@@ -7,10 +7,10 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "data/data.hh"
-#include "data/datampiio.hh"
-#include "object/objsegy.hh"
-#include "share/segy.hh"
+#include "ExSeisDat/PIOL/data/data.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/object/objsegy.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
 
 namespace PIOL {
 namespace Obj {

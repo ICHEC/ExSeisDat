@@ -8,7 +8,8 @@
 #ifndef FOURDBIN4D_INCLUDE_GUARD
 #define FOURDBIN4D_INCLUDE_GUARD
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL.hh"
+
 #include <iostream>
 
 /// Constant for alignment reasons.

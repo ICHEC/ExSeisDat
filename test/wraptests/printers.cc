@@ -1,8 +1,8 @@
 #include "printers.hh"
 
-#include "file/dynsegymd.hh"
-#include "share/api.hh"
-#include "share/param.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value)
 {

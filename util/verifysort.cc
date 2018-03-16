@@ -1,6 +1,7 @@
-#include "cppfileapi.hh"
-#include "ops/sort.hh"
 #include "sglobal.hh"
+
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ops/sort.hh"
 
 #include <algorithm>
 #include <assert.h>

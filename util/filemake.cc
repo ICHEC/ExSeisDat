@@ -1,6 +1,7 @@
-#include "cppfileapi.hh"
 #include "sglobal.hh"
-#include "share/segy.hh"
+
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
 
 #include <assert.h>
 #include <cmath>

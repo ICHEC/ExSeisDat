@@ -10,7 +10,7 @@
 ///          We then provide functions for these map lookups.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/characterconversion.hh"
+#include "ExSeisDat/PIOL/file/characterconversion.hh"
 
 #include <algorithm>
 #include <array>

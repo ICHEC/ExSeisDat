@@ -6,7 +6,7 @@
 
 #include "gmock/gmock.h"
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL.hh"
 
 
 namespace PIOL {

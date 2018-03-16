@@ -1,6 +1,7 @@
-#include "anc/mpi.hh"
-#include "cppfileapi.hh"
-#include "data/data.hh"
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/data/data.hh"
+
 #include "tglobal.hh"
 
 #include "gmock/gmock.h"

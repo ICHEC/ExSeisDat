@@ -7,8 +7,8 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "data/datampiio.hh"
-#include "share/mpi.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/share/mpi.hh"
 
 #include <algorithm>
 #include <assert.h>

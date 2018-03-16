@@ -7,8 +7,8 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/file.hh"
-#include "share/decomp.hh"
+#include "ExSeisDat/PIOL/file/file.hh"
+#include "ExSeisDat/PIOL/share/decomp.hh"
 
 namespace PIOL {
 

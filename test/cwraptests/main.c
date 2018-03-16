@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cfileapi.h"
-#include "flow.h"
+#include "ExSeisDat/Flow.h"
+#include "ExSeisDat/PIOL.h"
 
 #include "wraptests/wraptests.h"
 

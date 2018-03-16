@@ -12,9 +12,9 @@
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "global.hh"
-#include "ops/minmax.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/ops/minmax.hh"
 
 #include <algorithm>
 #include <functional>

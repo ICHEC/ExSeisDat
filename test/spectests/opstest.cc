@@ -1,12 +1,14 @@
-#include "anc/mpi.hh"
-#include "cppfileapi.hh"
-#include "file/file.hh"
-#include "ops/agc.hh"
-#include "ops/minmax.hh"
-#include "ops/sort.hh"
-#include "ops/taper.hh"
-#include "ops/temporalfilter.hh"
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/file/file.hh"
+#include "ExSeisDat/PIOL/ops/agc.hh"
+#include "ExSeisDat/PIOL/ops/minmax.hh"
+#include "ExSeisDat/PIOL/ops/sort.hh"
+#include "ExSeisDat/PIOL/ops/taper.hh"
+#include "ExSeisDat/PIOL/ops/temporalfilter.hh"
+
 #include "segymdextra.hh"
+
 #include "tglobal.hh"
 
 #include "gmock/gmock.h"

@@ -6,7 +6,8 @@
 /// @details Perform an analysis of a single trace.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL.hh"
+
 #include <iostream>
 
 #include <unistd.h>  //getopt

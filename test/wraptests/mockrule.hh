@@ -1,7 +1,8 @@
 #ifndef PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 
-#include "file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+
 #include "gmock/gmock.h"
 
 namespace PIOL {

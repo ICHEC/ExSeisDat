@@ -6,9 +6,10 @@
 ///  \brief This file performs a variety of bit operations and conversions on
 ///  datatypes \details
 ////////////////////////////////////////////////////////////////////////////////
-#include "global.hh"
-#include "share/datatype.hh"
-#include <arpa/inet.h>
+
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/share/datatype.hh"
+
 #include <cstring>
 
 namespace PIOL {

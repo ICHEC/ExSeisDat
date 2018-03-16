@@ -12,11 +12,11 @@
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "global.hh"
-#include "ops/sort.hh"
-#include "share/api.hh"
-#include "share/mpi.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/ops/sort.hh"
+#include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/share/mpi.hh"
 
 #include <algorithm>
 #include <numeric>

@@ -7,9 +7,9 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "anc/mpi.hh"
-#include "global.hh"
-#include "share/mpi.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/share/mpi.hh"
 
 namespace PIOL {
 namespace Comm {

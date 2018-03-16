@@ -1,8 +1,8 @@
 #ifndef PIOLWRAPTESTMOCKSET_HEADER_GUARD
 #define PIOLWRAPTESTMOCKSET_HEADER_GUARD
 
-#include "file/dynsegymd.hh"
-#include "flow/set.hh"
+#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 
 #include "gmock/gmock.h"
 

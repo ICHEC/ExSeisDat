@@ -1,10 +1,13 @@
-#include "anc/mpi.hh"
-#include "data/datampiio.hh"
-#include "file/characterconversion.hh"
-#include "object/objsegy.hh"
-#include "share/datatype.hh"
-#include "share/segy.hh"
-#include "share/units.hh"
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/file/characterconversion.hh"
+#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/object/objsegy.hh"
+#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
+
 #include "tglobal.hh"
 
 #include "gmock/gmock.h"
@@ -16,8 +19,6 @@
 #include <string.h>
 #include <typeinfo>
 
-#include "cppfileapi.hh"
-#include "file/filesegy.hh"
 #include "segymdextra.hh"
 
 using namespace testing;

@@ -8,9 +8,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "4dio.hh"
-#include "ops/sort.hh"  //For sort
 #include "sglobal.hh"
-#include "share/misc.hh"
+
+#include "ExSeisDat/PIOL/ops/sort.hh"  //For sort
+#include "ExSeisDat/PIOL/share/misc.hh"
 
 #include <assert.h>
 #include <numeric>

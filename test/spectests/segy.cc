@@ -1,4 +1,5 @@
-#include "share/segy.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
+
 #include "tglobal.hh"
 
 using namespace PIOL;

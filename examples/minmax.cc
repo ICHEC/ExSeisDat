@@ -7,7 +7,7 @@
 /// This is an example of using minmax through the Set API is complete.
 ///
 
-#include "flow.hh"
+#include "ExSeisDat/Flow.hh"
 
 #include <algorithm>
 #include <assert.h>

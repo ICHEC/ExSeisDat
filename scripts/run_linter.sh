@@ -16,7 +16,7 @@ case $(uname) in
 esac
 
 # All the directories containing source files
-source_dirs="api examples include src systest test util"
+source_dirs="examples include src systest test util"
 
 build_dir=${PWD}/build
 

@@ -1,6 +1,7 @@
-#include "cppfileapi.hh"
-#include "ops/minmax.hh"
 #include "sglobal.hh"
+
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ops/minmax.hh"
 
 #include <algorithm>
 #include <fstream>

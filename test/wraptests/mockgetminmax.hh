@@ -1,7 +1,8 @@
 #ifndef PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
 
-#include "ops/minmax.hh"
+#include "ExSeisDat/PIOL/ops/minmax.hh"
+
 #include "gmock/gmock.h"
 
 namespace PIOL {

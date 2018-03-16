@@ -5,7 +5,7 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "flow.h"
+#include "ExSeisDat/Flow.h"
 
 int main(void)
 {

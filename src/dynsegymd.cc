@@ -7,9 +7,9 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "file/segymd.hh"
-#include "share/datatype.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/share/datatype.hh"
 
 #include <cmath>
 #include <cstring>

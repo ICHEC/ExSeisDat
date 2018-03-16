@@ -7,10 +7,10 @@
 /// @details WriteSEGY functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/filesegy.hh"
-#include "global.hh"
-#include "object/object.hh"
-#include "share/misc.hh"
+#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/share/misc.hh"
 
 #include <cmath>
 #include <cstring>

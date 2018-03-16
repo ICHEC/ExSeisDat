@@ -9,7 +9,8 @@
 #define FOURDBIN4DIO_INCLUDE_GUARD
 
 #include "4d.hh"
-#include "share/segy.hh"
+
+#include "ExSeisDat/PIOL/share/segy.hh"
 
 #include <limits>
 

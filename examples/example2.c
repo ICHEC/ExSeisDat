@@ -5,8 +5,9 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "cfileapi.h"
 #include "sglobal.h"
+
+#include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
 #include <stdlib.h>

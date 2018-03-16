@@ -1,8 +1,9 @@
-#include "anc/mpi.hh"
-#include "cppfileapi.hh"
-#include "data/datampiio.hh"
-#include "file/file.hh"
-#include "object/objsegy.hh"
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/file/file.hh"
+#include "ExSeisDat/PIOL/object/objsegy.hh"
+
 #include "tglobal.hh"
 
 #include "gmock/gmock.h"

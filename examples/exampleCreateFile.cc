@@ -7,8 +7,9 @@
 /// This example shows how to make a new file with the file api is complete.
 ///
 
-#include "cppfileapi.hh"
 #include "sglobal.hh"
+
+#include "ExSeisDat/PIOL.hh"
 
 #include <assert.h>
 #include <iostream>

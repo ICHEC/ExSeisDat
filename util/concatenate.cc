@@ -8,9 +8,10 @@
 ///          increment.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "flow.hh"
 #include "sglobal.hh"
-#include "share/api.hh"
+
+#include "ExSeisDat/Flow.hh"
+#include "ExSeisDat/PIOL/share/api.hh"
 
 #include <assert.h>
 #include <iostream>

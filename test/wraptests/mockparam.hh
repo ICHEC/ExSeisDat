@@ -1,9 +1,10 @@
 #ifndef PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
 #define PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
 
-#include "file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
+
 #include "printers.hh"
-#include "share/param.hh"
 
 #include "gmock/gmock.h"
 

@@ -1,7 +1,8 @@
 #ifndef TGLOBAL_TEST_INCLUDE_GUARD
 #define TGLOBAL_TEST_INCLUDE_GUARD
 
-#include "global.hh"
+#include "ExSeisDat/PIOL/global.hh"
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

@@ -1,9 +1,10 @@
-#include "cppfileapi.hh"
-#include "data/datampiio.hh"
-#include "file/file.hh"
-#include "file/filesegy.hh"
-#include "flow/set.hh"
-#include "object/objsegy.hh"
+#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/file/file.hh"
+#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/object/objsegy.hh"
+
 #include "tglobal.hh"
 
 #include "gmock/gmock.h"

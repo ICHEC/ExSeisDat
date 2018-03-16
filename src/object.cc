@@ -7,8 +7,8 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "data/data.hh"
-#include "object/object.hh"
+#include "ExSeisDat/PIOL/data/data.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
 
 namespace PIOL {
 namespace Obj {

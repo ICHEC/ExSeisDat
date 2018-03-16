@@ -9,13 +9,13 @@
 #ifndef PIOLFILETESTSEGYMD_INCLUDE_GUARD
 #define PIOLFILETESTSEGYMD_INCLUDE_GUARD
 
-#include "file/characterconversion.hh"
-#include "file/filesegy.hh"
-#include "global.hh"
-#include "object/object.hh"
-#include "share/datatype.hh"
-#include "share/segy.hh"
-#include "share/units.hh"
+#include "ExSeisDat/PIOL/file/characterconversion.hh"
+#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
 
 #include <cmath>
 #include <cstring>

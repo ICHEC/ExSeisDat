@@ -14,20 +14,21 @@
 #include <regex>
 #include <tuple>
 
-#include "data/datampiio.hh"
-#include "file/filesegy.hh"
-#include "flow/set.hh"
-#include "global.hh"
-#include "object/objsegy.hh"
-#include "ops/agc.hh"
-#include "ops/gather.hh"
-#include "ops/minmax.hh"
-#include "ops/sort.hh"
-#include "ops/taper.hh"
-#include "ops/temporalfilter.hh"
-#include "share/decomp.hh"
-#include "share/misc.hh"  //For getSort..
-#include "share/uniray.hh"
+#include "ExSeisDat/Flow/set.hh"
+
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/object/objsegy.hh"
+#include "ExSeisDat/PIOL/ops/agc.hh"
+#include "ExSeisDat/PIOL/ops/gather.hh"
+#include "ExSeisDat/PIOL/ops/minmax.hh"
+#include "ExSeisDat/PIOL/ops/sort.hh"
+#include "ExSeisDat/PIOL/ops/taper.hh"
+#include "ExSeisDat/PIOL/ops/temporalfilter.hh"
+#include "ExSeisDat/PIOL/share/decomp.hh"
+#include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
+#include "ExSeisDat/PIOL/share/uniray.hh"
 
 // TODO: remove this when all errors are addressed
 #include <iostream>
