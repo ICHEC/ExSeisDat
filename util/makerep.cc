@@ -1,6 +1,6 @@
 #include "sglobal.hh"
 
-#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/share/mpi.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"

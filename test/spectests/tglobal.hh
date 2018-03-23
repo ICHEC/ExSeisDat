@@ -1,10 +1,10 @@
 #ifndef TGLOBAL_TEST_INCLUDE_GUARD
 #define TGLOBAL_TEST_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "ExSeisDat/PIOL/global.hh"
 
 #include <cstdlib>
 #include <string>

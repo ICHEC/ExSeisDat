@@ -1,4 +1,13 @@
-#include "ExSeisDat/PIOL.hh"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "tglobal.hh"
+
+#include "segymdextra.hh"
+
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/file/characterconversion.hh"
@@ -8,18 +17,12 @@
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
-#include "tglobal.hh"
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include <algorithm>
 #include <memory>
 #include <random>
 #include <string.h>
 #include <typeinfo>
 
-#include "segymdextra.hh"
 
 using namespace testing;
 using namespace PIOL;

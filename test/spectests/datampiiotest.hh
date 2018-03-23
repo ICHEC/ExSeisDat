@@ -1,18 +1,18 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tglobal.hh"
+
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <memory>
 #include <unistd.h>
-
-#include "ExSeisDat/PIOL.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/share/datatype.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
-
-#include "tglobal.hh"
 
 using namespace testing;
 using namespace PIOL;

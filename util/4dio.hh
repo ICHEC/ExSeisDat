@@ -123,8 +123,8 @@ void outputNonMono(
   std::shared_ptr<ExSeisPIOL> piol,
   std::string dname,
   std::string sname,
-  vec<size_t>& list,
-  vec<fourd_t>& minrs,
+  std::vector<size_t>& list,
+  std::vector<fourd_t>& minrs,
   const bool printDsr);
 
 }  // namespace FOURD

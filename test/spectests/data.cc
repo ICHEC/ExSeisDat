@@ -1,11 +1,11 @@
-#include "ExSeisDat/PIOL.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/data/data.hh"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "tglobal.hh"
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/data/data.hh"
 
 #include <memory>
 

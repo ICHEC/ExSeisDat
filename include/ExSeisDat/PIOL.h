@@ -6,8 +6,8 @@
 /// @brief
 /// @details Primary C11 API header
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLCFILEAPI_INCLUDE_GUARD
-#define PIOLCFILEAPI_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_H
+#define EXSEISDAT_PIOL_H
 
 #include "ExSeisDat/PIOL/anc/verbosity.h"
 #include "ExSeisDat/PIOL/global.hh"
@@ -23,6 +23,12 @@
 // Forward declare types used for C API handles
 //
 #ifdef __cplusplus
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/WriteDirect.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
+
 #include <memory>
 
 namespace PIOL {
@@ -45,7 +51,8 @@ typedef PIOL::File::Param PIOL_File_Param;
 typedef PIOL::File::ReadDirect PIOL_File_ReadDirect;
 typedef PIOL::File::WriteDirect PIOL_File_WriteDirect;
 
-#else
+#else // __cplusplus
+
 // Forward declare opaque structs in C
 
 /// @copydoc PIOL::ExSeis
@@ -62,13 +69,14 @@ typedef struct PIOL_File_ReadDirect PIOL_File_ReadDirect;
 
 /// @copydoc PIOL::File::WriteDirect
 typedef struct PIOL_File_WriteDirect PIOL_File_WriteDirect;
-#endif
+
+#endif // __cplusplus
 
 
 #ifdef __cplusplus
 // Everything from here on is C API functions needing C linkage.
 extern "C" {
-#endif
+#endif // __cplusplus
 
 
 /*
@@ -630,6 +638,6 @@ typedef struct {
 
 #ifdef __cplusplus
 }  // extern "C"
-#endif
+#endif // __cplusplus
 
-#endif
+#endif // EXSEISDAT_PIOL_H

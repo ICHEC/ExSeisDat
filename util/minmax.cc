@@ -1,6 +1,8 @@
 #include "sglobal.hh"
 
-#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 
 #include <algorithm>

@@ -10,6 +10,9 @@
 #include "4dio.hh"
 #include "sglobal.hh"
 
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"  //For sort
 #include "ExSeisDat/PIOL/share/misc.hh"
 
@@ -152,8 +155,8 @@ void outputNonMono(
   std::shared_ptr<ExSeisPIOL> piol,
   std::string dname,
   std::string sname,
-  vec<size_t>& list,
-  vec<fourd_t>& minrs,
+  std::vector<size_t>& list,
+  std::vector<fourd_t>& minrs,
   const bool printDsr)
 {
     auto time = MPI_Wtime();
@@ -176,7 +179,7 @@ void outputNonMono(
     size_t biggest = 0;
     size_t sz      = 0;
     {
-        auto nts = piol->comm->gather(vec<size_t>{lnt});
+        auto nts = piol->comm->gather(std::vector<size_t>{lnt});
         for (size_t i = 0; i < nts.size(); i++) {
             if (i == piol->comm->getRank()) offset = sz;
             sz += nts[i];
@@ -195,7 +198,7 @@ void outputNonMono(
     dst.writeNs(ns);
 
     File::Param prm(rule, std::min(lnt, max));
-    vec<trace_t> trc(ns * std::min(lnt, max));
+    std::vector<trace_t> trc(ns * std::min(lnt, max));
 
     piol->comm->barrier();
     for (size_t i = 0; i < piol->comm->getNumRank(); i++) {

@@ -1,14 +1,14 @@
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "tglobal.hh"
+
+#include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/Flow/set.hh"
-#include "ExSeisDat/PIOL.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/file/filesegy.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
-
-#include "tglobal.hh"
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
 
 #include <numeric>
 

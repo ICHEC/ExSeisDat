@@ -122,8 +122,8 @@ set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${MPI_C_COMPILE_FLAGS}")
 include_directories(${MPI_C_INCLUDE_PATH})
 
 # Set the MPI linker flags
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
 
 
 #
@@ -184,10 +184,16 @@ include_directories(
 add_library(
     exseisdat
 
-    src/PIOL_C_bindings.cc
-    src/PIOL.cc
+    src/ExSeis.cc
     src/ExSeisPIOL.cc
     src/Flow.cc
+
+    src/PIOL_C_bindings.cc
+    src/Flow_C_bindings.cc
+
+    src/ReadDirect.cc
+    src/ReadModel.cc
+    src/WriteDirect.cc
 
     src/agc.cc
     src/cache.cc
@@ -218,7 +224,7 @@ add_library(
     util/sglobal.c
 )
 
-target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${FFTW3_LIBRARIES})
+target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})
 set_target_properties(
     exseisdat
     PROPERTIES COMPILE_DEFINITIONS EXSEISDAT_MPIIO_COLLECTIVES

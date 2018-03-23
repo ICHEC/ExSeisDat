@@ -8,22 +8,12 @@
 #ifndef FOURDBIN4D_INCLUDE_GUARD
 #define FOURDBIN4D_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/anc/piol.hh"
 
 #include <iostream>
 
 /// Constant for alignment reasons.
 #define ALIGN 32U
-
-/*! A typedef to simplify const std::vector
- */
-template<class T>
-using cvec = const std::vector<T>;
-
-/*! A typedef to simplify std::vector
- */
-template<class T>
-using vec = std::vector<T>;
 
 /// A typedef for the precision used for coordinates during the 4dbin
 typedef float fourd_t;

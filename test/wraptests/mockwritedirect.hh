@@ -1,9 +1,9 @@
 #ifndef PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 
-#include "ExSeisDat/PIOL.hh"
-
 #include "gmock/gmock.h"
+
+#include "ExSeisDat/PIOL/WriteDirect.hh"
 
 namespace PIOL {
 namespace File {

@@ -9,6 +9,8 @@
 #include "4dcore.hh"
 #include "4dio.hh"
 
+#include "ExSeisDat/PIOL/ExSeis.hh"
+
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
@@ -105,17 +107,17 @@ int main(int argc, char** argv)
     auto coords1 = getCoords(piol, name1, fopt.ixline);
     auto coords2 = getCoords(piol, name2, fopt.ixline);
 
-    vec<size_t> min(coords1->sz);
-    vec<fourd_t> minrs(coords1->sz);
+    std::vector<size_t> min(coords1->sz);
+    std::vector<fourd_t> minrs(coords1->sz);
     calc4DBin(
       piol.get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
     cmsg(piol.get(), "Final list pass");
     // Now we weed out traces that have a match that is too far away
-    vec<size_t> list1;
-    vec<size_t> list2;
-    vec<fourd_t> lminrs;
+    std::vector<size_t> list1;
+    std::vector<size_t> list2;
+    std::vector<fourd_t> lminrs;
 
     for (size_t i = 0U; i < coords1->sz; i++)
         if (minrs[i] <= dsrmax) {

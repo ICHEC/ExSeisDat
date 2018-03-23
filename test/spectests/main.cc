@@ -1,9 +1,9 @@
-#include "ExSeisDat/PIOL.hh"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "tglobal.hh"
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include "ExSeisDat/PIOL/ExSeis.hh"
 
 using namespace testing;
 using namespace PIOL;

@@ -9,3 +9,4 @@
 
 // Include the C bindings which call the templated functions
 #include "../../src/PIOL_C_bindings.cc"
+#include "../../src/Flow_C_bindings.cc"

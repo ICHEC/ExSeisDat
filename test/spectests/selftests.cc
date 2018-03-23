@@ -1,7 +1,7 @@
-#include "tglobal.hh"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "tglobal.hh"
 
 // Tests to make sure that functions only used in testing are as expected
 

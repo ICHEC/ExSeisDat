@@ -1,7 +1,8 @@
 // POSIX includes
 #define _POSIX_C_SOURCE 200809L
 
-#include "ExSeisDat/Flow.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/Flow/set.hh"
 
 #include <assert.h>
 #include <iostream>

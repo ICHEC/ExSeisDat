@@ -45,8 +45,8 @@ void calc4DBin(
   const Coords* coords1,
   const Coords* coords2,
   const FourDOpt opt,
-  vec<size_t>& min,
-  vec<fourd_t>& minrs);
+  std::vector<size_t>& min,
+  std::vector<fourd_t>& minrs);
 
 }  // namespace FOURD
 }  // namespace PIOL

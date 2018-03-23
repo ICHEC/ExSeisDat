@@ -1,6 +1,7 @@
 #include "sglobal.hh"
 
-#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
 
 #include <algorithm>

@@ -1,4 +1,11 @@
-#include "ExSeisDat/PIOL.hh"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "tglobal.hh"
+
+#include "segymdextra.hh"
+
+#include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
@@ -7,12 +14,6 @@
 #include "ExSeisDat/PIOL/ops/taper.hh"
 #include "ExSeisDat/PIOL/ops/temporalfilter.hh"
 
-#include "segymdextra.hh"
-
-#include "tglobal.hh"
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
 
 using namespace testing;
 using namespace PIOL;

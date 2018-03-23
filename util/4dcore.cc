@@ -23,7 +23,7 @@ namespace FOURD {
  *  @param[in] xsmin A vector of the min xSrc for each process.
  *  @param[in] xsmax A vector of the max xSrc for each process.
  */
-void printxSrcMinMax(ExSeisPIOL* piol, vec<fourd_t>& xsmin, vec<fourd_t>& xsmax)
+void printxSrcMinMax(ExSeisPIOL* piol, std::vector<fourd_t>& xsmin, std::vector<fourd_t>& xsmax)
 {
     piol->comm->barrier();
     assert(xsmin.size() == xsmax.size());
@@ -51,7 +51,7 @@ void printxSMinMax(
   fourd_t xslmax,
   fourd_t xsrmin,
   fourd_t xsrmax,
-  vec<size_t>& active)
+  std::vector<size_t>& active)
 {
     size_t rank      = piol->comm->getRank();
     std::string name = "tmp/temp" + std::to_string(rank);
@@ -62,8 +62,8 @@ void printxSMinMax(
         fprintf(fOut, "%zu\n", active[i]);
     fclose(fOut);
 
-    auto lxsmin = piol->comm->gather(vec<fourd_t>{xslmin});
-    auto lxsmax = piol->comm->gather(vec<fourd_t>{xslmax});
+    auto lxsmin = piol->comm->gather(std::vector<fourd_t>{xslmin});
+    auto lxsmax = piol->comm->gather(std::vector<fourd_t>{xslmax});
     printxSrcMinMax(piol, lxsmin, lxsmax);
     if (!rank) std::cout << "file2 min/max\n";
 }
@@ -86,9 +86,9 @@ fourd_t hypot(const fourd_t x, const fourd_t y)
  *  @param[in] ixline The inline/crossline are included
  *  @return Return a vector of all the window values.
  */
-vec<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
+std::vector<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
 {
-    vec<MPI_Win> win(5);
+    std::vector<MPI_Win> win(5);
     MPI_Info info;
     MPI_Info_create(&info);
     MPI_Info_set(info, "same_disp_unit", "true");
@@ -127,7 +127,7 @@ vec<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
  *  @return Return the associated Coords structure
  */
 std::unique_ptr<Coords> getCoordsWin(
-  size_t lrank, size_t sz, vec<MPI_Win>& win, bool ixline)
+  size_t lrank, size_t sz, std::vector<MPI_Win>& win, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz, ixline);
     for (size_t i = 0; i < win.size(); i++)
@@ -221,7 +221,7 @@ fourd_t dsr(
  */
 template<const bool ixline>
 void initUpdate(
-  const Coords* crd1, const Coords* crd2, vec<size_t>& min, vec<fourd_t>& minrs)
+  const Coords* crd1, const Coords* crd2, std::vector<size_t>& min, std::vector<fourd_t>& minrs)
 {
     for (size_t i = 0; i < crd1->sz; i++) {
         minrs[i] =
@@ -254,8 +254,8 @@ template<const bool ixline>
 size_t update(
   const Coords* crd1,
   const Coords* crd2,
-  vec<size_t>& min,
-  vec<fourd_t>& minrs,
+  std::vector<size_t>& min,
+  std::vector<fourd_t>& minrs,
   const fourd_t dsrmax)
 {
     // For the vectorisation
@@ -348,9 +348,9 @@ size_t update(
  *  @param[in] ixline Whether line numbers are also being sent
  *  @return A vector of MPI_Request objects for performing a MPI_Waitall
  */
-vec<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
+std::vector<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
 {
-    vec<MPI_Request> request(5);
+    std::vector<MPI_Request> request(5);
     MPIErr(MPI_Isend(
       crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD,
       &request[0]));
@@ -389,7 +389,7 @@ vec<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
 std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz, ixline);
-    vec<MPI_Request> request(5);
+    std::vector<MPI_Request> request(5);
     MPIErr(MPI_Irecv(
       crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD,
       &request[0]));
@@ -415,7 +415,7 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
           crd->xl, crd->sz, MPIType<llint>(), lrank, 6, MPI_COMM_WORLD,
           &request[6]));
     }
-    vec<MPI_Status> stat(request.size());
+    std::vector<MPI_Status> stat(request.size());
     MPIErr(MPI_Waitall(request.size(), request.data(), stat.data()));
 
     return crd;
@@ -427,17 +427,17 @@ void calc4DBin(
   const Coords* crd1,
   const Coords* crd2,
   const FourDOpt opt,
-  vec<size_t>& min,
-  vec<fourd_t>& minrs)
+  std::vector<size_t>& min,
+  std::vector<fourd_t>& minrs)
 {
     cmsg(piol, "Compute phase");
     size_t rank    = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
-    auto szall     = piol->comm->gather(vec<size_t>{crd2->sz});
+    auto szall     = piol->comm->gather(std::vector<size_t>{crd2->sz});
 
     // The File2 min/max from every process
-    auto xsmin = piol->comm->gather(vec<fourd_t>{crd2->xSrc[0LU]});
-    auto xsmax = piol->comm->gather(vec<fourd_t>{crd2->xSrc[crd2->sz - 1LU]});
+    auto xsmin = piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[0LU]});
+    auto xsmax = piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[crd2->sz - 1LU]});
 
     // The File1 local min and local maximum for the particular process
     auto xslmin = crd1->xSrc[0LU];
@@ -451,7 +451,7 @@ void calc4DBin(
 
     // This for loop determines the processes the local process will need to be
     // communicating with.
-    vec<size_t> active;
+    std::vector<size_t> active;
     for (size_t i = 0LU; i < numRank; i++)
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
             active.push_back(i);
@@ -466,7 +466,7 @@ void calc4DBin(
 #ifdef ONE_WAY_COMM
     auto win = createCoordsWin(crd2, opt.ixline);
 #else
-    vec<MPI_Request> reqs;
+    std::vector<MPI_Request> reqs;
     {
         auto xsfmin = piol->comm->gather<fourd_t>(xslmin);
         auto xsfmax = piol->comm->gather<fourd_t>(xslmax);
@@ -475,7 +475,7 @@ void calc4DBin(
             if (
               (xsmin[rank] - dsrmax <= xsfmax[i])
               && (xsmax[rank] + dsrmax >= xsfmin[i])) {
-                vec<MPI_Request> rq = sendCrd(i, crd1, opt.ixline);
+                std::vector<MPI_Request> rq = sendCrd(i, crd1, opt.ixline);
                 reqs.insert(reqs.end(), rq.begin(), rq.end());
             }
     }
@@ -521,7 +521,7 @@ void calc4DBin(
         MPIErr(MPI_Win_free(&win[i]));
 #else
 
-    vec<MPI_Status> stat(reqs.size());
+    std::vector<MPI_Status> stat(reqs.size());
     MPIErr(MPI_Waitall(reqs.size(), reqs.data(), stat.data()));
 
 #endif

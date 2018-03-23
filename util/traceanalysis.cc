@@ -6,7 +6,8 @@
 /// @details Perform an analysis of a single trace.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
 
 #include <iostream>
 

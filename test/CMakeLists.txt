@@ -72,7 +72,7 @@ target_link_libraries(spectests exseisdat)
 add_library(
     wraptests
 
-    wraptests/cfileapiwrap.cc
+    wraptests/intercepted_c_bindings.cc
     wraptests/checkreturnlistener.cc
     wraptests/exseis.cc
     wraptests/exseiswraptest.cc

@@ -1,6 +1,6 @@
-#include "ExSeisDat/PIOL/share/segy.hh"
-
 #include "tglobal.hh"
+
+#include "ExSeisDat/PIOL/share/segy.hh"
 
 using namespace PIOL;
 

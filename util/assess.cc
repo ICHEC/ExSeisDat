@@ -7,7 +7,8 @@
 ///          the SEGY matches and provides details about what is in the files.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
 
 #include <glob.h>
 #include <iostream>

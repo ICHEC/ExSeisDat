@@ -1,7 +1,7 @@
-#include "ExSeisDat/PIOL/file/segymd.hh"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "ExSeisDat/PIOL/file/segymd.hh"
 
 #include <memory>
 #include <string.h>

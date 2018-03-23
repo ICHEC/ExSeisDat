@@ -1,7 +1,7 @@
-#include "ExSeisDat/PIOL/share/datatype.hh"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "ExSeisDat/PIOL/share/datatype.hh"
 
 #include <bitset>
 #include <cstring>
