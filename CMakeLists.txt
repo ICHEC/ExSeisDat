@@ -195,6 +195,9 @@ add_library(
     src/ReadModel.cc
     src/WriteDirect.cc
 
+    src/ReadInterface.cc
+    src/WriteInterface.cc
+
     src/agc.cc
     src/cache.cc
     src/cmpi.cc
@@ -208,7 +211,6 @@ add_library(
     src/misc.cc
     src/object.cc
     src/objsegy.cc
-    src/rfile.cc
     src/rfilesegy.cc
     src/sdatatype.cc
     src/segymd.cc

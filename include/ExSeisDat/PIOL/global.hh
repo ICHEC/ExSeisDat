@@ -45,12 +45,16 @@ namespace PIOL {
 
 /// The type to use for accessing individual bytes
 typedef unsigned char uchar;
+
 /// A large signed integer type.
 typedef PIOL_llint llint;
+
 /// Real type for traces, use "*_t" convention
 typedef PIOL_trace_t trace_t;
+
 /// Real type for geometry
 typedef PIOL_geom_t geom_t;
+
 /// Real type for physical, SI and math units
 typedef double unit_t;
 

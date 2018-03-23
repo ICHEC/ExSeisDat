@@ -3,8 +3,8 @@
 
 #include "tglobal.hh"
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/file/filesegy.hh"
@@ -24,6 +24,12 @@ using namespace testing;
 
 class MockFile : public File::ReadInterface {
   public:
+    MockFile() :
+        ReadInterface(
+          std::shared_ptr<ExSeisPIOL>(), "", std::shared_ptr<Obj::Interface>())
+    {
+    }
+
     MOCK_CONST_METHOD0(readNs, size_t(void));
     MOCK_CONST_METHOD0(readNt, size_t(void));
     MOCK_CONST_METHOD0(readInc, geom_t(void));

@@ -7,7 +7,7 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/file.hh"
+#include "ExSeisDat/PIOL/file/ReadInterface.hh"
 
 namespace PIOL {
 namespace File {
