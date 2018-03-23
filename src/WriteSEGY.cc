@@ -7,14 +7,11 @@
 /// @details WriteSEGY functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/filesegy.hh"
-#include "ExSeisDat/PIOL/global.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
-#include "ExSeisDat/PIOL/share/misc.hh"
+#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
 
-#include <cmath>
-#include <cstring>
-#include <limits>
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
 
 namespace PIOL {
 namespace File {

@@ -17,7 +17,10 @@
 #include "ExSeisDat/Flow/set.hh"
 
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/global.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
@@ -29,6 +32,7 @@
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
 #include "ExSeisDat/PIOL/share/uniray.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
 
 // TODO: remove this when all errors are addressed
 #include <iostream>

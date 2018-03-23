@@ -5,9 +5,9 @@
 
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 
+#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/anc/piol.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/file/filesegy.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {

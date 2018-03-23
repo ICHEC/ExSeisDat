@@ -10,6 +10,8 @@
 
 #include "segymdextra.hh"
 
+#include "ExSeisDat/PIOL/file/segymd.hh"
+
 namespace PIOL {
 namespace File {
 

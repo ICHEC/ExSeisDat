@@ -7,7 +7,8 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/file/file.hh"
-#include "ExSeisDat/PIOL/file/filesegy.hh"
+#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 #include <numeric>

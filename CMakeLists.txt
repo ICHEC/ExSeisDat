@@ -198,6 +198,10 @@ add_library(
     src/ReadInterface.cc
     src/WriteInterface.cc
 
+    src/ReadSEGY.cc
+    src/ReadSEGYModel.cc
+    src/WriteSEGY.cc
+
     src/agc.cc
     src/cache.cc
     src/cmpi.cc
@@ -211,14 +215,12 @@ add_library(
     src/misc.cc
     src/object.cc
     src/objsegy.cc
-    src/rfilesegy.cc
     src/sdatatype.cc
     src/segymd.cc
     src/smpi.cc
     src/sort.cc
     src/taper.cc
     src/temporalfilter.cc
-    src/wfilesegy.cc
 
     # utils
     #TODO Remove me!
