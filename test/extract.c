@@ -11,12 +11,12 @@ int main(int argc, char** argv)
     fseek(fs, 3220U, SEEK_SET);
     fread(cns, sizeof(char), 2U, fs);
     int64_t ns = cns[0] << 8 | cns[1];
-    fprintf(stderr, "int16_t ns = %lli\n", ns);
+    fprintf(stderr, "int16_t ns = %li\n", ns);
 
     fseek(fs, 0U, SEEK_END);
 
     int64_t fsz = ftell(fs);
-    fprintf(stderr, "uint64_t fsz = %lli\n", fsz);
+    fprintf(stderr, "uint64_t fsz = %li\n", fsz);
     size_t nt = (fsz - 3600U) / (sizeof(float) * ns + 240U);
     assert(!((fsz - 3600U) % (sizeof(float) * ns + 240U)));
 

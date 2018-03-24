@@ -52,9 +52,9 @@ class Uniray {
         rank     = piol->comm->getRank();
         numRank  = piol->comm->getNumRank();
         auto dec = decompose(sz, numRank, rank);
-        offset   = dec.first;
-        szall    = piol->comm->gather(dec.second);
-        vec.resize(dec.second);
+        offset   = dec.offset;
+        szall    = piol->comm->gather(dec.size);
+        vec.resize(dec.size);
 
         if (numRank > 1)
             MPI_Win_create(

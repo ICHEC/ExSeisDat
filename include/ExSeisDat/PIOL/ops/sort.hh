@@ -18,6 +18,7 @@
 #include "ExSeisDat/PIOL/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
+#include "ExSeisDat/PIOL/share/decomp.hh"
 
 namespace PIOL {
 namespace File {
@@ -42,11 +43,11 @@ std::vector<size_t> sort(
 
 /*! Check that the file obeys the expected ordering.
  *  @param[in] src The input file.
- *  @param[in] dec The decomposition: a pair which contains the offset (first)
- *                 and the number of traces for the local process.
+ *  @param[in] dec The decomposition: a \c Range which contains the \c offset
+ *                 and the number of traces (\c size) for the local process.
  *  @return Return true if the local ordering is correct.
  */
-bool checkOrder(ReadInterface* src, std::pair<size_t, size_t> dec);
+bool checkOrder(ReadInterface* src, Range dec);
 
 /********************************** Non-Core **********************************/
 /*! Perform a sort on the given parameter structure.
@@ -60,13 +61,13 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm);
 
 /*! Check that the file obeys the expected ordering.
  *  @param[in] src The input file.
- *  @param[in] dec The decomposition: a pair which contains the offset (first)
- *                 and the number of traces for the local process.
+ *  @param[in] dec The decomposition: a pair which contains the \c offset
+ *                 and the number of traces (\c size) for the local process.
  *  @param[in] type The sort type
  *  @return Return true if the local ordering is correct.
  */
 bool checkOrder(
-  ReadInterface* src, std::pair<size_t, size_t> dec, SortType type);
+  ReadInterface* src, Range dec, SortType type);
 
 /*! Return the comparison function for the particular sort type.
  *  @param[in] type The sort type

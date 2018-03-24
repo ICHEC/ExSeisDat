@@ -6,17 +6,15 @@
 #include "ExSeisDat/Flow/set.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/file/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/file/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
+#include "ExSeisDat/PIOL/share/decomp.hh"
 
 #include <numeric>
 
 namespace PIOL {
-
-// TODO: TEMP!
-std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank);
 
 }  // namespace PIOL
 
@@ -121,39 +119,39 @@ struct SetTest : public Test {
 
                     auto dec = decompose(
                       nt, piol->comm->getNumRank(), piol->comm->getRank());
-                    prm.emplace_back(dec.second);
+                    prm.emplace_back(dec.size);
                     File::Param* tprm = &prm.back();
 
                     if (linear)
-                        for (size_t l = 0; l < dec.second; l++) {
+                        for (size_t l = 0; l < dec.size; l++) {
                             setPrm(
-                              l, PIOL_META_xSrc, 2000. - geom_t(dec.first + l),
+                              l, PIOL_META_xSrc, 2000. - geom_t(dec.offset + l),
                               tprm);
                             setPrm(
-                              l, PIOL_META_ySrc, 2000. - geom_t(dec.first + l),
+                              l, PIOL_META_ySrc, 2000. - geom_t(dec.offset + l),
                               tprm);
                             setPrm(
-                              l, PIOL_META_xRcv, 2000. + geom_t(dec.first + l),
+                              l, PIOL_META_xRcv, 2000. + geom_t(dec.offset + l),
                               tprm);
                             setPrm(
-                              l, PIOL_META_yRcv, 2000. + geom_t(dec.first + l),
+                              l, PIOL_META_yRcv, 2000. + geom_t(dec.offset + l),
                               tprm);
                             setPrm(
-                              l, PIOL_META_xCmp, 2000. - geom_t(dec.first + l),
+                              l, PIOL_META_xCmp, 2000. - geom_t(dec.offset + l),
                               tprm);
                             setPrm(
-                              l, PIOL_META_yCmp, 2000. - geom_t(dec.first + l),
+                              l, PIOL_META_yCmp, 2000. - geom_t(dec.offset + l),
                               tprm);
                             setPrm(
-                              l, PIOL_META_il, 2000U + dec.first + l, tprm);
+                              l, PIOL_META_il, 2000U + dec.offset + l, tprm);
                             setPrm(
-                              l, PIOL_META_xl, 2000U + dec.first + l, tprm);
-                            setPrm(l, PIOL_META_tn, l + dec.first, tprm);
+                              l, PIOL_META_xl, 2000U + dec.offset + l, tprm);
+                            setPrm(l, PIOL_META_tn, l + dec.offset, tprm);
 
                             auto xS =
-                              2000. - geom_t((dec.first + l) % (nt / 10U));
+                              2000. - geom_t((dec.offset + l) % (nt / 10U));
                             auto yR =
-                              2000. + geom_t((dec.first + l) / (nt / 10U));
+                              2000. + geom_t((dec.offset + l) / (nt / 10U));
                             setPrm(
                               l, PIOL_META_Offset,
                               (xS - 2000.) * (xS - 2000.)
@@ -161,9 +159,9 @@ struct SetTest : public Test {
                               tprm);
                         }
                     else
-                        for (size_t l = 0; l < dec.second; l++) {
-                            auto xS = 2000U - (dec.first + l) % (nt / 10U);
-                            auto yR = 2000U + (dec.first + l) / (nt / 10U);
+                        for (size_t l = 0; l < dec.size; l++) {
+                            auto xS = 2000U - (dec.offset + l) % (nt / 10U);
+                            auto yR = 2000U + (dec.offset + l) / (nt / 10U);
                             setPrm(l, PIOL_META_xSrc, xS, tprm);
                             setPrm(l, PIOL_META_ySrc, 2000., tprm);
                             setPrm(l, PIOL_META_xRcv, 2000., tprm);
@@ -172,7 +170,7 @@ struct SetTest : public Test {
                             setPrm(l, PIOL_META_yCmp, yR, tprm);
                             setPrm(l, PIOL_META_il, 4000U - xS, tprm);
                             setPrm(l, PIOL_META_xl, yR, tprm);
-                            setPrm(l, PIOL_META_tn, l + dec.first, tprm);
+                            setPrm(l, PIOL_META_tn, l + dec.offset, tprm);
                             setPrm(
                               l, PIOL_META_Offset,
                               (xS - 2000.) * (xS - 2000.)
@@ -181,7 +179,7 @@ struct SetTest : public Test {
                         }
                     EXPECT_CALL(
                       *mock, readTraceNonContiguous(
-                               dec.second, An<const size_t*>(), _, _, 0))
+                               dec.size, An<const size_t*>(), _, _, 0))
                       .Times(Exactly(1U))
                       .WillRepeatedly(cpyprm(&prm.back()));
 

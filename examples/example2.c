@@ -5,13 +5,13 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "sglobal.h"
-
 #include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 int main(int argc, char** argv)
 {
@@ -23,10 +23,12 @@ int main(int argc, char** argv)
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = copyString(optarg);
+                iname = malloc((strlen(optarg)+1)*sizeof(char));
+                strcpy(iname, optarg);
                 break;
             case 'o':
-                oname = copyString(optarg);
+                oname = malloc((strlen(optarg)+1)*sizeof(char));
+                strcpy(oname, optarg);
                 break;
             default:
                 fprintf(stderr, "Invalid command line arguments\n");
@@ -45,9 +47,9 @@ int main(int argc, char** argv)
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
 
-    Extent dec    = decompose(nt, PIOL_ExSeis_getNumRank(piol), rank);
-    size_t offset = dec.start;
-    size_t lnt    = dec.sz;
+    struct PIOL_Range dec    = PIOL_decompose(nt, PIOL_ExSeis_getNumRank(piol), rank);
+    size_t offset = dec.offset;
+    size_t lnt    = dec.size;
 
     // Alloc the required memory for the data we want.
     float* trace           = malloc(lnt * PIOL_SEGSz_getDFSz(ns));

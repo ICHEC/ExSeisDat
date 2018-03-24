@@ -23,7 +23,7 @@ namespace File {
  *         crossline.
  * @todo TODO: This can be generalised
  */
-Uniray<size_t, llint, llint> getGathers(ExSeisPIOL* piol, Param* prm)
+static Uniray<size_t, llint, llint> getGathers(ExSeisPIOL* piol, Param* prm)
 {
     size_t rank    = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
@@ -76,8 +76,8 @@ Uniray<size_t, llint, llint> getIlXlGathers(
     auto dec  = decompose(piol, file);
     auto rule = std::make_shared<Rule>(
       std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
-    Param prm(rule, dec.second);
-    file->readParam(dec.first, dec.second, &prm);
+    Param prm(rule, dec.size);
+    file->readParam(dec.offset, dec.size, &prm);
 
     return getGathers(piol, &prm);
 }

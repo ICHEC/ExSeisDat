@@ -5,11 +5,11 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "sglobal.h"
-
 #include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
+#include <unistd.h>
+#include <stdio.h>
 
 int main(int argc, char** argv)
 {
@@ -23,7 +23,8 @@ int main(int argc, char** argv)
     for (int c = getopt(argc, argv, opt); c != -1;
          c     = getopt(argc, argv, opt)) {
         if (c == 'o') {
-            name = copyString(optarg);
+            name = malloc((strlen(optarg)+1)*sizeof(char));
+            strcpy(name, optarg);
         }
         else {
             fprintf(stderr, "One of the command line arguments is invalid\n");
@@ -52,13 +53,13 @@ int main(int argc, char** argv)
     size_t rank      = PIOL_ExSeis_getRank(piol);
 
     // Get decomposition of the range [0..nt) for the current rank
-    Extent dec = decompose(nt, num_ranks, rank);
+    struct PIOL_Range dec = PIOL_decompose(nt, num_ranks, rank);
 
     // The offset for the local process
-    size_t offset = dec.start;
+    size_t offset = dec.offset;
 
     // The number of traces for the local process to handle
-    size_t local_nt = dec.sz;
+    size_t local_nt = dec.size;
 
 
     // Write some global header parameters

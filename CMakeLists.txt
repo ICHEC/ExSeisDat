@@ -173,8 +173,6 @@ endif(NOT FFTW3_LIBRARIES)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/util
-
     ${FFTW3_INCLUDES}
 )
 
@@ -221,11 +219,6 @@ add_library(
     src/sort.cc
     src/taper.cc
     src/temporalfilter.cc
-
-    # utils
-    #TODO Remove me!
-    util/sglobal.cc
-    util/sglobal.c
 )
 
 target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})

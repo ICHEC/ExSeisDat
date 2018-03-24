@@ -22,8 +22,8 @@ void calcMin(std::string iname, std::string oname)
     File::ReadDirect in(piol, iname);
 
     auto dec      = decompose(piol.get(), in);
-    size_t offset = dec.first;
-    size_t lnt    = dec.second;
+    size_t offset = dec.offset;
+    size_t lnt    = dec.size;
 
     Param prm(lnt);
     std::vector<CoordElem> minmax(12U);

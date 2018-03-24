@@ -43,7 +43,7 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
  *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
  *          of the sort.
  */
-bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
+static bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
@@ -96,7 +96,7 @@ bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
+static bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
@@ -146,7 +146,7 @@ bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
+static bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
 {
     auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
     auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
@@ -194,7 +194,7 @@ bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessLineOff(const Param* prm, const size_t i, const size_t j)
+static bool lessLineOff(const Param* prm, const size_t i, const size_t j)
 {
     auto e1il = getPrm<llint>(i, PIOL_META_il, prm);
     auto e2il = getPrm<llint>(j, PIOL_META_il, prm);
@@ -247,7 +247,7 @@ bool lessLineOff(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessOffLine(const Param* prm, const size_t i, const size_t j)
+static bool lessOffLine(const Param* prm, const size_t i, const size_t j)
 {
     auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
     auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
@@ -327,14 +327,14 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm)
 }
 
 bool checkOrder(
-  ReadInterface* src, std::pair<size_t, size_t> dec, SortType type)
+  ReadInterface* src, Range dec, SortType type)
 {
     auto comp = getComp(type);
-    Param prm(dec.second);
+    Param prm(dec.size);
 
-    src->readParam(dec.first, dec.second, &prm);
+    src->readParam(dec.offset, dec.size, &prm);
 
-    for (size_t i = 1; i < dec.second; i++) {
+    for (size_t i = 1; i < dec.size; i++) {
         if (!comp(&prm, i - 1, i)) {
             return false;
         }

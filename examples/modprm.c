@@ -5,14 +5,24 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "ctest.h"
-#include "sglobal.h"
+//#include "ctest.h"
 
 #include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+size_t max(size_t a, size_t b)
+{
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
 
 /*! Read nt parameters from the input file ifh and write it to
  *  the output file ofh. Parameters are read and written from
@@ -106,10 +116,12 @@ int main(int argc, char** argv)
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = copyString(optarg);
+                iname = malloc((strlen(optarg) + 1) * sizeof(char));
+                strcpy(iname, optarg);
                 break;
             case 'o':
-                oname = copyString(optarg);
+                oname = malloc((strlen(optarg) + 1) * sizeof(char));
+                strcpy(oname, optarg);
                 break;
             default:
                 fprintf(
@@ -132,11 +144,11 @@ int main(int argc, char** argv)
 
     writeHeader(piol, ifh, ofh);
 
-    Extent dec =
-      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt = memmax / MAX(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
+    struct PIOL_Range dec = PIOL_decompose(
+      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    size_t tcnt = memmax / max(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
 
-    writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
+    writePayload(piol, dec.offset, dec.size, tcnt, ifh, ofh);
 
     PIOL_ExSeis_isErr(piol, "");
     PIOL_File_WriteDirect_delete(ofh);

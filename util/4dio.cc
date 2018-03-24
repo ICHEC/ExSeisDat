@@ -33,8 +33,8 @@ std::unique_ptr<Coords> getCoords(
     piol->isErr();
 
     auto dec      = decompose(piol.get(), file);
-    size_t offset = dec.first;
-    size_t lnt    = dec.second;
+    size_t offset = dec.offset;
+    size_t lnt    = dec.size;
 
     auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());

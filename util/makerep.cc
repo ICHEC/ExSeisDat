@@ -44,8 +44,8 @@ void smallCopy(
 
 void distribToDistrib(
   size_t rank,
-  std::pair<size_t, size_t> old,
-  std::pair<size_t, size_t> newd,
+  Range old,
+  Range newd,
   std::vector<uchar>* vec)
 {
     std::vector<MPI_Request> msg;
@@ -55,41 +55,41 @@ void distribToDistrib(
     //-1 lower ranked process
 
     // Cases 2, 3, 8
-    if (old.first > newd.first) {
-        size_t incStart = old.first - newd.first;
+    if (old.offset > newd.offset) {
+        size_t incStart = old.offset - newd.offset;
         vec->resize(vec->size() + incStart);
         // Making space for the move
         std::move_backward(vec->begin(), vec->end() - incStart, vec->end());
     }
 
-    if (old.first + old.second < newd.first + newd.second)
+    if (old.offset + old.size < newd.offset + newd.size)
         vec->resize(
-          vec->size() + newd.first + newd.second - (old.first + old.second));
+          vec->size() + newd.offset + newd.size - (old.offset + old.size));
 
-    if (old.first < newd.first) {
-        size_t sz = newd.first - old.first;
+    if (old.offset < newd.offset) {
+        size_t sz = newd.offset - old.offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
           vec->data(), sz, MPIType<uchar>(), rank - 1, 1, MPI_COMM_WORLD,
           &msg.back());
     }
-    else if (old.first > newd.first) {
-        size_t sz = old.first - newd.first;
+    else if (old.offset > newd.offset) {
+        size_t sz = old.offset - newd.offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
           vec->data(), sz, MPIType<uchar>(), rank - 1, 0, MPI_COMM_WORLD,
           &msg.back());
     }
 
-    if (old.first + old.second > newd.first + newd.second) {
-        size_t sz = old.first + old.second - (newd.first + newd.second);
+    if (old.offset + old.size > newd.offset + newd.size) {
+        size_t sz = old.offset + old.size - (newd.offset + newd.size);
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
           vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank + 1, 0,
           MPI_COMM_WORLD, &msg.back());
     }
-    else if (old.first + old.second < newd.first + newd.second) {
-        size_t sz = (newd.first + newd.second) - (old.first + old.second);
+    else if (old.offset + old.size < newd.offset + newd.size) {
+        size_t sz = (newd.offset + newd.size) - (old.offset + old.size);
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
           vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank + 1, 1,
@@ -109,25 +109,25 @@ void distribToDistrib(
     }
 
     // Cases 1, 4, 7
-    if (old.first < newd.first) {
-        size_t decStart = newd.first - old.first;
+    if (old.offset < newd.offset) {
+        size_t decStart = newd.offset - old.offset;
         std::move(vec->begin() + decStart, vec->end(), vec->begin());
     }
 
-    vec->resize(newd.second);
+    vec->resize(newd.size);
 }
 
 // Write an arbitrary parallelised block sz to an arbitrary offset with the
 // minimal block contention possible between processes.
 // writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
 // off is the global offset
-std::pair<size_t, size_t> writeArb(
+Range writeArb(
   size_t rank,
   size_t numRank,
   Data::Interface* out,
   size_t off,
   size_t bsz,
-  std::pair<size_t, size_t> dec,
+  Range dec,
   size_t tsz,
   std::vector<uchar>* vec)
 {
@@ -139,7 +139,7 @@ std::pair<size_t, size_t> writeArb(
         distribToDistrib(rank, dec, newdec, vec);
     }
 
-    out->write(off + newdec.first, newdec.second, vec->data());
+    out->write(off + newdec.offset, newdec.size, vec->data());
 
     return newdec;
 }
@@ -170,20 +170,20 @@ void mpiMakeSEGYCopy(
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec      = blockDecomp(rblock, bsz, numRank, rank, i);
 
-        std::vector<uchar> buf(dec.second);
-        in->read(i + dec.first, dec.second, buf.data());
+        std::vector<uchar> buf(dec.size);
+        in->read(i + dec.offset, dec.size, buf.data());
         piol.isErr();
-        out->write(i + dec.first, dec.second, buf.data());
+        out->write(i + dec.offset, dec.size, buf.data());
         piol.isErr();
         if (i == 0) {
             // If zero, then current process has read the header object
-            if (dec.first == 0) {
+            if (dec.offset == 0) {
                 std::move(buf.begin() + hosz, buf.end(), buf.begin());
-                dec.second -= hosz;
-                buf.resize(dec.second);
+                dec.size -= hosz;
+                buf.resize(dec.size);
             }
             else
-                dec.first -= hosz;
+                dec.offset -= hosz;
             rblock -= hosz;
         }
         size_t rank    = piol.getRank();
@@ -212,23 +212,25 @@ void mpiMakeSEGYCopyNaive(
           (Block ? decompose(rblock, numRank, piol.getRank()) :
                    blockDecomp(rblock, bsz, numRank, piol.getRank(), i));
 
-        std::vector<uchar> buf(dec.second);
-        in->read(i + dec.first, dec.second, buf.data());
-        out->write(i + dec.first, dec.second, buf.data());
+        std::vector<uchar> buf(dec.size);
+        in->read(i + dec.offset, dec.size, buf.data());
+        out->write(i + dec.offset, dec.size, buf.data());
         if (i == 0) {
             // If zero, then current process has read the header object
-            if (dec.first == 0) {
+            if (dec.offset == 0) {
                 std::move(
-                  buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
-                dec.second -= hosz;
-                buf.resize(dec.second);
+                  buf.begin() + hosz, buf.begin() + dec.size, buf.begin());
+                dec.size -= hosz;
+                buf.resize(dec.size);
             }
-            else
-                dec.first -= hosz;
+            else {
+                dec.offset -= hosz;
+            }
         }
-        for (size_t j = 1; j < repRate; j++)
+        for (size_t j = 1; j < repRate; j++) {
             out->write(
-              hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
+              hosz + (fsz - hosz) * j + i + dec.offset, dec.size, buf.data());
+        }
     }
 }
 

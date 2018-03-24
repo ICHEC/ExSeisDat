@@ -10,17 +10,30 @@
 #include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
-namespace PIOL {
 
-std::pair<size_t, size_t> decompose(size_t sz, size_t numRank, size_t rank)
+extern "C" {
+PIOL_Range PIOL_decompose(size_t sz, size_t numRank, size_t rank)
 {
     size_t q     = sz / numRank;
     size_t r     = sz % numRank;
     size_t start = q * rank + std::min(rank, r);
-    return std::make_pair(start, std::min(sz - start, q + (rank < r)));
+    return {start, std::min(sz - start, q + (rank < r))};
+}
 }
 
-std::pair<size_t, size_t> decompose(ExSeisPIOL* piol, File::ReadInterface* file)
+namespace PIOL {
+
+/*! An overload for a common decomposition case. Perform a decomposition of
+ *  traces so that the load is optimally balanced.
+ *  @param[in] piol The piol object
+ *  @param[in] file A read file object. This is used to find the number of
+ *             traces.
+ *  @return Return a pair (offset, size).
+ *          The first element is the offset for the local process,
+ *          the second is the size for the local process.
+ *  @todo DELETE THIS DOC
+ */
+Range decompose(ExSeisPIOL* piol, File::ReadInterface* file)
 {
     return decompose(
       file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());

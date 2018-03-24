@@ -19,7 +19,7 @@
  *  @return Return an extent, a starting point (generally for a 'for' loop) and
  *          the number of iterations.
  */
-std::pair<size_t, size_t> blockDecomp(
+PIOL::Range blockDecomp(
   size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off = 0);
 
 /*! Unequal decomposition, weights towards the lower ranks. Useful for testing

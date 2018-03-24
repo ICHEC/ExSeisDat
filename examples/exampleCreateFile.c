@@ -5,8 +5,6 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "sglobal.h"
-
 #include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
@@ -20,13 +18,13 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
     PIOL_File_WriteDirect* fh = PIOL_File_WriteDirect_new(piol, name);
 
     // Perform some decomposition (user decides how they will decompose)
-    Extent dec =
-      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    struct PIOL_Range dec =
+      PIOL_decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
 
     // The offset for the local process
-    size_t offset = dec.start;
+    size_t offset = dec.offset;
     // The number of traces for the local process to handle
-    size_t lnt = dec.sz;
+    size_t lnt = dec.size;
 
     // Write some header parameters
     PIOL_File_WriteDirect_writeNs(fh, ns);

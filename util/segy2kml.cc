@@ -155,8 +155,8 @@ void calcMin(
     File::ReadDirect in(piol, iname);
 
     auto dec      = decompose(piol.get(), in);
-    size_t offset = dec.first;
-    size_t lnt    = dec.second;
+    size_t offset = dec.offset;
+    size_t lnt    = dec.size;
 
     File::Param prm(lnt);
     in.readParam(offset, lnt, &prm);

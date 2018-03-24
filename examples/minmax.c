@@ -5,11 +5,13 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "sglobal.h"
-
 #include "ExSeisDat/Flow.h"
 
 #include <assert.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char** argv)
 {
@@ -18,11 +20,16 @@ int main(int argc, char** argv)
 
     char* opt  = "i:";  // TODO: uses a GNU extension
     char* name = NULL;
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
-        if (c == 'i')
-            name = copyString(optarg);
-        else
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
+        if (c == 'i') {
+            name = malloc((strlen(optarg) + 1) * sizeof(char));
+            strcpy(name, optarg);
+        }
+        else {
             fprintf(stderr, "One of the command line arguments is invalid\n");
+        }
+    }
     assert(name);
 
     PIOL_Set* set = PIOL_Set_new(piol, name);
@@ -52,5 +59,6 @@ int main(int argc, char** argv)
           "y Cmp %e (%zu) -> %e (%zu)\n", minmax[10].val, minmax[10].num,
           minmax[11].val, minmax[11].num);
     }
+
     return 0;
 }

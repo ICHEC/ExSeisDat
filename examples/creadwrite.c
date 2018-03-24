@@ -9,14 +9,24 @@
 /// produce an identical copy.
 ///
 
-#include "ctest.h"
-#include "sglobal.h"
-
 #include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
 #include <stddef.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+typedef void (*ModTrc)(size_t, size_t, float*);
+typedef void (*ModPrm)(size_t, size_t, PIOL_File_Param*);
+
+size_t max(size_t a, size_t b) {
+    if(a > b) {
+        return a;
+    }
+    return b;
+}
 
 void readWriteFullTrace(
   PIOL_ExSeis* piol,
@@ -33,13 +43,17 @@ void readWriteFullTrace(
     assert(trace);
 
     PIOL_File_ReadDirect_readTrace(ifh, off, tcnt, trace, trhdr);
-    if (ftrc != NULL)
-        for (size_t i = 0; i < tcnt; i++)
+    if (ftrc != NULL) {
+        for (size_t i = 0; i < tcnt; i++) {
             ftrc(off, ns, &trace[i]);
+        }
+    }
 
-    if (fprm != NULL)
-        for (size_t i = 0; i < tcnt; i++)
+    if (fprm != NULL) {
+        for (size_t i = 0; i < tcnt; i++) {
             fprm(off, i, trhdr);
+        }
+    }
 
     PIOL_File_WriteDirect_writeTrace(ofh, off, tcnt, trace, trhdr);
     PIOL_ExSeis_isErr(piol, NULL);
@@ -96,11 +110,11 @@ int ReadWriteFile(
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
     PIOL_ExSeis_isErr(piol, NULL);
 
-    Extent dec =
-      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt = memmax / MAX(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
+    struct PIOL_Range dec =
+      PIOL_decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    size_t tcnt = memmax / max(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
 
-    writePayload(piol, ifh, ofh, dec.start, dec.sz, tcnt, fprm, ftrc);
+    writePayload(piol, ifh, ofh, dec.offset, dec.size, tcnt, fprm, ftrc);
 
     PIOL_ExSeis_isErr(piol, NULL);
     PIOL_File_WriteDirect_delete(ofh);
@@ -140,10 +154,12 @@ int main(int argc, char** argv)
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = copyString(optarg);
+                iname = malloc((strlen(optarg)+1)*sizeof(char));
+                strcpy(iname, optarg);
                 break;
             case 'o':
-                oname = copyString(optarg);
+                oname = malloc((strlen(optarg)+1)*sizeof(char));
+                strcpy(oname, optarg);
                 break;
             case 'm':
                 if (sscanf(optarg, "%zu", &memmax) != 1) {

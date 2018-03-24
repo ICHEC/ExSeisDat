@@ -153,8 +153,8 @@ void FileMake(
     }
     else {
         auto dec = decompose(nt, piol->getNumRank(), piol->getRank());
-        offset   = dec.first;
-        lnt      = dec.second;
+        offset   = dec.offset;
+        lnt      = dec.size;
         biggest  = piol->comm->max(lnt);
     }
 
@@ -162,10 +162,11 @@ void FileMake(
     max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns) + sizeof(size_t));
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
-    if (random)
+    if (random) {
         writeRandom(*piol, &file, nt, ns, lnt, extra, max);
-    else
+    } else {
         writeContig(*piol, &file, offset, nt, ns, lnt, extra, max);
+    }
 }
 
 int main(int argc, char** argv)

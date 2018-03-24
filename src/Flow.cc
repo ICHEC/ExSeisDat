@@ -96,16 +96,16 @@ void Set::add(std::unique_ptr<File::ReadInterface> in)
     f->ifc  = std::move(in);
 
     auto dec = decompose(piol.get(), f->ifc.get());
-    f->ilst.resize(dec.second);
-    f->olst.resize(dec.second);
-    std::iota(f->ilst.begin(), f->ilst.end(), dec.first);
+    f->ilst.resize(dec.size);
+    f->olst.resize(dec.size);
+    std::iota(f->ilst.begin(), f->ilst.end(), dec.offset);
 
     auto key =
       std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
     fmap[key].emplace_back(f);
 
     auto& off = offmap[key];
-    std::iota(f->olst.begin(), f->olst.end(), off + dec.first);
+    std::iota(f->olst.begin(), f->olst.end(), off + dec.offset);
     off += f->ifc->readNt();
 }
 
@@ -144,13 +144,14 @@ void Set::summary(void) const
     }
 
     if (!rank) {
-        for (auto& m : fmap)
+        for (auto& m : fmap) {
             piol->log->record(
               "", Log::Layer::Set, Log::Status::Request,
               "Local File count for (" + std::to_string(m.first.first) + " nt, "
                 + std::to_string(m.first.second)
                 + " inc) = " + std::to_string(m.second.size()),
               PIOL_VERBOSITY_NONE);
+        }
         piol->log->procLog();
     }
 }
@@ -325,7 +326,7 @@ std::string Set::startGather(
         auto gather = File::getIlXlGathers(piol.get(), o->ifc.get());
         auto gdec   = decompose(gather.size(), numRank, rank);
 
-        size_t numGather = gdec.second;
+        size_t numGather = gdec.size;
 
         std::vector<size_t> gNums;
         for (auto fTemp = fCurr;

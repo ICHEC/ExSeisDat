@@ -7,8 +7,6 @@
 /// This example shows how to make a new file with the file api is complete.
 ///
 
-#include "sglobal.hh"
-
 #include "ExSeisDat/PIOL.hh"
 
 #include <assert.h>
@@ -46,8 +44,8 @@ int main(int argc, char** argv)
     double inc = 4.0;
 
     auto dec      = decompose(nt, piol->getNumRank(), piol->getRank());
-    size_t offset = dec.first;
-    size_t lnt    = dec.second;
+    size_t offset = dec.offset;
+    size_t lnt    = dec.size;
 
     // Write some header parameters
     file.writeNs(ns);
