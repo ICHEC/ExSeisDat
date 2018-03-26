@@ -13,6 +13,8 @@
 #include "ExSeisDat/PIOL/file/segymd.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
+#include <cstring>
+
 namespace PIOL {
 namespace File {
 

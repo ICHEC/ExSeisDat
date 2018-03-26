@@ -78,7 +78,7 @@ void getBigEndian(const T src, uchar* dst)
         const size_t bit_shift  = byte_shift * 8;
 
         // Read byte 1 into dst.
-        dst[i] = src >> (bit_shift)&0xFF;
+        dst[i] = (src >> bit_shift) & 0xFF;
     }
 }
 

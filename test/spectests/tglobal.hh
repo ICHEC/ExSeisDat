@@ -34,6 +34,36 @@ extern PIOL::uchar getPattern(size_t);
 extern std::vector<size_t> getRandomVec(size_t nt, int seed);
 extern std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed);
 
+
+// List of TypeIdHelper<T> instances to avoid global weak variables due
+// to its static data member.
+class MPIIOTest;
+extern template bool testing::internal::TypeIdHelper<MPIIOTest>::dummy_;
+
+struct RuleFixList;
+extern template bool testing::internal::TypeIdHelper<RuleFixList>::dummy_;
+
+struct RuleFixEmpty;
+extern template bool testing::internal::TypeIdHelper<RuleFixEmpty>::dummy_;
+
+struct RuleFixDefault;
+extern template bool testing::internal::TypeIdHelper<RuleFixDefault>::dummy_;
+
+struct FileReadSEGYTest;
+extern template bool testing::internal::TypeIdHelper<FileReadSEGYTest>::dummy_;
+
+extern template typename testing::DefaultValue<unsigned long>::ValueProducer* testing::DefaultValue<unsigned long>::producer_;
+
+struct FileWriteSEGYTest;
+extern template bool testing::internal::TypeIdHelper<FileWriteSEGYTest>::dummy_;
+
+struct SetTest;
+extern template bool testing::internal::TypeIdHelper<SetTest>::dummy_;
+
+extern template typename testing::DefaultValue<double>::ValueProducer* testing::DefaultValue<double>::producer_;
+
+extern template bool testing::internal::TypeIdHelper<testing::Test>::dummy_;
+
 constexpr size_t prefix(const size_t pow)
 {
     return (pow ? 1024U * prefix(pow - 1U) : 1U);

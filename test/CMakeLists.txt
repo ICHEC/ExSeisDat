@@ -40,6 +40,8 @@ target_link_libraries(genfiles exseisdat)
 add_executable(
     spectests
 
+    spectests/tglobal.cc
+
     spectests/data.cc
     spectests/datampiioread.cc
     spectests/datampiiowrite.cc

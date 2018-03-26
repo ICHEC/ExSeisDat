@@ -1,6 +1,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tglobal.hh"
+
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 
 #include <memory>
