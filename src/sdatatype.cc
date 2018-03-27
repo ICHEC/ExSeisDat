@@ -21,7 +21,7 @@ void reverse4Bytes(uchar* src)
 
 float tofloat(uint32_t i)
 {
-    static_assert(sizeof(uint32_t) == sizeof(float), "int same object size as float");
+    static_assert(sizeof(uint32_t) == sizeof(float), "float isn't 32 bits!");
 
     float f;
     std::memcpy(&f, &i, sizeof(float));
@@ -31,7 +31,7 @@ float tofloat(uint32_t i)
 
 uint32_t toint(float f)
 {
-    static_assert(sizeof(float) == sizeof(uint32_t), "float same object size as int");
+    static_assert(sizeof(float) == sizeof(uint32_t), "float isn't 32 bits!");
 
     uint32_t i;
     std::memcpy(&i, &f, sizeof(uint32_t));

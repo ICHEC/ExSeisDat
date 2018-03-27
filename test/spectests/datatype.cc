@@ -4,9 +4,9 @@
 #include "gtest/gtest.h"
 
 #include <bitset>
+#include <cstring>
 #include <stdint.h>
 #include <vector>
-#include <cstring>
 
 using namespace PIOL;
 
@@ -186,6 +186,13 @@ TEST(Datatype, IBMToIEEE)
                     ASSERT_TRUE((b - a) <= 1);
                 }
                 else {
+
+                    auto to_float = [](uint32_t i) {
+                        float f = 0;
+                        std::memcpy(&f, &i, sizeof(float));
+                        return f;
+                    };
+
                     // Test exact equality for normal values
                     ASSERT_EQ(built_float, built_ieee)
                       << std::endl
@@ -194,12 +201,10 @@ TEST(Datatype, IBMToIEEE)
                       << "significand: " << printBinary(significand) << " , "
                       << std::hex << significand << std::endl
                       << std::endl
-                      << "Native: " << std::hexfloat
-                      << *reinterpret_cast<const float*>(&built_float)
+                      << "Native: " << std::hexfloat << to_float(built_float)
                       << std::endl
                       << printBinary(built_float) << std::endl
-                      << "IEEE:   " << std::hexfloat
-                      << *reinterpret_cast<const float*>(&built_ieee)
+                      << "IEEE:   " << std::hexfloat << to_float(built_ieee)
                       << std::endl
                       << printBinary(built_ieee) << std::endl;
                 }
