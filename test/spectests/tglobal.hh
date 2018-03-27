@@ -62,7 +62,6 @@ extern template bool testing::internal::TypeIdHelper<SetTest>::dummy_;
 
 extern template typename testing::DefaultValue<double>::ValueProducer* testing::DefaultValue<double>::producer_;
 
-extern template bool testing::internal::TypeIdHelper<testing::Test>::dummy_;
 
 constexpr size_t prefix(const size_t pow)
 {

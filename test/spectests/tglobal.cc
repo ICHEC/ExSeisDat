@@ -10,5 +10,3 @@ template bool testing::internal::TypeIdHelper<SetTest>::dummy_;
 
 template typename testing::DefaultValue<unsigned long>::ValueProducer* testing::DefaultValue<unsigned long>::producer_;
 template typename testing::DefaultValue<double>::ValueProducer* testing::DefaultValue<double>::producer_;
-
-template bool testing::internal::TypeIdHelper<testing::Test>::dummy_;
