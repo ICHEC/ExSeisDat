@@ -52,7 +52,8 @@ extern template bool testing::internal::TypeIdHelper<RuleFixDefault>::dummy_;
 struct FileReadSEGYTest;
 extern template bool testing::internal::TypeIdHelper<FileReadSEGYTest>::dummy_;
 
-extern template typename testing::DefaultValue<unsigned long>::ValueProducer* testing::DefaultValue<unsigned long>::producer_;
+extern template typename testing::DefaultValue<unsigned long>::ValueProducer*
+  testing::DefaultValue<unsigned long>::producer_;
 
 struct FileWriteSEGYTest;
 extern template bool testing::internal::TypeIdHelper<FileWriteSEGYTest>::dummy_;
@@ -60,7 +61,8 @@ extern template bool testing::internal::TypeIdHelper<FileWriteSEGYTest>::dummy_;
 struct SetTest;
 extern template bool testing::internal::TypeIdHelper<SetTest>::dummy_;
 
-extern template typename testing::DefaultValue<double>::ValueProducer* testing::DefaultValue<double>::producer_;
+extern template typename testing::DefaultValue<double>::ValueProducer*
+  testing::DefaultValue<double>::producer_;
 
 
 constexpr size_t prefix(const size_t pow)

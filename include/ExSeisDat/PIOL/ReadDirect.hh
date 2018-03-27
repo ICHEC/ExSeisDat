@@ -170,7 +170,7 @@ class ReadDirect {
       const size_t sz, const size_t* offset, Param* prm) const;
 };
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_READDIRECT_HH
+#endif  // EXSEISDAT_PIOL_READDIRECT_HH

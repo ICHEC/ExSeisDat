@@ -55,7 +55,9 @@ class WriteInterface {
       std::shared_ptr<ExSeisPIOL> piol_,
       std::string name_,
       std::shared_ptr<Obj::Interface> obj_) :
-        piol(piol_), name(name_), obj(obj_)
+        piol(piol_),
+        name(name_),
+        obj(obj_)
     {
     }
 
@@ -152,7 +154,7 @@ class WriteInterface {
       const size_t skip = 0) = 0;
 };
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH
+#endif  // EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH

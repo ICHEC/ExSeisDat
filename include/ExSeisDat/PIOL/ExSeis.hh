@@ -68,6 +68,6 @@ class ExSeis : public ExSeisPIOL {
       MPI_Comm comm            = MPI_COMM_WORLD);
 };
 
-} // namespace PIOL
+}  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_EXSEIS_HH
+#endif  // EXSEISDAT_PIOL_EXSEIS_HH

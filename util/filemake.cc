@@ -164,7 +164,8 @@ void FileMake(
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
     if (random) {
         writeRandom(*piol, &file, nt, ns, lnt, extra, max);
-    } else {
+    }
+    else {
         writeContig(*piol, &file, offset, nt, ns, lnt, extra, max);
     }
 }

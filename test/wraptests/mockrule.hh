@@ -1,8 +1,8 @@
 #ifndef PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 
-#include "gmock/gmock.h"
 #include "googletest_variable_instances.hh"
+#include "gmock/gmock.h"
 
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 

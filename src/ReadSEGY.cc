@@ -9,12 +9,12 @@
 
 #include "ExSeisDat/PIOL/file/ReadSEGY.hh"
 
-#include "ExSeisDat/PIOL/share/units.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
-#include "ExSeisDat/PIOL/share/misc.hh"
+#include "ExSeisDat/PIOL/file/characterconversion.hh"
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/file/segymd.hh"
-#include "ExSeisDat/PIOL/file/characterconversion.hh"
+#include "ExSeisDat/PIOL/share/misc.hh"
+#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
 
 namespace PIOL {
 namespace File {

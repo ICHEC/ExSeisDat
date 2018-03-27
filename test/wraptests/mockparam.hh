@@ -6,8 +6,8 @@
 
 #include "printers.hh"
 
-#include "gmock/gmock.h"
 #include "googletest_variable_instances.hh"
+#include "gmock/gmock.h"
 
 namespace PIOL {
 namespace File {
@@ -47,8 +47,7 @@ class MockParam {
 
     MOCK_CONST_METHOD1(size, size_t(const Param*));
 
-    MOCK_CONST_METHOD1(
-      memUsage, size_t(const Param*));
+    MOCK_CONST_METHOD1(memUsage, size_t(const Param*));
 };
 
 class MockParamFreeFunctions {
@@ -58,18 +57,11 @@ class MockParamFreeFunctions {
       void(const size_t j, const Param* src, const size_t k, Param* dst));
 
     MOCK_METHOD3(
-      getPrm_int16_t,
-      int16_t(
-        size_t i, Meta entry, const Param* prm));
+      getPrm_int16_t, int16_t(size_t i, Meta entry, const Param* prm));
 
-    MOCK_METHOD3(
-      getPrm_llint,
-      llint(size_t i, Meta entry, const Param* prm));
+    MOCK_METHOD3(getPrm_llint, llint(size_t i, Meta entry, const Param* prm));
 
-    MOCK_METHOD3(
-      getPrm_geom_t,
-      geom_t(
-        size_t i, Meta entry, const Param* prm));
+    MOCK_METHOD3(getPrm_geom_t, geom_t(size_t i, Meta entry, const Param* prm));
 
     MOCK_METHOD4(
       setPrm_int16_t,

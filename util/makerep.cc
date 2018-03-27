@@ -43,10 +43,7 @@ void smallCopy(
 }
 
 void distribToDistrib(
-  size_t rank,
-  Range old,
-  Range newd,
-  std::vector<uchar>* vec)
+  size_t rank, Range old, Range newd, std::vector<uchar>* vec)
 {
     std::vector<MPI_Request> msg;
 

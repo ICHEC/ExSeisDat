@@ -130,4 +130,4 @@ class WriteSEGY : public WriteInterface {
 }  // namespace File
 }  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_FILE_WRITESEGY_HH
+#endif  // EXSEISDAT_PIOL_FILE_WRITESEGY_HH

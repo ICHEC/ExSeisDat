@@ -52,7 +52,7 @@ typedef PIOL::File::Param PIOL_File_Param;
 typedef PIOL::File::ReadDirect PIOL_File_ReadDirect;
 typedef PIOL::File::WriteDirect PIOL_File_WriteDirect;
 
-#else // __cplusplus
+#else  // __cplusplus
 
 // Forward declare opaque structs in C
 
@@ -71,13 +71,13 @@ typedef struct PIOL_File_ReadDirect PIOL_File_ReadDirect;
 /// @copydoc PIOL::File::WriteDirect
 typedef struct PIOL_File_WriteDirect PIOL_File_WriteDirect;
 
-#endif // __cplusplus
+#endif  // __cplusplus
 
 
 #ifdef __cplusplus
 // Everything from here on is C API functions needing C linkage.
 extern "C" {
-#endif // __cplusplus
+#endif  // __cplusplus
 
 
 /*
@@ -639,6 +639,6 @@ typedef struct {
 
 #ifdef __cplusplus
 }  // extern "C"
-#endif // __cplusplus
+#endif  // __cplusplus
 
-#endif // EXSEISDAT_PIOL_H
+#endif  // EXSEISDAT_PIOL_H

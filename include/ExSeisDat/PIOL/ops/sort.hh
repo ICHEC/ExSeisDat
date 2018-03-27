@@ -17,8 +17,8 @@
 #include "ExSeisDat/PIOL/anc/piol.hh"
 #include "ExSeisDat/PIOL/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
-#include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
 
 namespace PIOL {
 namespace File {
@@ -66,8 +66,7 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm);
  *  @param[in] type The sort type
  *  @return Return true if the local ordering is correct.
  */
-bool checkOrder(
-  ReadInterface* src, Range dec, SortType type);
+bool checkOrder(ReadInterface* src, Range dec, SortType type);
 
 /*! Return the comparison function for the particular sort type.
  *  @param[in] type The sort type

@@ -1,8 +1,8 @@
 #ifndef PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 
-#include "gmock/gmock.h"
 #include "googletest_variable_instances.hh"
+#include "gmock/gmock.h"
 
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 

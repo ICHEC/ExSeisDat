@@ -1,8 +1,8 @@
 #ifndef PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
 
-#include "gmock/gmock.h"
 #include "googletest_variable_instances.hh"
+#include "gmock/gmock.h"
 
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 

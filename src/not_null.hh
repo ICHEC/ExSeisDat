@@ -27,4 +27,4 @@ static inline bool not_null(const std::shared_ptr<T>* t)
     return t != nullptr && not_null(t->get());
 }
 
-#endif // EXSEISDAT_SRC_NOT_NULL_HH
+#endif  // EXSEISDAT_SRC_NOT_NULL_HH

@@ -104,4 +104,4 @@ class ReadSEGY : public ReadInterface {
 }  // namespace File
 }  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_FILE_READSEGY_HH
+#endif  // EXSEISDAT_PIOL_FILE_READSEGY_HH

@@ -23,7 +23,8 @@ namespace FOURD {
  *  @param[in] xsmin A vector of the min xSrc for each process.
  *  @param[in] xsmax A vector of the max xSrc for each process.
  */
-void printxSrcMinMax(ExSeisPIOL* piol, std::vector<fourd_t>& xsmin, std::vector<fourd_t>& xsmax)
+void printxSrcMinMax(
+  ExSeisPIOL* piol, std::vector<fourd_t>& xsmin, std::vector<fourd_t>& xsmax)
 {
     piol->comm->barrier();
     assert(xsmin.size() == xsmax.size());
@@ -221,7 +222,10 @@ fourd_t dsr(
  */
 template<const bool ixline>
 void initUpdate(
-  const Coords* crd1, const Coords* crd2, std::vector<size_t>& min, std::vector<fourd_t>& minrs)
+  const Coords* crd1,
+  const Coords* crd2,
+  std::vector<size_t>& min,
+  std::vector<fourd_t>& minrs)
 {
     for (size_t i = 0; i < crd1->sz; i++) {
         minrs[i] =
@@ -437,7 +441,8 @@ void calc4DBin(
 
     // The File2 min/max from every process
     auto xsmin = piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[0LU]});
-    auto xsmax = piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[crd2->sz - 1LU]});
+    auto xsmax =
+      piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[crd2->sz - 1LU]});
 
     // The File1 local min and local maximum for the particular process
     auto xslmin = crd1->xSrc[0LU];

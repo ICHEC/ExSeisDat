@@ -6,8 +6,8 @@
 
 #include "ExSeisDat/PIOL/ReadModel.hh"
 
-#include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
@@ -30,5 +30,5 @@ std::vector<trace_t> ReadModel::readModel(
       gOffset, numGather, gather);
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

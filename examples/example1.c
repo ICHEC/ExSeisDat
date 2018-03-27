@@ -9,9 +9,9 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int main(int argc, char** argv)
 {
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     for (int c = getopt(argc, argv, opt); c != -1;
          c     = getopt(argc, argv, opt)) {
         if (c == 'o') {
-            name = malloc((strlen(optarg)+1)*sizeof(char));
+            name = malloc((strlen(optarg) + 1) * sizeof(char));
             strcpy(name, optarg);
         }
         else {

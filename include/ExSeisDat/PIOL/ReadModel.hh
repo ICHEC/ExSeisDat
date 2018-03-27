@@ -11,8 +11,8 @@
 #include "ExSeisDat/PIOL/anc/piol.hh"
 #include "ExSeisDat/PIOL/global.hh"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace PIOL {
 namespace File {
@@ -34,7 +34,7 @@ class ReadModel : public ReadDirect {
       size_t gOffset, size_t numGather, Uniray<size_t, llint, llint>& gather);
 };
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL
 
-#endif // PIOL_READMODEL_HH
+#endif  // PIOL_READMODEL_HH

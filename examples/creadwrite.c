@@ -13,16 +13,17 @@
 
 #include <assert.h>
 #include <stddef.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 typedef void (*ModTrc)(size_t, size_t, float*);
 typedef void (*ModPrm)(size_t, size_t, PIOL_File_Param*);
 
-size_t max(size_t a, size_t b) {
-    if(a > b) {
+size_t max(size_t a, size_t b)
+{
+    if (a > b) {
         return a;
     }
     return b;
@@ -110,8 +111,8 @@ int ReadWriteFile(
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
     PIOL_ExSeis_isErr(piol, NULL);
 
-    struct PIOL_Range dec =
-      PIOL_decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    struct PIOL_Range dec = PIOL_decompose(
+      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
     size_t tcnt = memmax / max(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
 
     writePayload(piol, ifh, ofh, dec.offset, dec.size, tcnt, fprm, ftrc);
@@ -154,11 +155,11 @@ int main(int argc, char** argv)
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = malloc((strlen(optarg)+1)*sizeof(char));
+                iname = malloc((strlen(optarg) + 1) * sizeof(char));
                 strcpy(iname, optarg);
                 break;
             case 'o':
-                oname = malloc((strlen(optarg)+1)*sizeof(char));
+                oname = malloc((strlen(optarg) + 1) * sizeof(char));
                 strcpy(oname, optarg);
                 break;
             case 'm':

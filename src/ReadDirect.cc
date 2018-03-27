@@ -5,9 +5,9 @@
 
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 
-#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/anc/piol.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
@@ -25,7 +25,7 @@ ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 
 ReadDirect::ReadDirect(std::shared_ptr<ReadInterface> file_) : file(file_) {}
 
-ReadDirect::~ReadDirect()   = default;
+ReadDirect::~ReadDirect() = default;
 
 const std::string& ReadDirect::readText(void) const
 {
@@ -77,5 +77,5 @@ void ReadDirect::readParamNonContiguous(
     file->readParamNonContiguous(sz, offset, prm);
 }
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL

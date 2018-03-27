@@ -4,8 +4,8 @@
 #include "checkreturnlistener.hh"
 #include "printers.hh"
 
-#include "gmock/gmock.h"
 #include "googletest_variable_instances.hh"
+#include "gmock/gmock.h"
 
 
 namespace PIOL {

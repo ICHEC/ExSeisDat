@@ -326,8 +326,7 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm)
     return sort(piol, prm, getComp(type));
 }
 
-bool checkOrder(
-  ReadInterface* src, Range dec, SortType type)
+bool checkOrder(ReadInterface* src, Range dec, SortType type)
 {
     auto comp = getComp(type);
     Param prm(dec.size);

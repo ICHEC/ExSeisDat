@@ -10,14 +10,14 @@
 #ifndef PIOLFILE_INCLUDE_GUARD
 #define PIOLFILE_INCLUDE_GUARD
 
+#include "ExSeisDat/PIOL/file/Model3dInterface.hh"
 #include "ExSeisDat/PIOL/file/ReadInterface.hh"
 #include "ExSeisDat/PIOL/file/WriteInterface.hh"
-#include "ExSeisDat/PIOL/file/Model3dInterface.hh"
 
 #include "ExSeisDat/PIOL/object/object.hh"
 
-#include <string>
 #include <memory>
+#include <string>
 #include <type_traits>
 
 
