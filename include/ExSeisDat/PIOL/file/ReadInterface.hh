@@ -27,22 +27,22 @@ class ReadInterface {
     std::shared_ptr<ExSeisPIOL> piol;
 
     /// Store the file name for debugging purposes.
-    std::string name;
+    std::string name = "";
 
     /// Pointer to the Object-layer object (polymorphic).
     std::shared_ptr<Obj::Interface> obj;
 
     /// The number of samples per trace.
-    size_t ns;
+    size_t ns = 0;
 
     /// The number of traces.
-    size_t nt;
+    size_t nt = 0;
 
     /// Human readable text extracted from the file
-    std::string text;
+    std::string text = "";
 
     /// The increment between samples in a trace
-    geom_t inc;
+    geom_t inc = 0;
 
   public:
     /*! @brief The constructor.

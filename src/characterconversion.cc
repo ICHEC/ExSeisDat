@@ -125,9 +125,13 @@ static const EbcdicAsciiPairs ebcdicAsciiPairs = {
 static EbcdicAsciiPairs buildEbcdicToAsciiMap()
 {
     EbcdicAsciiPairs a = ebcdicAsciiPairs;
-    std::sort(
-      std::begin(a), std::end(a),
-      [](EbcdicAsciiPair a, EbcdicAsciiPair b) { return a.ebcdic < b.ebcdic; });
+
+    const auto less_ebcdic = [](EbcdicAsciiPair a, EbcdicAsciiPair b) {
+        return a.ebcdic < b.ebcdic;
+    };
+
+    std::sort(std::begin(a), std::end(a), less_ebcdic);
+
     return a;
 }
 
@@ -136,9 +140,13 @@ static EbcdicAsciiPairs buildEbcdicToAsciiMap()
 static EbcdicAsciiPairs buildAsciiToEbcdicMap()
 {
     EbcdicAsciiPairs a = ebcdicAsciiPairs;
-    std::sort(
-      std::begin(a), std::end(a),
-      [](EbcdicAsciiPair a, EbcdicAsciiPair b) { return a.ascii < b.ascii; });
+
+    const auto less_ascii = [](EbcdicAsciiPair a, EbcdicAsciiPair b) {
+        return a.ascii < b.ascii;
+    };
+
+    std::sort(std::begin(a), std::end(a), less_ascii);
+
     return a;
 }
 
@@ -155,13 +163,16 @@ static const auto asciiToEbcdicMap = buildAsciiToEbcdicMap();
 
 char ebcdicToAscii(uchar ebcdic_char)
 {
+    const auto compare_ebcdic = [](EbcdicAsciiPair a, uchar b) {
+        // Search by EBCDIC
+        return a.ebcdic < b;
+    };
+
     // Use std::lower_bound for a binary search lookup
     const auto& ascii_char_it = std::lower_bound(
       std::begin(ebcdicToAsciiMap), std::end(ebcdicToAsciiMap), ebcdic_char,
-      [](EbcdicAsciiPair a, uchar b) {
-          // Search by EBCDIC
-          return a.ebcdic < b;
-      });
+      compare_ebcdic);
+
     if (ascii_char_it == std::end(ebcdicToAsciiMap)) {
         return char_sub.ascii;
     }
@@ -170,23 +181,28 @@ char ebcdicToAscii(uchar ebcdic_char)
 
 char asciiToEbcdic(uchar ascii_char)
 {
+    const auto compare_ascii = [](EbcdicAsciiPair a, uchar b) {
+        // Search by ASCII
+        return a.ascii < b;
+    };
+
     const auto& ebcdic_char_it = std::lower_bound(
       std::begin(ebcdicToAsciiMap), std::end(ebcdicToAsciiMap), ascii_char,
-      [](EbcdicAsciiPair a, uchar b) {
-          // Search by ASCII
-          return a.ascii < b;
-      });
+      compare_ascii);
+
     if (ebcdic_char_it == std::end(ebcdicToAsciiMap)) {
         return char_sub.ebcdic;
     }
     return ebcdic_char_it->ebcdic;
 }
 
-void getAscii(ExSeisPIOL*, const std::string&, size_t sz, uchar* src)
-{
-    for (size_t i = 0; i < sz; i++) {
-        src[i] = ebcdicToAscii(src[i]);
-    }
+bool is_printable_ASCII(uchar ascii_char) {
+    // Printable ASCII chars are in the range [0x20, 0x7E].
+    return (ascii_char >= 0x20 && ascii_char <= 0x7E);
+}
+
+bool is_printable_EBCDIC(uchar ebcdic_char) {
+    return is_printable_ASCII(ebcdicToAscii(ebcdic_char));
 }
 
 }  // namespace PIOL

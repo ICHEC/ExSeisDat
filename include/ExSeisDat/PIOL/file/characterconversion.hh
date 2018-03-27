@@ -30,16 +30,15 @@ char ebcdicToAscii(uchar ebcdic_char);
  */
 char asciiToEbcdic(uchar ascii_char);
 
-/*! @brief This function detects if the given unsigned character array contains
- *         EBCDIC text. If so, it converts the string. Otherwise it is
- *         unmodified.
- *  @param[in,out] piol The PIOL object
- *  @param[in]     file The name of the file (for error reporting)
- *  @param[in]     sz   The length of the string.
- *  @param[in,out] src  The EBCDIC or ASCII string. After the function ends, the
- *                      string is ASCII
- */
-void getAscii(ExSeisPIOL* piol, const std::string& file, size_t sz, uchar* src);
+/// Determine whether an input character is a printable ASCII character
+/// @param[in] ascii_char The character to test.
+/// @return Whether \c ascii_char represents a printable ASCII character.
+bool is_printable_ASCII(uchar ascii_char);
+
+/// Determine whether an input character is a printable EBCDIC character
+/// @param[in] ebcdic_char The character to test.
+/// @return Whether \c ebcdic_char represents a printable EBCDIC character.
+bool is_printable_EBCDIC(uchar ebcdic_char);
 
 }  // namespace PIOL
 

@@ -16,6 +16,9 @@
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
+#include <algorithm>
+#include <cassert>
+
 namespace PIOL {
 namespace File {
 
@@ -30,23 +33,56 @@ ReadSEGY::ReadSEGY(
   const std::string name_,
   const ReadSEGY::Opt& opt,
   std::shared_ptr<Obj::Interface> obj_) :
-    ReadInterface(piol_, name_, obj_)
+    ReadInterface(piol_, name_, obj_),
+    format(Format::IEEE),
+    incFactor(opt.incFactor)
 {
-    incFactor   = opt.incFactor;
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz  = obj->getFileSz();
 
+    // Read the global header data, if there is any.
     if (fsz >= hoSz) {
+
+        // Read the header into buf
         auto buf = std::vector<uchar>(hoSz);
         obj->readHO(buf.data());
-        procHeader(fsz, buf.data());
-    }
-    else {
-        format = Format::IEEE;
-        ns     = 0LU;
-        nt     = 0LU;
-        inc    = geom_t(0);
-        text   = "";
+
+        // Read the number of samples, traces, the increment and the format
+        // from buf.
+        ns     = getMd(Hdr::NumSample, buf.data());
+        nt     = SEGSz::getNt(fsz, ns);
+        inc    = geom_t(getMd(Hdr::Increment, buf.data())) * incFactor;
+        format = static_cast<Format>(getMd(Hdr::Type, buf.data()));
+
+        // Set this->text to the ASCII encoding of the text header data read
+        // into buf.
+        // Determine if the current encoding is ASCII or EBCDIC from number of
+        // printable ASCII or EBCDIC characters in the string.
+
+        // Text header bounds
+        assert(buf.size() > SEGSz::getTextSz());
+        const auto text_header_begin = std::begin(buf);
+        const auto text_header_end   = text_header_begin + SEGSz::getTextSz();
+
+        // Count printable ASCII
+        const size_t n_printable_ascii =
+          std::count_if(text_header_begin, text_header_end, is_printable_ASCII);
+
+        // Count printable EBCDIC
+        const size_t n_printable_ebcdic = std::count_if(
+          text_header_begin, text_header_end, is_printable_EBCDIC);
+
+        if (n_printable_ascii > n_printable_ebcdic) {
+            // The string is in ASCII, copy it.
+            std::copy(
+              text_header_begin, text_header_end, std::back_inserter(text));
+        }
+        else {
+            // The string is in EBCDIC, transform and copy it.
+            std::transform(
+              text_header_begin, text_header_end, std::back_inserter(text),
+              ebcdicToAscii);
+        }
     }
 }
 
@@ -56,18 +92,6 @@ ReadSEGY::ReadSEGY(
   std::shared_ptr<Obj::Interface> obj_) :
     ReadSEGY(piol_, name_, ReadSEGY::Opt(), obj_)
 {
-}
-
-void ReadSEGY::procHeader(size_t fsz, uchar* buf)
-{
-    ns     = getMd(Hdr::NumSample, buf);
-    nt     = SEGSz::getNt(fsz, ns);
-    inc    = geom_t(getMd(Hdr::Increment, buf)) * incFactor;
-    format = static_cast<Format>(getMd(Hdr::Type, buf));
-
-    getAscii(piol.get(), name, SEGSz::getTextSz(), buf);
-    for (size_t i = 0LU; i < SEGSz::getTextSz(); i++)
-        text.push_back(buf[i]);
 }
 
 size_t ReadSEGY::readNt(void) const

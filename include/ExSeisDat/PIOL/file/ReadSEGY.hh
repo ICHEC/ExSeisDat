@@ -42,14 +42,6 @@ class ReadSEGY : public ReadInterface {
     /// The increment factor
     unit_t incFactor;
 
-    /*! @brief Read the text and binary header and store the metadata variables
-     *         in this SEGY object.
-     *  @param[in] fsz The size of the file in bytes
-     *  @param[in, out] buf The buffer to parse. The buffer is destructively
-     *                      modified
-     */
-    void procHeader(const size_t fsz, uchar* buf);
-
   public:
     /*! @brief The SEGY-Object class constructor.
      *  @param[in] piol_   This PIOL ptr is not modified but is used to
