@@ -1,9 +1,10 @@
 #ifndef PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
-
 #include "gmock/gmock.h"
+#include "googletest_variable_instances.hh"
+
+#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 
 namespace PIOL {
 namespace File {

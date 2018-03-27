@@ -74,7 +74,10 @@ target_link_libraries(spectests exseisdat)
 add_library(
     wraptests
 
+    wraptests/googletest_variable_instances.cc
+
     wraptests/intercepted_c_bindings.cc
+
     wraptests/checkreturnlistener.cc
     wraptests/exseis.cc
     wraptests/exseiswraptest.cc

@@ -2,6 +2,7 @@
 #define PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 
 #include "gmock/gmock.h"
+#include "googletest_variable_instances.hh"
 
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 

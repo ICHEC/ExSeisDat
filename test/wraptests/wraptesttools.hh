@@ -5,6 +5,7 @@
 #include "printers.hh"
 
 #include "gmock/gmock.h"
+#include "googletest_variable_instances.hh"
 
 
 namespace PIOL {

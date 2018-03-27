@@ -2,6 +2,7 @@
 #define PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
 
 #include "gtest/gtest.h"
+#include "googletest_variable_instances.hh"
 
 namespace PIOL {
 
