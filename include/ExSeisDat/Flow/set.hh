@@ -33,6 +33,9 @@ typedef std::function<std::vector<size_t>(TraceBlock* data)> InPlaceMod;
 /*! A parent class to allow gather operations to maintain a state.
  */
 struct gState {
+    /// Virtual destructor
+    virtual ~gState() = default;
+
     /*! A virtual function which can be overridden to create the
      *  gather-operation state.
      *  @param[in] offset A list of gather-numbers to be processed by the local
@@ -49,23 +52,31 @@ struct gState {
 struct RadonState : public gState {
     /// The piol object.
     std::shared_ptr<ExSeisPIOL> piol;
+
     /// The name of the Velocity Model (VM) file.
     std::string vmname;
+
     /// Trace data read from the VM file.
     std::vector<trace_t> vtrc;
+
     /// A list of inlines corresponding to the VM data read.
     std::vector<llint> il;
+
     /// A list of crosslines corresponding to the VM data read.
     std::vector<llint> xl;
 
     /// The number of samples per trace for the VM.
     size_t vNs;
+
     /// The binning factor to be used.
     size_t vBin;
+
     /// The number of traces per gather in the angle output.
     size_t oGSz;
+
     /// The increment between samples in the VM file.
     geom_t vInc;
+
     /// The increment between samples in the output file (radians).
     geom_t oInc;
 
@@ -91,6 +102,9 @@ struct RadonState : public gState {
         oInc(oInc_)
     {
     }
+
+    /// Virtual destructor
+    virtual ~RadonState() = default;
 
     void makeState(
       const std::vector<size_t>& offset,

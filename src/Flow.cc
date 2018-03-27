@@ -251,12 +251,13 @@ std::vector<std::string> Set::startSingle(
             for (size_t i = 0; i < lnt; i += max) {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
                 std::vector<trace_t> trc(rblock * ns);
-// TODO: Rule should be made of rules stored in function list
-#warning Use non-monotonic call here
+                /// @todo Rule should be made of rules stored in function list
                 File::Param prm(rule, rblock);
 
+                /// @todo Use non-monotonic call here
                 in->readTraceNonContiguous(
                   rblock, f->ilst.data() + i, trc.data(), &prm);
+
                 std::vector<size_t> sortlist =
                   getSortIndex(rblock, f->olst.data() + i);
 
@@ -477,29 +478,39 @@ std::vector<std::string> Set::calcFunc(
   FuncLst::iterator fCurr, const FuncLst::iterator fEnd)
 {
     if (fCurr != fEnd) {
-        if ((*fCurr)->opt.check(FuncOpt::SubSetOnly))
+        if ((*fCurr)->opt.check(FuncOpt::SubSetOnly)) {
             fCurr = startSubset(fCurr, fEnd);
+        }
         else if ((*fCurr)->opt.check(FuncOpt::Gather)) {
             std::string gname = startGather(fCurr, fEnd);
+
             // If startGather returned an empty string, then fCurr == fEnd was
             // reached.
             if (gname != "") {
                 return std::vector<std::string>{gname};
             }
 
-// TODO: Later this will need to be changed when the gather also continues with
-//       single trace cases
-#warning Trick goes here
-            for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather);
-                 ++fCurr)
-                ;
+            /// @todo Later this will need to be changed when the gather also
+            ///       continues with single trace cases
+            // Skip fCurr where check(FuncOpt::Gather) is ok
+            for (; fCurr != fEnd; ++fCurr) {
+                if (!(*fCurr)->opt.check(FuncOpt::Gather)) {
+                    break;
+                }
+            }
         }
         else if ((*fCurr)->opt.check(FuncOpt::SingleTrace)) {
             std::vector<std::string> sname = startSingle(fCurr, fEnd);
-            if (sname.size()) return sname;
-            for (; fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::SingleTrace);
-                 ++fCurr)
-                ;
+
+            if (sname.size()) {
+                return sname;
+            }
+
+            for (; fCurr != fEnd; ++fCurr) {
+                if (!(*fCurr)->opt.check(FuncOpt::SingleTrace)) {
+                    break;
+                }
+            }
         }
         else {
             std::cerr
@@ -509,6 +520,7 @@ std::vector<std::string> Set::calcFunc(
 
         calcFunc(fCurr, fEnd);
     }
+
     return std::vector<std::string>{};
 }
 

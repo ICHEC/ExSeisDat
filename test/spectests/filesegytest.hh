@@ -52,7 +52,9 @@ struct ReadSEGY_public : public File::ReadSEGY {
     static ReadSEGY_public* get(ReadInterface* read_interface)
     {
         auto* read_segy_public = dynamic_cast<ReadSEGY_public*>(read_interface);
+
         assert(read_segy_public != nullptr);
+
         return read_segy_public;
     }
 };
@@ -73,7 +75,9 @@ struct WriteSEGY_public : public File::WriteSEGY {
     {
         auto* write_segy_public =
           dynamic_cast<WriteSEGY_public*>(write_interface);
+
         assert(write_segy_public != nullptr);
+
         return write_segy_public;
     }
 };
@@ -123,6 +127,7 @@ class MockObj : public Obj::Interface {
         Obj::Interface(piol_, name_, data_)
     {
     }
+
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
     MOCK_CONST_METHOD1(readHO, void(uchar*));
     MOCK_CONST_METHOD1(setFileSz, void(const size_t));
@@ -157,10 +162,13 @@ class MockObj : public Obj::Interface {
 
 struct FileReadSEGYTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::New();
-    bool testEBCDIC              = false;
-    std::string testString       = {
+
+    bool testEBCDIC = false;
+
+    std::string testString = {
       "This is a string for testing EBCDIC conversion etc.\n"
       "The quick brown fox jumps over the lazy dog."};
+
     // The testString in EBCDIC encoding.
     std::string ebcdicTestString = {
       // This is a string for testing EBCDIC conversion etc.\n
@@ -173,21 +181,29 @@ struct FileReadSEGYTest : public Test {
       "\xE3\x88\x85\x40\x98\xA4\x89\x83\x92\x40\x82\x99\x96\xA6\x95\x40\x86"
       "\x96\xA7\x40\x91\xA4\x94\x97\xA2\x40\x96\xA5\x85\x99\x40\xA3\x88\x85"
       "\x40\x93\x81\xA9\xA8\x40\x84\x96\x87\x4B"};
+
     std::unique_ptr<File::ReadDirect> file = nullptr;
+
     std::vector<uchar> tr;
-    size_t nt             = 40U;
-    size_t ns             = 200U;
-    int inc               = 10;
-    const size_t format   = 5;
+
+    size_t nt           = 40U;
+    size_t ns           = 200U;
+    int inc             = 10;
+    const size_t format = 5;
+
     std::vector<uchar> ho = std::vector<uchar>(SEGSz::getHOSz());
+
     std::shared_ptr<MockObj> mock;
 
     ~FileReadSEGYTest() { Mock::VerifyAndClearExpectations(&mock); }
 
+    // Make a ReadDirect with SEGY object layer.
     template<bool OPTS = false>
     void makeSEGY(std::string name)
     {
         if (file.get() != nullptr) file.reset();
+
+        // Make a ReadDirect reader with options if OPTS = true.
         if (OPTS) {
             Data::MPIIO::Opt dopt;
             Obj::SEGY::Opt oopt;
@@ -195,68 +211,98 @@ struct FileReadSEGYTest : public Test {
             file =
               std::make_unique<File::ReadDirect>(piol, name, dopt, oopt, fopt);
         }
-        else
+        else {
             file = std::make_unique<File::ReadDirect>(piol, name);
+        }
 
         piol->isErr();
     }
 
+    // Make a ReadDirect with mock Object layer instance. Set this.file to it.
     void makeMockSEGY()
     {
         if (file.get() != nullptr) file.reset();
         if (mock != nullptr) mock.reset();
+
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
         piol->isErr();
         Mock::AllowLeak(mock.get());
 
+        // Add EBCIDIC or ASCII string to start of header.
         if (testEBCDIC) {
             // Create an EBCDID string to convert back to ASCII in the test
             std::copy(
               std::begin(ebcdicTestString), std::end(ebcdicTestString),
               std::begin(ho));
         }
-        else
-            for (size_t i = 0; i < testString.size(); i++)
+        else {
+            for (size_t i = 0; i < testString.size(); i++) {
                 ho[i] = testString[i];
-        if (testString.size())
-            for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++)
-                ho[i] = ho[i % testString.size()];
+            }
+        }
 
+        // Fill the header to SEGSz::getTextSz().
+        if (testString.size()) {
+            for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++) {
+                ho[i] = ho[i % testString.size()];
+            }
+        }
+
+        // Set the number of samples (in Big Endian)
         ho[NumSample]     = ns >> 8 & 0xFF;
         ho[NumSample + 1] = ns & 0xFF;
+
+        // Set the increment (in Big Endian)
         ho[Increment]     = inc >> 8 & 0xFF;
         ho[Increment + 1] = inc & 0xFF;
-        ho[Type + 1]      = format;
+
+        // Set the number type
+        ho[Type + 1] = format;
 
         EXPECT_CALL(*mock, getFileSz())
           .Times(Exactly(1))
           .WillOnce(Return(SEGSz::getHOSz() + nt * SEGSz::getDOSz(ns)));
+
         EXPECT_CALL(*mock, readHO(_))
           .Times(Exactly(1))
           .WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 
+        // Use ReadSEGY_public so test functions can access the ReadSEGY
+        // internals.
         auto sfile = std::make_shared<ReadSEGY_public>(piol, notFile, mock);
         file       = std::make_unique<File::ReadDirect>(std::move(sfile));
     }
 
+    // Initialize the trace data array and the trace headers in that array.
     void initTrBlock()
     {
+        // Set the right size
         tr.resize(nt * SEGSz::getMDSz());
+
+        // Loop over the traces
         for (size_t i = 0; i < nt; i++) {
+            // Set md to the start of the current trace
             uchar* md = &tr[i * SEGSz::getMDSz()];
+
+            // Set the inline, crossline values for the current trace
             getBigEndian(ilNum(i), &md[il]);
             getBigEndian(xlNum(i), &md[xl]);
 
+            // Set the scale for the current trace
             int16_t scale;
             int16_t scal1 = deScale(xNum(i));
             int16_t scal2 = deScale(yNum(i));
 
-            if (scal1 > 1 || scal2 > 1)
+            if (scal1 > 1 || scal2 > 1) {
                 scale = std::max(scal1, scal2);
-            else
+            }
+            else {
                 scale = std::min(scal1, scal2);
+            }
 
             getBigEndian(scale, &md[ScaleCoord]);
+
+            // Set the x and y source header.
             getBigEndian(int32_t(std::lround(xNum(i) / scale)), &md[xSrc]);
             getBigEndian(int32_t(std::lround(yNum(i) / scale)), &md[ySrc]);
         }
@@ -266,6 +312,7 @@ struct FileReadSEGYTest : public Test {
     {
         std::vector<uchar>::iterator iter =
           tr.begin() + offset * SEGSz::getMDSz();
+
         EXPECT_CALL(*mock.get(), readDOMD(offset, ns, 1U, _))
           .Times(Exactly(1))
           .WillRepeatedly(SetArrayArgument<3>(iter, iter + SEGSz::getMDSz()));
@@ -365,10 +412,18 @@ struct FileReadSEGYTest : public Test {
         }
     }
 
+    /// Test reading the trace data. The data read should match the data
+    /// previously defined.
+    /// @param[in] offset The trace to start reading from
+    /// @param[in] tn     The number of traces to read
     template<bool readPrm = false, bool MOCK = true, bool RmRule = false>
     void readTraceTest(const size_t offset, size_t tn)
     {
-        size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
+        size_t tnRead = tn;
+        if (nt > offset) {
+            tnRead = std::min(nt - offset, tn);
+        }
+
         std::vector<uchar> buf;
         if (MOCK) {
             if (mock == nullptr) {
@@ -376,33 +431,44 @@ struct FileReadSEGYTest : public Test {
                           << __LINE__ << std::endl;
                 return;
             }
-            if (readPrm)
+            if (readPrm) {
+                // Reading Params, need to read whole data obect
                 buf.resize(tnRead * SEGSz::getDOSz(ns));
-            else
+            }
+            else {
+                // Not reading params, only need to read the trace data
                 buf.resize(tnRead * SEGSz::getDFSz(ns));
+            }
+
             for (size_t i = 0U; i < tnRead; i++) {
-                if (readPrm)
+                if (readPrm) {
                     std::copy(
                       tr.begin() + (offset + i) * SEGSz::getMDSz(),
                       tr.begin() + (offset + i + 1) * SEGSz::getMDSz(),
                       buf.begin() + i * SEGSz::getDOSz(ns));
+                }
+
                 for (size_t j = 0U; j < ns; j++) {
                     float val   = offset + i + j;
                     size_t addr = readPrm ?
                                     (i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()
                                      + j * sizeof(float)) :
                                     (i * ns + j) * sizeof(float);
+
                     getBigEndian(toint(val), &buf[addr]);
                 }
             }
-            if (readPrm)
+
+            if (readPrm) {
                 EXPECT_CALL(*mock, readDO(offset, ns, tnRead, _))
                   .Times(Exactly(1))
                   .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-            else
+            }
+            else {
                 EXPECT_CALL(*mock, readDODF(offset, ns, tnRead, _))
                   .Times(Exactly(1))
                   .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
+            }
         }
 
         std::vector<trace_t> bufnew(tn * ns);
@@ -423,9 +489,11 @@ struct FileReadSEGYTest : public Test {
             rule->addSEGYFloat(
               PIOL_META_ySrc, PIOL_TR_ySrc, PIOL_TR_ScaleCoord);
         }
+
         File::Param prm(rule, tn);
         file->readTrace(
           offset, tn, bufnew.data(), (readPrm ? &prm : PIOL_PARAM_NULL));
+
         for (size_t i = 0U; i < tnRead; i++) {
             if (readPrm && tnRead && ns) {
                 ASSERT_EQ(
@@ -439,6 +507,7 @@ struct FileReadSEGYTest : public Test {
                     ASSERT_DOUBLE_EQ(
                       xNum(i + offset),
                       File::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+
                     ASSERT_DOUBLE_EQ(
                       yNum(i + offset),
                       File::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
@@ -447,14 +516,17 @@ struct FileReadSEGYTest : public Test {
                     ASSERT_FLOAT_EQ(
                       xNum(i + offset),
                       File::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+
                     ASSERT_FLOAT_EQ(
                       yNum(i + offset),
                       File::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
             }
-            for (size_t j = 0U; j < ns; j++)
+
+            for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(bufnew[i * ns + j], float(offset + i + j))
                   << "Trace Number: " << i << " " << j;
+            }
         }
     }
 

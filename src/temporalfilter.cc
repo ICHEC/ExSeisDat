@@ -50,7 +50,6 @@ size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
 
 void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
 {
-    cmtrace_t vecTemp;
     std::vector<cmtrace_t> vecXpnd(nvx + 1LU);
 
     vecXpnd[0LU] = -coef[0LU];
