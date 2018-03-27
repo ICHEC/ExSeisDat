@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,12 +12,12 @@ int main(int argc, char** argv)
     fseek(fs, 3220U, SEEK_SET);
     fread(cns, sizeof(char), 2U, fs);
     int64_t ns = cns[0] << 8 | cns[1];
-    fprintf(stderr, "int16_t ns = %li\n", ns);
+    fprintf(stderr, "int16_t ns = %" PRId64 "\n", ns);
 
     fseek(fs, 0U, SEEK_END);
 
     int64_t fsz = ftell(fs);
-    fprintf(stderr, "uint64_t fsz = %li\n", fsz);
+    fprintf(stderr, "uint64_t fsz = %" PRId64 "\n", fsz);
     size_t nt = (fsz - 3600U) / (sizeof(float) * ns + 240U);
     assert(!((fsz - 3600U) % (sizeof(float) * ns + 240U)));
 
