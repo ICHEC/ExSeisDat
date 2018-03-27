@@ -8,6 +8,7 @@
 #include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 void createFile(const char* name, size_t nt, size_t ns, size_t inc)
 {
