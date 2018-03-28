@@ -6,12 +6,10 @@
 #define EXSEISDAT_PIOL_FILE_WRITESEGY_HH
 
 #include "ExSeisDat/PIOL/WriteInterface.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {
 namespace File {
-
-/// Data Format options
-enum class Format : int16_t;
 
 /*! The SEG-Y implementation of the file layer
  */
@@ -37,17 +35,20 @@ class WriteSEGY : public WriteInterface {
     bool nsSet = false;
 
     /// Type formats
-    Format format;
+    SEGY_utils::SEGYNumberFormat number_format =
+      SEGY_utils::SEGYNumberFormat::IEEE;
 
     /*! State flags structure for SEGY
      */
     struct Flags {
         /// The header should be written before SEGY object is deleted
-        uint64_t writeHO : 1;
+        bool writeHO = false;
+
         /// The file should be resized before SEGY object is deleted.
-        uint64_t resize : 1;
+        bool resize = false;
+
         /// The nt value is stale and should be resynced.
-        uint64_t stalent : 1;
+        bool stalent = false;
     };
 
     /// State flags are stored in this structure
@@ -55,18 +56,6 @@ class WriteSEGY : public WriteInterface {
 
     /// The increment factor
     unit_t incFactor;
-
-    /*! @brief This function packs the state of the class object into the
-     *         header.
-     *  @param[in] buf The header object buffer
-     */
-    void packHeader(uchar* buf) const;
-
-    /*! @brief This function initialises the SEGY specific portions of the
-     *         class.
-     *  @param[in] segyOpt The SEGY-File options
-     */
-    void Init(const WriteSEGY::Opt& segyOpt);
 
     /*! Calculate the number of traces currently stored (or implied to exist).
      *  @return Return the number of traces

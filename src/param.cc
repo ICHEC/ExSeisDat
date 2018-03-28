@@ -3,7 +3,7 @@
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 
@@ -64,8 +64,10 @@ void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst)
     Rule* srule = src->r.get();
     Rule* drule = dst->r.get();
 
-    if (srule->numCopy)
-        extractParam(1LU, &src->c[j * SEGSz::getMDSz()], dst, 0LU, k);
+    if (srule->numCopy) {
+        SEGY_utils::extractParam(
+          1LU, &src->c[j * SEGSz::getMDSz()], dst, 0LU, k);
+    }
 
     if (srule == drule) {
         Rule* r = srule;

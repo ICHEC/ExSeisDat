@@ -10,7 +10,8 @@
 
 #include "segymdextra.hh"
 
-#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {
 namespace File {
@@ -28,7 +29,7 @@ namespace File {
 geom_t getMd(const TrScal scal, const uchar* src)
 {
     auto scale = getHost<int16_t>(&src[size_t(scal) - 1U]);
-    return scaleConv(scale);
+    return SEGY_utils::parse_scalar(scale);
 }
 
 /*! @brief Get the specified coordinate from the Trace header.
@@ -72,7 +73,7 @@ void setCoord(
   const Coord item, const coord_t coord, const int16_t scale, uchar* buf)
 {
     auto pair     = getPair(item);
-    geom_t gscale = scaleConv(scale);
+    geom_t gscale = SEGY_utils::parse_scalar(scale);
     getBigEndian(
       int32_t(std::lround(coord.x / gscale)), &buf[size_t(pair.first) - 1U]);
     getBigEndian(
@@ -145,8 +146,8 @@ int16_t calcScale(const coord_t coord)
 {
     // I get the minimum value so that I definitely store the result.
     // This is at the expense of precision.
-    int16_t scal1 = deScale(coord.x);
-    int16_t scal2 = deScale(coord.y);
+    int16_t scal1 = SEGY_utils::find_scalar(coord.x);
+    int16_t scal2 = SEGY_utils::find_scalar(coord.y);
     return scalComp(scal1, scal2);
 }
 

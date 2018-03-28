@@ -9,9 +9,9 @@
 
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
-#include "ExSeisDat/PIOL/file/segymd.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
 
 #include <cstring>
 #include <limits>
@@ -31,23 +31,27 @@ WriteSEGY::WriteSEGY(
   const std::string name_,
   const WriteSEGY::Opt& opt,
   std::shared_ptr<Obj::Interface> obj_) :
-    WriteInterface(piol_, name_, obj_)
+    WriteInterface(piol_, name_, obj_),
+    incFactor(opt.incFactor)
 {
-    Init(opt);
+    using namespace SEGY_utils;
+
+    memset(&state, 0, sizeof(Flags));
+    state.writeHO = true;
 }
 
 WriteSEGY::WriteSEGY(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
   std::shared_ptr<Obj::Interface> obj_) :
-    WriteInterface(piol_, name_, obj_)
+    WriteSEGY(piol_, name_, WriteSEGY::Opt(), obj_)
 {
-    WriteSEGY::Opt opt;
-    Init(opt);
 }
 
 WriteSEGY::~WriteSEGY(void)
 {
+    using namespace SEGY_utils;
+
     // TODO: On error this can be a source of a deadlock
     if (!piol->log->isErr()) {
         calcNt();
@@ -57,10 +61,44 @@ WriteSEGY::~WriteSEGY(void)
         }
 
         if (state.writeHO) {
-            if (!piol->comm->getRank()) {
-                std::vector<uchar> buf(SEGSz::getHOSz());
-                packHeader(buf.data());
-                obj->writeHO(buf.data());
+            // Write file header on rank 0.
+            if (piol->comm->getRank() == 0) {
+                // The buffer to build the header in
+                std::vector<uchar> header_buffer(SEGSz::getHOSz());
+
+                // Write the text header into the start of the buffer.
+                std::copy(
+                  std::begin(text), std::end(text), std::begin(header_buffer));
+
+                // Write ns, the number format, and the interval
+                getBigEndian<int16_t>(
+                  ns, &header_buffer[SEGYFileHeaderByte::NumSample]);
+                getBigEndian<int16_t>(
+                  static_cast<int16_t>(SEGYNumberFormat::IEEE),
+                  &header_buffer[SEGYFileHeaderByte::Type]);
+                getBigEndian<int16_t>(
+                  std::lround(inc / incFactor),
+                  &header_buffer[SEGYFileHeaderByte::Interval]);
+
+                // Currently these are hard-coded entries:
+                // The unit system.
+                getBigEndian<int16_t>(
+                  0x0001, &header_buffer[SEGYFileHeaderByte::Units]);
+
+                // The version of the SEGY format.
+                getBigEndian<int16_t>(
+                  0x0100, &header_buffer[SEGYFileHeaderByte::SEGYFormat]);
+
+                // We always deal with fixed traces at present.
+                getBigEndian<int16_t>(
+                  0x0001, &header_buffer[SEGYFileHeaderByte::FixedTrace]);
+
+                // We do not support text extensions at present.
+                getBigEndian<int16_t>(
+                  0x0000, &header_buffer[SEGYFileHeaderByte::Extensions]);
+
+                // Write the header from the buffer
+                obj->writeHO(header_buffer.data());
             }
             else {
                 obj->writeHO(NULL);
@@ -70,38 +108,6 @@ WriteSEGY::~WriteSEGY(void)
 }
 
 //////////////////////////       Member functions      /////////////////////////
-
-void WriteSEGY::packHeader(uchar* buf) const
-{
-    for (size_t i = 0; i < text.size(); i++)
-        buf[i] = text[i];
-
-    setMd(Hdr::NumSample, int16_t(ns), buf);
-    setMd(Hdr::Type, int16_t(Format::IEEE), buf);
-    setMd(Hdr::Increment, int16_t(std::lround(inc / incFactor)), buf);
-
-    // Currently these are hard-coded entries:
-    // The unit system.
-    setMd(Hdr::Units, 0x0001, buf);
-    // The version of the SEGY format.
-    setMd(Hdr::SEGYFormat, 0x0100, buf);
-    // We always deal with fixed traces at present.
-    setMd(Hdr::FixedTrace, 0x0001, buf);
-    // We do not support text extensions at present.
-    setMd(Hdr::Extensions, 0x0000, buf);
-}
-
-void WriteSEGY::Init(const WriteSEGY::Opt& opt)
-{
-    incFactor = opt.incFactor;
-    memset(&state, 0, sizeof(Flags));
-    format        = Format::IEEE;
-    ns            = 0LU;
-    nt            = 0LU;
-    inc           = geom_t(0);
-    text          = "";
-    state.writeHO = true;
-}
 
 size_t WriteSEGY::calcNt(void)
 {
@@ -153,7 +159,7 @@ void WriteSEGY::writeInc(const geom_t inc_)
     if (std::isnormal(inc_) == false) {
         piol->log->record(
           name, Log::Layer::File, Log::Status::Error,
-          "The SEG-Y Increment " + std::to_string(inc_) + " is not normal.",
+          "The SEG-Y Interval " + std::to_string(inc_) + " is not normal.",
           PIOL_VERBOSITY_NONE);
         return;
     }
@@ -202,7 +208,7 @@ void writeTraceT(
           (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
         std::vector<uchar> alloc(blockSz * sz);
         uchar* buf = (sz ? alloc.data() : nullptr);
-        insertParam(sz, prm, buf, blockSz - SEGSz::getMDSz(), skip);
+        SEGY_utils::insertParam(sz, prm, buf, blockSz - SEGSz::getMDSz(), skip);
 
         if (trc == TRACE_NULL) {
             obj->writeDOMD(offset, ns, sz, buf);

@@ -13,11 +13,13 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 #include <algorithm>
 #include <memory>
@@ -34,7 +36,6 @@ using File::grid_t;
 using File::scalComp;
 using File::setCoord;
 using File::setGrid;
-using PIOL::File::deScale;
 
 
 struct ReadSEGY_public : public File::ReadSEGY {
@@ -290,8 +291,8 @@ struct FileReadSEGYTest : public Test {
 
             // Set the scale for the current trace
             int16_t scale;
-            int16_t scal1 = deScale(xNum(i));
-            int16_t scal2 = deScale(yNum(i));
+            int16_t scal1 = SEGY_utils::find_scalar(xNum(i));
+            int16_t scal2 = SEGY_utils::find_scalar(yNum(i));
 
             if (scal1 > 1 || scal2 > 1) {
                 scale = std::max(scal1, scal2);
@@ -691,8 +692,8 @@ struct FileWriteSEGYTest : public Test {
             getBigEndian(xlNum(i), &md[xl]);
 
             int16_t scale;
-            int16_t scal1 = deScale(xNum(i));
-            int16_t scal2 = deScale(yNum(i));
+            int16_t scal1 = SEGY_utils::find_scalar(xNum(i));
+            int16_t scal2 = SEGY_utils::find_scalar(yNum(i));
 
             if (scal1 > 1 || scal2 > 1)
                 scale = std::max(scal1, scal2);

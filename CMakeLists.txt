@@ -201,6 +201,8 @@ add_library(
     src/WriteSEGY.cc
     src/Rule.cc
 
+    src/segy_utils.cc
+
     src/agc.cc
     src/cache.cc
     src/cmpi.cc
@@ -215,7 +217,6 @@ add_library(
     src/object.cc
     src/objsegy.cc
     src/sdatatype.cc
-    src/segymd.cc
     src/smpi.cc
     src/sort.cc
     src/taper.cc

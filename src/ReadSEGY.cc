@@ -10,12 +10,11 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -35,54 +34,60 @@ ReadSEGY::ReadSEGY(
   const ReadSEGY::Opt& opt,
   std::shared_ptr<Obj::Interface> obj_) :
     ReadInterface(piol_, name_, obj_),
-    format(Format::IEEE),
     incFactor(opt.incFactor)
 {
+    using namespace SEGY_utils;
+
     size_t hoSz = SEGSz::getHOSz();
     size_t fsz  = obj->getFileSz();
 
     // Read the global header data, if there is any.
     if (fsz >= hoSz) {
 
-        // Read the header into buf
-        auto buf = std::vector<uchar>(hoSz);
-        obj->readHO(buf.data());
+        // Read the header into header_buffer
+        auto header_buffer = std::vector<uchar>(hoSz);
+        obj->readHO(header_buffer.data());
 
-        // Read the number of samples, traces, the increment and the format
-        // from buf.
-        ns     = getMd(Hdr::NumSample, buf.data());
-        nt     = SEGSz::getNt(fsz, ns);
-        inc    = geom_t(getMd(Hdr::Increment, buf.data())) * incFactor;
-        format = static_cast<Format>(getMd(Hdr::Type, buf.data()));
+        // Parse the number of samples, traces, the increment and the format
+        // from header_buffer.
+        ns = getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::NumSample]);
+        nt = SEGSz::getNt(fsz, ns);
+        inc =
+          geom_t(getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Interval]))
+          * incFactor;
+        number_format = static_cast<SEGYNumberFormat>(
+          getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Type]));
 
         // Set this->text to the ASCII encoding of the text header data read
-        // into buf.
+        // into header_buffer.
         // Determine if the current encoding is ASCII or EBCDIC from number of
         // printable ASCII or EBCDIC characters in the string.
 
-        // Text header bounds
-        assert(buf.size() > SEGSz::getTextSz());
-        const auto text_header_begin = std::begin(buf);
+        // Text header buffer bounds
+        assert(header_buffer.size() >= SEGSz::getTextSz());
+        const auto text_header_begin = std::begin(header_buffer);
         const auto text_header_end   = text_header_begin + SEGSz::getTextSz();
 
         // Count printable ASCII
-        const size_t n_printable_ascii =
+        const auto n_printable_ascii =
           std::count_if(text_header_begin, text_header_end, is_printable_ASCII);
 
         // Count printable EBCDIC
-        const size_t n_printable_ebcdic = std::count_if(
+        const auto n_printable_ebcdic = std::count_if(
           text_header_begin, text_header_end, is_printable_EBCDIC);
+
+        // Set text object to correct size in preparation for setting
+        text.resize(SEGSz::getTextSz());
 
         if (n_printable_ascii > n_printable_ebcdic) {
             // The string is in ASCII, copy it.
-            std::copy(
-              text_header_begin, text_header_end, std::back_inserter(text));
+            std::copy(text_header_begin, text_header_end, std::begin(text));
         }
         else {
             // The string is in EBCDIC, transform and copy it.
             std::transform(
-              text_header_begin, text_header_end, std::back_inserter(text),
-              ebcdicToAscii);
+              text_header_begin, text_header_end,
+              std::begin(text), ebcdicToAscii);
         }
     }
 }
@@ -102,23 +107,23 @@ size_t ReadSEGY::readNt(void) const
 
 /*! Template function for reading SEG-Y traces and parameters, random and
  *  contiguous.
- *  @tparam T The type of offset (pointer or size_t)
- *  @param[in] obj The object-layer object.
- *  @param[in] format The format of the trace data.
- *  @param[in] ns The number of samples per trace.
- *  @param[in] offset The offset(s). If T == size_t * this is an array,
- *                    otherwise its a single offset.
- *  @param[in] offunc A function which given the ith trace of the local process,
- *                    returns the associated trace offset.
- *  @param[in] sz The number of traces to read
- *  @param[in] trc Pointer to trace array.
- *  @param[in] prm Pointer to parameter structure.
- *  @param[in] skip Skip \c skip entries in the parameter structure
+ *  @tparam T                The type of offset (pointer or size_t)
+ *  @param[in] obj           The object-layer object.
+ *  @param[in] number_format The format of the trace data.
+ *  @param[in] ns            The number of samples per trace.
+ *  @param[in] offset        The offset(s). If T == size_t * this is an array,
+ *                           otherwise its a single offset.
+ *  @param[in] offunc        A function which given the ith trace of the local
+ *                           process, returns the associated trace offset.
+ *  @param[in] sz            The number of traces to read
+ *  @param[in] trc           Pointer to trace array.
+ *  @param[in] prm           Pointer to parameter structure.
+ *  @param[in] skip          Skip \c skip entries in the parameter structure
  */
 template<typename T>
 void readTraceT(
   Obj::Interface* obj,
-  const Format format,
+  const SEGY_utils::SEGYNumberFormat number_format,
   const size_t ns,
   const T offset,
   std::function<size_t(size_t)> offunc,
@@ -127,6 +132,8 @@ void readTraceT(
   Param* prm,
   const size_t skip)
 {
+    using namespace SEGY_utils;
+
     uchar* tbuf = reinterpret_cast<uchar*>(trc);
 
     if (prm == PIOL_PARAM_NULL) {
@@ -162,7 +169,7 @@ void readTraceT(
     }
 
     if (trc != TRACE_NULL && trc != nullptr) {
-        if (format == Format::IBM) {
+        if (number_format == SEGYNumberFormat::IBM) {
             for (size_t i = 0; i < ns * sz; i++) {
                 trc[i] = convertIBMtoIEEE(trc[i], true);
             }
@@ -190,7 +197,7 @@ void ReadSEGY::readTrace(
           "readParam() was called for a zero byte read", PIOL_VERBOSITY_NONE);
     }
     readTraceT(
-      obj.get(), format, ns, offset,
+      obj.get(), number_format, ns, offset,
       [offset](size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);
 }
 
@@ -202,7 +209,7 @@ void ReadSEGY::readTraceNonContiguous(
   const size_t skip) const
 {
     readTraceT(
-      obj.get(), format, ns, offset,
+      obj.get(), number_format, ns, offset,
       [offset](size_t i) -> size_t { return offset[i]; }, sz, trc, prm, skip);
 }
 

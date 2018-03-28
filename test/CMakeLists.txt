@@ -24,6 +24,9 @@ include_directories(
 
     # Include test directory
     ${CMAKE_CURRENT_SOURCE_DIR}
+
+    # Include src directory
+    ${CMAKE_SOURCE_DIR}/src
 )
 
 

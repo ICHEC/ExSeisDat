@@ -6,15 +6,13 @@
 #define EXSEISDAT_PIOL_FILE_READSEGY_HH
 
 #include "ExSeisDat/PIOL/ReadInterface.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 #include <cstdint>
 
 
 namespace PIOL {
 namespace File {
-
-/// Data Format options
-enum class Format : int16_t;
 
 /*! The SEG-Y implementation of the file layer
  */
@@ -37,7 +35,8 @@ class ReadSEGY : public ReadInterface {
 
   private:
     /// Type formats
-    Format format;
+    SEGY_utils::SEGYNumberFormat number_format =
+      SEGY_utils::SEGYNumberFormat::IEEE;
 
     /// The increment factor
     unit_t incFactor;

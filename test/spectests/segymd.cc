@@ -1,7 +1,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "ExSeisDat/PIOL/file/segymd.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
+
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 #include <memory>
 #include <string.h>
@@ -15,65 +17,81 @@ using namespace SEGSz;
 TEST(SEGYMd, ScaleBigIntegers)
 {
     if (sizeof(double) == sizeof(geom_t)) {
-        EXPECT_EQ(10000, deScale(21474836470000.0));
-        EXPECT_EQ(1000, deScale(2147483647000.0));
-        EXPECT_EQ(100, deScale(214748364700.0));
-        EXPECT_EQ(10, deScale(21474836470.0));
-        EXPECT_EQ(10000, deScale(10000000000000.0));
-        EXPECT_EQ(1000, deScale(01000000000000.0));
-        EXPECT_EQ(100, deScale(00100000000000.0));
-        EXPECT_EQ(10, deScale(00010000000000.0));
+        EXPECT_EQ(10000, SEGY_utils::find_scalar(21474836470000.0));
+        EXPECT_EQ(1000, SEGY_utils::find_scalar(2147483647000.0));
+        EXPECT_EQ(100, SEGY_utils::find_scalar(214748364700.0));
+        EXPECT_EQ(10, SEGY_utils::find_scalar(21474836470.0));
+        EXPECT_EQ(10000, SEGY_utils::find_scalar(10000000000000.0));
+        EXPECT_EQ(1000, SEGY_utils::find_scalar(01000000000000.0));
+        EXPECT_EQ(100, SEGY_utils::find_scalar(00100000000000.0));
+        EXPECT_EQ(10, SEGY_utils::find_scalar(00010000000000.0));
 
-        EXPECT_EQ(10000, deScale(21474836470000.0000999));
-        EXPECT_EQ(1000, deScale(2147483647000.0000999));
-        EXPECT_EQ(100, deScale(214748364700.0000999));
-        EXPECT_EQ(10, deScale(21474836470.0000999));
+        EXPECT_EQ(10000, SEGY_utils::find_scalar(21474836470000.0000999));
+        EXPECT_EQ(1000, SEGY_utils::find_scalar(2147483647000.0000999));
+        EXPECT_EQ(100, SEGY_utils::find_scalar(214748364700.0000999));
+        EXPECT_EQ(10, SEGY_utils::find_scalar(21474836470.0000999));
     }
     else if (sizeof(float) == sizeof(geom_t)) {
         // Fix these due to guaranteed big precision loss
-        EXPECT_EQ(10000, deScale(21474836470000.0));
-        EXPECT_EQ(1000, deScale(2147483647000.0));
-        EXPECT_EQ(100, deScale(214748364700.0));
-        EXPECT_EQ(10, deScale(21474836470.0));
+        EXPECT_EQ(10000, SEGY_utils::find_scalar(21474836470000.0));
+        EXPECT_EQ(1000, SEGY_utils::find_scalar(2147483647000.0));
+        EXPECT_EQ(100, SEGY_utils::find_scalar(214748364700.0));
+        EXPECT_EQ(10, SEGY_utils::find_scalar(21474836470.0));
 
-        EXPECT_EQ(10000, deScale(10000000000000.0));  // ok
-        EXPECT_EQ(1000, deScale(01000000000000.0));   // ok
-        EXPECT_EQ(100, deScale(00100000000000.0));    // ok
-        EXPECT_EQ(10, deScale(00010000000000.0));     // ok
+        EXPECT_EQ(10000, SEGY_utils::find_scalar(10000000000000.0));  // ok
+        EXPECT_EQ(1000, SEGY_utils::find_scalar(01000000000000.0));   // ok
+        EXPECT_EQ(100, SEGY_utils::find_scalar(00100000000000.0));    // ok
+        EXPECT_EQ(10, SEGY_utils::find_scalar(00010000000000.0));     // ok
 
-        EXPECT_EQ(10000, deScale(21474836470000.0000999));
-        EXPECT_EQ(1000, deScale(2147483647000.0000999));
-        EXPECT_EQ(100, deScale(214748364700.0000999));
-        EXPECT_EQ(10, deScale(21474836470.0000999));
+        EXPECT_EQ(10000, SEGY_utils::find_scalar(21474836470000.0000999));
+        EXPECT_EQ(1000, SEGY_utils::find_scalar(2147483647000.0000999));
+        EXPECT_EQ(100, SEGY_utils::find_scalar(214748364700.0000999));
+        EXPECT_EQ(10, SEGY_utils::find_scalar(21474836470.0000999));
     }
 }
 
 TEST(SEGYMd, ScaleDecimals)
 {
-    EXPECT_EQ(-10000, deScale(214748.3647));
-    EXPECT_EQ(-1000, deScale(2147483.647));
-    EXPECT_EQ(-100, deScale(21474836.47));
-    EXPECT_EQ(-10, deScale(214748364.7));
-    EXPECT_EQ(1, deScale(2147483647.));
+    EXPECT_EQ(-10000, SEGY_utils::find_scalar(214748.3647));
+    EXPECT_EQ(-1000, SEGY_utils::find_scalar(2147483.647));
+    EXPECT_EQ(-100, SEGY_utils::find_scalar(21474836.47));
+    EXPECT_EQ(-10, SEGY_utils::find_scalar(214748364.7));
+    EXPECT_EQ(1, SEGY_utils::find_scalar(2147483647.));
 
-    EXPECT_EQ(-10000, deScale(1.0001));
-    EXPECT_EQ(-1000, deScale(1.001));
-    EXPECT_EQ(-100, deScale(1.01));
-    EXPECT_EQ(-10, deScale(1.1));
-    EXPECT_EQ(1, deScale(1.));
+    EXPECT_EQ(-10000, SEGY_utils::find_scalar(1.0001));
+    EXPECT_EQ(-1000, SEGY_utils::find_scalar(1.001));
+    EXPECT_EQ(-100, SEGY_utils::find_scalar(1.01));
+    EXPECT_EQ(-10, SEGY_utils::find_scalar(1.1));
+    EXPECT_EQ(1, SEGY_utils::find_scalar(1.));
 
-    EXPECT_EQ(-10000, deScale(0.0001));
-    EXPECT_EQ(-1000, deScale(0.001));
-    EXPECT_EQ(-100, deScale(0.01));
-    EXPECT_EQ(-10, deScale(0.1));
-    EXPECT_EQ(1, deScale(0.));
+    EXPECT_EQ(-10000, SEGY_utils::find_scalar(0.0001));
+    EXPECT_EQ(-1000, SEGY_utils::find_scalar(0.001));
+    EXPECT_EQ(-100, SEGY_utils::find_scalar(0.01));
+    EXPECT_EQ(-10, SEGY_utils::find_scalar(0.1));
+    EXPECT_EQ(1, SEGY_utils::find_scalar(0.));
 
     // Tests for case where round mode pushes sig figs over sizes we can handle
-    EXPECT_EQ(-10000, deScale(214748.3647199));
-    EXPECT_EQ(-10, deScale(214748364.7000999));
-    EXPECT_EQ(-100, deScale(21474836.4700999));
-    EXPECT_EQ(-1000, deScale(2147483.6470999));
-    EXPECT_EQ(1, deScale(2147483647.0000999));
+    EXPECT_EQ(-10000, SEGY_utils::find_scalar(214748.3647199));
+    EXPECT_EQ(-10, SEGY_utils::find_scalar(214748364.7000999));
+    EXPECT_EQ(-100, SEGY_utils::find_scalar(21474836.4700999));
+    EXPECT_EQ(-1000, SEGY_utils::find_scalar(2147483.6470999));
+    EXPECT_EQ(1, SEGY_utils::find_scalar(2147483647.0000999));
+}
+
+TEST(SEGYMd, scaleConv)
+{
+    // Test every legitimate possibility
+    EXPECT_DOUBLE_EQ(1 / (geom_t(10000)), SEGY_utils::parse_scalar(-10000));
+    EXPECT_DOUBLE_EQ(1 / (geom_t(1000)), SEGY_utils::parse_scalar(-1000));
+    EXPECT_DOUBLE_EQ(1 / (geom_t(100)), SEGY_utils::parse_scalar(-100));
+    EXPECT_DOUBLE_EQ(1 / (geom_t(10)), SEGY_utils::parse_scalar(-10));
+    EXPECT_DOUBLE_EQ(1 / (geom_t(1)), SEGY_utils::parse_scalar(-1));
+    EXPECT_DOUBLE_EQ(geom_t(1), SEGY_utils::parse_scalar(0));
+    EXPECT_DOUBLE_EQ(geom_t(1), SEGY_utils::parse_scalar(1));
+    EXPECT_DOUBLE_EQ(geom_t(10), SEGY_utils::parse_scalar(10));
+    EXPECT_DOUBLE_EQ(geom_t(100), SEGY_utils::parse_scalar(100));
+    EXPECT_DOUBLE_EQ(geom_t(1000), SEGY_utils::parse_scalar(1000));
+    EXPECT_DOUBLE_EQ(geom_t(10000), SEGY_utils::parse_scalar(10000));
 }
 
 /* clang-format off */
@@ -374,21 +392,6 @@ TEST(SEGYMd, ScaleDecimals)
 //     testSetCoord(Coord::CMP, 181, 185);
 // }
 //
-// //Test every legitimate possibility
-// TEST(SEGYMd, scaleConv)
-// {
-//     EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(10000)) , scaleConv(-10000));
-//     EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(1000))  , scaleConv(-1000));
-//     EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(100))   , scaleConv(-100));
-//     EXPECT_DOUBLE_EQ(geom_t(1)/(geom_t(10))    , scaleConv(-10));
-//     EXPECT_DOUBLE_EQ(geom_t(1)     , scaleConv(-1));
-//     EXPECT_DOUBLE_EQ(geom_t(1)     , scaleConv(0));
-//     EXPECT_DOUBLE_EQ(geom_t(1)     , scaleConv(1));
-//     EXPECT_DOUBLE_EQ(geom_t(10)    , scaleConv(10));
-//     EXPECT_DOUBLE_EQ(geom_t(100)   , scaleConv(100));
-//     EXPECT_DOUBLE_EQ(geom_t(1000)  , scaleConv(1000));
-//     EXPECT_DOUBLE_EQ(geom_t(10000) , scaleConv(10000));
-// }
 //
 // const TraceParam getTestPrm(void)
 // {
