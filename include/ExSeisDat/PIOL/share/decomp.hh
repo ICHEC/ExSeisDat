@@ -10,7 +10,7 @@
 #define EXSEISDAT_PIOL_SHARE_DECOMP_HH
 
 #ifdef __cplusplus
-#include "ExSeisDat/PIOL/anc/piol.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/file/ReadInterface.hh"
 #endif  // __cplusplus
 

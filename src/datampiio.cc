@@ -7,6 +7,8 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/share/mpi.hh"
 

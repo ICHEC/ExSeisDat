@@ -6,6 +6,8 @@
 #ifndef EXSEISDAT_PIOL_EXSEIS_HH
 #define EXSEISDAT_PIOL_EXSEIS_HH
 
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"

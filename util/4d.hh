@@ -8,7 +8,7 @@
 #ifndef FOURDBIN4D_INCLUDE_GUARD
 #define FOURDBIN4D_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/piol.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
 #include <iostream>
 

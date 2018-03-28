@@ -10,7 +10,7 @@
 #ifndef PIOLDATA_INCLUDE_GUARD
 #define PIOLDATA_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/piol.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {

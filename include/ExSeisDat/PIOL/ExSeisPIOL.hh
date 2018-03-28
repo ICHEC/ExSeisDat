@@ -1,18 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date September 2016
-/// @brief The ExSeis PIOL C++ API
+/// @brief The \c ExSeisPIOL class. This holds data shared by most classes
+///        in the library.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLPIOL_INCLUDE_GUARD
-#define PIOLPIOL_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_EXSEISPIOL_HH
+#define EXSEISDAT_PIOL_EXSEISPIOL_HH
 
-#include "ExSeisDat/PIOL/anc/comm.hh"
 #include "ExSeisDat/PIOL/anc/log.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
+#include "ExSeisDat/PIOL/anc/verbosity.h"
 
 #include <memory>
+#include <string>
 
 namespace PIOL {
 
@@ -47,4 +46,4 @@ class ExSeisPIOL {
 
 }  // namespace PIOL
 
-#endif  // PIOLPIOL_INCLUDE_GUARD
+#endif  // EXSEISDAT_PIOL_EXSEISPIOL_HH

@@ -7,7 +7,7 @@
 #ifndef EXSEISDAT_PIOL_FILE_READINTERFACE_HH
 #define EXSEISDAT_PIOL_FILE_READINTERFACE_HH
 
-#include "ExSeisDat/PIOL/anc/piol.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 
 #include <memory>

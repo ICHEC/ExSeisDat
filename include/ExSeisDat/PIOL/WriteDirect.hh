@@ -6,6 +6,8 @@
 #ifndef EXSEISDAT_PIOL_WRITEDIRECT_HH
 #define EXSEISDAT_PIOL_WRITEDIRECT_HH
 
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+
 #include "ExSeisDat/PIOL/file/file.hh"
 
 #include <memory>

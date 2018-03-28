@@ -8,7 +8,7 @@
 #ifndef PIOLOPSMINMAX_INCLUDE_GUARD
 #define PIOLOPSMINMAX_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/piol.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 
