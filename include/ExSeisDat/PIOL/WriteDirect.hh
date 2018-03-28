@@ -8,7 +8,7 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
-#include "ExSeisDat/PIOL/file/file.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
 
 #include <memory>
 #include <string>

@@ -5,9 +5,10 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/file/WriteInterface.hh"
+
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/file/file.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 

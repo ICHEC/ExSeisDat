@@ -7,7 +7,9 @@
 #define EXSEISDAT_PIOL_READDIRECT_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/file/file.hh"
+
+#include "ExSeisDat/PIOL/share/param.hh"
+#include "ExSeisDat/PIOL/share/uniray.hh"
 
 #include <memory>
 #include <string>

@@ -15,6 +15,7 @@
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/share/uniray.hh"
 
 #include <functional>
 #include <list>

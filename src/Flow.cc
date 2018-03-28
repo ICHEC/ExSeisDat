@@ -7,21 +7,15 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
-#include <glob.h>
-#include <map>
-#include <numeric>
-#include <regex>
-#include <tuple>
-
 #include "ExSeisDat/Flow/set.hh"
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/file/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/file/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/makeFile.hh"
+
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
@@ -38,6 +32,13 @@
 
 // TODO: remove this when all errors are addressed
 #include <iostream>
+
+#include <assert.h>
+#include <glob.h>
+#include <map>
+#include <numeric>
+#include <regex>
+#include <tuple>
 
 namespace PIOL {
 

@@ -12,8 +12,10 @@
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/file/segymd.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
 
 #include <cstring>
+#include <limits>
 
 namespace PIOL {
 namespace File {

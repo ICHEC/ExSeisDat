@@ -1,16 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date January 2017
-/// @brief The File layer interface
-/// @details The File layer interface is a base class which specific File
-///          implementations work off
+/// @brief Functions for creating instances of ReadInterface and WriteInterface
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLFILE_INCLUDE_GUARD
-#define PIOLFILE_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_MAKEFILE_HH
+#define EXSEISDAT_PIOL_MAKEFILE_HH
 
-#include "ExSeisDat/PIOL/file/Model3dInterface.hh"
 #include "ExSeisDat/PIOL/file/ReadInterface.hh"
 #include "ExSeisDat/PIOL/file/WriteInterface.hh"
 
@@ -59,4 +53,4 @@ makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string& name)
 }  // namespace File
 }  // namespace PIOL
 
-#endif
+#endif // EXSEISDAT_PIOL_MAKEFILE_HH

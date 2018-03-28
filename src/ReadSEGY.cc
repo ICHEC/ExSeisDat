@@ -15,6 +15,8 @@
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/object/object.hh"
 
 #include <algorithm>
 #include <cassert>

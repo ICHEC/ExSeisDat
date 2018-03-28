@@ -21,7 +21,6 @@ namespace Obj {
  * @param[in] name The name of the file.
  * @param[in] mode The filemode.
  * @return Return a shared_ptr to the obj layer object.
- * @todo TODO: This hack needs a further tidyup and out of file.hh.
  */
 std::shared_ptr<Obj::Interface> makeDefaultObj(
   std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
