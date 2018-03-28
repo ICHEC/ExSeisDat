@@ -207,7 +207,7 @@ add_library(
     src/decomp.cc
     src/dynsegymd.cc
     src/gather.cc
-    src/characterconversion.cc
+    src/character_encoding.cc
     src/log.cc
     src/minmax.cc
     src/misc.cc

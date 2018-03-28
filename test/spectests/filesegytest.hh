@@ -12,7 +12,7 @@
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/file/characterconversion.hh"
+#include "ExSeisDat/PIOL/character_encoding.hh"
 #include "ExSeisDat/PIOL/file/segymd.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
