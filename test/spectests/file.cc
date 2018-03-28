@@ -5,7 +5,7 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/file/WriteInterface.hh"
+#include "ExSeisDat/PIOL/WriteInterface.hh"
 
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"

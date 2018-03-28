@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/file/ReadInterface.hh"
+#include "ExSeisDat/PIOL/ReadInterface.hh"
 #endif  // __cplusplus
 
 #ifdef __cplusplus

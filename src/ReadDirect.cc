@@ -7,7 +7,7 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {

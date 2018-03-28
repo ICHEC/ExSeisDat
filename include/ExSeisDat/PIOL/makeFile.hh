@@ -5,8 +5,8 @@
 #ifndef EXSEISDAT_PIOL_MAKEFILE_HH
 #define EXSEISDAT_PIOL_MAKEFILE_HH
 
-#include "ExSeisDat/PIOL/file/ReadInterface.hh"
-#include "ExSeisDat/PIOL/file/WriteInterface.hh"
+#include "ExSeisDat/PIOL/ReadInterface.hh"
+#include "ExSeisDat/PIOL/WriteInterface.hh"
 
 #include "ExSeisDat/PIOL/object/object.hh"
 

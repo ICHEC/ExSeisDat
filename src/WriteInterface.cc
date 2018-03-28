@@ -3,7 +3,7 @@
 /// @brief Implementation for \c WriteInterface
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/WriteInterface.hh"
+#include "ExSeisDat/PIOL/WriteInterface.hh"
 
 namespace PIOL {
 namespace File {

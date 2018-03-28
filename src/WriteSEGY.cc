@@ -7,7 +7,7 @@
 /// @details WriteSEGY functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/WriteSEGY.hh"
 
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/file/segymd.hh"

@@ -6,8 +6,8 @@
 #include "ExSeisDat/Flow/set.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
-#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 

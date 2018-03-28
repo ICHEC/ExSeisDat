@@ -5,8 +5,8 @@
 #ifndef EXSEISDAT_PIOL_FILE_READSEGYMODEL_HH
 #define EXSEISDAT_PIOL_FILE_READSEGYMODEL_HH
 
-#include "ExSeisDat/PIOL/file/Model3dInterface.hh"
-#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/Model3dInterface.hh"
+#include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 namespace PIOL {
 namespace File {

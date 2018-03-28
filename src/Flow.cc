@@ -10,9 +10,9 @@
 #include "ExSeisDat/Flow/set.hh"
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
-#include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
-#include "ExSeisDat/PIOL/file/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/ReadSEGYModel.hh"
+#include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
 
 #include "ExSeisDat/PIOL/data/datampiio.hh"

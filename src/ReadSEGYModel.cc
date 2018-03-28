@@ -3,7 +3,7 @@
 /// @brief Implementation of \c ReadSEGYModel
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
+#include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
 

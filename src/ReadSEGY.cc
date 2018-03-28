@@ -7,7 +7,7 @@
 /// @details ReadSEGY functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 #include "ExSeisDat/PIOL/file/characterconversion.hh"
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
