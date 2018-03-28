@@ -6,7 +6,6 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/ops/gather.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 

@@ -4,7 +4,8 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/Rule.hh"
+#include "ExSeisDat/PIOL/RuleEntry.hh"
 
 namespace PIOL {
 namespace File {
@@ -25,7 +26,7 @@ class MockRule {
         bool defaults,
         bool extras));
 
-    MOCK_METHOD3(ctor, void(Rule*, RuleMap translate_, bool full));
+    MOCK_METHOD3(ctor, void(Rule*, Rule::RuleMap translate_, bool full));
 
     MOCK_METHOD1(dtor, void(Rule*));
 

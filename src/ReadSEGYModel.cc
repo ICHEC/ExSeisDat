@@ -5,8 +5,6 @@
 
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
-
 namespace PIOL {
 namespace File {
 

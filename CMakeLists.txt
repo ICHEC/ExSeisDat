@@ -199,13 +199,14 @@ add_library(
     src/ReadSEGY.cc
     src/ReadSEGYModel.cc
     src/WriteSEGY.cc
+    src/Rule.cc
 
     src/agc.cc
     src/cache.cc
     src/cmpi.cc
     src/datampiio.cc
     src/decomp.cc
-    src/dynsegymd.cc
+    src/param.cc
     src/gather.cc
     src/character_encoding.cc
     src/log.cc

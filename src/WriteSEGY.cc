@@ -9,7 +9,6 @@
 
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/file/segymd.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/object/object.hh"

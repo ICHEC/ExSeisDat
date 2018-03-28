@@ -8,7 +8,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/Flow/cache.hh"
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 
 // TODO: Remove when all options implemented

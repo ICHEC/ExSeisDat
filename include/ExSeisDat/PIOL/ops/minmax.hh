@@ -9,6 +9,7 @@
 #define PIOLOPSMINMAX_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 

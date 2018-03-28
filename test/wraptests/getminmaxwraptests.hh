@@ -2,6 +2,7 @@
 #define PIOLWRAPTESTSGETMINMAX_INCLUDE_GUARD
 
 #include "mockexseis.hh"
+#include "mockparam.hh"
 #include <memory>
 
 void test_PIOL_File_getMinMax(

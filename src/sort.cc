@@ -14,7 +14,6 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
 #include "ExSeisDat/PIOL/share/api.hh"

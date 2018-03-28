@@ -1,6 +1,5 @@
 #include "printers.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 

@@ -10,7 +10,6 @@
 #include "ExSeisDat/PIOL/ReadModel.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 #endif  // EXSEISDAT_PIOL_HH

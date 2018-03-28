@@ -27,7 +27,7 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/Rule.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 
 #include <memory>

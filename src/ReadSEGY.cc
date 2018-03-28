@@ -10,7 +10,6 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/file/segymd.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"

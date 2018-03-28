@@ -3,7 +3,8 @@
 
 #include "tglobal.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
+#include "ExSeisDat/PIOL/share/param.hh"
+#include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
 
 #include <memory>
 

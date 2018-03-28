@@ -8,7 +8,6 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 

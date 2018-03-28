@@ -13,7 +13,6 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 
-#include "ExSeisDat/PIOL/file/dynsegymd.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
