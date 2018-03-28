@@ -21,7 +21,7 @@
 #include "ExSeisDat/PIOL/file/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/file/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/file/dynsegymd.hh"
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/gather.hh"

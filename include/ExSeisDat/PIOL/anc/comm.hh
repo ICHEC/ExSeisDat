@@ -15,7 +15,7 @@
 #ifndef PIOLANCCOMM_INCLUDE_GUARD
 #define PIOLANCCOMM_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
 namespace Comm {

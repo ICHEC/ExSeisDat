@@ -4,7 +4,7 @@
 // POSIX includes
 #define _POSIX_C_SOURCE 200809L
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
 #include <unistd.h>

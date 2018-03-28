@@ -9,7 +9,7 @@
 #ifndef PIOLOBJSEGY_INCLUDE_GUARD
 #define PIOLOBJSEGY_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
 
 namespace PIOL {

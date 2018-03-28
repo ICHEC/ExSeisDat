@@ -10,7 +10,7 @@
 #define EXSEISDAT_PIOL_H
 
 #include "ExSeisDat/PIOL/anc/verbosity.h"
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 

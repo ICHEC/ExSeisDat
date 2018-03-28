@@ -10,7 +10,7 @@
 #ifndef PIOLSHAREPARAM_INCLUDE_GUARD
 #define PIOLSHAREPARAM_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 
 namespace PIOL {

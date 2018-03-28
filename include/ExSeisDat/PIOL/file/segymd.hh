@@ -9,7 +9,7 @@
 #ifndef PIOLFILESEGYMD_INCLUDE_GUARD
 #define PIOLFILESEGYMD_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"

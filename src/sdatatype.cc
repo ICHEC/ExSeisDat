@@ -7,7 +7,7 @@
 ///  datatypes \details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 
 #include <cstring>

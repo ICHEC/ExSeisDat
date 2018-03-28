@@ -6,7 +6,7 @@
 /// @brief The taper operation
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 

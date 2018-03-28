@@ -8,7 +8,7 @@
 #ifndef PIOLSHARESEGY_INCLUDE_GUARD
 #define PIOLSHARESEGY_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
 namespace SEGSz {

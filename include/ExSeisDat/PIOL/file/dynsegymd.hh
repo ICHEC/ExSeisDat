@@ -19,7 +19,7 @@
 #define PIOLFILEDYNSEGYMD_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/file/file.hh"
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"

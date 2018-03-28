@@ -7,7 +7,7 @@
 #ifndef PIOLOPSTAPER_INCLUDE_GUARD
 #define PIOLOPSTAPER_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
 namespace File {

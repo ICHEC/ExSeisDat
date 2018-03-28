@@ -10,7 +10,7 @@
 #define PIOLFILECHARACTERCONVERSION_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/anc/piol.hh"
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 
 #include <string>
 

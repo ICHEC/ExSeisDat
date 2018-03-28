@@ -10,7 +10,7 @@
 #define PIOLFILETESTSEGYMD_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/file/characterconversion.hh"
-#include "ExSeisDat/PIOL/global.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
