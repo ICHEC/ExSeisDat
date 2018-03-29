@@ -1,12 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @date May 2017
 /// @brief
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSHAREUNIRAY_INCLUDE_GUARD
-#define PIOLSHAREUNIRAY_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_UNIRAY_HH
+#define EXSEISDAT_PIOL_UNIRAY_HH
 
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
@@ -23,21 +21,28 @@ template<class... T>
 class Uniray {
     /// The number of elements per tuple.
     const size_t TupleSz = sizeof(std::tuple<T...>);
+
     /// The piol object.
     ExSeisPIOL* piol;
+
     /// The number of elements in the global array.
     size_t sz;
+
     /// The local offset.
     size_t offset;
+
     /// The size of each block per process.
     std::vector<size_t> szall;
+
     /// The underlying local storage.
     std::vector<std::tuple<T...>> vec;
 
     /// The memory window.
     MPI_Win win;
+
     /// The rank of the local process.
     size_t rank;
+
     /// The number of ranks.
     size_t numRank;
 
@@ -56,17 +61,20 @@ class Uniray {
         szall    = piol->comm->gather(dec.size);
         vec.resize(dec.size);
 
-        if (numRank > 1)
+        if (numRank > 1) {
             MPI_Win_create(
               vec.data(), vec.size(), TupleSz, MPI_INFO_NULL, MPI_COMM_WORLD,
               &win);
+        }
     }
 
     /*! Destruct the global array, free the associated window.
      */
     ~Uniray(void)
     {
-        if (numRank > 1) MPI_Win_free(&win);
+        if (numRank > 1) {
+            MPI_Win_free(&win);
+        }
     }
 
     /*! Set the global ith element with the given tuple.
@@ -79,11 +87,14 @@ class Uniray {
 
         size_t lrank   = 0;
         size_t lOffset = 0;
-        for (lrank = 0; i >= lOffset + szall[lrank] && lrank < numRank; lrank++)
+        for (lrank = 0; i >= lOffset + szall[lrank] && lrank < numRank;
+             lrank++) {
             lOffset += szall[lrank];
+        }
 
-        if (lrank == rank)
+        if (lrank == rank) {
             vec[i - lOffset] = val;
+        }
         else {
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, lrank, MPI_MODE_NOCHECK, win);
             MPI_Put(
@@ -105,12 +116,15 @@ class Uniray {
         }
         size_t lrank   = 0;
         size_t lOffset = 0;
-        for (lrank = 0; i >= lOffset + szall[lrank] && lrank < numRank; lrank++)
+        for (lrank = 0; i >= lOffset + szall[lrank] && lrank < numRank;
+             lrank++) {
             lOffset += szall[lrank];
+        }
 
         std::tuple<T...> val;
-        if (lrank == rank)
+        if (lrank == rank) {
             return vec[i - lOffset];
+        }
         else {
             MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win);
             MPI_Get(
@@ -135,4 +149,4 @@ class Uniray {
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_UNIRAY_HH

@@ -12,7 +12,7 @@
 #ifndef PIOLOPSGATHER_INCLUDE_GUARD
 #define PIOLOPSGATHER_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/share/uniray.hh"
+#include "ExSeisDat/PIOL/Uniray.hh"
 
 namespace PIOL {
 

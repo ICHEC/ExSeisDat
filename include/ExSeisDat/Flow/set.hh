@@ -10,12 +10,12 @@
 
 #include "ExSeisDat/Flow/cache.hh"
 #include "ExSeisDat/Flow/share.hh"
+#include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
 #include "ExSeisDat/PIOL/ops/taper.hh"
-#include "ExSeisDat/PIOL/share/uniray.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
 #include <functional>

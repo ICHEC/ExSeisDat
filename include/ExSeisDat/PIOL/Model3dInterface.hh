@@ -7,8 +7,8 @@
 #ifndef EXSEISDAT_PIOL_FILE_MODEL3DINTERFACE_HH
 #define EXSEISDAT_PIOL_FILE_MODEL3DINTERFACE_HH
 
+#include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/share/uniray.hh"
 
 #include <utility>
 

@@ -15,6 +15,7 @@
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
 
+#include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
@@ -27,7 +28,6 @@
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
 #include "ExSeisDat/PIOL/share/segy.hh"
-#include "ExSeisDat/PIOL/share/uniray.hh"
 
 // TODO: remove this when all errors are addressed
 #include <iostream>
