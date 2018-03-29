@@ -10,8 +10,10 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
+
+#include "ExSeisDat/PIOL/object/object.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"

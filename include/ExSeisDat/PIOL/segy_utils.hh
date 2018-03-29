@@ -12,9 +12,9 @@
 #ifndef EXSEISDAT_PIOL_SEGY_UTILS_HH
 #define EXSEISDAT_PIOL_SEGY_UTILS_HH
 
+#include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
-#include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 

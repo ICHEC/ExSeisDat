@@ -8,6 +8,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/Flow/cache.hh"
+
+#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
+
 #include "ExSeisDat/PIOL/share/api.hh"
 
 // TODO: Remove when all options implemented

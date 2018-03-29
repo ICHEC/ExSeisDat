@@ -4,6 +4,7 @@
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
 #include <algorithm>
 #include <iostream>

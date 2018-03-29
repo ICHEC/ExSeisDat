@@ -9,10 +9,12 @@
 
 #include "ExSeisDat/PIOL.h"
 #include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"

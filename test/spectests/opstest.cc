@@ -12,6 +12,7 @@
 #include "ExSeisDat/PIOL/ops/sort.hh"
 #include "ExSeisDat/PIOL/ops/taper.hh"
 #include "ExSeisDat/PIOL/ops/temporalfilter.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
 
 using namespace testing;

@@ -24,24 +24,9 @@
 // Forward declare types used for C API handles
 //
 #ifdef __cplusplus
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/Rule.hh"
-#include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/share/param.hh"
+#include "PIOL.hh"
 
 #include <memory>
-
-namespace PIOL {
-
-class ExSeis;
-
-struct Rule;
-struct Param;
-class ReadDirect;
-class WriteDirect;
-
-}  // namespace PIOL
 
 typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeis;
 typedef std::shared_ptr<PIOL::Rule> PIOL_File_Rule;

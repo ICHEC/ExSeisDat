@@ -9,8 +9,8 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
+#include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/share/param.hh"
 
 #include <memory>
 #include <string>

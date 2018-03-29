@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"

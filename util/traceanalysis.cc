@@ -8,6 +8,7 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
 #include <iostream>
 

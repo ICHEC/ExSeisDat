@@ -1,7 +1,8 @@
 #ifndef PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
 #define PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
 
-#include "ExSeisDat/PIOL/share/param.hh"
+#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
 #include "printers.hh"
 

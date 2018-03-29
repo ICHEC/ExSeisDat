@@ -3,7 +3,9 @@
 /// @brief Implementation of \c ReadSEGYModel
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
 namespace PIOL {
 

@@ -1,7 +1,7 @@
 #include "printers.hh"
 
+#include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
-#include "ExSeisDat/PIOL/share/param.hh"
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value)
 {

@@ -2,6 +2,7 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 
 #include <assert.h>

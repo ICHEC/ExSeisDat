@@ -9,6 +9,7 @@
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
 #include <numeric>

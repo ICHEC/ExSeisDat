@@ -3,8 +3,8 @@
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 
 namespace PIOL {

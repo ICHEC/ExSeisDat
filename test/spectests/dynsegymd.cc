@@ -1,5 +1,7 @@
 #include "dynsegymdtest.hh"
 
+#include "ExSeisDat/PIOL/param_utils.hh"
+
 // TODO: Add test for cpyPrm called with different sets of rules, i.e dst and
 //       src disagree on rules
 
