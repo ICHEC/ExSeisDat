@@ -13,7 +13,6 @@
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {
-namespace File {
 
 /*! @brief Get the specified scale multipler from the Trace header.
  *  @param[in] scal The scalar of interest.
@@ -186,5 +185,4 @@ int16_t calcScale(const coord_t coord)
 //     getBigEndian(int32_t(prm->tn), &md[size_t(TrHdr::SeqFNum) - 1U]);
 // }
 
-}  // namespace File
 }  // namespace PIOL

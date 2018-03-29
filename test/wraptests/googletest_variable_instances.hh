@@ -32,13 +32,11 @@
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
-namespace File {
 struct RuleEntry;
-}  // namespace File
 }  // namespace PIOL
 
-extern template testing::DefaultValue<PIOL::File::RuleEntry*>::ValueProducer*
-  testing::DefaultValue<PIOL::File::RuleEntry*>::producer_;
+extern template testing::DefaultValue<PIOL::RuleEntry*>::ValueProducer*
+  testing::DefaultValue<PIOL::RuleEntry*>::producer_;
 
 extern template testing::DefaultValue<size_t>::ValueProducer*
   testing::DefaultValue<size_t>::producer_;

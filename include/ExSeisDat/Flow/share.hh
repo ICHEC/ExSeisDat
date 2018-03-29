@@ -23,7 +23,7 @@ namespace PIOL {
  */
 struct FileDesc {
     /// The file interface
-    std::unique_ptr<File::ReadInterface> ifc;
+    std::unique_ptr<ReadInterface> ifc;
     /// The size of this corresponds to the local decomposition
     std::vector<size_t> ilst;
     /// The size of this corresponds to the local decomposition
@@ -44,7 +44,7 @@ struct TraceBlock {
     /// Number of gathers (if applicable)
     size_t numG;
     /// unique pointer to parameter structure (if applicable)
-    std::unique_ptr<File::Param> prm;
+    std::unique_ptr<Param> prm;
     /// traces (if applicable)
     std::vector<trace_t> trc;
 };

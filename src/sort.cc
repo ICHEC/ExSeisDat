@@ -23,7 +23,6 @@
 #include <numeric>
 
 namespace PIOL {
-namespace File {
 
 /*! Calculate the square of the hypotenuse
  *  @param[in] sx The source x coordinate
@@ -745,7 +744,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 /// @param[in] piol The ExSeisPIOL object
 /// @param[in] prm  The parameter structure
 /// @param[in] comp The comparison operator to sort the headers by.
-void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
+void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
 {
     size_t lnt      = prm->size();
     size_t numRank  = piol->comm->getNumRank();
@@ -760,9 +759,9 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
         return comp(prm, a, b);
     });
 
-    File::Param temp1(prm->r, lnt + edge2);
-    File::Param temp2(temp1.r, temp1.size());
-    File::Param temp3(prm->r, temp1.size());
+    Param temp1(prm->r, lnt + edge2);
+    Param temp2(temp1.r, temp1.size());
+    Param temp3(prm->r, temp1.size());
 
     for (size_t i = 0; i < lnt; i++) {
         cpyPrm(t1[i], prm, i, &temp1);
@@ -846,5 +845,4 @@ std::vector<size_t> sort(
     return (FileOrder ? sort(piol, list) : list);
 }
 
-}  // namespace File
 }  // namespace PIOL

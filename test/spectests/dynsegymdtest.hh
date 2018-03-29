@@ -10,7 +10,6 @@
 
 using namespace testing;
 using namespace PIOL;
-using namespace File;
 
 struct RuleFix : public Test {
     std::shared_ptr<Rule> rule;

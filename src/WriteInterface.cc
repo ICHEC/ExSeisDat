@@ -6,8 +6,6 @@
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
 namespace PIOL {
-namespace File {
-
 
 void WriteInterface::writeParam(
   const size_t offset, const size_t sz, const Param* prm, const size_t skip)
@@ -22,5 +20,4 @@ void WriteInterface::writeParamNonContiguous(
       sz, offset, const_cast<trace_t*>(TRACE_NULL), prm, skip);
 }
 
-}  // namespace File
 }  // namespace PIOL

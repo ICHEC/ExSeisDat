@@ -1,7 +1,6 @@
 #include "mockrule.hh"
 
 namespace PIOL {
-namespace File {
 
 Rule::Rule(bool full, bool defaults, bool extras)
 {
@@ -83,5 +82,4 @@ RuleEntry* Rule::getEntry(Meta entry)
     return mockRule().getEntry(this, entry);
 }
 
-}  // namespace File
 }  // namespace PIOL

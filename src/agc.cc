@@ -20,7 +20,6 @@
 #include <vector>
 
 namespace PIOL {
-namespace File {
 
 /************************************ Core ************************************/
 void AGC(
@@ -113,5 +112,4 @@ AGCFunc getAGCFunc(AGCType type)
     }
 }
 
-}  // namespace File
 }  // namespace PIOL

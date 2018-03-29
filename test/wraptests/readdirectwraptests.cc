@@ -3,7 +3,6 @@
 #include "wraptesttools.hh"
 
 using namespace PIOL;
-using namespace File;
 using namespace testing;
 
 const auto readText_return = std::string{"Test ReadDirect Text"};

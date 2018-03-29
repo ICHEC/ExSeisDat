@@ -20,7 +20,6 @@
 #include <iterator>
 
 namespace PIOL {
-namespace File {
 
 void getMinMax(
   ExSeisPIOL* piol,
@@ -45,5 +44,4 @@ void getMinMax(
       minmax);
 }
 
-}  // namespace File
 }  // namespace PIOL

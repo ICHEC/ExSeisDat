@@ -21,7 +21,7 @@ class FileTest : public Test {
 };
 
 // FakeFile to test the constructor of the abstract Interface class
-struct FakeReadFile : public File::ReadInterface {
+struct FakeReadFile : public ReadInterface {
     struct Opt {
         typedef FakeReadFile Type;
     };
@@ -29,7 +29,7 @@ struct FakeReadFile : public File::ReadInterface {
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       std::shared_ptr<Obj::Interface> obj_) :
-        File::ReadInterface(piol_, name_, obj_)
+        ReadInterface(piol_, name_, obj_)
     {
         inc  = geom_t(10);
         text = "test";
@@ -38,32 +38,31 @@ struct FakeReadFile : public File::ReadInterface {
     }
 
     size_t readNt(void) const { return nt; }
-    void readTrace(
-      const size_t, const size_t, trace_t*, File::Param*, size_t) const
+    void readTrace(const size_t, const size_t, trace_t*, Param*, size_t) const
     {
     }
-    void readParam(const size_t, const size_t, File::Param*, size_t) const {}
+    void readParam(const size_t, const size_t, Param*, size_t) const {}
 
     void readTraceNonContiguous(
-      const size_t, const size_t*, trace_t*, File::Param*, size_t) const
+      const size_t, const size_t*, trace_t*, Param*, size_t) const
     {
     }
     void readTraceNonMonotonic(
-      const size_t, const size_t*, trace_t*, File::Param*, size_t) const
+      const size_t, const size_t*, trace_t*, Param*, size_t) const
     {
     }
     void readParamNonContiguous(
-      const size_t, const size_t*, File::Param*, size_t) const
+      const size_t, const size_t*, Param*, size_t) const
     {
     }
 
     // Import protected members into public access.
-    using File::ReadInterface::name;
-    using File::ReadInterface::obj;
-    using File::ReadInterface::piol;
+    using ReadInterface::name;
+    using ReadInterface::obj;
+    using ReadInterface::piol;
 };
 
-struct FakeWriteFile : public File::WriteInterface {
+struct FakeWriteFile : public WriteInterface {
     struct Opt {
         typedef FakeWriteFile Type;
     };
@@ -71,7 +70,7 @@ struct FakeWriteFile : public File::WriteInterface {
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       std::shared_ptr<Obj::Interface> obj_) :
-        File::WriteInterface(piol_, name_, obj_)
+        WriteInterface(piol_, name_, obj_)
     {
         inc  = geom_t(10);
         text = "test";
@@ -83,17 +82,15 @@ struct FakeWriteFile : public File::WriteInterface {
     void writeNs(const size_t) {}
     void writeNt(const size_t) {}
     void writeInc(const geom_t) {}
-    void writeTrace(
-      const size_t, const size_t, trace_t*, const File::Param*, size_t)
+    void writeTrace(const size_t, const size_t, trace_t*, const Param*, size_t)
     {
     }
-    void writeParam(const size_t, const size_t, const File::Param*, size_t) {}
+    void writeParam(const size_t, const size_t, const Param*, size_t) {}
 
-    void writeTrace(
-      const size_t, const size_t*, trace_t*, const File::Param*, size_t)
+    void writeTrace(const size_t, const size_t*, trace_t*, const Param*, size_t)
     {
     }
-    void writeParam(const size_t, const size_t*, const File::Param*, size_t) {}
+    void writeParam(const size_t, const size_t*, const Param*, size_t) {}
 };
 
 void compareConstructor(ExSeisPIOL* piol, FakeReadFile& fake)
@@ -120,7 +117,7 @@ typedef FileTest FileDeathTest;
 // In this test we pass the MPI-IO Data Options class within an invalid name
 TEST_F(FileDeathTest, BadNameConstructor)
 {
-    File::ReadDirect file(piol, notFile);
+    ReadDirect file(piol, notFile);
     EXPECT_EXIT(
       piol->isErr(), ExitedWithCode(EXIT_FAILURE),
       ".*8 3 Fatal Error in PIOL. . Dumping Log 0");

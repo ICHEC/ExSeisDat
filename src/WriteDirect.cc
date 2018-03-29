@@ -10,12 +10,11 @@
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
-namespace File {
 
 WriteDirect::WriteDirect(
   std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
-    const File::WriteSEGY::Opt f;
+    const WriteSEGY::Opt f;
     const Obj::SEGY::Opt o;
     const Data::MPIIO::Opt d;
 
@@ -25,7 +24,7 @@ WriteDirect::WriteDirect(
     auto obj =
       std::make_shared<Obj::SEGY>(piol, name, o, data, Data::FileMode::Write);
 
-    file = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
+    file = std::make_shared<WriteSEGY>(piol, name, f, obj);
 }
 
 WriteDirect::WriteDirect(std::shared_ptr<WriteInterface> file_) : file(file_) {}
@@ -77,5 +76,4 @@ void WriteDirect::writeInc(const geom_t inc_)
     file->writeInc(inc_);
 }
 
-}  // namespace File
 }  // namespace PIOL

@@ -12,7 +12,6 @@
 #include <numeric>
 
 using namespace PIOL;
-using namespace File;
 
 int main(int argc, char** argv)
 {
@@ -38,7 +37,7 @@ int main(int argc, char** argv)
 
     assert(name1.size());
 
-    File::ReadDirect src(piol, name1);
+    ReadDirect src(piol, name1);
 
     // Perform the decomposition and read coordinates of interest.
     auto dec = decompose(piol.get(), src);

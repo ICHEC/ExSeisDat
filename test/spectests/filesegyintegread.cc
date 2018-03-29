@@ -6,7 +6,7 @@ const size_t bigtns  = 32000U;
 const size_t smallns = 261U;
 const size_t smallnt = 400U;
 
-// Read test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+// Read test of SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileSEGYIntegRead, SEGYReadHO)
 {
     nt = smallnt;

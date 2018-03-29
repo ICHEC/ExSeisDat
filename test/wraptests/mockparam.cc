@@ -1,7 +1,6 @@
 #include "mockparam.hh"
 
 namespace PIOL {
-namespace File {
 
 ::testing::StrictMock<MockParam>& mockParam()
 {
@@ -15,5 +14,4 @@ namespace File {
     return mockParamFreeFunctions;
 }
 
-}  // namespace File
 }  // namespace PIOL

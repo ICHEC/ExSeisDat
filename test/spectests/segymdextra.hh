@@ -23,7 +23,6 @@
 #include <vector>
 
 namespace PIOL {
-namespace File {
 
 /*! Misc Trace Header offsets
  */
@@ -213,7 +212,6 @@ int16_t calcScale(const coord_t coord);
 void setScale(
   const TrScal item, const int16_t scale, uchar* buf, size_t start = 0);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

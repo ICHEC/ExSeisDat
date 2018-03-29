@@ -18,7 +18,6 @@
 #include <iterator>
 
 namespace PIOL {
-namespace File {
 
 /************************************ Core ************************************/
 /*! Get the min and max for a parameter. Use a second parameter to decide
@@ -144,7 +143,6 @@ void getMinMax(
   const Param* prm,
   CoordElem* minmax);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

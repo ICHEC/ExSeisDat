@@ -20,7 +20,7 @@ namespace PIOL {
 using namespace PIOL;
 using namespace testing;
 
-class MockFile : public File::ReadInterface {
+class MockFile : public ReadInterface {
   public:
     MockFile() :
         ReadInterface(
@@ -38,23 +38,23 @@ class MockFile : public File::ReadInterface {
     MOCK_METHOD1(writeInc, void(const geom_t));
 
     MOCK_CONST_METHOD4(
-      readParam, void(const size_t, const size_t, File::Param*, const size_t));
+      readParam, void(const size_t, const size_t, Param*, const size_t));
 
     MOCK_CONST_METHOD4(
       readParamNonContiguous,
-      void(const size_t, const size_t*, File::Param*, const size_t));
+      void(const size_t, const size_t*, Param*, const size_t));
 
     MOCK_CONST_METHOD5(
       readTrace,
-      void(const size_t, const size_t, trace_t*, File::Param*, const size_t));
+      void(const size_t, const size_t, trace_t*, Param*, const size_t));
 
     MOCK_CONST_METHOD5(
       readTraceNonContiguous,
-      void(const size_t, const size_t*, trace_t*, File::Param*, const size_t));
+      void(const size_t, const size_t*, trace_t*, Param*, const size_t));
 
     MOCK_CONST_METHOD5(
       readTraceNonMonotonic,
-      void(const size_t, const size_t*, trace_t*, File::Param*, const size_t));
+      void(const size_t, const size_t*, trace_t*, Param*, const size_t));
 };
 
 ACTION_P(cpyprm, src)
@@ -76,8 +76,8 @@ void taperMan(
 template<class T>
 std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
 {
-    File::WriteSEGY::Opt f;
-    File::ReadSEGY::Opt rf;
+    WriteSEGY::Opt f;
+    ReadSEGY::Opt rf;
     Obj::SEGY::Opt o;
     Data::MPIIO::Opt d;
 
@@ -102,7 +102,7 @@ struct Set_public : public Set {
 struct SetTest : public Test {
     std::shared_ptr<ExSeis> piol    = ExSeis::New();
     std::unique_ptr<Set_public> set = nullptr;
-    std::deque<File::Param> prm;
+    std::deque<Param> prm;
     Comm::MPI::Opt opt;
     const double pi = M_PI;
 
@@ -124,7 +124,7 @@ struct SetTest : public Test {
                     auto dec = decompose(
                       nt, piol->comm->getNumRank(), piol->comm->getRank());
                     prm.emplace_back(dec.size);
-                    File::Param* tprm = &prm.back();
+                    Param* tprm = &prm.back();
 
                     if (linear)
                         for (size_t l = 0; l < dec.size; l++) {
@@ -228,7 +228,7 @@ struct SetTest : public Test {
 
         std::vector<trace_t> trc(nt * ns);
         std::vector<trace_t> trcMan(nt * ns);
-        File::Param prm(nt);
+        Param prm(nt);
         std::fill(trc.begin(), trc.end(), 1.0f);
         if (mute != 0) muting(nt, ns, trc.data(), mute);
         trcMan = trc;
@@ -241,9 +241,8 @@ struct SetTest : public Test {
         EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
 
         EXPECT_CALL(
-          *mock,
-          readTraceNonContiguous(
-            nt, A<const size_t*>(), A<trace_t*>(), A<File::Param*>(), 0U))
+          *mock, readTraceNonContiguous(
+                   nt, A<const size_t*>(), A<trace_t*>(), A<Param*>(), 0U))
           .Times(Exactly(1U))
           .WillRepeatedly(DoAll(
             check1(offsets.data(), offsets.size()),
@@ -255,7 +254,7 @@ struct SetTest : public Test {
         set.reset();
 
         std::string name = "tmp/temp.segy";
-        auto in          = makeTest<File::ReadSEGY>(piol, name);
+        auto in          = makeTest<ReadSEGY>(piol, name);
         in->readTrace(0U, in->readNt(), trc.data());
 
         taperMan(nt, ns, trcMan.data(), tapFunc, nTailLft, nTailRt);
@@ -294,9 +293,8 @@ struct SetTest : public Test {
         std::iota(offsets.begin(), offsets.end(), 0U);
 
         EXPECT_CALL(
-          *mock,
-          readTraceNonContiguous(
-            nt, A<const size_t*>(), A<trace_t*>(), A<File::Param*>(), 0U))
+          *mock, readTraceNonContiguous(
+                   nt, A<const size_t*>(), A<trace_t*>(), A<Param*>(), 0U))
           .Times(Exactly(1U))
           .WillRepeatedly(DoAll(
             check1(offsets.data(), offsets.size()),
@@ -309,7 +307,7 @@ struct SetTest : public Test {
 
         std::string name = "tmp/temp.segy";
 
-        auto in = makeTest<File::ReadSEGY>(piol, name);
+        auto in = makeTest<ReadSEGY>(piol, name);
         in->readTrace(0U, in->readNt(), trc.data());
 
         size_t win;
@@ -377,9 +375,8 @@ struct SetTest : public Test {
         std::iota(offsets.begin(), offsets.end(), 0U);
 
         EXPECT_CALL(
-          *mock,
-          readTraceNonContiguous(
-            nt, A<const size_t*>(), A<trace_t*>(), A<File::Param*>(), 0U))
+          *mock, readTraceNonContiguous(
+                   nt, A<const size_t*>(), A<trace_t*>(), A<Param*>(), 0U))
           .Times(Exactly(1U))
           .WillRepeatedly(DoAll(
             check1(offsets.data(), offsets.size()),
@@ -392,7 +389,7 @@ struct SetTest : public Test {
 
         std::string name = "tmp/temp.segy";
 
-        auto in = makeTest<File::ReadSEGY>(piol, name);
+        auto in = makeTest<ReadSEGY>(piol, name);
 
         in->readTrace(0U, in->readNt(), trc.data());
 

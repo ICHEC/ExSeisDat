@@ -20,7 +20,6 @@
 #include <cassert>
 
 namespace PIOL {
-namespace File {
 
 //////////////////////      Constructor & Destructor      //////////////////////
 ReadSEGY::Opt::Opt(void)
@@ -228,7 +227,7 @@ void ReadSEGY::readTraceNonMonotonic(
         if (offset[idx[j - 1]] != offset[idx[j]])
             nodups.push_back(offset[idx[j]]);
 
-    File::Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
+    Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
     std::vector<trace_t> strc(ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
 
     readTraceNonContiguous(
@@ -249,5 +248,4 @@ void ReadSEGY::readTraceNonMonotonic(
         }
 }
 
-}  // namespace File
 }  // namespace PIOL

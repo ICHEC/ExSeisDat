@@ -10,7 +10,6 @@
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
-namespace File {
 
 /************************************ Core ************************************/
 /*! Apply a taper to a set of traces.
@@ -37,7 +36,6 @@ void taper(
  */
 TaperFunc getTap(TaperType type);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

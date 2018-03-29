@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         if (std::regex_match(globs.gl_pathv[i], reg)) {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
 
-            File::ReadDirect file(piol, globs.gl_pathv[i]);
+            ReadDirect file(piol, globs.gl_pathv[i]);
             piol->isErr();
             std::cout << "-\tNs: " << file.readNs() << "\n";
             std::cout << "-\tNt: " << file.readNt() << "\n";

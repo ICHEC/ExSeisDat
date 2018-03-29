@@ -7,7 +7,6 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 
 namespace PIOL {
-namespace File {
 
 class MockWriteDirect;
 ::testing::StrictMock<MockWriteDirect>& mockWriteDirect();
@@ -63,7 +62,6 @@ class MockWriteDirect {
         WriteDirect*, const size_t sz, const size_t* offset, const Param* prm));
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD

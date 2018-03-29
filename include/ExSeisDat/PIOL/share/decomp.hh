@@ -71,7 +71,7 @@ inline Range decompose(size_t sz, size_t numRank, size_t rank)
  *          The first element is the offset for the local process,
  *          the second is the size for the local process.
  */
-Range decompose(ExSeisPIOL* piol, File::ReadInterface* file);
+Range decompose(ExSeisPIOL* piol, ReadInterface* file);
 
 }  // namespace PIOL
 

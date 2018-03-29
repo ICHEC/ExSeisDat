@@ -6,14 +6,14 @@ Set::Set(
   std::shared_ptr<ExSeisPIOL> piol_,
   std::string pattern,
   std::string outfix_,
-  std::shared_ptr<File::Rule> rule_) :
+  std::shared_ptr<Rule> rule_) :
     rule(rule_),
     cache(piol_)
 {
     mockSet().ctor(this, piol_, pattern, outfix_, rule_);
 }
 
-Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_) :
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_) :
     rule(rule_),
     cache(piol_)
 {
@@ -30,7 +30,7 @@ void Set::sort(CompareP sortFunc)
     mockSet().sort(this, sortFunc);
 }
 
-void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
+void Set::sort(std::shared_ptr<Rule> r, CompareP sortFunc)
 {
     mockSet().sort(this, r, sortFunc);
 }
@@ -41,7 +41,7 @@ std::vector<std::string> Set::output(std::string oname)
 }
 
 void Set::getMinMax(
-  MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem* minmax)
+  MinMaxFunc<Param> xlam, MinMaxFunc<Param> ylam, CoordElem* minmax)
 {
     mockSet().getMinMax(this, xlam, ylam, minmax);
 }
@@ -66,7 +66,7 @@ void Set::summary() const
     mockSet().summary(this);
 }
 
-void Set::add(std::unique_ptr<File::ReadInterface> in)
+void Set::add(std::unique_ptr<ReadInterface> in)
 {
     mockSet().add(this, std::move(in));
 }

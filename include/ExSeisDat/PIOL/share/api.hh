@@ -433,17 +433,15 @@ typedef PIOL_CoordElem CoordElem;
 
 #ifdef __cplusplus
 namespace PIOL {
-namespace File {
 
 struct Param;
 
-}  // namespace File
 }  // namespace PIOL
 
-/// Typedef of C-compatible typename for opaque pointer to PIOL::File::Param
-typedef PIOL::File::Param PIOL_Param;
+/// Typedef of C-compatible typename for opaque pointer to PIOL::Param
+typedef PIOL::Param PIOL_Param;
 #else
-/// Typedef of C-compatible typename for opaque pointer to PIOL::File::Param
+/// Typedef of C-compatible typename for opaque pointer to PIOL::Param
 typedef struct PIOL_Param PIOL_Param;
 #endif
 

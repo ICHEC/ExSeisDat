@@ -11,7 +11,6 @@
 ////////////////////// Unit tests of non-class functions ///////////////////////
 
 using namespace PIOL;
-using namespace File;
 using namespace SEGSz;
 
 TEST(SEGYMd, ScaleBigIntegers)

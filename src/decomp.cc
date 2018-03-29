@@ -32,7 +32,7 @@ namespace PIOL {
  *          the second is the size for the local process.
  *  @todo DELETE THIS DOC
  */
-Range decompose(ExSeisPIOL* piol, File::ReadInterface* file)
+Range decompose(ExSeisPIOL* piol, ReadInterface* file)
 {
     return decompose(
       file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());

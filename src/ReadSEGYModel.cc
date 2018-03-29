@@ -6,7 +6,6 @@
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 
 namespace PIOL {
-namespace File {
 
 ReadSEGYModel::ReadSEGYModel(
   std::shared_ptr<ExSeisPIOL> piol_,
@@ -24,18 +23,17 @@ ReadSEGYModel::ReadSEGYModel(
     ReadSEGY(piol_, name_, opt, obj_)
 {
     std::vector<size_t> vlist = {0LU, 1LU, ReadSEGY::readNt() - 1LU};
-    File::Param prm(vlist.size());
+    Param prm(vlist.size());
     readParamNonContiguous(vlist.size(), vlist.data(), &prm);
 
-    llint il0 = File::getPrm<llint>(0LU, PIOL_META_il, &prm);
-    llint xl0 = File::getPrm<llint>(0LU, PIOL_META_xl, &prm);
+    llint il0 = getPrm<llint>(0LU, PIOL_META_il, &prm);
+    llint xl0 = getPrm<llint>(0LU, PIOL_META_xl, &prm);
 
-    llint ilInc = File::getPrm<llint>(1LU, PIOL_META_il, &prm) - il0;
+    llint ilInc = getPrm<llint>(1LU, PIOL_META_il, &prm) - il0;
     llint ilNum =
-      (ilInc ? (File::getPrm<llint>(2LU, PIOL_META_il, &prm) - il0) / ilInc :
-               0LU);
+      (ilInc ? (getPrm<llint>(2LU, PIOL_META_il, &prm) - il0) / ilInc : 0LU);
     llint xlNum = (ReadSEGY::readNt() / (ilNum ? ilNum : 1LU));
-    llint xlInc = (File::getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl0) / xlNum;
+    llint xlInc = (getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl0) / xlNum;
 
     ilInc = (ilInc ? ilInc : 1LU);
     xlInc = (xlInc ? xlInc : 1LU);
@@ -88,5 +86,4 @@ std::vector<trace_t> ReadSEGYModel::readModel(
     return trc;
 }
 
-}  // namespace File
 }  // namespace PIOL

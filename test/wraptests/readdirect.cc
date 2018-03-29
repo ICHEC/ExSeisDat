@@ -1,7 +1,6 @@
 #include "mockreaddirect.hh"
 
 namespace PIOL {
-namespace File {
 
 ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
@@ -68,5 +67,4 @@ void ReadDirect::readParamNonContiguous(
     mockReadDirect().readParamNonContiguous(this, sz, offset, prm);
 }
 
-}  // namespace File
 }  // namespace PIOL

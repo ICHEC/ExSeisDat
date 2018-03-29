@@ -8,7 +8,6 @@
 #include "ExSeisDat/PIOL/share/segy.hh"
 
 namespace PIOL {
-namespace File {
 
 Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
 {
@@ -117,6 +116,4 @@ void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst)
     }
 }
 
-
-}  // namespace File
 }  // namespace PIOL

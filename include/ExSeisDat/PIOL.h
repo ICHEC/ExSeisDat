@@ -36,21 +36,18 @@ namespace PIOL {
 
 class ExSeis;
 
-namespace File {
-
 struct Rule;
 struct Param;
 class ReadDirect;
 class WriteDirect;
 
-}  // namespace File
 }  // namespace PIOL
 
 typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeis;
-typedef std::shared_ptr<PIOL::File::Rule> PIOL_File_Rule;
-typedef PIOL::File::Param PIOL_File_Param;
-typedef PIOL::File::ReadDirect PIOL_File_ReadDirect;
-typedef PIOL::File::WriteDirect PIOL_File_WriteDirect;
+typedef std::shared_ptr<PIOL::Rule> PIOL_File_Rule;
+typedef PIOL::Param PIOL_File_Param;
+typedef PIOL::ReadDirect PIOL_File_ReadDirect;
+typedef PIOL::WriteDirect PIOL_File_WriteDirect;
 
 #else  // __cplusplus
 
@@ -59,16 +56,16 @@ typedef PIOL::File::WriteDirect PIOL_File_WriteDirect;
 /// @copydoc PIOL::ExSeis
 typedef struct PIOL_ExSeis PIOL_ExSeis;
 
-/// @copydoc PIOL::File::Rule
+/// @copydoc PIOL::Rule
 typedef struct PIOL_File_Rule PIOL_File_Rule;
 
-/// @copydoc PIOL::File::Param
+/// @copydoc PIOL::Param
 typedef struct PIOL_File_Param PIOL_File_Param;
 
-/// @copydoc PIOL::File::ReadDirect
+/// @copydoc PIOL::ReadDirect
 typedef struct PIOL_File_ReadDirect PIOL_File_ReadDirect;
 
-/// @copydoc PIOL::File::WriteDirect
+/// @copydoc PIOL::WriteDirect
 typedef struct PIOL_File_WriteDirect PIOL_File_WriteDirect;
 
 #endif  // __cplusplus

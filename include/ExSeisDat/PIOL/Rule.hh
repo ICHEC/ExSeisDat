@@ -25,7 +25,6 @@
 #include <vector>
 
 namespace PIOL {
-namespace File {
 
 /*! This function exists to address a defect in enum usage in a map
  *  that is present in the intel and older GNU compilers.
@@ -200,7 +199,6 @@ struct Rule {
     RuleEntry* getEntry(Meta entry);
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_RULE_HH

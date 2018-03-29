@@ -40,10 +40,10 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
     initWriteTrHdrCoord({xCMP, yCMP}, {160010, 240022}, -100, 10U, &tr);
 
 
-    File::Param prm(1U);
-    File::setPrm(0, PIOL_META_xCmp, 1600.1, &prm);
-    File::setPrm(0, PIOL_META_yCmp, 2400.22, &prm);
-    File::setPrm(0, PIOL_META_tn, 10U, &prm);
+    Param prm(1U);
+    setPrm(0, PIOL_META_xCmp, 1600.1, &prm);
+    setPrm(0, PIOL_META_yCmp, 2400.22, &prm);
+    setPrm(0, PIOL_META_tn, 10U, &prm);
     file->writeParam(10U, 1U, &prm);
 }
 
@@ -53,10 +53,10 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
     std::vector<uchar> tr(SEGSz::getMDSz());
     initWriteTrHdrCoord({xSrc, ySrc}, {1600100, 3400222}, -1000, 10U, &tr);
 
-    File::Param prm(1U);
-    File::setPrm(0, PIOL_META_xSrc, 1600.1000, &prm);
-    File::setPrm(0, PIOL_META_ySrc, 3400.2220, &prm);
-    File::setPrm(0, PIOL_META_tn, 10U, &prm);
+    Param prm(1U);
+    setPrm(0, PIOL_META_xSrc, 1600.1000, &prm);
+    setPrm(0, PIOL_META_ySrc, 3400.2220, &prm);
+    setPrm(0, PIOL_META_tn, 10U, &prm);
 
     file->writeParam(10U, 1U, &prm);
 }
@@ -67,10 +67,10 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
     std::vector<uchar> tr(SEGSz::getMDSz());
     initWriteTrHdrCoord({xSrc, ySrc}, {1623001001, 34002220}, -10000, 10U, &tr);
 
-    File::Param prm(1U);
-    File::setPrm(0, PIOL_META_xSrc, 162300.10009, &prm);
-    File::setPrm(0, PIOL_META_ySrc, 3400.22201, &prm);
-    File::setPrm(0, PIOL_META_tn, 10U, &prm);
+    Param prm(1U);
+    setPrm(0, PIOL_META_xSrc, 162300.10009, &prm);
+    setPrm(0, PIOL_META_ySrc, 3400.22201, &prm);
+    setPrm(0, PIOL_META_tn, 10U, &prm);
     file->writeParam(10U, 1U, &prm);
 }
 

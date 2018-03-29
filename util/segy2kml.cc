@@ -152,19 +152,19 @@ void calcMin(
   std::string iname,
   std::vector<CoordElem>& minmax)
 {
-    File::ReadDirect in(piol, iname);
+    ReadDirect in(piol, iname);
 
     auto dec      = decompose(piol.get(), in);
     size_t offset = dec.offset;
     size_t lnt    = dec.size;
 
-    File::Param prm(lnt);
+    Param prm(lnt);
     in.readParam(offset, lnt, &prm);
 
-    File::getMinMax(
+    getMinMax(
       piol.get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm,
       minmax.data());
-    File::getMinMax(
+    getMinMax(
       piol.get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm,
       minmax.data() + 4U);
 }

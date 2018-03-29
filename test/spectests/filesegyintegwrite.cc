@@ -1,6 +1,6 @@
 #include "filesegytest.hh"
 
-// Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+// Write test of SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
 {
     ns = 261U;
@@ -20,14 +20,14 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
         ASSERT_EQ(testString[i], text[i]);
 }
 
-// Write test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+// Write test of SEGY -> Obj::SEGY -> Data::MPIIO
 TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
 {
     ns = 261U;
     nt = 400U;
-    File::coord_t coord(1600, 2000);
-    File::grid_t grid(ilNum(201), xlNum(201));
-    File::Param prm(1U), prm2(1U);
+    coord_t coord(1600, 2000);
+    grid_t grid(ilNum(201), xlNum(201));
+    Param prm(1U), prm2(1U);
 
     makeSEGY(tempFile);
 
@@ -36,18 +36,18 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
     file->writeNt(nt);
     piol->isErr();
 
-    File::setPrm(0, PIOL_META_il, grid.il, &prm);
-    File::setPrm(0, PIOL_META_xl, grid.xl, &prm);
-    File::setPrm(0, PIOL_META_xCmp, coord.x, &prm);
-    File::setPrm(0, PIOL_META_yCmp, coord.y, &prm);
+    setPrm(0, PIOL_META_il, grid.il, &prm);
+    setPrm(0, PIOL_META_xl, grid.xl, &prm);
+    setPrm(0, PIOL_META_xCmp, coord.x, &prm);
+    setPrm(0, PIOL_META_yCmp, coord.y, &prm);
 
     file->writeParam(201U, 1U, &prm);
     readfile->readParam(201U, 1U, &prm2);
 
-    ASSERT_EQ(grid.il, File::getPrm<llint>(0U, PIOL_META_il, &prm2));
-    ASSERT_EQ(grid.xl, File::getPrm<llint>(0U, PIOL_META_xl, &prm2));
-    ASSERT_DOUBLE_EQ(coord.x, File::getPrm<geom_t>(0U, PIOL_META_xCmp, &prm2));
-    ASSERT_DOUBLE_EQ(coord.y, File::getPrm<geom_t>(0U, PIOL_META_yCmp, &prm2));
+    ASSERT_EQ(grid.il, getPrm<llint>(0U, PIOL_META_il, &prm2));
+    ASSERT_EQ(grid.xl, getPrm<llint>(0U, PIOL_META_xl, &prm2));
+    ASSERT_DOUBLE_EQ(coord.x, getPrm<geom_t>(0U, PIOL_META_xCmp, &prm2));
+    ASSERT_DOUBLE_EQ(coord.y, getPrm<geom_t>(0U, PIOL_META_yCmp, &prm2));
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)

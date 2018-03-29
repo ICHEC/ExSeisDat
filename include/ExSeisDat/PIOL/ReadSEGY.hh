@@ -12,7 +12,6 @@
 
 
 namespace PIOL {
-namespace File {
 
 /*! The SEG-Y implementation of the file layer
  */
@@ -92,7 +91,6 @@ class ReadSEGY : public ReadInterface {
       const size_t skip = 0) const;
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_FILE_READSEGY_HH

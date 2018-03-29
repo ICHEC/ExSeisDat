@@ -9,7 +9,6 @@
 #include <cstddef>
 
 namespace PIOL {
-namespace File {
 
 /*! An instantiation of this structure corresponds to a single metadata rule
  */
@@ -62,7 +61,6 @@ struct RuleEntry {
     virtual MdType type(void) = 0;
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_RULEENTRY_HH

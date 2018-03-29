@@ -87,10 +87,8 @@ namespace Obj {
 class Interface;
 }  // namespace Obj
 
-namespace File {
 class ReadInterface;
 class WriteInterface;
-}  // namespace File
 
 }  // namespace PIOL
 

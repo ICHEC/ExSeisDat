@@ -17,7 +17,7 @@ namespace PIOL {
 
 // TODO: Generalise this for parameters and traces
 std::shared_ptr<TraceBlock> Cache::getCache(
-  std::shared_ptr<File::Rule> rule, FileDeque& desc, bool, bool)
+  std::shared_ptr<Rule> rule, FileDeque& desc, bool, bool)
 {
     auto it = std::find_if(
       cache.begin(), cache.end(),
@@ -31,7 +31,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(
         }
 
         size_t off = piol->comm->offset(lnt);
-        auto prm   = std::make_unique<File::Param>(rule, lnt);
+        auto prm   = std::make_unique<Param>(rule, lnt);
         // TODO: Do not make assumptions about Parameter sizes fitting in
         //       memory.
         size_t loff = 0LU;
@@ -40,9 +40,9 @@ std::shared_ptr<TraceBlock> Cache::getCache(
             f->ifc->readParamNonContiguous(
               f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++) {
-                File::setPrm(
+                setPrm(
                   loff + i, PIOL_META_gtn, off + loff + f->ilst[i], prm.get());
-                File::setPrm(
+                setPrm(
                   loff + i, PIOL_META_ltn, f->ilst[i] * desc.size() + c,
                   prm.get());
             }
@@ -69,7 +69,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(
 }
 
 std::vector<size_t> Cache::getOutputTrace(
-  FileDeque& desc, const size_t offset, const size_t sz, File::Param* prm)
+  FileDeque& desc, const size_t offset, const size_t sz, Param* prm)
 {
     std::vector<size_t> final;
 
@@ -99,7 +99,7 @@ std::vector<size_t> Cache::getOutputTrace(
 
         std::vector<size_t> sortlist = getSortIndex(sz, final.data());
         for (size_t j = 0LU; j < sz; j++)
-            File::cpyPrm(sortlist[j], iprm, j, prm);
+            cpyPrm(sortlist[j], iprm, j, prm);
     }
     return final;
 }

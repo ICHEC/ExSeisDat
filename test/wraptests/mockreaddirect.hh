@@ -7,7 +7,6 @@
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 
 namespace PIOL {
-namespace File {
 
 class MockReadDirect;
 ::testing::StrictMock<MockReadDirect>& mockReadDirect();
@@ -69,7 +68,6 @@ class MockReadDirect {
         const ReadDirect*, const size_t sz, const size_t* offset, Param* prm));
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // PIOLWRAPTESTSMOCKREADDIRECT_HEADER_GUARD

@@ -200,7 +200,7 @@ struct OpParent {
     /// Operation options.
     OpOpt opt;
     /// Relevant parameter rules for the operation.
-    std::shared_ptr<File::Rule> rule;
+    std::shared_ptr<Rule> rule;
     /// Gather state if applicable.
     std::shared_ptr<gState> state;
 
@@ -211,7 +211,7 @@ struct OpParent {
      */
     OpParent(
       OpOpt& opt_,
-      std::shared_ptr<File::Rule> rule_,
+      std::shared_ptr<Rule> rule_,
       std::shared_ptr<gState> state_) :
         opt(opt_),
         rule(rule_),
@@ -239,7 +239,7 @@ struct Op : public OpParent {
      */
     Op(
       OpOpt& opt_,
-      std::shared_ptr<File::Rule> rule_,
+      std::shared_ptr<Rule> rule_,
       std::shared_ptr<gState> state_,
       T func_) :
         OpParent(opt_, rule_, state_),
@@ -269,7 +269,7 @@ class Set {
     /// A map of (ns, inc) key to the current offset
     std::map<std::pair<size_t, geom_t>, size_t> offmap;
     /// Contains a pointer to the Rules for parameters
-    std::shared_ptr<File::Rule> rule;
+    std::shared_ptr<Rule> rule;
     /// The cache of parameters and traces
     Cache cache;
     /// The list of functions and related data
@@ -370,8 +370,8 @@ class Set {
       std::shared_ptr<ExSeisPIOL> piol_,
       std::string pattern,
       std::string outfix_,
-      std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(
-        std::initializer_list<Meta>{PIOL_META_COPY}));
+      std::shared_ptr<Rule> rule_ =
+        std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Constructor
      *  @param[in] piol_ The PIOL object.
@@ -382,8 +382,8 @@ class Set {
     Set(
       std::shared_ptr<ExSeisPIOL> piol_,
       std::string pattern,
-      std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(
-        std::initializer_list<Meta>{PIOL_META_COPY})) :
+      std::shared_ptr<Rule> rule_ =
+        std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY})) :
         Set(piol_, pattern, "", rule_)
     {
     }
@@ -395,8 +395,8 @@ class Set {
      */
     Set(
       std::shared_ptr<ExSeisPIOL> piol_,
-      std::shared_ptr<File::Rule> rule_ = std::make_shared<File::Rule>(
-        std::initializer_list<Meta>{PIOL_META_COPY}));
+      std::shared_ptr<Rule> rule_ =
+        std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
 
     /*! Destructor
      */
@@ -411,7 +411,7 @@ class Set {
      *  @param[in] r The rules necessary for the sort.
      *  @param[in] sortFunc The comparison function.
      */
-    void sort(std::shared_ptr<File::Rule> r, CompareP sortFunc);
+    void sort(std::shared_ptr<Rule> r, CompareP sortFunc);
 
     /*! Output using the given output prefix
      *  @param[in] oname The output prefix
@@ -427,9 +427,7 @@ class Set {
      *  @param[out] minmax The array of structures to hold the ouput
      */
     void getMinMax(
-      MinMaxFunc<File::Param> xlam,
-      MinMaxFunc<File::Param> ylam,
-      CoordElem* minmax);
+      MinMaxFunc<Param> xlam, MinMaxFunc<Param> ylam, CoordElem* minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a
      *  set of traces
@@ -457,10 +455,10 @@ class Set {
      */
     void summary(void) const;
 
-    /*! Add a file to the set based on the File::ReadInterface
+    /*! Add a file to the set based on the ReadInterface
      *  @param[in] in The file interface
      */
-    void add(std::unique_ptr<File::ReadInterface> in);
+    void add(std::unique_ptr<ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
      *  @param[in] name The input name or pattern

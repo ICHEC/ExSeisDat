@@ -20,21 +20,18 @@ class MockSet {
         std::shared_ptr<ExSeisPIOL> piol_,
         std::string pattern,
         std::string outfix_,
-        std::shared_ptr<File::Rule> rule_));
+        std::shared_ptr<Rule> rule_));
 
     MOCK_METHOD3(
       ctor,
       void(
-        Set*,
-        std::shared_ptr<ExSeisPIOL> piol_,
-        std::shared_ptr<File::Rule> rule_));
+        Set*, std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_));
 
     MOCK_METHOD1(dtor, void(Set*));
 
     MOCK_METHOD2(sort, void(Set*, CompareP sortFunc));
 
-    MOCK_METHOD3(
-      sort, void(Set*, std::shared_ptr<File::Rule> r, CompareP sortFunc));
+    MOCK_METHOD3(sort, void(Set*, std::shared_ptr<Rule> r, CompareP sortFunc));
 
     MOCK_METHOD2(output, std::vector<std::string>(Set*, std::string oname));
 
@@ -42,8 +39,8 @@ class MockSet {
       getMinMax,
       void(
         Set*,
-        MinMaxFunc<File::Param> xlam,
-        MinMaxFunc<File::Param> ylam,
+        MinMaxFunc<Param> xlam,
+        MinMaxFunc<Param> ylam,
         CoordElem* minmax));
 
     MOCK_METHOD4(
@@ -56,13 +53,9 @@ class MockSet {
 
     MOCK_CONST_METHOD1(summary, void(const Set*));
 
-    MOCK_METHOD2(
-      add_impl, void(Set*, std::unique_ptr<File::ReadInterface>& in));
+    MOCK_METHOD2(add_impl, void(Set*, std::unique_ptr<ReadInterface>& in));
 
-    void add(Set* set, std::unique_ptr<File::ReadInterface> in)
-    {
-        add_impl(set, in);
-    }
+    void add(Set* set, std::unique_ptr<ReadInterface> in) { add_impl(set, in); }
 
     MOCK_METHOD2(add, void(Set*, std::string name));
 

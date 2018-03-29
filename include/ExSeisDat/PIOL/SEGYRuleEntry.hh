@@ -14,7 +14,6 @@
 #include <algorithm>
 
 namespace PIOL {
-namespace File {
 
 /*! The Long rule entry structure for the SEG-Y format.
  */
@@ -152,7 +151,6 @@ struct SEGYFloatRuleEntry : public RuleEntry {
     MdType type(void) { return MdType::Float; }
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_SEGYRULEENTRY_HH

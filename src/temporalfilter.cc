@@ -23,7 +23,6 @@
 #include <vector>
 
 namespace PIOL {
-namespace File {
 
 // TODO: Use complex literals when newer compilers are available
 //       (Current is gcc (GCC) 5.3.0)
@@ -477,5 +476,4 @@ void temporalFilter(
     }
 }
 
-}  // namespace File
 }  // namespace PIOL

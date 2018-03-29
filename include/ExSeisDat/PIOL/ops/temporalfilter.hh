@@ -14,7 +14,6 @@
 #include <vector>
 
 namespace PIOL {
-namespace File {
 
 /*! Determines the filter order if given passband and stopband frequecnies
  *  @param[in] cornerP Passband corner
@@ -193,7 +192,6 @@ void temporalFilter(
   std::vector<trace_t> corners,
   size_t N);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

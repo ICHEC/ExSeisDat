@@ -27,16 +27,15 @@ extern "C" {
 
 PIOL_File_Rule* PIOL_File_Rule_new(bool def)
 {
-    return new std::shared_ptr<PIOL::File::Rule>(
-      new PIOL::File::Rule(true, def));
+    return new std::shared_ptr<PIOL::Rule>(new PIOL::Rule(true, def));
 }
 
 PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta* m, size_t n)
 {
     assert(not_null(m));
 
-    return new std::shared_ptr<PIOL::File::Rule>(
-      new PIOL::File::Rule({m, m + n}, true, false, false));
+    return new std::shared_ptr<PIOL::Rule>(
+      new PIOL::Rule({m, m + n}, true, false, false));
 }
 
 void PIOL_File_Rule_delete(PIOL_File_Rule* rule)
@@ -111,10 +110,10 @@ size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule)
 PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz)
 {
     if (not_null(rule)) {
-        return new PIOL::File::Param(*rule, sz);
+        return new PIOL::Param(*rule, sz);
     }
     else {
-        return new PIOL::File::Param(sz);
+        return new PIOL::Param(sz);
     }
 }
 
@@ -158,7 +157,7 @@ int16_t PIOL_File_getPrm_short(
 {
     assert(not_null(param));
 
-    return PIOL::File::getPrm<int16_t>(i, entry, param);
+    return PIOL::getPrm<int16_t>(i, entry, param);
 }
 
 PIOL_llint PIOL_File_getPrm_llint(
@@ -166,7 +165,7 @@ PIOL_llint PIOL_File_getPrm_llint(
 {
     assert(not_null(param));
 
-    return PIOL::File::getPrm<PIOL::llint>(i, entry, param);
+    return PIOL::getPrm<PIOL::llint>(i, entry, param);
 }
 
 PIOL_geom_t PIOL_File_getPrm_double(
@@ -174,7 +173,7 @@ PIOL_geom_t PIOL_File_getPrm_double(
 {
     assert(not_null(param));
 
-    return PIOL::File::getPrm<PIOL::geom_t>(i, entry, param);
+    return PIOL::getPrm<PIOL::geom_t>(i, entry, param);
 }
 
 void PIOL_File_setPrm_short(
@@ -182,7 +181,7 @@ void PIOL_File_setPrm_short(
 {
     assert(not_null(param));
 
-    PIOL::File::setPrm(i, entry, ret, param);
+    PIOL::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_setPrm_llint(
@@ -190,7 +189,7 @@ void PIOL_File_setPrm_llint(
 {
     assert(not_null(param));
 
-    PIOL::File::setPrm(i, entry, ret, param);
+    PIOL::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_setPrm_double(
@@ -198,7 +197,7 @@ void PIOL_File_setPrm_double(
 {
     assert(not_null(param));
 
-    PIOL::File::setPrm(i, entry, ret, param);
+    PIOL::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_cpyPrm(
@@ -207,7 +206,7 @@ void PIOL_File_cpyPrm(
     assert(not_null(src));
     assert(not_null(dst));
 
-    PIOL::File::cpyPrm(i, src, j, dst);
+    PIOL::cpyPrm(i, src, j, dst);
 }
 
 //////////////////PIOL////////////////////////////
@@ -269,7 +268,7 @@ PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::File::WriteDirect(*piol, name);
+    return new PIOL::WriteDirect(*piol, name);
 }
 
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
@@ -278,7 +277,7 @@ PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::File::ReadDirect(*piol, name);
+    return new PIOL::ReadDirect(*piol, name);
 }
 
 void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect)
@@ -493,7 +492,7 @@ void PIOL_File_getMinMax(
     assert(not_null(param));
     assert(not_null(minmax));
 
-    PIOL::File::getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
+    PIOL::getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////

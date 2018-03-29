@@ -17,7 +17,6 @@
 #include "ExSeisDat/PIOL/share/api.hh"
 
 namespace PIOL {
-namespace File {
 
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
@@ -170,11 +169,8 @@ void setPrm(const size_t i, const Meta entry, T ret, Param* prm)
 void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst);
 
 
-}  // namespace File
-
 /// A template for the Compare less-than function
-typedef std::function<bool(const File::Param*, const size_t, const size_t)>
-  CompareP;
+typedef std::function<bool(const Param*, const size_t, const size_t)> CompareP;
 
 }  // namespace PIOL
 

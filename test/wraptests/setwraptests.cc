@@ -4,7 +4,6 @@
 #include "wraptesttools.hh"
 
 using namespace PIOL;
-using namespace File;
 using namespace testing;
 
 void test_PIOL_Set(std::shared_ptr<ExSeis*> piol)

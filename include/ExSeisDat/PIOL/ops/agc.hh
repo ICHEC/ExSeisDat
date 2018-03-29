@@ -21,7 +21,6 @@
 #include "ExSeisDat/PIOL/share/api.hh"
 
 namespace PIOL {
-namespace File {
 
 /************************************ Core ************************************/
 /*! Apply automatic gain control to a set of tapers --> used for actual
@@ -85,7 +84,6 @@ trace_t AGCMedian(trace_t* trc, size_t window, trace_t normR, llint winCntr);
  */
 AGCFunc getAGCFunc(AGCType type);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

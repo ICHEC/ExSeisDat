@@ -60,8 +60,8 @@ void init_wraptests()
     test_PIOL_Set(test_exseis);
 
     // Add cleanup
-    EXPECT_CALL(PIOL::File::mockParam(), dtor(EqDeref(test_param)));
-    EXPECT_CALL(PIOL::File::mockRule(), dtor(EqDeref(test_rule)));
+    EXPECT_CALL(PIOL::mockParam(), dtor(EqDeref(test_param)));
+    EXPECT_CALL(PIOL::mockRule(), dtor(EqDeref(test_rule)));
     EXPECT_CALL(PIOL::mockExSeis(), dtor(EqDeref(test_exseis)));
 }
 

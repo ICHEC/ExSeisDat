@@ -7,7 +7,6 @@
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 
 namespace PIOL {
-namespace File {
 
 class MockGetMinMax;
 ::testing::StrictMock<MockGetMinMax>& mockGetMinMax();
@@ -26,7 +25,6 @@ class MockGetMinMax {
         CoordElem* minmax));
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD

@@ -13,7 +13,6 @@
 #include <memory>
 
 namespace PIOL {
-namespace File {
 
 /// The NULL parameter so that the correct internal read pattern is selected
 extern const trace_t* TRACE_NULL;
@@ -154,7 +153,6 @@ class WriteInterface {
       const size_t skip = 0) = 0;
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH

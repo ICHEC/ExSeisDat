@@ -9,7 +9,6 @@
 #include "gmock/gmock.h"
 
 namespace PIOL {
-namespace File {
 
 // Specify extern templates for templated functions so we can capture them
 template<>
@@ -75,7 +74,6 @@ class MockParamFreeFunctions {
       void(const size_t i, const Meta entry, geom_t ret, Param* prm));
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // PIOLWRAPTESTMOCKPARAM_HEADER_GUARD

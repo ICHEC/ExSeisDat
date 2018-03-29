@@ -16,7 +16,6 @@
 
 namespace PIOL {
 
-
 /*! @brief Convert a 2 byte \c char array in big endian to a host 2 byte
  *         datatype
  *  @param[in] src Data in big endian order to stuff into the host datatype

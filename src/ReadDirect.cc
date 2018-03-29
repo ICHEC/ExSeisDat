@@ -11,18 +11,17 @@
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
-namespace File {
 
 ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
-    const File::ReadSEGY::Opt f;
+    const ReadSEGY::Opt f;
     const Obj::SEGY::Opt o;
     const Data::MPIIO::Opt d;
     auto data =
       std::make_shared<Data::MPIIO>(piol, name, d, Data::FileMode::Read);
     auto obj =
       std::make_shared<Obj::SEGY>(piol, name, o, data, Data::FileMode::Read);
-    file = std::make_shared<File::ReadSEGY>(piol, name, f, obj);
+    file = std::make_shared<ReadSEGY>(piol, name, f, obj);
 }
 
 ReadDirect::ReadDirect(std::shared_ptr<ReadInterface> file_) : file(file_) {}
@@ -79,5 +78,4 @@ void ReadDirect::readParamNonContiguous(
     file->readParamNonContiguous(sz, offset, prm);
 }
 
-}  // namespace File
 }  // namespace PIOL

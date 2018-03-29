@@ -14,7 +14,7 @@ using namespace PIOL;
 
 void writeContig(
   ExSeis& piol,
-  File::WriteDirect* file,
+  WriteDirect* file,
   size_t offset,
   size_t nt,
   size_t ns,
@@ -25,7 +25,7 @@ void writeContig(
     float fhalf = float(nt * ns) / 2.0;
     float off   = float(nt * ns) / 4.0;
     long nhalf  = nt / 2;
-    File::Param prm(max);
+    Param prm(max);
     std::vector<float> trc(max * ns);
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
@@ -55,7 +55,7 @@ void writeContig(
 
 void writeRandom(
   ExSeis& piol,
-  File::WriteDirect* file,
+  WriteDirect* file,
   size_t nt,
   size_t ns,
   size_t lnt,
@@ -92,7 +92,7 @@ void writeRandom(
 
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        File::Param prm(rblock);
+        Param prm(rblock);
         std::vector<float> trc(rblock * ns);
 
         for (size_t j = 0; j < rblock; j++) {
@@ -131,7 +131,7 @@ void FileMake(
 {
     auto piol = ExSeis::New();
 
-    File::WriteDirect file(piol, name);
+    WriteDirect file(piol, name);
 
     piol->isErr();
     file.writeNs(ns);

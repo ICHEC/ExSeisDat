@@ -13,7 +13,6 @@
 #include <utility>
 
 namespace PIOL {
-namespace File {
 
 /*! @brief An intitial class for 3d volumetric seismic data
  */
@@ -52,7 +51,6 @@ class Model3dInterface {
       const Uniray<size_t, llint, llint>& gather) = 0;
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_FILE_MODEL3DINTERFACE_HH

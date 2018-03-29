@@ -10,7 +10,6 @@
 #include "ExSeisDat/PIOL/ReadInterface.hh"
 
 namespace PIOL {
-namespace File {
 
 const trace_t* TRACE_NULL = (trace_t*)1;
 
@@ -43,5 +42,4 @@ geom_t ReadInterface::readInc(void) const
     return inc;
 }
 
-}  // namespace File
 }  // namespace PIOL

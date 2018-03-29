@@ -9,7 +9,6 @@
 #include <iostream>
 
 using namespace PIOL;
-using namespace File;
 
 /*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
@@ -19,7 +18,7 @@ using namespace File;
 void calcMin(std::string iname, std::string oname)
 {
     auto piol = ExSeis::New();
-    File::ReadDirect in(piol, iname);
+    ReadDirect in(piol, iname);
 
     auto dec      = decompose(piol.get(), in);
     size_t offset = dec.offset;
@@ -70,7 +69,7 @@ void calcMin(std::string iname, std::string oname)
             }
         }
 
-    File::WriteDirect out(piol, oname);
+    WriteDirect out(piol, oname);
     out.writeNt(sz);
     out.writeNs(1U);
     out.writeInc(in.readInc());

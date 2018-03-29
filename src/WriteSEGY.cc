@@ -17,7 +17,6 @@
 #include <limits>
 
 namespace PIOL {
-namespace File {
 
 //////////////////////      Constructor & Destructor      //////////////////////
 
@@ -271,5 +270,4 @@ void WriteSEGY::writeTraceNonContiguous(
     }
 }
 
-}  // namespace File
 }  // namespace PIOL

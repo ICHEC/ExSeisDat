@@ -1,7 +1,7 @@
 #include "googletest_variable_instances.hh"
 
-template testing::DefaultValue<PIOL::File::RuleEntry*>::ValueProducer*
-  testing::DefaultValue<PIOL::File::RuleEntry*>::producer_;
+template testing::DefaultValue<PIOL::RuleEntry*>::ValueProducer*
+  testing::DefaultValue<PIOL::RuleEntry*>::producer_;
 
 template testing::DefaultValue<size_t>::ValueProducer*
   testing::DefaultValue<size_t>::producer_;

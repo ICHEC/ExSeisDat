@@ -3,7 +3,6 @@
 #include "writedirectwraptests.hh"
 
 using namespace PIOL;
-using namespace File;
 using namespace testing;
 
 const auto writeText_return = std::string{"Test WriteDirect Text"};

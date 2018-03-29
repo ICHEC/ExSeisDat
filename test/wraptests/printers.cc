@@ -12,30 +12,27 @@
 }
 
 namespace PIOL {
-namespace File {
 
-::std::ostream& operator<<(::std::ostream& os, PIOL::File::Param* value)
+::std::ostream& operator<<(::std::ostream& os, PIOL::Param* value)
 {
-    os << "PIOL::File::Param* " << static_cast<void*>(value);
+    os << "PIOL::Param* " << static_cast<void*>(value);
     return os;
 }
 
-::std::ostream& operator<<(::std::ostream& os, const PIOL::File::Param* value)
+::std::ostream& operator<<(::std::ostream& os, const PIOL::Param* value)
 {
-    os << "const PIOL::File::Param* " << static_cast<const void*>(value);
+    os << "const PIOL::Param* " << static_cast<const void*>(value);
     return os;
 }
 
-}  // namespace File
 }  // namespace PIOL
 
 namespace std {
 
 ::std::ostream& operator<<(
-  ::std::ostream& os, const std::shared_ptr<PIOL::File::Rule>& value)
+  ::std::ostream& os, const std::shared_ptr<PIOL::Rule>& value)
 {
-    os << "std::shared_ptr<PIOL::File::Rule> "
-       << static_cast<void*>(value.get());
+    os << "std::shared_ptr<PIOL::Rule> " << static_cast<void*>(value.get());
     return os;
 }
 

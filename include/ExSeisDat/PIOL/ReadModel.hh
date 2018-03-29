@@ -15,7 +15,6 @@
 #include <vector>
 
 namespace PIOL {
-namespace File {
 
 /// @todo document me
 class ReadModel : public ReadDirect {
@@ -34,7 +33,6 @@ class ReadModel : public ReadDirect {
       size_t gOffset, size_t numGather, Uniray<size_t, llint, llint>& gather);
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // PIOL_READMODEL_HH

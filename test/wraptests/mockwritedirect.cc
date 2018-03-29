@@ -1,7 +1,6 @@
 #include "mockwritedirect.hh"
 
 namespace PIOL {
-namespace File {
 
 ::testing::StrictMock<MockWriteDirect>& mockWriteDirect()
 {
@@ -9,5 +8,4 @@ namespace File {
     return mockWriteDirect;
 }
 
-}  // namespace File
 }  // namespace PIOL

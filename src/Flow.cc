@@ -66,7 +66,7 @@ Set::Set(
   std::shared_ptr<ExSeisPIOL> piol_,
   std::string pattern,
   std::string outfix_,
-  std::shared_ptr<File::Rule> rule_) :
+  std::shared_ptr<Rule> rule_) :
     piol(piol_),
     outfix(outfix_),
     rule(rule_),
@@ -77,7 +77,7 @@ Set::Set(
     add(pattern);
 }
 
-Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<File::Rule> rule_) :
+Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_) :
     piol(piol_),
     rule(rule_),
     cache(piol_)
@@ -91,7 +91,7 @@ Set::~Set(void)
     if (outfix != "") output(outfix);
 }
 
-void Set::add(std::unique_ptr<File::ReadInterface> in)
+void Set::add(std::unique_ptr<ReadInterface> in)
 {
     file.emplace_back(std::make_shared<FileDesc>());
     auto& f = file.back();
@@ -125,7 +125,7 @@ void Set::add(std::string pattern)
     for (size_t i = 0; i < globs.gl_pathc; i++) {
         // For each input file which matches the regex
         if (std::regex_match(globs.gl_pathv[i], reg)) {
-            add(File::makeFile<File::ReadSEGY>(piol, globs.gl_pathv[i]));
+            add(makeFile<ReadSEGY>(piol, globs.gl_pathv[i]));
         }
     }
     globfree(&globs);
@@ -162,10 +162,9 @@ void RadonState::makeState(
   const std::vector<size_t>& offset, const Uniray<size_t, llint, llint>& gather)
 {
     // TODO: DON'T USE MAGIC NAME
-    std::unique_ptr<File::ReadSEGYModel> vm =
-      File::makeFile<File::ReadSEGYModel>(piol, vmname);
-    vNs  = vm->readNs();
-    vInc = vm->readInc();
+    std::unique_ptr<ReadSEGYModel> vm = makeFile<ReadSEGYModel>(piol, vmname);
+    vNs                               = vm->readNs();
+    vInc                              = vm->readInc();
 
     vtrc = vm->readModel(offset.size(), offset.data(), gather);
 
@@ -229,8 +228,7 @@ std::vector<std::string> Set::startSingle(
 
         names.push_back(name);
 
-        std::unique_ptr<File::WriteInterface> out =
-          File::makeFile<File::WriteSEGY>(piol, name);
+        std::unique_ptr<WriteInterface> out = makeFile<WriteSEGY>(piol, name);
         // TODO: Will need to delay ns call depending for operations that modify
         //       the number of samples per trace
         out->writeNs(ns);
@@ -243,9 +241,9 @@ std::vector<std::string> Set::startSingle(
                         + 2LU * rule->paramMem() + 2LU * SEGSz::getDFSz(ns));
 
         for (auto& f : fQue) {
-            File::ReadInterface* in = f->ifc.get();
-            size_t lnt              = f->ilst.size();
-            size_t ns               = in->readNs();
+            ReadInterface* in = f->ifc.get();
+            size_t lnt        = f->ilst.size();
+            size_t ns         = in->readNs();
             // Initialise the blocks
             auto biggest = piol->comm->max(lnt);
             size_t extra =
@@ -254,7 +252,7 @@ std::vector<std::string> Set::startSingle(
                 size_t rblock = (i + max < lnt ? max : lnt - i);
                 std::vector<trace_t> trc(rblock * ns);
                 /// @todo Rule should be made of rules stored in function list
-                File::Param prm(rule, rblock);
+                Param prm(rule, rblock);
 
                 /// @todo Use non-monotonic call here
                 in->readTraceNonContiguous(
@@ -264,7 +262,7 @@ std::vector<std::string> Set::startSingle(
                   getSortIndex(rblock, f->olst.data() + i);
 
                 auto bIn = std::make_unique<TraceBlock>();
-                bIn->prm.reset(new File::Param(rule, rblock));
+                bIn->prm.reset(new Param(rule, rblock));
                 bIn->trc.resize(rblock * ns);
                 bIn->ns  = ns;
                 bIn->inc = inc;
@@ -287,7 +285,7 @@ std::vector<std::string> Set::startSingle(
                 in->readTraceNonContiguous(0, nullptr, nullptr, nullptr);
 
                 auto bIn = std::make_unique<TraceBlock>();
-                bIn->prm.reset(new File::Param(rule, 0LU));
+                bIn->prm.reset(new Param(rule, 0LU));
                 bIn->trc.resize(0LU);
                 bIn->ns  = f->ifc->readNs();
                 bIn->nt  = 0LU;
@@ -326,7 +324,7 @@ std::string Set::startGather(
     std::string gname;
     for (auto& o : file) {
         // Locate gather boundaries.
-        auto gather = File::getIlXlGathers(piol.get(), o->ifc.get());
+        auto gather = getIlXlGathers(piol.get(), o->ifc.get());
         auto gdec   = decompose(gather.size(), numRank, rank);
 
         size_t numGather = gdec.size;
@@ -345,7 +343,7 @@ std::string Set::startGather(
         // TODO: Loop and add rules
         // TODO: need better rule handling, create rule of all rules in gather
         //       functions
-        auto rule = std::make_shared<File::Rule>(
+        auto rule = std::make_shared<Rule>(
           std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
 
         auto fTemp = fCurr;
@@ -355,8 +353,7 @@ std::string Set::startGather(
         gname = (fTemp != fEnd ? "gtemp.segy" : outfix + ".segy");
 
         // Use inputs as default values. These can be changed later
-        std::unique_ptr<File::WriteInterface> out =
-          File::makeFile<File::WriteSEGY>(piol, gname);
+        std::unique_ptr<WriteInterface> out = makeFile<WriteSEGY>(piol, gname);
 
         size_t wOffset = 0LU;
         size_t iOffset = 0LU;
@@ -368,7 +365,7 @@ std::string Set::startGather(
 
             // Initialise the blocks
             auto bIn = std::make_unique<TraceBlock>();
-            bIn->prm.reset(new File::Param(rule, iGSz));
+            bIn->prm.reset(new Param(rule, iGSz));
             bIn->trc.resize(iGSz * o->ifc->readNs());
             bIn->ns   = o->ifc->readNs();
             bIn->nt   = o->ifc->readNt();
@@ -401,7 +398,7 @@ std::string Set::startGather(
             piol->comm->sum(0LU);
 
             auto bIn = std::make_unique<TraceBlock>();
-            bIn->prm.reset(new File::Param(rule, 0LU));
+            bIn->prm.reset(new Param(rule, 0LU));
             bIn->trc.resize(0LU);
             bIn->ns  = o->ifc->readNs();
             bIn->nt  = o->ifc->readNt();
@@ -542,7 +539,7 @@ std::vector<std::string> Set::output(std::string oname)
 }
 
 void Set::getMinMax(
-  MinMaxFunc<File::Param> xlam, MinMaxFunc<File::Param> ylam, CoordElem* minmax)
+  MinMaxFunc<Param> xlam, MinMaxFunc<Param> ylam, CoordElem* minmax)
 {
     // TODO: This needs to be changed to be compatible with ExSeisFlow
     minmax[0].val = std::numeric_limits<geom_t>::max();
@@ -555,8 +552,8 @@ void Set::getMinMax(
     CoordElem tminmax[4LU];
 
     for (auto& f : file) {
-        std::vector<File::Param> vprm;
-        File::Param prm(rule, f->ilst.size());
+        std::vector<Param> vprm;
+        Param prm(rule, f->ilst.size());
 
         f->ifc->readParamNonContiguous(f->ilst.size(), f->ilst.data(), &prm);
 
@@ -566,7 +563,7 @@ void Set::getMinMax(
         }
         // TODO: Minmax can't assume ordered data! Fix this!
         size_t offset = piol->comm->offset(f->ilst.size());
-        File::getMinMax(
+        PIOL::getMinMax(
           piol.get(), offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
         for (size_t i = 0LU; i < 2LU; i++) {
             updateElem<std::less<geom_t>>(&tminmax[2LU * i], &minmax[2LU * i]);
@@ -578,7 +575,7 @@ void Set::getMinMax(
 
 void Set::sort(CompareP sortFunc)
 {
-    auto r = std::make_shared<File::Rule>(std::initializer_list<Meta>{
+    auto r = std::make_shared<Rule>(std::initializer_list<Meta>{
       PIOL_META_il, PIOL_META_xl, PIOL_META_xSrc, PIOL_META_ySrc,
       PIOL_META_xRcv, PIOL_META_yRcv, PIOL_META_xCmp, PIOL_META_yCmp,
       PIOL_META_Offset, PIOL_META_WtrDepRcv, PIOL_META_tn});
@@ -589,7 +586,7 @@ void Set::sort(CompareP sortFunc)
     sort(r, sortFunc);
 }
 
-void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
+void Set::sort(std::shared_ptr<Rule> r, CompareP sortFunc)
 {
     OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal,
                  FuncOpt::SubSetOnly};
@@ -605,7 +602,7 @@ void Set::sort(std::shared_ptr<File::Rule> r, CompareP sortFunc)
               return std::vector<size_t>{};
           }
           else {
-              return File::sort(piol.get(), in->prm.get(), sortFunc);
+              return PIOL::sort(piol.get(), in->prm.get(), sortFunc);
           }
       }));
 }
@@ -623,7 +620,7 @@ void Set::toAngle(
           out->ns           = in->ns;
           out->inc          = state->oInc;  // 1 degree in radians
           out->trc.resize(state->oGSz * out->ns);
-          out->prm.reset(new File::Param(in->prm->r, state->oGSz));
+          out->prm.reset(new Param(in->prm->r, state->oGSz));
           if (!in->prm->size()) return;
 
           // For each angle in the angle gather
@@ -648,10 +645,8 @@ void Set::toAngle(
           for (size_t j = 0; j < state->oGSz; j++) {
               // TODO: Set the rest of the parameters
               // TODO: Check the get numbers
-              File::setPrm(
-                j, PIOL_META_il, state->il[in->gNum], out->prm.get());
-              File::setPrm(
-                j, PIOL_META_xl, state->xl[in->gNum], out->prm.get());
+              setPrm(j, PIOL_META_il, state->il[in->gNum], out->prm.get());
+              setPrm(j, PIOL_META_xl, state->xl[in->gNum], out->prm.get());
           }
       }));
 }
@@ -664,7 +659,7 @@ void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
     func.emplace_back(std::make_shared<Op<InPlaceMod>>(
       opt, rule, nullptr,
       [tapFunc, nTailLft, nTailRt](TraceBlock* in) -> std::vector<size_t> {
-          File::taper(
+          PIOL::taper(
             in->prm->size(), in->ns, in->trc.data(), tapFunc, nTailLft,
             nTailRt);
           return std::vector<size_t>{};
@@ -678,7 +673,7 @@ void Set::AGC(AGCFunc agcFunc, size_t window, trace_t normR)
     func.emplace_back(std::make_shared<Op<InPlaceMod>>(
       opt, rule, nullptr,
       [agcFunc, window, normR](TraceBlock* in) -> std::vector<size_t> {
-          File::AGC(
+          PIOL::AGC(
             in->prm->size(), in->ns, in->trc.data(), agcFunc, window, normR);
           return std::vector<size_t>{};
       }));
@@ -692,7 +687,7 @@ void Set::text(std::string outmsg_)
 /********************************** Non-Core **********************************/
 void Set::sort(SortType type)
 {
-    Set::sort(File::getComp(type));
+    Set::sort(getComp(type));
 }
 
 void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
@@ -701,12 +696,8 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
     bool m2Add = rule->addRule(m2);
 
     Set::getMinMax(
-      [m1](const File::Param& a) -> geom_t {
-          return File::getPrm<geom_t>(0LU, m1, &a);
-      },
-      [m2](const File::Param& a) -> geom_t {
-          return File::getPrm<geom_t>(0LU, m2, &a);
-      },
+      [m1](const Param& a) -> geom_t { return getPrm<geom_t>(0LU, m1, &a); },
+      [m2](const Param& a) -> geom_t { return getPrm<geom_t>(0LU, m2, &a); },
       minmax);
 
     if (m1Add) rule->rmRule(m1);
@@ -715,12 +706,12 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
 
 void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
 {
-    Set::taper(File::getTap(type), nTailLft, nTailRt);
+    Set::taper(getTap(type), nTailLft, nTailRt);
 }
 
 void Set::AGC(AGCType type, size_t window, trace_t normR)
 {
-    Set::AGC(File::getAGCFunc(type), window, normR);
+    Set::AGC(getAGCFunc(type), window, normR);
 }
 
 void Set::temporalFilter(
@@ -739,7 +730,7 @@ void Set::temporalFilter(
       opt, rule, nullptr,
       [type, domain, corners, pad, fs, nw,
        winCntr](TraceBlock* in) -> std::vector<size_t> {
-          File::temporalFilter(
+          PIOL::temporalFilter(
             in->prm->size(), in->ns, in->trc.data(), fs, type, domain, pad, nw,
             winCntr, corners);
           return std::vector<size_t>{};
@@ -763,7 +754,7 @@ void Set::temporalFilter(
       opt, rule, nullptr,
       [type, domain, corners, pad, fs, nw, winCntr,
        N](TraceBlock* in) -> std::vector<size_t> {
-          File::temporalFilter(
+          PIOL::temporalFilter(
             in->prm->size(), in->ns, in->trc.data(), fs, type, domain, pad, nw,
             winCntr, corners, N);
           return std::vector<size_t>{};

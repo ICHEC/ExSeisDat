@@ -7,7 +7,6 @@
 #include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
 
 namespace PIOL {
-namespace File {
 
 /// A list of the default META values
 static std::vector<Meta> default_metas{
@@ -340,5 +339,4 @@ bool Rule::addRule(const Rule& r)
     return true;
 }
 
-}  // namespace File
 }  // namespace PIOL

@@ -21,7 +21,6 @@
 #include "ExSeisDat/PIOL/share/param.hh"
 
 namespace PIOL {
-namespace File {
 
 /************************************ Core ************************************/
 /*! Function to sort the metadata in a Param struct. The returned vector is the
@@ -75,7 +74,6 @@ bool checkOrder(ReadInterface* src, Range dec, SortType type);
  */
 CompareP getComp(SortType type);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

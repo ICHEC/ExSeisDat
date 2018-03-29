@@ -16,7 +16,6 @@
 #include <string>
 
 namespace PIOL {
-namespace File {
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs
  *  the Data, Object and File layers.
@@ -178,7 +177,6 @@ class ReadDirect {
       const size_t sz, const size_t* offset, Param* prm) const;
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_READDIRECT_HH

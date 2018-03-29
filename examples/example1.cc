@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     auto piol = ExSeis::New();
 
     // Create a SEGY file object
-    File::WriteDirect file(piol, name);
+    WriteDirect file(piol, name);
 
     // nt is the number of traces, ns the number of samples per trace
     size_t nt = 40000, ns = 1000;
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     file.writeText("Test file\n");
 
     // Set and write some trace parameters
-    File::Param prm(lnt);
+    Param prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
         setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);

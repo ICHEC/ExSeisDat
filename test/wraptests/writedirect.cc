@@ -1,7 +1,6 @@
 #include "mockwritedirect.hh"
 
 namespace PIOL {
-namespace File {
 
 WriteDirect::WriteDirect(
   std::shared_ptr<ExSeisPIOL> piol, const std::string name)
@@ -63,5 +62,4 @@ void WriteDirect::writeParamNonContiguous(
     mockWriteDirect().writeParamNonContiguous(this, sz, offset, prm);
 }
 
-}  // namespace File
 }  // namespace PIOL

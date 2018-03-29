@@ -8,7 +8,6 @@
 #include "ExSeisDat/PIOL/RuleEntry.hh"
 
 namespace PIOL {
-namespace File {
 
 class MockRule;
 ::testing::StrictMock<MockRule>& mockRule();
@@ -55,7 +54,6 @@ class MockRule {
     MOCK_METHOD2(getEntry, RuleEntry*(Rule*, Meta entry));
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // PIOLWRAPTESTSMOCKRULE_HEADER_GUARD

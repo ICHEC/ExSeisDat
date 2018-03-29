@@ -29,7 +29,7 @@ std::unique_ptr<Coords> getCoords(
   std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
     auto time = MPI_Wtime();
-    File::ReadDirect file(piol, name);
+    ReadDirect file(piol, name);
     piol->isErr();
 
     auto dec      = decompose(piol.get(), file);
@@ -38,7 +38,7 @@ std::unique_ptr<Coords> getCoords(
 
     auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());
-    auto rule = std::make_shared<File::Rule>(
+    auto rule = std::make_shared<Rule>(
       std::initializer_list<Meta>{PIOL_META_gtn, PIOL_META_xSrc});
     /* These two lines are for some basic memory limitation calculations. In
      * future versions of the PIOL this will be handled internally and in a more
@@ -57,7 +57,7 @@ std::unique_ptr<Coords> getCoords(
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
 
-    File::Param prm(rule, lnt);
+    Param prm(rule, lnt);
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
@@ -74,17 +74,17 @@ std::unique_ptr<Coords> getCoords(
         file.readParam(size_t(0), size_t(0), nullptr);
     cmsg(piol.get(), "getCoords sort");
 
-    auto trlist = File::sort(
+    auto trlist = sort(
       piol.get(), &prm,
-      [](const File::Param* prm, const size_t i, const size_t j) -> bool {
+      [](const Param* prm, const size_t i, const size_t j) -> bool {
           return (
-            File::getPrm<geom_t>(i, PIOL_META_xSrc, prm)
-                < File::getPrm<geom_t>(j, PIOL_META_xSrc, prm) ?
+            getPrm<geom_t>(i, PIOL_META_xSrc, prm)
+                < getPrm<geom_t>(j, PIOL_META_xSrc, prm) ?
               true :
-              File::getPrm<geom_t>(i, PIOL_META_xSrc, prm)
-                  == File::getPrm<geom_t>(j, PIOL_META_xSrc, prm)
-                && File::getPrm<size_t>(i, PIOL_META_gtn, prm)
-                     < File::getPrm<size_t>(j, PIOL_META_gtn, prm));
+              getPrm<geom_t>(i, PIOL_META_xSrc, prm)
+                  == getPrm<geom_t>(j, PIOL_META_xSrc, prm)
+                && getPrm<size_t>(i, PIOL_META_gtn, prm)
+                     < getPrm<size_t>(j, PIOL_META_gtn, prm));
       },
       false);
 
@@ -92,20 +92,20 @@ std::unique_ptr<Coords> getCoords(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    std::shared_ptr<File::Rule> crule;
+    std::shared_ptr<Rule> crule;
     if (ixline)
-        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{
+        crule = std::make_shared<Rule>(std::initializer_list<Meta>{
           PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv,
           PIOL_META_il, PIOL_META_xl});
     else
-        crule = std::make_shared<File::Rule>(std::initializer_list<Meta>{
+        crule = std::make_shared<Rule>(std::initializer_list<Meta>{
           PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv});
 
     max =
       memlim / (crule->paramMem() + SEGSz::getMDSz() + 2LU * sizeof(size_t));
 
     {
-        File::Param prm2(crule, std::min(lnt, max));
+        Param prm2(crule, std::min(lnt, max));
         for (size_t i = 0; i < lnt; i += max) {
             size_t rblock = (i + max < lnt ? max : lnt - i);
 
@@ -118,20 +118,18 @@ std::unique_ptr<Coords> getCoords(
 
             for (size_t j = 0; j < rblock; j++) {
                 coords->xSrc[i + orig[j]] =
-                  File::getPrm<geom_t>(j, PIOL_META_xSrc, &prm2);
+                  getPrm<geom_t>(j, PIOL_META_xSrc, &prm2);
                 coords->ySrc[i + orig[j]] =
-                  File::getPrm<geom_t>(j, PIOL_META_ySrc, &prm2);
+                  getPrm<geom_t>(j, PIOL_META_ySrc, &prm2);
                 coords->xRcv[i + orig[j]] =
-                  File::getPrm<geom_t>(j, PIOL_META_xRcv, &prm2);
+                  getPrm<geom_t>(j, PIOL_META_xRcv, &prm2);
                 coords->yRcv[i + orig[j]] =
-                  File::getPrm<geom_t>(j, PIOL_META_yRcv, &prm2);
+                  getPrm<geom_t>(j, PIOL_META_yRcv, &prm2);
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
             for (size_t j = 0; ixline && j < rblock; j++) {
-                coords->il[i + orig[j]] =
-                  File::getPrm<llint>(j, PIOL_META_il, &prm2);
-                coords->xl[i + orig[j]] =
-                  File::getPrm<llint>(j, PIOL_META_xl, &prm2);
+                coords->il[i + orig[j]] = getPrm<llint>(j, PIOL_META_il, &prm2);
+                coords->xl[i + orig[j]] = getPrm<llint>(j, PIOL_META_xl, &prm2);
             }
         }
     }
@@ -161,7 +159,7 @@ void outputNonMono(
 {
     auto time = MPI_Wtime();
     auto rule =
-      std::make_shared<File::Rule>(std::initializer_list<Meta>{PIOL_META_COPY});
+      std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY});
 
     // Note: Set to TimeScal for OpenCPS viewing of dataset.
     // OpenCPS is restrictive on what locations can be used
@@ -169,8 +167,8 @@ void outputNonMono(
     if (printDsr)
         rule->addSEGYFloat(PIOL_META_dsdr, PIOL_TR_SrcMeas, PIOL_TR_TimeScal);
 
-    File::ReadDirect src(piol, sname);
-    File::WriteDirect dst(piol, dname);
+    ReadDirect src(piol, sname);
+    WriteDirect dst(piol, dname);
     piol->isErr();
 
     size_t ns      = src.readNs();
@@ -197,7 +195,7 @@ void outputNonMono(
     dst.writeInc(src.readInc());
     dst.writeNs(ns);
 
-    File::Param prm(rule, std::min(lnt, max));
+    Param prm(rule, std::min(lnt, max));
     std::vector<trace_t> trc(ns * std::min(lnt, max));
 
     piol->comm->barrier();

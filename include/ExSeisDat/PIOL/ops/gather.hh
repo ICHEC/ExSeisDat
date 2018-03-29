@@ -15,7 +15,6 @@
 #include "ExSeisDat/PIOL/share/uniray.hh"
 
 namespace PIOL {
-namespace File {
 
 /*! Find the inline/crossline for each il/xl gather and the number of traces per
  *  gather using
@@ -27,9 +26,8 @@ namespace File {
  *          crossline.
  */
 Uniray<size_t, llint, llint> getIlXlGathers(
-  ExSeisPIOL* piol, File::ReadInterface* file);
+  ExSeisPIOL* piol, ReadInterface* file);
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif

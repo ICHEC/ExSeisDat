@@ -9,7 +9,6 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 namespace PIOL {
-namespace File {
 
 /*! A SEGY class for seismic velocity models
  *
@@ -59,7 +58,6 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
       const Uniray<size_t, llint, llint>& gather);
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_FILE_READSEGYMODEL_HH

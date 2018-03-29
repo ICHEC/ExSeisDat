@@ -1,7 +1,6 @@
 #include "mockparam.hh"
 
 namespace PIOL {
-namespace File {
 
 Param::Param(std::shared_ptr<Rule> r_, const size_t sz)
 {
@@ -70,5 +69,4 @@ void setPrm<geom_t>(const size_t i, const Meta entry, geom_t ret, Param* prm)
     mockParamFreeFunctions().setPrm_geom_t(i, entry, ret, prm);
 }
 
-}  // namespace File
 }  // namespace PIOL

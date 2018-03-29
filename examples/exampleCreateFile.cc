@@ -23,7 +23,7 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
     auto piol = ExSeis::New();
 
     // Create new SEGY file
-    File::WriteDirect file(piol, name);
+    WriteDirect file(piol, name);
 
     auto dec      = decompose(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.offset;
@@ -36,7 +36,7 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
     file.writeText("Test file\n");
 
     // Set and write some trace parameters
-    File::Param prm(lnt);
+    Param prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
         setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);

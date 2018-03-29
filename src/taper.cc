@@ -13,7 +13,6 @@
 #include <assert.h>
 
 namespace PIOL {
-namespace File {
 
 /************************************ Core ************************************/
 void taper(
@@ -62,5 +61,4 @@ TaperFunc getTap(TaperType type)
     }
 }
 
-}  // namespace File
 }  // namespace PIOL

@@ -10,7 +10,6 @@
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
 namespace PIOL {
-namespace File {
 
 /*! Find the inline/crossline for each il/xl gather and the number of traces per
  *  gather based on the parameters provided and assuming this is collectively
@@ -81,5 +80,4 @@ Uniray<size_t, llint, llint> getIlXlGathers(
     return getGathers(piol, &prm);
 }
 
-}  // namespace File
 }  // namespace PIOL

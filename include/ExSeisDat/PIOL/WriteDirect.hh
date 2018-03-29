@@ -15,7 +15,6 @@
 #include <string>
 
 namespace PIOL {
-namespace File {
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs
  *  the Data, Object and File layers.
@@ -169,7 +168,6 @@ class WriteDirect {
       const size_t sz, const size_t* offset, const Param* prm);
 };
 
-}  // namespace File
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_WRITEDIRECT_HH

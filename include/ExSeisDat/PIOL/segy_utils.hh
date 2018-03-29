@@ -97,7 +97,7 @@ constexpr size_t Extensions = 3505U - 1U;
  *  @param[in] skip Skip the first "skip" entries when filling Param
  */
 void extractParam(
-  size_t sz, const uchar* md, File::Param* prm, size_t stride, size_t skip);
+  size_t sz, const uchar* md, Param* prm, size_t stride, size_t skip);
 
 
 /*! @brief Extract parameters from an unsigned char array into the parameter
@@ -111,7 +111,7 @@ void extractParam(
  *                  Param
  */
 void insertParam(
-  size_t sz, const File::Param* prm, uchar* md, size_t stride, size_t skip);
+  size_t sz, const Param* prm, uchar* md, size_t stride, size_t skip);
 
 
 /*! @brief Convert a SEG-Y scale integer to a floating point type

@@ -10,10 +10,8 @@ namespace PIOL {
 namespace SEGY_utils {
 
 void insertParam(
-  size_t sz, const File::Param* prm, uchar* buf, size_t stride, size_t skip)
+  size_t sz, const Param* prm, uchar* buf, size_t stride, size_t skip)
 {
-    using namespace File;
-
     if (prm == nullptr || !sz) return;
     auto r       = prm->r;
     size_t start = r->start;
@@ -93,10 +91,8 @@ void insertParam(
 }
 
 void extractParam(
-  size_t sz, const uchar* buf, File::Param* prm, size_t stride, size_t skip)
+  size_t sz, const uchar* buf, Param* prm, size_t stride, size_t skip)
 {
-    using namespace File;
-
     if (prm == nullptr || !sz) return;
     Rule* r = prm->r.get();
 
