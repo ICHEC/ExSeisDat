@@ -7,14 +7,14 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
@@ -641,9 +641,9 @@ struct FileWriteSEGYTest : public Test {
         Obj::SEGY::Opt o;
         Data::MPIIO::Opt d;
         auto data =
-          std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Test);
-        auto obj =
-          std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
+          std::make_shared<Data::MPIIO>(piol, name, d, Data::FileMode::Test);
+        auto obj = std::make_shared<Obj::SEGY>(
+          piol, name, o, data, Data::FileMode::Test);
 
         auto fi = std::make_shared<File::WriteSEGY>(piol, name, f, obj);
         file    = std::make_unique<File::WriteDirect>(std::move(fi));

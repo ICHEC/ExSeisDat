@@ -9,8 +9,8 @@
 #ifndef PIOLSHAREDMPI_INCLUDE_GUARD
 #define PIOLSHAREDMPI_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/log.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/anc/log.hh"
 
 #include <limits>
 #include <mpi.h>

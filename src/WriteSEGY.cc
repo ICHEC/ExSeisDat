@@ -9,8 +9,8 @@
 
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
-#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
 #include <cstring>

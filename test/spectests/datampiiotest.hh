@@ -31,8 +31,9 @@ class MPIIOTest : public Test {
     void makeMPIIO(std::string name)
     {
         if (data != nullptr) data.reset();
-        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
-        data          = std::make_shared<Data::MPIIO>(piol, name, mode);
+        Data::FileMode mode =
+          (WRITE ? Data::FileMode::Test : Data::FileMode::Read);
+        data = std::make_shared<Data::MPIIO>(piol, name, mode);
     }
 
     void makeTestSz(const size_t sz)

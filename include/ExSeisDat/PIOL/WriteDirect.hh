@@ -8,6 +8,7 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 
 #include <memory>
@@ -47,16 +48,20 @@ class WriteDirect {
       const O& o,
       const F& f)
     {
-        auto data =
-          std::make_shared<typename D::Type>(piol, name, d, FileMode::Write);
+        auto data = std::make_shared<typename D::Type>(
+          piol, name, d, Data::FileMode::Write);
+
         auto obj = std::make_shared<typename O::Type>(
-          piol, name, o, data, FileMode::Write);
+          piol, name, o, data, Data::FileMode::Write);
+
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
-        if (!file)
+
+        if (!file) {
             piol->log->record(
               name, Log::Layer::API, Log::Status::Error,
               "WriteInterface creation failure in WriteDirect<F,O,D>()",
               PIOL_VERBOSITY_NONE);
+        }
     }
 
     /*! Constructor without options.

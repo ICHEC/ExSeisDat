@@ -10,8 +10,8 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
@@ -86,8 +86,8 @@ ReadSEGY::ReadSEGY(
         else {
             // The string is in EBCDIC, transform and copy it.
             std::transform(
-              text_header_begin, text_header_end,
-              std::begin(text), ebcdicToAscii);
+              text_header_begin, text_header_end, std::begin(text),
+              ebcdicToAscii);
         }
     }
 }

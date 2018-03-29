@@ -9,8 +9,8 @@
 #ifndef EXSEISDAT_PIOL_H
 #define EXSEISDAT_PIOL_H
 
-#include "ExSeisDat/PIOL/anc/verbosity.h"
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/anc/verbosity.h"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
@@ -26,8 +26,8 @@
 #ifdef __cplusplus
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/Rule.hh"
+#include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 
 #include <memory>

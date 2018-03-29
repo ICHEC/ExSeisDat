@@ -125,8 +125,9 @@ void testRcvPattern(std::deque<std::shared_ptr<FileDesc>>& file)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 1;
-        for (size_t j = 1; j < file[i]->olst.size(); j++, l++)
+        for (size_t j = 1; j < file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(file[i]->olst[j] - 1, file[i]->olst[j - 1]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -136,10 +137,12 @@ void testLineOffPattern(std::deque<std::shared_ptr<FileDesc>>& file)
     for (size_t i = 0; i < file.size(); i++) {
         size_t total = file[i]->olst.size();
         size_t l     = 0;
-        for (size_t j = 0; j < 10U; j++)
-            for (size_t k = 0; k < total / 10; k++, l++)
+        for (size_t j = 0; j < 10U; j++) {
+            for (size_t k = 0; k < total / 10; k++, l++) {
                 EXPECT_EQ(file[i]->olst[l], 10 * k + j)
                   << i << " " << j << " " << k << " " << l;
+            }
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -148,8 +151,9 @@ void testOffLinePattern(std::deque<std::shared_ptr<FileDesc>>& file)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 0;
-        for (size_t j = 0; j < file[i]->olst.size(); j++, l++)
+        for (size_t j = 0; j < file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(sortOffLine[j], file[i]->olst[j]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -158,17 +162,20 @@ void testSrcOffPattern(std::deque<std::shared_ptr<FileDesc>>& file)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 1;
-        for (size_t j = 1; j < file[i]->olst.size(); j++, l++)
+        for (size_t j = 1; j < file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(file[i]->olst[j] - 1, file[i]->olst[j - 1]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
 
 void muting(size_t nt, size_t ns, trace_t* trc, size_t mute)
 {
-    for (size_t i = 0; i < nt; i++)
-        for (size_t j = 0; j < mute; j++)
-            trc[i * ns + j] = 0.0f;
+    for (size_t i = 0; i < nt; i++) {
+        for (size_t j = 0; j < mute; j++) {
+            trc[i * ns + j] = 0;
+        }
+    }
 }
 
 void taperMan(
@@ -208,8 +215,9 @@ TEST_F(SetTest, SortSrcX)
 
     for (size_t i = 0; i < set->file.size(); i++) {
         size_t l = 1;
-        for (size_t j = 1; j < set->file[i]->olst.size(); j++, l++)
+        for (size_t j = 1; j < set->file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(set->file[i]->olst[j] + 1, set->file[i]->olst[j - 1]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -300,11 +308,13 @@ TEST_F(SetTest, SortSrcXRcvY)
     for (size_t i = 0; i < set->file.size(); i++) {
         size_t total = set->file[i]->olst.size();
         size_t l     = 0;
-        for (llint j = 0; j < 10U; j++)
-            for (llint k = total / 10U - 1; k >= 0; k--, l++)
+        for (llint j = 0; j < 10U; j++) {
+            for (llint k = total / 10U - 1; k >= 0; k--, l++) {
                 EXPECT_EQ(
                   set->file[i]->olst[l], static_cast<size_t>(10 * k + j))
                   << i << " " << j << " " << k << " " << l;
+            }
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -341,8 +351,9 @@ TEST_F(SetTest, getActive2)
     init(1, 3333, 1111);
 
     size_t nt = 0U;
-    for (auto& f : set->file)
+    for (auto& f : set->file) {
         nt += f->ifc->readNt();
+    }
     EXPECT_EQ(nt, 3333U);
     // EXPECT_EQ(set->getLNt(), 2222U);
 }
@@ -439,8 +450,9 @@ TEST_F(SetTest, agcRMS)
 {
     auto agcFunc = [](size_t window, trace_t* trc, size_t) {
         trace_t amp = 0.0f;
-        for (size_t i = 0; i < window; i++)
+        for (size_t i = 0; i < window; i++) {
             amp += pow(trc[i], 2.0f);
+        }
         size_t num = std::count_if(
           &trc[0], &trc[window], [](trace_t j) { return j != 0.0f; });
         if (num < 1) num = 1;
@@ -454,10 +466,11 @@ TEST_F(SetTest, agcRMSTri)
     auto agcFunc = [](size_t window, trace_t* trc, size_t winCntr) {
         trace_t amp         = 0.0f;
         trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
-        for (size_t j = 0; j < window; j++)
+        for (size_t j = 0; j < window; j++) {
             amp += pow(
               trc[j] * (1.0f - trace_t(abs(llint(j - winCntr))) / winFullTail),
               2.0f);
+        }
         size_t num = std::count_if(
           &trc[0], &trc[window], [](trace_t i) { return i != 0.0f; });
         if (num < 1) num = 1;
@@ -470,8 +483,9 @@ TEST_F(SetTest, agcMeanAbs)
 {
     auto agcFunc = [](size_t window, trace_t* trc, size_t) {
         trace_t amp = 0.0f;
-        for (size_t i = 0; i < window; i++)
+        for (size_t i = 0; i < window; i++) {
             amp += trc[i];
+        }
         size_t num = std::count_if(
           &trc[0], &trc[window], [](trace_t j) { return j != 0.0f; });
         if (num < 1) num = 1;
@@ -515,7 +529,7 @@ TEST_F(SetTest, FilterTwoTailTime)
 
 TEST_F(SetTest, FilterTwoTailFreq)
 {
-    std::vector<trace_t> c = {1.667_t, 6.5_t};
+    std::vector<trace_t> c = {1.667, 6.5};
     ASSERT_EQ(bandpassFreq.size(), static_cast<size_t>(59));
     filterTest(FltrType::Bandpass, FltrDmn::Freq, c, bandpassFreq);
 }

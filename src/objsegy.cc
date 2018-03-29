@@ -19,7 +19,7 @@ namespace Obj {
 
 /////////////////////////////    Class functions    ////////////////////////////
 std::shared_ptr<Obj::Interface> makeDefaultObj(
-  std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode)
+  std::shared_ptr<ExSeisPIOL> piol, std::string name, Data::FileMode mode)
 {
     auto data = std::make_shared<Data::MPIIO>(piol, name, mode);
     return std::make_shared<Obj::SEGY>(piol, name, data, mode);
@@ -31,7 +31,7 @@ SEGY::SEGY(
   std::string name_,
   const SEGY::Opt&,
   std::shared_ptr<Data::Interface> data_,
-  FileMode) :
+  Data::FileMode) :
     Interface(piol_, name_, data_)
 {
 }
@@ -40,7 +40,7 @@ SEGY::SEGY(
   std::shared_ptr<ExSeisPIOL> piol_,
   std::string name_,
   std::shared_ptr<Data::Interface> data_,
-  FileMode) :
+  Data::FileMode) :
     Interface(piol_, name_, data_)
 {
 }

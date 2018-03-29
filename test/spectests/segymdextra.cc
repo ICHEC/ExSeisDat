@@ -11,7 +11,6 @@
 #include "segymdextra.hh"
 
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {
 namespace File {

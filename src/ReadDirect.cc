@@ -6,8 +6,8 @@
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
@@ -18,9 +18,11 @@ ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
     const File::ReadSEGY::Opt f;
     const Obj::SEGY::Opt o;
     const Data::MPIIO::Opt d;
-    auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Read);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Read);
-    file     = std::make_shared<File::ReadSEGY>(piol, name, f, obj);
+    auto data =
+      std::make_shared<Data::MPIIO>(piol, name, d, Data::FileMode::Read);
+    auto obj =
+      std::make_shared<Obj::SEGY>(piol, name, o, data, Data::FileMode::Read);
+    file = std::make_shared<File::ReadSEGY>(piol, name, f, obj);
 }
 
 ReadDirect::ReadDirect(std::shared_ptr<ReadInterface> file_) : file(file_) {}

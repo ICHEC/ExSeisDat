@@ -28,7 +28,7 @@ namespace File {
 // TODO: Use complex literals when newer compilers are available
 //       (Current is gcc (GCC) 5.3.0)
 /// The imaginary number, i = sqrt(-1).
-const cmtrace_t I = cmtrace_t(0_t, 1_t);
+const cmtrace_t I = cmtrace_t(0, 1);
 
 // TODO: Use this when intel supports it
 // using namespace std::complex_literals;
@@ -53,10 +53,10 @@ void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
     std::vector<cmtrace_t> vecXpnd(nvx + 1LU);
 
     vecXpnd[0LU] = -coef[0LU];
-    vecXpnd[1LU] = 1_t;
+    vecXpnd[1LU] = 1;
 
     for (size_t i = 1LU; i < nvx; i++) {
-        vecXpnd[i + 1LU] = 1_t;
+        vecXpnd[i + 1LU] = 1;
         for (size_t j = 0LU; j < i; j++) {
             vecXpnd[i - j] = vecXpnd[i - j] * -coef[i] + vecXpnd[i - j - 1LU];
         }
@@ -73,16 +73,16 @@ void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
 /// @return (4+x)/(4-x)
 inline cmtrace_t filDiv(cmtrace_t x)
 {
-    return (4_t + x) / (4_t - x);
+    return (trace_t(4) + x) / (trace_t(4) - x);
 }
 
 trace_t lowpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1)
 {
     cmtrace_t pprodBL(1.0, 0.0);
     for (size_t i = 0LU; i < N; i++) {
-        pprodBL *= 4_t - p[i] * cf1;
+        pprodBL *= trace_t(4) - p[i] * cf1;
         p[i] = filDiv(p[i] * cf1);
-        z[i] = -1_t;
+        z[i] = -1;
     }
 
     return std::pow(cf1, N) / pprodBL.real();
@@ -94,11 +94,12 @@ trace_t highpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1)
     cmtrace_t pprodBL(1, 0);
     for (size_t i = 0LU; i < N; i++) {
         pprod *= -p[i];
-        pprodBL *= 4_t - cf1 / p[i];
+        pprodBL *= trace_t(4) - cf1 / p[i];
         p[i] = filDiv(cf1 / p[i]);
-        z[i] = 1_t;
+        z[i] = 1;
     }
-    return (1_t / pprod.real()) * (std::pow(4_t, trace_t(N)) / pprodBL.real());
+    return (1 / pprod.real())
+           * (std::pow(trace_t(4), trace_t(N)) / pprodBL.real());
 }
 
 trace_t bandpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
@@ -109,20 +110,20 @@ trace_t bandpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
     cmtrace_t pprodBL(1, 0);
 
     for (size_t i = 0LU; i < N; i++) {
-        p[i] *= bndCntr / 2_t;
+        p[i] *= bndCntr / 2;
         p[N + i] = p[i] - std::sqrt(p[i] * p[i] - bndLen);
         p[i] += std::sqrt(p[i] * p[i] - bndLen);
-        z[i]     = 1_t;
-        z[N + i] = -1_t;
+        z[i]     = 1;
+        z[N + i] = -1;
     }
 
     for (size_t i = 0LU; i < 2LU * N; i++) {
-        pprodBL *= 4_t - p[i];
+        pprodBL *= trace_t(4) - p[i];
         p[i] = filDiv(p[i]);
     }
 
-    return std::pow(bndCntr, N) * std::pow(4_t, trace_t(N)) * pprodBL.real()
-           / std::norm(pprodBL);
+    return std::pow(bndCntr, N) * std::pow(trace_t(4), trace_t(N))
+           * pprodBL.real() / std::norm(pprodBL);
 }
 
 trace_t bandstop(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
@@ -132,7 +133,7 @@ trace_t bandstop(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
     trace_t bndLen2 = cf1 * cf2;
 
     for (size_t i = 0LU; i < N; i++) {
-        p[i]     = (bndCntr / 2_t) / p[i];
+        p[i]     = (bndCntr / 2) / p[i];
         p[N + i] = p[i] - std::sqrt(p[i] * p[i] - bndLen2);
         p[i] += std::sqrt(p[i] * p[i] - bndLen2);
         z[i]     = I * bndLen;
@@ -143,9 +144,9 @@ trace_t bandstop(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
     cmtrace_t pPrdct(1, 0);
 
     for (size_t i = 0LU; i < N * 2LU; i++) {
-        zPrdct *= 4_t - z[i];
+        zPrdct *= trace_t(4) - z[i];
         z[i] = filDiv(z[i]);
-        pPrdct *= 4_t - p[i];
+        pPrdct *= trace_t(4) - p[i];
         p[i] = filDiv(p[i]);
     }
 
@@ -163,8 +164,8 @@ void makeFilter(
   trace_t cf2)
 {
     size_t tN  = (cf2 == 0) ? N : N * 2LU;
-    trace_t Wn = 4_t * std::tan(Math::pi_t * (cf1 / (fs * 0.5_t)) / 2_t);
-    trace_t W2 = 4_t * std::tan(Math::pi_t * (cf2 / (fs * 0.5_t)) / 2_t);
+    trace_t Wn = 4 * std::tan(Math::pi_t * (cf1 / (fs * trace_t(0.5))) / 2);
+    trace_t W2 = 4 * std::tan(Math::pi_t * (cf2 / (fs * trace_t(0.5))) / 2);
 
     std::vector<cmtrace_t> z(tN);
     std::vector<cmtrace_t> p(tN);
@@ -264,7 +265,7 @@ FltrPad getPad(PadType type)
     switch (type) {
         default:
         case PadType::Zero:
-            return [](trace_t*, size_t, size_t, size_t) { return 0.0_t; };
+            return [](trace_t*, size_t, size_t, size_t) { return 0; };
             break;
 
         case PadType::Symmetric:
@@ -389,7 +390,7 @@ void filterTime(
     std::vector<trace_t> trcY(nw + 6LU * (numTail + 1LU));
 
     trace_t B    = 0;
-    trace_t Imin = 1_t;
+    trace_t Imin = 1;
     for (size_t i = 1LU; i < numTail + 1LU; i++) {
         B += numer[i] - denom[i] * numer[0];
         Imin += denom[i];
@@ -398,8 +399,8 @@ void filterTime(
     // Applies a bilinear transform to convert analgue filter to digital filter
     // numer and denom generated by makeFilter.
     zi[0]     = B / Imin;
-    trace_t a = 1_t;
-    trace_t c = 0_t;
+    trace_t a = 1;
+    trace_t c = 0;
     for (size_t i = 1; i < numTail; i++) {
         a += denom[i];
         c += numer[i] - denom[i] * numer[0];

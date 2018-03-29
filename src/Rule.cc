@@ -256,9 +256,9 @@ void Rule::rmRule(Meta m)
 {
     auto iter = translate.find(m);
     if (iter != translate.end()) {
-        RuleEntry* entry = iter->second;
-        RuleEntry::MdType type      = entry->type();
-        size_t num       = entry->num;
+        RuleEntry* entry       = iter->second;
+        RuleEntry::MdType type = entry->type();
+        size_t num             = entry->num;
 
         switch (type) {
             case RuleEntry::MdType::Long:

@@ -43,7 +43,7 @@ class SEGY : public Interface {
       const std::string name_,
       const Opt& opt_,
       std::shared_ptr<Data::Interface> data_,
-      FileMode mode = FileMode::Read);
+      Data::FileMode mode = Data::FileMode::Read);
 
     /*! @brief The SEGY-Obj class constructor.
      *  @param[in] piol_ This PIOL ptr is not modified but is used to
@@ -56,7 +56,7 @@ class SEGY : public Interface {
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       std::shared_ptr<Data::Interface> data_,
-      FileMode mode = FileMode::Read);
+      Data::FileMode mode = Data::FileMode::Read);
 
     void readHO(uchar* ho) const;
 

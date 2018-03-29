@@ -9,11 +9,28 @@
 #ifndef PIOLDATAMPIIO_INCLUDE_GUARD
 #define PIOLDATAMPIIO_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/data/data.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/data/data.hh"
 
 namespace PIOL {
 namespace Data {
+
+/*! The file modes possible for files.
+ */
+enum class FileMode : size_t {
+    /// Read-only mode
+    Read,
+
+    /// Write-only mode
+    Write,
+
+    /// Read or write
+    ReadWrite,
+
+    /// A test mode
+    Test
+};
+
 
 /*! @brief This templated function pointer type allows us to refer to MPI
  *         functions more compactly.

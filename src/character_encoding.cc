@@ -196,12 +196,14 @@ char asciiToEbcdic(uchar ascii_char)
     return ebcdic_char_it->ebcdic;
 }
 
-bool is_printable_ASCII(uchar ascii_char) {
+bool is_printable_ASCII(uchar ascii_char)
+{
     // Printable ASCII chars are in the range [0x20, 0x7E].
     return (ascii_char >= 0x20 && ascii_char <= 0x7E);
 }
 
-bool is_printable_EBCDIC(uchar ebcdic_char) {
+bool is_printable_EBCDIC(uchar ebcdic_char)
+{
     return is_printable_ASCII(ebcdicToAscii(ebcdic_char));
 }
 

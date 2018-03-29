@@ -62,7 +62,7 @@ struct RuleEntry {
     virtual MdType type(void) = 0;
 };
 
-} // namespace File
-} // namespace PIOL
+}  // namespace File
+}  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_RULEENTRY_HH
+#endif  // EXSEISDAT_PIOL_RULEENTRY_HH

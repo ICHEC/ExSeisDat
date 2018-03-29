@@ -12,6 +12,7 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 
 namespace PIOL {
 namespace Obj {
@@ -23,7 +24,7 @@ namespace Obj {
  * @return Return a shared_ptr to the obj layer object.
  */
 std::shared_ptr<Obj::Interface> makeDefaultObj(
-  std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
+  std::shared_ptr<ExSeisPIOL> piol, std::string name, Data::FileMode mode);
 
 
 /*! @brief The Obj layer interface. Specific Obj implementations

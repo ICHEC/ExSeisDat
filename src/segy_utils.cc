@@ -3,8 +3,8 @@
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {
 namespace SEGY_utils {
@@ -82,7 +82,8 @@ void insertParam(
         }
 
         for (size_t j = 0; j < rule.size(); j++) {
-            geom_t gscale = parse_scalar(scal[static_cast<Tr>(rule[j]->scalLoc)]);
+            geom_t gscale =
+              parse_scalar(scal[static_cast<Tr>(rule[j]->scalLoc)]);
             getBigEndian(
               int32_t(std::lround(
                 prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)),
@@ -147,14 +148,14 @@ void extractParam(
 geom_t parse_scalar(int16_t segy_scalar)
 {
     // If scale is zero, we assume unscaled, i.e. 1.
-    if(segy_scalar == 0) segy_scalar = 1;
+    if (segy_scalar == 0) segy_scalar = 1;
 
     // Positive segy_scalar represents multiplication by value
-    if(segy_scalar > 0) {
+    if (segy_scalar > 0) {
         return static_cast<geom_t>(segy_scalar);
     }
     // Negative segy_scalar represents division by value
-    return 1/static_cast<geom_t>(-segy_scalar);
+    return 1 / static_cast<geom_t>(-segy_scalar);
 }
 
 int16_t find_scalar(geom_t val)
@@ -203,5 +204,5 @@ int16_t find_scalar(geom_t val)
     }
 }
 
-} // namespace SEGY_utils
-} // namespace PIOL
+}  // namespace SEGY_utils
+}  // namespace PIOL

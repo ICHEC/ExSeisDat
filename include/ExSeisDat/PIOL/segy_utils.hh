@@ -60,31 +60,31 @@ enum class SEGYNumberFormat : int16_t {
 ///          0-indexed offset.
 namespace SEGYFileHeaderByte {
 
-    /// int16_t. The increment between traces in microseconds
-    constexpr size_t Interval = 3217U - 1U;
+/// int16_t. The increment between traces in microseconds
+constexpr size_t Interval = 3217U - 1U;
 
-    /// int16_t. The number of samples per trace
-    constexpr size_t NumSample = 3221U - 1U;
+/// int16_t. The number of samples per trace
+constexpr size_t NumSample = 3221U - 1U;
 
-    /// int16_t. Trace data type. AKA format in SEGY terminology
-    constexpr size_t Type = 3225U - 1U;
+/// int16_t. Trace data type. AKA format in SEGY terminology
+constexpr size_t Type = 3225U - 1U;
 
-    /// int16_t. The sort order of the traces.
-    constexpr size_t Sort = 3229U - 1U;
+/// int16_t. The sort order of the traces.
+constexpr size_t Sort = 3229U - 1U;
 
-    /// int16_t. The unit system, i.e SI or imperial.
-    constexpr size_t Units = 3255U - 1U;
+/// int16_t. The unit system, i.e SI or imperial.
+constexpr size_t Units = 3255U - 1U;
 
-    /// int16_t. The SEG-Y Revision number
-    constexpr size_t SEGYFormat = 3501U - 1U;
+/// int16_t. The SEG-Y Revision number
+constexpr size_t SEGYFormat = 3501U - 1U;
 
-    /// int16_t. Whether we are using fixed traces or not.
-    constexpr size_t FixedTrace = 3503U - 1U;
+/// int16_t. Whether we are using fixed traces or not.
+constexpr size_t FixedTrace = 3503U - 1U;
 
-    /// int16_t. If we use header extensions or not.
-    constexpr size_t Extensions = 3505U - 1U;
+/// int16_t. If we use header extensions or not.
+constexpr size_t Extensions = 3505U - 1U;
 
-} // namespace SEGYFileHeaderByte
+}  // namespace SEGYFileHeaderByte
 
 
 /*! @brief Extract parameters from an unsigned char array into the parameter
@@ -147,10 +147,10 @@ geom_t parse_scalar(int16_t segy_scalar);
  * @todo Handle the annoying case of numbers at or around 2147483648 with a
  *       decimal somewhere.
  * @todo Add rounding before positive scale values
-*/
+ */
 int16_t find_scalar(geom_t val);
 
 }  // namespace SEGY_utils
 }  // namespace PIOL
 
-#endif // EXSEISDAT_PIOL_SEGY_UTILS_HH
+#endif  // EXSEISDAT_PIOL_SEGY_UTILS_HH

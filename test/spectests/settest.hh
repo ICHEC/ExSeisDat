@@ -5,9 +5,9 @@
 
 #include "ExSeisDat/Flow/set.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
@@ -80,8 +80,13 @@ std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
     File::ReadSEGY::Opt rf;
     Obj::SEGY::Opt o;
     Data::MPIIO::Opt d;
-    auto data = std::make_shared<Data::MPIIO>(piol, name, d, FileMode::Test);
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
+
+    auto data =
+      std::make_shared<Data::MPIIO>(piol, name, d, Data::FileMode::Test);
+
+    auto obj =
+      std::make_shared<Obj::SEGY>(piol, name, o, data, Data::FileMode::Test);
+
     return std::make_shared<T>(piol, name, obj);
 }
 
@@ -354,9 +359,11 @@ struct SetTest : public Test {
         for (size_t i = 0; i < nt; i++)
             for (size_t j = 0; j < ns; j++)
                 trc[i * ns + j] =
-                  std::sin(4.8_t * PI * (trace_t(j)) / trace_t(ns))
-                  + 1.5_t * std::cos(36_t * PI * (trace_t(j)) / trace_t(ns))
-                  + 0.5_t * std::sin(48.0_t * PI * (trace_t(j)) / trace_t(ns));
+                  std::sin(trace_t(4.8) * PI * (trace_t(j)) / trace_t(ns))
+                  + trace_t(1.5)
+                      * std::cos(36 * PI * (trace_t(j)) / trace_t(ns))
+                  + trace_t(0.5)
+                      * std::sin(48 * PI * (trace_t(j)) / trace_t(ns));
 
 
         set.reset(new Set_public(piol));
@@ -379,7 +386,7 @@ struct SetTest : public Test {
             SetArrayArgument<2>(trc.begin(), trc.end())));
         set->add(std::move(mock));
 
-        set->temporalFilter(type, domain, PadType::Zero, 30_t, N, corners);
+        set->temporalFilter(type, domain, PadType::Zero, 30, N, corners);
         set->outfix = "tmp/temp";
         set.reset();
 
@@ -390,6 +397,8 @@ struct SetTest : public Test {
         in->readTrace(0U, in->readNt(), trc.data());
 
         for (size_t i = 0; i < nt * ns; i++)
-            ASSERT_NEAR(trc[i], trcRef[i], (__GNUC__ ? 0.00011_t : .00001_t));
+            ASSERT_NEAR(
+              trc[i], trcRef[i],
+              (__GNUC__ ? trace_t(0.00011) : trace_t(.00001)));
     }
 };

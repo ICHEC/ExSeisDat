@@ -60,27 +60,7 @@ typedef double unit_t;
 
 /// Real type for traces, use "*_t" convention
 typedef std::complex<trace_t> cmtrace_t;
-constexpr trace_t operator"" _t(long double x)
-{
-    return x;
-}
-constexpr trace_t operator"" _t(unsigned long long int i)
-{
-    return i;
-}
 
-/*! The file modes possible for files.
- */
-enum class FileMode : size_t {
-    /// Read-only mode
-    Read,
-    /// Write-only mode
-    Write,
-    /// Read or write
-    ReadWrite,
-    /// A test mode
-    Test
-};
 
 /// A typedef for the agc stats function
 typedef std::function<trace_t(trace_t*, size_t, trace_t, llint)> AGCFunc;

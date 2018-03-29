@@ -4,9 +4,9 @@
 #include "tglobal.hh"
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/data/datampiio.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
@@ -57,10 +57,11 @@ class ObjTest : public Test {
         if (obj != nullptr) delete obj;
 
         auto data = std::make_shared<Data::MPIIO>(
-          piol, name, (WRITE ? FileMode::Test : FileMode::Read));
+          piol, name, (WRITE ? Data::FileMode::Test : Data::FileMode::Read));
         piol->isErr();
         obj = new Obj::SEGY(
-          piol, name, data, (WRITE ? FileMode::Test : FileMode::Read));
+          piol, name, data,
+          (WRITE ? Data::FileMode::Test : Data::FileMode::Read));
         piol->isErr();
     }
 

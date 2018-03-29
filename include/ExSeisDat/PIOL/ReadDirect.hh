@@ -8,6 +8,7 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
+#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/share/param.hh"
 #include "ExSeisDat/PIOL/share/uniray.hh"
 
@@ -48,16 +49,20 @@ class ReadDirect {
       const O& o,
       const F& f)
     {
-        auto data =
-          std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
+        auto data = std::make_shared<typename D::Type>(
+          piol, name, d, Data::FileMode::Read);
+
         auto obj = std::make_shared<typename O::Type>(
-          piol, name, o, data, FileMode::Read);
+          piol, name, o, data, Data::FileMode::Read);
+
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
-        if (!file)
+
+        if (!file) {
             piol->log->record(
               name, Log::Layer::API, Log::Status::Error,
               "ReadInterface creation failure in ReadDirect<F,O,D>()",
               PIOL_VERBOSITY_NONE);
+        }
     }
 
     /*! Constructor without options.

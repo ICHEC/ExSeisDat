@@ -14,8 +14,8 @@
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/share/uniray.hh"
+#include "ExSeisDat/PIOL/share/units.hh"
 
 #include <functional>
 #include <list>
@@ -572,7 +572,7 @@ class Set {
       size_t winCntr = 0U)
     {
         temporalFilter(
-          type, domain, pad, fs, N, std::vector<trace_t>{corners, 0_t}, nw,
+          type, domain, pad, fs, N, std::vector<trace_t>{corners, 0}, nw,
           winCntr);
     }
 };
