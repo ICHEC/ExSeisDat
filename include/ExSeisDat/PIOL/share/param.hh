@@ -169,9 +169,6 @@ void setPrm(const size_t i, const Meta entry, T ret, Param* prm)
 void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst);
 
 
-/// A template for the Compare less-than function
-typedef std::function<bool(const Param*, const size_t, const size_t)> CompareP;
-
 }  // namespace PIOL
 
 #endif

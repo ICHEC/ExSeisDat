@@ -44,8 +44,8 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
     file->writeParam(201U, 1U, &prm);
     readfile->readParam(201U, 1U, &prm2);
 
-    ASSERT_EQ(grid.il, getPrm<llint>(0U, PIOL_META_il, &prm2));
-    ASSERT_EQ(grid.xl, getPrm<llint>(0U, PIOL_META_xl, &prm2));
+    ASSERT_EQ(grid.il, getPrm<decltype(grid.il)>(0U, PIOL_META_il, &prm2));
+    ASSERT_EQ(grid.xl, getPrm<decltype(grid.xl)>(0U, PIOL_META_xl, &prm2));
     ASSERT_DOUBLE_EQ(coord.x, getPrm<geom_t>(0U, PIOL_META_xCmp, &prm2));
     ASSERT_DOUBLE_EQ(coord.y, getPrm<geom_t>(0U, PIOL_META_yCmp, &prm2));
 }

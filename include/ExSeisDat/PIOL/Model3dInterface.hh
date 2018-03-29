@@ -18,11 +18,35 @@ namespace PIOL {
  */
 class Model3dInterface {
   public:
+    /// A class for storing coordinate parameters
+    struct CoordinateParameters {
+        /// The initial coordinate value
+        llint start;
+
+        /// The number of coordinate values
+        llint count;
+
+        /// The increment between coordinate values
+        llint increment;
+
+        /// A value constructor for the CoordinateParameters
+        /// @param[in] start     The initial coordinate value
+        /// @param[in] count     The number of coordinate values
+        /// @param[in] increment The increment between coordinate values
+        CoordinateParameters(
+          llint start = 0, llint count = 0, llint increment = 0) :
+            start(start),
+            count(count),
+            increment(increment)
+        {
+        }
+    };
+
     /// Parameters for the inline coordinate (start, count, increment)
-    std::tuple<llint, llint, llint> il;
+    CoordinateParameters il;
 
     /// Parameters for the crossline coordinate (start, count, increment)
-    std::tuple<llint, llint, llint> xl;
+    CoordinateParameters xl;
 
     /*! read the 3d file based on il and xl that match those in the given
      *  \c gather array.

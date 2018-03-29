@@ -15,6 +15,9 @@
 
 namespace PIOL {
 
+/// Typedef for filter padding funcitons
+typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)> FltrPad;
+
 /*! Determines the filter order if given passband and stopband frequecnies
  *  @param[in] cornerP Passband corner
  *  @param[in] cornerS Stopband corner

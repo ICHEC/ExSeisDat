@@ -483,11 +483,13 @@ struct FileReadSEGYTest : public Test {
 
         for (size_t i = 0U; i < tnRead; i++) {
             if (readPrm && tnRead && ns) {
+                using NumType = decltype(ilNum(i + offset));
+
                 ASSERT_EQ(
-                  ilNum(i + offset), getPrm<llint>(i, PIOL_META_il, &prm))
+                  ilNum(i + offset), getPrm<NumType>(i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(
-                  xlNum(i + offset), getPrm<llint>(i, PIOL_META_xl, &prm))
+                  xlNum(i + offset), getPrm<NumType>(i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(geom_t) == sizeof(double)) {

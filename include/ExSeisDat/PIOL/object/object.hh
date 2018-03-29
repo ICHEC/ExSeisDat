@@ -17,6 +17,8 @@
 namespace PIOL {
 namespace Obj {
 
+class Interface;
+
 /*! Make the default object layer object.
  * @param[in] piol The piol shared object.
  * @param[in] name The name of the file.

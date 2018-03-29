@@ -58,37 +58,8 @@ typedef PIOL_geom_t geom_t;
 /// Real type for physical, SI and math units
 typedef double unit_t;
 
-/// Real type for traces, use "*_t" convention
+/// Real type for traces
 typedef std::complex<trace_t> cmtrace_t;
-
-
-/// A typedef for the agc stats function
-typedef std::function<trace_t(trace_t*, size_t, trace_t, llint)> AGCFunc;
-
-/// A typedef for the agc stats function
-typedef std::function<trace_t(trace_t, trace_t)> TaperFunc;
-
-/// Typedef for filter padding funcitons
-typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)> FltrPad;
-
-/// Return the value associated with a particular parameter
-template<typename T>
-using MinMaxFunc = std::function<geom_t(const T&)>;
-
-/// A template for the Compare less-than function
-template<class T>
-using Compare = std::function<bool(const T&, const T&)>;
-
-namespace Data {
-class Interface;
-}  // namespace Data
-
-namespace Obj {
-class Interface;
-}  // namespace Obj
-
-class ReadInterface;
-class WriteInterface;
 
 }  // namespace PIOL
 

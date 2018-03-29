@@ -8,8 +8,12 @@
 #define PIOLOPSTAPER_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/share/api.hh"
 
 namespace PIOL {
+
+/// A typedef for the taper function
+typedef std::function<trace_t(trace_t, trace_t)> TaperFunc;
 
 /************************************ Core ************************************/
 /*! Apply a taper to a set of traces.

@@ -22,6 +22,13 @@
 
 namespace PIOL {
 
+/// A template for the Compare less-than function
+template<class T>
+using Compare = std::function<bool(const T&, const T&)>;
+
+/// A template for the Compare less-than function
+typedef std::function<bool(const Param*, const size_t, const size_t)> CompareP;
+
 /************************************ Core ************************************/
 /*! Function to sort the metadata in a Param struct. The returned vector is the
  *  location where the nth parameter is located in the sorted list.

@@ -19,6 +19,10 @@
 
 namespace PIOL {
 
+/// Return the value associated with a particular parameter
+template<typename T>
+using MinMaxFunc = std::function<geom_t(const T&)>;
+
 /************************************ Core ************************************/
 /*! Get the min and max for a parameter. Use a second parameter to decide
  *  between equal cases.

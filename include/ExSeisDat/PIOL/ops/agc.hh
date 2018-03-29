@@ -22,6 +22,9 @@
 
 namespace PIOL {
 
+/// A typedef for the agc stats function
+typedef std::function<trace_t(trace_t*, size_t, trace_t, llint)> AGCFunc;
+
 /************************************ Core ************************************/
 /*! Apply automatic gain control to a set of tapers --> used for actual
  *  operation during output

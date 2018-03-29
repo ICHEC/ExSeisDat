@@ -26,20 +26,23 @@ ReadSEGYModel::ReadSEGYModel(
     Param prm(vlist.size());
     readParamNonContiguous(vlist.size(), vlist.data(), &prm);
 
-    llint il0 = getPrm<llint>(0LU, PIOL_META_il, &prm);
-    llint xl0 = getPrm<llint>(0LU, PIOL_META_xl, &prm);
+    llint il_start = getPrm<llint>(0LU, PIOL_META_il, &prm);
+    llint xl_start = getPrm<llint>(0LU, PIOL_META_xl, &prm);
 
-    llint ilInc = getPrm<llint>(1LU, PIOL_META_il, &prm) - il0;
-    llint ilNum =
-      (ilInc ? (getPrm<llint>(2LU, PIOL_META_il, &prm) - il0) / ilInc : 0LU);
-    llint xlNum = (ReadSEGY::readNt() / (ilNum ? ilNum : 1LU));
-    llint xlInc = (getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl0) / xlNum;
+    llint il_increment = getPrm<llint>(1LU, PIOL_META_il, &prm) - il_start;
+    llint il_count =
+      (il_increment ?
+         (getPrm<llint>(2LU, PIOL_META_il, &prm) - il_start) / il_increment :
+         0LU);
+    llint xl_count = (ReadSEGY::readNt() / (il_count ? il_count : 1LU));
+    llint xl_increment =
+      (getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl_start) / xl_count;
 
-    ilInc = (ilInc ? ilInc : 1LU);
-    xlInc = (xlInc ? xlInc : 1LU);
+    il_increment = (il_increment ? il_increment : 1LU);
+    xl_increment = (xl_increment ? xl_increment : 1LU);
 
-    il = std::make_tuple(il0, ilNum, ilInc);
-    xl = std::make_tuple(xl0, xlNum, xlInc);
+    il = CoordinateParameters(il_start, il_count, il_increment);
+    xl = CoordinateParameters(xl_start, xl_count, xl_increment);
 }
 
 std::vector<trace_t> ReadSEGYModel::readModel(
@@ -55,9 +58,8 @@ std::vector<trace_t> ReadSEGYModel::readModel(
          * trace number = ilNumber * xlInc + xlNumber
          * much like indexing in a 2d array.
          */
-        offsets[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il))
-                       * std::get<1>(xl)
-                     + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
+        offsets[i] = ((std::get<1>(val) - il.start) / il.increment) * xl.count
+                     + ((std::get<2>(val) - xl.start) / xl.increment);
     }
 
     readTraceNonContiguous(
@@ -75,9 +77,8 @@ std::vector<trace_t> ReadSEGYModel::readModel(
     std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++) {
         auto val   = gather[offset[i]];
-        offsets[i] = ((std::get<1>(val) - std::get<0>(il)) / std::get<2>(il))
-                       * std::get<1>(xl)
-                     + ((std::get<2>(val) - std::get<0>(xl)) / std::get<2>(xl));
+        offsets[i] = ((std::get<1>(val) - il.start) / il.increment) * xl.count
+                     + ((std::get<2>(val) - xl.start) / xl.increment);
     }
 
     readTraceNonContiguous(

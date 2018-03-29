@@ -135,8 +135,9 @@ std::unique_ptr<Coords> getCoords(
     }
 
     // Any extra readParam calls the particular process needs
-    for (size_t i = 0; i < extra; i++)
+    for (size_t i = 0; i < extra; i++) {
         file.readParamNonContiguous(0LU, nullptr, nullptr);
+    }
 
     // This barrier is necessary so that cmsg doesn't store an old MPI_Wtime().
     piol->comm->barrier();
@@ -164,8 +165,9 @@ void outputNonMono(
     // Note: Set to TimeScal for OpenCPS viewing of dataset.
     // OpenCPS is restrictive on what locations can be used
     // as scalars.
-    if (printDsr)
+    if (printDsr) {
         rule->addSEGYFloat(PIOL_META_dsdr, PIOL_TR_SrcMeas, PIOL_TR_TimeScal);
+    }
 
     ReadDirect src(piol, sname);
     WriteDirect dst(piol, dname);

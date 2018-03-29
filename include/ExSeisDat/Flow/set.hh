@@ -14,6 +14,7 @@
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
+#include "ExSeisDat/PIOL/ops/taper.hh"
 #include "ExSeisDat/PIOL/share/uniray.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
