@@ -19,8 +19,8 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
+#include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/gather.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"

@@ -9,7 +9,7 @@
 
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
-#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
@@ -29,7 +29,7 @@ WriteSEGY::WriteSEGY(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
   const WriteSEGY::Opt& opt,
-  std::shared_ptr<Obj::Interface> obj_) :
+  std::shared_ptr<ObjectInterface> obj_) :
     WriteInterface(piol_, name_, obj_),
     incFactor(opt.incFactor)
 {
@@ -42,7 +42,7 @@ WriteSEGY::WriteSEGY(
 WriteSEGY::WriteSEGY(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
-  std::shared_ptr<Obj::Interface> obj_) :
+  std::shared_ptr<ObjectInterface> obj_) :
     WriteSEGY(piol_, name_, WriteSEGY::Opt(), obj_)
 {
 }
@@ -183,7 +183,7 @@ void WriteSEGY::writeInc(const geom_t inc_)
  */
 template<typename T>
 void writeTraceT(
-  Obj::Interface* obj,
+  ObjectInterface* obj,
   const size_t ns,
   T offset,
   const size_t sz,

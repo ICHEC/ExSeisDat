@@ -53,7 +53,7 @@ class ReadSEGY : public ReadInterface {
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       const ReadSEGY::Opt& segyOpt,
-      std::shared_ptr<Obj::Interface> obj_);
+      std::shared_ptr<ObjectInterface> obj_);
 
     /*! @brief The SEGY-Object class constructor.
      *  @param[in] piol_   This PIOL ptr is not modified but is used to
@@ -65,7 +65,7 @@ class ReadSEGY : public ReadInterface {
     ReadSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
-      std::shared_ptr<Obj::Interface> obj_);
+      std::shared_ptr<ObjectInterface> obj_);
 
     size_t readNt(void) const;
 

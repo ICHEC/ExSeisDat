@@ -1,23 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
-/// @brief The Object layer interface
+/// @brief   The Object layer interface
 /// @details The Object layer interface is a base class which specific Obj
 ///          implementations work off.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOBJ_INCLUDE_GUARD
-#define PIOLOBJ_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OBJECTINTERFACE_HH
+#define EXSEISDAT_PIOL_OBJECTINTERFACE_HH
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
-namespace Obj {
 
-class Interface;
+class ObjectInterface;
 
 /*! Make the default object layer object.
  * @param[in] piol The piol shared object.
@@ -25,14 +21,14 @@ class Interface;
  * @param[in] mode The filemode.
  * @return Return a shared_ptr to the obj layer object.
  */
-std::shared_ptr<Obj::Interface> makeDefaultObj(
+std::shared_ptr<ObjectInterface> makeDefaultObj(
   std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
 
 
 /*! @brief The Obj layer interface. Specific Obj implementations
  *  work off this base class.
  */
-class Interface {
+class ObjectInterface {
   protected:
     /// Pointer to the PIOL object.
     std::shared_ptr<ExSeisPIOL> piol_;
@@ -50,7 +46,7 @@ class Interface {
      *  @param[in] name The name of the file associated with the instantiation.
      *  @param[in] data Pointer to the Data layer object (polymorphic).
      */
-    Interface(
+    ObjectInterface(
       std::shared_ptr<ExSeisPIOL> piol,
       const std::string name,
       std::shared_ptr<DataInterface> data) :
@@ -62,7 +58,7 @@ class Interface {
 
     /*! @brief A virtual destructor to allow deletion.
      */
-    virtual ~Interface(void) {}
+    virtual ~ObjectInterface(void) {}
 
     /// @brief  The stored PIOL object
     /// @return The stored PIOL object
@@ -261,7 +257,6 @@ class Interface {
       const uchar* df) const = 0;
 };
 
-}  // namespace Obj
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_OBJECTINTERFACE_HH

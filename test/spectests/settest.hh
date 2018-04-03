@@ -6,9 +6,9 @@
 #include "ExSeisDat/Flow/set.hh"
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 
@@ -25,7 +25,7 @@ class MockFile : public ReadInterface {
   public:
     MockFile() :
         ReadInterface(
-          std::shared_ptr<ExSeisPIOL>(), "", std::shared_ptr<Obj::Interface>())
+          std::shared_ptr<ExSeisPIOL>(), "", std::shared_ptr<ObjectInterface>())
     {
     }
 
@@ -79,12 +79,13 @@ std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
 {
     WriteSEGY::Opt f;
     ReadSEGY::Opt rf;
-    Obj::SEGY::Opt o;
+    ObjectSEGY::Opt o;
     DataMPIIO::Opt d;
 
     auto data = std::make_shared<DataMPIIO>(piol, name, d, FileMode::Test);
 
-    auto obj = std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
+    auto obj =
+      std::make_shared<ObjectSEGY>(piol, name, o, data, FileMode::Test);
 
     return std::make_shared<T>(piol, name, obj);
 }

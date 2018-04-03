@@ -12,7 +12,7 @@ namespace PIOL {
 ReadSEGYModel::ReadSEGYModel(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
-  std::shared_ptr<Obj::Interface> obj_) :
+  std::shared_ptr<ObjectInterface> obj_) :
     ReadSEGYModel(piol_, name_, ReadSEGYModel::Opt(), obj_)
 {
 }
@@ -21,7 +21,7 @@ ReadSEGYModel::ReadSEGYModel(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
   const ReadSEGYModel::Opt& opt,
-  std::shared_ptr<Obj::Interface> obj_) :
+  std::shared_ptr<ObjectInterface> obj_) :
     ReadSEGY(piol_, name_, opt, obj_)
 {
     std::vector<size_t> vlist = {0LU, 1LU, ReadSEGY::readNt() - 1LU};

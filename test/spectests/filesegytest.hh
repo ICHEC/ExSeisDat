@@ -7,13 +7,13 @@
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
@@ -111,13 +111,13 @@ enum TrHdr : size_t {
     xl          = 192U
 };
 
-class MockObj : public Obj::Interface {
+class MockObj : public ObjectInterface {
   public:
     MockObj(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       std::shared_ptr<DataInterface> data_) :
-        Obj::Interface(piol_, name_, data_)
+        ObjectInterface(piol_, name_, data_)
     {
     }
 
@@ -199,7 +199,7 @@ struct FileReadSEGYTest : public Test {
         // Make a ReadDirect reader with options if OPTS = true.
         if (OPTS) {
             DataMPIIO::Opt dopt;
-            Obj::SEGY::Opt oopt;
+            ObjectSEGY::Opt oopt;
             ReadSEGY::Opt fopt;
             file = std::make_unique<ReadDirect>(piol, name, dopt, oopt, fopt);
         }
@@ -621,11 +621,11 @@ struct FileWriteSEGYTest : public Test {
 
         WriteSEGY::Opt f;
         ReadSEGY::Opt rf;
-        Obj::SEGY::Opt o;
+        ObjectSEGY::Opt o;
         DataMPIIO::Opt d;
         auto data = std::make_shared<DataMPIIO>(piol, name, d, FileMode::Test);
         auto obj =
-          std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
+          std::make_shared<ObjectSEGY>(piol, name, o, data, FileMode::Test);
 
         auto fi = std::make_shared<WriteSEGY>(piol, name, f, obj);
         file    = std::make_unique<WriteDirect>(std::move(fi));

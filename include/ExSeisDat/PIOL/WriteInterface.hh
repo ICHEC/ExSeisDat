@@ -8,8 +8,8 @@
 #define EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/Param.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
 
 #include <memory>
 
@@ -30,7 +30,7 @@ class WriteInterface {
     std::string name;
 
     /// Pointer to the Object-layer object (polymorphic).
-    std::shared_ptr<Obj::Interface> obj;
+    std::shared_ptr<ObjectInterface> obj;
 
     /// The number of samples per trace.
     size_t ns = 0;
@@ -54,7 +54,7 @@ class WriteInterface {
     WriteInterface(
       std::shared_ptr<ExSeisPIOL> piol_,
       std::string name_,
-      std::shared_ptr<Obj::Interface> obj_) :
+      std::shared_ptr<ObjectInterface> obj_) :
         piol(piol_),
         name(name_),
         obj(obj_)

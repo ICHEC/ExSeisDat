@@ -74,7 +74,7 @@ class WriteSEGY : public WriteInterface {
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       const WriteSEGY::Opt& segyOpt,
-      std::shared_ptr<Obj::Interface> obj_);
+      std::shared_ptr<ObjectInterface> obj_);
 
     /*! @brief The SEGY-Object class constructor.
      *  @param[in] piol_   This PIOL ptr is not modified but is used to
@@ -86,7 +86,7 @@ class WriteSEGY : public WriteInterface {
     WriteSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
-      std::shared_ptr<Obj::Interface> obj_);
+      std::shared_ptr<ObjectInterface> obj_);
 
     /*! @brief Destructor. Processes any remaining flags
      */

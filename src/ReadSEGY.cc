@@ -13,7 +13,7 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
-#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
@@ -33,7 +33,7 @@ ReadSEGY::ReadSEGY(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
   const ReadSEGY::Opt& opt,
-  std::shared_ptr<Obj::Interface> obj_) :
+  std::shared_ptr<ObjectInterface> obj_) :
     ReadInterface(piol_, name_, obj_),
     incFactor(opt.incFactor)
 {
@@ -96,7 +96,7 @@ ReadSEGY::ReadSEGY(
 ReadSEGY::ReadSEGY(
   std::shared_ptr<ExSeisPIOL> piol_,
   const std::string name_,
-  std::shared_ptr<Obj::Interface> obj_) :
+  std::shared_ptr<ObjectInterface> obj_) :
     ReadSEGY(piol_, name_, ReadSEGY::Opt(), obj_)
 {
 }
@@ -123,7 +123,7 @@ size_t ReadSEGY::readNt(void) const
  */
 template<typename T>
 void readTraceT(
-  Obj::Interface* obj,
+  ObjectInterface* obj,
   const SEGY_utils::SEGYNumberFormat number_format,
   const size_t ns,
   const T offset,

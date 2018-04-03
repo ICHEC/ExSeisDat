@@ -9,50 +9,49 @@
 #ifndef PIOLOBJSEGY_INCLUDE_GUARD
 #define PIOLOBJSEGY_INCLUDE_GUARD
 
+#include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
 
 namespace PIOL {
-namespace Obj {
 
 /*! @brief The SEG-Y Obj class.
  */
-class SEGY : public Interface {
+class ObjectSEGY : public ObjectInterface {
   public:
     /*! @brief The SEG-Y options structure. Currently empty.
      */
     struct Opt {
         /// The Type of the class this structure is nested in
-        typedef SEGY Type;
+        typedef ObjectSEGY Type;
 
         /*! @brief Default constructor to prevent intel warnings
          */
         Opt(void) {}
     };
 
-    /*! @brief The SEGY-Obj class constructor.
+    /*! @brief The ObjectSEGY class constructor.
      *  @param[in] piol_ This PIOL ptr is not modified but is used to
      *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
-     *  @param[in] opt_  The SEGY options
+     *  @param[in] opt_  The ObjectSEGY options
      *  @param[in] data_ Pointer to the Data layer object (polymorphic).
      *  @param[in] mode  The file mode
      */
-    SEGY(
+    ObjectSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       const Opt& opt_,
       std::shared_ptr<DataInterface> data_,
       FileMode mode = FileMode::Read);
 
-    /*! @brief The SEGY-Obj class constructor.
+    /*! @brief The ObjectSEGY class constructor.
      *  @param[in] piol_ This PIOL ptr is not modified but is used to
      *                   instantiate another shared_ptr.
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] data_ Pointer to the Data layer object (polymorphic).
      *  @param[in] mode  The file mode
      */
-    SEGY(
+    ObjectSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       std::shared_ptr<DataInterface> data_,
@@ -117,7 +116,6 @@ class SEGY : public Interface {
       const uchar* df) const;
 };
 
-}  // namespace Obj
 }  // namespace PIOL
 
 #endif

@@ -5,10 +5,10 @@
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ObjectInterface.hh"
+#include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
-#include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 
@@ -49,7 +49,7 @@ class ObjTest : public Test {
   protected:
     std::shared_ptr<ExSeis> piol   = ExSeis::New();
     std::shared_ptr<MockData> mock = nullptr;
-    Obj::Interface* obj            = nullptr;
+    ObjectInterface* obj           = nullptr;
 
     template<bool WRITE>
     void makeRealSEGY(std::string name)
@@ -59,7 +59,7 @@ class ObjTest : public Test {
         auto data = std::make_shared<DataMPIIO>(
           piol, name, (WRITE ? FileMode::Test : FileMode::Read));
         piol->isErr();
-        obj = new Obj::SEGY(
+        obj = new ObjectSEGY(
           piol, name, data, (WRITE ? FileMode::Test : FileMode::Read));
         piol->isErr();
     }
@@ -69,7 +69,7 @@ class ObjTest : public Test {
         if (obj != nullptr) delete obj;
         mock = std::make_shared<MockData>(piol, notFile);
         piol->isErr();
-        obj = new Obj::SEGY(piol, name, mock);
+        obj = new ObjectSEGY(piol, name, mock);
         piol->isErr();
     }
 

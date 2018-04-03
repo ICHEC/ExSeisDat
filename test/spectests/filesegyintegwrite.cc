@@ -1,6 +1,6 @@
 #include "filesegytest.hh"
 
-// Write test of SEGY -> Obj::SEGY -> DataMPIIO
+// Write test of SEGY -> ObjectSEGY -> DataMPIIO
 TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
 {
     ns = 261U;
@@ -20,7 +20,7 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
         ASSERT_EQ(testString[i], text[i]);
 }
 
-// Write test of SEGY -> Obj::SEGY -> DataMPIIO
+// Write test of SEGY -> ObjectSEGY -> DataMPIIO
 TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
 {
     ns = 261U;

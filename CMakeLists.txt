@@ -201,6 +201,8 @@ add_library(
     src/WriteSEGY.cc
     src/Rule.cc
     src/DataMPIIO.cc
+    src/ObjectInterface.cc
+    src/ObjectSEGY.cc
 
     src/segy_utils.cc
     src/character_encoding.cc
@@ -214,8 +216,6 @@ add_library(
     src/log.cc
     src/minmax.cc
     src/misc.cc
-    src/object.cc
-    src/objsegy.cc
     src/sdatatype.cc
     src/smpi.cc
     src/sort.cc

@@ -8,8 +8,8 @@
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
+#include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/object/objsegy.hh"
 
 
 using namespace testing;
@@ -28,7 +28,7 @@ struct FakeReadFile : public ReadInterface {
     FakeReadFile(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
-      std::shared_ptr<Obj::Interface> obj_) :
+      std::shared_ptr<ObjectInterface> obj_) :
         ReadInterface(piol_, name_, obj_)
     {
         inc  = geom_t(10);
@@ -69,7 +69,7 @@ struct FakeWriteFile : public WriteInterface {
     FakeWriteFile(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
-      std::shared_ptr<Obj::Interface> obj_) :
+      std::shared_ptr<ObjectInterface> obj_) :
         WriteInterface(piol_, name_, obj_)
     {
         inc  = geom_t(10);
@@ -105,7 +105,7 @@ void compareConstructor(ExSeisPIOL* piol, FakeReadFile& fake)
 // We test the constructor
 TEST_F(FileTest, Constructor)
 {
-    std::shared_ptr<Obj::Interface> obj = nullptr;
+    std::shared_ptr<ObjectInterface> obj = nullptr;
     FakeReadFile fake(piol, tempFile, obj);
     EXPECT_EQ(nullptr, fake.obj);
     compareConstructor(piol.get(), fake);

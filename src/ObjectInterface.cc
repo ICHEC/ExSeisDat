@@ -8,20 +8,26 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/DataInterface.hh"
-#include "ExSeisDat/PIOL/object/object.hh"
+#include "ExSeisDat/PIOL/ObjectInterface.hh"
+#include "ExSeisDat/PIOL/ObjectSEGY.hh"
 
 namespace PIOL {
-namespace Obj {
 
-size_t Interface::getFileSz(void) const
+std::shared_ptr<ObjectInterface> makeDefaultObj(
+  std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode)
+{
+    auto data = std::make_shared<DataMPIIO>(piol, name, mode);
+    return std::make_shared<ObjectSEGY>(piol, name, data, mode);
+}
+
+size_t ObjectInterface::getFileSz(void) const
 {
     return data_->getFileSz();
 }
 
-void Interface::setFileSz(const size_t sz) const
+void ObjectInterface::setFileSz(const size_t sz) const
 {
     return data_->setFileSz(sz);
 }
 
-}  // namespace Obj
 }  // namespace PIOL
