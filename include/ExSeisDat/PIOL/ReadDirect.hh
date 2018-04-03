@@ -8,9 +8,9 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/Param.hh"
 #include "ExSeisDat/PIOL/Uniray.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 
 #include <memory>
 #include <string>
@@ -48,11 +48,11 @@ class ReadDirect {
       const O& o,
       const F& f)
     {
-        auto data = std::make_shared<typename D::Type>(
-          piol, name, d, Data::FileMode::Read);
+        auto data =
+          std::make_shared<typename D::Type>(piol, name, d, FileMode::Read);
 
         auto obj = std::make_shared<typename O::Type>(
-          piol, name, o, data, Data::FileMode::Read);
+          piol, name, o, data, FileMode::Read);
 
         file = std::make_shared<typename F::Type>(piol, name, f, obj);
 

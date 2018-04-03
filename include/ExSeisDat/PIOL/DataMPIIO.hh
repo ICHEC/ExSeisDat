@@ -1,19 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
-/// @brief The specfic MPI implementation of the Data layer interface
+/// @brief   The specfic MPI implementation of the Data layer interface
 /// @details MPI implementation of data layer features such as reading.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLDATAMPIIO_INCLUDE_GUARD
-#define PIOLDATAMPIIO_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_DATAMPIIO_HH
+#define EXSEISDAT_PIOL_DATAMPIIO_HH
 
+#include "ExSeisDat/PIOL/DataInterface.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/data/data.hh"
 
 namespace PIOL {
-namespace Data {
 
 /*! The file modes possible for files.
  */
@@ -41,24 +37,30 @@ using MFp =
 
 /*! @brief The MPI-IO Data class.
  */
-class MPIIO : public Interface {
+class DataMPIIO : public DataInterface {
   public:
     /*! @brief The MPI-IO options structure.
      */
     struct Opt {
         /// The Type of the class this structure is nested in
-        typedef MPIIO Type;
+        typedef DataMPIIO Type;
+
         /// Whether collective read/write operations will be used
         bool coll;
+
         /// The info structure to use
         MPI_Info info;
+
         /// The maximum size to allow to be written to disk per process in one
         /// operation
         size_t maxSize;
+
         /// The MPI communicator to use for file access
         MPI_Comm fcomm;
+
         /// The constructor to set default options
         Opt(void);
+
         /// The destructor
         ~Opt(void);
     };
@@ -66,13 +68,17 @@ class MPIIO : public Interface {
   private:
     /// Whether collective read/write operations will be used
     bool coll;
+
     /// The MPI-IO file handle
     MPI_File file;
+
     /// The MPI-IO file communicator
     MPI_Comm fcomm;
-    /// @copydoc MPIIO::Opt::info
+
+    /// @copydoc DataMPIIO::Opt::info
     MPI_Info info;
-    /// @copydoc MPIIO::Opt::maxSize
+
+    /// @copydoc DataMPIIO::Opt::maxSize
     size_t maxSize;
 
     /*! Read a file using MPI-IO views. This function does not handle the
@@ -111,7 +117,7 @@ class MPIIO : public Interface {
      *  @param[in] opt  The MPI-IO options
      *  @param[in] mode The filemode
      */
-    void Init(const MPIIO::Opt& opt, FileMode mode);
+    void Init(const DataMPIIO::Opt& opt, FileMode mode);
 
     /*! @brief Perform I/O on contiguous or monotonically increasing blocked
      *         data
@@ -162,10 +168,10 @@ class MPIIO : public Interface {
      *  @param[in] opt   The MPI-IO options
      *  @param[in] mode The filemode
      */
-    MPIIO(
+    DataMPIIO(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
-      const MPIIO::Opt& opt,
+      const DataMPIIO::Opt& opt,
       FileMode mode = FileMode::Read);
 
     /*! @brief The MPI-IO class constructor.
@@ -174,12 +180,12 @@ class MPIIO : public Interface {
      *  @param[in] name_ The name of the file associated with the instantiation.
      *  @param[in] mode The filemode
      */
-    MPIIO(
+    DataMPIIO(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
       FileMode mode = FileMode::Read);
 
-    ~MPIIO(void);
+    ~DataMPIIO(void);
 
     /// Test if file == MPI_FILE_NULL
     /// @return Returns \c true if the MPI_File is MPI_FILE_NULL
@@ -263,7 +269,6 @@ class MPIIO : public Interface {
       const uchar* d) const;
 };
 
-}  // namespace Data
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_DATAMPIIO_HH

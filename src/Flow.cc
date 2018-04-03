@@ -18,8 +18,8 @@
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/gather.hh"

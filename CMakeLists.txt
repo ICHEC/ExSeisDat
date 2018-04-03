@@ -200,17 +200,17 @@ add_library(
     src/ReadSEGYModel.cc
     src/WriteSEGY.cc
     src/Rule.cc
+    src/DataMPIIO.cc
 
     src/segy_utils.cc
+    src/character_encoding.cc
 
     src/agc.cc
     src/cache.cc
     src/cmpi.cc
-    src/datampiio.cc
     src/decomp.cc
     src/param.cc
     src/gather.cc
-    src/character_encoding.cc
     src/log.cc
     src/minmax.cc
     src/misc.cc

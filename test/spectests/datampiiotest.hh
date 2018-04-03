@@ -3,8 +3,8 @@
 
 #include "tglobal.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 
@@ -24,16 +24,15 @@ class MPIIOTest : public Test {
   protected:
     std::shared_ptr<ExSeis> piol = ExSeis::New();
     Comm::MPI::Opt opt;
-    Data::MPIIO::Opt ioopt;
-    std::shared_ptr<Data::Interface> data = nullptr;
+    DataMPIIO::Opt ioopt;
+    std::shared_ptr<DataInterface> data = nullptr;
 
     template<bool WRITE = false>
     void makeMPIIO(std::string name)
     {
         if (data != nullptr) data.reset();
-        Data::FileMode mode =
-          (WRITE ? Data::FileMode::Test : Data::FileMode::Read);
-        data = std::make_shared<Data::MPIIO>(piol, name, mode);
+        FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
+        data          = std::make_shared<DataMPIIO>(piol, name, mode);
     }
 
     void makeTestSz(const size_t sz)

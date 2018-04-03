@@ -5,8 +5,8 @@
 
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
@@ -16,13 +16,12 @@ WriteDirect::WriteDirect(
 {
     const WriteSEGY::Opt f;
     const Obj::SEGY::Opt o;
-    const Data::MPIIO::Opt d;
+    const DataMPIIO::Opt d;
 
-    auto data =
-      std::make_shared<Data::MPIIO>(piol, name, d, Data::FileMode::Write);
+    auto data = std::make_shared<DataMPIIO>(piol, name, d, FileMode::Write);
 
     auto obj =
-      std::make_shared<Obj::SEGY>(piol, name, o, data, Data::FileMode::Write);
+      std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Write);
 
     file = std::make_shared<WriteSEGY>(piol, name, f, obj);
 }

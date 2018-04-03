@@ -10,9 +10,9 @@
 #ifndef PIOLOBJ_INCLUDE_GUARD
 #define PIOLOBJ_INCLUDE_GUARD
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 
 namespace PIOL {
 namespace Obj {
@@ -26,7 +26,7 @@ class Interface;
  * @return Return a shared_ptr to the obj layer object.
  */
 std::shared_ptr<Obj::Interface> makeDefaultObj(
-  std::shared_ptr<ExSeisPIOL> piol, std::string name, Data::FileMode mode);
+  std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
 
 
 /*! @brief The Obj layer interface. Specific Obj implementations
@@ -41,7 +41,7 @@ class Interface {
     std::string name_;
 
     /// Pointer to the Data layer object (polymorphic).
-    std::shared_ptr<Data::Interface> data_;
+    std::shared_ptr<DataInterface> data_;
 
   public:
     /*! @brief The constructor.
@@ -53,7 +53,7 @@ class Interface {
     Interface(
       std::shared_ptr<ExSeisPIOL> piol,
       const std::string name,
-      std::shared_ptr<Data::Interface> data) :
+      std::shared_ptr<DataInterface> data) :
         piol_(piol),
         name_(name),
         data_(data)
@@ -74,7 +74,7 @@ class Interface {
 
     /// @brief  The stored Data layer object.
     /// @return The stored Data layer object.
-    virtual std::shared_ptr<Data::Interface> data() { return data_; }
+    virtual std::shared_ptr<DataInterface> data() { return data_; }
 
     /*! @brief Find out the file size.
      *  @return The file size in bytes.

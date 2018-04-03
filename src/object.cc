@@ -7,7 +7,7 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/data/data.hh"
+#include "ExSeisDat/PIOL/DataInterface.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
 
 namespace PIOL {

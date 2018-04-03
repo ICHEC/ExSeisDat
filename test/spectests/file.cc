@@ -7,8 +7,8 @@
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 

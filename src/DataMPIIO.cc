@@ -1,22 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
-/// @brief
-/// @details
+/// @brief Implementation of \c DataMPIIO
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
-#include "ExSeisDat/PIOL/data/datampiio.hh"
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/share/mpi.hh"
 
 #include <algorithm>
 #include <assert.h>
 
 namespace PIOL {
-namespace Data {
 
 /////////////////////////////       Non-Class      /////////////////////////////
 
@@ -160,7 +155,7 @@ int iol(
 /////////////////////////////    Class functions    ////////////////////////////
 
 //////////////////////      Constructor & Destructor      //////////////////////
-Data::MPIIO::Opt::Opt(void)
+DataMPIIO::Opt::Opt(void)
 {
 #ifdef EXSEISDAT_MPIIO_COLLECTIVES
     coll = true;
@@ -190,12 +185,12 @@ Data::MPIIO::Opt::Opt(void)
     maxSize = getLim<int32_t>();
 }
 
-Data::MPIIO::Opt::~Opt(void)
+DataMPIIO::Opt::~Opt(void)
 {
     if (info != MPI_INFO_NULL) MPI_Info_free(&info);
 }
 
-/*! GEt an MPI mode flag
+/*! Get an MPI mode flag
  *  @param[in] mode The generic input mode.
  *  @return The MPI mode flag associated with the inpute enum
  */
@@ -214,25 +209,25 @@ int getMPIMode(FileMode mode)
     }
 }
 
-MPIIO::MPIIO(
+DataMPIIO::DataMPIIO(
   std::shared_ptr<ExSeisPIOL> piol,
   const std::string name,
-  const MPIIO::Opt& opt,
+  const DataMPIIO::Opt& opt,
   FileMode mode) :
-    PIOL::Data::Interface(piol, name)
+    PIOL::DataInterface(piol, name)
 {
     Init(opt, mode);
 }
 
-MPIIO::MPIIO(
+DataMPIIO::DataMPIIO(
   std::shared_ptr<ExSeisPIOL> piol, const std::string name, FileMode mode) :
-    PIOL::Data::Interface(piol, name)
+    PIOL::DataInterface(piol, name)
 {
-    const MPIIO::Opt opt;
+    const DataMPIIO::Opt opt;
     Init(opt, mode);
 }
 
-MPIIO::~MPIIO(void)
+DataMPIIO::~DataMPIIO(void)
 {
     if (file != MPI_FILE_NULL) {
         int err = MPI_File_close(&file);
@@ -246,7 +241,7 @@ MPIIO::~MPIIO(void)
     }
 }
 
-void MPIIO::Init(const MPIIO::Opt& opt, FileMode mode)
+void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
 {
     coll    = opt.coll;
     maxSize = opt.maxSize;
@@ -270,8 +265,9 @@ void MPIIO::Init(const MPIIO::Opt& opt, FileMode mode)
         printErr(
           log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
     }
-    else
+    else {
         info = MPI_INFO_NULL;
+    }
 
     err = MPI_File_open(fcomm, name_.data(), flags, info, &file);
     printErr(
@@ -282,18 +278,18 @@ void MPIIO::Init(const MPIIO::Opt& opt, FileMode mode)
           MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         printErr(
           log_, name_, Log::Layer::Data, err, nullptr,
-          "MPIIO Constructor failed to set a view");
+          "DataMPIIO Constructor failed to set a view");
     }
 }
 
 /////////////////////////       Member functions      //////////////////////////
 
-bool MPIIO::isFileNull() const
+bool DataMPIIO::isFileNull() const
 {
     return file == MPI_FILE_NULL;
 }
 
-size_t MPIIO::getFileSz() const
+size_t DataMPIIO::getFileSz() const
 {
     MPI_Offset fsz = 0;
     int err        = MPI_File_get_size(file, &fsz);
@@ -303,7 +299,7 @@ size_t MPIIO::getFileSz() const
     return size_t(fsz);
 }
 
-void MPIIO::setFileSz(const size_t sz) const
+void DataMPIIO::setFileSz(const size_t sz) const
 {
     int err = MPI_File_set_size(file, MPI_Offset(sz));
     printErr(
@@ -311,14 +307,14 @@ void MPIIO::setFileSz(const size_t sz) const
       "error setting the file size");
 }
 
-void MPIIO::read(const size_t offset, const size_t sz, uchar* d) const
+void DataMPIIO::read(const size_t offset, const size_t sz, uchar* d) const
 {
     contigIO(
       (coll ? MPI_File_read_at_all : MPI_File_read_at), offset, sz, d,
       " non-collective read Failure\n");
 }
 
-void MPIIO::readv(
+void DataMPIIO::readv(
   const size_t offset,
   const size_t bsz,
   const size_t osz,
@@ -348,7 +344,7 @@ void MPIIO::readv(
     MPI_Type_free(&view);
 }
 
-void MPIIO::read(
+void DataMPIIO::read(
   const size_t offset,
   const size_t bsz,
   const size_t osz,
@@ -368,7 +364,7 @@ void MPIIO::read(
 }
 
 
-void MPIIO::contigIO(
+void DataMPIIO::contigIO(
   const MFp<MPI_Status> fn,
   const size_t offset,
   const size_t sz,
@@ -401,7 +397,7 @@ void MPIIO::contigIO(
 
 // Perform I/O to acquire data corresponding to fixed-size blocks of data
 // located  according to a list of offsets.
-void MPIIO::listIO(
+void DataMPIIO::listIO(
   const MFp<MPI_Status> fn,
   const size_t bsz,
   const size_t sz,
@@ -430,14 +426,15 @@ void MPIIO::listIO(
         printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 
-    if (remCall)
+    if (remCall) {
         for (size_t i = 0; i < remCall; i++) {
             err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
             printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
         }
+    }
 }
 
-void MPIIO::read(
+void DataMPIIO::read(
   const size_t bsz, const size_t sz, const size_t* offset, uchar* d) const
 {
     listIO(
@@ -445,7 +442,7 @@ void MPIIO::read(
       "list read failure");
 }
 
-void MPIIO::write(
+void DataMPIIO::write(
   const size_t bsz, const size_t sz, const size_t* offset, const uchar* d) const
 {
     listIO(
@@ -453,7 +450,7 @@ void MPIIO::write(
       const_cast<uchar*>(d), "list write failure");
 }
 
-void MPIIO::writev(
+void DataMPIIO::writev(
   const size_t offset,
   const size_t bsz,
   const size_t osz,
@@ -483,14 +480,15 @@ void MPIIO::writev(
     MPI_Type_free(&view);
 }
 
-void MPIIO::write(const size_t offset, const size_t sz, const uchar* d) const
+void DataMPIIO::write(
+  const size_t offset, const size_t sz, const uchar* d) const
 {
     contigIO(
       (coll ? mpiio_write_at_all : mpiio_write_at), offset, sz,
       const_cast<uchar*>(d), "Non-collective write failure.");
 }
 
-void MPIIO::write(
+void DataMPIIO::write(
   const size_t offset,
   const size_t bsz,
   const size_t osz,
@@ -509,5 +507,4 @@ void MPIIO::write(
       "Failed to read data over the integer limit.", bsz, osz);
 }
 
-}  // namespace Data
 }  // namespace PIOL

@@ -49,7 +49,7 @@ TEST_F(MPIIOTest, Constructor)
     EXPECT_TRUE(piol->log->loglist().empty()) << "Unexpected log message";
 
     EXPECT_NE(nullptr, data) << "data is null";
-    auto mio = std::dynamic_pointer_cast<Data::MPIIO>(data);
+    auto mio = std::dynamic_pointer_cast<DataMPIIO>(data);
     EXPECT_NE(nullptr, mio) << "MPI-IO data cast failed";
     EXPECT_FALSE(mio->isFileNull()) << "File was not opened";
 

@@ -29,7 +29,7 @@ std::unique_ptr<
 makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string& name)
 {
     return std::make_unique<T>(
-      piol, name, Obj::makeDefaultObj(piol, name, Data::FileMode::Read));
+      piol, name, Obj::makeDefaultObj(piol, name, FileMode::Read));
 }
 
 /*! Construct WriteSEGY objects with default object and MPI-IO layers
@@ -44,7 +44,7 @@ std::unique_ptr<
 makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string& name)
 {
     return std::make_unique<T>(
-      piol, name, Obj::makeDefaultObj(piol, name, Data::FileMode::Write));
+      piol, name, Obj::makeDefaultObj(piol, name, FileMode::Write));
 }
 
 }  // namespace PIOL

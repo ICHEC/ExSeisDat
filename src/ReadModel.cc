@@ -6,15 +6,15 @@
 
 #include "ExSeisDat/PIOL/ReadModel.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 
 namespace PIOL {
 
 ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
     ReadDirect(
-      piol, name, Data::MPIIO::Opt(), Obj::SEGY::Opt(), ReadSEGYModel::Opt())
+      piol, name, DataMPIIO::Opt(), Obj::SEGY::Opt(), ReadSEGYModel::Opt())
 {
 }
 

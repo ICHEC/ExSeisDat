@@ -1,7 +1,7 @@
 #include "sglobal.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/share/mpi.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 
@@ -10,7 +10,6 @@
 #include <unordered_map>
 
 using namespace PIOL;
-using namespace Data;
 
 void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 {
@@ -18,7 +17,7 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 }
 
 void smallCopy(
-  const ExSeis& piol, Data::Interface* in, Data::Interface* out, size_t repRate)
+  const ExSeis& piol, DataInterface* in, DataInterface* out, size_t repRate)
 {
     const size_t rank = piol.comm->getRank();
 
@@ -121,7 +120,7 @@ void distribToDistrib(
 Range writeArb(
   size_t rank,
   size_t numRank,
-  Data::Interface* out,
+  DataInterface* out,
   size_t off,
   size_t bsz,
   Range dec,
@@ -150,7 +149,7 @@ Range writeArb(
  *  @param[in] repRate The repetition rate
  */
 void mpiMakeSEGYCopy(
-  const ExSeis& piol, Interface* in, Interface* out, size_t repRate)
+  const ExSeis& piol, DataInterface* in, DataInterface* out, size_t repRate)
 {
     size_t rank    = piol.getRank();
     size_t numRank = piol.getNumRank();
@@ -194,7 +193,7 @@ void mpiMakeSEGYCopy(
 
 template<bool Block>
 void mpiMakeSEGYCopyNaive(
-  const ExSeis& piol, Interface* in, Interface* out, size_t repRate)
+  const ExSeis& piol, DataInterface* in, DataInterface* out, size_t repRate)
 {
     size_t numRank    = piol.getNumRank();
     const size_t fsz  = in->getFileSz();
@@ -275,8 +274,8 @@ int main(int argc, char** argv)
 
     size_t numRank = piol->getNumRank();
 
-    MPIIO in(piol, iname, FileMode::Read);
-    MPIIO out(piol, oname, FileMode::Write);
+    DataMPIIO in(piol, iname, FileMode::Read);
+    DataMPIIO out(piol, oname, FileMode::Write);
     piol->isErr();
 
     const size_t fsz = in.getFileSz();

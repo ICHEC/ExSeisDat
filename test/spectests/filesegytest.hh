@@ -5,6 +5,7 @@
 
 #include "segymdextra.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
@@ -12,7 +13,6 @@
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
@@ -116,7 +116,7 @@ class MockObj : public Obj::Interface {
     MockObj(
       std::shared_ptr<ExSeisPIOL> piol_,
       const std::string name_,
-      std::shared_ptr<Data::Interface> data_) :
+      std::shared_ptr<DataInterface> data_) :
         Obj::Interface(piol_, name_, data_)
     {
     }
@@ -198,7 +198,7 @@ struct FileReadSEGYTest : public Test {
 
         // Make a ReadDirect reader with options if OPTS = true.
         if (OPTS) {
-            Data::MPIIO::Opt dopt;
+            DataMPIIO::Opt dopt;
             Obj::SEGY::Opt oopt;
             ReadSEGY::Opt fopt;
             file = std::make_unique<ReadDirect>(piol, name, dopt, oopt, fopt);
@@ -622,11 +622,10 @@ struct FileWriteSEGYTest : public Test {
         WriteSEGY::Opt f;
         ReadSEGY::Opt rf;
         Obj::SEGY::Opt o;
-        Data::MPIIO::Opt d;
-        auto data =
-          std::make_shared<Data::MPIIO>(piol, name, d, Data::FileMode::Test);
-        auto obj = std::make_shared<Obj::SEGY>(
-          piol, name, o, data, Data::FileMode::Test);
+        DataMPIIO::Opt d;
+        auto data = std::make_shared<DataMPIIO>(piol, name, d, FileMode::Test);
+        auto obj =
+          std::make_shared<Obj::SEGY>(piol, name, o, data, FileMode::Test);
 
         auto fi = std::make_shared<WriteSEGY>(piol, name, f, obj);
         file    = std::make_unique<WriteDirect>(std::move(fi));

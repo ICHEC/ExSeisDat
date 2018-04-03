@@ -5,6 +5,8 @@
 #ifndef EXSEISDAT_PIOL_HH
 #define EXSEISDAT_PIOL_HH
 
+#include "ExSeisDat/PIOL/DataInterface.hh"
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Model3dInterface.hh"
@@ -27,8 +29,6 @@
 #include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/anc/verbosity.h"
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/data/data.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"

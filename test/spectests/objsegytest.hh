@@ -3,10 +3,10 @@
 
 #include "tglobal.hh"
 
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/data/datampiio.hh"
 #include "ExSeisDat/PIOL/object/object.hh"
 #include "ExSeisDat/PIOL/object/objsegy.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
@@ -18,10 +18,10 @@
 using namespace testing;
 using namespace PIOL;
 
-class MockData : public Data::Interface {
+class MockData : public DataInterface {
   public:
     MockData(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) :
-        Data::Interface(piol_, name_)
+        DataInterface(piol_, name_)
     {
     }
 
@@ -56,12 +56,11 @@ class ObjTest : public Test {
     {
         if (obj != nullptr) delete obj;
 
-        auto data = std::make_shared<Data::MPIIO>(
-          piol, name, (WRITE ? Data::FileMode::Test : Data::FileMode::Read));
+        auto data = std::make_shared<DataMPIIO>(
+          piol, name, (WRITE ? FileMode::Test : FileMode::Read));
         piol->isErr();
         obj = new Obj::SEGY(
-          piol, name, data,
-          (WRITE ? Data::FileMode::Test : Data::FileMode::Read));
+          piol, name, data, (WRITE ? FileMode::Test : FileMode::Read));
         piol->isErr();
     }
 

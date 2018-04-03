@@ -3,9 +3,9 @@
 
 #include "tglobal.hh"
 
+#include "ExSeisDat/PIOL/DataInterface.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/data/data.hh"
 
 #include <memory>
 
@@ -17,9 +17,9 @@ class DataTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::New();
 };
 
-struct FakeData : public Data::Interface {
+struct FakeData : public DataInterface {
     FakeData(const std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) :
-        Data::Interface(piol_, name_)
+        DataInterface(piol_, name_)
     {
     }
 

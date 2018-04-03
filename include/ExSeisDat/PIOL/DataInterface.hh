@@ -1,30 +1,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
-/// @brief The Data layer interface
+/// @brief   The Data layer interface
 /// @details The Data layer interface is a base class which specific data I/O
 ///          implementations work off.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLDATA_INCLUDE_GUARD
-#define PIOLDATA_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_DATAINTERFACE_HH
+#define EXSEISDAT_PIOL_DATAINTERFACE_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
-namespace Data {
 
 /*! @brief The Data layer interface. Specific data I/O implementations
  *  work off this base class.
  */
-class Interface {
+class DataInterface {
   protected:
     /// Pointer to the PIOL object.
     std::shared_ptr<ExSeisPIOL> piol_;
+
     /// For convienience
     Log::Logger* log_;
+
     /// Store the file name for debugging purposes.
     const std::string name_;
 
@@ -34,7 +32,7 @@ class Interface {
      *                   instantiate another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      */
-    Interface(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
+    DataInterface(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
         piol_(piol),
         log_(piol->log.get()),
         name_(name)
@@ -43,7 +41,7 @@ class Interface {
 
     /*! @brief A virtual destructor to allow deletion.
      */
-    virtual ~Interface(void) = default;
+    virtual ~DataInterface(void) = default;
 
     /*! @brief The stored ExSeisPIOL object.
      *  @return A shared_ptr to the ExSeisPIOL object.
@@ -146,7 +144,6 @@ class Interface {
       const uchar* d) const = 0;
 };
 
-}  // namespace Data
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_DATAINTERFACE_HH
