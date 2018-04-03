@@ -203,13 +203,14 @@ add_library(
     src/DataMPIIO.cc
     src/ObjectInterface.cc
     src/ObjectSEGY.cc
+    src/CommunicatorMPI.cc
 
     src/segy_utils.cc
+    src/mpi_utils.cc
     src/character_encoding.cc
 
     src/agc.cc
     src/cache.cc
-    src/cmpi.cc
     src/decomp.cc
     src/param.cc
     src/gather.cc
@@ -217,7 +218,6 @@ add_library(
     src/minmax.cc
     src/misc.cc
     src/sdatatype.cc
-    src/smpi.cc
     src/sort.cc
     src/taper.cc
     src/temporalfilter.cc

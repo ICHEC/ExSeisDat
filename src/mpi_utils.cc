@@ -7,9 +7,10 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/share/mpi.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 
 namespace PIOL {
+namespace MPI_utils {
 
 void printErr(
   Log::Logger* log,
@@ -28,4 +29,5 @@ void printErr(
     }
 }
 
+}  // namespace MPI_utils
 }  // namespace PIOL

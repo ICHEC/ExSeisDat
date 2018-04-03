@@ -103,7 +103,7 @@ struct SetTest : public Test {
     std::shared_ptr<ExSeis> piol    = ExSeis::New();
     std::unique_ptr<Set_public> set = nullptr;
     std::deque<Param> prm;
-    Comm::MPI::Opt opt;
+    CommunicatorMPI::Opt opt;
     const double pi = M_PI;
 
     void init(size_t numFile, size_t numNs, size_t numInc, size_t, bool linear)

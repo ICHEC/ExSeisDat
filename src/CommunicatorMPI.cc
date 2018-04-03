@@ -7,16 +7,15 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
-#include "ExSeisDat/PIOL/share/mpi.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 
 namespace PIOL {
-namespace Comm {
 
 // We define functions and classes to delegate initialization and finalization
 // if MPI to initialization and destruction of function-local static variables.
-// This means initialization is tied to the first PIOL::Comm::MPI call,
+// This means initialization is tied to the first PIOL::CommunicatorMPI call,
 // and finalization is tied to the program exit.
 //
 // We also allow the user to circumvent this behaviour with a global variable,
@@ -114,7 +113,10 @@ void manageMPI(bool manage)
 }
 
 
-MPI::MPI(Log::Logger* log_, const MPI::Opt& opt) : comm(opt.comm), log(log_)
+CommunicatorMPI::CommunicatorMPI(
+  Log::Logger* log_, const CommunicatorMPI::Opt& opt) :
+    comm(opt.comm),
+    log(log_)
 {
     // Initialize MPI and set up MPI_Finalize to be called at program close.
     MPIManager& mpi_manager = MPIManagerInstance();
@@ -128,7 +130,7 @@ MPI::MPI(Log::Logger* log_, const MPI::Opt& opt) : comm(opt.comm), log(log_)
     numRank = inumRank;
 }
 
-MPI_Comm MPI::getComm() const
+MPI_Comm CommunicatorMPI::getComm() const
 {
     return comm;
 }
@@ -144,13 +146,14 @@ MPI_Comm MPI::getComm() const
  */
 template<typename T>
 std::vector<T> MPIGather(
-  Log::Logger* log, const MPI* mpi, const std::vector<T>& in)
+  Log::Logger* log, const CommunicatorMPI* mpi, const std::vector<T>& in)
 {
     std::vector<T> arr(mpi->getNumRank() * in.size());
     int err = MPI_Allgather(
-      in.data(), in.size(), MPIType<T>(), arr.data(), in.size(), MPIType<T>(),
-      mpi->getComm());
-    printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Allgather failure");
+      in.data(), in.size(), MPI_utils::MPIType<T>(), arr.data(), in.size(),
+      MPI_utils::MPIType<T>(), mpi->getComm());
+    MPI_utils::printErr(
+      log, "", Log::Layer::Comm, err, NULL, "MPI_Allgather failure");
     return arr;
 }
 
@@ -163,60 +166,63 @@ std::vector<T> MPIGather(
  *  @return Return the result of the reduce operation
  */
 template<typename T>
-T getMPIOp(Log::Logger* log, const MPI* mpi, T val, MPI_Op op)
+T getMPIOp(Log::Logger* log, const CommunicatorMPI* mpi, T val, MPI_Op op)
 {
     T result = 0;
-    int err = MPI_Allreduce(&val, &result, 1, MPIType<T>(), op, mpi->getComm());
-    printErr(log, "", Log::Layer::Comm, err, NULL, "MPI_Allreduce failure");
+    int err  = MPI_Allreduce(
+      &val, &result, 1, MPI_utils::MPIType<T>(), op, mpi->getComm());
+    MPI_utils::printErr(
+      log, "", Log::Layer::Comm, err, NULL, "MPI_Allreduce failure");
     return (err == MPI_SUCCESS ? result : 0LU);
 }
 
-size_t MPI::sum(size_t val)
+size_t CommunicatorMPI::sum(size_t val)
 {
     return getMPIOp(log, this, val, MPI_SUM);
 }
 
-size_t MPI::max(size_t val)
+size_t CommunicatorMPI::max(size_t val)
 {
     return getMPIOp(log, this, val, MPI_MAX);
 }
 
-size_t MPI::min(size_t val)
+size_t CommunicatorMPI::min(size_t val)
 {
     return getMPIOp(log, this, val, MPI_MIN);
 }
 
-size_t MPI::offset(size_t val)
+size_t CommunicatorMPI::offset(size_t val)
 {
     size_t offset = 0LU;
-    MPI_Exscan(&val, &offset, 1LU, MPIType<size_t>(), MPI_SUM, MPI_COMM_WORLD);
+    MPI_Exscan(
+      &val, &offset, 1LU, MPI_utils::MPIType<size_t>(), MPI_SUM,
+      MPI_COMM_WORLD);
     return (!rank ? 0LU : offset);
 }
 
-std::vector<llint> MPI::gather(const std::vector<llint>& in) const
+std::vector<llint> CommunicatorMPI::gather(const std::vector<llint>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-std::vector<size_t> MPI::gather(const std::vector<size_t>& in) const
+std::vector<size_t> CommunicatorMPI::gather(const std::vector<size_t>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-std::vector<float> MPI::gather(const std::vector<float>& in) const
+std::vector<float> CommunicatorMPI::gather(const std::vector<float>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-std::vector<double> MPI::gather(const std::vector<double>& in) const
+std::vector<double> CommunicatorMPI::gather(const std::vector<double>& in) const
 {
     return MPIGather(log, this, in);
 }
 
-void MPI::barrier(void) const
+void CommunicatorMPI::barrier(void) const
 {
     MPI_Barrier(comm);
 }
 
-}  // namespace Comm
 }  // namespace PIOL

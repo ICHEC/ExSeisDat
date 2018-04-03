@@ -8,7 +8,7 @@
 
 #include "4dcore.hh"
 
-#include "ExSeisDat/PIOL/share/mpi.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -135,28 +135,28 @@ std::unique_ptr<Coords> getCoordsWin(
         MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
 
     MPIErr(MPI_Get(
-      crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(),
-      win[0]));
+      crd->xSrc, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 0, sz,
+      MPI_utils::MPIType<fourd_t>(), win[0]));
     MPIErr(MPI_Get(
-      crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(),
-      win[1]));
+      crd->ySrc, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 0, sz,
+      MPI_utils::MPIType<fourd_t>(), win[1]));
     MPIErr(MPI_Get(
-      crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(),
-      win[2]));
+      crd->xRcv, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 0, sz,
+      MPI_utils::MPIType<fourd_t>(), win[2]));
     MPIErr(MPI_Get(
-      crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 0, sz, MPIType<fourd_t>(),
-      win[3]));
+      crd->yRcv, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 0, sz,
+      MPI_utils::MPIType<fourd_t>(), win[3]));
     MPIErr(MPI_Get(
-      crd->tn, crd->sz, MPIType<size_t>(), lrank, 0, sz, MPIType<size_t>(),
-      win[4]));
+      crd->tn, crd->sz, MPI_utils::MPIType<size_t>(), lrank, 0, sz,
+      MPI_utils::MPIType<size_t>(), win[4]));
 
     if (ixline) {
         MPIErr(MPI_Get(
-          crd->il, crd->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(),
-          win[5]));
+          crd->il, crd->sz, MPI_utils::MPIType<llint>(), lrank, 0, sz,
+          MPI_utils::MPIType<llint>(), win[5]));
         MPIErr(MPI_Get(
-          crd->xl, crd->sz, MPIType<llint>(), lrank, 0, sz, MPIType<llint>(),
-          win[6]));
+          crd->xl, crd->sz, MPI_utils::MPIType<llint>(), lrank, 0, sz,
+          MPI_utils::MPIType<llint>(), win[6]));
     }
 
     for (size_t i = 0; i < win.size(); i++)
@@ -356,29 +356,29 @@ std::vector<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
 {
     std::vector<MPI_Request> request(5);
     MPIErr(MPI_Isend(
-      crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD,
-      &request[0]));
+      crd->xSrc, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 0,
+      MPI_COMM_WORLD, &request[0]));
     MPIErr(MPI_Isend(
-      crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD,
-      &request[1]));
+      crd->ySrc, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 1,
+      MPI_COMM_WORLD, &request[1]));
     MPIErr(MPI_Isend(
-      crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 2, MPI_COMM_WORLD,
-      &request[2]));
+      crd->xRcv, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 2,
+      MPI_COMM_WORLD, &request[2]));
     MPIErr(MPI_Isend(
-      crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 3, MPI_COMM_WORLD,
-      &request[3]));
+      crd->yRcv, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 3,
+      MPI_COMM_WORLD, &request[3]));
     MPIErr(MPI_Isend(
-      crd->tn, crd->sz, MPIType<size_t>(), lrank, 4, MPI_COMM_WORLD,
+      crd->tn, crd->sz, MPI_utils::MPIType<size_t>(), lrank, 4, MPI_COMM_WORLD,
       &request[4]));
 
     if (ixline) {
         request.resize(7);
         MPIErr(MPI_Isend(
-          crd->il, crd->sz, MPIType<llint>(), lrank, 5, MPI_COMM_WORLD,
-          &request[5]));
+          crd->il, crd->sz, MPI_utils::MPIType<llint>(), lrank, 5,
+          MPI_COMM_WORLD, &request[5]));
         MPIErr(MPI_Isend(
-          crd->xl, crd->sz, MPIType<llint>(), lrank, 6, MPI_COMM_WORLD,
-          &request[6]));
+          crd->xl, crd->sz, MPI_utils::MPIType<llint>(), lrank, 6,
+          MPI_COMM_WORLD, &request[6]));
     }
     return request;
 }
@@ -395,29 +395,29 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
     auto crd = std::make_unique<Coords>(sz, ixline);
     std::vector<MPI_Request> request(5);
     MPIErr(MPI_Irecv(
-      crd->xSrc, crd->sz, MPIType<fourd_t>(), lrank, 0, MPI_COMM_WORLD,
-      &request[0]));
+      crd->xSrc, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 0,
+      MPI_COMM_WORLD, &request[0]));
     MPIErr(MPI_Irecv(
-      crd->ySrc, crd->sz, MPIType<fourd_t>(), lrank, 1, MPI_COMM_WORLD,
-      &request[1]));
+      crd->ySrc, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 1,
+      MPI_COMM_WORLD, &request[1]));
     MPIErr(MPI_Irecv(
-      crd->xRcv, crd->sz, MPIType<fourd_t>(), lrank, 2, MPI_COMM_WORLD,
-      &request[2]));
+      crd->xRcv, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 2,
+      MPI_COMM_WORLD, &request[2]));
     MPIErr(MPI_Irecv(
-      crd->yRcv, crd->sz, MPIType<fourd_t>(), lrank, 3, MPI_COMM_WORLD,
-      &request[3]));
+      crd->yRcv, crd->sz, MPI_utils::MPIType<fourd_t>(), lrank, 3,
+      MPI_COMM_WORLD, &request[3]));
     MPIErr(MPI_Irecv(
-      crd->tn, crd->sz, MPIType<size_t>(), lrank, 4, MPI_COMM_WORLD,
+      crd->tn, crd->sz, MPI_utils::MPIType<size_t>(), lrank, 4, MPI_COMM_WORLD,
       &request[4]));
 
     if (ixline) {
         request.resize(7);
         MPIErr(MPI_Irecv(
-          crd->il, crd->sz, MPIType<llint>(), lrank, 5, MPI_COMM_WORLD,
-          &request[5]));
+          crd->il, crd->sz, MPI_utils::MPIType<llint>(), lrank, 5,
+          MPI_COMM_WORLD, &request[5]));
         MPIErr(MPI_Irecv(
-          crd->xl, crd->sz, MPIType<llint>(), lrank, 6, MPI_COMM_WORLD,
-          &request[6]));
+          crd->xl, crd->sz, MPI_utils::MPIType<llint>(), lrank, 6,
+          MPI_COMM_WORLD, &request[6]));
     }
     std::vector<MPI_Status> stat(request.size());
     MPIErr(MPI_Waitall(request.size(), request.data(), stat.data()));

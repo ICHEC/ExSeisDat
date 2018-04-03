@@ -5,6 +5,7 @@
 
 #include "segymdextra.hh"
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
@@ -12,7 +13,6 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"

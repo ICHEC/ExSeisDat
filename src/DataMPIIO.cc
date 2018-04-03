@@ -6,7 +6,7 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/share/mpi.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -182,7 +182,7 @@ DataMPIIO::Opt::Opt(void)
 
     //    // ROMIO has this on by default. Annoying.
     //    MPI_Info_set(info, "panfs_concurrent_write", "false");
-    maxSize = getLim<int32_t>();
+    maxSize = MPI_utils::getLim<int32_t>();
 }
 
 DataMPIIO::Opt::~Opt(void)
@@ -231,12 +231,12 @@ DataMPIIO::~DataMPIIO(void)
 {
     if (file != MPI_FILE_NULL) {
         int err = MPI_File_close(&file);
-        printErr(
+        MPI_utils::printErr(
           log_, name_, Log::Layer::Data, err, nullptr, "MPI_File_close failed");
     }
     if (info != MPI_INFO_NULL) {
         int err = MPI_Info_free(&info);
-        printErr(
+        MPI_utils::printErr(
           log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_free failed");
     }
 }
@@ -248,7 +248,7 @@ void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
     file    = MPI_FILE_NULL;
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
-    printErr(
+    MPI_utils::printErr(
       log_, name_, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
 
     if (esz != 1)
@@ -262,7 +262,7 @@ void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
 
     if (opt.info != MPI_INFO_NULL) {
         err = MPI_Info_dup(opt.info, &info);
-        printErr(
+        MPI_utils::printErr(
           log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
     }
     else {
@@ -270,13 +270,13 @@ void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
     }
 
     err = MPI_File_open(fcomm, name_.data(), flags, info, &file);
-    printErr(
+    MPI_utils::printErr(
       log_, name_, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     if (err == MPI_SUCCESS) {
         int err =
           MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
-        printErr(
+        MPI_utils::printErr(
           log_, name_, Log::Layer::Data, err, nullptr,
           "DataMPIIO Constructor failed to set a view");
     }
@@ -293,7 +293,7 @@ size_t DataMPIIO::getFileSz() const
 {
     MPI_Offset fsz = 0;
     int err        = MPI_File_get_size(file, &fsz);
-    printErr(
+    MPI_utils::printErr(
       log_, name_, Log::Layer::Data, err, nullptr,
       "error getting the file size");
     return size_t(fsz);
@@ -302,7 +302,7 @@ size_t DataMPIIO::getFileSz() const
 void DataMPIIO::setFileSz(const size_t sz) const
 {
     int err = MPI_File_set_size(file, MPI_Offset(sz));
-    printErr(
+    MPI_utils::printErr(
       log_, name_, Log::Layer::Data, err, nullptr,
       "error setting the file size");
 }
@@ -333,7 +333,7 @@ void DataMPIIO::readv(
     // Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
-    printErr(
+    MPI_utils::printErr(
       log_, name_, Log::Layer::Data, err, NULL,
       "Failed to set a view for reading.");
 
@@ -385,13 +385,13 @@ void DataMPIIO::contigIO(
         size_t chunk = std::min(sz - i, max);
         err          = fn(
           file, MPI_Offset(offset + osz * i), &d[bsz * i], chunk,
-          MPIType<uchar>(), &stat);
-        printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+          MPI_utils::MPIType<uchar>(), &stat);
+        MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 
     for (size_t i = 0; i < remCall; i++) {
-        err = fn(file, 0, NULL, 0, MPIType<uchar>(), &stat);
-        printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+        err = fn(file, 0, NULL, 0, MPI_utils::MPIType<uchar>(), &stat);
+        MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 }
 
@@ -423,13 +423,13 @@ void DataMPIIO::listIO(
         err          = iol(
           fn, file, info, bsz, chunk,
           reinterpret_cast<const MPI_Aint*>(&offset[i]), &d[i * bsz], &stat);
-        printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+        MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
     }
 
     if (remCall) {
         for (size_t i = 0; i < remCall; i++) {
             err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
-            printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+            MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
         }
     }
 }
@@ -469,7 +469,7 @@ void DataMPIIO::writev(
     // Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
-    printErr(
+    MPI_utils::printErr(
       log_, name_, Log::Layer::Data, err, NULL,
       "Failed to set a view for reading.");
 

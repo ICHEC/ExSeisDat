@@ -1,13 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date Summer 2016
 /// @brief
 /// @details MPI Functions etc which are shared between communication and MPI-IO
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSHAREDMPI_INCLUDE_GUARD
-#define PIOLSHAREDMPI_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_MPI_UTILS_HH
+#define EXSEISDAT_PIOL_MPI_UTILS_HH
 
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/anc/log.hh"
@@ -17,6 +14,7 @@
 #include <typeinfo>
 
 namespace PIOL {
+namespace MPI_utils {
 
 /*! @brief Check the MPI error code and log an error event if there is an error.
  *  @param[in,out] log  The log object
@@ -175,6 +173,7 @@ constexpr size_t getLim()
     return getLimSz(sizeof(T));
 }
 
+}  // namespace MPI_utils
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_MPI_UTILS_HH

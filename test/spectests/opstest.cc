@@ -5,8 +5,8 @@
 
 #include "segymdextra.hh"
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"

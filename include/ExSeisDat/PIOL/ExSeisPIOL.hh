@@ -6,8 +6,8 @@
 #ifndef EXSEISDAT_PIOL_EXSEISPIOL_HH
 #define EXSEISDAT_PIOL_EXSEISPIOL_HH
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/anc/log.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/anc/verbosity.h"
 
 #include <memory>
@@ -27,14 +27,14 @@ class ExSeisPIOL {
      *  @param[in] maxLevel The maximum log level to be recorded.
      */
     ExSeisPIOL(
-      const Verbosity maxLevel   = PIOL_VERBOSITY_NONE,
-      const Comm::MPI::Opt& copt = Comm::MPI::Opt());
+      const Verbosity maxLevel         = PIOL_VERBOSITY_NONE,
+      const CommunicatorMPI::Opt& copt = CommunicatorMPI::Opt());
 
   public:
     /// The ExSeisPIOL logger
     std::unique_ptr<Log::Logger> log;
     /// The ExSeisPIOL communication
-    std::unique_ptr<Comm::Interface> comm;
+    std::unique_ptr<CommunicatorInterface> comm;
 
     /*! @brief A function to check if an error has occured in the PIOL. If an
      *         error has occured the log is printed, the object destructor is

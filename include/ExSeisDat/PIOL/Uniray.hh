@@ -7,8 +7,8 @@
 #define EXSEISDAT_PIOL_UNIRAY_HH
 
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
-#include "ExSeisDat/PIOL/share/mpi.hh"
 
 #include <tuple>
 
@@ -98,8 +98,8 @@ class Uniray {
         else {
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, lrank, MPI_MODE_NOCHECK, win);
             MPI_Put(
-              &val, TupleSz, MPIType<char>(), lrank, i - lOffset, TupleSz,
-              MPIType<char>(), win);
+              &val, TupleSz, MPI_utils::MPIType<char>(), lrank, i - lOffset,
+              TupleSz, MPI_utils::MPIType<char>(), win);
             MPI_Win_unlock(lrank, win);
         }
     }
@@ -128,8 +128,8 @@ class Uniray {
         else {
             MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win);
             MPI_Get(
-              &val, TupleSz, MPIType<char>(), lrank, i - lOffset, TupleSz,
-              MPIType<char>(), win);
+              &val, TupleSz, MPI_utils::MPIType<char>(), lrank, i - lOffset,
+              TupleSz, MPI_utils::MPIType<char>(), win);
             MPI_Win_unlock(lrank, win);
             return val;
         }

@@ -12,19 +12,18 @@
 #ifndef PIOLANCCMPI_INCLUDE_GUARD
 #define PIOLANCCMPI_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/comm.hh"
+#include "ExSeisDat/PIOL/CommunicatorInterface.hh"
 #include "ExSeisDat/PIOL/anc/log.hh"
 
 #include <mpi.h>
 
 namespace PIOL {
-namespace Comm {
 
 /*! @brief Set whether PIOL should manage MPI initialization / finalization.
  *      By default, PIOL will manage MPI if it calls MPI_Init, and it will call
- *      MPI_Init if the PIOL::Comm::MPI class is initialized before MPI_Init
- *      is called.
- *      If PIOL Is managing MPI, it will call MPI_Finalize on program exit.
+ *      MPI_Init if the PIOL::CommunicatorMPI class is initialized before
+ * MPI_Init is called. If PIOL Is managing MPI, it will call MPI_Finalize on
+ * program exit.
  */
 void manageMPI(bool);
 
@@ -32,10 +31,11 @@ void manageMPI(bool);
 /*! @brief The MPI communication class. All MPI communication specific routines
  *         should be wrapped up and accessible from this class.
  */
-class MPI : public Comm::Interface {
+class CommunicatorMPI : public CommunicatorInterface {
   private:
     /// The MPI communicator.
     MPI_Comm comm;
+
     /// For logging messages
     Log::Logger* log;
 
@@ -51,7 +51,7 @@ class MPI : public Comm::Interface {
      *  @param[in] log_ Pointer to log object
      *  @param[in] opt Any options for the communication layer.
      */
-    MPI(Log::Logger* log_, const MPI::Opt& opt);
+    CommunicatorMPI(Log::Logger* log_, const CommunicatorMPI::Opt& opt);
 
     /*! @brief Retrieve the MPI communicator associated with the ExSeisPIOL.
      *  @return The MPI communicator.
@@ -69,7 +69,6 @@ class MPI : public Comm::Interface {
     void barrier(void) const;
 };
 
-}  // namespace Comm
 }  // namespace PIOL
 
 #endif

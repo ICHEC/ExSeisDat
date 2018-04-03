@@ -23,7 +23,7 @@ size_t modifyNt(
 class MPIIOTest : public Test {
   protected:
     std::shared_ptr<ExSeis> piol = ExSeis::New();
-    Comm::MPI::Opt opt;
+    CommunicatorMPI::Opt opt;
     DataMPIIO::Opt ioopt;
     std::shared_ptr<DataInterface> data = nullptr;
 

@@ -5,6 +5,8 @@
 #ifndef EXSEISDAT_PIOL_HH
 #define EXSEISDAT_PIOL_HH
 
+#include "ExSeisDat/PIOL/CommunicatorInterface.hh"
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataInterface.hh"
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
@@ -25,13 +27,12 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/anc/comm.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/anc/log.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/anc/verbosity.h"
 #include "ExSeisDat/PIOL/character_encoding.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/gather.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
@@ -44,7 +45,6 @@
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
-#include "ExSeisDat/PIOL/share/mpi.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 

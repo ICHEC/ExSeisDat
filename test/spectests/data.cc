@@ -3,9 +3,9 @@
 
 #include "tglobal.hh"
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataInterface.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 
 #include <memory>
 

@@ -3,12 +3,12 @@
 
 #include "tglobal.hh"
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 

@@ -7,9 +7,9 @@
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
+#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/anc/mpi.hh"
 
 
 using namespace testing;

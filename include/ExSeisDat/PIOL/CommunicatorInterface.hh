@@ -1,9 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
-/// @brief The base communicator layer
+/// @brief   The base communicator layer
 /// @details The base class exists so that the ExSeisPIOL is not completely tied
 ///          to MPI.  This is useful for two reasons. Firstly, it means that MPI
 ///          specific work is localised in a specific portion of the code rather
@@ -12,29 +9,29 @@
 ///          inter-process communication technology if one is of particular
 ///          interest.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLANCCOMM_INCLUDE_GUARD
-#define PIOLANCCOMM_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH
+#define EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH
 
 #include "ExSeisDat/PIOL/anc/global.hh"
 
 namespace PIOL {
-namespace Comm {
 
 /*! @brief The Communication layer interface. Specific communication
  *         implementations work off this base class.
  */
-class Interface {
+class CommunicatorInterface {
   protected:
     /// A number in the sequence from 0 to some maximum (numRank-1) which
     /// indicates the process number.
     size_t rank;
+
     /// The total number of processes which are executing together.
     size_t numRank;
 
   public:
     /*! @brief A virtual destructor to allow deletion.
      */
-    virtual ~Interface(void) = default;
+    virtual ~CommunicatorInterface(void) = default;
 
     /*! @brief Returns the rank of the process executing the function/
      *  @return The rank.
@@ -122,7 +119,6 @@ class Interface {
     virtual void barrier(void) const = 0;
 };
 
-}  // namespace Comm
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH

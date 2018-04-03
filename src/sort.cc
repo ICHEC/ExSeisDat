@@ -16,9 +16,9 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 
 #include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
-#include "ExSeisDat/PIOL/share/mpi.hh"
 
 #include <algorithm>
 #include <numeric>
@@ -362,7 +362,7 @@ void Wait(
     if (piol->comm->getRank() != piol->comm->getNumRank() - 1) {
         for (size_t i = 0; i < req1.size(); i++) {
             err = MPI_Wait(&req1[i], &stat);
-            printErr(
+            MPI_utils::printErr(
               piol->log.get(), "", Log::Layer::Ops, err, &stat,
               "Sort Rcv error");
         }
@@ -371,7 +371,7 @@ void Wait(
     if (piol->comm->getRank()) {
         for (size_t i = 0; i < req2.size(); i++) {
             err = MPI_Wait(&req2[i], &stat);
-            printErr(
+            MPI_utils::printErr(
               piol->log.get(), "", Log::Layer::Ops, err, &stat,
               "Sort Snd error");
         }
@@ -398,7 +398,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
     if (rank) {
         int err = MPI_Irecv(
           dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
-        printErr(
+        MPI_utils::printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Recv error");
     }
@@ -407,7 +407,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
         int err = MPI_Isend(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 1,
           MPI_COMM_WORLD, &rsnd[0]);
-        printErr(
+        MPI_utils::printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Send error");
     }
@@ -434,7 +434,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
     if (rank) {
         int err = MPI_Isend(
           dat.data(), cnt, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rsnd[0]);
-        printErr(
+        MPI_utils::printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Send error");
     }
@@ -443,7 +443,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
         int err = MPI_Irecv(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 0,
           MPI_COMM_WORLD, &rrcv[0]);
-        printErr(
+        MPI_utils::printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Recv error");
     }
@@ -519,7 +519,7 @@ void sort(
 
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        printErr(
+        MPI_utils::printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Allreduce error");
 
@@ -595,7 +595,8 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 
     Log::Logger* log = piol->log.get();
     auto err         = [log](int errc, std::string msg, size_t i) -> void {
-        printErr(log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
+        MPI_utils::printErr(
+          log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
     };
 
     if (rank) {
@@ -677,7 +678,8 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 
     Log::Logger* log = piol->log.get();
     auto err         = [log](int errc, std::string msg, size_t i) -> void {
-        printErr(log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
+        MPI_utils::printErr(
+          log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
     };
 
     if (rank) {
@@ -822,7 +824,7 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-        printErr(
+        MPI_utils::printErr(
           piol->log.get(), "", Log::Layer::Ops, err, NULL,
           "Sort MPI_Allreduce error");
 

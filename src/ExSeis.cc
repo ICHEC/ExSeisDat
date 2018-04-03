@@ -8,7 +8,7 @@
 namespace PIOL {
 
 ExSeis::ExSeis(const Verbosity maxLevel, MPI_Comm comm) :
-    ExSeisPIOL(maxLevel, Comm::MPI::Opt{comm})
+    ExSeisPIOL(maxLevel, CommunicatorMPI::Opt{comm})
 {
 }
 
