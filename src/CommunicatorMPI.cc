@@ -114,7 +114,7 @@ void manageMPI(bool manage)
 
 
 CommunicatorMPI::CommunicatorMPI(
-  Log::Logger* log_, const CommunicatorMPI::Opt& opt) :
+  Logger* log_, const CommunicatorMPI::Opt& opt) :
     comm(opt.comm),
     log(log_)
 {
@@ -146,14 +146,14 @@ MPI_Comm CommunicatorMPI::getComm() const
  */
 template<typename T>
 std::vector<T> MPIGather(
-  Log::Logger* log, const CommunicatorMPI* mpi, const std::vector<T>& in)
+  Logger* log, const CommunicatorMPI* mpi, const std::vector<T>& in)
 {
     std::vector<T> arr(mpi->getNumRank() * in.size());
     int err = MPI_Allgather(
       in.data(), in.size(), MPI_utils::MPIType<T>(), arr.data(), in.size(),
       MPI_utils::MPIType<T>(), mpi->getComm());
     MPI_utils::printErr(
-      log, "", Log::Layer::Comm, err, NULL, "MPI_Allgather failure");
+      log, "", Logger::Layer::Comm, err, NULL, "MPI_Allgather failure");
     return arr;
 }
 
@@ -166,13 +166,13 @@ std::vector<T> MPIGather(
  *  @return Return the result of the reduce operation
  */
 template<typename T>
-T getMPIOp(Log::Logger* log, const CommunicatorMPI* mpi, T val, MPI_Op op)
+T getMPIOp(Logger* log, const CommunicatorMPI* mpi, T val, MPI_Op op)
 {
     T result = 0;
     int err  = MPI_Allreduce(
       &val, &result, 1, MPI_utils::MPIType<T>(), op, mpi->getComm());
     MPI_utils::printErr(
-      log, "", Log::Layer::Comm, err, NULL, "MPI_Allreduce failure");
+      log, "", Logger::Layer::Comm, err, NULL, "MPI_Allreduce failure");
     return (err == MPI_SUCCESS ? result : 0LU);
 }
 

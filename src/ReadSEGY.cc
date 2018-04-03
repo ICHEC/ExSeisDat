@@ -194,7 +194,7 @@ void ReadSEGY::readTrace(
     if (offset >= nt && sz) {
         // Nothing to be read.
         piol->log->record(
-          name, Log::Layer::File, Log::Status::Warning,
+          name, Logger::Layer::File, Logger::Status::Warning,
           "readParam() was called for a zero byte read", PIOL_VERBOSITY_NONE);
     }
     readTraceT(

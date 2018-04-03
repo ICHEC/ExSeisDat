@@ -363,7 +363,7 @@ void Wait(
         for (size_t i = 0; i < req1.size(); i++) {
             err = MPI_Wait(&req1[i], &stat);
             MPI_utils::printErr(
-              piol->log.get(), "", Log::Layer::Ops, err, &stat,
+              piol->log.get(), "", Logger::Layer::Ops, err, &stat,
               "Sort Rcv error");
         }
     }
@@ -372,7 +372,7 @@ void Wait(
         for (size_t i = 0; i < req2.size(); i++) {
             err = MPI_Wait(&req2[i], &stat);
             MPI_utils::printErr(
-              piol->log.get(), "", Log::Layer::Ops, err, &stat,
+              piol->log.get(), "", Logger::Layer::Ops, err, &stat,
               "Sort Snd error");
         }
     }
@@ -399,7 +399,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
         int err = MPI_Irecv(
           dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
         MPI_utils::printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
+          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
           "Sort MPI_Recv error");
     }
 
@@ -408,7 +408,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 1,
           MPI_COMM_WORLD, &rsnd[0]);
         MPI_utils::printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
+          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
           "Sort MPI_Send error");
     }
 
@@ -435,7 +435,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
         int err = MPI_Isend(
           dat.data(), cnt, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rsnd[0]);
         MPI_utils::printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
+          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
           "Sort MPI_Send error");
     }
 
@@ -444,7 +444,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 0,
           MPI_COMM_WORLD, &rrcv[0]);
         MPI_utils::printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
+          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
           "Sort MPI_Recv error");
     }
 
@@ -520,7 +520,7 @@ void sort(
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         MPI_utils::printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
+          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
           "Sort MPI_Allreduce error");
 
         if (!greduced) break;
@@ -593,10 +593,10 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     std::vector<MPI_Request> rsnd(4);
     std::vector<MPI_Request> rrcv(4);
 
-    Log::Logger* log = piol->log.get();
-    auto err         = [log](int errc, std::string msg, size_t i) -> void {
+    Logger* log = piol->log.get();
+    auto err    = [log](int errc, std::string msg, size_t i) -> void {
         MPI_utils::printErr(
-          log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
+          log, "", Logger::Layer::Ops, errc, NULL, msg + std::to_string(i));
     };
 
     if (rank) {
@@ -676,10 +676,10 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     std::vector<MPI_Request> rsnd(4);
     std::vector<MPI_Request> rrcv(4);
 
-    Log::Logger* log = piol->log.get();
-    auto err         = [log](int errc, std::string msg, size_t i) -> void {
+    Logger* log = piol->log.get();
+    auto err    = [log](int errc, std::string msg, size_t i) -> void {
         MPI_utils::printErr(
-          log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
+          log, "", Logger::Layer::Ops, errc, NULL, msg + std::to_string(i));
     };
 
     if (rank) {
@@ -825,7 +825,7 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
         MPI_utils::printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
+          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
           "Sort MPI_Allreduce error");
 
         if (!greduced) break;

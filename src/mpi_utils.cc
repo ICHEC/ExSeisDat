@@ -13,9 +13,9 @@ namespace PIOL {
 namespace MPI_utils {
 
 void printErr(
-  Log::Logger* log,
+  Logger* log,
   const std::string file,
-  const Log::Layer layer,
+  const Logger::Layer layer,
   const int err,
   const MPI_Status* stat,
   std::string msg)
@@ -25,7 +25,8 @@ void printErr(
             msg += " MPI_Status: " + std::to_string(stat->MPI_ERROR);
         else
             msg += "MPI_ERR = " + std::to_string(err);
-        log->record(file, layer, Log::Status::Error, msg, PIOL_VERBOSITY_NONE);
+        log->record(
+          file, layer, Logger::Status::Error, msg, PIOL_VERBOSITY_NONE);
     }
 }
 

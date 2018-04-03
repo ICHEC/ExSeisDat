@@ -58,7 +58,7 @@ class ReadDirect {
 
         if (!file) {
             piol->log->record(
-              name, Log::Layer::API, Log::Status::Error,
+              name, Logger::Layer::API, Logger::Status::Error,
               "ReadInterface creation failure in ReadDirect<F,O,D>()",
               PIOL_VERBOSITY_NONE);
         }

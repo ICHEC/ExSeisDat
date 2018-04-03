@@ -1,23 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
-/// @brief
-/// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/anc/log.hh"
+#include "ExSeisDat/PIOL/Logger.hh"
 
 #include <iostream>
 
 namespace PIOL {
-namespace Log {
 
 void Logger::record(
   const std::string file,
-  const Layer layer,
-  const Status stat,
+  const Logger::Layer layer,
+  const Logger::Status stat,
   const std::string msg,
   const Verbosity verbosity,
   bool condition)
@@ -27,18 +21,18 @@ void Logger::record(
 
 void Logger::record(
   const std::string file,
-  const Layer layer,
-  const Status stat,
+  const Logger::Layer layer,
+  const Logger::Status stat,
   const std::string msg,
   const Verbosity verbosity)
 {
     if (static_cast<size_t>(verbosity) <= static_cast<size_t>(maxLevel))
         loglist_.push_front({file, layer, stat, msg, verbosity});
 
-    if (stat == Status::Error) error = true;
+    if (stat == Logger::Status::Error) error = true;
 }
 
-size_t Logger::numStat(const Status stat) const
+size_t Logger::numStat(const Logger::Status stat) const
 {
     size_t sz = 0;
     for (auto& item : loglist_) {
@@ -63,5 +57,4 @@ void Logger::procLog(void)
     loglist_.clear();
 }
 
-}  // namespace Log
 }  // namespace PIOL

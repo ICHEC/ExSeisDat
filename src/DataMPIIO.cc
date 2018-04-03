@@ -232,12 +232,14 @@ DataMPIIO::~DataMPIIO(void)
     if (file != MPI_FILE_NULL) {
         int err = MPI_File_close(&file);
         MPI_utils::printErr(
-          log_, name_, Log::Layer::Data, err, nullptr, "MPI_File_close failed");
+          log_, name_, Logger::Layer::Data, err, nullptr,
+          "MPI_File_close failed");
     }
     if (info != MPI_INFO_NULL) {
         int err = MPI_Info_free(&info);
         MPI_utils::printErr(
-          log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_free failed");
+          log_, name_, Logger::Layer::Data, err, nullptr,
+          "MPI_Info_free failed");
     }
 }
 
@@ -249,11 +251,12 @@ void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
     MPI_Aint lb, esz;
     int err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     MPI_utils::printErr(
-      log_, name_, Log::Layer::Data, err, nullptr, "Getting MPI extent failed");
+      log_, name_, Logger::Layer::Data, err, nullptr,
+      "Getting MPI extent failed");
 
     if (esz != 1)
         log_->record(
-          name_, Log::Layer::Data, Log::Status::Error,
+          name_, Logger::Layer::Data, Logger::Status::Error,
           "MPI_CHAR extent is bigger than one.", PIOL_VERBOSITY_NONE);
 
     fcomm = opt.fcomm;
@@ -263,7 +266,7 @@ void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
     if (opt.info != MPI_INFO_NULL) {
         err = MPI_Info_dup(opt.info, &info);
         MPI_utils::printErr(
-          log_, name_, Log::Layer::Data, err, nullptr, "MPI_Info_dup fail");
+          log_, name_, Logger::Layer::Data, err, nullptr, "MPI_Info_dup fail");
     }
     else {
         info = MPI_INFO_NULL;
@@ -271,13 +274,13 @@ void DataMPIIO::Init(const DataMPIIO::Opt& opt, FileMode mode)
 
     err = MPI_File_open(fcomm, name_.data(), flags, info, &file);
     MPI_utils::printErr(
-      log_, name_, Log::Layer::Data, err, nullptr, "MPI_File_open failure");
+      log_, name_, Logger::Layer::Data, err, nullptr, "MPI_File_open failure");
 
     if (err == MPI_SUCCESS) {
         int err =
           MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
         MPI_utils::printErr(
-          log_, name_, Log::Layer::Data, err, nullptr,
+          log_, name_, Logger::Layer::Data, err, nullptr,
           "DataMPIIO Constructor failed to set a view");
     }
 }
@@ -294,7 +297,7 @@ size_t DataMPIIO::getFileSz() const
     MPI_Offset fsz = 0;
     int err        = MPI_File_get_size(file, &fsz);
     MPI_utils::printErr(
-      log_, name_, Log::Layer::Data, err, nullptr,
+      log_, name_, Logger::Layer::Data, err, nullptr,
       "error getting the file size");
     return size_t(fsz);
 }
@@ -303,7 +306,7 @@ void DataMPIIO::setFileSz(const size_t sz) const
 {
     int err = MPI_File_set_size(file, MPI_Offset(sz));
     MPI_utils::printErr(
-      log_, name_, Log::Layer::Data, err, nullptr,
+      log_, name_, Logger::Layer::Data, err, nullptr,
       "error setting the file size");
 }
 
@@ -326,7 +329,7 @@ void DataMPIIO::readv(
                           + std::to_string(bsz) + ", " + std::to_string(osz)
                           + ")";
         log_->record(
-          name_, Log::Layer::Data, Log::Status::Error,
+          name_, Logger::Layer::Data, Logger::Status::Error,
           "Read overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
@@ -334,7 +337,7 @@ void DataMPIIO::readv(
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     MPI_utils::printErr(
-      log_, name_, Log::Layer::Data, err, NULL,
+      log_, name_, Logger::Layer::Data, err, NULL,
       "Failed to set a view for reading.");
 
     read(0LU, nb * bsz, d);
@@ -386,12 +389,12 @@ void DataMPIIO::contigIO(
         err          = fn(
           file, MPI_Offset(offset + osz * i), &d[bsz * i], chunk,
           MPI_utils::MPIType<uchar>(), &stat);
-        MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+        MPI_utils::printErr(log_, name_, Logger::Layer::Data, err, &stat, msg);
     }
 
     for (size_t i = 0; i < remCall; i++) {
         err = fn(file, 0, NULL, 0, MPI_utils::MPIType<uchar>(), &stat);
-        MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+        MPI_utils::printErr(log_, name_, Logger::Layer::Data, err, &stat, msg);
     }
 }
 
@@ -423,13 +426,14 @@ void DataMPIIO::listIO(
         err          = iol(
           fn, file, info, bsz, chunk,
           reinterpret_cast<const MPI_Aint*>(&offset[i]), &d[i * bsz], &stat);
-        MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+        MPI_utils::printErr(log_, name_, Logger::Layer::Data, err, &stat, msg);
     }
 
     if (remCall) {
         for (size_t i = 0; i < remCall; i++) {
             err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
-            MPI_utils::printErr(log_, name_, Log::Layer::Data, err, &stat, msg);
+            MPI_utils::printErr(
+              log_, name_, Logger::Layer::Data, err, &stat, msg);
         }
     }
 }
@@ -462,7 +466,7 @@ void DataMPIIO::writev(
                           + std::to_string(bsz) + ", " + std::to_string(osz)
                           + ")";
         log_->record(
-          name_, Log::Layer::Data, Log::Status::Error,
+          name_, Logger::Layer::Data, Logger::Status::Error,
           "Write overflows MPI settings: " + msg, PIOL_VERBOSITY_NONE);
     }
 
@@ -470,7 +474,7 @@ void DataMPIIO::writev(
     MPI_Datatype view;
     int err = strideView(file, info, offset, bsz, osz, nb, &view);
     MPI_utils::printErr(
-      log_, name_, Log::Layer::Data, err, NULL,
+      log_, name_, Logger::Layer::Data, err, NULL,
       "Failed to set a view for reading.");
 
     write(0LU, nb * bsz, d);

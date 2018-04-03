@@ -204,6 +204,7 @@ add_library(
     src/ObjectInterface.cc
     src/ObjectSEGY.cc
     src/CommunicatorMPI.cc
+    src/Logger.cc
 
     src/segy_utils.cc
     src/mpi_utils.cc
@@ -214,7 +215,6 @@ add_library(
     src/decomp.cc
     src/param.cc
     src/gather.cc
-    src/log.cc
     src/minmax.cc
     src/misc.cc
     src/sdatatype.cc

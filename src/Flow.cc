@@ -144,13 +144,14 @@ void Set::summary(void) const
                           + "\n";
 
         piol->log->record(
-          "", Log::Layer::Set, Log::Status::Request, msg, PIOL_VERBOSITY_NONE);
+          "", Logger::Layer::Set, Logger::Status::Request, msg,
+          PIOL_VERBOSITY_NONE);
     }
 
     if (!rank) {
         for (auto& m : fmap) {
             piol->log->record(
-              "", Log::Layer::Set, Log::Status::Request,
+              "", Logger::Layer::Set, Logger::Status::Request,
               "Local File count for (" + std::to_string(m.first.first) + " nt, "
                 + std::to_string(m.first.second)
                 + " inc) = " + std::to_string(m.second.size()),
@@ -598,7 +599,7 @@ void Set::sort(std::shared_ptr<Rule> r, CompareP sortFunc)
           // TODO: It will eventually be necessary to support this use case.
           if (piol->comm->min(in->prm->size()) < 3LU) {
               piol->log->record(
-                "", Log::Layer::Set, Log::Status::Error,
+                "", Logger::Layer::Set, Logger::Status::Error,
                 "Email cathal@ichec.ie if you want to sort -very- small sets of files with multiple processes.",
                 PIOL_VERBOSITY_NONE);
               return std::vector<size_t>{};

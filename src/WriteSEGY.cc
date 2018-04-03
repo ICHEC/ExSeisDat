@@ -131,7 +131,7 @@ void WriteSEGY::writeNs(const size_t ns_)
 {
     if (ns_ > size_t(std::numeric_limits<int16_t>::max())) {
         piol->log->record(
-          name, Log::Layer::File, Log::Status::Error,
+          name, Logger::Layer::File, Logger::Status::Error,
           "Ns value is too large for SEG-Y", PIOL_VERBOSITY_NONE);
         return;
     }
@@ -157,7 +157,7 @@ void WriteSEGY::writeInc(const geom_t inc_)
 {
     if (std::isnormal(inc_) == false) {
         piol->log->record(
-          name, Log::Layer::File, Log::Status::Error,
+          name, Logger::Layer::File, Logger::Status::Error,
           "The SEG-Y Interval " + std::to_string(inc_) + " is not normal.",
           PIOL_VERBOSITY_NONE);
         return;
@@ -239,7 +239,7 @@ void WriteSEGY::writeTrace(
 {
     if (!nsSet) {
         piol->log->record(
-          name, Log::Layer::File, Log::Status::Error,
+          name, Logger::Layer::File, Logger::Status::Error,
           "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
           PIOL_VERBOSITY_NONE);
     }
@@ -258,7 +258,7 @@ void WriteSEGY::writeTraceNonContiguous(
 {
     if (!nsSet) {
         piol->log->record(
-          name, Log::Layer::File, Log::Status::Error,
+          name, Logger::Layer::File, Logger::Status::Error,
           "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
           PIOL_VERBOSITY_NONE);
     }

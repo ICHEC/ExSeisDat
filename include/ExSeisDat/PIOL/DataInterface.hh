@@ -21,7 +21,7 @@ class DataInterface {
     std::shared_ptr<ExSeisPIOL> piol_;
 
     /// For convienience
-    Log::Logger* log_;
+    Logger* log_;
 
     /// Store the file name for debugging purposes.
     const std::string name_;
@@ -51,7 +51,7 @@ class DataInterface {
     /*! @brief The stored log object.
      *  @return A pointer to the log object.
      */
-    virtual const Log::Logger* log() { return log_; }
+    virtual const Logger* log() { return log_; }
 
     /*! @brief The stored file name.
      *  @return The stored file name.

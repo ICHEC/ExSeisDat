@@ -6,8 +6,8 @@
 #ifndef EXSEISDAT_PIOL_MPI_UTILS_HH
 #define EXSEISDAT_PIOL_MPI_UTILS_HH
 
+#include "ExSeisDat/PIOL/Logger.hh"
 #include "ExSeisDat/PIOL/anc/global.hh"
-#include "ExSeisDat/PIOL/anc/log.hh"
 
 #include <limits>
 #include <mpi.h>
@@ -29,9 +29,9 @@ namespace MPI_utils {
  *  an error otherwise no side-effect occurs. The function always returns.
  */
 void printErr(
-  Log::Logger* log,
+  Logger* log,
   const std::string file,
-  const Log::Layer layer,
+  const Logger::Layer layer,
   const int err,
   const MPI_Status* stat,
   std::string msg);

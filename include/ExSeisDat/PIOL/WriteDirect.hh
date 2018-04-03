@@ -58,7 +58,7 @@ class WriteDirect {
 
         if (!file) {
             piol->log->record(
-              name, Log::Layer::API, Log::Status::Error,
+              name, Logger::Layer::API, Logger::Status::Error,
               "WriteInterface creation failure in WriteDirect<F,O,D>()",
               PIOL_VERBOSITY_NONE);
         }

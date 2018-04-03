@@ -1,5 +1,5 @@
-#ifndef PIOLANCVERBOSITY_HEADER_GUARD
-#define PIOLANCVERBOSITY_HEADER_GUARD
+#ifndef EXSEISDAT_PIOL_VERBOSITY_H
+#define EXSEISDAT_PIOL_VERBOSITY_H
 
 #include <stddef.h>
 
@@ -9,8 +9,9 @@ typedef size_t PIOL_Verbosity;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_Verbosity
 typedef PIOL_Verbosity Verbosity;
-}
+}  // namespace PIOL
 #endif
 
 /// Record no information beyond fatal errors and explicit requests
@@ -24,4 +25,4 @@ typedef PIOL_Verbosity Verbosity;
 /// Maximum Verbosity level. (for debugging)
 #define PIOL_VERBOSITY_MAX ((PIOL_Verbosity)4)
 
-#endif
+#endif  // EXSEISDAT_PIOL_VERBOSITY_H

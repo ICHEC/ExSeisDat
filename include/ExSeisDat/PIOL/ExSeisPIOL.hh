@@ -7,8 +7,8 @@
 #define EXSEISDAT_PIOL_EXSEISPIOL_HH
 
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
-#include "ExSeisDat/PIOL/anc/log.hh"
-#include "ExSeisDat/PIOL/anc/verbosity.h"
+#include "ExSeisDat/PIOL/Logger.hh"
+#include "ExSeisDat/PIOL/Verbosity.h"
 
 #include <memory>
 #include <string>
@@ -32,7 +32,7 @@ class ExSeisPIOL {
 
   public:
     /// The ExSeisPIOL logger
-    std::unique_ptr<Log::Logger> log;
+    std::unique_ptr<Logger> log;
     /// The ExSeisPIOL communication
     std::unique_ptr<CommunicatorInterface> comm;
 

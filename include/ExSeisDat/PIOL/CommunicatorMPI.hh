@@ -13,7 +13,7 @@
 #define PIOLANCCMPI_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/CommunicatorInterface.hh"
-#include "ExSeisDat/PIOL/anc/log.hh"
+#include "ExSeisDat/PIOL/Logger.hh"
 
 #include <mpi.h>
 
@@ -37,7 +37,7 @@ class CommunicatorMPI : public CommunicatorInterface {
     MPI_Comm comm;
 
     /// For logging messages
-    Log::Logger* log;
+    Logger* log;
 
   public:
     /*! @brief The MPI-Communicator options structure.
@@ -51,7 +51,7 @@ class CommunicatorMPI : public CommunicatorInterface {
      *  @param[in] log_ Pointer to log object
      *  @param[in] opt Any options for the communication layer.
      */
-    CommunicatorMPI(Log::Logger* log_, const CommunicatorMPI::Opt& opt);
+    CommunicatorMPI(Logger* log_, const CommunicatorMPI::Opt& opt);
 
     /*! @brief Retrieve the MPI communicator associated with the ExSeisPIOL.
      *  @return The MPI communicator.
