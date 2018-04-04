@@ -7,7 +7,9 @@
 #define EXSEISDAT_PIOL_DATAMPIIO_HH
 
 #include "ExSeisDat/PIOL/DataInterface.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
+
+#include <functional>
 
 namespace PIOL {
 

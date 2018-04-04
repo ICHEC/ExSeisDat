@@ -15,10 +15,10 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/ops/sort.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <algorithm>
 #include <numeric>

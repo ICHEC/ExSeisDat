@@ -8,9 +8,9 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <memory>
 #include <string>

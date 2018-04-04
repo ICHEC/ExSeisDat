@@ -13,10 +13,10 @@
 #define EXSEISDAT_PIOL_SEGY_UTILS_HH
 
 #include "ExSeisDat/PIOL/Param.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 namespace PIOL {
 namespace SEGY_utils {

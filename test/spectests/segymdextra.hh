@@ -10,11 +10,11 @@
 #define PIOLFILETESTSEGYMD_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cmath>
 #include <cstring>

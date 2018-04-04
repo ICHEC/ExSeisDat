@@ -7,7 +7,7 @@
 #define EXSEISDAT_PIOL_MPI_UTILS_HH
 
 #include "ExSeisDat/PIOL/Logger.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <limits>
 #include <mpi.h>

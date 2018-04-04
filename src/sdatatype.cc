@@ -7,8 +7,8 @@
 ///  datatypes \details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cstring>
 

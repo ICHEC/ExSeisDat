@@ -8,8 +8,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 namespace PIOL {
 

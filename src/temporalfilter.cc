@@ -10,10 +10,10 @@
 ///          or applies the same scalar to all traces at the same height.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/ops/temporalfilter.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <algorithm>
 #include <assert.h>

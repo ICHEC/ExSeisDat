@@ -20,7 +20,6 @@
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/ops/agc.hh"
 #include "ExSeisDat/PIOL/ops/gather.hh"
 #include "ExSeisDat/PIOL/ops/minmax.hh"
@@ -30,6 +29,7 @@
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
 #include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 // TODO: remove this when all errors are addressed
 #include <iostream>

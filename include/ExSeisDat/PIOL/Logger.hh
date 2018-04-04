@@ -22,10 +22,8 @@ namespace PIOL {
  */
 class Logger {
   public:
-    /// @brief The enumeration for the different layers of the PIOL.
     enum class Layer : size_t;
 
-    /// @brief The enumeration for the different status messages.
     enum class Status : size_t;
 
   private:
@@ -126,6 +124,7 @@ class Logger {
 };
 
 
+/// @brief The enumeration for the different layers of the PIOL.
 enum class Logger::Layer : size_t {
     /// The data layer
     Data,
@@ -158,6 +157,7 @@ enum class Logger::Layer : size_t {
     API
 };
 
+/// @brief The enumeration for the different status messages.
 enum class Logger::Status : size_t {
     /// A general note item.
     Note,

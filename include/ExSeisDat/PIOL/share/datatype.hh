@@ -8,7 +8,7 @@
 #ifndef ANCDATATYPE_INCLUDE_GUARD
 #define ANCDATATYPE_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cstdint>
 #include <type_traits>

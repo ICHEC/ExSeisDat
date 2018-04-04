@@ -12,7 +12,9 @@
 #ifndef EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH
 #define EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH
 
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
+
+#include <vector>
 
 namespace PIOL {
 

@@ -29,7 +29,6 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
@@ -47,5 +46,6 @@
 #include "ExSeisDat/PIOL/share/misc.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #endif  // EXSEISDAT_PIOL_HH

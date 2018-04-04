@@ -8,9 +8,10 @@
 #ifndef PIOLOPSTEMPORALFILTER_INCLUDE_GUARD
 #define PIOLOPSTEMPORALFILTER_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/global.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
+#include <functional>
 #include <vector>
 
 namespace PIOL {

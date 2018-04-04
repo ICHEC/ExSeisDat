@@ -9,7 +9,7 @@
 #ifndef PIOLSHAREAPI_INCLUDE_GUARD
 #define PIOLSHAREAPI_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 /// A C-compatible typename for the type used for trace parameters, i.e. META
 /// values.

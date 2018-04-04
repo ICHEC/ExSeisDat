@@ -12,7 +12,7 @@
 
 #define _USE_MATH_DEFINES
 
-#include "ExSeisDat/PIOL/anc/global.hh"
+#include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cmath>
 

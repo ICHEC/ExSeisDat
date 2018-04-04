@@ -9,6 +9,7 @@
 #include "ExSeisDat/PIOL/Rule.hh"
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 namespace PIOL {
