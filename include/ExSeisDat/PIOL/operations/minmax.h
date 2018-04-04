@@ -5,11 +5,34 @@
 /// @date November 2016
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOPSMINMAX_INCLUDE_GUARD
-#define PIOLOPSMINMAX_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OPERATIONS_MINMAX_H
+#define EXSEISDAT_PIOL_OPERATIONS_MINMAX_H
+
+#include "ExSeisDat/PIOL/typedefs.h"
+
+/*! A structure to hold a reference to a single coordinate and the corresponding
+ *  trace number.
+ *  Defined as struct for C-compatibility.
+ */
+struct PIOL_CoordElem {
+    /// The value
+    PIOL_geom_t val;
+
+    /// The trace number
+    size_t num;
+};
+
+#ifdef __cplusplus
+namespace PIOL {
+typedef PIOL_CoordElem CoordElem;
+}  // namespace PIOL
+#endif  // __cplusplus
+
+
+#ifdef __cplusplus
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
@@ -149,4 +172,6 @@ void getMinMax(
 
 }  // namespace PIOL
 
-#endif
+#endif  // __cplusplus
+
+#endif  // EXSEISDAT_PIOL_OPERATIONS_MINMAX_H

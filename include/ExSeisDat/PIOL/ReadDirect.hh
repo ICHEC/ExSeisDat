@@ -9,7 +9,7 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/Uniray.hh"
 
 #include <memory>

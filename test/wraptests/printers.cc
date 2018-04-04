@@ -1,6 +1,7 @@
 #include "printers.hh"
 
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/share/api.hh"
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value)

@@ -17,7 +17,6 @@ typedef size_t PIOL_Meta;
 
 #ifdef __cplusplus
 namespace PIOL {
-/// A C++-style typedef for PIOL_Meta, ensuring C-compatibility.
 typedef PIOL_Meta Meta;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -143,10 +142,7 @@ typedef size_t PIOL_Tr;
 
 #ifdef __cplusplus
 namespace PIOL {
-
-/// A C++-style type for PIOL_Tr, ensuring C-compatibility
 typedef PIOL_Tr Tr;
-
 }  // namespace PIOL
 #endif  // __cplusplus
 
@@ -277,10 +273,7 @@ typedef size_t PIOL_SortType;
 
 #ifdef __cplusplus
 namespace PIOL {
-
-/// A C++-style typedef for PIOL_SortType, ensuring C-compatibility
 typedef PIOL_SortType SortType;
-
 }  // namespace PIOL
 #endif  // __cplusplus
 
@@ -318,10 +311,7 @@ typedef size_t PIOL_TaperType;
 
 #ifdef __cplusplus
 namespace PIOL {
-
-/// A C++-style typedef of PIOL_TaperType, ensuring C-compatibility
 typedef PIOL_TaperType TaperType;
-
 }  // namespace PIOL
 #endif  // __cplusplus
 
@@ -338,12 +328,10 @@ typedef PIOL_TaperType TaperType;
 /*! An enum class of the different types of automatic gain control functions.
  */
 typedef size_t PIOL_AGCType;
+
 #ifdef __cplusplus
 namespace PIOL {
-
-/// A C++-style typedef of PIOL_AGCType, ensuring C-compatibility
 typedef PIOL_AGCType AGCType;
-
 }  // namespace PIOL
 #endif  // __cplusplus
 
@@ -379,6 +367,7 @@ enum class FltrType : int {
     Bandstop
 };
 
+
 /*! An enum class of the different types of filtering domains.
  */
 enum class FltrDmn : int {
@@ -388,6 +377,7 @@ enum class FltrDmn : int {
     /// Filter in frequency domain
     Freq
 };
+
 
 /*! An enum class of the different types of trace padding functions.
  */
@@ -408,44 +398,5 @@ enum class PadType : int {
 }  // namespace PIOL
 #endif  // __cplusplus
 
-
-/*! A structure to hold a reference to a single coordinate and the corresponding
- *  trace number.
- *  Defined as struct for C-compatibility.
- */
-struct PIOL_CoordElem {
-    /// The value
-    PIOL_geom_t val;
-
-    /// The trace number
-    size_t num;
-};
-
-#ifdef __cplusplus
-namespace PIOL {
-
-/// A C++-style typedef of PIOL_CoordElem, ensuring C-compatibility
-typedef PIOL_CoordElem CoordElem;
-
-}  // namespace PIOL
-#endif  // __cplusplus
-
-
-#ifdef __cplusplus
-namespace PIOL {
-
-struct Param;
-
-}  // namespace PIOL
-
-/// Typedef of C-compatible typename for opaque pointer to PIOL::Param
-typedef PIOL::Param PIOL_Param;
-#else
-/// Typedef of C-compatible typename for opaque pointer to PIOL::Param
-typedef struct PIOL_Param PIOL_Param;
-#endif
-
-/// The NULL parameter so that the correct internal read pattern is selected
-#define PIOL_PARAM_NULL ((PIOL_Param*)1)
 
 #endif

@@ -3,7 +3,7 @@
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {

@@ -10,7 +10,7 @@
 #ifndef EXSEISDAT_PIOL_PARAM_UTILS_HH
 #define EXSEISDAT_PIOL_PARAM_UTILS_HH
 
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 
 namespace PIOL {
 namespace param_utils {

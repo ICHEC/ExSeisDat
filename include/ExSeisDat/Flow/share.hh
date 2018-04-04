@@ -8,7 +8,7 @@
 #ifndef PIOLSETSHARE_INCLUDE_GUARD
 #define PIOLSETSHARE_INCLUDE_GUARD
 
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/ReadInterface.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

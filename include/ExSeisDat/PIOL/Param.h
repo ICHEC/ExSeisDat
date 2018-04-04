@@ -2,9 +2,28 @@
 /// @file
 /// @brief   The Param class
 /// @details The Param class is used to store the trace parameter structure.
+///          The PIOL_PARAM_NULL macro is also defined here, along with the
+///          PIOL_Param typedef for C export.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_PIOL_PARAM_HH
 #define EXSEISDAT_PIOL_PARAM_HH
+
+// Forward declare PIOL::Param as PIOL_Param for C export.
+#ifdef __cplusplus
+namespace PIOL {
+struct Param;
+}  // namespace PIOL
+
+typedef PIOL::Param PIOL_Param;
+#else   // __cplusplus
+typedef struct PIOL_Param PIOL_Param;
+#endif  // __cplusplus
+
+/// The NULL parameter so that the correct internal read pattern is selected
+#define PIOL_PARAM_NULL ((PIOL_Param*)1)
+
+
+#ifdef __cplusplus
 
 #include "ExSeisDat/PIOL/Rule.hh"
 
@@ -93,5 +112,7 @@ struct Param {
 };
 
 }  // namespace PIOL
+
+#endif  // __cplusplus
 
 #endif  // EXSEISDAT_PIOL_PARAM_HH

@@ -2,7 +2,7 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/operations/minmax.hh"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 
 #include <algorithm>
 #include <fstream>

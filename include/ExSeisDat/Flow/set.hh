@@ -12,7 +12,7 @@
 #include "ExSeisDat/Flow/share.hh"
 #include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/operations/agc.hh"
-#include "ExSeisDat/PIOL/operations/minmax.hh"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/share/units.hh"

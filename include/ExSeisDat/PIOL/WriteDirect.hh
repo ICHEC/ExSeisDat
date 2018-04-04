@@ -10,7 +10,7 @@
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 
 #include <memory>
 #include <string>

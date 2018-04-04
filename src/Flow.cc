@@ -10,7 +10,7 @@
 #include "ExSeisDat/Flow/set.hh"
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/Uniray.hh"
@@ -23,7 +23,7 @@
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
-#include "ExSeisDat/PIOL/operations/minmax.hh"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"

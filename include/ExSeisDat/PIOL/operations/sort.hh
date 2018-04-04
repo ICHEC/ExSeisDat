@@ -15,7 +15,7 @@
 #define PIOLOPSSORT_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/Param.hh"
+#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"

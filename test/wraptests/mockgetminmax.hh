@@ -4,7 +4,7 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "ExSeisDat/PIOL/operations/minmax.hh"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 
 namespace PIOL {
 
