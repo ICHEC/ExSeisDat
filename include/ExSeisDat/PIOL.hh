@@ -44,7 +44,6 @@
 #include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

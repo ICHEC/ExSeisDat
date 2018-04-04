@@ -5,8 +5,9 @@
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
+
 #include "ExSeisDat/PIOL/share/datatype.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
 
 #include <cstdio>
 #include <cstring>
@@ -48,7 +49,7 @@ class MPIIOTest : public Test {
     template<bool block>
     void writeSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
-        size_t step = (block ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+        size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
         std::vector<uchar> tr(step * nt);
 
         for (size_t i = 0; i < nt; i++) {
@@ -59,13 +60,13 @@ class MPIIOTest : public Test {
 
         if (block) {
             data->write(
-              SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns), SEGSz::getMDSz(),
-              SEGSz::getDOSz(ns), nt, tr.data());
+              SEGY_utils::getHOSz() + offset * SEGY_utils::getDOSz(ns),
+              SEGY_utils::getMDSz(), SEGY_utils::getDOSz(ns), nt, tr.data());
         }
         else {
             data->write(
-              SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns),
-              SEGSz::getDOSz(ns) * nt, tr.data());
+              SEGY_utils::getHOSz() + offset * SEGY_utils::getDOSz(ns),
+              SEGY_utils::getDOSz(ns) * nt, tr.data());
         }
 
         readSmallBlocks<block>(nt, ns, offset);
@@ -74,7 +75,8 @@ class MPIIOTest : public Test {
     template<bool block>
     void writeBigBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
-        size_t step = (block ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns));
+        size_t step =
+          (block ? SEGY_utils::getDFSz(ns) : SEGY_utils::getDOSz(ns));
         std::vector<uchar> tr(step * nt);
 
         for (size_t i = 0; i < nt; i++) {
@@ -94,12 +96,12 @@ class MPIIOTest : public Test {
 
         if (block)
             data->write(
-              SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns),
-              SEGSz::getDOSz(ns), nt, tr.data());
+              SEGY_utils::getDODFLoc<float>(offset, ns),
+              SEGY_utils::getDFSz(ns), SEGY_utils::getDOSz(ns), nt, tr.data());
         else
             data->write(
-              SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDOSz(ns) * nt,
-              tr.data());
+              SEGY_utils::getDODFLoc<float>(offset, ns),
+              SEGY_utils::getDOSz(ns) * nt, tr.data());
 
         readBigBlocks<block>(nt, ns, offset);
     }
@@ -107,17 +109,17 @@ class MPIIOTest : public Test {
     template<bool block>
     void readSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
-        size_t step = (block ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+        size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
         std::vector<uchar> tr(step * nt);
 
         if (block)
             data->read(
-              SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns), SEGSz::getMDSz(),
-              SEGSz::getDOSz(ns), nt, tr.data());
+              SEGY_utils::getHOSz() + offset * SEGY_utils::getDOSz(ns),
+              SEGY_utils::getMDSz(), SEGY_utils::getDOSz(ns), nt, tr.data());
         else
             data->read(
-              SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns),
-              SEGSz::getDOSz(ns) * nt, tr.data());
+              SEGY_utils::getHOSz() + offset * SEGY_utils::getDOSz(ns),
+              SEGY_utils::getDOSz(ns) * nt, tr.data());
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
         for (size_t i = 0; i < nt; i++) {
@@ -130,18 +132,19 @@ class MPIIOTest : public Test {
     template<bool block>
     void readBigBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
-        size_t step = (block ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns));
+        size_t step =
+          (block ? SEGY_utils::getDFSz(ns) : SEGY_utils::getDOSz(ns));
         std::vector<uchar> tr(step * nt);
 
         if (block) {
             data->read(
-              SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns),
-              SEGSz::getDOSz(ns), nt, tr.data());
+              SEGY_utils::getDODFLoc<float>(offset, ns),
+              SEGY_utils::getDFSz(ns), SEGY_utils::getDOSz(ns), nt, tr.data());
         }
         else {
             data->read(
-              SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDOSz(ns) * nt,
-              tr.data());
+              SEGY_utils::getDODFLoc<float>(offset, ns),
+              SEGY_utils::getDOSz(ns) * nt, tr.data());
         }
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
@@ -164,7 +167,7 @@ class MPIIOTest : public Test {
     void writeList(const size_t sz, const size_t ns)
     {
         auto offset = getRandomVec(sz, 1337);
-        size_t bsz  = SEGSz::getDFSz(ns);
+        size_t bsz  = SEGY_utils::getDFSz(ns);
         std::vector<uchar> d(bsz * sz);
         for (size_t i = 0; i < sz; i++) {
             uchar* buf = &d[bsz * i];
@@ -183,7 +186,7 @@ class MPIIOTest : public Test {
 
         std::vector<size_t> boffset(sz);
         for (size_t i = 0; i < sz; i++)
-            boffset[i] = SEGSz::getDODFLoc<float>(offset[i], ns);
+            boffset[i] = SEGY_utils::getDODFLoc<float>(offset[i], ns);
         data->write(bsz, sz, boffset.data(), d.data());
         piol->isErr();
         readList(sz, ns, offset.data());
@@ -191,11 +194,11 @@ class MPIIOTest : public Test {
 
     void readList(const size_t sz, const size_t ns, const size_t* offset)
     {
-        size_t bsz = SEGSz::getDFSz(ns);
+        size_t bsz = SEGY_utils::getDFSz(ns);
         std::vector<uchar> d(bsz * sz);
         std::vector<size_t> boffset(sz);
         for (size_t i = 0; i < sz; i++)
-            boffset[i] = SEGSz::getDODFLoc<float>(offset[i], ns);
+            boffset[i] = SEGY_utils::getDODFLoc<float>(offset[i], ns);
         data->read(bsz, sz, boffset.data(), d.data());
         piol->isErr();
 

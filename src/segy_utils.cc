@@ -19,15 +19,15 @@ void insertParam(
     if (r->numCopy) {
         if (!stride) {
             std::copy(
-              &prm->c[skip * SEGSz::getMDSz()],
-              &prm->c[(skip + sz) * SEGSz::getMDSz()], buf);
+              &prm->c[skip * SEGY_utils::getMDSz()],
+              &prm->c[(skip + sz) * SEGY_utils::getMDSz()], buf);
         }
         else {
             for (size_t i = 0; i < sz; i++) {
                 std::copy(
-                  &prm->c[(i + skip) * SEGSz::getMDSz()],
-                  &prm->c[(skip + i + 1LU) * SEGSz::getMDSz()],
-                  &buf[i * (stride + SEGSz::getMDSz())]);
+                  &prm->c[(i + skip) * SEGY_utils::getMDSz()],
+                  &prm->c[(skip + i + 1LU) * SEGY_utils::getMDSz()],
+                  &buf[i * (stride + SEGY_utils::getMDSz())]);
             }
         }
     }
@@ -99,11 +99,11 @@ void extractParam(
     if (r->numCopy) {
         if (!stride) {
             std::copy(
-              buf, &buf[sz * SEGSz::getMDSz()],
-              &prm->c[skip * SEGSz::getMDSz()]);
+              buf, &buf[sz * SEGY_utils::getMDSz()],
+              &prm->c[skip * SEGY_utils::getMDSz()]);
         }
         else {
-            const size_t mdsz = SEGSz::getMDSz();
+            const size_t mdsz = SEGY_utils::getMDSz();
             for (size_t i = 0; i < sz; i++) {
                 std::copy(
                   &buf[i * (stride + mdsz)], &buf[i * (stride + mdsz) + mdsz],

@@ -25,7 +25,7 @@ TEST_F(FileSEGYRead, FileReadHO)
     piol->isErr();
 
     std::string text = file->readText();
-    EXPECT_EQ(SEGSz::getTextSz(), text.size());
+    EXPECT_EQ(SEGY_utils::getTextSz(), text.size());
 
     // EBCDIC conversion check
     size_t slen = testString.size();
@@ -41,7 +41,7 @@ TEST_F(FileSEGYRead, FileReadHOAPI)
 
     std::string text = file->readText();
     EXPECT_EQ(3200U, text.size());
-    EXPECT_EQ(SEGSz::getTextSz(), text.size());
+    EXPECT_EQ(SEGY_utils::getTextSz(), text.size());
     size_t slen = testString.size();
     for (size_t i = 0; i < text.size(); i++)
         ASSERT_EQ(testString[i % slen], text[i])

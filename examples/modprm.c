@@ -146,7 +146,8 @@ int main(int argc, char** argv)
 
     struct PIOL_Range dec = PIOL_decompose(
       nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt = memmax / max(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
+    size_t tcnt =
+      memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
 
     writePayload(piol, dec.offset, dec.size, tcnt, ifh, ofh);
 

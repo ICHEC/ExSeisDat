@@ -21,7 +21,7 @@ void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst)
 
     if (srule->numCopy) {
         SEGY_utils::extractParam(
-          1LU, &src->c[j * SEGSz::getMDSz()], dst, 0LU, k);
+          1LU, &src->c[j * SEGY_utils::getMDSz()], dst, 0LU, k);
     }
 
     if (srule == drule) {

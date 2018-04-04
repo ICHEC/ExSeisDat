@@ -3,7 +3,7 @@
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 #include <assert.h>
 #include <iostream>
@@ -22,7 +22,7 @@ void smallCopy(
     const size_t rank = piol.comm->getRank();
 
     const size_t fsz  = in->getFileSz();
-    const size_t hosz = SEGSz::getHOSz();
+    const size_t hosz = SEGY_utils::getHOSz();
     size_t wsz        = (!rank ? fsz : 0);
     std::vector<uchar> buf(wsz);
 
@@ -158,7 +158,7 @@ void mpiMakeSEGYCopy(
     piol.isErr();
 
     const size_t bsz  = 2097152LU;
-    const size_t hosz = SEGSz::getHOSz();
+    const size_t hosz = SEGY_utils::getHOSz();
     size_t memlim     = 512U * bsz;
     size_t step       = numRank * memlim;
 
@@ -198,7 +198,7 @@ void mpiMakeSEGYCopyNaive(
     size_t numRank    = piol.getNumRank();
     const size_t fsz  = in->getFileSz();
     const size_t bsz  = 2097152LU;
-    const size_t hosz = SEGSz::getHOSz();
+    const size_t hosz = SEGY_utils::getHOSz();
     size_t memlim     = 512U * bsz;
     size_t step       = numRank * memlim;
 
@@ -280,7 +280,7 @@ int main(int argc, char** argv)
 
     const size_t fsz = in.getFileSz();
     piol->isErr();
-    if (fsz / numRank < SEGSz::getHOSz())
+    if (fsz / numRank < SEGY_utils::getHOSz())
         smallCopy(*piol, &in, &out, rep);
     else
         switch (version) {

@@ -17,7 +17,6 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/share/datatype.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
 #include <algorithm>
@@ -184,7 +183,7 @@ struct FileReadSEGYTest : public Test {
     int inc             = 10;
     const size_t format = 5;
 
-    std::vector<uchar> ho = std::vector<uchar>(SEGSz::getHOSz());
+    std::vector<uchar> ho = std::vector<uchar>(SEGY_utils::getHOSz());
 
     std::shared_ptr<MockObj> mock;
 
@@ -233,9 +232,10 @@ struct FileReadSEGYTest : public Test {
             }
         }
 
-        // Fill the header to SEGSz::getTextSz().
+        // Fill the header to SEGY_utils::getTextSz().
         if (testString.size()) {
-            for (size_t i = testString.size(); i < SEGSz::getTextSz(); i++) {
+            for (size_t i = testString.size(); i < SEGY_utils::getTextSz();
+                 i++) {
                 ho[i] = ho[i % testString.size()];
             }
         }
@@ -253,7 +253,8 @@ struct FileReadSEGYTest : public Test {
 
         EXPECT_CALL(*mock, getFileSz())
           .Times(Exactly(1))
-          .WillOnce(Return(SEGSz::getHOSz() + nt * SEGSz::getDOSz(ns)));
+          .WillOnce(
+            Return(SEGY_utils::getHOSz() + nt * SEGY_utils::getDOSz(ns)));
 
         EXPECT_CALL(*mock, readHO(_))
           .Times(Exactly(1))
@@ -269,12 +270,12 @@ struct FileReadSEGYTest : public Test {
     void initTrBlock()
     {
         // Set the right size
-        tr.resize(nt * SEGSz::getMDSz());
+        tr.resize(nt * SEGY_utils::getMDSz());
 
         // Loop over the traces
         for (size_t i = 0; i < nt; i++) {
             // Set md to the start of the current trace
-            uchar* md = &tr[i * SEGSz::getMDSz()];
+            uchar* md = &tr[i * SEGY_utils::getMDSz()];
 
             // Set the inline, crossline values for the current trace
             getBigEndian(ilNum(i), &md[il]);
@@ -303,11 +304,12 @@ struct FileReadSEGYTest : public Test {
     void initReadTrMock(size_t ns, size_t offset)
     {
         std::vector<uchar>::iterator iter =
-          tr.begin() + offset * SEGSz::getMDSz();
+          tr.begin() + offset * SEGY_utils::getMDSz();
 
         EXPECT_CALL(*mock.get(), readDOMD(offset, ns, 1U, _))
           .Times(Exactly(1))
-          .WillRepeatedly(SetArrayArgument<3>(iter, iter + SEGSz::getMDSz()));
+          .WillRepeatedly(
+            SetArrayArgument<3>(iter, iter + SEGY_utils::getMDSz()));
 
         Param prm(1U);
         file->readParam(offset, 1U, &prm);
@@ -439,27 +441,27 @@ struct FileReadSEGYTest : public Test {
             }
             if (readPrm) {
                 // Reading Params, need to read whole data obect
-                buf.resize(tnRead * SEGSz::getDOSz(ns));
+                buf.resize(tnRead * SEGY_utils::getDOSz(ns));
             }
             else {
                 // Not reading params, only need to read the trace data
-                buf.resize(tnRead * SEGSz::getDFSz(ns));
+                buf.resize(tnRead * SEGY_utils::getDFSz(ns));
             }
 
             for (size_t i = 0U; i < tnRead; i++) {
                 if (readPrm) {
                     std::copy(
-                      tr.begin() + (offset + i) * SEGSz::getMDSz(),
-                      tr.begin() + (offset + i + 1) * SEGSz::getMDSz(),
-                      buf.begin() + i * SEGSz::getDOSz(ns));
+                      tr.begin() + (offset + i) * SEGY_utils::getMDSz(),
+                      tr.begin() + (offset + i + 1) * SEGY_utils::getMDSz(),
+                      buf.begin() + i * SEGY_utils::getDOSz(ns));
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
-                    float val   = offset + i + j;
-                    size_t addr = readPrm ?
-                                    (i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()
-                                     + j * sizeof(float)) :
-                                    (i * ns + j) * sizeof(float);
+                    float val = offset + i + j;
+                    size_t addr =
+                      readPrm ? (i * SEGY_utils::getDOSz(ns)
+                                 + SEGY_utils::getMDSz() + j * sizeof(float)) :
+                                (i * ns + j) * sizeof(float);
 
                     getBigEndian(toint(val), &buf[addr]);
                 }
@@ -552,20 +554,20 @@ struct FileReadSEGYTest : public Test {
                 return;
             }
             if (readPrm)
-                buf.resize(tn * SEGSz::getDOSz(ns));
+                buf.resize(tn * SEGY_utils::getDOSz(ns));
             else
-                buf.resize(tn * SEGSz::getDFSz(ns));
+                buf.resize(tn * SEGY_utils::getDFSz(ns));
             for (size_t i = 0U; i < tn; i++) {
                 if (readPrm && ns && tn)
                     std::copy(
-                      tr.begin() + offset[i] * SEGSz::getMDSz(),
-                      tr.begin() + (offset[i] + 1) * SEGSz::getMDSz(),
-                      buf.begin() + i * SEGSz::getDOSz(ns));
+                      tr.begin() + offset[i] * SEGY_utils::getMDSz(),
+                      tr.begin() + (offset[i] + 1) * SEGY_utils::getMDSz(),
+                      buf.begin() + i * SEGY_utils::getDOSz(ns));
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr = readPrm ?
-                                    (i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()
-                                     + j * sizeof(float)) :
-                                    (i * ns + j) * sizeof(float);
+                    size_t addr =
+                      readPrm ? (i * SEGY_utils::getDOSz(ns)
+                                 + SEGY_utils::getMDSz() + j * sizeof(float)) :
+                                (i * ns + j) * sizeof(float);
                     float val = offset[i] + j;
                     getBigEndian(toint(val), &buf[addr]);
                 }
@@ -631,11 +633,11 @@ struct FileWriteSEGYTest : public Test {
       "This is a string for testing EBCDIC conversion etc."};
     std::string name_;
     std::vector<uchar> tr;
-    size_t nt                         = 40U;
-    size_t ns                         = 200U;
-    int inc                           = 10;
-    const size_t format               = 5;
-    std::vector<uchar> ho             = std::vector<uchar>(SEGSz::getHOSz());
+    size_t nt             = 40U;
+    size_t ns             = 200U;
+    int inc               = 10;
+    const size_t format   = 5;
+    std::vector<uchar> ho = std::vector<uchar>(SEGY_utils::getHOSz());
     std::unique_ptr<WriteDirect> file = nullptr;
     std::unique_ptr<ReadDirect> readfile;
 
@@ -695,9 +697,9 @@ struct FileWriteSEGYTest : public Test {
 
     void initTrBlock()
     {
-        tr.resize(nt * SEGSz::getMDSz());
+        tr.resize(nt * SEGY_utils::getMDSz());
         for (size_t i = 0; i < nt; i++) {
-            uchar* md = &tr[i * SEGSz::getMDSz()];
+            uchar* md = &tr[i * SEGY_utils::getMDSz()];
             getBigEndian(ilNum(i), &md[il]);
             getBigEndian(xlNum(i), &md[xl]);
 
@@ -720,11 +722,11 @@ struct FileWriteSEGYTest : public Test {
     void writeHO()
     {
         if (MOCK) {
-            size_t fsz = SEGSz::getHOSz() + nt * SEGSz::getDOSz(ns);
+            size_t fsz = SEGY_utils::getHOSz() + nt * SEGY_utils::getDOSz(ns);
             EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
 
             for (size_t i = 0U;
-                 i < std::min(testString.size(), SEGSz::getTextSz()); i++)
+                 i < std::min(testString.size(), SEGY_utils::getTextSz()); i++)
                 ho[i] = testString[i];
 
             ho[NumSample + 1] = ns & 0xFF;
@@ -739,7 +741,7 @@ struct FileWriteSEGYTest : public Test {
 
             EXPECT_CALL(*mock, writeHO(_))
               .Times(Exactly(1))
-              .WillOnce(check0(ho.data(), SEGSz::getHOSz()));
+              .WillOnce(check0(ho.data(), SEGY_utils::getHOSz()));
         }
 
         file->writeNt(nt);
@@ -757,7 +759,7 @@ struct FileWriteSEGYTest : public Test {
 
     void writeTrHdrGridTest(size_t offset)
     {
-        std::vector<uchar> tr(SEGSz::getMDSz());
+        std::vector<uchar> tr(SEGY_utils::getMDSz());
         getBigEndian(ilNum(offset), tr.data() + il);
         getBigEndian(xlNum(offset), tr.data() + xl);
         getBigEndian<int16_t>(1, &tr[ScaleCoord]);
@@ -765,7 +767,7 @@ struct FileWriteSEGYTest : public Test {
 
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _))
           .Times(Exactly(1))
-          .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
+          .WillOnce(check3(tr.data(), SEGY_utils::getMDSz()));
 
         Param prm(1U);
         param_utils::setPrm(0, PIOL_META_il, ilNum(offset), &prm);
@@ -787,7 +789,7 @@ struct FileWriteSEGYTest : public Test {
         getBigEndian(int32_t(offset), &tr->at(SeqFNum));
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _))
           .Times(Exactly(1))
-          .WillOnce(check3(tr->data(), SEGSz::getMDSz()));
+          .WillOnce(check3(tr->data(), SEGY_utils::getMDSz()));
     }
 
     void initWriteHeaders(size_t filePos, uchar* md)
@@ -825,16 +827,18 @@ struct FileWriteSEGYTest : public Test {
                 return;
             }
             buf.resize(
-              tn * (writePrm ? SEGSz::getDOSz(ns) : SEGSz::getDFSz(ns)));
+              tn
+              * (writePrm ? SEGY_utils::getDOSz(ns) : SEGY_utils::getDFSz(ns)));
 
             for (size_t i = 0U; i < tn; i++) {
                 if (writePrm)
-                    initWriteHeaders(offset + i, &buf[i * SEGSz::getDOSz(ns)]);
+                    initWriteHeaders(
+                      offset + i, &buf[i * SEGY_utils::getDOSz(ns)]);
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr = writePrm ?
-                                    (i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()
-                                     + j * sizeof(float)) :
-                                    (i * ns + j) * sizeof(float);
+                    size_t addr =
+                      writePrm ? (i * SEGY_utils::getDOSz(ns)
+                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
+                                 (i * ns + j) * sizeof(float);
                     float val = offset + i + j;
                     getBigEndian(toint(val), &buf[addr]);
                 }
@@ -939,17 +943,18 @@ struct FileWriteSEGYTest : public Test {
                 return;
             }
             if (writePrm)
-                buf.resize(tn * SEGSz::getDOSz(ns));
+                buf.resize(tn * SEGY_utils::getDOSz(ns));
             else
-                buf.resize(tn * SEGSz::getDFSz(ns));
+                buf.resize(tn * SEGY_utils::getDFSz(ns));
             for (size_t i = 0U; i < tn; i++) {
                 if (writePrm)
-                    initWriteHeaders(offset[i], &buf[i * SEGSz::getDOSz(ns)]);
+                    initWriteHeaders(
+                      offset[i], &buf[i * SEGY_utils::getDOSz(ns)]);
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr = writePrm ?
-                                    (i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()
-                                     + j * sizeof(float)) :
-                                    (i * ns + j) * sizeof(float);
+                    size_t addr =
+                      writePrm ? (i * SEGY_utils::getDOSz(ns)
+                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
+                                 (i * ns + j) * sizeof(float);
                     float val = offset[i] + j;
                     getBigEndian(toint(val), &buf[addr]);
                 }
@@ -1047,7 +1052,7 @@ struct FileWriteSEGYTest : public Test {
         const bool MOCK = true;
         std::vector<uchar> buf;
         if (MOCK) {
-            buf.resize(tn * SEGSz::getMDSz());
+            buf.resize(tn * SEGY_utils::getMDSz());
             for (size_t i = 0; i < tn; i++) {
                 coord_t src = coord_t(ilNum(i + 1), xlNum(i + 5));
                 coord_t rcv = coord_t(ilNum(i + 2), xlNum(i + 6));
@@ -1058,7 +1063,7 @@ struct FileWriteSEGYTest : public Test {
                 scale         = scalComp(scale, calcScale(rcv));
                 scale         = scalComp(scale, calcScale(cmp));
 
-                uchar* md = &buf[i * SEGSz::getMDSz()];
+                uchar* md = &buf[i * SEGY_utils::getMDSz()];
                 getBigEndian(scale, &md[ScaleCoord]);
                 setCoord(Coord::Src, src, scale, md);
                 setCoord(Coord::Rcv, rcv, scale, md);

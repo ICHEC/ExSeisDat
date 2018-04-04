@@ -8,7 +8,7 @@ size_t modifyNt(
     // present after the given offset if the real number of traces is less than
     // expected.  We support this because it is allowed behaviour.
 
-    size_t realnt = SEGSz::getNt(fs, ns);
+    size_t realnt = SEGY_utils::getNt(fs, ns);
     if (realnt >= offset + nt)
         return nt;
     else if (realnt < offset)

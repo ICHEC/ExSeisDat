@@ -56,14 +56,14 @@ WriteSEGY::~WriteSEGY(void)
         calcNt();
 
         if (state.resize) {
-            obj->setFileSz(SEGSz::getFileSz(nt, ns));
+            obj->setFileSz(SEGY_utils::getFileSz(nt, ns));
         }
 
         if (state.writeHO) {
             // Write file header on rank 0.
             if (piol->comm->getRank() == 0) {
                 // The buffer to build the header in
-                std::vector<uchar> header_buffer(SEGSz::getHOSz());
+                std::vector<uchar> header_buffer(SEGY_utils::getHOSz());
 
                 // Write the text header into the start of the buffer.
                 std::copy(
@@ -122,7 +122,7 @@ void WriteSEGY::writeText(const std::string text_)
 {
     if (text != text_) {
         text = text_;
-        text.resize(SEGSz::getTextSz());
+        text.resize(SEGY_utils::getTextSz());
         state.writeHO = true;
     }
 }
@@ -204,10 +204,11 @@ void writeTraceT(
     }
     else {
         const size_t blockSz =
-          (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+          (trc == TRACE_NULL ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
         std::vector<uchar> alloc(blockSz * sz);
         uchar* buf = (sz ? alloc.data() : nullptr);
-        SEGY_utils::insertParam(sz, prm, buf, blockSz - SEGSz::getMDSz(), skip);
+        SEGY_utils::insertParam(
+          sz, prm, buf, blockSz - SEGY_utils::getMDSz(), skip);
 
         if (trc == TRACE_NULL) {
             obj->writeDOMD(offset, ns, sz, buf);
@@ -215,9 +216,9 @@ void writeTraceT(
         else {
             for (size_t i = 0; i < sz; i++) {
                 std::copy(
-                  &tbuf[i * SEGSz::getDFSz(ns)],
-                  &tbuf[(i + 1) * SEGSz::getDFSz(ns)],
-                  &buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()]);
+                  &tbuf[i * SEGY_utils::getDFSz(ns)],
+                  &tbuf[(i + 1) * SEGY_utils::getDFSz(ns)],
+                  &buf[i * SEGY_utils::getDOSz(ns) + SEGY_utils::getMDSz()]);
             }
             obj->writeDO(offset, ns, sz, buf);
         }

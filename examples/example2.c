@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     size_t lnt    = dec.size;
 
     // Alloc the required memory for the data we want.
-    float* trace           = malloc(lnt * PIOL_SEGSz_getDFSz(ns));
+    float* trace           = malloc(lnt * PIOL_SEGY_utils_getDFSz(ns));
     PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, lnt);
 
     // Create a SEGY file object for output

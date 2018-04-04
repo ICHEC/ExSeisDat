@@ -4,7 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/Param.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 namespace PIOL {
 
@@ -19,7 +19,7 @@ Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
     if (r->numIndex) t.resize(sz * r->numIndex);
 
     // TODO: This must be file format agnostic
-    if (r->numCopy) c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
+    if (r->numCopy) c.resize(sz * (r->numCopy ? SEGY_utils::getMDSz() : 0));
 }
 
 Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
@@ -30,7 +30,7 @@ Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)
     t.resize(sz * r->numIndex);
 
     // TODO: This must be file format agnostic
-    c.resize(sz * (r->numCopy ? SEGSz::getMDSz() : 0));
+    c.resize(sz * (r->numCopy ? SEGY_utils::getMDSz() : 0));
 }
 
 Param::~Param() = default;

@@ -3,7 +3,7 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 #include <assert.h>
 #include <cmath>
@@ -160,7 +160,7 @@ void FileMake(
     }
 
     // TODO: Add memusage for Param
-    max /= (SEGSz::getDOSz(ns) + SEGSz::getDFSz(ns) + sizeof(size_t));
+    max /= (SEGY_utils::getDOSz(ns) + SEGY_utils::getDFSz(ns) + sizeof(size_t));
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
     if (random) {

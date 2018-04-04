@@ -13,8 +13,10 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
+
+#include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
 
 #include <assert.h>
@@ -49,7 +51,7 @@ std::unique_ptr<Coords> getCoords(
     size_t biggest = piol->comm->max(lnt);
     size_t memlim =
       2LU * 1024LU * 1024LU * 1024LU - 4LU * biggest * sizeof(geom_t);
-    size_t max = memlim / (rule->paramMem() + SEGSz::getMDSz());
+    size_t max = memlim / (rule->paramMem() + SEGY_utils::getMDSz());
 
     // Collective I/O requries an equal number of MPI-IO calls on every process
     // in exactly the same sequence as each other.
@@ -102,8 +104,8 @@ std::unique_ptr<Coords> getCoords(
         crule = std::make_shared<Rule>(std::initializer_list<Meta>{
           PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv});
 
-    max =
-      memlim / (crule->paramMem() + SEGSz::getMDSz() + 2LU * sizeof(size_t));
+    max = memlim
+          / (crule->paramMem() + SEGY_utils::getMDSz() + 2LU * sizeof(size_t));
 
     {
         Param prm2(crule, std::min(lnt, max));
@@ -191,7 +193,8 @@ void outputNonMono(
     }
 
     size_t memlim = 1024LU * 1024LU * 1024LU;
-    size_t max    = memlim / (4LU * SEGSz::getDOSz(ns) + 4LU * rule->extent());
+    size_t max =
+      memlim / (4LU * SEGY_utils::getDOSz(ns) + 4LU * rule->extent());
     size_t extra =
       biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
 

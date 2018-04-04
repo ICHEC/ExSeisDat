@@ -16,7 +16,6 @@
 
 #include "ExSeisDat/PIOL/operations/minmax.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include "not_null.hh"
@@ -498,25 +497,25 @@ void PIOL_File_getMinMax(
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
-size_t PIOL_SEGSz_getTextSz()
+size_t PIOL_SEGY_utils_getTextSz()
 {
-    return PIOL::SEGSz::getTextSz();
+    return PIOL::SEGY_utils::getTextSz();
 }
 
-size_t PIOL_SEGSz_getDFSz(size_t ns)
+size_t PIOL_SEGY_utils_getDFSz(size_t ns)
 {
-    return PIOL::SEGSz::getDFSz<float>(ns);
+    return PIOL::SEGY_utils::getDFSz<float>(ns);
 }
 
-size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns)
+size_t PIOL_SEGY_utils_getFileSz(size_t nt, size_t ns)
 {
-    return PIOL::SEGSz::getFileSz<float>(nt, ns);
+    return PIOL::SEGY_utils::getFileSz<float>(nt, ns);
 }
 
 // TODO UPDATE
-size_t PIOL_SEGSz_getMDSz(void)
+size_t PIOL_SEGY_utils_getMDSz(void)
 {
-    return PIOL::SEGSz::getMDSz();
+    return PIOL::SEGY_utils::getMDSz();
 }
 
 }  // extern "C"

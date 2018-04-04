@@ -46,7 +46,7 @@ Rule::Rule(RuleMap translate_, bool full) : translate(translate_)
 
     if (full) {
         start          = 0LU;
-        end            = SEGSz::getMDSz();
+        end            = SEGY_utils::getMDSz();
         flag.badextent = false;
     }
     else {
@@ -79,7 +79,7 @@ Rule::Rule(
 
     if (flag.fullextent) {
         start          = 0LU;
-        end            = SEGSz::getMDSz();
+        end            = SEGY_utils::getMDSz();
         flag.badextent = false;
     }
     else {
@@ -197,9 +197,9 @@ bool Rule::addRule(Meta m)
 
 size_t Rule::extent(void)
 {
-    if (flag.fullextent) return SEGSz::getMDSz();
+    if (flag.fullextent) return SEGY_utils::getMDSz();
     if (flag.badextent) {
-        start = SEGSz::getMDSz();
+        start = SEGY_utils::getMDSz();
         end   = 0LU;
         for (const auto r : translate)
             if (r.second->type() != RuleEntry::MdType::Index) {
@@ -304,7 +304,7 @@ size_t Rule::paramMem(void) const
 {
     return numLong * sizeof(llint) + numShort * sizeof(int16_t)
            + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t)
-           + (numCopy ? SEGSz::getMDSz() : 0);
+           + (numCopy ? SEGY_utils::getMDSz() : 0);
 }
 
 bool Rule::addRule(const Rule& r)

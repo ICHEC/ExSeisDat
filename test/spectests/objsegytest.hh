@@ -8,9 +8,10 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/share/datatype.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
+
+#include "ExSeisDat/PIOL/share/datatype.hh"
 
 #include <memory>
 #include <string>
@@ -91,14 +92,14 @@ class ObjTest : public Test {
         const size_t extra = 20U;
         std::vector<uchar> cHo;
         if (MOCK) {
-            cHo.resize(SEGSz::getHOSz());
-            for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
+            cHo.resize(SEGY_utils::getHOSz());
+            for (size_t i = 0U; i < SEGY_utils::getHOSz(); i++)
                 cHo[i] = getPattern(off + i);
-            EXPECT_CALL(*mock, read(0U, SEGSz::getHOSz(), _))
+            EXPECT_CALL(*mock, read(0U, SEGY_utils::getHOSz(), _))
               .WillOnce(SetArrayArgument<2>(cHo.begin(), cHo.end()));
         }
 
-        std::vector<uchar> ho(SEGSz::getHOSz() + 2 * extra);
+        std::vector<uchar> ho(SEGY_utils::getHOSz() + 2 * extra);
         for (auto i = 0U; i < extra; i++)
             ho[i] = ho[ho.size() - extra + i] = magic;
 
@@ -106,7 +107,7 @@ class ObjTest : public Test {
 
         piol->isErr();
 
-        for (auto i = 0U; i < SEGSz::getHOSz(); i++)
+        for (auto i = 0U; i < SEGY_utils::getHOSz(); i++)
             ASSERT_EQ(getPattern(off + i), ho[extra + i]) << "Pattern " << i;
         for (auto i = 0U; i < extra; i++)
             ASSERT_EQ(magic, ho[ho.size() - extra + i])
@@ -122,19 +123,19 @@ class ObjTest : public Test {
             return;
         }
         const size_t extra = 20U;
-        std::vector<uchar> cHo(SEGSz::getHOSz());
-        for (size_t i = 0U; i < SEGSz::getHOSz(); i++)
+        std::vector<uchar> cHo(SEGY_utils::getHOSz());
+        for (size_t i = 0U; i < SEGY_utils::getHOSz(); i++)
             cHo[i] = getPattern(off + i);
 
         if (MOCK)
-            EXPECT_CALL(*mock, write(0U, SEGSz::getHOSz(), _))
-              .WillOnce(check2(cHo.data(), SEGSz::getHOSz()));
+            EXPECT_CALL(*mock, write(0U, SEGY_utils::getHOSz(), _))
+              .WillOnce(check2(cHo.data(), SEGY_utils::getHOSz()));
 
-        std::vector<uchar> ho(SEGSz::getHOSz() + 2 * extra);
+        std::vector<uchar> ho(SEGY_utils::getHOSz() + 2 * extra);
         for (auto i = 0U; i < extra; i++)
             ho[i] = ho[ho.size() - extra + i] = magic;
 
-        for (auto i = 0U; i < SEGSz::getHOSz(); i++)
+        for (auto i = 0U; i < SEGY_utils::getHOSz(); i++)
             ho[i + extra] = cHo[i];
 
         obj->writeHO(&ho[extra]);
@@ -159,11 +160,12 @@ class ObjTest : public Test {
         const size_t extra = 20U;
         size_t bsz =
           (Type == Block::DOMD ?
-             SEGSz::getMDSz() :
-             (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+             SEGY_utils::getMDSz() :
+             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
+                                    SEGY_utils::getDOSz(ns)));
         auto locFunc =
-          (Type != Block::DODF ? SEGSz::getDOLoc<float> :
-                                 SEGSz::getDODFLoc<float>);
+          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
+                                 SEGY_utils::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> trnew(step + 2U * extra);
 
@@ -181,7 +183,8 @@ class ObjTest : public Test {
             else
                 EXPECT_CALL(
                   *mock,
-                  read(locFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
+                  read(
+                    locFunc(offset, ns), bsz, SEGY_utils::getDOSz(ns), nt, _))
                   .WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
         }
 
@@ -229,11 +232,12 @@ class ObjTest : public Test {
         const size_t extra = 20U;
         size_t bsz =
           (Type == Block::DOMD ?
-             SEGSz::getMDSz() :
-             (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+             SEGY_utils::getMDSz() :
+             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
+                                    SEGY_utils::getDOSz(ns)));
         auto locFunc =
-          (Type != Block::DODF ? SEGSz::getDOLoc<float> :
-                                 SEGSz::getDODFLoc<float>);
+          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
+                                 SEGY_utils::getDODFLoc<float>);
 
         size_t step = nt * bsz;
         std::vector<uchar> tr;
@@ -252,7 +256,8 @@ class ObjTest : public Test {
             else
                 EXPECT_CALL(
                   *mock,
-                  write(locFunc(offset, ns), bsz, SEGSz::getDOSz(ns), nt, _))
+                  write(
+                    locFunc(offset, ns), bsz, SEGY_utils::getDOSz(ns), nt, _))
                   .WillOnce(check4(tr, tr.size()));
         }
         for (size_t i = 0U; i < nt; i++)
@@ -294,11 +299,12 @@ class ObjTest : public Test {
         const size_t extra = 20U;
         size_t bsz =
           (Type == Block::DOMD ?
-             SEGSz::getMDSz() :
-             (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+             SEGY_utils::getMDSz() :
+             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
+                                    SEGY_utils::getDOSz(ns)));
         auto locFunc =
-          (Type != Block::DODF ? SEGSz::getDOLoc<float> :
-                                 SEGSz::getDODFLoc<float>);
+          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
+                                 SEGY_utils::getDODFLoc<float>);
 
         size_t step = nt * bsz;
         std::vector<uchar> trnew(step + 2U * extra);
@@ -356,11 +362,12 @@ class ObjTest : public Test {
         const size_t extra = 20U;
         size_t bsz =
           (Type == Block::DOMD ?
-             SEGSz::getMDSz() :
-             (Type == Block::DODF ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns)));
+             SEGY_utils::getMDSz() :
+             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
+                                    SEGY_utils::getDOSz(ns)));
         auto locFunc =
-          (Type != Block::DODF ? SEGSz::getDOLoc<float> :
-                                 SEGSz::getDODFLoc<float>);
+          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
+                                 SEGY_utils::getDODFLoc<float>);
         size_t step = nt * bsz;
         std::vector<uchar> tr;
         std::vector<uchar> trnew(step + 2U * extra);

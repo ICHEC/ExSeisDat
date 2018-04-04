@@ -7,9 +7,9 @@
 #define EXSEISDAT_PIOL_SEGYRULEENTRY_HH
 
 #include "ExSeisDat/PIOL/RuleEntry.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
 
 #include "ExSeisDat/PIOL/share/api.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
 
 #include <algorithm>
 
@@ -56,7 +56,7 @@ struct SEGYCopyRuleEntry : public RuleEntry {
     /*! Return the size of the trace header
      *  @return the size of the trace header
      */
-    size_t max(void) { return SEGSz::getMDSz(); }
+    size_t max(void) { return SEGY_utils::getMDSz(); }
 
     /*! Return the datatype associated with the entry.
      *  @return \c MdType::Copy

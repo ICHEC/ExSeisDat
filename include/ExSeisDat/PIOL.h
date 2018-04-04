@@ -109,7 +109,7 @@ size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n);
 /*! Get the size of the SEG-Y text field (3200 bytes)
  *  @return The text size in bytes for SEG-Y
  */
-size_t PIOL_SEGSz_getTextSz(void);
+size_t PIOL_SEGY_utils_getTextSz(void);
 
 /*! Get the size a SEGY file should be given the number of traces (\c nt) and
  *  sample size (\c ns)
@@ -117,19 +117,19 @@ size_t PIOL_SEGSz_getTextSz(void);
  *  @param[in] ns The number of samples per trace
  *  @return The corresponding file size in bytes for SEG-Y
  */
-size_t PIOL_SEGSz_getFileSz(size_t nt, size_t ns);
+size_t PIOL_SEGY_utils_getFileSz(size_t nt, size_t ns);
 
 /*! Get the size a SEGY trace should be given the sample size (\c ns) and a type
  *  of float
  *  @param[in] ns The number of samples per trace
  *  @return The corresponding trace size in bytes
  */
-size_t PIOL_SEGSz_getDFSz(size_t ns);
+size_t PIOL_SEGY_utils_getDFSz(size_t ns);
 
 /*! Get the size of a SEGY trace header
  *  @return The trace header size in bytes
  */
-size_t PIOL_SEGSz_getMDSz(void);
+size_t PIOL_SEGY_utils_getMDSz(void);
 
 /*
  * Rule calls

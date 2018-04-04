@@ -11,7 +11,7 @@
 ////////////////////// Unit tests of non-class functions ///////////////////////
 
 using namespace PIOL;
-using namespace SEGSz;
+using namespace SEGY_utils;
 
 TEST(SEGYMd, ScaleBigIntegers)
 {
@@ -117,7 +117,7 @@ TEST(SEGYMd, scaleConv)
 //
 // TEST(SEGYMd, getScaleCoord1)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //
 //     tr[70] = 0xFC;
 //     tr[71] = 0x18;
@@ -127,7 +127,7 @@ TEST(SEGYMd, scaleConv)
 //
 // TEST(SEGYMd, getScaleCoord2)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 // //Two's complement of 1000
 //     tr[70] = 0x03;
 //     tr[71] = 0xE8;
@@ -137,7 +137,7 @@ TEST(SEGYMd, scaleConv)
 //
 // TEST(SEGYMd, getScaleElev1)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 // //Two's complement of 10000
 //     tr[68] = 0xD8;
 //     tr[69] = 0xF0;
@@ -147,7 +147,7 @@ TEST(SEGYMd, scaleConv)
 //
 // TEST(SEGYMd, getScaleElev2)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //     tr[68] = 0x27;
 //     tr[69] = 0x10;
 //     geom_t scal = getMd(TrScal::ScaleElev, tr.data());
@@ -177,7 +177,7 @@ TEST(SEGYMd, scaleConv)
 // template <typename T>
 // void testGetGrid(const std::pair<T, T> pair)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //     auto val = testPack(pair, tr);
 //
 //     ASSERT_EQ(val.first, getMd(pair.first, tr.data()));
@@ -186,7 +186,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testGetCoord(const std::pair<TrCrd, TrCrd> pair, const geom_t scal)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //     auto val = testPack(pair, tr);
 //
 //     ASSERT_EQ(val.first*scal, getMd(pair.first, scal, tr.data()));
@@ -213,7 +213,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetMd(std::vector<Hdr> item)
 // {
-//     std::vector<uchar> ho(SEGSz::getHOSz());
+//     std::vector<uchar> ho(SEGY_utils::getHOSz());
 //     for (int16_t val = 0; val < 0x7FFF; val++)
 //     {
 //         for (size_t i = 0; i < item.size(); i++)
@@ -281,7 +281,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetScale(TrScal item, size_t check)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //     for (int16_t val = 0; val < 0x7FFF; val++)
 //     {
 //         setScale(item, val, tr.data());
@@ -304,7 +304,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetGrid(Grid item, size_t check1, size_t check2)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //     for (int32_t val = 2; val < 201337000; val += 201337)
 //     {
 //         auto p = grid_t(val, val+1LL);
@@ -340,7 +340,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetCoord(Coord item, size_t check1, size_t check2)
 // {
-//     std::vector<uchar> tr(SEGSz::getMDSz());
+//     std::vector<uchar> tr(SEGY_utils::getMDSz());
 //     for (int32_t val = 2; val < 201337000; val += 201337)
 //     {
 //         auto p = coord_t(val, val+3L);

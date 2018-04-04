@@ -28,7 +28,6 @@
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
-#include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 // TODO: remove this when all errors are addressed
@@ -239,9 +238,10 @@ std::vector<std::string> Set::startSingle(
         out->writeText(outmsg);
 
         const size_t memlim = 1024LU * 1024LU * 1024LU;
-        size_t max          = memlim
-                     / (5LU * sizeof(size_t) + SEGSz::getDOSz(ns)
-                        + 2LU * rule->paramMem() + 2LU * SEGSz::getDFSz(ns));
+        size_t max =
+          memlim
+          / (5LU * sizeof(size_t) + SEGY_utils::getDOSz(ns)
+             + 2LU * rule->paramMem() + 2LU * SEGY_utils::getDFSz(ns));
 
         for (auto& f : fQue) {
             ReadInterface* in = f->ifc.get();

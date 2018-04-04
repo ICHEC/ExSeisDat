@@ -10,8 +10,6 @@
 
 #include "4d.hh"
 
-#include "ExSeisDat/PIOL/share/segy.hh"
-
 #include <limits>
 
 namespace PIOL {

@@ -15,7 +15,6 @@
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"
-#include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
 #include <algorithm>
@@ -39,7 +38,7 @@ ReadSEGY::ReadSEGY(
 {
     using namespace SEGY_utils;
 
-    size_t hoSz = SEGSz::getHOSz();
+    size_t hoSz = SEGY_utils::getHOSz();
     size_t fsz  = obj->getFileSz();
 
     // Read the global header data, if there is any.
@@ -52,7 +51,7 @@ ReadSEGY::ReadSEGY(
         // Parse the number of samples, traces, the increment and the format
         // from header_buffer.
         ns = getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::NumSample]);
-        nt = SEGSz::getNt(fsz, ns);
+        nt = SEGY_utils::getNt(fsz, ns);
         inc =
           geom_t(getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Interval]))
           * incFactor;
@@ -65,9 +64,10 @@ ReadSEGY::ReadSEGY(
         // printable ASCII or EBCDIC characters in the string.
 
         // Text header buffer bounds
-        assert(header_buffer.size() >= SEGSz::getTextSz());
+        assert(header_buffer.size() >= SEGY_utils::getTextSz());
         const auto text_header_begin = std::begin(header_buffer);
-        const auto text_header_end   = text_header_begin + SEGSz::getTextSz();
+        const auto text_header_end =
+          text_header_begin + SEGY_utils::getTextSz();
 
         // Count printable ASCII
         const auto n_printable_ascii =
@@ -78,7 +78,7 @@ ReadSEGY::ReadSEGY(
           text_header_begin, text_header_end, is_printable_EBCDIC);
 
         // Set text object to correct size in preparation for setting
-        text.resize(SEGSz::getTextSz());
+        text.resize(SEGY_utils::getTextSz());
 
         if (n_printable_ascii > n_printable_ebcdic) {
             // The string is in ASCII, copy it.
@@ -142,7 +142,7 @@ void readTraceT(
     }
     else {
         const size_t blockSz =
-          (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+          (trc == TRACE_NULL ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
 
         std::vector<uchar> alloc(blockSz * sz);
         uchar* buf = (sz ? alloc.data() : nullptr);
@@ -155,14 +155,15 @@ void readTraceT(
 
             for (size_t i = 0; i < sz; i++) {
                 std::copy(
-                  &buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()],
-                  &buf[(i + 1) * SEGSz::getDOSz(ns)],
-                  &tbuf[i * SEGSz::getDFSz(ns)]);
+                  &buf[i * SEGY_utils::getDOSz(ns) + SEGY_utils::getMDSz()],
+                  &buf[(i + 1) * SEGY_utils::getDOSz(ns)],
+                  &tbuf[i * SEGY_utils::getDFSz(ns)]);
             }
         }
 
         extractParam(
-          sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0LU), skip);
+          sz, buf, prm, (trc != TRACE_NULL ? SEGY_utils::getDFSz(ns) : 0LU),
+          skip);
 
         for (size_t i = 0; i < sz; i++) {
             param_utils::setPrm(i + skip, PIOL_META_ltn, offunc(i), prm);

@@ -128,36 +128,36 @@ int main()
 
 
     /*
-    ** Testing SEGSz
+    ** Testing SEGY_utils
     */
-    printf("Testing SEGSz\n");
+    printf("Testing SEGY_utils\n");
     fflush(stdout);
 
-    if (PIOL_SEGSz_getTextSz() != 3200u) {
+    if (PIOL_SEGY_utils_getTextSz() != 3200u) {
         printf(
-          "PIOL_SEGSz_getTextSz() expected return value of %u, got %lu\n", 3200,
-          PIOL_SEGSz_getTextSz());
+          "PIOL_SEGY_utils_getTextSz() expected return value of %u, got %lu\n",
+          3200, PIOL_SEGY_utils_getTextSz());
         fflush(stdout);
         return EXIT_FAILURE;
     }
-    if (PIOL_SEGSz_getFileSz(200, 210) != 219600u) {
+    if (PIOL_SEGY_utils_getFileSz(200, 210) != 219600u) {
         printf(
-          "PIOL_SEGSz_getFileSz(200, 210) expected return value of %u, got %lu\n",
-          219600u, PIOL_SEGSz_getFileSz(200, 210));
+          "PIOL_SEGY_utils_getFileSz(200, 210) expected return value of %u, got %lu\n",
+          219600u, PIOL_SEGY_utils_getFileSz(200, 210));
         fflush(stdout);
         return EXIT_FAILURE;
     }
-    if (PIOL_SEGSz_getDFSz(220) != 880u) {
+    if (PIOL_SEGY_utils_getDFSz(220) != 880u) {
         printf(
-          "PIOL_SEGSz_getDFSz(220) expected return value of %u, got %lu\n",
-          880u, PIOL_SEGSz_getDFSz(220));
+          "PIOL_SEGY_utils_getDFSz(220) expected return value of %u, got %lu\n",
+          880u, PIOL_SEGY_utils_getDFSz(220));
         fflush(stdout);
         return EXIT_FAILURE;
     }
-    if (PIOL_SEGSz_getMDSz() != 240u) {
+    if (PIOL_SEGY_utils_getMDSz() != 240u) {
         printf(
-          "PIOL_SEGSz_getMDSz() expected return value of %u, got %lu\n", 240u,
-          PIOL_SEGSz_getMDSz());
+          "PIOL_SEGY_utils_getMDSz() expected return value of %u, got %lu\n",
+          240u, PIOL_SEGY_utils_getMDSz());
         fflush(stdout);
         return EXIT_FAILURE;
     }
