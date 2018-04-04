@@ -28,13 +28,13 @@ static Uniray<size_t, llint, llint> getGathers(ExSeisPIOL* piol, Param* prm)
     size_t numRank = piol->comm->getNumRank();
     std::vector<std::tuple<size_t, llint, llint>> lline;
 
-    llint ill = getPrm<llint>(0LU, PIOL_META_il, prm);
-    llint xll = getPrm<llint>(0LU, PIOL_META_xl, prm);
+    llint ill = param_utils::getPrm<llint>(0LU, PIOL_META_il, prm);
+    llint xll = param_utils::getPrm<llint>(0LU, PIOL_META_xl, prm);
     lline.emplace_back(1LU, ill, xll);
 
     for (size_t i = 1; i < prm->size(); i++) {
-        llint il = getPrm<llint>(i, PIOL_META_il, prm);
-        llint xl = getPrm<llint>(i, PIOL_META_xl, prm);
+        llint il = param_utils::getPrm<llint>(i, PIOL_META_il, prm);
+        llint xl = param_utils::getPrm<llint>(i, PIOL_META_xl, prm);
 
         if (il != ill || xl != xll) {
             lline.emplace_back(0LU, il, xl);

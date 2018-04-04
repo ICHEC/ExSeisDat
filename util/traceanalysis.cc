@@ -50,22 +50,30 @@ int main(int argc, char** argv)
     file->readParam(tn, 1LU, &prm);
 
     if (!piol->getRank()) {
-        std::cout << "xSrc " << getPrm<geom_t>(0LU, PIOL_META_xSrc, &prm)
+        std::cout << "xSrc "
+                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_xSrc, &prm)
                   << std::endl;
-        std::cout << "ySrc " << getPrm<geom_t>(0LU, PIOL_META_ySrc, &prm)
+        std::cout << "ySrc "
+                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_ySrc, &prm)
                   << std::endl;
-        std::cout << "xRcv " << getPrm<geom_t>(0LU, PIOL_META_xRcv, &prm)
+        std::cout << "xRcv "
+                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_xRcv, &prm)
                   << std::endl;
-        std::cout << "yRcv " << getPrm<geom_t>(0LU, PIOL_META_yRcv, &prm)
+        std::cout << "yRcv "
+                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_yRcv, &prm)
                   << std::endl;
-        std::cout << "xCmp " << getPrm<geom_t>(0LU, PIOL_META_xCmp, &prm)
+        std::cout << "xCmp "
+                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_xCmp, &prm)
                   << std::endl;
-        std::cout << "yCmp " << getPrm<geom_t>(0LU, PIOL_META_yCmp, &prm)
+        std::cout << "yCmp "
+                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_yCmp, &prm)
                   << std::endl;
 
-        std::cout << "il " << getPrm<size_t>(0LU, PIOL_META_il, &prm)
+        std::cout << "il "
+                  << param_utils::getPrm<size_t>(0LU, PIOL_META_il, &prm)
                   << std::endl;
-        std::cout << "xl " << getPrm<size_t>(0LU, PIOL_META_xl, &prm)
+        std::cout << "xl "
+                  << param_utils::getPrm<size_t>(0LU, PIOL_META_xl, &prm)
                   << std::endl;
     }
     return 0;

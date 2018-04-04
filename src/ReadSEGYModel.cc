@@ -28,17 +28,20 @@ ReadSEGYModel::ReadSEGYModel(
     Param prm(vlist.size());
     readParamNonContiguous(vlist.size(), vlist.data(), &prm);
 
-    llint il_start = getPrm<llint>(0LU, PIOL_META_il, &prm);
-    llint xl_start = getPrm<llint>(0LU, PIOL_META_xl, &prm);
+    llint il_start = param_utils::getPrm<llint>(0LU, PIOL_META_il, &prm);
+    llint xl_start = param_utils::getPrm<llint>(0LU, PIOL_META_xl, &prm);
 
-    llint il_increment = getPrm<llint>(1LU, PIOL_META_il, &prm) - il_start;
+    llint il_increment =
+      param_utils::getPrm<llint>(1LU, PIOL_META_il, &prm) - il_start;
     llint il_count =
       (il_increment ?
-         (getPrm<llint>(2LU, PIOL_META_il, &prm) - il_start) / il_increment :
+         (param_utils::getPrm<llint>(2LU, PIOL_META_il, &prm) - il_start)
+           / il_increment :
          0LU);
     llint xl_count = (ReadSEGY::readNt() / (il_count ? il_count : 1LU));
     llint xl_increment =
-      (getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl_start) / xl_count;
+      (param_utils::getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl_start)
+      / xl_count;
 
     il_increment = (il_increment ? il_increment : 1LU);
     xl_increment = (xl_increment ? xl_increment : 1LU);

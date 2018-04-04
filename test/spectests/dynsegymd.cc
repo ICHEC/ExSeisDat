@@ -2,7 +2,8 @@
 
 #include "ExSeisDat/PIOL/param_utils.hh"
 
-// TODO: Add test for cpyPrm called with different sets of rules, i.e dst and
+// TODO: Add test for param_utils::cpyPrm called with different sets of rules,
+// i.e dst and
 //       src disagree on rules
 
 TEST(RuleEntry, SEGYFloat)
@@ -85,36 +86,46 @@ TEST_F(RuleFixList, setPrm)
     rule->addShort(PIOL_META_il, PIOL_TR_ScaleElev);
     Param prm(rule, 100);
     for (size_t i = 0; i < 100; i++) {
-        setPrm(i, PIOL_META_xSrc, geom_t(i) + 1., &prm);
-        setPrm(i, PIOL_META_ySrc, geom_t(i) + 2., &prm);
-        setPrm(i, PIOL_META_xRcv, geom_t(i) + 3., &prm);
-        setPrm(i, PIOL_META_yRcv, geom_t(i) + 4., &prm);
-        setPrm(i, PIOL_META_dsdr, llint(i + 1), &prm);
-        setPrm(i, PIOL_META_il, short(i + 2), &prm);
+        param_utils::setPrm(i, PIOL_META_xSrc, geom_t(i) + 1., &prm);
+        param_utils::setPrm(i, PIOL_META_ySrc, geom_t(i) + 2., &prm);
+        param_utils::setPrm(i, PIOL_META_xRcv, geom_t(i) + 3., &prm);
+        param_utils::setPrm(i, PIOL_META_yRcv, geom_t(i) + 4., &prm);
+        param_utils::setPrm(i, PIOL_META_dsdr, llint(i + 1), &prm);
+        param_utils::setPrm(i, PIOL_META_il, short(i + 2), &prm);
     }
     for (size_t i = 0; i < 100; i++) {
         if (sizeof(geom_t) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_xSrc, &prm), geom_t(i + 1));
+              param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm),
+              geom_t(i + 1));
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_ySrc, &prm), geom_t(i + 2));
+              param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm),
+              geom_t(i + 2));
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_xRcv, &prm), geom_t(i + 3));
+              param_utils::getPrm<geom_t>(i, PIOL_META_xRcv, &prm),
+              geom_t(i + 3));
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_yRcv, &prm), geom_t(i + 4));
+              param_utils::getPrm<geom_t>(i, PIOL_META_yRcv, &prm),
+              geom_t(i + 4));
         }
         else {
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_xSrc, &prm), geom_t(i + 1));
+              param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm),
+              geom_t(i + 1));
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_ySrc, &prm), geom_t(i + 2));
+              param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm),
+              geom_t(i + 2));
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_xRcv, &prm), geom_t(i + 3));
+              param_utils::getPrm<geom_t>(i, PIOL_META_xRcv, &prm),
+              geom_t(i + 3));
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_yRcv, &prm), geom_t(i + 4));
+              param_utils::getPrm<geom_t>(i, PIOL_META_yRcv, &prm),
+              geom_t(i + 4));
         }
-        ASSERT_EQ(getPrm<llint>(i, PIOL_META_dsdr, &prm), llint(i + 1));
-        ASSERT_EQ(getPrm<short>(i, PIOL_META_il, &prm), short(i + 2));
+        ASSERT_EQ(
+          param_utils::getPrm<llint>(i, PIOL_META_dsdr, &prm), llint(i + 1));
+        ASSERT_EQ(
+          param_utils::getPrm<short>(i, PIOL_META_il, &prm), short(i + 2));
     }
 }
 

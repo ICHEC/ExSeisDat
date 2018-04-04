@@ -271,7 +271,7 @@ std::vector<std::string> Set::startSingle(
                 bIn->inc = inc;
 
                 for (size_t j = 0LU; j < rblock; j++) {
-                    cpyPrm(sortlist[j], &prm, j, bIn->prm.get());
+                    param_utils::cpyPrm(sortlist[j], &prm, j, bIn->prm.get());
                     for (size_t k = 0LU; k < ns; k++)
                         bIn->trc[j * ns + k] = trc[sortlist[j] * ns + k];
                     sortlist[j] = f->olst[i + sortlist[j]];
@@ -562,7 +562,7 @@ void Set::getMinMax(
 
         for (size_t i = 0; i < f->ilst.size(); i++) {
             vprm.emplace_back(rule, 1LU);
-            cpyPrm(i, &prm, 0, &vprm.back());
+            param_utils::cpyPrm(i, &prm, 0, &vprm.back());
         }
         // TODO: Minmax can't assume ordered data! Fix this!
         size_t offset = piol->comm->offset(f->ilst.size());
@@ -648,8 +648,10 @@ void Set::toAngle(
           for (size_t j = 0; j < state->oGSz; j++) {
               // TODO: Set the rest of the parameters
               // TODO: Check the get numbers
-              setPrm(j, PIOL_META_il, state->il[in->gNum], out->prm.get());
-              setPrm(j, PIOL_META_xl, state->xl[in->gNum], out->prm.get());
+              param_utils::setPrm(
+                j, PIOL_META_il, state->il[in->gNum], out->prm.get());
+              param_utils::setPrm(
+                j, PIOL_META_xl, state->xl[in->gNum], out->prm.get());
           }
       }));
 }
@@ -699,8 +701,12 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
     bool m2Add = rule->addRule(m2);
 
     Set::getMinMax(
-      [m1](const Param& a) -> geom_t { return getPrm<geom_t>(0LU, m1, &a); },
-      [m2](const Param& a) -> geom_t { return getPrm<geom_t>(0LU, m2, &a); },
+      [m1](const Param& a) -> geom_t {
+          return param_utils::getPrm<geom_t>(0LU, m1, &a);
+      },
+      [m2](const Param& a) -> geom_t {
+          return param_utils::getPrm<geom_t>(0LU, m2, &a);
+      },
       minmax);
 
     if (m1Add) rule->rmRule(m1);

@@ -57,15 +57,15 @@ int main(int argc, char** argv)
     Param prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
-        setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
-        setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
-        setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
-        setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
-        setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
-        setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
-        setPrm(j, PIOL_META_il, 2400 + k, &prm);
-        setPrm(j, PIOL_META_xl, 1600 + k, &prm);
-        setPrm(j, PIOL_META_tn, offset + j, &prm);
+        param_utils::setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_il, 2400 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_xl, 1600 + k, &prm);
+        param_utils::setPrm(j, PIOL_META_tn, offset + j, &prm);
     }
     file.writeParam(offset, lnt, &prm);
 

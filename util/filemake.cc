@@ -32,15 +32,15 @@ void writeContig(
         size_t rblock = (i + max < lnt ? max : lnt - i);
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset + i + j));
-            setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
-            setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
-            setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
-            setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
-            setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
-            setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
-            setPrm(j, PIOL_META_il, 2400 + k, &prm);
-            setPrm(j, PIOL_META_xl, 1600 + k, &prm);
-            setPrm(j, PIOL_META_tn, offset + i + j, &prm);
+            param_utils::setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_il, 2400 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_xl, 1600 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_tn, offset + i + j, &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] =
@@ -98,15 +98,15 @@ void writeRandom(
 
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset[i + j]));
-            setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
-            setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
-            setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
-            setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
-            setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
-            setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
-            setPrm(j, PIOL_META_il, 2400 + k, &prm);
-            setPrm(j, PIOL_META_xl, 1600 + k, &prm);
-            setPrm(j, PIOL_META_tn, offset[i + j], &prm);
+            param_utils::setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_il, 2400 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_xl, 1600 + k, &prm);
+            param_utils::setPrm(j, PIOL_META_tn, offset[i + j], &prm);
         }
         for (size_t j = 0; j < trc.size(); j++)
             trc[j] =

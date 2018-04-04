@@ -13,6 +13,7 @@
 #include "ExSeisDat/PIOL/Param.hh"
 
 namespace PIOL {
+namespace param_utils {
 
 // Access
 
@@ -86,6 +87,7 @@ void setPrm(const size_t i, const Meta entry, T ret, Param* prm)
 void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst);
 
 
+}  // namespace param_utils
 }  // namespace PIOL
 
 #endif  // EXSEISDAT_PIOL_PARAM_UTILS_HH

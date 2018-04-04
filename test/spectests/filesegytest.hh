@@ -311,20 +311,26 @@ struct FileReadSEGYTest : public Test {
 
         Param prm(1U);
         file->readParam(offset, 1U, &prm);
-        ASSERT_EQ(ilNum(offset), getPrm<llint>(0U, PIOL_META_il, &prm));
-        ASSERT_EQ(xlNum(offset), getPrm<llint>(0U, PIOL_META_xl, &prm));
+        ASSERT_EQ(
+          ilNum(offset), param_utils::getPrm<llint>(0U, PIOL_META_il, &prm));
+        ASSERT_EQ(
+          xlNum(offset), param_utils::getPrm<llint>(0U, PIOL_META_xl, &prm));
 
         if (sizeof(geom_t) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              xNum(offset), getPrm<geom_t>(0U, PIOL_META_xSrc, &prm));
+              xNum(offset),
+              param_utils::getPrm<geom_t>(0U, PIOL_META_xSrc, &prm));
             ASSERT_DOUBLE_EQ(
-              yNum(offset), getPrm<geom_t>(0U, PIOL_META_ySrc, &prm));
+              yNum(offset),
+              param_utils::getPrm<geom_t>(0U, PIOL_META_ySrc, &prm));
         }
         else {
             ASSERT_FLOAT_EQ(
-              xNum(offset), getPrm<geom_t>(0U, PIOL_META_xSrc, &prm));
+              xNum(offset),
+              param_utils::getPrm<geom_t>(0U, PIOL_META_xSrc, &prm));
             ASSERT_FLOAT_EQ(
-              yNum(offset), getPrm<geom_t>(0U, PIOL_META_ySrc, &prm));
+              yNum(offset),
+              param_utils::getPrm<geom_t>(0U, PIOL_META_ySrc, &prm));
         }
     }
 
@@ -342,20 +348,26 @@ struct FileReadSEGYTest : public Test {
         file->readParam(0, tn, &prm);
 
         for (size_t i = 0; i < tn; i++) {
-            ASSERT_EQ(ilNum(i), getPrm<llint>(i, PIOL_META_il, &prm));
-            ASSERT_EQ(xlNum(i), getPrm<llint>(i, PIOL_META_xl, &prm));
+            ASSERT_EQ(
+              ilNum(i), param_utils::getPrm<llint>(i, PIOL_META_il, &prm));
+            ASSERT_EQ(
+              xlNum(i), param_utils::getPrm<llint>(i, PIOL_META_xl, &prm));
 
             if (sizeof(geom_t) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  xNum(i), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  xNum(i),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                 ASSERT_DOUBLE_EQ(
-                  yNum(i), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  yNum(i),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  xNum(i), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  xNum(i),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                 ASSERT_FLOAT_EQ(
-                  yNum(i), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  yNum(i),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
             }
         }
         ASSERT_TRUE(tr.size());
@@ -380,20 +392,28 @@ struct FileReadSEGYTest : public Test {
           tn, offset.data(), const_cast<trace_t*>(TRACE_NULL), &prm);
 
         for (size_t i = 0; i < tn; i++) {
-            ASSERT_EQ(ilNum(offset[i]), getPrm<llint>(i, PIOL_META_il, &prm));
-            ASSERT_EQ(xlNum(offset[i]), getPrm<llint>(i, PIOL_META_xl, &prm));
+            ASSERT_EQ(
+              ilNum(offset[i]),
+              param_utils::getPrm<llint>(i, PIOL_META_il, &prm));
+            ASSERT_EQ(
+              xlNum(offset[i]),
+              param_utils::getPrm<llint>(i, PIOL_META_xl, &prm));
 
             if (sizeof(geom_t) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  xNum(offset[i]), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  xNum(offset[i]),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                 ASSERT_DOUBLE_EQ(
-                  yNum(offset[i]), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  yNum(offset[i]),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  xNum(offset[i]), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  xNum(offset[i]),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                 ASSERT_FLOAT_EQ(
-                  yNum(offset[i]), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  yNum(offset[i]),
+                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
             }
         }
     }
@@ -485,29 +505,31 @@ struct FileReadSEGYTest : public Test {
                 using NumType = decltype(ilNum(i + offset));
 
                 ASSERT_EQ(
-                  ilNum(i + offset), getPrm<NumType>(i, PIOL_META_il, &prm))
+                  ilNum(i + offset),
+                  param_utils::getPrm<NumType>(i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(
-                  xlNum(i + offset), getPrm<NumType>(i, PIOL_META_xl, &prm))
+                  xlNum(i + offset),
+                  param_utils::getPrm<NumType>(i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(geom_t) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                       xNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
 
                     ASSERT_DOUBLE_EQ(
                       yNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                       xNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
 
                     ASSERT_FLOAT_EQ(
                       yNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
             }
 
@@ -568,23 +590,29 @@ struct FileReadSEGYTest : public Test {
         for (size_t i = 0U; i < tn; i++) {
             if (readPrm && tn && ns) {
                 ASSERT_EQ(
-                  ilNum(offset[i]), getPrm<llint>(i, PIOL_META_il, &prm))
+                  ilNum(offset[i]),
+                  param_utils::getPrm<llint>(i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(
-                  xlNum(offset[i]), getPrm<llint>(i, PIOL_META_xl, &prm))
+                  xlNum(offset[i]),
+                  param_utils::getPrm<llint>(i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(geom_t) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      xNum(offset[i]), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      xNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                     ASSERT_DOUBLE_EQ(
-                      yNum(offset[i]), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      yNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      xNum(offset[i]), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      xNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                     ASSERT_FLOAT_EQ(
-                      yNum(offset[i]), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      yNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
             }
             for (size_t j = 0U; j < ns; j++)
@@ -740,9 +768,9 @@ struct FileWriteSEGYTest : public Test {
           .WillOnce(check3(tr.data(), SEGSz::getMDSz()));
 
         Param prm(1U);
-        setPrm(0, PIOL_META_il, ilNum(offset), &prm);
-        setPrm(0, PIOL_META_xl, xlNum(offset), &prm);
-        setPrm(0, PIOL_META_tn, offset, &prm);
+        param_utils::setPrm(0, PIOL_META_il, ilNum(offset), &prm);
+        param_utils::setPrm(0, PIOL_META_xl, xlNum(offset), &prm);
+        param_utils::setPrm(0, PIOL_META_tn, offset, &prm);
         file->writeParam(offset, 1U, &prm);
     }
 
@@ -824,15 +852,15 @@ struct FileWriteSEGYTest : public Test {
         if (writePrm) {
             Param prm(tn);
             for (size_t i = 0U; i < tn; i++) {
-                setPrm(i, PIOL_META_xSrc, xNum(offset + i), &prm);
-                setPrm(i, PIOL_META_xRcv, xNum(offset + i), &prm);
-                setPrm(i, PIOL_META_xCmp, xNum(offset + i), &prm);
-                setPrm(i, PIOL_META_ySrc, yNum(offset + i), &prm);
-                setPrm(i, PIOL_META_yRcv, yNum(offset + i), &prm);
-                setPrm(i, PIOL_META_yCmp, yNum(offset + i), &prm);
-                setPrm(i, PIOL_META_il, ilNum(offset + i), &prm);
-                setPrm(i, PIOL_META_xl, xlNum(offset + i), &prm);
-                setPrm(i, PIOL_META_tn, offset + i, &prm);
+                param_utils::setPrm(i, PIOL_META_xSrc, xNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_xRcv, xNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_xCmp, xNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_ySrc, yNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_yRcv, yNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_yCmp, yNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_il, ilNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_xl, xlNum(offset + i), &prm);
+                param_utils::setPrm(i, PIOL_META_tn, offset + i, &prm);
                 for (size_t j = 0U; j < ns; j++)
                     bufnew[i * ns + j] = float(offset + i + j);
             }
@@ -866,27 +894,29 @@ struct FileWriteSEGYTest : public Test {
         for (size_t i = 0U; i < tnRead; i++) {
             if (readPrm && tnRead && ns) {
                 ASSERT_EQ(
-                  ilNum(i + offset), getPrm<llint>(i, PIOL_META_il, &prm))
+                  ilNum(i + offset),
+                  param_utils::getPrm<llint>(i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(
-                  xlNum(i + offset), getPrm<llint>(i, PIOL_META_xl, &prm))
+                  xlNum(i + offset),
+                  param_utils::getPrm<llint>(i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(geom_t) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                       xNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                     ASSERT_DOUBLE_EQ(
                       yNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                       xNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                     ASSERT_FLOAT_EQ(
                       yNum(i + offset),
-                      getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
             }
             for (size_t j = 0U; j < ns; j++)
@@ -937,15 +967,15 @@ struct FileWriteSEGYTest : public Test {
         std::vector<float> bufnew(tn * ns);
         for (size_t i = 0U; i < tn; i++) {
             if (writePrm) {
-                setPrm(i, PIOL_META_xSrc, xNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_xRcv, xNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_xCmp, xNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_ySrc, yNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_yRcv, yNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_yCmp, yNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_il, ilNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_xl, xlNum(offset[i]), &prm);
-                setPrm(i, PIOL_META_tn, offset[i], &prm);
+                param_utils::setPrm(i, PIOL_META_xSrc, xNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_xRcv, xNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_xCmp, xNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_ySrc, yNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_yRcv, yNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_yCmp, yNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_il, ilNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_xl, xlNum(offset[i]), &prm);
+                param_utils::setPrm(i, PIOL_META_tn, offset[i], &prm);
             }
             for (size_t j = 0U; j < ns; j++)
                 bufnew[i * ns + j] = float(offset[i] + j);
@@ -980,23 +1010,29 @@ struct FileWriteSEGYTest : public Test {
         for (size_t i = 0U; i < tn; i++) {
             if (readPrm && tn && ns) {
                 ASSERT_EQ(
-                  ilNum(offset[i]), getPrm<llint>(i, PIOL_META_il, &prm))
+                  ilNum(offset[i]),
+                  param_utils::getPrm<llint>(i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(
-                  xlNum(offset[i]), getPrm<llint>(i, PIOL_META_xl, &prm))
+                  xlNum(offset[i]),
+                  param_utils::getPrm<llint>(i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(geom_t) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      xNum(offset[i]), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      xNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                     ASSERT_DOUBLE_EQ(
-                      yNum(offset[i]), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      yNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      xNum(offset[i]), getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      xNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
                     ASSERT_FLOAT_EQ(
-                      yNum(offset[i]), getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      yNum(offset[i]),
+                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
                 }
             }
             for (size_t j = 0U; j < ns; j++)
@@ -1047,15 +1083,15 @@ struct FileWriteSEGYTest : public Test {
         else {
             Param prm(tn);
             for (size_t i = 0; i < tn; i++) {
-                setPrm(i, PIOL_META_xSrc, ilNum(i + 1), &prm);
-                setPrm(i, PIOL_META_xRcv, ilNum(i + 2), &prm);
-                setPrm(i, PIOL_META_xCmp, ilNum(i + 3), &prm);
-                setPrm(i, PIOL_META_il, ilNum(i + 4), &prm);
-                setPrm(i, PIOL_META_ySrc, xlNum(i + 5), &prm);
-                setPrm(i, PIOL_META_yRcv, xlNum(i + 6), &prm);
-                setPrm(i, PIOL_META_yCmp, xlNum(i + 7), &prm);
-                setPrm(i, PIOL_META_xl, xlNum(i + 8), &prm);
-                setPrm(i, PIOL_META_tn, offset + i, &prm);
+                param_utils::setPrm(i, PIOL_META_xSrc, ilNum(i + 1), &prm);
+                param_utils::setPrm(i, PIOL_META_xRcv, ilNum(i + 2), &prm);
+                param_utils::setPrm(i, PIOL_META_xCmp, ilNum(i + 3), &prm);
+                param_utils::setPrm(i, PIOL_META_il, ilNum(i + 4), &prm);
+                param_utils::setPrm(i, PIOL_META_ySrc, xlNum(i + 5), &prm);
+                param_utils::setPrm(i, PIOL_META_yRcv, xlNum(i + 6), &prm);
+                param_utils::setPrm(i, PIOL_META_yCmp, xlNum(i + 7), &prm);
+                param_utils::setPrm(i, PIOL_META_xl, xlNum(i + 8), &prm);
+                param_utils::setPrm(i, PIOL_META_tn, offset + i, &prm);
             }
             file->writeParam(offset, prm.size(), &prm);
         }

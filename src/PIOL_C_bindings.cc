@@ -159,7 +159,7 @@ int16_t PIOL_File_getPrm_short(
 {
     assert(not_null(param));
 
-    return PIOL::getPrm<int16_t>(i, entry, param);
+    return PIOL::param_utils::getPrm<int16_t>(i, entry, param);
 }
 
 PIOL_llint PIOL_File_getPrm_llint(
@@ -167,7 +167,7 @@ PIOL_llint PIOL_File_getPrm_llint(
 {
     assert(not_null(param));
 
-    return PIOL::getPrm<PIOL::llint>(i, entry, param);
+    return PIOL::param_utils::getPrm<PIOL::llint>(i, entry, param);
 }
 
 PIOL_geom_t PIOL_File_getPrm_double(
@@ -175,7 +175,7 @@ PIOL_geom_t PIOL_File_getPrm_double(
 {
     assert(not_null(param));
 
-    return PIOL::getPrm<PIOL::geom_t>(i, entry, param);
+    return PIOL::param_utils::getPrm<PIOL::geom_t>(i, entry, param);
 }
 
 void PIOL_File_setPrm_short(
@@ -183,7 +183,7 @@ void PIOL_File_setPrm_short(
 {
     assert(not_null(param));
 
-    PIOL::setPrm(i, entry, ret, param);
+    PIOL::param_utils::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_setPrm_llint(
@@ -191,7 +191,7 @@ void PIOL_File_setPrm_llint(
 {
     assert(not_null(param));
 
-    PIOL::setPrm(i, entry, ret, param);
+    PIOL::param_utils::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_setPrm_double(
@@ -199,7 +199,7 @@ void PIOL_File_setPrm_double(
 {
     assert(not_null(param));
 
-    PIOL::setPrm(i, entry, ret, param);
+    PIOL::param_utils::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_cpyPrm(
@@ -208,7 +208,7 @@ void PIOL_File_cpyPrm(
     assert(not_null(src));
     assert(not_null(dst));
 
-    PIOL::cpyPrm(i, src, j, dst);
+    PIOL::param_utils::cpyPrm(i, src, j, dst);
 }
 
 //////////////////PIOL////////////////////////////

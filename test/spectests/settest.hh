@@ -128,35 +128,36 @@ struct SetTest : public Test {
 
                     if (linear)
                         for (size_t l = 0; l < dec.size; l++) {
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_xSrc, 2000. - geom_t(dec.offset + l),
                               tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_ySrc, 2000. - geom_t(dec.offset + l),
                               tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_xRcv, 2000. + geom_t(dec.offset + l),
                               tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_yRcv, 2000. + geom_t(dec.offset + l),
                               tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_xCmp, 2000. - geom_t(dec.offset + l),
                               tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_yCmp, 2000. - geom_t(dec.offset + l),
                               tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_il, 2000U + dec.offset + l, tprm);
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_xl, 2000U + dec.offset + l, tprm);
-                            setPrm(l, PIOL_META_tn, l + dec.offset, tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_tn, l + dec.offset, tprm);
 
                             auto xS =
                               2000. - geom_t((dec.offset + l) % (nt / 10U));
                             auto yR =
                               2000. + geom_t((dec.offset + l) / (nt / 10U));
-                            setPrm(
+                            param_utils::setPrm(
                               l, PIOL_META_Offset,
                               (xS - 2000.) * (xS - 2000.)
                                 + (2000. - yR) * (2000. - yR),
@@ -166,16 +167,18 @@ struct SetTest : public Test {
                         for (size_t l = 0; l < dec.size; l++) {
                             auto xS = 2000U - (dec.offset + l) % (nt / 10U);
                             auto yR = 2000U + (dec.offset + l) / (nt / 10U);
-                            setPrm(l, PIOL_META_xSrc, xS, tprm);
-                            setPrm(l, PIOL_META_ySrc, 2000., tprm);
-                            setPrm(l, PIOL_META_xRcv, 2000., tprm);
-                            setPrm(l, PIOL_META_yRcv, yR, tprm);
-                            setPrm(l, PIOL_META_xCmp, xS, tprm);
-                            setPrm(l, PIOL_META_yCmp, yR, tprm);
-                            setPrm(l, PIOL_META_il, 4000U - xS, tprm);
-                            setPrm(l, PIOL_META_xl, yR, tprm);
-                            setPrm(l, PIOL_META_tn, l + dec.offset, tprm);
-                            setPrm(
+                            param_utils::setPrm(l, PIOL_META_xSrc, xS, tprm);
+                            param_utils::setPrm(l, PIOL_META_ySrc, 2000., tprm);
+                            param_utils::setPrm(l, PIOL_META_xRcv, 2000., tprm);
+                            param_utils::setPrm(l, PIOL_META_yRcv, yR, tprm);
+                            param_utils::setPrm(l, PIOL_META_xCmp, xS, tprm);
+                            param_utils::setPrm(l, PIOL_META_yCmp, yR, tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_il, 4000U - xS, tprm);
+                            param_utils::setPrm(l, PIOL_META_xl, yR, tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_tn, l + dec.offset, tprm);
+                            param_utils::setPrm(
                               l, PIOL_META_Offset,
                               (xS - 2000.) * (xS - 2000.)
                                 + (2000. - yR) * (2000. - yR),

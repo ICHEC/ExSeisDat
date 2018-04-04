@@ -73,7 +73,7 @@ function test_symbols()
 }
 
 
-#Prm.*(for the cpyPrm etc.free functions.
+#Prm.*(for the param_utils::cpyPrm etc.free functions.
 for
 ns in "::ExSeis::"
       "::ReadDirect::"

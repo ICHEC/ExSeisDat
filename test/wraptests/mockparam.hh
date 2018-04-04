@@ -11,6 +11,7 @@
 
 namespace PIOL {
 
+namespace param_utils {
 // Specify extern templates for templated functions so we can capture them
 template<>
 int16_t getPrm<int16_t>(size_t i, Meta entry, const Param* prm);
@@ -30,6 +31,8 @@ void setPrm<llint>(const size_t i, const Meta entry, llint ret, Param* prm);
 
 template<>
 void setPrm<geom_t>(const size_t i, const Meta entry, geom_t ret, Param* prm);
+
+}  // namespace param_utils
 
 
 class MockParam;

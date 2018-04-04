@@ -165,7 +165,7 @@ void readTraceT(
           sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0LU), skip);
 
         for (size_t i = 0; i < sz; i++) {
-            setPrm(i + skip, PIOL_META_ltn, offunc(i), prm);
+            param_utils::setPrm(i + skip, PIOL_META_ltn, offunc(i), prm);
         }
     }
 
@@ -239,7 +239,7 @@ void ReadSEGY::readTraceNonMonotonic(
     if (prm != PIOL_PARAM_NULL)
         for (size_t n = 0, j = 0; j < sz; ++j) {
             n += (j && offset[idx[j - 1]] != offset[idx[j]]);
-            cpyPrm(n, &sprm, skip + idx[j], prm);
+            param_utils::cpyPrm(n, &sprm, skip + idx[j], prm);
         }
 
     if (trc != TRACE_NULL)

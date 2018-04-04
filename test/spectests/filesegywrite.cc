@@ -41,9 +41,9 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
 
 
     Param prm(1U);
-    setPrm(0, PIOL_META_xCmp, 1600.1, &prm);
-    setPrm(0, PIOL_META_yCmp, 2400.22, &prm);
-    setPrm(0, PIOL_META_tn, 10U, &prm);
+    param_utils::setPrm(0, PIOL_META_xCmp, 1600.1, &prm);
+    param_utils::setPrm(0, PIOL_META_yCmp, 2400.22, &prm);
+    param_utils::setPrm(0, PIOL_META_tn, 10U, &prm);
     file->writeParam(10U, 1U, &prm);
 }
 
@@ -54,9 +54,9 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
     initWriteTrHdrCoord({xSrc, ySrc}, {1600100, 3400222}, -1000, 10U, &tr);
 
     Param prm(1U);
-    setPrm(0, PIOL_META_xSrc, 1600.1000, &prm);
-    setPrm(0, PIOL_META_ySrc, 3400.2220, &prm);
-    setPrm(0, PIOL_META_tn, 10U, &prm);
+    param_utils::setPrm(0, PIOL_META_xSrc, 1600.1000, &prm);
+    param_utils::setPrm(0, PIOL_META_ySrc, 3400.2220, &prm);
+    param_utils::setPrm(0, PIOL_META_tn, 10U, &prm);
 
     file->writeParam(10U, 1U, &prm);
 }
@@ -68,9 +68,9 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
     initWriteTrHdrCoord({xSrc, ySrc}, {1623001001, 34002220}, -10000, 10U, &tr);
 
     Param prm(1U);
-    setPrm(0, PIOL_META_xSrc, 162300.10009, &prm);
-    setPrm(0, PIOL_META_ySrc, 3400.22201, &prm);
-    setPrm(0, PIOL_META_tn, 10U, &prm);
+    param_utils::setPrm(0, PIOL_META_xSrc, 162300.10009, &prm);
+    param_utils::setPrm(0, PIOL_META_ySrc, 3400.22201, &prm);
+    param_utils::setPrm(0, PIOL_META_tn, 10U, &prm);
     file->writeParam(10U, 1U, &prm);
 }
 

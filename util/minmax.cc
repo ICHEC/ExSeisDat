@@ -63,8 +63,8 @@ void calcMin(std::string iname, std::string oname)
     for (size_t i = 0U; i < sz; i++)
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
-                cpyPrm(j, &tprm, i, &oprm);
-                setPrm(i, PIOL_META_tn, minmax[i].num, &oprm);
+                param_utils::cpyPrm(j, &tprm, i, &oprm);
+                param_utils::setPrm(i, PIOL_META_tn, minmax[i].num, &oprm);
                 trace[i] = trace_t(1);
                 j        = usz;
             }

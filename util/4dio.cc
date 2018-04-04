@@ -67,7 +67,7 @@ std::unique_ptr<Coords> getCoords(
         file->readParam(offset + i, rblock, &prm, i);
 
         for (size_t j = 0; j < rblock; j++)
-            setPrm(i + j, PIOL_META_gtn, offset + i + j, &prm);
+            param_utils::setPrm(i + j, PIOL_META_gtn, offset + i + j, &prm);
     }
 
     // Any extra readParam calls the particular process needs
@@ -79,13 +79,13 @@ std::unique_ptr<Coords> getCoords(
       piol.get(), &prm,
       [](const Param* prm, const size_t i, const size_t j) -> bool {
           return (
-            getPrm<geom_t>(i, PIOL_META_xSrc, prm)
-                < getPrm<geom_t>(j, PIOL_META_xSrc, prm) ?
+            param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, prm)
+                < param_utils::getPrm<geom_t>(j, PIOL_META_xSrc, prm) ?
               true :
-              getPrm<geom_t>(i, PIOL_META_xSrc, prm)
-                  == getPrm<geom_t>(j, PIOL_META_xSrc, prm)
-                && getPrm<size_t>(i, PIOL_META_gtn, prm)
-                     < getPrm<size_t>(j, PIOL_META_gtn, prm));
+              param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, prm)
+                  == param_utils::getPrm<geom_t>(j, PIOL_META_xSrc, prm)
+                && param_utils::getPrm<size_t>(i, PIOL_META_gtn, prm)
+                     < param_utils::getPrm<size_t>(j, PIOL_META_gtn, prm));
       },
       false);
 
@@ -119,18 +119,20 @@ std::unique_ptr<Coords> getCoords(
 
             for (size_t j = 0; j < rblock; j++) {
                 coords->xSrc[i + orig[j]] =
-                  getPrm<geom_t>(j, PIOL_META_xSrc, &prm2);
+                  param_utils::getPrm<geom_t>(j, PIOL_META_xSrc, &prm2);
                 coords->ySrc[i + orig[j]] =
-                  getPrm<geom_t>(j, PIOL_META_ySrc, &prm2);
+                  param_utils::getPrm<geom_t>(j, PIOL_META_ySrc, &prm2);
                 coords->xRcv[i + orig[j]] =
-                  getPrm<geom_t>(j, PIOL_META_xRcv, &prm2);
+                  param_utils::getPrm<geom_t>(j, PIOL_META_xRcv, &prm2);
                 coords->yRcv[i + orig[j]] =
-                  getPrm<geom_t>(j, PIOL_META_yRcv, &prm2);
+                  param_utils::getPrm<geom_t>(j, PIOL_META_yRcv, &prm2);
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
             for (size_t j = 0; ixline && j < rblock; j++) {
-                coords->il[i + orig[j]] = getPrm<llint>(j, PIOL_META_il, &prm2);
-                coords->xl[i + orig[j]] = getPrm<llint>(j, PIOL_META_xl, &prm2);
+                coords->il[i + orig[j]] =
+                  param_utils::getPrm<llint>(j, PIOL_META_il, &prm2);
+                coords->xl[i + orig[j]] =
+                  param_utils::getPrm<llint>(j, PIOL_META_xl, &prm2);
             }
         }
     }
@@ -214,7 +216,7 @@ void outputNonMono(
         src.readTraceNonMonotonic(rblock, &list[i], trc.data(), &prm);
         if (printDsr)
             for (size_t j = 0; j < rblock; j++)
-                setPrm(j, PIOL_META_dsdr, minrs[i + j], &prm);
+                param_utils::setPrm(j, PIOL_META_dsdr, minrs[i + j], &prm);
         dst.writeTrace(offset + i, rblock, trc.data(), &prm);
     }
 

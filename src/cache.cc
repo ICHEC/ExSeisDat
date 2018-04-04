@@ -44,9 +44,9 @@ std::shared_ptr<TraceBlock> Cache::getCache(
             f->ifc->readParamNonContiguous(
               f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++) {
-                setPrm(
+                param_utils::setPrm(
                   loff + i, PIOL_META_gtn, off + loff + f->ilst[i], prm.get());
-                setPrm(
+                param_utils::setPrm(
                   loff + i, PIOL_META_ltn, f->ilst[i] * desc.size() + c,
                   prm.get());
             }
@@ -103,7 +103,7 @@ std::vector<size_t> Cache::getOutputTrace(
 
         std::vector<size_t> sortlist = getSortIndex(sz, final.data());
         for (size_t j = 0LU; j < sz; j++)
-            cpyPrm(sortlist[j], iprm, j, prm);
+            param_utils::cpyPrm(sortlist[j], iprm, j, prm);
     }
     return final;
 }
