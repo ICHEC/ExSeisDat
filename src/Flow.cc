@@ -20,12 +20,12 @@
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/ops/agc.hh"
-#include "ExSeisDat/PIOL/ops/gather.hh"
-#include "ExSeisDat/PIOL/ops/minmax.hh"
-#include "ExSeisDat/PIOL/ops/sort.hh"
-#include "ExSeisDat/PIOL/ops/taper.hh"
-#include "ExSeisDat/PIOL/ops/temporalfilter.hh"
+#include "ExSeisDat/PIOL/operations/agc.hh"
+#include "ExSeisDat/PIOL/operations/gather.hh"
+#include "ExSeisDat/PIOL/operations/minmax.hh"
+#include "ExSeisDat/PIOL/operations/sort.hh"
+#include "ExSeisDat/PIOL/operations/taper.hh"
+#include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
 #include "ExSeisDat/PIOL/share/segy.hh"

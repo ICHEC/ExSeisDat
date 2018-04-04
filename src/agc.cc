@@ -10,7 +10,7 @@
 ///          or applies the same scalar to all traces at the same height.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/ops/agc.hh"
+#include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

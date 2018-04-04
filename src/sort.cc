@@ -16,7 +16,7 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 
 #include "ExSeisDat/PIOL/mpi_utils.hh"
-#include "ExSeisDat/PIOL/ops/sort.hh"
+#include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

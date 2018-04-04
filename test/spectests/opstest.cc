@@ -7,11 +7,11 @@
 
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ops/agc.hh"
-#include "ExSeisDat/PIOL/ops/minmax.hh"
-#include "ExSeisDat/PIOL/ops/sort.hh"
-#include "ExSeisDat/PIOL/ops/taper.hh"
-#include "ExSeisDat/PIOL/ops/temporalfilter.hh"
+#include "ExSeisDat/PIOL/operations/agc.hh"
+#include "ExSeisDat/PIOL/operations/minmax.hh"
+#include "ExSeisDat/PIOL/operations/sort.hh"
+#include "ExSeisDat/PIOL/operations/taper.hh"
+#include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
 

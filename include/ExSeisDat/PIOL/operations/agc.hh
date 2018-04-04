@@ -1,9 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date May 2017
-/// @brief The Automatic Gain Control Operation
+/// @brief   The Automatic Gain Control Operation
 /// @details This function allows for automatic gain control to be applied to
 ///          traces in order to equalize signal amplitude for display purposes.
 ///          It uses a user defined window to adjust the gain using a user
@@ -14,8 +11,8 @@
 ///          to the jth sample in every trace. The window has a spatial
 ///          componet.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOPSAGC_INCLUDE_GUARD
-#define PIOLOPSAGC_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OPERATIONS_AGC_HH
+#define EXSEISDAT_PIOL_OPERATIONS_AGC_HH
 
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"

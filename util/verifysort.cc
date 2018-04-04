@@ -2,7 +2,7 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/ops/sort.hh"
+#include "ExSeisDat/PIOL/operations/sort.hh"
 
 #include <algorithm>
 #include <assert.h>

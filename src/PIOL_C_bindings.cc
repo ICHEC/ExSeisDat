@@ -14,7 +14,7 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
-#include "ExSeisDat/PIOL/ops/minmax.hh"
+#include "ExSeisDat/PIOL/operations/minmax.hh"
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/segy.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
