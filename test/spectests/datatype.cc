@@ -36,12 +36,10 @@ TEST(Datatype, getHost32Bit3)
 std::string printBinary(uint32_t val)
 {
     std::stringstream s;
-    s << "Number = ";
     for (int i = 31; i >= 0; i--) {
-        if (!((i + 1) % 4)) s << " ";
+        if (!((i + 1) % 4) && i != 31) s << " ";
         s << ((val >> i) & 0x1);
     }
-    s << "\n";
     return s.str();
 }
 
@@ -49,6 +47,7 @@ std::string printBinary(uint32_t val)
 struct IBM_native_pair {
     std::bitset<32> ibm;
     std::bitset<32> native;
+    long double value;
 
     IBM_native_pair(const std::bitset<32> ibm, const std::bitset<32> native) :
         ibm(ibm),
@@ -122,10 +121,11 @@ IBM_native_pair make_IBM_native_pair(
       ibm_byte_1 << 24 | ibm_byte_2 << 16 | ibm_byte_3 << 8 | ibm_byte_4 << 0;
 
     // Construct the equivalent value using the native floating point number.
-    // In these tests, we assume this is IEEE 754 binary32.
+    // In these tests, we assume this is IEEE 754 binary32 with rounding for
+    // any truncated bits.
     const float native_value =
-      sign * static_cast<float>(significand)
-      * std::pow(2.0f, static_cast<int>(-24 + 4 * exponent));
+      sign * static_cast<long double>(significand)
+      * std::pow(2.0L, static_cast<long double>(-24 + 4 * exponent));
 
     // Convert the native rep directly into an unsigned type.
     uint32_t native_rep = 0;
@@ -178,36 +178,33 @@ TEST(Datatype, IBMToIEEE)
 
                 // Test the IEEE and natively calculated values are the same
                 // for the IBM float.
+                auto to_float = [](uint32_t i) {
+                    float f = 0;
+                    std::memcpy(&f, &i, sizeof(float));
+                    return f;
+                };
 
-                if (std::fpclassify(ieee) == FP_SUBNORMAL) {
-                    // Ignore rounding for denormal values
-                    const uint32_t a = std::min(built_float, built_ieee);
-                    const uint32_t b = std::max(built_float, built_ieee);
-                    ASSERT_TRUE((b - a) <= 1);
-                }
-                else {
-
-                    auto to_float = [](uint32_t i) {
-                        float f = 0;
-                        std::memcpy(&f, &i, sizeof(float));
-                        return f;
-                    };
-
-                    // Test exact equality for normal values
-                    ASSERT_EQ(built_float, built_ieee)
-                      << std::endl
-                      << "sign: " << sign << std::endl
-                      << "exponent: " << static_cast<int>(exponent) << std::endl
-                      << "significand: " << printBinary(significand) << " , "
-                      << std::hex << significand << std::endl
-                      << std::endl
-                      << "Native: " << std::hexfloat << to_float(built_float)
-                      << std::endl
-                      << printBinary(built_float) << std::endl
-                      << "IEEE:   " << std::hexfloat << to_float(built_ieee)
-                      << std::endl
-                      << printBinary(built_ieee) << std::endl;
-                }
+                // Test exact equality for normal values
+                ASSERT_EQ(built_float, built_ieee)
+                  << std::endl
+                  << "sign: " << sign << std::endl
+                  << "exponent: " << static_cast<int>(exponent) << std::endl
+                  << "significand: " << printBinary(significand) << " , "
+                  << std::hex << significand << std::endl
+                  << std::endl
+                  << "IBM: " << std::endl
+                  << "SCCC CCCC QQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
+                  << printBinary(built_ibm) << std::endl
+                  << std::endl
+                  << "Native: " << std::hexfloat << to_float(built_float)
+                  << std::endl
+                  << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
+                  << printBinary(built_float) << std::endl
+                  << std::endl
+                  << "IEEE:   " << std::hexfloat << to_float(built_ieee)
+                  << std::endl
+                  << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
+                  << printBinary(built_ieee) << std::endl;
             }
         }
     }

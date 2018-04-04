@@ -123,6 +123,67 @@ FloatComponents from_IBM(uint32_t ibm_float, bool big_endian)
 }
 
 
+/// Right shift the value \c value \c shift places to the right
+/// (i.e. `\c value >> \c shift`, or divide by 2**(\c shift)), applying
+/// round-half-even rounding to the result. This is intended to emulate casting
+/// from double to float.
+/// @param[in] value The value to right shift.
+/// @param[in] shift The amount to right shift by.
+/// @returns The result of \c value >> \c shift, with round-half-even applied.
+static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift) {
+
+    // Get the part of the `value` that will be truncated. This will be the
+    // last `shift` bits
+
+    // mask is 0000 0000 ... 1111, where the 1s are `shift` bits wide
+    const uint32_t mask = (1UL << shift) - 1;
+
+    // trunc is the last `shift` bits of `value`
+    const uint32_t trunc = value & mask;
+
+    // Shift and truncate `value`.
+    uint32_t truncated_value = value >> shift;
+
+    // Apply rounding
+
+    // We use round-half-even rounding, as that's the most common rounding
+    // implementation for IEEE numbers.
+    //
+    // In round-half-even rounding, if a number is exactly 0bxxxx.1000...,
+    // i.e. exactly half-way between two integer values, it is always
+    // rounded to the nearest even integer.
+    //
+    // The following is a list of all the potential roundings:
+    //      0bxxx0.0...1 = QQQ0
+    //      0bxxx0.10    = QQQ0
+    //      0bxxx0.1...1 = QQQ1
+    //      0bxxx1.10    = QQQ1 + 0001
+    //      0bxxx1.0...1 = QQQ1
+    //      0bxxx1.1...1 = QQQ1
+
+
+    // half is the value 0000...1000... representing when the truncated
+    // part is exactly half, i.e. 0b0.1000...
+    const uint32_t half = (1UL << (shift-1));
+
+    // If the truncated part is > 0b0.1000, round up. When it's < 0b0.1000,
+    // round down, i.e. just allow the number to be truncated.
+    if(trunc > half) {
+        truncated_value += 1;
+    }
+    else if(trunc == half) {
+        // If the truncated part is exactly half, and value is odd, round
+        // up, i.e. round to the nearest even.
+        // If it's even, just allow it to remain truncated.
+        if((truncated_value & 0x01) == 0x01) {
+            truncated_value += 1;
+        }
+    }
+
+    return truncated_value;
+}
+
+
 uint32_t to_IEEE(FloatComponents components)
 {
     uint32_t sign = components.sign;
@@ -178,7 +239,8 @@ uint32_t to_IEEE(FloatComponents components)
     if (exp <= 0) {
         // denorm numbers get an extra shift of 1, because they're in the
         // form 0.bbbb... rather than 1.bbbb... for regular numbers.
-        frac = frac >> (-exp + 1);
+
+        frac = rshift_with_rounding(frac, -exp+1);
         exp  = 0;
     }
 
