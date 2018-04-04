@@ -1,18 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date May 2017
-/// @brief
-/// @details
+/// @brief The \c decompose functions decompose a range over a number of
+///        processes.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_SHARE_DECOMP_HH
-#define EXSEISDAT_PIOL_SHARE_DECOMP_HH
+#ifndef EXSEISDAT_PIOL_DECOMPOSE_H
+#define EXSEISDAT_PIOL_DECOMPOSE_H
 
-#ifdef __cplusplus
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/ReadInterface.hh"
-#endif  // __cplusplus
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +38,9 @@ struct PIOL_Range PIOL_decompose(size_t sz, size_t numRank, size_t rank);
 
 
 #ifdef __cplusplus
+
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/PIOL/ReadInterface.hh"
 
 namespace PIOL {
 
@@ -77,4 +74,4 @@ Range decompose(ExSeisPIOL* piol, ReadInterface* file);
 
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_PIOL_SHARE_DECOMP_HH
+#endif  // EXSEISDAT_PIOL_DECOMPOSE_H

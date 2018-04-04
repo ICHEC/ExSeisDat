@@ -7,7 +7,7 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/share/decomp.hh"
+#include "ExSeisDat/PIOL/decompose.h"
 
 
 extern "C" {

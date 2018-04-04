@@ -6,8 +6,8 @@
 #ifndef EXSEISDAT_PIOL_UNIRAY_HH
 #define EXSEISDAT_PIOL_UNIRAY_HH
 
+#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
-#include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <tuple>

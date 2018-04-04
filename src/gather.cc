@@ -6,9 +6,9 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/PIOL/share/decomp.hh"
 
 namespace PIOL {
 

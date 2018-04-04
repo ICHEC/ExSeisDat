@@ -182,46 +182,45 @@ include_directories(
 add_library(
     exseisdat
 
-    src/ExSeis.cc
-    src/ExSeisPIOL.cc
-    src/Flow.cc
-
     src/PIOL_C_bindings.cc
     src/Flow_C_bindings.cc
 
-    src/ReadDirect.cc
-    src/ReadModel.cc
-    src/WriteDirect.cc
+    src/Flow.cc
 
-    src/ReadInterface.cc
-    src/WriteInterface.cc
-
-    src/ReadSEGY.cc
-    src/ReadSEGYModel.cc
-    src/WriteSEGY.cc
-    src/Rule.cc
+    src/CommunicatorMPI.cc
     src/DataMPIIO.cc
+    src/ExSeis.cc
+    src/ExSeisPIOL.cc
+    src/Logger.cc
     src/ObjectInterface.cc
     src/ObjectSEGY.cc
-    src/CommunicatorMPI.cc
-    src/Logger.cc
     src/Param.cc
-    src/param_utils.cc
+    src/ReadDirect.cc
+    src/ReadInterface.cc
+    src/ReadModel.cc
+    src/ReadSEGY.cc
+    src/ReadSEGYModel.cc
+    src/Rule.cc
+    src/WriteDirect.cc
+    src/WriteInterface.cc
+    src/WriteSEGY.cc
 
-    src/segy_utils.cc
-    src/mpi_utils.cc
     src/character_encoding.cc
+    src/decompose.cc
+    src/mpi_utils.cc
+    src/param_utils.cc
+    src/segy_utils.cc
 
     src/agc.cc
-    src/cache.cc
-    src/decomp.cc
     src/gather.cc
     src/minmax.cc
-    src/misc.cc
-    src/sdatatype.cc
     src/sort.cc
     src/taper.cc
     src/temporalfilter.cc
+
+    src/misc.cc
+    src/sdatatype.cc
+    src/cache.cc
 )
 
 target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})

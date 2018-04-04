@@ -9,8 +9,8 @@
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
+#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/PIOL/share/decomp.hh"
 
 #include <numeric>
 

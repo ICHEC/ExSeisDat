@@ -4,8 +4,8 @@
 /// @details The \c ReadInterface is a generic interface for reading seismic
 ///          data files.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_FILE_READINTERFACE_HH
-#define EXSEISDAT_PIOL_FILE_READINTERFACE_HH
+#ifndef EXSEISDAT_PIOL_READINTERFACE_HH
+#define EXSEISDAT_PIOL_READINTERFACE_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
@@ -171,4 +171,4 @@ class ReadInterface {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_FILE_READINTERFACE_HH
+#endif  // EXSEISDAT_PIOL_READINTERFACE_HH

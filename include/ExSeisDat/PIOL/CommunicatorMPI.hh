@@ -9,8 +9,8 @@
 ///          everything within the MPI specification except those features which
 ///          are related to MPI-IO or overlap with MPI-IO.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLANCCMPI_INCLUDE_GUARD
-#define PIOLANCCMPI_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_COMMUNICATORMPI_HH
+#define EXSEISDAT_PIOL_COMMUNICATORMPI_HH
 
 #include "ExSeisDat/PIOL/CommunicatorInterface.hh"
 #include "ExSeisDat/PIOL/Logger.hh"
@@ -71,4 +71,4 @@ class CommunicatorMPI : public CommunicatorInterface {
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_COMMUNICATORMPI_HH

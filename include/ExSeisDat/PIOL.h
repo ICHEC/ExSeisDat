@@ -10,8 +10,8 @@
 #define EXSEISDAT_PIOL_H
 
 #include "ExSeisDat/PIOL/Verbosity.h"
+#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/share/api.hh"
-#include "ExSeisDat/PIOL/share/decomp.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <mpi.h>
