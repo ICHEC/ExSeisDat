@@ -2,8 +2,8 @@
 /// @file
 /// @brief The SEGY implementation of the \c WriteInterface
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_FILE_WRITESEGY_HH
-#define EXSEISDAT_PIOL_FILE_WRITESEGY_HH
+#ifndef EXSEISDAT_PIOL_WRITESEGY_HH
+#define EXSEISDAT_PIOL_WRITESEGY_HH
 
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
@@ -113,4 +113,4 @@ class WriteSEGY : public WriteInterface {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_FILE_WRITESEGY_HH
+#endif  // EXSEISDAT_PIOL_WRITESEGY_HH

@@ -5,8 +5,8 @@
 /// @date November 2016
 /// @brief The Set layer interface
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSET_INCLUDE_GUARD
-#define PIOLSET_INCLUDE_GUARD
+#ifndef EXSEISDAT_FLOW_SET_HH
+#define EXSEISDAT_FLOW_SET_HH
 
 #include "ExSeisDat/Flow/cache.hh"
 #include "ExSeisDat/Flow/share.hh"
@@ -578,4 +578,4 @@ class Set {
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_FLOW_SET_HH

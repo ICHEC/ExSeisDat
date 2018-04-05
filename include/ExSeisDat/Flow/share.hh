@@ -5,8 +5,8 @@
 /// @date May 2017
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSETSHARE_INCLUDE_GUARD
-#define PIOLSETSHARE_INCLUDE_GUARD
+#ifndef EXSEISDAT_FLOW_SHARE_HH
+#define EXSEISDAT_FLOW_SHARE_HH
 
 #include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/ReadInterface.hh"
@@ -54,4 +54,4 @@ typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_FLOW_SHARE_HH

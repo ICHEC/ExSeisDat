@@ -6,8 +6,8 @@
 /// @details This file will be called by C++ and C11 code as well as internal
 ///          code and external facing library headers.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSHAREAPI_INCLUDE_GUARD
-#define PIOLSHAREAPI_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_SHARE_API_HH
+#define EXSEISDAT_PIOL_SHARE_API_HH
 
 #include "ExSeisDat/PIOL/typedefs.h"
 
@@ -404,4 +404,4 @@ enum class PadType : int {
 #endif  // __cplusplus
 
 
-#endif
+#endif  // EXSEISDAT_PIOL_SHARE_API_HH

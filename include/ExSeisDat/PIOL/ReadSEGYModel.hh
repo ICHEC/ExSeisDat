@@ -2,8 +2,8 @@
 /// @file
 /// @brief The \c ReadSEGYModel class reads SEGY velocity models.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_FILE_READSEGYMODEL_HH
-#define EXSEISDAT_PIOL_FILE_READSEGYMODEL_HH
+#ifndef EXSEISDAT_PIOL_READSEGYMODEL_HH
+#define EXSEISDAT_PIOL_READSEGYMODEL_HH
 
 #include "ExSeisDat/PIOL/Model3dInterface.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
@@ -60,4 +60,4 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_FILE_READSEGYMODEL_HH
+#endif  // EXSEISDAT_PIOL_READSEGYMODEL_HH

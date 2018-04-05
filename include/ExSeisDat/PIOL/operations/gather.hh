@@ -1,16 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date May 2017
 /// @brief
+/// @todo Note, these functions are intentionally specific because we need
+///       further use cases to generalise the functionality.
 ////////////////////////////////////////////////////////////////////////////////
 
-// TODO: Note, these functions are intentionally specific because we need
-//       further use cases to generalise the functionality.
-
-#ifndef PIOLOPSGATHER_INCLUDE_GUARD
-#define PIOLOPSGATHER_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
+#define EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 
 #include "ExSeisDat/PIOL/Uniray.hh"
 
@@ -30,4 +26,4 @@ Uniray<size_t, llint, llint> getIlXlGathers(
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_OPERATIONS_GATHER_HH

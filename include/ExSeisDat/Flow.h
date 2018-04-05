@@ -4,10 +4,10 @@
 /// @copyright TBD. Do not distribute
 /// @date December 2016
 /// @brief
-/// @details C11 Set API header
+/// @details C11 Flow API header
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLCSET_INCLUDE_GUARD
-#define PIOLCSET_INCLUDE_GUARD
+#ifndef EXSEISDAT_FLOW_H
+#define EXSEISDAT_FLOW_H
 
 #include "PIOL.h"
 
@@ -118,4 +118,4 @@ void PIOL_Set_AGC(
 }  // extern "C"
 #endif
 
-#endif
+#endif  // EXSEISDAT_FLOW_H

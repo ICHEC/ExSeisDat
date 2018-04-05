@@ -7,8 +7,8 @@
 ///        physical constants etc.
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSHAREUNITS_INCLUDE_GUARD
-#define PIOLSHAREUNITS_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_SHARE_UNITS_HH
+#define EXSEISDAT_PIOL_SHARE_UNITS_HH
 
 #include "ExSeisDat/PIOL/typedefs.h"
 
@@ -34,4 +34,4 @@ constexpr trace_t pi_t = PIOL_PI;
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_SHARE_UNITS_HH

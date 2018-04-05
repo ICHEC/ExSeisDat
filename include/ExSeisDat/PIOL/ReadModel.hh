@@ -4,8 +4,8 @@
 /// @details The \c ReadModel class
 /// @todo document me
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOL_READMODEL_HH
-#define PIOL_READMODEL_HH
+#ifndef EXSEISDAT_PIOL_READMODEL_HH
+#define EXSEISDAT_PIOL_READMODEL_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
@@ -35,4 +35,4 @@ class ReadModel : public ReadDirect {
 
 }  // namespace PIOL
 
-#endif  // PIOL_READMODEL_HH
+#endif  // EXSEISDAT_PIOL_READMODEL_HH

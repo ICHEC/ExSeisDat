@@ -2,8 +2,8 @@
 /// @file
 /// @brief The SEGY implementation for \c ReadInterface
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_FILE_READSEGY_HH
-#define EXSEISDAT_PIOL_FILE_READSEGY_HH
+#ifndef EXSEISDAT_PIOL_READSEGY_HH
+#define EXSEISDAT_PIOL_READSEGY_HH
 
 #include "ExSeisDat/PIOL/ReadInterface.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
@@ -93,4 +93,4 @@ class ReadSEGY : public ReadInterface {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_FILE_READSEGY_HH
+#endif  // EXSEISDAT_PIOL_READSEGY_HH

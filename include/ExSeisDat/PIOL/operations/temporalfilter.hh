@@ -5,8 +5,8 @@
 /// @date May 2017
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOPSTEMPORALFILTER_INCLUDE_GUARD
-#define PIOLOPSTEMPORALFILTER_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH
+#define EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH
 
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
@@ -198,4 +198,4 @@ void temporalFilter(
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH

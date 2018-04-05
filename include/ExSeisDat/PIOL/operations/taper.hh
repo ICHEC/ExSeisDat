@@ -4,8 +4,8 @@
 /// @copyright TBD. Do not distribute
 /// @date May 2017
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOPSTAPER_INCLUDE_GUARD
-#define PIOLOPSTAPER_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OPERATIONS_TAPER_HH
+#define EXSEISDAT_PIOL_OPERATIONS_TAPER_HH
 
 #include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
@@ -44,4 +44,4 @@ TaperFunc getTap(TaperType type);
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_OPERATIONS_TAPER_HH

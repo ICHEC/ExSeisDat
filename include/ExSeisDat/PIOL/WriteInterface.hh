@@ -4,8 +4,8 @@
 /// @details The \c WriteInterface is a generic interface for reading seismic
 ///          data files.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH
-#define EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH
+#ifndef EXSEISDAT_PIOL_WRITEINTERFACE_HH
+#define EXSEISDAT_PIOL_WRITEINTERFACE_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
@@ -156,4 +156,4 @@ class WriteInterface {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_FILE_WRITEINTERFACE_HH
+#endif  // EXSEISDAT_PIOL_WRITEINTERFACE_HH

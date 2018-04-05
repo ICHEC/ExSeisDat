@@ -5,8 +5,8 @@
 /// @date May 2017
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLSETCACHE_INCLUDE_GUARD
-#define PIOLSETCACHE_INCLUDE_GUARD
+#ifndef EXSEISDAT_FLOW_CACHE_HH
+#define EXSEISDAT_FLOW_CACHE_HH
 
 #include "ExSeisDat/Flow/share.hh"
 
@@ -168,4 +168,4 @@ class Cache {
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_FLOW_CACHE_HH

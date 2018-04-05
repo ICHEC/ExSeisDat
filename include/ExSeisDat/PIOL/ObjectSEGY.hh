@@ -6,8 +6,8 @@
 /// @brief The SEGY implementation of the Object layer interface
 /// @details The SEGY specific implementation of the Object layer interface
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOBJSEGY_INCLUDE_GUARD
-#define PIOLOBJSEGY_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OBJECTSEGY_HH
+#define EXSEISDAT_PIOL_OBJECTSEGY_HH
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
@@ -118,4 +118,4 @@ class ObjectSEGY : public ObjectInterface {
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_OBJECTSEGY_HH

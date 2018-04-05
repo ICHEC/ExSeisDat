@@ -4,8 +4,8 @@
 /// @details The \c Model3dInterface is a generic interface for reading 3d
 ///          volumetric seismic data.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_FILE_MODEL3DINTERFACE_HH
-#define EXSEISDAT_PIOL_FILE_MODEL3DINTERFACE_HH
+#ifndef EXSEISDAT_PIOL_MODEL3DINTERFACE_HH
+#define EXSEISDAT_PIOL_MODEL3DINTERFACE_HH
 
 #include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
@@ -77,4 +77,4 @@ class Model3dInterface {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_FILE_MODEL3DINTERFACE_HH
+#endif  // EXSEISDAT_PIOL_MODEL3DINTERFACE_HH

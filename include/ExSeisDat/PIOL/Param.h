@@ -5,8 +5,8 @@
 ///          The PIOL_PARAM_NULL macro is also defined here, along with the
 ///          PIOL_Param typedef for C export.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_PARAM_HH
-#define EXSEISDAT_PIOL_PARAM_HH
+#ifndef EXSEISDAT_PIOL_PARAM_H
+#define EXSEISDAT_PIOL_PARAM_H
 
 // Forward declare PIOL::Param as PIOL_Param for C export.
 #ifdef __cplusplus
@@ -116,4 +116,4 @@ struct Param {
 
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_PIOL_PARAM_HH
+#endif  // EXSEISDAT_PIOL_PARAM_H
