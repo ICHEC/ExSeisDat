@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     std::string opt   = "i:o:t:d";  // TODO: uses a GNU extension
     std::string name1 = "";
-    auto type         = PIOL_SORTTYPE_SrcRcv;
+    SortType type     = PIOL_SORTTYPE_SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str()))
         switch (c) {
@@ -42,10 +42,12 @@ int main(int argc, char** argv)
     // Perform the decomposition and read coordinates of interest.
     auto dec = decompose(piol.get(), src);
 
-    if (checkOrder(src, dec, type))
+    if (checkOrder(src, dec, type)) {
         std::cout << "Success\n";
-    else
+    }
+    else {
         std::cerr << "Failure\n";
+    }
 
     return 0;
 }
