@@ -9,10 +9,11 @@
 #ifndef EXSEISDAT_PIOL_H
 #define EXSEISDAT_PIOL_H
 
+#include "ExSeisDat/PIOL/Meta.h"
+#include "ExSeisDat/PIOL/Tr.h"
 #include "ExSeisDat/PIOL/Verbosity.h"
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/minmax.h"
-#include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <mpi.h>

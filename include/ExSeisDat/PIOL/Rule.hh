@@ -15,9 +15,9 @@
 #ifndef EXSEISDAT_PIOL_RULE_HH
 #define EXSEISDAT_PIOL_RULE_HH
 
+#include "ExSeisDat/PIOL/Meta.h"
 #include "ExSeisDat/PIOL/RuleEntry.hh"
-
-#include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/Tr.h"
 
 #include <cstddef>
 #include <cstdint>

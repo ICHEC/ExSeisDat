@@ -8,7 +8,6 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH
 #define EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH
 
-#include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <functional>
@@ -16,8 +15,49 @@
 
 namespace PIOL {
 
+/// An enum class of the different types of filters.
+enum class FltrType : int {
+    /// Create Lowpass IIR Butterworth filter
+    Lowpass,
+
+    /// Create Highpass IIR Butterworth filter
+    Highpass,
+
+    /// Create Bandpass IIR Butterworth filter
+    Bandpass,
+
+    /// Create Bandstop IIR Butterworth filter
+    Bandstop
+};
+
+/// An enum class of the different types of filtering domains.
+enum class FltrDmn : int {
+    /// Filter in time domain
+    Time,
+
+    /// Filter in frequency domain
+    Freq
+};
+
+/// An enum class of the different types of trace padding functions.
+enum class PadType : int {
+    /// Pad using zeros
+    Zero,
+
+    /// Pad using reflection of trace
+    Symmetric,
+
+    /// Pad using closest value in trace
+    Replicate,
+
+    /// Pad using values from other end of trace
+    Cyclic
+};
+
+
 /// Typedef for filter padding funcitons
 typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)> FltrPad;
+
 
 /*! Determines the filter order if given passband and stopband frequecnies
  *  @param[in] cornerP Passband corner

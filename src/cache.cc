@@ -13,8 +13,6 @@
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
-#include "ExSeisDat/PIOL/share/api.hh"
-
 // TODO: Remove when all options implemented
 #include <iostream>
 

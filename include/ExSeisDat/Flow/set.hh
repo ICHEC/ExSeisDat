@@ -15,6 +15,7 @@
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
+#include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

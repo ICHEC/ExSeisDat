@@ -14,7 +14,7 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_AGC_HH
 #define EXSEISDAT_PIOL_OPERATIONS_AGC_HH
 
-#include "ExSeisDat/PIOL/share/api.hh"
+#include "ExSeisDat/PIOL/AGCType.h"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <functional>

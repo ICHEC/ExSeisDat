@@ -9,8 +9,6 @@
 #include "ExSeisDat/PIOL/RuleEntry.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
-#include "ExSeisDat/PIOL/share/api.hh"
-
 #include <algorithm>
 
 namespace PIOL {

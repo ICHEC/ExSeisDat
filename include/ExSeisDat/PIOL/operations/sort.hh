@@ -13,8 +13,8 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/SortType.h"
 #include "ExSeisDat/PIOL/decompose.h"
-#include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 namespace PIOL {

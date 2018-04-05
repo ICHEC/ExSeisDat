@@ -16,8 +16,6 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
-#include "ExSeisDat/PIOL/share/api.hh"
-
 #include <algorithm>
 #include <numeric>
 

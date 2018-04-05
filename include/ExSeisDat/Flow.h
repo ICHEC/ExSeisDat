@@ -9,6 +9,9 @@
 #ifndef EXSEISDAT_FLOW_H
 #define EXSEISDAT_FLOW_H
 
+#include "ExSeisDat/PIOL/AGCType.h"
+#include "ExSeisDat/PIOL/SortType.h"
+#include "ExSeisDat/PIOL/TaperType.h"
 #include "PIOL.h"
 
 //

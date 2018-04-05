@@ -34,7 +34,6 @@ typedef PIOL_CoordElem CoordElem;
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <algorithm>

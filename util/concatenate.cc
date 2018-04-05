@@ -12,7 +12,6 @@
 
 #include "ExSeisDat/Flow/set.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/share/api.hh"
 
 #include <assert.h>
 #include <iostream>

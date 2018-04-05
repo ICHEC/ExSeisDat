@@ -11,7 +11,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/operations/agc.hh"
-#include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <algorithm>

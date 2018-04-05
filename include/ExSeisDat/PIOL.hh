@@ -42,7 +42,6 @@
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/share/api.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
