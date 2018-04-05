@@ -11,7 +11,7 @@
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

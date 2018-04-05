@@ -33,10 +33,6 @@ class WriteSEGY : public WriteInterface {
     /// If it hasn't been set before file writing, the output is likely garbage.
     bool nsSet = false;
 
-    /// Type formats
-    SEGY_utils::SEGYNumberFormat number_format =
-      SEGY_utils::SEGYNumberFormat::IEEE;
-
     /*! State flags structure for SEGY
      */
     struct Flags {

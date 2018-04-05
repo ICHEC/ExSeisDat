@@ -1,12 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef ANCDATATYPE_INCLUDE_GUARD
-#define ANCDATATYPE_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_NUMBER_ENCODING_HH
+#define EXSEISDAT_PIOL_NUMBER_ENCODING_HH
 
 #include "ExSeisDat/PIOL/typedefs.h"
 
@@ -155,4 +152,4 @@ float convertIBMtoIEEE(const float f, bool bigEndian);
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_NUMBER_ENCODING_HH

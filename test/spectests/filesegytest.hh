@@ -14,9 +14,9 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
+#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/share/datatype.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 
 #include <algorithm>

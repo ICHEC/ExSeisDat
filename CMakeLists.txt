@@ -208,6 +208,7 @@ add_library(
     src/character_encoding.cc
     src/decompose.cc
     src/mpi_utils.cc
+    src/number_encoding.cc
     src/param_utils.cc
     src/segy_utils.cc
 
@@ -219,7 +220,6 @@ add_library(
     src/temporalfilter.cc
 
     src/misc.cc
-    src/sdatatype.cc
     src/cache.cc
 )
 

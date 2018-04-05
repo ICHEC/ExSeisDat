@@ -13,7 +13,7 @@
 #define EXSEISDAT_PIOL_SEGY_UTILS_HH
 
 #include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 

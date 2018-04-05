@@ -7,7 +7,7 @@
 ///  datatypes \details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/share/datatype.hh"
+#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cstring>
@@ -131,7 +131,8 @@ FloatComponents from_IBM(uint32_t ibm_float, bool big_endian)
 /// @param[in] value The value to right shift.
 /// @param[in] shift The amount to right shift by.
 /// @returns The result of \c value >> \c shift, with round-half-even applied.
-static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift) {
+static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift)
+{
 
     // Get the part of the `value` that will be truncated. This will be the
     // last `shift` bits
@@ -165,18 +166,18 @@ static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift) {
 
     // half is the value 0000...1000... representing when the truncated
     // part is exactly half, i.e. 0b0.1000...
-    const uint32_t half = (1UL << (shift-1));
+    const uint32_t half = (1UL << (shift - 1));
 
     // If the truncated part is > 0b0.1000, round up. When it's < 0b0.1000,
     // round down, i.e. just allow the number to be truncated.
-    if(trunc > half) {
+    if (trunc > half) {
         truncated_value += 1;
     }
-    else if(trunc == half) {
+    else if (trunc == half) {
         // If the truncated part is exactly half, and value is odd, round
         // up, i.e. round to the nearest even.
         // If it's even, just allow it to remain truncated.
-        if((truncated_value & 0x01) == 0x01) {
+        if ((truncated_value & 0x01) == 0x01) {
             truncated_value += 1;
         }
     }
@@ -241,7 +242,7 @@ uint32_t to_IEEE(FloatComponents components)
         // denorm numbers get an extra shift of 1, because they're in the
         // form 0.bbbb... rather than 1.bbbb... for regular numbers.
 
-        frac = rshift_with_rounding(frac, -exp+1);
+        frac = rshift_with_rounding(frac, -exp + 1);
         exp  = 0;
     }
 
