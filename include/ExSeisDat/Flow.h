@@ -15,9 +15,9 @@
 // Forward declare types used for C API handles
 //
 #ifdef __cplusplus
-namespace PIOL {
-class Set;
-}  // namespace PIOL
+#include "ExSeisDat/Flow/set.hh"
+
+/// @copydoc PIOL::Set
 typedef PIOL::Set PIOL_Set;
 #else
 // Forward declare an opaque struct in C

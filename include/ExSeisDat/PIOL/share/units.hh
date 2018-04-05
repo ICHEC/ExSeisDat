@@ -12,6 +12,7 @@
 
 #include "ExSeisDat/PIOL/typedefs.h"
 
+/// A definition of PI.
 #define PIOL_PI (3.14159265358979323846264338327950288)
 
 namespace PIOL {

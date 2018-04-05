@@ -24,6 +24,7 @@ struct PIOL_CoordElem {
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_CoordElem
 typedef PIOL_CoordElem CoordElem;
 }  // namespace PIOL
 #endif  // __cplusplus

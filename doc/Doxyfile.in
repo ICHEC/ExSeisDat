@@ -79,6 +79,7 @@ GENERATE_MAN           = NO
 
 # Macro options
 ENABLE_PREPROCESSING   = YES
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
+PREDEFINED             = __cplusplus
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 

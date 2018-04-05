@@ -17,6 +17,7 @@ typedef size_t PIOL_Meta;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_Meta
 typedef PIOL_Meta Meta;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -142,6 +143,7 @@ typedef size_t PIOL_Tr;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_Tr
 typedef PIOL_Tr Tr;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -273,6 +275,7 @@ typedef size_t PIOL_SortType;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_SortType
 typedef PIOL_SortType SortType;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -311,6 +314,7 @@ typedef size_t PIOL_TaperType;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_TaperType
 typedef PIOL_TaperType TaperType;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -331,6 +335,7 @@ typedef size_t PIOL_AGCType;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_AGCType
 typedef PIOL_AGCType AGCType;
 }  // namespace PIOL
 #endif  // __cplusplus

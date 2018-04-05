@@ -22,16 +22,6 @@ PIOL_Range PIOL_decompose(size_t sz, size_t numRank, size_t rank)
 
 namespace PIOL {
 
-/*! An overload for a common decomposition case. Perform a decomposition of
- *  traces so that the load is optimally balanced.
- *  @param[in] piol The piol object
- *  @param[in] file A read file object. This is used to find the number of
- *             traces.
- *  @return Return a pair (offset, size).
- *          The first element is the offset for the local process,
- *          the second is the size for the local process.
- *  @todo DELETE THIS DOC
- */
 Range decompose(ExSeisPIOL* piol, ReadInterface* file)
 {
     return decompose(

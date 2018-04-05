@@ -14,6 +14,7 @@ namespace PIOL {
 struct Param;
 }  // namespace PIOL
 
+/// @copydoc PIOL::Param
 typedef PIOL::Param PIOL_Param;
 #else   // __cplusplus
 typedef struct PIOL_Param PIOL_Param;

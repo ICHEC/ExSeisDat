@@ -29,10 +29,19 @@
 
 #include <memory>
 
+/// @copydoc PIOL::ExSeis
 typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeis;
+
+/// @copydoc PIOL::Rule
 typedef std::shared_ptr<PIOL::Rule> PIOL_File_Rule;
+
+/// @copydoc PIOL::Param
 typedef PIOL::Param PIOL_File_Param;
+
+/// @copydoc PIOL::ReadDirect
 typedef PIOL::ReadDirect PIOL_File_ReadDirect;
+
+/// @copydoc PIOL::WriteDirect
 typedef PIOL::WriteDirect PIOL_File_WriteDirect;
 
 #else  // __cplusplus

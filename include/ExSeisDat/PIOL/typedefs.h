@@ -13,6 +13,7 @@ typedef ptrdiff_t PIOL_llint;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_llint
 typedef PIOL_llint llint;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -23,6 +24,7 @@ typedef float PIOL_trace_t;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_trace_t
 typedef PIOL_trace_t trace_t;
 }  // namespace PIOL
 #endif  // __cplusplus
@@ -33,6 +35,7 @@ typedef double PIOL_geom_t;
 
 #ifdef __cplusplus
 namespace PIOL {
+/// @copydoc PIOL_geom_t
 typedef PIOL_geom_t geom_t;
 }  // namespace PIOL
 #endif  // __cplusplus

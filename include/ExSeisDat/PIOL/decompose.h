@@ -44,6 +44,7 @@ struct PIOL_Range PIOL_decompose(size_t sz, size_t numRank, size_t rank);
 
 namespace PIOL {
 
+/// @copydoc PIOL_Range
 using Range = PIOL_Range;
 
 /*! Perform a 1d decomposition so that the load is optimally balanced.
