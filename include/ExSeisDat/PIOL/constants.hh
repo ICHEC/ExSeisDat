@@ -1,14 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date July 2016
 /// @brief This file contains any necessary SI units, conversion factors,
-///        physical constants etc.
-/// @details
+///        physical constants etc. used in the project.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_SHARE_UNITS_HH
-#define EXSEISDAT_PIOL_SHARE_UNITS_HH
+#ifndef EXSEISDAT_PIOL_CONSTANTS_HH
+#define EXSEISDAT_PIOL_CONSTANTS_HH
 
 #include "ExSeisDat/PIOL/typedefs.h"
 
@@ -17,21 +13,15 @@
 
 namespace PIOL {
 
-/// This namespace is being used like an enum
-namespace SI {
-/// Micro in SI units
-constexpr unit_t Micro = 1.0e-6;
-}  // namespace SI
+/// The micro- prefix in SI units
+constexpr unit_t micro = 1.0e-6;
 
-/// Mathematical constants
-namespace Math {
 /// Pi
 constexpr unit_t pi = PIOL_PI;
 
 /// Pi
 constexpr trace_t pi_t = PIOL_PI;
-}  // namespace Math
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_SHARE_UNITS_HH
+#endif  // EXSEISDAT_PIOL_CONSTANTS_HH

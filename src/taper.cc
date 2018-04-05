@@ -8,7 +8,7 @@
 
 #include "ExSeisDat/PIOL/operations/taper.hh"
 
-#include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <assert.h>
@@ -50,13 +50,13 @@ TaperFunc getTap(TaperType type)
             break;
         case PIOL_TAPERTYPE_Cos:
             return [](trace_t weight, trace_t ramp) {
-                return 0.5f + 0.5f * cos(Math::pi * (weight - ramp) / ramp);
+                return 0.5f + 0.5f * cos(pi * (weight - ramp) / ramp);
             };
             break;
         case PIOL_TAPERTYPE_CosSqr:
             return [](trace_t weight, trace_t ramp) {
                 return pow(
-                  0.5f + 0.5f * cos(Math::pi * (weight - ramp) / ramp), 2.0f);
+                  0.5f + 0.5f * cos(pi * (weight - ramp) / ramp), 2.0f);
             };
             break;
     }

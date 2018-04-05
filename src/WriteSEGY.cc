@@ -10,8 +10,8 @@
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
+#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
 
 #include <cstring>
 #include <limits>
@@ -22,7 +22,7 @@ namespace PIOL {
 
 WriteSEGY::Opt::Opt(void)
 {
-    incFactor = SI::Micro;
+    incFactor = micro;
 }
 
 WriteSEGY::WriteSEGY(

@@ -15,7 +15,7 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
-#include "ExSeisDat/PIOL/share/units.hh"
+#include "ExSeisDat/PIOL/constants.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -25,7 +25,7 @@ namespace PIOL {
 //////////////////////      Constructor & Destructor      //////////////////////
 ReadSEGY::Opt::Opt(void)
 {
-    incFactor = SI::Micro;
+    incFactor = micro;
 }
 
 ReadSEGY::ReadSEGY(

@@ -10,8 +10,8 @@
 ///          or applies the same scalar to all traces at the same height.
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <algorithm>
@@ -41,9 +41,7 @@ size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
       geom_t(0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
 
     return std::ceil(
-      val
-      / std::log(
-          std::tan(Math::pi_t * cornerS) / std::tan(Math::pi_t * cornerP)));
+      val / std::log(std::tan(pi_t * cornerS) / std::tan(pi_t * cornerP)));
 }
 
 void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
@@ -162,8 +160,8 @@ void makeFilter(
   trace_t cf2)
 {
     size_t tN  = (cf2 == 0) ? N : N * 2LU;
-    trace_t Wn = 4 * std::tan(Math::pi_t * (cf1 / (fs * trace_t(0.5))) / 2);
-    trace_t W2 = 4 * std::tan(Math::pi_t * (cf2 / (fs * trace_t(0.5))) / 2);
+    trace_t Wn = 4 * std::tan(pi_t * (cf1 / (fs * trace_t(0.5))) / 2);
+    trace_t W2 = 4 * std::tan(pi_t * (cf2 / (fs * trace_t(0.5))) / 2);
 
     std::vector<cmtrace_t> z(tN);
     std::vector<cmtrace_t> p(tN);
@@ -171,8 +169,7 @@ void makeFilter(
     // Determines the analogue zero-pole-gain representation of filter for given
     // number of poles
     for (llint i = 0; i < N; i++) {
-        p[i] =
-          -exp(I * Math::pi_t * trace_t(1LL + 2LL * i - N) / trace_t(2LL * N));
+        p[i] = -exp(I * pi_t * trace_t(1LL + 2LL * i - N) / trace_t(2LL * N));
     }
 
     // Determines the analogue zero-pole-gain for given filter type at specific

@@ -14,10 +14,10 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
+#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
 
 #include <algorithm>
 #include <memory>
@@ -750,7 +750,7 @@ struct FileWriteSEGYTest : public Test {
         file->writeNs(ns);
         piol->isErr();
 
-        file->writeInc(geom_t(inc * SI::Micro));
+        file->writeInc(geom_t(inc * micro));
         piol->isErr();
 
         file->writeText(testString);

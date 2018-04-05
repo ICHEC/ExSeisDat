@@ -21,7 +21,7 @@ TEST_F(FileSEGYRead, FileReadHO)
     EXPECT_EQ(ns, file->readNs());
     piol->isErr();
 
-    EXPECT_EQ(geom_t(inc * SI::Micro), file->readInc());
+    EXPECT_EQ(geom_t(inc * micro), file->readInc());
     piol->isErr();
 
     std::string text = file->readText();

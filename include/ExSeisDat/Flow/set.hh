@@ -11,12 +11,12 @@
 #include "ExSeisDat/Flow/cache.hh"
 #include "ExSeisDat/Flow/share.hh"
 #include "ExSeisDat/PIOL/Uniray.hh"
+#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <functional>
@@ -479,7 +479,7 @@ class Set {
       std::string vmName,
       const size_t vBin,
       const size_t oGSz,
-      geom_t oInc = Math::pi / geom_t(180LU));
+      geom_t oInc = pi / geom_t(180LU));
 
     /******************************** Non-Core ********************************/
     /*! Sort the set by the specified sort type.

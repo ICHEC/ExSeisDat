@@ -30,6 +30,7 @@
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/character_encoding.hh"
+#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
@@ -42,7 +43,6 @@
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/share/units.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #endif  // EXSEISDAT_PIOL_HH
