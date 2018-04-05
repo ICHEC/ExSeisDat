@@ -9,7 +9,6 @@
 #define PIOLSETCACHE_INCLUDE_GUARD
 
 #include "ExSeisDat/Flow/share.hh"
-#include "ExSeisDat/PIOL/share/misc.hh"
 
 #include <algorithm>
 

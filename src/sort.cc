@@ -1,9 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
-/// @brief The Sort Operation
+/// @brief   The Sort Operation
 /// @details The algorithm used is a nearest neighbour approach where at each
 ///          iteration the lowest valued metadata entries are moved to adjacent
 ///          processes with a lower rank and a sort is performed. After the sort
@@ -12,18 +9,29 @@
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
-
-#include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/share/api.hh"
+
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/PIOL/mpi_utils.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
+
+#include "ExSeisDat/PIOL/share/api.hh"
 
 #include <algorithm>
 #include <numeric>
 
 namespace PIOL {
+
+std::vector<size_t> getSortIndex(size_t sz, const size_t* list)
+{
+    std::vector<size_t> index(sz);
+    std::iota(index.begin(), index.end(), 0);
+    std::sort(index.begin(), index.end(), [list](size_t s1, size_t s2) {
+        return list[s1] < list[s2];
+    });
+    return index;
+}
 
 /*! Calculate the square of the hypotenuse
  *  @param[in] sx The source x coordinate

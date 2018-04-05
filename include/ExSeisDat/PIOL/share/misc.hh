@@ -14,12 +14,6 @@
 
 namespace PIOL {
 
-/*! Get the sorted index associated with a given list (support function)
- *  @param[in] sz The length of the list
- *  @param[in] list The array of numbers
- *  @return A vector containing the numbering of list in a sorted order
- */
-std::vector<size_t> getSortIndex(size_t sz, const size_t* list);
 
 }  // namespace PIOL
 

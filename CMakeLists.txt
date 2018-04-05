@@ -219,7 +219,6 @@ add_library(
     src/taper.cc
     src/temporalfilter.cc
 
-    src/misc.cc
     src/cache.cc
 )
 

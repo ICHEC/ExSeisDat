@@ -1,9 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
-/// @brief The Sort Operation
+/// @brief   The Sort Operation
 /// @details The algorithm used is a nearest neighbour approach where at each
 ///          iteration the lowest valued metadata entries are moved to adjacent
 ///          processes with a lower rank and a sort is performed. After the sort
@@ -11,8 +8,8 @@
 ///          rank. If each process has the same traces it started off with, the
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLOPSSORT_INCLUDE_GUARD
-#define PIOLOPSSORT_INCLUDE_GUARD
+#ifndef EXSEISDAT_PIOL_OPERATIONS_SORT_HH
+#define EXSEISDAT_PIOL_OPERATIONS_SORT_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Param.h"
@@ -30,6 +27,14 @@ using Compare = std::function<bool(const T&, const T&)>;
 typedef std::function<bool(const Param*, const size_t, const size_t)> CompareP;
 
 /************************************ Core ************************************/
+
+/*! Get the sorted index associated with a given list (support function)
+ *  @param[in] sz The length of the list
+ *  @param[in] list The array of numbers
+ *  @return A vector containing the numbering of list in a sorted order
+ */
+std::vector<size_t> getSortIndex(size_t sz, const size_t* list);
+
 /*! Function to sort the metadata in a Param struct. The returned vector is the
  *  location where the nth parameter is located in the sorted list.
  *  Implementation note: the Param vector is used internally to allow
@@ -83,4 +88,4 @@ CompareP getComp(SortType type);
 
 }  // namespace PIOL
 
-#endif
+#endif  // EXSEISDAT_PIOL_OPERATIONS_SORT_HH

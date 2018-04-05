@@ -27,7 +27,6 @@
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/share/misc.hh"  //For getSort..
 #include "ExSeisDat/PIOL/typedefs.h"
 
 // TODO: remove this when all errors are addressed
