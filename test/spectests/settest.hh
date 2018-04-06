@@ -3,7 +3,7 @@
 
 #include "tglobal.hh"
 
-#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/Flow/Set.hh"
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"

@@ -18,7 +18,7 @@
 // Forward declare types used for C API handles
 //
 #ifdef __cplusplus
-#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/Flow/Set.hh"
 
 /// @copydoc PIOL::Set
 typedef PIOL::Set PIOL_Set;

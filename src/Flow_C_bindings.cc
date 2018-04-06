@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/Flow.h"
-#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/Flow/Set.hh"
 
 #include "not_null.hh"
 

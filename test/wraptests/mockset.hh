@@ -4,7 +4,7 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/Flow/Set.hh"
 
 namespace PIOL {
 

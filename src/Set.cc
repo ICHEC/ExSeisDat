@@ -1,66 +1,30 @@
-////////////////////////////////////////////////////////////////////////////////
-/// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
-/// @brief
-/// @details
-////////////////////////////////////////////////////////////////////////////////
+#include "ExSeisDat/Flow/Set.hh"
 
-#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/Flow/Op.hh"
+#include "ExSeisDat/Flow/RadonGatherState.hh"
 
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
-#include "ExSeisDat/PIOL/ReadSEGYModel.hh"
-#include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
+#include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
-#include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/decompose.h"
-#include "ExSeisDat/PIOL/operations/agc.hh"
-#include "ExSeisDat/PIOL/operations/gather.hh"
-#include "ExSeisDat/PIOL/operations/minmax.h"
-#include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/operations/taper.hh"
-#include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
-
-// TODO: remove this when all errors are addressed
-#include <iostream>
-
-#include <assert.h>
 #include <glob.h>
-#include <map>
 #include <numeric>
 #include <regex>
-#include <tuple>
+
+#include <iostream>
 
 namespace PIOL {
 
-/*! For CoordElem. Update the dst element based on if the operation gives true.
- *  If the elements have the same value, set the trace number to the
- *  smallest trace number.
- *  @tparam Op The true/false operation to use for comparison
- *  @param[in] src The source one will be using for updating
- *  @param[in, out] dst The destination which will be updated.
- */
-template<typename Op>
-void updateElem(CoordElem* src, CoordElem* dst)
-{
-    Op op;
-    if (src->val == dst->val)
-        dst->num = std::min(dst->num, src->num);
-    else if (op(src->val, dst->val)) {
-        dst->val = src->val;
-        dst->num = src->num;
-    }
-}
+/// Typedef for functions that have separate input and output of
+/// traces/parameters
+typedef std::function<void(const TraceBlock* in, TraceBlock* out)> Mod;
 
-//////////////////////////////// CLASS MEMBERS /////////////////////////////////
+/// Typedef for functions that have the same input and output of
+/// traces/parameters
+typedef std::function<std::vector<size_t>(TraceBlock* data)> InPlaceMod;
+
 
 Set::Set(
   std::shared_ptr<ExSeisPIOL> piol_,
@@ -159,25 +123,6 @@ void Set::summary(void) const
     }
 }
 
-void RadonState::makeState(
-  const std::vector<size_t>& offset, const Uniray<size_t, llint, llint>& gather)
-{
-    // TODO: DON'T USE MAGIC NAME
-    std::unique_ptr<ReadSEGYModel> vm = makeFile<ReadSEGYModel>(piol, vmname);
-    vNs                               = vm->readNs();
-    vInc                              = vm->readInc();
-
-    vtrc = vm->readModel(offset.size(), offset.data(), gather);
-
-    il.resize(offset.size());
-    xl.resize(offset.size());
-
-    for (size_t i = 0; i < offset.size(); i++) {
-        auto gval = gather[offset[i]];
-        il[i]     = std::get<1>(gval);
-        xl[i]     = std::get<2>(gval);
-    }
-}
 
 // TODO: Gather to Single is fine, Single to Gather is not
 std::unique_ptr<TraceBlock> Set::calcFunc(
@@ -429,7 +374,7 @@ std::string Set::startGather(
 }
 
 // calc for subsets only
-FuncLst::iterator Set::calcFuncS(
+Set::FuncLst::iterator Set::calcFuncS(
   FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque& fQue)
 {
     std::shared_ptr<TraceBlock> block;
@@ -459,7 +404,7 @@ FuncLst::iterator Set::calcFuncS(
     return fCurr;
 }
 
-FuncLst::iterator Set::startSubset(
+Set::FuncLst::iterator Set::startSubset(
   FuncLst::iterator fCurr, const FuncLst::iterator fEnd)
 {
     std::vector<FuncLst::iterator> flist;
@@ -568,9 +513,28 @@ void Set::getMinMax(
         PIOL::getMinMax(
           piol.get(), offset, f->ilst.size(), vprm.data(), xlam, ylam, tminmax);
         for (size_t i = 0LU; i < 2LU; i++) {
-            updateElem<std::less<geom_t>>(&tminmax[2LU * i], &minmax[2LU * i]);
-            updateElem<std::greater<geom_t>>(
-              &tminmax[2LU * i + 1LU], &minmax[2LU * i + 1LU]);
+
+            {
+                auto& tmm = tminmax[2LU * i];
+                auto& mm  = minmax[2LU * i];
+                if (tmm.val == mm.val) {
+                    mm.num = std::min(tmm.num, mm.num);
+                }
+                else if (tmm.val < mm.val) {
+                    mm = tmm;
+                }
+            }
+
+            {
+                auto& tmm2 = tminmax[2LU * i + 1LU];
+                auto& mm2  = minmax[2LU * i + 1LU];
+                if (tmm2.val == mm2.val) {
+                    mm2.num = std::min(tmm2.num, mm2.num);
+                }
+                else if (tmm2.val > mm2.val) {
+                    mm2 = tmm2;
+                }
+            }
         }
     }
 }
@@ -612,10 +576,11 @@ void Set::sort(std::shared_ptr<Rule> r, CompareP sortFunc)
 void Set::toAngle(
   std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
 {
-    OpOpt opt  = {FuncOpt::NeedMeta,   FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal,
+    OpOpt opt = {FuncOpt::NeedMeta,   FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal,
                  FuncOpt::ModMetaVal, FuncOpt::DepTrcVal,  FuncOpt::DepTrcOrder,
                  FuncOpt::DepTrcCnt,  FuncOpt::DepMetaVal, FuncOpt::Gather};
-    auto state = std::make_shared<RadonState>(piol, vmName, vBin, oGSz, oInc);
+    auto state =
+      std::make_shared<RadonGatherState>(piol, vmName, vBin, oGSz, oInc);
     func.emplace_back(std::make_shared<Op<Mod>>(
       opt, rule, state, [state](const TraceBlock* in, TraceBlock* out) {
           const size_t iGSz = in->prm->size();

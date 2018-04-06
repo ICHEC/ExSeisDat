@@ -1,272 +1,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
 /// @brief The Set layer interface
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_FLOW_SET_HH
 #define EXSEISDAT_FLOW_SET_HH
 
 #include "ExSeisDat/Flow/Cache.hh"
-#include "ExSeisDat/PIOL/Uniray.hh"
+#include "ExSeisDat/Flow/FileDesc.hh"
+#include "ExSeisDat/Flow/OpParent.hh"
+
 #include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
 
-#include <functional>
+#include <deque>
 #include <list>
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace PIOL {
-
-/// Typedef for functions that have separate input and output of
-/// traces/parameters
-typedef std::function<void(const TraceBlock* in, TraceBlock* out)> Mod;
-
-/// Typedef for functions that have the same input and output of
-/// traces/parameters
-typedef std::function<std::vector<size_t>(TraceBlock* data)> InPlaceMod;
-
-/*! A parent class to allow gather operations to maintain a state.
- */
-struct gState {
-    /// Virtual destructor
-    virtual ~gState() = default;
-
-    /*! A virtual function which can be overridden to create the
-     *  gather-operation state.
-     *  @param[in] offset A list of gather-numbers to be processed by the local
-     *             process.
-     *  @param[in] gather The global array of gathers.
-     */
-    virtual void makeState(
-      const std::vector<size_t>& offset,
-      const Uniray<size_t, llint, llint>& gather) = 0;
-};
-
-/*! The radon state structure.
- */
-struct RadonState : public gState {
-    /// The piol object.
-    std::shared_ptr<ExSeisPIOL> piol;
-
-    /// The name of the Velocity Model (VM) file.
-    std::string vmname;
-
-    /// Trace data read from the VM file.
-    std::vector<trace_t> vtrc;
-
-    /// A list of inlines corresponding to the VM data read.
-    std::vector<llint> il;
-
-    /// A list of crosslines corresponding to the VM data read.
-    std::vector<llint> xl;
-
-    /// The number of samples per trace for the VM.
-    size_t vNs;
-
-    /// The binning factor to be used.
-    size_t vBin;
-
-    /// The number of traces per gather in the angle output.
-    size_t oGSz;
-
-    /// The increment between samples in the VM file.
-    geom_t vInc;
-
-    /// The increment between samples in the output file (radians).
-    geom_t oInc;
-
-    /*! Constructor for the radon state.
-     * @param[in] piol_ The piol object.
-     * @param[in] vmname_ The VM file.
-     * @param[in] vBin_ The velocity model bin parameter
-     * @param[in] oGSz_  The number of traces in the angle output.
-     * @param[in] oInc_ The number of increments.
-     */
-    RadonState(
-      std::shared_ptr<ExSeisPIOL> piol_,
-      std::string vmname_,
-      const size_t vBin_,
-      const size_t oGSz_,
-      const geom_t oInc_) :
-        piol(piol_),
-        vmname(vmname_),
-        vNs(0U),
-        vBin(vBin_),
-        oGSz(oGSz_),
-        vInc(geom_t(0)),
-        oInc(oInc_)
-    {
-    }
-
-    /// Virtual destructor
-    virtual ~RadonState() = default;
-
-    void makeState(
-      const std::vector<size_t>& offset,
-      const Uniray<size_t, llint, llint>& gather);
-};
-
-/*! Enum class for the various function options.
- */
-enum class FuncOpt : size_t {
-    // Data type dependencies
-
-    /// Metadata required to be read.
-    NeedMeta,
-
-    /// Trace values required to be read.
-    NeedTrcVal,
-
-    // Modification level:
-
-    /// Traces are added by the operation.
-    AddTrc,
-
-    /// Traces are deleted by the operation.
-    DelTrc,
-
-    /// Trace values are modified by the operation.
-    ModTrcVal,
-
-    /// Trace lengths are modified by the operation.
-    ModTrcLen,
-
-    /// Metadata values are modified by the operation.
-    ModMetaVal,
-
-    /// Traces are reordered by the operation.
-    ReorderTrc,
-
-    // Modification dependencies
-
-    /// There is a dependency on the number of traces.
-    DepTrcCnt,
-
-    /// There is a dependency on the order of traces.
-    DepTrcOrder,
-
-    /// There is a dependency on the value of traces.
-    DepTrcVal,
-
-    /// There is a dependency on the metadata values.
-    DepMetaVal,
-
-    // Comms level:
-
-    /// Each output trace requires info from one input trace.
-    SingleTrace,
-
-    /// Each output trace requires info from traces in the same gather.
-    Gather,
-
-    /// Each output trace requires info from all traces in a subset of files.
-    SubSetOnly,
-
-    /// Each output trace requires info from all traces in the set.
-    AllTraces,
-
-    /// Management of traces is complicated and custom.
-    OwnIO
-};
-
-/*! A structure to hold operation options.
- */
-class OpOpt {
-    /// A list of the function options.
-    std::vector<FuncOpt> optList;
-
-  public:
-    /*! Empty constructor.
-     */
-    OpOpt(void) {}
-
-    /*! Initialise the options list with an initialiser list.
-     *  @param[in] list An initialiser list of options.
-     */
-    OpOpt(std::initializer_list<FuncOpt> list) : optList(list) {}
-
-    /*! Check if an option is present in the list.
-     *  @param[in] opt The function option.
-     *  @return Return true if the option is present in the list.
-     */
-    bool check(FuncOpt opt)
-    {
-        auto it = std::find(optList.begin(), optList.end(), opt);
-        return it != optList.end();
-    }
-
-    /*! Add an option to the list.
-     *  @param[in] opt The function option.
-     */
-    void add(FuncOpt opt) { optList.push_back(opt); }
-};
-
-/*! Operations parents. Specific classes of operations inherit from this parent
- */
-struct OpParent {
-    /// Operation options.
-    OpOpt opt;
-
-    /// Relevant parameter rules for the operation.
-    std::shared_ptr<Rule> rule;
-
-    /// Gather state if applicable.
-    std::shared_ptr<gState> state;
-
-    /*! Construct.
-     *  @param[in] opt_ Operation options.
-     *  @param[in] rule_ Rules parameter rules for the operation
-     *  @param[in] state_ Gather state object if applicable.
-     */
-    OpParent(
-      OpOpt& opt_,
-      std::shared_ptr<Rule> rule_,
-      std::shared_ptr<gState> state_) :
-        opt(opt_),
-        rule(rule_),
-        state(state_)
-    {
-    }
-
-    /*! Virtual destructor for unique_ptr polymorphism.
-     */
-    virtual ~OpParent(void) {}
-};
-
-/*! Template for creating a structure for a particular operation type.
- */
-template<typename T>
-struct Op : public OpParent {
-    /// The particular std::function object for the operaton
-    T func;
-
-    /*! Construct.
-     *  @param[in] opt_ Operation options.
-     *  @param[in] rule_ Rules parameter rules for the operation
-     *  @param[in] state_ Gather state object if applicable.
-     *  @param[in] func_ The particular std::function implementation.
-     */
-    Op(
-      OpOpt& opt_,
-      std::shared_ptr<Rule> rule_,
-      std::shared_ptr<gState> state_,
-      T func_) :
-        OpParent(opt_, rule_, state_),
-        func(func_)
-    {
-    }
-};
-
-// If this was C++17 then a std::variant could be used
-/// The function list type for the set layer
-typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 
 /*! The internal set class
  */
@@ -274,6 +31,9 @@ class Set {
   public:
     /// Typedef for passing in a list of FileDesc objects.
     typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
+
+    /// The function list type for the set layer
+    typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 
   protected:
     /// The PIOL object.

@@ -6,8 +6,8 @@
 #define EXSEISDAT_FLOW_CACHE_HH
 
 #include "ExSeisDat/Flow/CacheElem.hh"
-#include "ExSeisDat/Flow/TraceBlock.hh"
 #include "ExSeisDat/Flow/FileDesc.hh"
+#include "ExSeisDat/Flow/TraceBlock.hh"
 
 #include <algorithm>
 #include <deque>

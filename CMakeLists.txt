@@ -182,10 +182,12 @@ include_directories(
 add_library(
     exseisdat
 
-    src/PIOL_C_bindings.cc
     src/Flow_C_bindings.cc
+    src/PIOL_C_bindings.cc
 
-    src/Flow.cc
+    src/Cache.cc
+    src/RadonGatherState.cc
+    src/Set.cc
 
     src/CommunicatorMPI.cc
     src/DataMPIIO.cc
@@ -218,8 +220,6 @@ add_library(
     src/sort.cc
     src/taper.cc
     src/temporalfilter.cc
-
-    src/cache.cc
 )
 
 target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})

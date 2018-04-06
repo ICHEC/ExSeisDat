@@ -10,7 +10,7 @@
 
 #include "sglobal.hh"
 
-#include "ExSeisDat/Flow/set.hh"
+#include "ExSeisDat/Flow/Set.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
 
 #include <assert.h>
