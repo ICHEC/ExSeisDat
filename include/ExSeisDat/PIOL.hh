@@ -5,6 +5,7 @@
 #ifndef EXSEISDAT_PIOL_HH
 #define EXSEISDAT_PIOL_HH
 
+#include "ExSeisDat/PIOL/AGCType.h"
 #include "ExSeisDat/PIOL/CommunicatorInterface.hh"
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataInterface.hh"
@@ -12,6 +13,7 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Logger.hh"
+#include "ExSeisDat/PIOL/Meta.h"
 #include "ExSeisDat/PIOL/Model3dInterface.hh"
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
@@ -24,6 +26,9 @@
 #include "ExSeisDat/PIOL/Rule.hh"
 #include "ExSeisDat/PIOL/RuleEntry.hh"
 #include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
+#include "ExSeisDat/PIOL/SortType.h"
+#include "ExSeisDat/PIOL/TaperType.h"
+#include "ExSeisDat/PIOL/Tr.h"
 #include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/Verbosity.h"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
