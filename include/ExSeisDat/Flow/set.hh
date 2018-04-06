@@ -8,8 +8,7 @@
 #ifndef EXSEISDAT_FLOW_SET_HH
 #define EXSEISDAT_FLOW_SET_HH
 
-#include "ExSeisDat/Flow/cache.hh"
-#include "ExSeisDat/Flow/share.hh"
+#include "ExSeisDat/Flow/Cache.hh"
 #include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/agc.hh"
@@ -121,6 +120,7 @@ enum class FuncOpt : size_t {
 
     /// Metadata required to be read.
     NeedMeta,
+
     /// Trace values required to be read.
     NeedTrcVal,
 
@@ -128,14 +128,19 @@ enum class FuncOpt : size_t {
 
     /// Traces are added by the operation.
     AddTrc,
+
     /// Traces are deleted by the operation.
     DelTrc,
+
     /// Trace values are modified by the operation.
     ModTrcVal,
+
     /// Trace lengths are modified by the operation.
     ModTrcLen,
+
     /// Metadata values are modified by the operation.
     ModMetaVal,
+
     /// Traces are reordered by the operation.
     ReorderTrc,
 
@@ -143,10 +148,13 @@ enum class FuncOpt : size_t {
 
     /// There is a dependency on the number of traces.
     DepTrcCnt,
+
     /// There is a dependency on the order of traces.
     DepTrcOrder,
+
     /// There is a dependency on the value of traces.
     DepTrcVal,
+
     /// There is a dependency on the metadata values.
     DepMetaVal,
 
@@ -154,12 +162,16 @@ enum class FuncOpt : size_t {
 
     /// Each output trace requires info from one input trace.
     SingleTrace,
+
     /// Each output trace requires info from traces in the same gather.
     Gather,
+
     /// Each output trace requires info from all traces in a subset of files.
     SubSetOnly,
+
     /// Each output trace requires info from all traces in the set.
     AllTraces,
+
     /// Management of traces is complicated and custom.
     OwnIO
 };
@@ -201,8 +213,10 @@ class OpOpt {
 struct OpParent {
     /// Operation options.
     OpOpt opt;
+
     /// Relevant parameter rules for the operation.
     std::shared_ptr<Rule> rule;
+
     /// Gather state if applicable.
     std::shared_ptr<gState> state;
 
@@ -257,27 +271,41 @@ typedef std::list<std::shared_ptr<OpParent>> FuncLst;
 /*! The internal set class
  */
 class Set {
+  public:
+    /// Typedef for passing in a list of FileDesc objects.
+    typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
+
   protected:
     /// The PIOL object.
     std::shared_ptr<ExSeisPIOL> piol;
+
     /// The output prefix
     std::string outfix;
+
     /// The output text-header message
     std::string outmsg;
+
     /// A deque of unique pointers to file descriptors
     FileDeque file;
+
     /// A map of (ns, inc) key to a deque of file descriptor pointers
     std::map<std::pair<size_t, geom_t>, FileDeque> fmap;
+
     /// A map of (ns, inc) key to the current offset
     std::map<std::pair<size_t, geom_t>, size_t> offmap;
+
     /// Contains a pointer to the Rules for parameters
     std::shared_ptr<Rule> rule;
+
     /// The cache of parameters and traces
     Cache cache;
+
     /// The list of functions and related data
     FuncLst func;
+
     /// The rank of the particular process
     size_t rank;
+
     /// The number of ranks
     size_t numRank;
 

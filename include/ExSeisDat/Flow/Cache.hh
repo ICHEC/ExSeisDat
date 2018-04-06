@@ -1,81 +1,30 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date May 2017
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_FLOW_CACHE_HH
 #define EXSEISDAT_FLOW_CACHE_HH
 
-#include "ExSeisDat/Flow/share.hh"
+#include "ExSeisDat/Flow/CacheElem.hh"
+#include "ExSeisDat/Flow/TraceBlock.hh"
+#include "ExSeisDat/Flow/FileDesc.hh"
 
 #include <algorithm>
+#include <deque>
 
 namespace PIOL {
-
-/*! A structure to store cache elements of traces and parameters corresponding
- *  to a collection of files
- */
-struct CacheElem {
-    /// A deque of unique pointers to file descriptors
-    FileDeque desc;
-    /// The cached data
-    std::shared_ptr<TraceBlock> block;
-
-    /*! Construct the cache element with the given parameter structure.
-     *  @param[in] desc_ A deque of unique pointers to file descriptors
-     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache
-     *                element takes ownership.
-     */
-    CacheElem(FileDeque& desc_, std::unique_ptr<Param> prm_)
-    {
-        desc       = desc_;
-        block      = std::make_shared<TraceBlock>();
-        block->prm = std::move(prm_);
-    }
-
-    /*! Construct the cache element with the given parameter structure.
-     *  @param[in] desc_ A deque of unique pointers to file descriptors
-     *  @param[in] trc_ A vector of traces for caching.
-     *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache
-     *                element takes ownership if it exists.
-     */
-    CacheElem(
-      FileDeque& desc_,
-      std::vector<trace_t>& trc_,
-      std::unique_ptr<Param> prm_ = nullptr)
-    {
-        desc       = desc_;
-        block      = std::make_shared<TraceBlock>();
-        block->trc = std::move(trc_);
-        block->prm = std::move(prm_);
-    }
-
-    /*! Check if the given element has cached parameters
-     *  @param[in] desc_ A deque of unique pointers to file descriptors
-     *  @return Return true if the parameters are cached.
-     */
-    bool checkPrm(const FileDeque& desc_) const
-    {
-        return desc == desc_ && !block && block->prm;
-    }
-
-    /*! Check if the given element has cached traces
-     *  @param[in] desc_ A deque of unique pointers to file descriptors
-     *  @return Return true if the traces are cached.
-     */
-    bool checkTrc(const FileDeque& desc_) const
-    {
-        return desc == desc_ && !block && block->trc.size();
-    }
-};
 
 /*! The class which holds all cache elements.
  */
 class Cache {
+  public:
+    /// Typedef for passing in a list of FileDesc objects.
+    typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
+
+  private:
     /// A vector of cache elements
     std::vector<CacheElem> cache;
+
     /// The PIOL object
     std::shared_ptr<ExSeisPIOL> piol;
 

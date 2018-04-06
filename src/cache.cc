@@ -7,7 +7,7 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/Flow/cache.hh"
+#include "ExSeisDat/Flow/Cache.hh"
 
 #include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
