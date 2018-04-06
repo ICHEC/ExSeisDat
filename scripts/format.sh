@@ -28,9 +28,9 @@ cat "${file}" \
 set +o errexit
 if cmp --quiet "${tmpfile}" "${file}"
 then
-    echo "No Change..."
+    echo "Formatting ${file}: No Change..."
     rm "${tmpfile}"
 else
-    echo "Updating..."
+    echo "Formatting ${file}: Updating..."
     mv "${tmpfile}" "${file}"
 fi
