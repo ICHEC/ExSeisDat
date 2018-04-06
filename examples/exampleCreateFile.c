@@ -49,6 +49,7 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
     }
 
     // Set some traces
+    assert(lnt * ns > 0);
     float* trc = calloc(lnt * ns, sizeof(float));
     for (size_t j = 0; j < lnt * ns; j++) {
         trc[j] = (float)(offset * ns + j);

@@ -111,23 +111,37 @@ int main(int argc, char** argv)
     char* iname   = NULL;
     char* oname   = NULL;
     size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         switch (c) {
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = malloc((strlen(optarg) + 1) * sizeof(char));
-                strcpy(iname, optarg);
+                free(iname);
+                iname = malloc(optarg_length * sizeof(char));
+
+                strncpy(iname, optarg, optarg_length);
+
                 break;
+
             case 'o':
-                oname = malloc((strlen(optarg) + 1) * sizeof(char));
-                strcpy(oname, optarg);
+                free(oname);
+                oname = malloc(optarg_length * sizeof(char));
+
+                strncpy(oname, optarg, optarg_length);
+
                 break;
+
             default:
                 fprintf(
                   stderr, "One of the command line arguments is invalid\n");
+
                 break;
         }
+    }
     assert(iname && oname);
 
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);

@@ -40,7 +40,9 @@ void readWriteFullTrace(
 {
     PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, tcnt);
     size_t ns              = PIOL_File_ReadDirect_readNs(ifh);
-    float* trace           = malloc(tcnt * PIOL_SEGY_utils_getDFSz(ns));
+
+    assert(tcnt * PIOL_SEGY_utils_getDFSz(ns) > 0);
+    float* trace = malloc(tcnt * PIOL_SEGY_utils_getDFSz(ns));
     assert(trace);
 
     PIOL_File_ReadDirect_readTrace(ifh, off, tcnt, trace, trhdr);
@@ -145,43 +147,71 @@ int main(int argc, char** argv)
     // -m maximum memory
     // -p modify trace paramaters
     // -t modify trace values
-    char* opt     = "i:o:m:pt";  // TODO: uses a GNU extension
-    char* iname   = NULL;
-    char* oname   = NULL;
+    char* opt = "i:o:m:pt";  // TODO: uses a GNU extension
+
+    char* iname = NULL;
+    char* oname = NULL;
+
     size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
+
     ModPrm modPrm = NULL;
     ModTrc modTrc = false;
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         switch (c) {
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = malloc((strlen(optarg) + 1) * sizeof(char));
-                strcpy(iname, optarg);
+                free(iname);
+                iname = malloc(optarg_length * sizeof(char));
+
+                strncpy(iname, optarg, optarg_length);
+
                 break;
+
             case 'o':
-                oname = malloc((strlen(optarg) + 1) * sizeof(char));
-                strcpy(oname, optarg);
+                free(oname);
+                oname = malloc(optarg_length * sizeof(char));
+
+                strncpy(oname, optarg, optarg_length);
+
                 break;
+
             case 'm':
                 if (sscanf(optarg, "%zu", &memmax) != 1) {
                     fprintf(stderr, "Incorrect arguments to memmax option\n");
+
+                    free(iname);
+                    free(oname);
+
                     return -1;
                 }
+
                 break;
+
             case 'p':
                 printf("The trace parameters will be modified\n");
                 modPrm = SourceX1600Y2400;
+
                 break;
+
             case 't':
                 printf("The traces will be modified\n");
                 modTrc = TraceLinearInc;
+
                 break;
+
             default:
                 fprintf(
                   stderr, "One of the command line arguments is invalid\n");
+
                 break;
         }
+    }
     assert(iname && oname);
 
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -191,7 +221,8 @@ int main(int argc, char** argv)
 
     PIOL_ExSeis_delete(piol);
 
-    if (iname != NULL) free(iname);
-    if (oname != NULL) free(oname);
+    free(iname);
+    free(oname);
+
     return 0;
 }

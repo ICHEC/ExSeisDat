@@ -24,9 +24,14 @@ int main(int argc, char** argv)
     char* name = NULL;
     for (int c = getopt(argc, argv, opt); c != -1;
          c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         if (c == 'o') {
-            name = malloc((strlen(optarg) + 1) * sizeof(char));
-            strcpy(name, optarg);
+            free(name);
+            name = malloc(optarg_length * sizeof(char));
+
+            strncpy(name, optarg, optarg_length);
         }
         else {
             fprintf(stderr, "One of the command line arguments is invalid\n");
@@ -93,6 +98,7 @@ int main(int argc, char** argv)
     }
 
     // Set some traces
+    assert(local_nt * ns > 0);
     float* trc = calloc(local_nt * ns, sizeof(float));
     for (size_t j = 0; j < local_nt * ns; j++) {
         trc[j] = (float)(offset * ns + j);
@@ -108,6 +114,8 @@ int main(int argc, char** argv)
     // Free/close the file handle and free the piol
     PIOL_File_WriteDirect_delete(fh);
     PIOL_ExSeis_delete(piol);
+
+    free(name);
 
     return 0;
 }

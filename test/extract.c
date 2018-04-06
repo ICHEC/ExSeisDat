@@ -18,27 +18,38 @@ int main(int argc, char** argv)
 
     int64_t fsz = ftell(fs);
     fprintf(stderr, "uint64_t fsz = %" PRId64 "\n", fsz);
+
     size_t nt = (fsz - 3600U) / (sizeof(float) * ns + 240U);
     assert(!((fsz - 3600U) % (sizeof(float) * ns + 240U)));
 
     fseek(fs, 3840U, SEEK_SET);
 
-    size_t rnt       = (nt > 100 ? 100 : nt);
+    size_t rnt = (nt > 100 ? 100 : nt);
+
+    assert(ns > 0);
     uint32_t* traces = malloc(ns * sizeof(uint32_t));
     assert(traces);
+
     printf("#include <vector>\n#include <stdint.h>\n");
     printf("std::vector<uint32_t> rawTraces = {");
     for (size_t i = 0; i < rnt; i++) {
         fread(traces, sizeof(uint32_t), ns, fs);
         fseek(fs, 240U, SEEK_CUR);
         printf("    0x%x, ", traces[0]);
-        for (int64_t j = 1U; j < ns - 1U; j++)
+
+        for (int64_t j = 1U; j < ns - 1U; j++) {
             printf("0x%x, ", traces[j]);
-        if (i == rnt - 1)
+        }
+
+        if (i == rnt - 1) {
             printf("0x%x\n", traces[ns - 1]);
-        else
+        }
+        else {
             printf("0x%x,\n", traces[ns - 1]);
+        }
     }
     printf("};\n");
+
+    free(traces);
     fclose(fs);
 }

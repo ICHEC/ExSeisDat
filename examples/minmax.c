@@ -22,9 +22,14 @@ int main(int argc, char** argv)
     char* name = NULL;
     for (int c = getopt(argc, argv, opt); c != -1;
          c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         if (c == 'i') {
-            name = malloc((strlen(optarg) + 1) * sizeof(char));
-            strcpy(name, optarg);
+            free(name);
+            name = malloc(optarg_length * sizeof(char));
+
+            strncpy(name, optarg, optarg_length);
         }
         else {
             fprintf(stderr, "One of the command line arguments is invalid\n");
@@ -59,6 +64,10 @@ int main(int argc, char** argv)
           "y Cmp %e (%zu) -> %e (%zu)\n", minmax[10].val, minmax[10].num,
           minmax[11].val, minmax[11].num);
     }
+
+    PIOL_Set_delete(set);
+    free(name);
+    PIOL_ExSeis_delete(piol);
 
     return 0;
 }
