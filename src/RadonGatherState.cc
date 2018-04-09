@@ -10,7 +10,8 @@
 namespace PIOL {
 
 void RadonGatherState::makeState(
-  const std::vector<size_t>& offset, const Uniray<size_t, llint, llint>& gather)
+  const std::vector<size_t>& offset,
+  const Distributed_vector<size_t, llint, llint>& gather)
 {
     // TODO: DON'T USE MAGIC NAME
     std::unique_ptr<ReadSEGYModel> vm = makeFile<ReadSEGYModel>(piol, vmname);

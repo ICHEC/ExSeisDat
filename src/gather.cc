@@ -22,7 +22,8 @@ namespace PIOL {
  *         crossline.
  * @todo TODO: This can be generalised
  */
-static Uniray<size_t, llint, llint> getGathers(ExSeisPIOL* piol, Param* prm)
+static Distributed_vector<size_t, llint, llint> getGathers(
+  ExSeisPIOL* piol, Param* prm)
 {
     size_t rank    = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
@@ -62,14 +63,14 @@ static Uniray<size_t, llint, llint> getGathers(ExSeisPIOL* piol, Param* prm)
     size_t sz     = lline.size() - start;
     size_t offset = piol->comm->offset(sz);
 
-    Uniray<size_t, llint, llint> line(piol, piol->comm->sum(sz));
+    Distributed_vector<size_t, llint, llint> line(piol, piol->comm->sum(sz));
     for (size_t i = 0; i < sz; i++)
         line.set(i + offset, lline[i + start]);
 
     return line;
 }
 
-Uniray<size_t, llint, llint> getIlXlGathers(
+Distributed_vector<size_t, llint, llint> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file)
 {
     auto dec  = decompose(piol, file);

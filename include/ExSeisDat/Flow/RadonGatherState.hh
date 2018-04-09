@@ -6,8 +6,8 @@
 
 #include "ExSeisDat/Flow/GatherState.hh"
 
+#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/Uniray.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cstddef>
@@ -75,7 +75,7 @@ struct RadonGatherState : public GatherState {
 
     void makeState(
       const std::vector<size_t>& offset,
-      const Uniray<size_t, llint, llint>& gather);
+      const Distributed_vector<size_t, llint, llint>& gather);
 };
 
 }  // namespace PIOL

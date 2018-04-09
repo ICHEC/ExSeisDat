@@ -9,8 +9,8 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
+#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/Uniray.hh"
 
 #include <memory>
 #include <string>

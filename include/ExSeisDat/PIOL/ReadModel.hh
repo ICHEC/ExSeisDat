@@ -30,7 +30,9 @@ class ReadModel : public ReadDirect {
     /// @param[in] gather    DOCUMENT ME
     /// @return DOCUMENT ME
     std::vector<trace_t> virtual readModel(
-      size_t gOffset, size_t numGather, Uniray<size_t, llint, llint>& gather);
+      size_t gOffset,
+      size_t numGather,
+      Distributed_vector<size_t, llint, llint>& gather);
 };
 
 }  // namespace PIOL

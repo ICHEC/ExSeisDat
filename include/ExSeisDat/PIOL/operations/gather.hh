@@ -8,7 +8,7 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 #define EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 
-#include "ExSeisDat/PIOL/Uniray.hh"
+#include "ExSeisDat/PIOL/Distributed_vector.hh"
 
 namespace PIOL {
 
@@ -21,7 +21,7 @@ namespace PIOL {
  *          Tuple elements: 1) Number of traces in the gather, 2) inline, 3)
  *          crossline.
  */
-Uniray<size_t, llint, llint> getIlXlGathers(
+Distributed_vector<size_t, llint, llint> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file);
 
 }  // namespace PIOL

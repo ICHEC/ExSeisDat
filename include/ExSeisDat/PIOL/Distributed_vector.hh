@@ -3,8 +3,8 @@
 /// @brief
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_UNIRAY_HH
-#define EXSEISDAT_PIOL_UNIRAY_HH
+#ifndef EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
+#define EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
 
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
@@ -18,7 +18,7 @@ namespace PIOL {
  *  @tparam T Template parameter pack
  */
 template<class... T>
-class Uniray {
+class Distributed_vector {
     /// The number of elements per tuple.
     const size_t TupleSz = sizeof(std::tuple<T...>);
 
@@ -52,7 +52,9 @@ class Uniray {
      *  @param[in] piol_ The PIOL object.
      *  @param[in] sz_ The number of elements in the global array.
      */
-    Uniray(ExSeisPIOL* piol_, const size_t sz_) : piol(piol_), sz(sz_)
+    Distributed_vector(ExSeisPIOL* piol_, const size_t sz_) :
+        piol(piol_),
+        sz(sz_)
     {
         rank     = piol->comm->getRank();
         numRank  = piol->comm->getNumRank();
@@ -70,7 +72,7 @@ class Uniray {
 
     /*! Destruct the global array, free the associated window.
      */
-    ~Uniray(void)
+    ~Distributed_vector(void)
     {
         if (numRank > 1) {
             MPI_Win_free(&win);
@@ -149,4 +151,4 @@ class Uniray {
 
 }  // namespace PIOL
 
-#endif  // EXSEISDAT_PIOL_UNIRAY_HH
+#endif  // EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
