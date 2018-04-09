@@ -64,8 +64,9 @@ static Distributed_vector<size_t, llint, llint> getGathers(
     size_t offset = piol->comm->offset(sz);
 
     Distributed_vector<size_t, llint, llint> line(piol, piol->comm->sum(sz));
-    for (size_t i = 0; i < sz; i++)
+    for (size_t i = 0; i < sz; i++) {
         line.set(i + offset, lline[i + start]);
+    }
 
     return line;
 }

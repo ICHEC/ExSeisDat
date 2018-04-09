@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @brief
-/// @details
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
 #define EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
@@ -14,9 +12,10 @@
 
 namespace PIOL {
 
-/*! A structure for MPI-free accessing using global arrays.
- *  @tparam T Template parameter pack
- */
+/// @brief  A structure for MPI-free accessing using global arrays.
+///
+/// @tparam T Template parameter pack
+///
 template<class... T>
 class Distributed_vector {
     /// The number of elements per tuple.
@@ -28,6 +27,12 @@ class Distributed_vector {
     /// The number of elements in the global array.
     size_t sz;
 
+    /// The rank of the local process.
+    size_t rank;
+
+    /// The number of ranks.
+    size_t numRank;
+
     /// The local offset.
     size_t offset;
 
@@ -38,29 +43,32 @@ class Distributed_vector {
     std::vector<std::tuple<T...>> vec;
 
     /// The memory window.
-    MPI_Win win;
-
-    /// The rank of the local process.
-    size_t rank;
-
-    /// The number of ranks.
-    size_t numRank;
+    MPI_Win win = MPI_WIN_NULL;
 
   public:
-    /*! Construct the global array. This operation is collective across all
-     *  processes.
-     *  @param[in] piol_ The PIOL object.
-     *  @param[in] sz_ The number of elements in the global array.
-     */
+    /// @brief Construct the global array.
+    ///
+    /// This operation is collective across all processes.
+    ///
+    /// The global vector size must be set here, and will remain constant
+    /// for the lifetime of the array.
+    /// This is primarily because a pointer to the vector data is used in
+    /// an MPI window, and resizing that array can invalidate the pointer.
+    ///
+    /// @param[in] piol_ The PIOL object.
+    /// @param[in] sz_ The number of elements in the global array.
+    ///
     Distributed_vector(ExSeisPIOL* piol_, const size_t sz_) :
         piol(piol_),
         sz(sz_)
     {
         rank     = piol->comm->getRank();
         numRank  = piol->comm->getNumRank();
+
         auto dec = decompose(sz, numRank, rank);
         offset   = dec.offset;
         szall    = piol->comm->gather(dec.size);
+
         vec.resize(dec.size);
 
         if (numRank > 1) {
@@ -70,14 +78,17 @@ class Distributed_vector {
         }
     }
 
-    /*! Destruct the global array, free the associated window.
-     */
+    /// @brief Destruct the global array, free the associated window.
+    ///
+    /// This is a non-collective operation.
+    ///
     ~Distributed_vector(void)
     {
         if (numRank > 1) {
             MPI_Win_free(&win);
         }
     }
+
 
     /*! Set the global ith element with the given tuple.
      *  @param[in] i The index into the global array.
@@ -137,9 +148,7 @@ class Distributed_vector {
         }
     }
 
-    /*! Get the global ith element through an overload of the [] operator.
-     *  @param[in] i The index into the global array.
-     *  @return Return the value of the requested tuple.
+    /*! @copydoc get
      */
     std::tuple<T...> operator[](size_t i) const { return get(i); }
 
