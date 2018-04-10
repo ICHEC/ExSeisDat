@@ -5,56 +5,44 @@ link_libraries(exseisdat)
 # Setup all the utility executables
 #
 
+# Macro calls add_executable with the passed arguments, and adds the executable
+# target to EXSEISDAT_UTILITIES_EXES.
 set(EXSEISDAT_UTILITIES_EXES)
+macro(util_add_executable)
+    add_executable(${ARGV})
+    list(APPEND EXSEISDAT_UTILITIES_EXES ${ARGV0})
+endmacro(util_add_executable)
 
-add_executable(exseis-cropen        cropen.c)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-cropen)
 
-add_executable(exseis-traceanalysis traceanalysis.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-traceanalysis)
+util_add_executable(exseis-cropen   cropen.c)
 
-add_executable(exseis-radon         radon.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-radon)
+util_add_executable(exseis-traceanalysis    traceanalysis.cc)
 
-message(AUTHOR_WARNING "No file radon_file.cc, expected in old util/makefile.")
-#add_executable(exseis-radon_file    radon_file.cc sglobal.cc)
-#list(APPEND EXSEISDAT_UTILITIES_EXES exseis-radon_file)
+util_add_executable(exseis-radon    radon.cc sglobal.cc)
 
-add_executable(exseis-assess        assess.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-assess)
+util_add_executable(exseis-assess   assess.cc sglobal.cc)
 
-add_executable(exseis-versort       verifysort.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-versort)
+util_add_executable(exseis-versort  verifysort.cc sglobal.cc)
 
-add_executable(exseis-concatenate   concatenate.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-concatenate)
+util_add_executable(exseis-concatenate  concatenate.cc sglobal.cc)
 
-add_executable(exseis-creadwrite    concatenate.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-creadwrite)
+util_add_executable(exseis-creadwrite   concatenate.cc sglobal.cc)
 
-add_executable(exseis-segsort       sort.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-segsort)
+util_add_executable(exseis-segsort  sort.cc)
 
-add_executable(exseis-fourdbin      fourdbin.cc 4dio.cc 4dcore.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-fourdbin)
+util_add_executable(exseis-fourdbin fourdbin.cc 4dio.cc 4dcore.cc sglobal.cc)
 
-add_executable(exseis-filemake      filemake.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-filemake)
+util_add_executable(exseis-filemake filemake.cc sglobal.cc)
 
-add_executable(exseis-makerep       makerep.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-makerep)
+util_add_executable(exseis-makerep  makerep.cc sglobal.cc)
 
-add_executable(exseis-makerepn1     makerep.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-makerepn1)
+util_add_executable(exseis-makerepn1    makerep.cc sglobal.cc)
 
-add_executable(exseis-makerepn2     makerep.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-makerepn2)
+util_add_executable(exseis-makerepn2    makerep.cc sglobal.cc)
 
-add_executable(exseis-minmax        minmax.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-minmax)
+util_add_executable(exseis-minmax   minmax.cc sglobal.cc)
 
-add_executable(exseis-segy2kml      segy2kml.cc sglobal.cc)
-list(APPEND EXSEISDAT_UTILITIES_EXES exseis-segy2kml)
+util_add_executable(exseis-segy2kml segy2kml.cc sglobal.cc)
 
 
 #

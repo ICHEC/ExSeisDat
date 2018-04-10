@@ -5,43 +5,39 @@
 # Link exseisdat to all executables defined here
 link_libraries(exseisdat)
 
-# Keep a list of executables defined here
+# Macro calls add_executable with the passed arguments, and adds the executable
+# target to EXSEISDAT_EXAMPLE_EXES.
 set(EXSEISDAT_EXAMPLE_EXES)
+macro(examples_add_executable)
+    add_executable(${ARGV})
+    list(APPEND EXSEISDAT_EXAMPLE_EXES ${ARGV0})
+endmacro(examples_add_executable)
 
-add_executable(hello_world hello_world.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES hello_world)
+examples_add_executable(hello_world hello_world.c)
 
-add_executable(creadwrite creadwrite.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES creadwrite)
+examples_add_executable(creadwrite creadwrite.c)
 
-add_executable(example1  example1.cc)
-add_executable(cexample1 example1.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES example1 cexample1)
+examples_add_executable(example1  example1.cc)
+examples_add_executable(cexample1 example1.c)
 
-add_executable(cexample2 example2.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES cexample2)
+examples_add_executable(cexample2 example2.c)
 
-add_executable(minmax  minmax.cc)
-add_executable(cminmax minmax.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES minmax cminmax)
+examples_add_executable(minmax  minmax.cc)
+examples_add_executable(cminmax minmax.c)
 
-add_executable(modprm modprm.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES modprm)
+examples_add_executable(modprm modprm.c)
 
-add_executable(sort  sort.cc)
-add_executable(csort sort.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES sort csort)
+examples_add_executable(sort  sort.cc)
+examples_add_executable(csort sort.c)
 
-add_executable(exampleCreateFile  exampleCreateFile.cc)
-add_executable(cexampleCreateFile exampleCreateFile.c)
-list(APPEND EXSEISDAT_EXAMPLE_EXES exampleCreateFile cexampleCreateFile)
+examples_add_executable(exampleCreateFile  exampleCreateFile.cc)
+examples_add_executable(cexampleCreateFile exampleCreateFile.c)
 
-add_executable(exampleFilterTaper exampleFilterTaper.cc)
-list(APPEND EXSEISDAT_EXAMPLE_EXES exampleFilterTaper)
+examples_add_executable(exampleFilterTaper exampleFilterTaper.cc)
 
-add_executable(cexampleSort exampleSort.c)
-add_executable(exampleSort exampleSort.cc)
-list(APPEND EXSEISDAT_EXAMPLE_EXES exampleSort cexampleSort)
+examples_add_executable(cexampleSort exampleSort.c)
+examples_add_executable(exampleSort exampleSort.cc)
+
 
 #
 # Install the example executables
