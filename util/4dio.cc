@@ -34,9 +34,9 @@ std::unique_ptr<Coords> getCoords(
     ReadDirect file(piol, name);
     piol->isErr();
 
-    auto dec      = decompose(piol.get(), file);
-    size_t offset = dec.offset;
-    size_t lnt    = dec.size;
+    auto dec      = decompose_range(piol.get(), file);
+    size_t offset = dec.global_offset;
+    size_t lnt    = dec.local_size;
 
     auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());

@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-Extent decompose(const size_t sz, const size_t nrank, const size_t rank)
+Extent decompose_range(const size_t sz, const size_t nrank, const size_t rank)
 {
     assert(nrank > rank);
     size_t r      = sz % nrank;

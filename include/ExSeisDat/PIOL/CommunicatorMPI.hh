@@ -62,10 +62,25 @@ class CommunicatorMPI : public CommunicatorInterface {
     std::vector<double> gather(const std::vector<double>& in) const;
     std::vector<llint> gather(const std::vector<llint>& in) const;
     std::vector<size_t> gather(const std::vector<size_t>& in) const;
+
+    /// @brief TMP
+    /// @tparam T TMP
+    /// @param[in] val TMP
+    /// @return TMP
+    /// @todo DELETE ME
+    template<class T>
+    std::vector<T> gather(const T& val) const
+    {
+        return CommunicatorInterface::gather<T>(val);
+    }
+
     size_t sum(size_t val);
+
     size_t max(size_t val);
     size_t min(size_t val);
+
     size_t offset(size_t val);
+
     void barrier(void) const;
 };
 

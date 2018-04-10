@@ -21,9 +21,9 @@ void calcMin(std::string iname, std::string oname)
     auto piol = ExSeis::New();
     ReadDirect in(piol, iname);
 
-    auto dec      = decompose(piol.get(), in);
-    size_t offset = dec.offset;
-    size_t lnt    = dec.size;
+    auto dec      = decompose_range(piol.get(), in);
+    size_t offset = dec.global_offset;
+    size_t lnt    = dec.local_size;
 
     Param prm(lnt);
     std::vector<CoordElem> minmax(12U);

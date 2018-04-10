@@ -10,6 +10,8 @@
 
 #include "ExSeisDat/PIOL/Distributed_vector.hh"
 
+#include <tuple>
+
 namespace PIOL {
 
 /*! Find the inline/crossline for each il/xl gather and the number of traces per
@@ -21,7 +23,7 @@ namespace PIOL {
  *          Tuple elements: 1) Number of traces in the gather, 2) inline, 3)
  *          crossline.
  */
-Distributed_vector<size_t, llint, llint> getIlXlGathers(
+Distributed_vector<std::tuple<size_t, llint, llint>> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file);
 
 }  // namespace PIOL

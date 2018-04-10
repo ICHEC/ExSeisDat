@@ -61,17 +61,17 @@ void Set::add(std::unique_ptr<ReadInterface> in)
     auto& f = file.back();
     f->ifc  = std::move(in);
 
-    auto dec = decompose(piol.get(), f->ifc.get());
-    f->ilst.resize(dec.size);
-    f->olst.resize(dec.size);
-    std::iota(f->ilst.begin(), f->ilst.end(), dec.offset);
+    auto dec = decompose_range(piol.get(), f->ifc.get());
+    f->ilst.resize(dec.local_size);
+    f->olst.resize(dec.local_size);
+    std::iota(f->ilst.begin(), f->ilst.end(), dec.global_offset);
 
     auto key =
       std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
     fmap[key].emplace_back(f);
 
     auto& off = offmap[key];
-    std::iota(f->olst.begin(), f->olst.end(), off + dec.offset);
+    std::iota(f->olst.begin(), f->olst.end(), off + dec.global_offset);
     off += f->ifc->readNt();
 }
 
@@ -272,9 +272,9 @@ std::string Set::startGather(
     for (auto& o : file) {
         // Locate gather boundaries.
         auto gather = getIlXlGathers(piol.get(), o->ifc.get());
-        auto gdec   = decompose(gather.size(), numRank, rank);
+        auto gdec   = decompose_range(gather.size(), numRank, rank);
 
-        size_t numGather = gdec.size;
+        size_t numGather = gdec.local_size;
 
         std::vector<size_t> gNums;
         for (auto fTemp = fCurr;

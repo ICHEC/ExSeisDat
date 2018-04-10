@@ -113,12 +113,13 @@ int ReadWriteFile(
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
     PIOL_ExSeis_isErr(piol, NULL);
 
-    struct PIOL_Range dec = PIOL_decompose(
+    struct PIOL_Decomposed_range dec = PIOL_decompose_range(
       nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
     size_t tcnt =
       memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
 
-    writePayload(piol, ifh, ofh, dec.offset, dec.size, tcnt, fprm, ftrc);
+    writePayload(
+      piol, ifh, ofh, dec.global_offset, dec.local_size, tcnt, fprm, ftrc);
 
     PIOL_ExSeis_isErr(piol, NULL);
     PIOL_File_WriteDirect_delete(ofh);
@@ -134,8 +135,9 @@ void SourceX1600Y2400(size_t offset, size_t i, PIOL_File_Param* prm)
 
 void TraceLinearInc(size_t offset, size_t ns, float* trc)
 {
-    for (size_t i = 0; i < ns; i++)
+    for (size_t i = 0; i < ns; i++) {
         trc[i] = 2.0 * i + offset;
+    }
 }
 
 

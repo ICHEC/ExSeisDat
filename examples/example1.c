@@ -60,13 +60,14 @@ int main(int argc, char** argv)
     size_t rank      = PIOL_ExSeis_getRank(piol);
 
     // Get decomposition of the range [0..nt) for the current rank
-    struct PIOL_Range dec = PIOL_decompose(nt, num_ranks, rank);
+    struct PIOL_Decomposed_range dec =
+      PIOL_decompose_range(nt, num_ranks, rank);
 
     // The offset for the local process
-    size_t offset = dec.offset;
+    size_t offset = dec.global_offset;
 
     // The number of traces for the local process to handle
-    size_t local_nt = dec.size;
+    size_t local_nt = dec.local_size;
 
 
     // Write some global header parameters

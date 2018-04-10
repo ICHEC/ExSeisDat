@@ -21,7 +21,7 @@ ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
 std::vector<trace_t> ReadModel::readModel(
   size_t gOffset,
   size_t numGather,
-  Distributed_vector<size_t, llint, llint>& gather)
+  Distributed_vector<std::tuple<size_t, llint, llint>>& gather)
 {
     return std::dynamic_pointer_cast<Model3dInterface>(file)->readModel(
       gOffset, numGather, gather);

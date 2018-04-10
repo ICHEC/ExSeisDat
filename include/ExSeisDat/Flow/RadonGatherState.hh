@@ -75,7 +75,7 @@ struct RadonGatherState : public GatherState {
 
     void makeState(
       const std::vector<size_t>& offset,
-      const Distributed_vector<size_t, llint, llint>& gather);
+      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather);
 };
 
 }  // namespace PIOL

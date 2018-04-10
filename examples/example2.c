@@ -61,10 +61,10 @@ int main(int argc, char** argv)
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
 
-    struct PIOL_Range dec =
-      PIOL_decompose(nt, PIOL_ExSeis_getNumRank(piol), rank);
-    size_t offset = dec.offset;
-    size_t lnt    = dec.size;
+    struct PIOL_Decomposed_range dec =
+      PIOL_decompose_range(nt, PIOL_ExSeis_getNumRank(piol), rank);
+    size_t offset = dec.global_offset;
+    size_t lnt    = dec.local_size;
 
     // Alloc the required memory for the data we want.
     float* trace           = malloc(lnt * PIOL_SEGY_utils_getDFSz(ns));

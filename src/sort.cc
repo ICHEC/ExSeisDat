@@ -333,14 +333,14 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm)
     return sort(piol, prm, getComp(type));
 }
 
-bool checkOrder(ReadInterface* src, Range dec, SortType type)
+bool checkOrder(ReadInterface* src, Decomposed_range dec, SortType type)
 {
     auto comp = getComp(type);
-    Param prm(dec.size);
+    Param prm(dec.local_size);
 
-    src->readParam(dec.offset, dec.size, &prm);
+    src->readParam(dec.global_offset, dec.local_size, &prm);
 
-    for (size_t i = 1; i < dec.size; i++) {
+    for (size_t i = 1; i < dec.local_size; i++) {
         if (!comp(&prm, i - 1, i)) {
             return false;
         }

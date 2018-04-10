@@ -79,12 +79,13 @@ class CommunicatorInterface {
       const std::vector<size_t>& val) const = 0;
 
     /*! @brief Pass a value and return the corresponding values to each process
+     *  @tparam T The type use for the gather.
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth
      *          rank.
      */
     template<class T>
-    std::vector<T> gather(T val) const
+    std::vector<T> gather(const T& val) const
     {
         return gather(std::vector<T>{val});
     }

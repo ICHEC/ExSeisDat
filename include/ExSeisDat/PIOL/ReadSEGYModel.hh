@@ -50,12 +50,12 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
     std::vector<trace_t> readModel(
       const size_t offset,
       const size_t sz,
-      const Distributed_vector<size_t, llint, llint>& gather);
+      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather);
 
     std::vector<trace_t> readModel(
       const size_t sz,
       const size_t* offset,
-      const Distributed_vector<size_t, llint, llint>& gather);
+      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather);
 };
 
 }  // namespace PIOL

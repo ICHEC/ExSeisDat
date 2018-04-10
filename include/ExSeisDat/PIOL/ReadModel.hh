@@ -32,7 +32,7 @@ class ReadModel : public ReadDirect {
     std::vector<trace_t> virtual readModel(
       size_t gOffset,
       size_t numGather,
-      Distributed_vector<size_t, llint, llint>& gather);
+      Distributed_vector<std::tuple<size_t, llint, llint>>& gather);
 };
 
 }  // namespace PIOL

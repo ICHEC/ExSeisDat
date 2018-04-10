@@ -12,25 +12,30 @@
 extern "C" {
 #endif  // __cplusplus
 
-/// The \c Range class represents a section of a range distributed over a
-/// number of processes.
-struct PIOL_Range {
-    /// The offset into the range on the local process
-    size_t offset;
+/// The \c Decomposed_range class represents a section of a range on the given
+/// rank which has been distributed over a number of ranks.
+struct PIOL_Decomposed_range {
+    /// The offset into the global range for the given rank.
+    size_t global_offset;
 
-    /// The size of the section of the range on the local process
-    size_t size;
+    /// The local size of the section of the range on the local process
+    size_t local_size;
 };
 
-/*! Perform a 1d decomposition so that the load is optimally balanced.
- *  @param[in] sz The sz of the 1d domain
- *  @param[in] numRank The number of ranks to perform the decomposition over
- *  @param[in] rank The rank of the local process
- *  @return Return a pair (offset, size).
- *          The first element is the offset for the local process,
- *          the second is the size for the local process.
- */
-struct PIOL_Range PIOL_decompose(size_t sz, size_t numRank, size_t rank);
+/// @brief Perform a 1d decomposition of the interval [0,range_size-1] into
+///        `num_ranks` pieces so it is optimally spread across each `rank`.
+///
+/// @param[in] range_size The total size of the 1d domain.
+/// @param[in] num_ranks  The number of ranks to perform the decomposition
+///                       over.
+/// @param[in] rank       The rank of the local process.
+/// @return The section of the range decomposed onto rank `rank`.
+///
+/// @pre num_ranks > 0
+/// @pre rank < num_ranks
+///
+struct PIOL_Decomposed_range PIOL_decompose_range(
+  size_t range_size, size_t num_ranks, size_t rank);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -44,32 +49,66 @@ struct PIOL_Range PIOL_decompose(size_t sz, size_t numRank, size_t rank);
 
 namespace PIOL {
 
-/// @copydoc PIOL_Range
-using Range = PIOL_Range;
+/// @copydoc PIOL_Decomposed_range
+using Decomposed_range = PIOL_Decomposed_range;
 
-/*! Perform a 1d decomposition so that the load is optimally balanced.
- *  @param[in] sz The sz of the 1d domain
- *  @param[in] numRank The number of ranks to perform the decomposition over
- *  @param[in] rank The rank of the local process
- *  @return Return a pair (offset, size).
- *          The first element is the offset for the local process,
- *          the second is the size for the local process.
- */
-inline Range decompose(size_t sz, size_t numRank, size_t rank)
+
+/// @copydoc PIOL_decompose_range
+inline Decomposed_range decompose_range(
+  size_t range_size, size_t num_ranks, size_t rank)
 {
-    return PIOL_decompose(sz, numRank, rank);
+    return PIOL_decompose_range(range_size, num_ranks, rank);
 }
 
-/*! An overload for a common decomposition case. Perform a decomposition of
- *  traces so that the load is optimally balanced.
- *  @param[in] piol The piol object
- *  @param[in] file A read file object. This is used to find the number of
- *             traces.
- *  @return Return a pair (offset, size).
- *          The first element is the offset for the local process,
- *          the second is the size for the local process.
- */
-Range decompose(ExSeisPIOL* piol, ReadInterface* file);
+/// @brief An overload for a common decomposition case. Perform a decomposition
+///        of traces so that the load is optimally balanced across the
+///        processes `piol` is operating on.
+///
+/// @param[in] piol The piol object
+/// @param[in] file A read file object. This is used to find the number of
+///            traces.
+///
+/// @return Return a pair (offset, size).
+///         The first element is the offset for the local process,
+///         the second is the size for the local process.
+///
+/// @pre piol != NULL
+/// @pre file != NULL
+///
+Decomposed_range decompose_range(ExSeisPIOL* piol, ReadInterface* file);
+
+
+/// @brief This struct represents the location and local index of a global index
+///        in a decomposed range.
+struct Decomposed_index_location {
+    /// The rank the global index was decomposed onto.
+    size_t rank;
+
+    /// The local index on the rank of the range referenced by the global
+    /// index.
+    size_t local_index;
+};
+
+
+/// @brief Find the rank and local index for a global index of a decomposed
+///        range.
+///
+/// @param[in] range_size  The size of the decomposed range.
+/// @param[in] num_ranks    The number of ranks the range was decomposed over.
+/// @param[in] global_index The requested index in the range.
+///
+/// @returns A Decomposed_index_location containing the `rank` the global_index
+///          was decomposed to, and the `local_index` representing the distance
+///          between the local range offset and the global index.
+///
+/// @pre num_ranks > 0
+/// @pre global_index < range_size
+///
+/// @post return.rank < num_ranks
+/// @post return.local_index <= global_index
+///
+Decomposed_index_location decomposed_location(
+  size_t range_size, size_t num_ranks, size_t global_index);
 
 }  // namespace PIOL
 

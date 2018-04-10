@@ -11,6 +11,7 @@
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/ReadInterface.hh"
 
 #include <memory>
 #include <string>

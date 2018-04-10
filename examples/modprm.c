@@ -158,12 +158,12 @@ int main(int argc, char** argv)
 
     writeHeader(piol, ifh, ofh);
 
-    struct PIOL_Range dec = PIOL_decompose(
+    struct PIOL_Decomposed_range dec = PIOL_decompose_range(
       nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
     size_t tcnt =
       memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
 
-    writePayload(piol, dec.offset, dec.size, tcnt, ifh, ofh);
+    writePayload(piol, dec.global_offset, dec.local_size, tcnt, ifh, ofh);
 
     PIOL_ExSeis_isErr(piol, "");
     PIOL_File_WriteDirect_delete(ofh);

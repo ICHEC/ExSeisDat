@@ -4,158 +4,121 @@
 #ifndef EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
 #define EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
 
-#include "ExSeisDat/PIOL/decompose.h"
-#include "ExSeisDat/PIOL/mpi_utils.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
-
-#include <tuple>
+#include <cstddef>
+#include <memory>
 
 namespace PIOL {
 
-/// @brief  A structure for MPI-free accessing using global arrays.
+/// @brief  A structure for global arrays.
 ///
-/// @tparam T Template parameter pack
+/// This classes uses a sort of Type Erasure to hide the implementation details
+/// of deriving classes. This allows for both inheritance of an abstract
+/// interface and value semantics.
 ///
-template<class... T>
+/// @tparam T The type of variable to store in the vector.
+///
+template<typename T>
 class Distributed_vector {
-    /// The number of elements per tuple.
-    const size_t TupleSz = sizeof(std::tuple<T...>);
+  protected:
+    /// @brief An abstract interface for implementing the `Distributed_vector`.
+    ///
+    /// This class is used to implement the Type Erasure used in
+    /// `Distributed_vector`.
+    ///
+    /// Classes deriving from Distributed_vector should derive from this
+    /// class and put their actual implementation in here.
+    /// A specialized instance of this `Concept` class should then be
+    /// passed to the `Distributed_vector` constructor during construction of a
+    /// child class.
+    /// The `Distributed_vector` class will then call the virtual member
+    /// functions of this class.
+    ///
+    /// This will be held in a std::unique_ptr in the `Distributed_vector`
+    /// instance. This allows for specialization of the `Distributed_vector`
+    /// class, along with value semantics while passing it around.
+    ///
+    class Concept {
+      public:
+        virtual ~Concept() = default;
 
-    /// The piol object.
-    ExSeisPIOL* piol;
+        /// @copydoc Distributed_vector::set
+        virtual void set(size_t i, const T& val) = 0;
 
-    /// The number of elements in the global array.
-    size_t sz;
+        /// @copydoc Distributed_vector::get
+        virtual T get(size_t i) const = 0;
 
-    /// The rank of the local process.
-    size_t rank;
+        /// @copydoc Distributed_vector::size
+        virtual size_t size() const = 0;
+    };
 
-    /// The number of ranks.
-    size_t numRank;
+    /// The instance of the private implementation for Distributed_vector.
+    std::unique_ptr<Concept> concept;
 
-    /// The local offset.
-    size_t offset;
-
-    /// The size of each block per process.
-    std::vector<size_t> szall;
-
-    /// The underlying local storage.
-    std::vector<std::tuple<T...>> vec;
-
-    /// The memory window.
-    MPI_Win win = MPI_WIN_NULL;
+    /// @brief Constructor passes instance of Concept to the
+    ///        `concept` member variable.
+    ///
+    /// This is intended to be the point of entry for inheriting classes.
+    ///
+    /// @param[in] concept The inherited and specialized Concept
+    ///                           class defined by a child class.
+    Distributed_vector(std::unique_ptr<Concept> concept) :
+        concept(std::move(concept))
+    {
+    }
 
   public:
-    /// @brief Construct the global array.
+    /// @name Defaulted implicit member functions.
+    /// Move construction and assignment are enabled.
+    /// @{
+    ~Distributed_vector()                    = default;
+    Distributed_vector(Distributed_vector&&) = default;
+    Distributed_vector& operator=(Distributed_vector&&) = default;
+    /// @}
+
+    /// @name Deleted implicit member functions.
+    /// Copy construction and assignment are disabled.
+    /// @{
+    Distributed_vector()                          = delete;
+    Distributed_vector(const Distributed_vector&) = delete;
+    Distributed_vector& operator=(const Distributed_vector&) = delete;
+    /// @}
+
+    /// @brief %Set the global ith element with the given tuple.
     ///
-    /// This operation is collective across all processes.
+    /// @param[in] i The index into the global array.
+    /// @param[in] val The value to be set.
     ///
-    /// The global vector size must be set here, and will remain constant
-    /// for the lifetime of the array.
-    /// This is primarily because a pointer to the vector data is used in
-    /// an MPI window, and resizing that array can invalidate the pointer.
+    /// @pre  i < size()
+    /// @post get(i) == val on all processes. (Explicit checking is subject to
+    ///                                        race conditions!)
     ///
-    /// @param[in] piol_ The PIOL object.
-    /// @param[in] sz_ The number of elements in the global array.
-    ///
-    Distributed_vector(ExSeisPIOL* piol_, const size_t sz_) :
-        piol(piol_),
-        sz(sz_)
+    void set(size_t i, const T& val)
     {
-        rank     = piol->comm->getRank();
-        numRank  = piol->comm->getNumRank();
-
-        auto dec = decompose(sz, numRank, rank);
-        offset   = dec.offset;
-        szall    = piol->comm->gather(dec.size);
-
-        vec.resize(dec.size);
-
-        if (numRank > 1) {
-            MPI_Win_create(
-              vec.data(), vec.size(), TupleSz, MPI_INFO_NULL, MPI_COMM_WORLD,
-              &win);
-        }
+        assert(i < size());
+        concept->set(i, val);
     }
 
-    /// @brief Destruct the global array, free the associated window.
+    /// @brief Get the global ith element.
     ///
-    /// This is a non-collective operation.
+    /// @param[in] i The index into the global array.
+    /// @return Return the value of the requested tuple.
     ///
-    ~Distributed_vector(void)
+    /// @pre i < size()
+    ///
+    T get(size_t i) const
     {
-        if (numRank > 1) {
-            MPI_Win_free(&win);
-        }
+        assert(i < size());
+        return concept->get(i);
     }
 
+    /// @copydoc get
+    T operator[](size_t i) const { return get(i); }
 
-    /*! Set the global ith element with the given tuple.
-     *  @param[in] i The index into the global array.
-     *  @param[in] val The value to be set.
-     */
-    void set(size_t i, std::tuple<T...> val)
-    {
-        if (i > sz) return;
-
-        size_t lrank   = 0;
-        size_t lOffset = 0;
-        for (lrank = 0; i >= lOffset + szall[lrank] && lrank < numRank;
-             lrank++) {
-            lOffset += szall[lrank];
-        }
-
-        if (lrank == rank) {
-            vec[i - lOffset] = val;
-        }
-        else {
-            MPI_Win_lock(MPI_LOCK_EXCLUSIVE, lrank, MPI_MODE_NOCHECK, win);
-            MPI_Put(
-              &val, TupleSz, MPI_utils::MPIType<char>(), lrank, i - lOffset,
-              TupleSz, MPI_utils::MPIType<char>(), win);
-            MPI_Win_unlock(lrank, win);
-        }
-    }
-
-    /*! Get the global ith element.
-     *  @param[in] i The index into the global array.
-     *  @return Return the value of the requested tuple.
-     */
-    std::tuple<T...> get(size_t i) const
-    {
-        if (i > sz) {
-            std::tuple<T...> empty;
-            return empty;
-        }
-        size_t lrank   = 0;
-        size_t lOffset = 0;
-        for (lrank = 0; i >= lOffset + szall[lrank] && lrank < numRank;
-             lrank++) {
-            lOffset += szall[lrank];
-        }
-
-        std::tuple<T...> val;
-        if (lrank == rank) {
-            return vec[i - lOffset];
-        }
-        else {
-            MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win);
-            MPI_Get(
-              &val, TupleSz, MPI_utils::MPIType<char>(), lrank, i - lOffset,
-              TupleSz, MPI_utils::MPIType<char>(), win);
-            MPI_Win_unlock(lrank, win);
-            return val;
-        }
-    }
-
-    /*! @copydoc get
-     */
-    std::tuple<T...> operator[](size_t i) const { return get(i); }
-
-    /*! Get the number of elements in the global array.
-     *  @return Return the number of elements in the global array.
-     */
-    size_t size(void) const { return sz; }
+    /// @brief Get the number of elements in the global array.
+    ///
+    /// @return Return the number of elements in the global array.
+    ///
+    size_t size() const { return concept->size(); }
 };
 
 }  // namespace PIOL

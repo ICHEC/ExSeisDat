@@ -33,8 +33,9 @@ class ExSeisPIOL {
   public:
     /// The ExSeisPIOL logger
     std::unique_ptr<Logger> log;
+
     /// The ExSeisPIOL communication
-    std::unique_ptr<CommunicatorInterface> comm;
+    std::unique_ptr<CommunicatorMPI> comm;
 
     /*! @brief A function to check if an error has occured in the PIOL. If an
      *         error has occured the log is printed, the object destructor is

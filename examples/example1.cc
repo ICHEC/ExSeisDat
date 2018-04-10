@@ -43,9 +43,9 @@ int main(int argc, char** argv)
     // inc is the increment step between traces (microseconds)
     double inc = 4.0;
 
-    auto dec      = decompose(nt, piol->getNumRank(), piol->getRank());
-    size_t offset = dec.offset;
-    size_t lnt    = dec.size;
+    auto dec      = decompose_range(nt, piol->getNumRank(), piol->getRank());
+    size_t offset = dec.global_offset;
+    size_t lnt    = dec.local_size;
 
     // Write some header parameters
     file.writeNs(ns);

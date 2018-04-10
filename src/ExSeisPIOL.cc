@@ -16,7 +16,7 @@ void ExSeisPIOL::isErr(const std::string& msg) const
           "", Logger::Layer::PIOL, Logger::Status::Error,
           "Fatal Error in PIOL. " + msg + ". Dumping Log", PIOL_VERBOSITY_NONE);
         log->~Logger();
-        comm->~CommunicatorInterface();
+        comm->~CommunicatorMPI();
         std::_Exit(EXIT_FAILURE);
     }
 }

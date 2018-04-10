@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numeric>
 
-std::vector<size_t> lobdecompose(
+std::vector<size_t> lobdecompose_range(
   PIOL::ExSeisPIOL* piol, size_t sz, size_t numRank, size_t rank)
 {
     double total = (numRank * (numRank + 1U)) / 2U;
@@ -27,7 +27,7 @@ std::vector<size_t> lobdecompose(
           biggest};
 }
 
-PIOL::Range blockDecomp(
+PIOL::Decomposed_range blockDecomp(
   size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off)
 {
     // Size of the first block
@@ -41,26 +41,27 @@ PIOL::Range blockDecomp(
     assert(!((sz - rstart - rend) % bsz));
 
     // Do a regular decomposition of the blocks
-    auto newdec = PIOL::decompose(bcnt, numRank, rank);
+    auto newdec = PIOL::decompose_range(bcnt, numRank, rank);
 
-    newdec.offset *= bsz;
-    newdec.size *= bsz;
-    if (newdec.size == 0) return {sz, 0};
+    newdec.global_offset *= bsz;
+    newdec.local_size *= bsz;
+    if (newdec.local_size == 0) return {sz, 0};
 
     // Now we compensate for the fact that the start and end block sizes can be
     // different.
     if (!rank) {
         // If the rank is zero, we shrink the first block by the leftover
-        newdec.size -= bsz - rstart;
+        newdec.local_size -= bsz - rstart;
     }
     else {
         // The subtraction above means every block is shifted
-        newdec.offset -= bsz - rstart;
+        newdec.global_offset -= bsz - rstart;
     }
 
     // The last rank with work must remove the leftover of its last block
-    if (newdec.size && ((newdec.offset + newdec.size) > sz)) {
-        newdec.size -= bsz - rend;
+    if (
+      newdec.local_size && ((newdec.global_offset + newdec.local_size) > sz)) {
+        newdec.local_size -= bsz - rend;
     }
 
     return newdec;

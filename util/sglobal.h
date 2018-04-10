@@ -34,7 +34,7 @@ typedef struct {
  *  @return Return an extent, a starting point (generally for a 'for' loop) and
  *          the number of iterations.
  */
-Extent decompose(const size_t sz, const size_t nrank, const size_t rank);
+Extent decompose_range(const size_t sz, const size_t nrank, const size_t rank);
 
 /// Typedef for function which modifies parameters
 typedef void (*ModPrm)(size_t, size_t, PIOL_File_Param*);

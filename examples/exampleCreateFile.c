@@ -19,13 +19,13 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
     PIOL_File_WriteDirect* fh = PIOL_File_WriteDirect_new(piol, name);
 
     // Perform some decomposition (user decides how they will decompose)
-    struct PIOL_Range dec = PIOL_decompose(
+    struct PIOL_Decomposed_range dec = PIOL_decompose_range(
       nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
 
     // The offset for the local process
-    size_t offset = dec.offset;
+    size_t offset = dec.global_offset;
     // The number of traces for the local process to handle
-    size_t lnt = dec.size;
+    size_t lnt = dec.local_size;
 
     // Write some header parameters
     PIOL_File_WriteDirect_writeNs(fh, ns);

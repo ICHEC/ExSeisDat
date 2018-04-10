@@ -110,8 +110,8 @@ struct SetTest : public Test {
     {
         if (set.get() != nullptr) set.release();
         set = std::make_unique<Set_public>(piol);
-        for (size_t j = 0; j < numNs; j++)
-            for (size_t k = 0; k < numInc; k++)
+        for (size_t j = 0; j < numNs; j++) {
+            for (size_t k = 0; k < numInc; k++) {
                 for (size_t i = 0; i < numFile; i++) {
                     auto mock = std::make_unique<MockFile>();
                     size_t nt = 1000U + i;
@@ -121,52 +121,59 @@ struct SetTest : public Test {
                     EXPECT_CALL(*mock, readInc())
                       .WillRepeatedly(Return(1000. + geom_t(i)));
 
-                    auto dec = decompose(
+                    auto dec = decompose_range(
                       nt, piol->comm->getNumRank(), piol->comm->getRank());
-                    prm.emplace_back(dec.size);
+                    prm.emplace_back(dec.local_size);
                     Param* tprm = &prm.back();
 
-                    if (linear)
-                        for (size_t l = 0; l < dec.size; l++) {
+                    if (linear) {
+                        for (size_t l = 0; l < dec.local_size; l++) {
                             param_utils::setPrm(
-                              l, PIOL_META_xSrc, 2000. - geom_t(dec.offset + l),
+                              l, PIOL_META_xSrc,
+                              2000. - geom_t(dec.global_offset + l), tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_ySrc,
+                              2000. - geom_t(dec.global_offset + l), tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_xRcv,
+                              2000. + geom_t(dec.global_offset + l), tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_yRcv,
+                              2000. + geom_t(dec.global_offset + l), tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_xCmp,
+                              2000. - geom_t(dec.global_offset + l), tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_yCmp,
+                              2000. - geom_t(dec.global_offset + l), tprm);
+                            param_utils::setPrm(
+                              l, PIOL_META_il, 2000U + dec.global_offset + l,
                               tprm);
                             param_utils::setPrm(
-                              l, PIOL_META_ySrc, 2000. - geom_t(dec.offset + l),
+                              l, PIOL_META_xl, 2000U + dec.global_offset + l,
                               tprm);
                             param_utils::setPrm(
-                              l, PIOL_META_xRcv, 2000. + geom_t(dec.offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_yRcv, 2000. + geom_t(dec.offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_xCmp, 2000. - geom_t(dec.offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_yCmp, 2000. - geom_t(dec.offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_il, 2000U + dec.offset + l, tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_xl, 2000U + dec.offset + l, tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_tn, l + dec.offset, tprm);
+                              l, PIOL_META_tn, l + dec.global_offset, tprm);
 
                             auto xS =
-                              2000. - geom_t((dec.offset + l) % (nt / 10U));
+                              2000.
+                              - geom_t((dec.global_offset + l) % (nt / 10U));
                             auto yR =
-                              2000. + geom_t((dec.offset + l) / (nt / 10U));
+                              2000.
+                              + geom_t((dec.global_offset + l) / (nt / 10U));
                             param_utils::setPrm(
                               l, PIOL_META_Offset,
                               (xS - 2000.) * (xS - 2000.)
                                 + (2000. - yR) * (2000. - yR),
                               tprm);
                         }
-                    else
-                        for (size_t l = 0; l < dec.size; l++) {
-                            auto xS = 2000U - (dec.offset + l) % (nt / 10U);
-                            auto yR = 2000U + (dec.offset + l) / (nt / 10U);
+                    }
+                    else {
+                        for (size_t l = 0; l < dec.local_size; l++) {
+                            auto xS =
+                              2000U - (dec.global_offset + l) % (nt / 10U);
+                            auto yR =
+                              2000U + (dec.global_offset + l) / (nt / 10U);
                             param_utils::setPrm(l, PIOL_META_xSrc, xS, tprm);
                             param_utils::setPrm(l, PIOL_META_ySrc, 2000., tprm);
                             param_utils::setPrm(l, PIOL_META_xRcv, 2000., tprm);
@@ -177,21 +184,24 @@ struct SetTest : public Test {
                               l, PIOL_META_il, 4000U - xS, tprm);
                             param_utils::setPrm(l, PIOL_META_xl, yR, tprm);
                             param_utils::setPrm(
-                              l, PIOL_META_tn, l + dec.offset, tprm);
+                              l, PIOL_META_tn, l + dec.global_offset, tprm);
                             param_utils::setPrm(
                               l, PIOL_META_Offset,
                               (xS - 2000.) * (xS - 2000.)
                                 + (2000. - yR) * (2000. - yR),
                               tprm);
                         }
+                    }
                     EXPECT_CALL(
                       *mock, readTraceNonContiguous(
-                               dec.size, An<const size_t*>(), _, _, 0))
+                               dec.local_size, An<const size_t*>(), _, _, 0))
                       .Times(Exactly(1U))
                       .WillRepeatedly(cpyprm(&prm.back()));
 
                     set->add(std::move(mock));
                 }
+            }
+        }
     }
 
     void init(size_t numFile, size_t nt, size_t)

@@ -6,6 +6,7 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ExSeisDat/PIOL/MPI_Distributed_vector.hh"
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
@@ -22,7 +23,7 @@ namespace PIOL {
  *         crossline.
  * @todo TODO: This can be generalised
  */
-static Distributed_vector<size_t, llint, llint> getGathers(
+static Distributed_vector<std::tuple<size_t, llint, llint>> getGathers(
   ExSeisPIOL* piol, Param* prm)
 {
     size_t rank    = piol->comm->getRank();
@@ -63,22 +64,24 @@ static Distributed_vector<size_t, llint, llint> getGathers(
     size_t sz     = lline.size() - start;
     size_t offset = piol->comm->offset(sz);
 
-    Distributed_vector<size_t, llint, llint> line(piol, piol->comm->sum(sz));
+    MPI_Distributed_vector<std::tuple<size_t, llint, llint>> line(
+      piol->comm->sum(sz), piol->comm->getComm());
+
     for (size_t i = 0; i < sz; i++) {
         line.set(i + offset, lline[i + start]);
     }
 
-    return line;
+    return std::move(line);
 }
 
-Distributed_vector<size_t, llint, llint> getIlXlGathers(
+Distributed_vector<std::tuple<size_t, llint, llint>> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file)
 {
-    auto dec  = decompose(piol, file);
+    auto dec  = decompose_range(piol, file);
     auto rule = std::make_shared<Rule>(
       std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
-    Param prm(rule, dec.size);
-    file->readParam(dec.offset, dec.size, &prm);
+    Param prm(rule, dec.local_size);
+    file->readParam(dec.global_offset, dec.local_size, &prm);
 
     return getGathers(piol, &prm);
 }

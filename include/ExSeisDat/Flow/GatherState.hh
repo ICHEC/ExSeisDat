@@ -8,6 +8,7 @@
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cstddef>
+#include <tuple>
 #include <vector>
 
 namespace PIOL {
@@ -26,7 +27,7 @@ struct GatherState {
      */
     virtual void makeState(
       const std::vector<size_t>& offset,
-      const Distributed_vector<size_t, llint, llint>& gather) = 0;
+      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather) = 0;
 };
 
 }  // namespace PIOL

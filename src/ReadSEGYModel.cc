@@ -53,7 +53,7 @@ ReadSEGYModel::ReadSEGYModel(
 std::vector<trace_t> ReadSEGYModel::readModel(
   const size_t offset,
   const size_t sz,
-  const Distributed_vector<size_t, llint, llint>& gather)
+  const Distributed_vector<std::tuple<size_t, llint, llint>>& gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
@@ -76,7 +76,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(
 std::vector<trace_t> ReadSEGYModel::readModel(
   const size_t sz,
   const size_t* offset,
-  const Distributed_vector<size_t, llint, llint>& gather)
+  const Distributed_vector<std::tuple<size_t, llint, llint>>& gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
