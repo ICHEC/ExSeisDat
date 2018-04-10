@@ -28,6 +28,6 @@ do
         # Run clang-format on all the files with the given extension in each
         # directory
         find $dir -iname "*.${ext}" -print0 \
-            | xargs -n 1 -0 -P 20 ${FORMAT_EXECUTABLE}
+            | xargs -n 1 -0 -P "${nprocs}" ${FORMAT_EXECUTABLE}
     done
 done
