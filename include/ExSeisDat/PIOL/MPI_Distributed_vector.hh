@@ -15,6 +15,13 @@ namespace PIOL {
 /// @brief An MPI implementation of Distributed_vector
 template<typename T>
 class MPI_Distributed_vector : public Distributed_vector<T> {
+
+    // Ensure T is trivially copyable, because we'll be passing it around
+    // bitwise over MPI.
+    static_assert(
+      std::is_trivially_copyable<T>::value == true,
+      "Template parameter, T, is not trivially copyable!");
+
   protected:
     /// The internal implementation of MPI_Distributed_vector.
     class Model final : public Distributed_vector<T>::Concept {

@@ -9,6 +9,7 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <memory>
@@ -32,7 +33,7 @@ class ReadModel : public ReadDirect {
     std::vector<trace_t> virtual readModel(
       size_t gOffset,
       size_t numGather,
-      Distributed_vector<std::tuple<size_t, llint, llint>>& gather);
+      Distributed_vector<Gather_info>& gather);
 };
 
 }  // namespace PIOL

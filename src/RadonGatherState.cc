@@ -11,7 +11,7 @@ namespace PIOL {
 
 void RadonGatherState::makeState(
   const std::vector<size_t>& offset,
-  const Distributed_vector<std::tuple<size_t, llint, llint>>& gather)
+  const Distributed_vector<Gather_info>& gather)
 {
     // TODO: DON'T USE MAGIC NAME
     std::unique_ptr<ReadSEGYModel> vm = makeFile<ReadSEGYModel>(piol, vmname);
@@ -25,8 +25,8 @@ void RadonGatherState::makeState(
 
     for (size_t i = 0; i < offset.size(); i++) {
         auto gval = gather[offset[i]];
-        il[i]     = std::get<1>(gval);
-        xl[i]     = std::get<2>(gval);
+        il[i]     = gval.inline_;
+        xl[i]     = gval.crossline;
     }
 }
 

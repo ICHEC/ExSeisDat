@@ -8,6 +8,7 @@
 #define EXSEISDAT_PIOL_MODEL3DINTERFACE_HH
 
 #include "ExSeisDat/PIOL/Distributed_vector.hh"
+#include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <utility>
@@ -59,7 +60,7 @@ class Model3dInterface {
     virtual std::vector<trace_t> readModel(
       const size_t offset,
       const size_t sz,
-      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather) = 0;
+      const Distributed_vector<Gather_info>& gather) = 0;
 
     /*! Read the 3d file based on il and xl that match those in the given
      *  \c gather array.
@@ -72,7 +73,7 @@ class Model3dInterface {
     virtual std::vector<trace_t> readModel(
       const size_t sz,
       const size_t* offset,
-      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather) = 0;
+      const Distributed_vector<Gather_info>& gather) = 0;
 };
 
 }  // namespace PIOL

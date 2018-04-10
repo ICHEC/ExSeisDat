@@ -5,6 +5,7 @@
 #define EXSEISDAT_FLOW_GATHERSTATE_HH
 
 #include "ExSeisDat/PIOL/Distributed_vector.hh"
+#include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/typedefs.h"
 
 #include <cstddef>
@@ -27,7 +28,7 @@ struct GatherState {
      */
     virtual void makeState(
       const std::vector<size_t>& offset,
-      const Distributed_vector<std::tuple<size_t, llint, llint>>& gather) = 0;
+      const Distributed_vector<Gather_info>& gather) = 0;
 };
 
 }  // namespace PIOL

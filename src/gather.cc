@@ -23,48 +23,54 @@ namespace PIOL {
  *         crossline.
  * @todo TODO: This can be generalised
  */
-static Distributed_vector<std::tuple<size_t, llint, llint>> getGathers(
-  ExSeisPIOL* piol, Param* prm)
+static Distributed_vector<Gather_info> getGathers(ExSeisPIOL* piol, Param* prm)
 {
     size_t rank    = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
-    std::vector<std::tuple<size_t, llint, llint>> lline;
+    std::vector<Gather_info> lline;
 
     llint ill = param_utils::getPrm<llint>(0LU, PIOL_META_il, prm);
     llint xll = param_utils::getPrm<llint>(0LU, PIOL_META_xl, prm);
-    lline.emplace_back(1LU, ill, xll);
+    lline.push_back({1LU, ill, xll});
 
     for (size_t i = 1; i < prm->size(); i++) {
         llint il = param_utils::getPrm<llint>(i, PIOL_META_il, prm);
         llint xl = param_utils::getPrm<llint>(i, PIOL_META_xl, prm);
 
         if (il != ill || xl != xll) {
-            lline.emplace_back(0LU, il, xl);
+            lline.push_back({0LU, il, xl});
             ill = il;
             xll = xl;
         }
-        ++std::get<0>(lline.back());
+        lline.back().num_traces += 1;
     }
 
-    auto trcnum = piol->comm->gather<size_t>(std::get<0>(lline.front()));
-    auto ilb    = piol->comm->gather<size_t>(std::get<1>(lline.back()));
-    auto xlb    = piol->comm->gather<size_t>(std::get<2>(lline.back()));
-    auto ilf    = piol->comm->gather<size_t>(std::get<1>(lline.front()));
-    auto xlf    = piol->comm->gather<size_t>(std::get<2>(lline.front()));
+    auto trcnum = piol->comm->gather<size_t>(lline.front().num_traces);
+    auto ilb    = piol->comm->gather<size_t>(lline.back().inline_);
+    auto xlb    = piol->comm->gather<size_t>(lline.back().crossline);
+    auto ilf    = piol->comm->gather<size_t>(lline.front().inline_);
+    auto xlf    = piol->comm->gather<size_t>(lline.front().crossline);
 
     size_t start =
       (rank ? ilb[rank - 1LU] == ilf[rank] && xlb[rank - 1LU] == xlf[rank] :
               0U);
-    if (start < lline.size())
-        if (ilf[rank + 1LU] == ilb[rank] && xlf[rank + 1LU] == xlb[rank])
-            for (size_t i = rank + 1LU;
-                 i < numRank && ilb[rank] == ilf[i] && xlb[rank] == xlf[i]; i++)
-                std::get<0>(lline.back()) += trcnum[i];
+    if (start < lline.size()) {
+        if (ilf[rank + 1LU] == ilb[rank] && xlf[rank + 1LU] == xlb[rank]) {
+            for (size_t i = rank + 1LU; i < numRank; i++) {
+                if (ilb[rank] == ilf[i] && xlb[rank] == xlf[i]) {
+                    lline.back().num_traces += trcnum[i];
+                }
+                else {
+                    break;
+                }
+            }
+        }
+    }
 
     size_t sz     = lline.size() - start;
     size_t offset = piol->comm->offset(sz);
 
-    MPI_Distributed_vector<std::tuple<size_t, llint, llint>> line(
+    MPI_Distributed_vector<Gather_info> line(
       piol->comm->sum(sz), piol->comm->getComm());
 
     for (size_t i = 0; i < sz; i++) {
@@ -74,7 +80,7 @@ static Distributed_vector<std::tuple<size_t, llint, llint>> getGathers(
     return std::move(line);
 }
 
-Distributed_vector<std::tuple<size_t, llint, llint>> getIlXlGathers(
+Distributed_vector<Gather_info> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file)
 {
     auto dec  = decompose_range(piol, file);

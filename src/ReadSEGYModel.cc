@@ -53,7 +53,7 @@ ReadSEGYModel::ReadSEGYModel(
 std::vector<trace_t> ReadSEGYModel::readModel(
   const size_t offset,
   const size_t sz,
-  const Distributed_vector<std::tuple<size_t, llint, llint>>& gather)
+  const Distributed_vector<Gather_info>& gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
@@ -63,8 +63,8 @@ std::vector<trace_t> ReadSEGYModel::readModel(
          * trace number = ilNumber * xlInc + xlNumber
          * much like indexing in a 2d array.
          */
-        offsets[i] = ((std::get<1>(val) - il.start) / il.increment) * xl.count
-                     + ((std::get<2>(val) - xl.start) / xl.increment);
+        offsets[i] = ((val.inline_ - il.start) / il.increment) * xl.count
+                     + ((val.crossline - xl.start) / xl.increment);
     }
 
     readTraceNonContiguous(
@@ -76,14 +76,14 @@ std::vector<trace_t> ReadSEGYModel::readModel(
 std::vector<trace_t> ReadSEGYModel::readModel(
   const size_t sz,
   const size_t* offset,
-  const Distributed_vector<std::tuple<size_t, llint, llint>>& gather)
+  const Distributed_vector<Gather_info>& gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++) {
         auto val   = gather[offset[i]];
-        offsets[i] = ((std::get<1>(val) - il.start) / il.increment) * xl.count
-                     + ((std::get<2>(val) - xl.start) / xl.increment);
+        offsets[i] = ((val.inline_ - il.start) / il.increment) * xl.count
+                     + ((val.crossline - xl.start) / xl.increment);
     }
 
     readTraceNonContiguous(

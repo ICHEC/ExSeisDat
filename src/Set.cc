@@ -308,7 +308,7 @@ std::string Set::startGather(
         size_t ig      = 0;
         for (size_t gNum : gNums) {
             auto gval         = gather[gNum];
-            const size_t iGSz = std::get<0>(gval);
+            const size_t iGSz = gval.num_traces;
 
             // Initialise the blocks
             auto bIn = std::make_unique<TraceBlock>();
