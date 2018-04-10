@@ -19,7 +19,7 @@
  *  @return Return an extent, a starting point (generally for a 'for' loop) and
  *          the number of iterations.
  */
-PIOL::Decomposed_range blockDecomp(
+PIOL::Contiguous_decomposition blockDecomp(
   size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off = 0);
 
 /*! Unequal decomposition, weights towards the lower ranks. Useful for testing
@@ -31,7 +31,7 @@ PIOL::Decomposed_range blockDecomp(
  *  @return Return an extent, a starting point (generally for a 'for' loop) and
  *          the number of iterations.
  */
-std::vector<size_t> lobdecompose_range(
+std::vector<size_t> lobdecompose(
   PIOL::ExSeisPIOL* piol, size_t sz, size_t numRank, size_t rank);
 
 #endif

@@ -34,7 +34,7 @@ std::unique_ptr<Coords> getCoords(
     ReadDirect file(piol, name);
     piol->isErr();
 
-    auto dec      = decompose_range(piol.get(), file);
+    auto dec      = block_decompose(piol.get(), file);
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 

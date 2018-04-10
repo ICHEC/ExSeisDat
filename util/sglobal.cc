@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numeric>
 
-std::vector<size_t> lobdecompose_range(
+std::vector<size_t> lobdecompose(
   PIOL::ExSeisPIOL* piol, size_t sz, size_t numRank, size_t rank)
 {
     double total = (numRank * (numRank + 1U)) / 2U;
@@ -27,7 +27,7 @@ std::vector<size_t> lobdecompose_range(
           biggest};
 }
 
-PIOL::Decomposed_range blockDecomp(
+PIOL::Contiguous_decomposition blockDecomp(
   size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off)
 {
     // Size of the first block
@@ -41,7 +41,7 @@ PIOL::Decomposed_range blockDecomp(
     assert(!((sz - rstart - rend) % bsz));
 
     // Do a regular decomposition of the blocks
-    auto newdec = PIOL::decompose_range(bcnt, numRank, rank);
+    auto newdec = PIOL::block_decompose(bcnt, numRank, rank);
 
     newdec.global_offset *= bsz;
     newdec.local_size *= bsz;

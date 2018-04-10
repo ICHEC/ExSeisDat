@@ -12,9 +12,9 @@
 extern "C" {
 #endif  // __cplusplus
 
-/// The \c Decomposed_range class represents a section of a range on the given
+/// The \c Contiguous_decomposition class represents a section of a range on the given
 /// rank which has been distributed over a number of ranks.
-struct PIOL_Decomposed_range {
+struct PIOL_Contiguous_decomposition {
     /// The offset into the global range for the given rank.
     size_t global_offset;
 
@@ -34,7 +34,7 @@ struct PIOL_Decomposed_range {
 /// @pre num_ranks > 0
 /// @pre rank < num_ranks
 ///
-struct PIOL_Decomposed_range PIOL_decompose_range(
+struct PIOL_Contiguous_decomposition PIOL_block_decompose(
   size_t range_size, size_t num_ranks, size_t rank);
 
 #ifdef __cplusplus
@@ -49,15 +49,15 @@ struct PIOL_Decomposed_range PIOL_decompose_range(
 
 namespace PIOL {
 
-/// @copydoc PIOL_Decomposed_range
-using Decomposed_range = PIOL_Decomposed_range;
+/// @copydoc PIOL_Contiguous_decomposition
+using Contiguous_decomposition = PIOL_Contiguous_decomposition;
 
 
-/// @copydoc PIOL_decompose_range
-inline Decomposed_range decompose_range(
+/// @copydoc PIOL_block_decompose
+inline Contiguous_decomposition block_decompose(
   size_t range_size, size_t num_ranks, size_t rank)
 {
-    return PIOL_decompose_range(range_size, num_ranks, rank);
+    return PIOL_block_decompose(range_size, num_ranks, rank);
 }
 
 /// @brief An overload for a common decomposition case. Perform a decomposition
@@ -75,7 +75,7 @@ inline Decomposed_range decompose_range(
 /// @pre piol != NULL
 /// @pre file != NULL
 ///
-Decomposed_range decompose_range(ExSeisPIOL* piol, ReadInterface* file);
+Contiguous_decomposition block_decompose(ExSeisPIOL* piol, ReadInterface* file);
 
 
 /// @brief This struct represents the location and local index of a global index
@@ -90,7 +90,7 @@ struct Decomposed_index_location {
 };
 
 
-/// @brief Find the rank and local index for a global index of a decomposed
+/// @brief Find the rank and local index for a global index of a block decomposed
 ///        range.
 ///
 /// @param[in] range_size  The size of the decomposed range.
@@ -107,7 +107,7 @@ struct Decomposed_index_location {
 /// @post return.rank < num_ranks
 /// @post return.local_index <= global_index
 ///
-Decomposed_index_location decomposed_location(
+Decomposed_index_location block_decomposed_location(
   size_t range_size, size_t num_ranks, size_t global_index);
 
 }  // namespace PIOL

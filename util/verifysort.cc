@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     ReadDirect src(piol, name1);
 
     // Perform the decomposition and read coordinates of interest.
-    auto dec = decompose_range(piol.get(), src);
+    auto dec = block_decompose(piol.get(), src);
 
     if (checkOrder(src, dec, type)) {
         std::cout << "Success\n";

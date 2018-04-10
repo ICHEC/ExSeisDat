@@ -61,8 +61,8 @@ int main(int argc, char** argv)
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
 
-    struct PIOL_Decomposed_range dec =
-      PIOL_decompose_range(nt, PIOL_ExSeis_getNumRank(piol), rank);
+    struct PIOL_Contiguous_decomposition dec =
+      PIOL_block_decompose(nt, PIOL_ExSeis_getNumRank(piol), rank);
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 

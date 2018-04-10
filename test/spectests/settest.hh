@@ -121,7 +121,7 @@ struct SetTest : public Test {
                     EXPECT_CALL(*mock, readInc())
                       .WillRepeatedly(Return(1000. + geom_t(i)));
 
-                    auto dec = decompose_range(
+                    auto dec = block_decompose(
                       nt, piol->comm->getNumRank(), piol->comm->getRank());
                     prm.emplace_back(dec.local_size);
                     Param* tprm = &prm.back();

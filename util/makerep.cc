@@ -43,8 +43,8 @@ void smallCopy(
 
 void distribToDistrib(
   size_t rank,
-  Decomposed_range old,
-  Decomposed_range newd,
+  Contiguous_decomposition old,
+  Contiguous_decomposition newd,
   std::vector<uchar>* vec)
 {
     std::vector<MPI_Request> msg;
@@ -128,13 +128,13 @@ void distribToDistrib(
 // minimal block contention possible between processes.
 // writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
 // off is the global offset
-Decomposed_range writeArb(
+Contiguous_decomposition writeArb(
   size_t rank,
   size_t numRank,
   DataInterface* out,
   size_t off,
   size_t bsz,
-  Decomposed_range dec,
+  Contiguous_decomposition dec,
   size_t tsz,
   std::vector<uchar>* vec)
 {
@@ -216,7 +216,7 @@ void mpiMakeSEGYCopyNaive(
     for (size_t i = 0; i < fsz; i += step) {
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec =
-          (Block ? decompose_range(rblock, numRank, piol.getRank()) :
+          (Block ? block_decompose(rblock, numRank, piol.getRank()) :
                    blockDecomp(rblock, bsz, numRank, piol.getRank(), i));
 
         std::vector<uchar> buf(dec.local_size);

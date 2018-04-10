@@ -83,7 +83,7 @@ static Distributed_vector<Gather_info> getGathers(ExSeisPIOL* piol, Param* prm)
 Distributed_vector<Gather_info> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file)
 {
-    auto dec  = decompose_range(piol, file);
+    auto dec  = block_decompose(piol, file);
     auto rule = std::make_shared<Rule>(
       std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
     Param prm(rule, dec.local_size);

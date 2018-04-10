@@ -7,7 +7,7 @@ link_libraries(exseisdat)
 
 set(EXSEISDAT_UTILITIES_EXES)
 
-add_executable(exseis-cropen        cropen.c sglobal.c ctest.c)
+add_executable(exseis-cropen        cropen.c)
 list(APPEND EXSEISDAT_UTILITIES_EXES exseis-cropen)
 
 add_executable(exseis-traceanalysis traceanalysis.cc)

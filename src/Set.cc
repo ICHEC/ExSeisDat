@@ -61,7 +61,7 @@ void Set::add(std::unique_ptr<ReadInterface> in)
     auto& f = file.back();
     f->ifc  = std::move(in);
 
-    auto dec = decompose_range(piol.get(), f->ifc.get());
+    auto dec = block_decompose(piol.get(), f->ifc.get());
     f->ilst.resize(dec.local_size);
     f->olst.resize(dec.local_size);
     std::iota(f->ilst.begin(), f->ilst.end(), dec.global_offset);
@@ -272,7 +272,7 @@ std::string Set::startGather(
     for (auto& o : file) {
         // Locate gather boundaries.
         auto gather = getIlXlGathers(piol.get(), o->ifc.get());
-        auto gdec   = decompose_range(gather.size(), numRank, rank);
+        auto gdec   = block_decompose(gather.size(), numRank, rank);
 
         size_t numGather = gdec.local_size;
 

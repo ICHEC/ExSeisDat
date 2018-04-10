@@ -83,7 +83,7 @@ MPI_Distributed_vector<T>::Model::Model(MPI_Aint global_size, MPI_Comm comm) :
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &num_ranks);
 
-    const auto decomposition = decompose_range(global_size, num_ranks, rank);
+    const auto decomposition = block_decompose(global_size, num_ranks, rank);
     const size_t local_size  = decomposition.local_size;
 
     MPI_Win_allocate(local_size, sizeof(T), MPI_INFO_NULL, comm, &data, &win);
@@ -107,7 +107,7 @@ void MPI_Distributed_vector<T>::Model::set(size_t i, const T& val)
     MPI_Comm_size(comm, &num_ranks);
 
     // Get the rank and local index of the global index `i`.
-    const auto location = decomposed_location(global_size, num_ranks, i);
+    const auto location = block_decomposed_location(global_size, num_ranks, i);
 
     // Set the value locally or remotely.
     assert(rank > 0);
@@ -140,7 +140,7 @@ T MPI_Distributed_vector<T>::Model::get(size_t i) const
     MPI_Comm_size(comm, &num_ranks);
 
     // Get the rank and local index of the global index `i`.
-    auto location = decomposed_location(global_size, num_ranks, i);
+    auto location = block_decomposed_location(global_size, num_ranks, i);
 
     // Get the value locally or remotely.
     assert(rank > 0);

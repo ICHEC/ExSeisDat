@@ -7,7 +7,7 @@
 
 extern "C" {
 
-PIOL_Decomposed_range PIOL_decompose_range(
+PIOL_Contiguous_decomposition PIOL_block_decompose(
   size_t range_size, size_t num_ranks, size_t rank)
 {
     assert(num_ranks > 0);
@@ -77,13 +77,13 @@ PIOL_Decomposed_range PIOL_decompose_range(
 
 namespace PIOL {
 
-Decomposed_range decompose_range(ExSeisPIOL* piol, ReadInterface* file)
+Contiguous_decomposition block_decompose(ExSeisPIOL* piol, ReadInterface* file)
 {
-    return decompose_range(
+    return block_decompose(
       file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
 }
 
-Decomposed_index_location decomposed_location(
+Decomposed_index_location block_decomposed_location(
   size_t range_size, size_t num_ranks, size_t global_index)
 {
     assert(global_index < range_size);

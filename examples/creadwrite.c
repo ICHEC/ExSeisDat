@@ -113,7 +113,7 @@ int ReadWriteFile(
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
     PIOL_ExSeis_isErr(piol, NULL);
 
-    struct PIOL_Decomposed_range dec = PIOL_decompose_range(
+    struct PIOL_Contiguous_decomposition dec = PIOL_block_decompose(
       nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
     size_t tcnt =
       memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());

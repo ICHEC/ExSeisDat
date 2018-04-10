@@ -154,7 +154,7 @@ void calcMin(
 {
     ReadDirect in(piol, iname);
 
-    auto dec      = decompose_range(piol.get(), in);
+    auto dec      = block_decompose(piol.get(), in);
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
