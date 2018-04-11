@@ -146,8 +146,8 @@ void FileMake(
     size_t biggest = 0;
 
     if (lob) {
-        auto dec = lobdecompose(
-          piol.get(), nt, piol->getNumRank(), piol->getRank());
+        auto dec =
+          lobdecompose(piol.get(), nt, piol->getNumRank(), piol->getRank());
         offset  = dec[0];
         lnt     = dec[1];
         biggest = dec[2];

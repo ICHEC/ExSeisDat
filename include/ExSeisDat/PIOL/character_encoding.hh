@@ -7,7 +7,7 @@
 #define EXSEISDAT_PIOL_CHARACTER_ENCODING_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <string>
 

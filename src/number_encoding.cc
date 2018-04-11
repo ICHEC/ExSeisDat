@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/number_encoding.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <cstring>
 

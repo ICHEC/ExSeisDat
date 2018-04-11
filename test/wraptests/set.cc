@@ -51,9 +51,9 @@ void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
     mockSet().taper(this, tapFunc, nTailLft, nTailRt);
 }
 
-void Set::AGC(AGCFunc agcFunc, size_t window, trace_t normR)
+void Set::AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude)
 {
-    mockSet().AGC(this, agcFunc, window, normR);
+    mockSet().AGC(this, agcFunc, window, target_amplitude);
 }
 
 void Set::text(std::string outmsg_)
@@ -95,11 +95,6 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
 void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
 {
     mockSet().taper(this, type, nTailLft, nTailRt);
-}
-
-void Set::AGC(AGCType type, size_t window, trace_t normR)
-{
-    mockSet().AGC(this, type, window, normR);
 }
 
 void Set::temporalFilter(

@@ -9,7 +9,7 @@
 
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 namespace PIOL {
 
@@ -23,14 +23,17 @@ namespace PIOL {
 
 namespace {
 
-/// An enum class encoding whether we're explicitly managing or not managing
-/// MPI, or if management has even been decided yet.
+/// @brief An encoding whether we're explicitly managing or not managing MPI, or
+///        if management has even been decided yet.
 enum class ManagingMPI { unset, yes, no };
 
-/// A static variable tracking whether we're managing MPI or not.
-/// By default it's "unset", but after MPIManager() is called, it will
-/// definitely be set.
+/// @brief A static variable tracking whether we're managing MPI or not.
+///
+///        By default it's "unset", but after MPIManager() is called, it will
+///        definitely be set.
+///
 /// @return Return (a reference to) whether we're managing MPI or not.
+///
 ManagingMPI& managingMPI()
 {
     static auto managingMPI = ManagingMPI::unset;
@@ -38,15 +41,18 @@ ManagingMPI& managingMPI()
 }
 
 
-/// @brief This class will be initialized as a function static variable.
-///     This means the lifetime will begin the first time the MPIManagerInstance
-///     function is called, and end when the program exits wither by returning
-///     from main, or when std::exit() is called.
-///     It uses the managingMPI() static variable to track management, which
-///     users can explicitly set using the manageMPI(bool) function.
+/// @brief A class managing the lifetime of the MPI library.
+///
+/// This class will be initialized as a function static variable.
+/// This means the lifetime will begin the first time the MPIManagerInstance
+/// function is called, and end when the program exits wither by returning from
+/// main, or when std::exit() is called.  It uses the managingMPI() static
+/// variable to track management, which users can explicitly set using the
+/// manageMPI(bool) function.
+///
 struct MPIManager {
     /// @brief Initialize MPI if it hasn't been already, and we're responsible
-    ///     for it.
+    ///        for it.
     MPIManager()
     {
         // If we're not managing MPI, just do nothing.
@@ -87,7 +93,9 @@ struct MPIManager {
 
 /// @brief A static instance of MPIManager so the destructor, and MPI_Finalize
 ///        will be called at program exit.
+///
 /// @return A reference to the static MPIManager instance.
+///
 MPIManager& MPIManagerInstance()
 {
     static auto& managing_mpi = managingMPI();
@@ -102,6 +110,7 @@ MPIManager& MPIManagerInstance()
 /// @brief Set whether ExSeisDat should manage the initialization / finalization
 ///        of the MPI library.
 /// @param[in] manage Whether ExSeisDat should manage MPI.
+///
 void manageMPI(bool manage)
 {
     if (manage) {

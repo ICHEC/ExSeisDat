@@ -6,7 +6,7 @@
 #ifndef EXSEISDAT_PIOL_CONSTANTS_HH
 #define EXSEISDAT_PIOL_CONSTANTS_HH
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 /// A definition of PI.
 #define PIOL_PI (3.14159265358979323846264338327950288)

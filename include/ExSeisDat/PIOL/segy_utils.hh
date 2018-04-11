@@ -15,7 +15,7 @@
 #include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/number_encoding.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 namespace PIOL {
 namespace SEGY_utils {

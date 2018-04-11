@@ -70,10 +70,18 @@ void test_PIOL_Set(std::shared_ptr<ExSeis*> piol)
 
     EXPECT_CALL(mockSet(), add(EqDeref(set_ptr), "Test Set add"));
 
-    const PIOL_AGCType agc_types[] = {PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos,
-                                      PIOL_TAPERTYPE_CosSqr};
+    typedef std::pair<Gain_function, Gain_function> Gain_function_pair;
+    const Gain_function_pair agc_types[] = {
+      std::make_pair(PIOL_rectangular_RMS_gain, rectangular_RMS_gain),
+      std::make_pair(PIOL_triangular_RMS_gain, triangular_RMS_gain),
+      std::make_pair(PIOL_mean_abs_gain, mean_abs_gain),
+      std::make_pair(PIOL_median_gain, median_gain)};
+
     for (auto agc_type : agc_types) {
-        EXPECT_CALL(mockSet(), AGC(EqDeref(set_ptr), agc_type, 900, 910.0));
+        EXPECT_CALL(
+          mockSet(), AGC(
+                       EqDeref(set_ptr), AnyOf(agc_type.first, agc_type.second),
+                       900, 910.0));
     }
 
     EXPECT_CALL(mockSet(), dtor(EqDeref(set_ptr)));

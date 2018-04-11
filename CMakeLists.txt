@@ -214,12 +214,14 @@ add_library(
     src/param_utils.cc
     src/segy_utils.cc
 
-    src/agc.cc
     src/gather.cc
     src/minmax.cc
     src/sort.cc
     src/taper.cc
     src/temporalfilter.cc
+
+    src/utils/gain_control/AGC.cc
+    src/utils/gain_control/Gain_function.cc
 )
 
 target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})

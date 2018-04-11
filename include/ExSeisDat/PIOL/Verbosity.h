@@ -3,13 +3,12 @@
 
 #include <stddef.h>
 
-/*! @brief The enumeration for the verbosity level of records
- */
+/// @copydoc PIOL::Verbosity
 typedef size_t PIOL_Verbosity;
 
 #ifdef __cplusplus
 namespace PIOL {
-/// @copydoc PIOL_Verbosity
+/// The enumeration for the verbosity level of records
 typedef PIOL_Verbosity Verbosity;
 }  // namespace PIOL
 #endif

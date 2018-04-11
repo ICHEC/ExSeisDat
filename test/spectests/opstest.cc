@@ -7,12 +7,12 @@
 
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/gain_control/AGC.h"
 
 
 using namespace testing;

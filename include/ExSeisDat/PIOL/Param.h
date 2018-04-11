@@ -8,7 +8,7 @@
 #ifndef EXSEISDAT_PIOL_PARAM_H
 #define EXSEISDAT_PIOL_PARAM_H
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 // Forward declare PIOL::Param as PIOL_Param for C export.
 #ifdef __cplusplus

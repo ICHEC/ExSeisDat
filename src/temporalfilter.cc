@@ -12,7 +12,7 @@
 
 #include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <assert.h>

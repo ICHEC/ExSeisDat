@@ -47,7 +47,9 @@ class MockSet {
       taper, void(Set*, TaperFunc tapFunc, size_t nTailLft, size_t nTailRt));
 
     MOCK_METHOD4(
-      AGC, void(Set*, AGCFunc agcFunc, size_t window, trace_t normR));
+      AGC,
+      void(
+        Set*, Gain_function agcFunc, size_t window, trace_t target_amplitude));
 
     MOCK_METHOD2(text, void(Set*, std::string outmsg_));
 
@@ -74,8 +76,6 @@ class MockSet {
 
     MOCK_METHOD4(
       taper, void(Set*, TaperType type, size_t nTailLft, size_t nTailRt));
-
-    MOCK_METHOD4(AGC, void(Set*, AGCType type, size_t window, trace_t normR));
 
     MOCK_METHOD8(
       temporalFilter,

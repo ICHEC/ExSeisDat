@@ -86,7 +86,8 @@ int main(int argc, char** argv)
     // -m maximum memory
     char* opt  = "i:";  // TODO: uses a GNU extension
     char* name = NULL;
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt)) {
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
         if (c == 'i') {
             const size_t optarg_len = strlen(optarg) + 1;
             free(name);

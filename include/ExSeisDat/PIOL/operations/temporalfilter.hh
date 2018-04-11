@@ -8,7 +8,7 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH
 #define EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <functional>
 #include <vector>

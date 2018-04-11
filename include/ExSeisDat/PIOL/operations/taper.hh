@@ -8,7 +8,7 @@
 #define EXSEISDAT_PIOL_OPERATIONS_TAPER_HH
 
 #include "ExSeisDat/PIOL/TaperType.h"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <functional>
 

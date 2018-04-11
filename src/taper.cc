@@ -9,7 +9,7 @@
 #include "ExSeisDat/PIOL/operations/taper.hh"
 
 #include "ExSeisDat/PIOL/constants.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <assert.h>
 

@@ -10,11 +10,11 @@
 #include "ExSeisDat/Flow/OpParent.hh"
 
 #include "ExSeisDat/PIOL/constants.hh"
-#include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
+#include "ExSeisDat/utils/gain_control/AGC.h"
 
 #include <deque>
 #include <list>
@@ -231,9 +231,9 @@ class Set {
      *  to a set of traces
      *  @param[in] agcFunc Staistical function used to scale traces
      *  @param[in] window Length of the agc window
-     *  @param[in] normR Value to which traces are normalized
+     *  @param[in] target_amplitude Value to which traces are normalized
      */
-    void AGC(AGCFunc agcFunc, size_t window, trace_t normR);
+    void AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude);
 
     /*! Set the text-header of the output
      *  @param[in] outmsg_ The output message
@@ -292,13 +292,6 @@ class Set {
      * @param[in] nTailRt The length of right-tail taper ramp.
      */
     void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
-
-    /*! Scale traces using automatic gain control for visualization
-     * @param[in] type They type of agc scaling function used
-     * @param[in] window Length of the agc window
-     * @param[in] normR Normalization value
-     */
-    void AGC(AGCType type, size_t window, trace_t normR);
 
 
     /*! Filter traces or part of traces using a IIR Butterworth filter

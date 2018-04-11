@@ -5,7 +5,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "ExSeisDat/PIOL/decompose.h"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <unistd.h>
 #include <utility>

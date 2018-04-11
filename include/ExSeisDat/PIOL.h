@@ -14,7 +14,7 @@
 #include "ExSeisDat/PIOL/Verbosity.h"
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/minmax.h"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <mpi.h>
 #include <stdbool.h>

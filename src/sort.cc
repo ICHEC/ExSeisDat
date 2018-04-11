@@ -14,7 +14,7 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <numeric>

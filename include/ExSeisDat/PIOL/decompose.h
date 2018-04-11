@@ -12,8 +12,8 @@
 extern "C" {
 #endif  // __cplusplus
 
-/// The \c Contiguous_decomposition class represents a section of a range on the given
-/// rank which has been distributed over a number of ranks.
+/// The \c Contiguous_decomposition class represents a section of a range on the
+/// given rank which has been distributed over a number of ranks.
 struct PIOL_Contiguous_decomposition {
     /// The offset into the global range for the given rank.
     size_t global_offset;

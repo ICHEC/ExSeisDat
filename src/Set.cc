@@ -635,15 +635,26 @@ void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
       }));
 }
 
-void Set::AGC(AGCFunc agcFunc, size_t window, trace_t normR)
+void Set::AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude)
 {
     OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
                  FuncOpt::SingleTrace};
+
     func.emplace_back(std::make_shared<Op<InPlaceMod>>(
       opt, rule, nullptr,
-      [agcFunc, window, normR](TraceBlock* in) -> std::vector<size_t> {
-          PIOL::AGC(
-            in->prm->size(), in->ns, in->trc.data(), agcFunc, window, normR);
+      [agcFunc, window,
+       target_amplitude](TraceBlock* in) -> std::vector<size_t> {
+          const auto num_traces        = in->prm->size();
+          const auto samples_per_trace = in->ns;
+
+          for (size_t i = 0; i < num_traces; i++) {
+              // Pointer to the beginning of trace i.
+              auto* trace_start = &(in->trc[i * in->ns]);
+
+              PIOL::AGC(
+                samples_per_trace, trace_start, agcFunc, window,
+                target_amplitude);
+          }
           return std::vector<size_t>{};
       }));
 }
@@ -680,11 +691,6 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
 void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
 {
     Set::taper(getTap(type), nTailLft, nTailRt);
-}
-
-void Set::AGC(AGCType type, size_t window, trace_t normR)
-{
-    Set::AGC(getAGCFunc(type), window, normR);
 }
 
 void Set::temporalFilter(

@@ -9,7 +9,7 @@
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include "ExSeisDat/PIOL/number_encoding.hh"
 

@@ -6,7 +6,7 @@
 
 #include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <cstddef>
 #include <tuple>

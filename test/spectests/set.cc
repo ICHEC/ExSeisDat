@@ -458,7 +458,7 @@ TEST_F(SetTest, agcRMS)
         if (num < 1) num = 1;
         return std::sqrt(amp / num);
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_RMS, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, rectangular_RMS_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcRMSTri)
@@ -467,16 +467,16 @@ TEST_F(SetTest, agcRMSTri)
         trace_t amp         = 0.0f;
         trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
         for (size_t j = 0; j < window; j++) {
-            amp += pow(
-              trc[j] * (1.0f - trace_t(abs(llint(j - winCntr))) / winFullTail),
-              2.0f);
+            const float scaling =
+              (1.0f - trace_t(abs(llint(j - winCntr))) / winFullTail);
+            amp += pow(trc[j] * scaling, 2.0f);
         }
         size_t num = std::count_if(
           &trc[0], &trc[window], [](trace_t i) { return i != 0.0f; });
         if (num < 1) num = 1;
         return std::sqrt(amp / num);
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_RMSTri, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, triangular_RMS_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMeanAbs)
@@ -491,7 +491,7 @@ TEST_F(SetTest, agcMeanAbs)
         if (num < 1) num = 1;
         return std::abs(amp) / num;
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_MeanAbs, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, mean_abs_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMedian)
@@ -503,7 +503,7 @@ TEST_F(SetTest, agcMedian)
         else
             return trc[window / 2U];
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_Median, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, median_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, FilterOneTailTime)

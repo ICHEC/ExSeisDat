@@ -37,9 +37,10 @@ const PIOL_TaperType taper_types[] = {PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos,
                                       PIOL_TAPERTYPE_CosSqr};
 
 
-/* List of all the PIOL_AGCType values */
-const PIOL_AGCType agc_types[] = {PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos,
-                                  PIOL_TAPERTYPE_CosSqr};
+/* List of all the PIOL_Gain_function values */
+const PIOL_Gain_function agc_types[] = {PIOL_rectangular_RMS_gain,
+                                        PIOL_triangular_RMS_gain,
+                                        PIOL_mean_abs_gain, PIOL_median_gain};
 
 
 /* Functions for testing PIOL_Set_sort_fn */

@@ -29,7 +29,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 namespace PIOL {
 struct RuleEntry;

@@ -12,7 +12,7 @@
 #ifndef EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH
 #define EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <vector>
 

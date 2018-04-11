@@ -62,11 +62,14 @@ void PIOL_Set_taper(
 }
 
 void PIOL_Set_AGC(
-  PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR)
+  PIOL_Set* set,
+  PIOL_Gain_function type,
+  size_t window,
+  PIOL_trace_t target_amplitude)
 {
     assert(not_null(set));
 
-    set->AGC(type, window, normR);
+    set->AGC(type, window, target_amplitude);
 }
 
 void PIOL_Set_output(PIOL_Set* set, const char* oname)

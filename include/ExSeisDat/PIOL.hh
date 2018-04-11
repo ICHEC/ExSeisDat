@@ -5,7 +5,9 @@
 #ifndef EXSEISDAT_PIOL_HH
 #define EXSEISDAT_PIOL_HH
 
-#include "ExSeisDat/PIOL/AGCType.h"
+/// @namespace PIOL
+/// @brief The PIOL namespace is the base namespace for the ExSeisPIOL library.
+
 #include "ExSeisDat/PIOL/CommunicatorInterface.hh"
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataInterface.hh"
@@ -40,7 +42,6 @@
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/number_encoding.hh"
-#include "ExSeisDat/PIOL/operations/agc.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
@@ -48,6 +49,7 @@
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/gain_control/AGC.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #endif  // EXSEISDAT_PIOL_HH

@@ -7,7 +7,7 @@
 #define EXSEISDAT_PIOL_DATAMPIIO_HH
 
 #include "ExSeisDat/PIOL/DataInterface.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <functional>
 

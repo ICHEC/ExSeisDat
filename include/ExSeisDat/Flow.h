@@ -9,9 +9,9 @@
 #ifndef EXSEISDAT_FLOW_H
 #define EXSEISDAT_FLOW_H
 
-#include "ExSeisDat/PIOL/AGCType.h"
 #include "ExSeisDat/PIOL/SortType.h"
 #include "ExSeisDat/PIOL/TaperType.h"
+#include "ExSeisDat/utils/gain_control/AGC.h"
 #include "PIOL.h"
 
 //
@@ -112,10 +112,13 @@ void PIOL_Set_add(PIOL_Set* set, const char* name);
  *  @param[in,out] set The set handle
  *  @param[in] type They type of agc scaling function used
  *  @param[in] window Length of the agc window
- *  @param[in] normR Normalization value
+ *  @param[in] target_amplitude Normalization value
  */
 void PIOL_Set_AGC(
-  PIOL_Set* set, PIOL_AGCType type, size_t window, PIOL_trace_t normR);
+  PIOL_Set* set,
+  PIOL_Gain_function type,
+  size_t window,
+  PIOL_trace_t target_amplitude);
 
 #ifdef __cplusplus
 }  // extern "C"

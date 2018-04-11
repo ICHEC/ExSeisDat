@@ -279,10 +279,10 @@ struct SetTest : public Test {
     void agcTest(
       size_t nt,
       size_t ns,
-      AGCType type,
+      Gain_function type,
       std::function<trace_t(size_t, trace_t*, size_t)> agcFunc,
       size_t window,
-      trace_t normR)
+      trace_t target_amplitude)
     {
         set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
@@ -314,7 +314,7 @@ struct SetTest : public Test {
             SetArrayArgument<2>(trc.begin(), trc.end())));
         set->add(std::move(mock));
 
-        set->AGC(type, window, normR);
+        set->AGC(type, window, target_amplitude);
         set->outfix = "tmp/temp";
         set.reset();
 
@@ -346,7 +346,7 @@ struct SetTest : public Test {
                 std::vector<trace_t> trcWin(
                   trcMan.begin() + winStr, trcMan.begin() + winStr + win);
                 ASSERT_FLOAT_EQ(
-                  trc[i * ns + j], trcMan[i * ns + j] * normR
+                  trc[i * ns + j], trcMan[i * ns + j] * target_amplitude
                                      / agcFunc(win, trcWin.data(), winCntr))
                   << i << " " << j << std::endl;
             }

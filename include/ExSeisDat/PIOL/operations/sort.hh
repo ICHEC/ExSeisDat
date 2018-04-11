@@ -15,7 +15,7 @@
 #include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/SortType.h"
 #include "ExSeisDat/PIOL/decompose.h"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 namespace PIOL {
 
@@ -77,7 +77,8 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm);
  *  @param[in] type The sort type
  *  @return Return true if the local ordering is correct.
  */
-bool checkOrder(ReadInterface* src, Contiguous_decomposition dec, SortType type);
+bool checkOrder(
+  ReadInterface* src, Contiguous_decomposition dec, SortType type);
 
 /*! Return the comparison function for the particular sort type.
  *  @param[in] type The sort type

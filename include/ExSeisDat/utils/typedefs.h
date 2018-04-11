@@ -2,8 +2,8 @@
 /// @file
 /// @brief Typedefs used extensively throughout ExSeisDat.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_TYPEDEFS_H
-#define EXSEISDAT_PIOL_TYPEDEFS_H
+#ifndef EXSEISDAT_UTILS_TYPEDEFS_H
+#define EXSEISDAT_UTILS_TYPEDEFS_H
 
 #include "stddef.h"
 
@@ -60,4 +60,4 @@ typedef std::complex<trace_t> cmtrace_t;
 
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_PIOL_TYPEDEFS_H
+#endif  // EXSEISDAT_UTILS_TYPEDEFS_H

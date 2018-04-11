@@ -5,7 +5,7 @@
 #define EXSEISDAT_FLOW_TRACEBLOCK_HH
 
 #include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <cstddef>
 #include <memory>

@@ -8,7 +8,7 @@
 #define EXSEISDAT_PIOL_DATAINTERFACE_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 namespace PIOL {
 

@@ -5,7 +5,7 @@
 #ifndef EXSEISDAT_PIOL_NUMBER_ENCODING_HH
 #define EXSEISDAT_PIOL_NUMBER_ENCODING_HH
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <cstdint>
 #include <type_traits>

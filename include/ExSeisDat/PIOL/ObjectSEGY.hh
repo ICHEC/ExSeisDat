@@ -10,7 +10,7 @@
 #define EXSEISDAT_PIOL_OBJECTSEGY_HH
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 namespace PIOL {
 

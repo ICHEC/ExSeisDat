@@ -8,7 +8,7 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_MINMAX_H
 #define EXSEISDAT_PIOL_OPERATIONS_MINMAX_H
 
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 /*! A structure to hold a reference to a single coordinate and the corresponding
  *  trace number.
@@ -34,7 +34,7 @@ typedef PIOL_CoordElem CoordElem;
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/typedefs.h"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <functional>
