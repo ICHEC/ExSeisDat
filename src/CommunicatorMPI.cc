@@ -8,8 +8,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
-#include "ExSeisDat/PIOL/mpi_utils.hh"
+#include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
+#include "ExSeisDat/utils/mpi/MPI_type.hh"
 #include "ExSeisDat/utils/typedefs.h"
+
+#include <string>
+
+using namespace std::string_literals;
 
 namespace PIOL {
 
@@ -159,10 +164,16 @@ std::vector<T> MPIGather(
 {
     std::vector<T> arr(mpi->getNumRank() * in.size());
     int err = MPI_Allgather(
-      in.data(), in.size(), MPI_utils::MPIType<T>(), arr.data(), in.size(),
-      MPI_utils::MPIType<T>(), mpi->getComm());
-    MPI_utils::printErr(
-      log, "", Logger::Layer::Comm, err, NULL, "MPI_Allgather failure");
+      in.data(), in.size(), exseis::utils::MPI_type<T>(), arr.data(), in.size(),
+      exseis::utils::MPI_type<T>(), mpi->getComm());
+
+    if (err != MPI_SUCCESS) {
+        log->record(
+          "", Logger::Layer::Comm, Logger::Status::Error,
+          "MPI_Allgather error: "s + exseis::utils::MPI_error_to_string(err),
+          PIOL_VERBOSITY_NONE);
+    }
+
     return arr;
 }
 
@@ -179,9 +190,15 @@ T getMPIOp(Logger* log, const CommunicatorMPI* mpi, T val, MPI_Op op)
 {
     T result = 0;
     int err  = MPI_Allreduce(
-      &val, &result, 1, MPI_utils::MPIType<T>(), op, mpi->getComm());
-    MPI_utils::printErr(
-      log, "", Logger::Layer::Comm, err, NULL, "MPI_Allreduce failure");
+      &val, &result, 1, exseis::utils::MPI_type<T>(), op, mpi->getComm());
+
+    if (err != MPI_SUCCESS) {
+        log->record(
+          "", Logger::Layer::Comm, Logger::Status::Error,
+          "MPI_Allreduce error: "s + exseis::utils::MPI_error_to_string(err),
+          PIOL_VERBOSITY_NONE);
+    }
+
     return (err == MPI_SUCCESS ? result : 0LU);
 }
 
@@ -204,7 +221,7 @@ size_t CommunicatorMPI::offset(size_t val)
 {
     size_t offset = 0LU;
     MPI_Exscan(
-      &val, &offset, 1LU, MPI_utils::MPIType<size_t>(), MPI_SUM,
+      &val, &offset, 1LU, exseis::utils::MPI_type<size_t>(), MPI_SUM,
       MPI_COMM_WORLD);
     return (!rank ? 0LU : offset);
 }

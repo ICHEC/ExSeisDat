@@ -4,8 +4,8 @@
 #ifndef EXSEISDAT_FLOW_GATHERSTATE_HH
 #define EXSEISDAT_FLOW_GATHERSTATE_HH
 
-#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
+#include "ExSeisDat/utils/Distributed_vector.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <cstddef>

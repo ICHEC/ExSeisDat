@@ -8,9 +8,9 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 #define EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 
-#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ReadInterface.hh"
+#include "ExSeisDat/utils/Distributed_vector.hh"
 
 namespace PIOL {
 

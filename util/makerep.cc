@@ -2,8 +2,8 @@
 
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/utils/mpi/MPI_type.hh"
 
 #include <assert.h>
 #include <iostream>
@@ -71,14 +71,14 @@ void distribToDistrib(
         size_t sz = newd.global_offset - old.global_offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
-          vec->data(), sz, MPI_utils::MPIType<uchar>(), rank - 1, 1,
+          vec->data(), sz, exseis::utils::MPI_type<uchar>(), rank - 1, 1,
           MPI_COMM_WORLD, &msg.back());
     }
     else if (old.global_offset > newd.global_offset) {
         size_t sz = old.global_offset - newd.global_offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
-          vec->data(), sz, MPI_utils::MPIType<uchar>(), rank - 1, 0,
+          vec->data(), sz, exseis::utils::MPI_type<uchar>(), rank - 1, 0,
           MPI_COMM_WORLD, &msg.back());
     }
 
@@ -89,7 +89,7 @@ void distribToDistrib(
                     - (newd.global_offset + newd.local_size);
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
-          vec->data() + vec->size() - sz, sz, MPI_utils::MPIType<uchar>(),
+          vec->data() + vec->size() - sz, sz, exseis::utils::MPI_type<uchar>(),
           rank + 1, 0, MPI_COMM_WORLD, &msg.back());
     }
     else if (
@@ -99,7 +99,7 @@ void distribToDistrib(
                     - (old.global_offset + old.local_size);
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
-          vec->data() + vec->size() - sz, sz, MPI_utils::MPIType<uchar>(),
+          vec->data() + vec->size() - sz, sz, exseis::utils::MPI_type<uchar>(),
           rank + 1, 1, MPI_COMM_WORLD, &msg.back());
     }
 

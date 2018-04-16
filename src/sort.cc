@@ -12,12 +12,16 @@
 #include "ExSeisDat/PIOL/operations/sort.hh"
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/mpi_utils.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <numeric>
+#include <string>
+#include <vector>
+
+using namespace std::string_literals;
 
 namespace PIOL {
 
@@ -365,21 +369,32 @@ void Wait(
 {
     MPI_Status stat;
     int err;
+
     if (piol->comm->getRank() != piol->comm->getNumRank() - 1) {
         for (size_t i = 0; i < req1.size(); i++) {
             err = MPI_Wait(&req1[i], &stat);
-            MPI_utils::printErr(
-              piol->log.get(), "", Logger::Layer::Ops, err, &stat,
-              "Sort Rcv error");
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  "Sort Rcv error: "s
+                    + exseis::utils::MPI_error_to_string(err, &stat),
+                  PIOL_VERBOSITY_NONE);
+            }
         }
     }
 
     if (piol->comm->getRank()) {
         for (size_t i = 0; i < req2.size(); i++) {
             err = MPI_Wait(&req2[i], &stat);
-            MPI_utils::printErr(
-              piol->log.get(), "", Logger::Layer::Ops, err, &stat,
-              "Sort Snd error");
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  "Sort Snd error: "s
+                    + exseis::utils::MPI_error_to_string(err, &stat),
+                  PIOL_VERBOSITY_NONE);
+            }
         }
     }
 }
@@ -397,6 +412,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
 {
     size_t rank = piol->comm->getRank();
     size_t cnt  = regionSz * sizeof(T);
+
     std::vector<MPI_Request> rsnd(1);
     std::vector<MPI_Request> rrcv(1);
 
@@ -404,18 +420,28 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
     if (rank) {
         int err = MPI_Irecv(
           dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
-        MPI_utils::printErr(
-          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
-          "Sort MPI_Recv error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Recv error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
         int err = MPI_Isend(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 1,
           MPI_COMM_WORLD, &rsnd[0]);
-        MPI_utils::printErr(
-          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
-          "Sort MPI_Send error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Send error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     Wait(piol, rsnd, rrcv);
@@ -434,24 +460,35 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
 {
     size_t rank = piol->comm->getRank();
     size_t cnt  = regionSz * sizeof(T);
+
     std::vector<MPI_Request> rsnd(1);
     std::vector<MPI_Request> rrcv(1);
 
     if (rank) {
         int err = MPI_Isend(
           dat.data(), cnt, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rsnd[0]);
-        MPI_utils::printErr(
-          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
-          "Sort MPI_Send error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Send error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
         int err = MPI_Irecv(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 0,
           MPI_COMM_WORLD, &rrcv[0]);
-        MPI_utils::printErr(
-          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
-          "Sort MPI_Recv error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Recv error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     Wait(piol, rrcv, rsnd);
@@ -525,9 +562,14 @@ void sort(
 
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        MPI_utils::printErr(
-          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
-          "Sort MPI_Allreduce error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Allreduce error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
 
         if (!greduced) break;
     }
@@ -599,34 +641,39 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     std::vector<MPI_Request> rsnd(4);
     std::vector<MPI_Request> rrcv(4);
 
-    Logger* log = piol->log.get();
-    auto err    = [log](int errc, std::string msg, size_t i) -> void {
-        MPI_utils::printErr(
-          log, "", Logger::Layer::Ops, errc, NULL, msg + std::to_string(i));
+    // Lambda for wrapping an MPI call with logging.
+    auto log_on_error = [&piol](auto mpi_function, std::string function_name) {
+        return [=](auto&&... args) {
+            int err = mpi_function(std::forward<decltype(args)>(args)...);
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  function_name + " error: "s
+                    + exseis::utils::MPI_error_to_string(err),
+                  PIOL_VERBOSITY_NONE);
+            }
+        };
     };
 
     if (rank) {
-        std::string msg = "Sort right MPI_Irecv error ";
-        err(
-          MPI_Irecv(
-            rprm.f.data(), rprm.f.size() * sizeof(geom_t), MPI_CHAR, rank - 1,
-            0, MPI_COMM_WORLD, &rrcv[0]),
-          msg, 1);
-        err(
-          MPI_Irecv(
-            rprm.i.data(), rprm.i.size() * sizeof(llint), MPI_CHAR, rank - 1, 0,
-            MPI_COMM_WORLD, &rrcv[1]),
-          msg, 2);
-        err(
-          MPI_Irecv(
-            rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 0,
-            MPI_COMM_WORLD, &rrcv[2]),
-          msg, 3);
-        err(
-          MPI_Irecv(
-            rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1,
-            0, MPI_COMM_WORLD, &rrcv[3]),
-          msg, 4);
+        /// @todo Replace this with type deducing implementation
+
+        log_on_error(MPI_Irecv, "Sort right geom_t MPI_Irecv")(
+          rprm.f.data(), rprm.f.size() * sizeof(geom_t), MPI_CHAR, rank - 1, 0,
+          MPI_COMM_WORLD, &rrcv[0]);
+
+        log_on_error(MPI_Irecv, "Sort right llint MPI_Irecv")(
+          rprm.i.data(), rprm.i.size() * sizeof(llint), MPI_CHAR, rank - 1, 0,
+          MPI_COMM_WORLD, &rrcv[1]);
+
+        log_on_error(MPI_Irecv, "Sort right short MPI_Irecv")(
+          rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 0,
+          MPI_COMM_WORLD, &rrcv[2]);
+
+        log_on_error(MPI_Irecv, "Sort right size_t MPI_Irecv")(
+          rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1, 0,
+          MPI_COMM_WORLD, &rrcv[3]);
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
@@ -634,27 +681,23 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
             param_utils::cpyPrm(i + prm->size() - regionSz, prm, i, &sprm);
         }
 
-        std::string msg = "Sort right MPI_Isend error ";
-        err(
-          MPI_Isend(
-            sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank + 1,
-            0, MPI_COMM_WORLD, &rsnd[0]),
-          msg, 1);
-        err(
-          MPI_Isend(
-            sprm.i.data(), sprm.i.size() * sizeof(llint), MPI_CHAR, rank + 1, 0,
-            MPI_COMM_WORLD, &rsnd[1]),
-          msg, 2);
-        err(
-          MPI_Isend(
-            sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 0,
-            MPI_COMM_WORLD, &rsnd[2]),
-          msg, 3);
-        err(
-          MPI_Isend(
-            sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1,
-            0, MPI_COMM_WORLD, &rsnd[3]),
-          msg, 4);
+        /// @todo Replace this with type deducing implementation
+
+        log_on_error(MPI_Isend, "Sort right geom_t MPI_Isend")(
+          sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank + 1, 0,
+          MPI_COMM_WORLD, &rsnd[0]);
+
+        log_on_error(MPI_Isend, "Sort right llint MPI_Isend")(
+          sprm.i.data(), sprm.i.size() * sizeof(llint), MPI_CHAR, rank + 1, 0,
+          MPI_COMM_WORLD, &rsnd[1]);
+
+        log_on_error(MPI_Isend, "Sort right short MPI_Isend")(
+          sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 0,
+          MPI_COMM_WORLD, &rsnd[2]);
+
+        log_on_error(MPI_Isend, "Sort right size_t MPI_Isend")(
+          sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1, 0,
+          MPI_COMM_WORLD, &rsnd[3]);
     }
 
     Wait(piol, rsnd, rrcv);
@@ -682,10 +725,19 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     std::vector<MPI_Request> rsnd(4);
     std::vector<MPI_Request> rrcv(4);
 
-    Logger* log = piol->log.get();
-    auto err    = [log](int errc, std::string msg, size_t i) -> void {
-        MPI_utils::printErr(
-          log, "", Logger::Layer::Ops, errc, NULL, msg + std::to_string(i));
+    // Lambda for wrapping an MPI call with logging.
+    auto log_on_error = [&piol](auto mpi_function, std::string function_name) {
+        return [=](auto&&... args) {
+            int err = mpi_function(std::forward<decltype(args)>(args)...);
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  function_name + " error: "s
+                    + exseis::utils::MPI_error_to_string(err),
+                  PIOL_VERBOSITY_NONE);
+            }
+        };
     };
 
     if (rank) {
@@ -693,51 +745,39 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
             param_utils::cpyPrm(i, prm, i, &sprm);
         }
 
-        std::string msg = "Sort left MPI_Irecv error ";
-        err(
-          MPI_Isend(
-            sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank - 1,
-            1, MPI_COMM_WORLD, &rsnd[0]),
-          msg, 1);
-        err(
-          MPI_Isend(
-            sprm.i.data(), sprm.i.size() * sizeof(llint), MPI_CHAR, rank - 1, 1,
-            MPI_COMM_WORLD, &rsnd[1]),
-          msg, 2);
-        err(
-          MPI_Isend(
-            sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 1,
-            MPI_COMM_WORLD, &rsnd[2]),
-          msg, 3);
-        err(
-          MPI_Isend(
-            sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1,
-            1, MPI_COMM_WORLD, &rsnd[3]),
-          msg, 4);
+        log_on_error(MPI_Isend, "Sort left geom_t MPI_Isend")(
+          sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank - 1, 1,
+          MPI_COMM_WORLD, &rsnd[0]);
+
+        log_on_error(MPI_Isend, "Sort left llint MPI_Isend")(
+          sprm.i.data(), sprm.i.size() * sizeof(llint), MPI_CHAR, rank - 1, 1,
+          MPI_COMM_WORLD, &rsnd[1]);
+
+        log_on_error(MPI_Isend, "Sort left short MPI_Isend")(
+          sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 1,
+          MPI_COMM_WORLD, &rsnd[2]);
+
+        log_on_error(MPI_Isend, "Sort left size_t MPI_Isend")(
+          sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1, 1,
+          MPI_COMM_WORLD, &rsnd[3]);
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
-        std::string msg = "Sort left MPI_Isend error ";
-        err(
-          MPI_Irecv(
-            rprm.f.data(), rprm.f.size() * sizeof(geom_t), MPI_CHAR, rank + 1,
-            1, MPI_COMM_WORLD, &rrcv[0]),
-          msg, 1);
-        err(
-          MPI_Irecv(
-            rprm.i.data(), rprm.i.size() * sizeof(llint), MPI_CHAR, rank + 1, 1,
-            MPI_COMM_WORLD, &rrcv[1]),
-          msg, 2);
-        err(
-          MPI_Irecv(
-            rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 1,
-            MPI_COMM_WORLD, &rrcv[2]),
-          msg, 3);
-        err(
-          MPI_Irecv(
-            rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1,
-            1, MPI_COMM_WORLD, &rrcv[3]),
-          msg, 4);
+        log_on_error(MPI_Irecv, "Sort left geom_t MPI_Irecv")(
+          rprm.f.data(), rprm.f.size() * sizeof(geom_t), MPI_CHAR, rank + 1, 1,
+          MPI_COMM_WORLD, &rrcv[0]);
+
+        log_on_error(MPI_Irecv, "Sort left llint MPI_Irecv")(
+          rprm.i.data(), rprm.i.size() * sizeof(llint), MPI_CHAR, rank + 1, 1,
+          MPI_COMM_WORLD, &rrcv[1]);
+
+        log_on_error(MPI_Irecv, "Sort left short MPI_Irecv")(
+          rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 1,
+          MPI_COMM_WORLD, &rrcv[2]);
+
+        log_on_error(MPI_Irecv, "Sort left size_t MPI_Irecv")(
+          rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1, 1,
+          MPI_COMM_WORLD, &rrcv[3]);
     }
 
     Wait(piol, rrcv, rsnd);
@@ -830,9 +870,13 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-        MPI_utils::printErr(
-          piol->log.get(), "", Logger::Layer::Ops, err, NULL,
-          "Sort MPI_Allreduce error");
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Allreduce error: "
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
 
         if (!greduced) break;
     }

@@ -209,7 +209,6 @@ add_library(
 
     src/character_encoding.cc
     src/decompose.cc
-    src/mpi_utils.cc
     src/number_encoding.cc
     src/param_utils.cc
     src/segy_utils.cc
@@ -222,6 +221,7 @@ add_library(
 
     src/utils/gain_control/AGC.cc
     src/utils/gain_control/Gain_function.cc
+    src/utils/mpi/MPI_error_to_string.cc
 )
 
 target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})

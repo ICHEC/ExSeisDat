@@ -5,8 +5,8 @@
 #ifndef EXSEISDAT_PIOL_MPI_DISTRIBUTED_VECTOR_HH
 #define EXSEISDAT_PIOL_MPI_DISTRIBUTED_VECTOR_HH
 
-#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/decompose.h"
+#include "ExSeisDat/utils/Distributed_vector.hh"
 
 #include <mpi.h>
 

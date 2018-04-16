@@ -6,9 +6,9 @@
 
 #include "ExSeisDat/Flow/GatherState.hh"
 
-#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
+#include "ExSeisDat/utils/Distributed_vector.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <cstddef>

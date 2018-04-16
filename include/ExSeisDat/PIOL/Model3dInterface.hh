@@ -7,8 +7,8 @@
 #ifndef EXSEISDAT_PIOL_MODEL3DINTERFACE_HH
 #define EXSEISDAT_PIOL_MODEL3DINTERFACE_HH
 
-#include "ExSeisDat/PIOL/Distributed_vector.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
+#include "ExSeisDat/utils/Distributed_vector.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <utility>

@@ -6,10 +6,10 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/MPI_Distributed_vector.hh"
 #include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/mpi/MPI_Distributed_vector.hh"
 
 namespace PIOL {
 
