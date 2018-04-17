@@ -13,7 +13,10 @@
 
 #include <utility>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /*! @brief An intitial class for 3d volumetric seismic data
  */
@@ -60,7 +63,7 @@ class Model3dInterface {
     virtual std::vector<trace_t> readModel(
       const size_t offset,
       const size_t sz,
-      const Distributed_vector<Gather_info>& gather) = 0;
+      const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
 
     /*! Read the 3d file based on il and xl that match those in the given
      *  \c gather array.
@@ -73,9 +76,10 @@ class Model3dInterface {
     virtual std::vector<trace_t> readModel(
       const size_t sz,
       const size_t* offset,
-      const Distributed_vector<Gather_info>& gather) = 0;
+      const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_MODEL3DINTERFACE_HH

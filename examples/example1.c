@@ -60,8 +60,8 @@ int main(int argc, char** argv)
     size_t rank      = PIOL_ExSeis_getRank(piol);
 
     // Get decomposition of the range [0..nt) for the current rank
-    struct PIOL_Contiguous_decomposition dec =
-      PIOL_block_decompose(nt, num_ranks, rank);
+    struct exseis_Contiguous_decomposition dec =
+      exseis_block_decomposition(nt, num_ranks, rank);
 
     // The offset for the local process
     size_t offset = dec.global_offset;

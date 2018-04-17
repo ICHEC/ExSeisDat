@@ -10,12 +10,17 @@
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/utils/constants.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <cstring>
 #include <limits>
 
+using namespace exseis::utils;
+using namespace exseis::PIOL::SEGY_utils;
+
+namespace exseis {
 namespace PIOL {
 
 //////////////////////      Constructor & Destructor      //////////////////////
@@ -33,8 +38,6 @@ WriteSEGY::WriteSEGY(
     WriteInterface(piol_, name_, obj_),
     incFactor(opt.incFactor)
 {
-    using namespace SEGY_utils;
-
     memset(&state, 0, sizeof(Flags));
     state.writeHO = true;
 }
@@ -49,8 +52,6 @@ WriteSEGY::WriteSEGY(
 
 WriteSEGY::~WriteSEGY(void)
 {
-    using namespace SEGY_utils;
-
     // TODO: On error this can be a source of a deadlock
     if (!piol->log->isErr()) {
         calcNt();
@@ -272,3 +273,4 @@ void WriteSEGY::writeTraceNonContiguous(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

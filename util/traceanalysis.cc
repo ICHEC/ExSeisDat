@@ -11,10 +11,9 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 
 #include <iostream>
+#include <unistd.h>
 
-#include <unistd.h>  //getopt
-
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 /*! Main function for traceanalysis.
  *  @param[in] argc The number of input strings.

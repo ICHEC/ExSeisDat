@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <vector>
 
+namespace exseis {
 namespace PIOL {
 
 /*! This function exists to address a defect in enum usage in a map
@@ -200,5 +201,6 @@ struct Rule {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_RULE_HH

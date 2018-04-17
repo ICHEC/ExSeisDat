@@ -12,7 +12,8 @@
 #include <algorithm>
 #include <deque>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! The class which holds all cache elements.
  */
@@ -26,13 +27,13 @@ class Cache {
     std::vector<CacheElem> cache;
 
     /// The PIOL object
-    std::shared_ptr<ExSeisPIOL> piol;
+    std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol;
 
   public:
     /*! Initialise the cache.
      * @param[in] piol_ The PIOL object
      */
-    Cache(std::shared_ptr<ExSeisPIOL> piol_) : piol(piol_) {}
+    Cache(std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_) : piol(piol_) {}
 
     /*! Get a given cache of parameters or traces. Perform I/O and cache the
      *  result if not already done so.
@@ -43,7 +44,10 @@ class Cache {
      *  @return Return a block with the traces and/or parameters.
      */
     std::shared_ptr<TraceBlock> getCache(
-      std::shared_ptr<Rule> rule, FileDeque& desc, bool cPrm, bool cTrc);
+      std::shared_ptr<exseis::PIOL::Rule> rule,
+      FileDeque& desc,
+      bool cPrm,
+      bool cTrc);
 
     /*! Get a given cache of parameters. Perform I/O and cache the result if not
      *  already done so.
@@ -52,7 +56,7 @@ class Cache {
      *  @return Return a block with the parameters.
      */
     std::shared_ptr<TraceBlock> cachePrm(
-      std::shared_ptr<Rule> rule, FileDeque& desc)
+      std::shared_ptr<exseis::PIOL::Rule> rule, FileDeque& desc)
     {
         return getCache(rule, desc, true, false);
     }
@@ -112,9 +116,13 @@ class Cache {
      *  @return Return the output trace locations
      */
     std::vector<size_t> getOutputTrace(
-      FileDeque& desc, const size_t offset, const size_t sz, Param* prm);
+      FileDeque& desc,
+      const size_t offset,
+      const size_t sz,
+      exseis::PIOL::Param* prm);
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_CACHE_HH

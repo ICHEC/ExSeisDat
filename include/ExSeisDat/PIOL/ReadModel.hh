@@ -10,11 +10,11 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
-#include "ExSeisDat/utils/typedefs.h"
 
 #include <memory>
 #include <vector>
 
+namespace exseis {
 namespace PIOL {
 
 /// @todo document me
@@ -33,9 +33,10 @@ class ReadModel : public ReadDirect {
     std::vector<trace_t> virtual readModel(
       size_t gOffset,
       size_t numGather,
-      Distributed_vector<Gather_info>& gather);
+      exseis::utils::Distributed_vector<Gather_info>& gather);
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_READMODEL_HH

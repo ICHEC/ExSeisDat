@@ -1,5 +1,6 @@
 #include "mockgetminmax.hh"
 
+namespace exseis {
 namespace PIOL {
 
 void getMinMax(
@@ -15,3 +16,4 @@ void getMinMax(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

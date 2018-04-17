@@ -4,6 +4,6 @@
 #include "mockexseis.hh"
 #include <memory>
 
-std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis();
+std::shared_ptr<exseis::PIOL::ExSeis*> test_PIOL_ExSeis();
 
 #endif  // PIOLWRAPTESTSEXSEISWRAPTEST_HEADER_GUARD

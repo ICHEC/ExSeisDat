@@ -19,9 +19,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
 using namespace FOURD;
 
+namespace exseis {
 namespace PIOL {
 
 void cmsg(ExSeisPIOL* piol, std::string msg)
@@ -31,6 +32,7 @@ void cmsg(ExSeisPIOL* piol, std::string msg)
 }
 
 }  // namespace PIOL
+}  // namespace exseis
 
 /*! Main function for fourdbin.
  *  @param[in] argc The number of input strings.

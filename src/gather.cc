@@ -6,11 +6,12 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
 #include "ExSeisDat/utils/mpi/MPI_Distributed_vector.hh"
 
+namespace exseis {
 namespace PIOL {
 
 /*! Find the inline/crossline for each il/xl gather and the number of traces per
@@ -23,7 +24,8 @@ namespace PIOL {
  *         crossline.
  * @todo TODO: This can be generalised
  */
-static Distributed_vector<Gather_info> getGathers(ExSeisPIOL* piol, Param* prm)
+static utils::Distributed_vector<Gather_info> getGathers(
+  ExSeisPIOL* piol, Param* prm)
 {
     size_t rank    = piol->comm->getRank();
     size_t numRank = piol->comm->getNumRank();
@@ -70,7 +72,7 @@ static Distributed_vector<Gather_info> getGathers(ExSeisPIOL* piol, Param* prm)
     size_t sz     = lline.size() - start;
     size_t offset = piol->comm->offset(sz);
 
-    MPI_Distributed_vector<Gather_info> line(
+    utils::MPI_Distributed_vector<Gather_info> line(
       piol->comm->sum(sz), piol->comm->getComm());
 
     for (size_t i = 0; i < sz; i++) {
@@ -80,16 +82,21 @@ static Distributed_vector<Gather_info> getGathers(ExSeisPIOL* piol, Param* prm)
     return std::move(line);
 }
 
-Distributed_vector<Gather_info> getIlXlGathers(
+utils::Distributed_vector<Gather_info> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file)
 {
-    auto dec  = block_decompose(piol, file);
+    auto dec = utils::block_decomposition(
+      file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+
     auto rule = std::make_shared<Rule>(
       std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
+
     Param prm(rule, dec.local_size);
+
     file->readParam(dec.global_offset, dec.local_size, &prm);
 
     return getGathers(piol, &prm);
 }
 
 }  // namespace PIOL
+}  // namespace exseis

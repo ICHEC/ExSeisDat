@@ -10,6 +10,7 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
 
 /*! @brief The Data layer interface. Specific data I/O implementations
@@ -145,5 +146,6 @@ class DataInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_DATAINTERFACE_HH

@@ -11,7 +11,8 @@
 #include <memory>
 #include <string>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 void writeContig(
   ExSeis& piol,
@@ -153,10 +154,11 @@ void FileMake(
         biggest = dec[2];
     }
     else {
-        auto dec = block_decompose(nt, piol->getNumRank(), piol->getRank());
-        offset   = dec.global_offset;
-        lnt      = dec.local_size;
-        biggest  = piol->comm->max(lnt);
+        auto dec = block_decomposition(nt, piol->getNumRank(), piol->getRank());
+
+        offset  = dec.global_offset;
+        lnt     = dec.local_size;
+        biggest = piol->comm->max(lnt);
     }
 
     // TODO: Add memusage for Param

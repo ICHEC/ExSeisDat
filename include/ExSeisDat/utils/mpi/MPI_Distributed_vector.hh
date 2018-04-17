@@ -2,15 +2,16 @@
 /// @brief The MPI_Distributed_vector class, an MPI implementation of
 ///        Distributed_vector.
 
-#ifndef EXSEISDAT_PIOL_MPI_DISTRIBUTED_VECTOR_HH
-#define EXSEISDAT_PIOL_MPI_DISTRIBUTED_VECTOR_HH
+#ifndef EXSEISDAT_UTILS_MPI_MPI_DISTRIBUTED_VECTOR_HH
+#define EXSEISDAT_UTILS_MPI_MPI_DISTRIBUTED_VECTOR_HH
 
-#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/utils/Distributed_vector.hh"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
 
 #include <mpi.h>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 /// @brief An MPI implementation of Distributed_vector
 template<typename T>
@@ -83,8 +84,9 @@ MPI_Distributed_vector<T>::Model::Model(MPI_Aint global_size, MPI_Comm comm) :
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &num_ranks);
 
-    const auto decomposition = block_decompose(global_size, num_ranks, rank);
-    const size_t local_size  = decomposition.local_size;
+    const auto decomposition =
+      block_decomposition(global_size, num_ranks, rank);
+    const size_t local_size = decomposition.local_size;
 
     MPI_Win_allocate(local_size, sizeof(T), MPI_INFO_NULL, comm, &data, &win);
 }
@@ -107,7 +109,8 @@ void MPI_Distributed_vector<T>::Model::set(size_t i, const T& val)
     MPI_Comm_size(comm, &num_ranks);
 
     // Get the rank and local index of the global index `i`.
-    const auto location = block_decomposed_location(global_size, num_ranks, i);
+    const auto location =
+      block_decomposition_location(global_size, num_ranks, i);
 
     // Set the value locally or remotely.
     assert(rank > 0);
@@ -140,7 +143,7 @@ T MPI_Distributed_vector<T>::Model::get(size_t i) const
     MPI_Comm_size(comm, &num_ranks);
 
     // Get the rank and local index of the global index `i`.
-    auto location = block_decomposed_location(global_size, num_ranks, i);
+    auto location = block_decomposition_location(global_size, num_ranks, i);
 
     // Get the value locally or remotely.
     assert(rank > 0);
@@ -170,6 +173,7 @@ size_t MPI_Distributed_vector<T>::Model::size() const
     return global_size;
 }
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis
 
-#endif  // EXSEISDAT_PIOL_MPI_DISTRIBUTED_VECTOR_HH
+#endif  // EXSEISDAT_UTILS_MPI_MPI_DISTRIBUTED_VECTOR_HH

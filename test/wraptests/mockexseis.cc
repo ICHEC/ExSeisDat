@@ -1,5 +1,6 @@
 #include "mockexseis.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ::testing::StrictMock<MockExSeis>& mockExSeis()
@@ -9,3 +10,4 @@ namespace PIOL {
 }
 
 }  // namespace PIOL
+}  // namespace exseis

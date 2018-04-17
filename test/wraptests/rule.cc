@@ -1,5 +1,6 @@
 #include "mockrule.hh"
 
+namespace exseis {
 namespace PIOL {
 
 Rule::Rule(bool full, bool defaults, bool extras)
@@ -83,3 +84,4 @@ RuleEntry* Rule::getEntry(Meta entry)
 }
 
 }  // namespace PIOL
+}  // namespace exseis

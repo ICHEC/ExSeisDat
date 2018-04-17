@@ -7,7 +7,7 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
-#include "ExSeisDat/PIOL/number_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <cstdio>
 #include <cstring>
@@ -16,7 +16,8 @@
 #include <unistd.h>
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 size_t modifyNt(
   const size_t fs, const size_t offset, const size_t nt, const size_t ns);

@@ -8,10 +8,10 @@
 #include <utility>
 
 
-using namespace ::PIOL;
-using namespace ::testing;
+using namespace testing;
+using namespace exseis::PIOL;
 
-std::shared_ptr<PIOL::ExSeis*> test_PIOL_ExSeis()
+std::shared_ptr<ExSeis*> test_PIOL_ExSeis()
 {
     auto exseis_ptr = std::make_shared<ExSeis*>();
     EXPECT_CALL(mockExSeis(), ctor(_, PIOL_VERBOSITY_NONE, _))

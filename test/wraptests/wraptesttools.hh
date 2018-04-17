@@ -8,17 +8,19 @@
 #include "gmock/gmock.h"
 
 
+namespace exseis {
 namespace PIOL {
 
 // A global instance of CheckReturnListener.
 // This should be set to the pointer passed into the gtest listeners.
-PIOL::CheckReturnListener*& checkReturnListener();
+CheckReturnListener*& checkReturnListener();
 
 // Returns a mocked function which, when called, will call
 // checkReturnListener->got_expected_return_value();
 ::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker();
 
 }  // namespace PIOL
+}  // namespace exseis
 
 
 // EqDeref(p): *p == arg
@@ -42,18 +44,20 @@ MATCHER_P(AddressEqDeref, p, "")
 
 ACTION_P(CheckReturn, v)
 {
-    PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
+    exseis::PIOL::checkReturnListener()->expect_return_value(
+      testing::PrintToString(v));
     return v;
 }
 
 ACTION_P(CheckInOutParam, v)
 {
-    PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
+    exseis::PIOL::checkReturnListener()->expect_return_value(
+      testing::PrintToString(v));
 }
 
 ACTION(ClearCheckReturn)
 {
-    PIOL::checkReturnListener()->got_expected_return_value();
+    exseis::PIOL::checkReturnListener()->got_expected_return_value();
 }
 
 

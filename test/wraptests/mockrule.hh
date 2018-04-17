@@ -7,6 +7,7 @@
 #include "ExSeisDat/PIOL/Rule.hh"
 #include "ExSeisDat/PIOL/RuleEntry.hh"
 
+namespace exseis {
 namespace PIOL {
 
 class MockRule;
@@ -55,5 +56,6 @@ class MockRule {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKRULE_HEADER_GUARD

@@ -10,12 +10,14 @@
 ///          We then provide functions for these map lookups.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/character_encoding.hh"
+#include "ExSeisDat/utils/encoding/character_encoding.hh"
 
 #include <algorithm>
 #include <array>
 
-namespace PIOL {
+
+namespace exseis {
+namespace utils {
 
 
 /// A structure to represent an ASCII / EBCDIC equivalent pair
@@ -207,4 +209,5 @@ bool is_printable_EBCDIC(uchar ebcdic_char)
     return is_printable_ASCII(ebcdicToAscii(ebcdic_char));
 }
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis

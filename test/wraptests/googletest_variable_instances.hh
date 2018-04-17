@@ -31,12 +31,14 @@
 
 #include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
 struct RuleEntry;
 }  // namespace PIOL
+}  // namespace exseis
 
-extern template testing::DefaultValue<PIOL::RuleEntry*>::ValueProducer*
-  testing::DefaultValue<PIOL::RuleEntry*>::producer_;
+extern template testing::DefaultValue<exseis::PIOL::RuleEntry*>::ValueProducer*
+  testing::DefaultValue<exseis::PIOL::RuleEntry*>::producer_;
 
 extern template testing::DefaultValue<size_t>::ValueProducer*
   testing::DefaultValue<size_t>::producer_;
@@ -47,8 +49,8 @@ extern template testing::DefaultValue<bool>::ValueProducer*
 extern template testing::DefaultValue<double>::ValueProducer*
   testing::DefaultValue<double>::producer_;
 
-extern template testing::DefaultValue<PIOL::llint>::ValueProducer*
-  testing::DefaultValue<PIOL::llint>::producer_;
+extern template testing::DefaultValue<exseis::utils::llint>::ValueProducer*
+  testing::DefaultValue<exseis::utils::llint>::producer_;
 
 extern template testing::DefaultValue<int16_t>::ValueProducer*
   testing::DefaultValue<int16_t>::producer_;

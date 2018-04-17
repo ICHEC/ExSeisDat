@@ -11,7 +11,10 @@
 #include <memory>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
+
+using namespace exseis::utils::typedefs;
 
 /*! The structure for holding all trace data.
  */
@@ -32,12 +35,13 @@ struct TraceBlock {
     size_t numG;
 
     /// unique pointer to parameter structure (if applicable)
-    std::unique_ptr<Param> prm;
+    std::unique_ptr<exseis::PIOL::Param> prm;
 
     /// traces (if applicable)
     std::vector<trace_t> trc;
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_TRACEBLOCK_HH

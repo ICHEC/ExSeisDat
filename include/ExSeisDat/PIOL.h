@@ -1,8 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date Summer 2016
 /// @brief
 /// @details Primary C11 API header
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,8 +9,8 @@
 #include "ExSeisDat/PIOL/Meta.h"
 #include "ExSeisDat/PIOL/Tr.h"
 #include "ExSeisDat/PIOL/Verbosity.h"
-#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/operations/minmax.h"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <mpi.h>
@@ -30,29 +27,29 @@
 
 #include <memory>
 
-/// @copydoc PIOL::ExSeis
-typedef std::shared_ptr<PIOL::ExSeis> PIOL_ExSeis;
+/// @copydoc exseis::PIOL::ExSeis
+typedef std::shared_ptr<exseis::PIOL::ExSeis> PIOL_ExSeis;
 
-/// @copydoc PIOL::Rule
-typedef std::shared_ptr<PIOL::Rule> PIOL_File_Rule;
+/// @copydoc exseis::PIOL::Rule
+typedef std::shared_ptr<exseis::PIOL::Rule> PIOL_File_Rule;
 
-/// @copydoc PIOL::Param
-typedef PIOL::Param PIOL_File_Param;
+/// @copydoc exseis::PIOL::Param
+typedef exseis::PIOL::Param PIOL_File_Param;
 
-/// @copydoc PIOL::ReadDirect
-typedef PIOL::ReadDirect PIOL_File_ReadDirect;
+/// @copydoc exseis::PIOL::ReadDirect
+typedef exseis::PIOL::ReadDirect PIOL_File_ReadDirect;
 
-/// @copydoc PIOL::WriteDirect
-typedef PIOL::WriteDirect PIOL_File_WriteDirect;
+/// @copydoc exseis::PIOL::WriteDirect
+typedef exseis::PIOL::WriteDirect PIOL_File_WriteDirect;
 
 #else  // __cplusplus
 
 // Forward declare opaque structs in C
 
-/// @copydoc PIOL::ExSeis
+/// @copydoc exseis::PIOL::ExSeis
 typedef struct PIOL_ExSeis PIOL_ExSeis;
 
-/// @copydoc PIOL::Rule
+/// @copydoc exseis::PIOL::Rule
 typedef struct PIOL_File_Rule PIOL_File_Rule;
 
 /// @copydoc PIOL::Param
@@ -284,7 +281,7 @@ int16_t PIOL_File_getPrm_short(
  *  @param[in] param The parameter structure
  *  @return The associated parameter
  */
-PIOL_llint PIOL_File_getPrm_llint(
+exseis_llint PIOL_File_getPrm_llint(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Get a double parameter which is in a particular set in a parameter
@@ -294,7 +291,7 @@ PIOL_llint PIOL_File_getPrm_llint(
  *  @param[in] param The parameter structure
  *  @return The associated parameter
  */
-PIOL_geom_t PIOL_File_getPrm_double(
+exseis_geom_t PIOL_File_getPrm_double(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param);
 
 /*! Set a short parameter within the parameter structure.
@@ -313,7 +310,7 @@ void PIOL_File_setPrm_short(
  *  @param[in] param The parameter structure
  */
 void PIOL_File_setPrm_llint(
-  size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param);
+  size_t i, PIOL_Meta entry, exseis_llint ret, PIOL_File_Param* param);
 
 /*! Set a double parameter within the parameter structure.
  *  @param[in] i     The parameter set number
@@ -322,7 +319,7 @@ void PIOL_File_setPrm_llint(
  *  @param[in] param The parameter structure
  */
 void PIOL_File_setPrm_double(
-  size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param);
+  size_t i, PIOL_Meta entry, exseis_geom_t ret, PIOL_File_Param* param);
 
 /*! Copy parameter within the parameter structure.
  *  @param[in] i       The parameter set number of the source
@@ -443,7 +440,7 @@ void PIOL_File_WriteDirect_writeNt(
  *  @param[in] inc         The new increment between trace samples.
  */
 void PIOL_File_WriteDirect_writeInc(
-  PIOL_File_WriteDirect* writeDirect, PIOL_geom_t inc);
+  PIOL_File_WriteDirect* writeDirect, exseis_geom_t inc);
 
 /*
  *    Reading/writing data from the trace headers
@@ -492,7 +489,7 @@ void PIOL_File_ReadDirect_readTrace(
   const PIOL_File_ReadDirect* readDirect,
   size_t offset,
   size_t sz,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param);
 
 /*! @brief Read the traces and trace parameters from offset to offset+sz.
@@ -507,7 +504,7 @@ void PIOL_File_WriteDirect_writeTrace(
   PIOL_File_WriteDirect* writeDirect,
   size_t offset,
   size_t sz,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   const PIOL_File_Param* param);
 
 // Lists
@@ -525,7 +522,7 @@ void PIOL_File_ReadDirect_readTraceNonContiguous(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
   const size_t* offset,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param);
 
 /*! @brief Read the traces and trace parameters corresponding to the
@@ -541,7 +538,7 @@ void PIOL_File_ReadDirect_readTraceNonMonotonic(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
   const size_t* offset,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param);
 
 /*! @brief Write the traces corresponding to the list of trace numbers.
@@ -556,7 +553,7 @@ void PIOL_File_WriteDirect_writeTraceNonContiguous(
   PIOL_File_WriteDirect* writeDirect,
   size_t sz,
   const size_t* offset,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param);
 
 /*! @brief Write the trace parameters corresponding to the list of trace

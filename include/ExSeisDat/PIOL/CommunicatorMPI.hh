@@ -14,10 +14,14 @@
 
 #include "ExSeisDat/PIOL/CommunicatorInterface.hh"
 #include "ExSeisDat/PIOL/Logger.hh"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <mpi.h>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /*! @brief Set whether PIOL should manage MPI initialization / finalization.
  *      By default, PIOL will manage MPI if it calls MPI_Init, and it will call
@@ -85,5 +89,6 @@ class CommunicatorMPI : public CommunicatorInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_COMMUNICATORMPI_HH

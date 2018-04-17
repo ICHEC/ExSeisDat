@@ -5,6 +5,7 @@
 
 #include "ExSeisDat/PIOL/ExSeis.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ExSeis::ExSeis(const Verbosity maxLevel, MPI_Comm comm) :
@@ -40,3 +41,4 @@ void ExSeis::isErr(const std::string& msg) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

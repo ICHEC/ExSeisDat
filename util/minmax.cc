@@ -5,11 +5,13 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
 
 #include <algorithm>
 #include <iostream>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 /*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
@@ -21,7 +23,9 @@ void calcMin(std::string iname, std::string oname)
     auto piol = ExSeis::New();
     ReadDirect in(piol, iname);
 
-    auto dec      = block_decompose(piol.get(), in);
+    auto dec = block_decomposition(
+      in.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 

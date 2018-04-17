@@ -11,6 +11,7 @@
 #include <cstdint>
 
 
+namespace exseis {
 namespace PIOL {
 
 /*! The SEG-Y implementation of the file layer
@@ -92,5 +93,6 @@ class ReadSEGY : public ReadInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_READSEGY_HH

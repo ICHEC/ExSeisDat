@@ -13,11 +13,11 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/constants.hh"
-#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/utils/constants.hh"
+#include "ExSeisDat/utils/encoding/character_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <algorithm>
 #include <memory>
@@ -27,7 +27,8 @@
 
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 struct ReadSEGY_public : public ReadSEGY {
     using ReadSEGY::ReadSEGY;

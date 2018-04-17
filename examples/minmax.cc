@@ -14,7 +14,8 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 int main(int argc, char** argv)
 {

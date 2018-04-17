@@ -1,18 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-///  \file
-///  \author Cathal O Broin - cathal@ichec.ie - first commit
-///  \copyright TBD. Do not distribute
-///  \date August 2016
-///  \brief This file performs a variety of bit operations and conversions on
-///  datatypes \details
+///  @file
+///  @brief This file performs a variety of bit operations and conversions on
+///         datatypes.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/number_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <cstring>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 void reverse4Bytes(uchar* src)
 {
@@ -288,4 +286,5 @@ float convertIBMtoIEEE(const float f, bool bigEndian)
     return tofloat(ieee);
 }
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis

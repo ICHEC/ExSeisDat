@@ -6,7 +6,8 @@
 
 #include "ExSeisDat/Flow/Set.hh"
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 class MockSet;
 ::testing::StrictMock<MockSet>& mockSet();
@@ -17,21 +18,28 @@ class MockSet {
       ctor,
       void(
         Set*,
-        std::shared_ptr<ExSeisPIOL> piol_,
+        std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
         std::string pattern,
         std::string outfix_,
-        std::shared_ptr<Rule> rule_));
+        std::shared_ptr<exseis::PIOL::Rule> rule_));
 
     MOCK_METHOD3(
       ctor,
       void(
-        Set*, std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_));
+        Set*,
+        std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
+        std::shared_ptr<exseis::PIOL::Rule> rule_));
 
     MOCK_METHOD1(dtor, void(Set*));
 
-    MOCK_METHOD2(sort, void(Set*, CompareP sortFunc));
+    MOCK_METHOD2(sort, void(Set*, exseis::PIOL::CompareP sortFunc));
 
-    MOCK_METHOD3(sort, void(Set*, std::shared_ptr<Rule> r, CompareP sortFunc));
+    MOCK_METHOD3(
+      sort,
+      void(
+        Set*,
+        std::shared_ptr<exseis::PIOL::Rule> r,
+        exseis::PIOL::CompareP sortFunc));
 
     MOCK_METHOD2(output, std::vector<std::string>(Set*, std::string oname));
 
@@ -39,25 +47,37 @@ class MockSet {
       getMinMax,
       void(
         Set*,
-        MinMaxFunc<Param> xlam,
-        MinMaxFunc<Param> ylam,
-        CoordElem* minmax));
+        exseis::PIOL::MinMaxFunc<exseis::PIOL::Param> xlam,
+        exseis::PIOL::MinMaxFunc<exseis::PIOL::Param> ylam,
+        exseis::PIOL::CoordElem* minmax));
 
     MOCK_METHOD4(
-      taper, void(Set*, TaperFunc tapFunc, size_t nTailLft, size_t nTailRt));
+      taper,
+      void(
+        Set*,
+        exseis::PIOL::TaperFunc tapFunc,
+        size_t nTailLft,
+        size_t nTailRt));
 
     MOCK_METHOD4(
       AGC,
       void(
-        Set*, Gain_function agcFunc, size_t window, trace_t target_amplitude));
+        Set*,
+        exseis::utils::Gain_function agcFunc,
+        size_t window,
+        trace_t target_amplitude));
 
     MOCK_METHOD2(text, void(Set*, std::string outmsg_));
 
     MOCK_CONST_METHOD1(summary, void(const Set*));
 
-    MOCK_METHOD2(add_impl, void(Set*, std::unique_ptr<ReadInterface>& in));
+    MOCK_METHOD2(
+      add_impl, void(Set*, std::unique_ptr<exseis::PIOL::ReadInterface>& in));
 
-    void add(Set* set, std::unique_ptr<ReadInterface> in) { add_impl(set, in); }
+    void add(Set* set, std::unique_ptr<exseis::PIOL::ReadInterface> in)
+    {
+        add_impl(set, in);
+    }
 
     MOCK_METHOD2(add, void(Set*, std::string name));
 
@@ -70,20 +90,28 @@ class MockSet {
         const size_t oGSz,
         geom_t oInc));
 
-    MOCK_METHOD2(sort, void(Set*, SortType type));
-
-    MOCK_METHOD4(getMinMax, void(Set*, Meta m1, Meta m2, CoordElem* minmax));
+    MOCK_METHOD2(sort, void(Set*, exseis::PIOL::SortType type));
 
     MOCK_METHOD4(
-      taper, void(Set*, TaperType type, size_t nTailLft, size_t nTailRt));
+      getMinMax,
+      void(
+        Set*,
+        exseis::PIOL::Meta m1,
+        exseis::PIOL::Meta m2,
+        exseis::PIOL::CoordElem* minmax));
+
+    MOCK_METHOD4(
+      taper,
+      void(
+        Set*, exseis::PIOL::TaperType type, size_t nTailLft, size_t nTailRt));
 
     MOCK_METHOD8(
       temporalFilter,
       void(
         Set*,
-        FltrType type,
-        FltrDmn domain,
-        PadType pad,
+        exseis::PIOL::FltrType type,
+        exseis::PIOL::FltrDmn domain,
+        exseis::PIOL::PadType pad,
         trace_t fs,
         std::vector<trace_t> corners,
         size_t nw,
@@ -93,9 +121,9 @@ class MockSet {
       temporalFilter,
       void(
         Set*,
-        FltrType type,
-        FltrDmn domain,
-        PadType pad,
+        exseis::PIOL::FltrType type,
+        exseis::PIOL::FltrDmn domain,
+        exseis::PIOL::PadType pad,
         trace_t fs,
         size_t N,
         std::vector<trace_t> corners,
@@ -103,6 +131,7 @@ class MockSet {
         size_t winCntr));
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTMOCKSET_HEADER_GUARD

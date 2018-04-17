@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @brief
+/// @brief Routines for converting between number types and endianness.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_NUMBER_ENCODING_HH
-#define EXSEISDAT_PIOL_NUMBER_ENCODING_HH
+#ifndef EXSEISDAT_UTILS_ENCODING_NUMBER_ENCODING_HH
+#define EXSEISDAT_UTILS_ENCODING_NUMBER_ENCODING_HH
 
 #include "ExSeisDat/utils/typedefs.h"
 
@@ -11,7 +11,8 @@
 #include <type_traits>
 
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 /*! @brief Convert a 2 byte \c char array in big endian to a host 2 byte
  *         datatype
@@ -150,6 +151,7 @@ uint32_t to_IEEE(FloatComponents components);
  */
 float convertIBMtoIEEE(const float f, bool bigEndian);
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis
 
-#endif  // EXSEISDAT_PIOL_NUMBER_ENCODING_HH
+#endif  // EXSEISDAT_UTILS_ENCODING_CHARACTER_ENCODING_HH

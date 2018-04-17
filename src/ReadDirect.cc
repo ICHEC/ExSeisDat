@@ -10,6 +10,7 @@
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
@@ -78,3 +79,4 @@ void ReadDirect::readParamNonContiguous(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

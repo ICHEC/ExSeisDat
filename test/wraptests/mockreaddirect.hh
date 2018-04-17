@@ -6,6 +6,7 @@
 
 #include "ExSeisDat/PIOL/ReadDirect.hh"
 
+namespace exseis {
 namespace PIOL {
 
 class MockReadDirect;
@@ -69,5 +70,6 @@ class MockReadDirect {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKREADDIRECT_HEADER_GUARD

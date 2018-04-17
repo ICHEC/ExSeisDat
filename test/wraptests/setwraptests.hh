@@ -5,6 +5,6 @@
 
 #include <memory>
 
-void test_PIOL_Set(std::shared_ptr<PIOL::ExSeis*> piol);
+void test_PIOL_Set(std::shared_ptr<exseis::PIOL::ExSeis*> piol);
 
 #endif  // PIOLWRAPTESTSSETWRAPTESTS_INCLUDE_GUARD

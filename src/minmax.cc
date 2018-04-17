@@ -20,6 +20,7 @@
 #include <functional>
 #include <iterator>
 
+namespace exseis {
 namespace PIOL {
 
 void getMinMax(
@@ -50,3 +51,4 @@ void getMinMax(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

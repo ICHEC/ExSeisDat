@@ -6,6 +6,7 @@
 #include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
+namespace exseis {
 namespace PIOL {
 
 Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
@@ -53,3 +54,4 @@ size_t Param::memUsage(void) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

@@ -11,6 +11,7 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
 
 class ObjectInterface;
@@ -258,5 +259,6 @@ class ObjectInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_OBJECTINTERFACE_HH

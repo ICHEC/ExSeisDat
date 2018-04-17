@@ -9,6 +9,7 @@
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 
+namespace exseis {
 namespace PIOL {
 
 WriteDirect::WriteDirect(
@@ -76,3 +77,4 @@ void WriteDirect::writeInc(const geom_t inc_)
 }
 
 }  // namespace PIOL
+}  // namespace exseis

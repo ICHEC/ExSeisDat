@@ -6,13 +6,12 @@
 
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/utils/Distributed_vector.hh"
-#include "ExSeisDat/utils/typedefs.h"
 
 #include <cstddef>
-#include <tuple>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! A parent class to allow gather operations to maintain a state.
  */
@@ -28,9 +27,11 @@ struct GatherState {
      */
     virtual void makeState(
       const std::vector<size_t>& offset,
-      const Distributed_vector<Gather_info>& gather) = 0;
+      const exseis::utils::Distributed_vector<exseis::PIOL::Gather_info>&
+        gather) = 0;
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_GATHERSTATE_HH

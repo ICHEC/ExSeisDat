@@ -21,6 +21,9 @@
 #include <assert.h>
 #include <numeric>
 
+using namespace exseis::utils;
+
+namespace exseis {
 namespace PIOL {
 namespace FOURD {
 
@@ -34,7 +37,9 @@ std::unique_ptr<Coords> getCoords(
     ReadDirect file(piol, name);
     piol->isErr();
 
-    auto dec      = block_decompose(piol.get(), file);
+    auto dec = block_decomposition(
+      file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
@@ -235,3 +240,4 @@ void outputNonMono(
 
 }  // namespace FOURD
 }  // namespace PIOL
+}  // namespace exseis

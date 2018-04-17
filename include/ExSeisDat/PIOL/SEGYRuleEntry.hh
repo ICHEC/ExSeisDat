@@ -11,6 +11,7 @@
 
 #include <algorithm>
 
+namespace exseis {
 namespace PIOL {
 
 /*! The Long rule entry structure for the SEG-Y format.
@@ -150,5 +151,6 @@ struct SEGYFloatRuleEntry : public RuleEntry {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_SEGYRULEENTRY_HH

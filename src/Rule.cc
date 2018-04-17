@@ -6,6 +6,7 @@
 #include "ExSeisDat/PIOL/Rule.hh"
 #include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
 
+namespace exseis {
 namespace PIOL {
 
 /// A list of the default META values
@@ -340,3 +341,4 @@ bool Rule::addRule(const Rule& r)
 }
 
 }  // namespace PIOL
+}  // namespace exseis

@@ -9,35 +9,47 @@
 
 
 /// A large signed integer type.
-typedef ptrdiff_t PIOL_llint;
+typedef ptrdiff_t exseis_llint;
 
 #ifdef __cplusplus
-namespace PIOL {
-/// @copydoc PIOL_llint
-typedef PIOL_llint llint;
-}  // namespace PIOL
+namespace exseis {
+namespace utils {
+inline namespace typedefs {
+/// @copydoc exseis_llint
+using llint = exseis_llint;
+}  // namespace typedefs
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 
 /// The type used to store trace values
-typedef float PIOL_trace_t;
+typedef float exseis_trace_t;
 
 #ifdef __cplusplus
-namespace PIOL {
-/// @copydoc PIOL_trace_t
-typedef PIOL_trace_t trace_t;
-}  // namespace PIOL
+namespace exseis {
+namespace utils {
+inline namespace typedefs {
+/// @copydoc exseis_trace_t
+using trace_t = exseis_trace_t;
+}  // namespace typedefs
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 
 /// The type used for manipulating geometry and physical values
-typedef double PIOL_geom_t;
+typedef double exseis_geom_t;
 
 #ifdef __cplusplus
-namespace PIOL {
-/// @copydoc PIOL_geom_t
-typedef PIOL_geom_t geom_t;
-}  // namespace PIOL
+namespace exseis {
+namespace utils {
+inline namespace typedefs {
+/// @copydoc exseis_geom_t
+using geom_t = exseis_geom_t;
+}  // namespace typedefs
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 
@@ -45,18 +57,22 @@ typedef PIOL_geom_t geom_t;
 
 #include <complex>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
+inline namespace typedefs {
 
 /// The type to use for accessing individual bytes
-typedef unsigned char uchar;
+using uchar = unsigned char;
 
 /// Real type for physical, SI and math units
-typedef double unit_t;
+using unit_t = double;
 
 /// Complex type for traces
-typedef std::complex<trace_t> cmtrace_t;
+using cmtrace_t = std::complex<trace_t>;
 
-}  // namespace PIOL
+}  // namespace typedefs
+}  // namespace utils
+}  // namespace exseis
 
 #endif  // __cplusplus
 

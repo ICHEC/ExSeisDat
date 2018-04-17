@@ -1,5 +1,6 @@
 #include "mockwritedirect.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ::testing::StrictMock<MockWriteDirect>& mockWriteDirect()
@@ -9,3 +10,4 @@ namespace PIOL {
 }
 
 }  // namespace PIOL
+}  // namespace exseis

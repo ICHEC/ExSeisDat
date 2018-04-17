@@ -9,7 +9,7 @@
 #include <memory>
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 struct RuleFix : public Test {
     std::shared_ptr<Rule> rule;

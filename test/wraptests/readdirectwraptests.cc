@@ -2,8 +2,8 @@
 #include "readdirectwraptests.hh"
 #include "wraptesttools.hh"
 
-using namespace PIOL;
 using namespace testing;
+using namespace exseis::PIOL;
 
 const auto readText_return = std::string{"Test ReadDirect Text"};
 

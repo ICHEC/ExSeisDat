@@ -9,12 +9,12 @@
 #include "ExSeisDat/Flow/FileDesc.hh"
 #include "ExSeisDat/Flow/OpParent.hh"
 
-#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/utils/gain_control/AGC.h"
+#include "ExSeisDat/utils/constants.hh"
+#include "ExSeisDat/utils/gain_control/Gain_function.h"
 
 #include <deque>
 #include <list>
@@ -23,7 +23,10 @@
 #include <string>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
+
+using namespace exseis::utils::typedefs;
 
 /*! The internal set class
  */
@@ -37,7 +40,7 @@ class Set {
 
   protected:
     /// The PIOL object.
-    std::shared_ptr<ExSeisPIOL> piol;
+    std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol;
 
     /// The output prefix
     std::string outfix;
@@ -55,7 +58,7 @@ class Set {
     std::map<std::pair<size_t, geom_t>, size_t> offmap;
 
     /// Contains a pointer to the Rules for parameters
-    std::shared_ptr<Rule> rule;
+    std::shared_ptr<exseis::PIOL::Rule> rule;
 
     /// The cache of parameters and traces
     Cache cache;
@@ -157,11 +160,12 @@ class Set {
      *             parameters.
      */
     Set(
-      std::shared_ptr<ExSeisPIOL> piol_,
+      std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
       std::string pattern,
       std::string outfix_,
-      std::shared_ptr<Rule> rule_ =
-        std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
+      std::shared_ptr<exseis::PIOL::Rule> rule_ =
+        std::make_shared<exseis::PIOL::Rule>(
+          std::initializer_list<exseis::PIOL::Meta>{PIOL_META_COPY}));
 
     /*! Constructor
      *  @param[in] piol_ The PIOL object.
@@ -170,10 +174,11 @@ class Set {
      *             parameters.
      */
     Set(
-      std::shared_ptr<ExSeisPIOL> piol_,
+      std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
       std::string pattern,
-      std::shared_ptr<Rule> rule_ =
-        std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY})) :
+      std::shared_ptr<exseis::PIOL::Rule> rule_ =
+        std::make_shared<exseis::PIOL::Rule>(
+          std::initializer_list<exseis::PIOL::Meta>{PIOL_META_COPY})) :
         Set(piol_, pattern, "", rule_)
     {
     }
@@ -184,9 +189,10 @@ class Set {
      *             parameters.
      */
     Set(
-      std::shared_ptr<ExSeisPIOL> piol_,
-      std::shared_ptr<Rule> rule_ =
-        std::make_shared<Rule>(std::initializer_list<Meta>{PIOL_META_COPY}));
+      std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
+      std::shared_ptr<exseis::PIOL::Rule> rule_ =
+        std::make_shared<exseis::PIOL::Rule>(
+          std::initializer_list<exseis::PIOL::Meta>{PIOL_META_COPY}));
 
     /*! Destructor
      */
@@ -195,13 +201,14 @@ class Set {
     /*! Sort the set using the given comparison function
      *  @param[in] sortFunc The comparison function
      */
-    void sort(CompareP sortFunc);
+    void sort(exseis::PIOL::CompareP sortFunc);
 
     /*! Sort the set using the given comparison function
      *  @param[in] r The rules necessary for the sort.
      *  @param[in] sortFunc The comparison function.
      */
-    void sort(std::shared_ptr<Rule> r, CompareP sortFunc);
+    void sort(
+      std::shared_ptr<exseis::PIOL::Rule> r, exseis::PIOL::CompareP sortFunc);
 
     /*! Output using the given output prefix
      *  @param[in] oname The output prefix
@@ -217,7 +224,9 @@ class Set {
      *  @param[out] minmax The array of structures to hold the ouput
      */
     void getMinMax(
-      MinMaxFunc<Param> xlam, MinMaxFunc<Param> ylam, CoordElem* minmax);
+      exseis::PIOL::MinMaxFunc<exseis::PIOL::Param> xlam,
+      exseis::PIOL::MinMaxFunc<exseis::PIOL::Param> ylam,
+      exseis::PIOL::CoordElem* minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a
      *  set of traces
@@ -225,7 +234,8 @@ class Set {
      *  @param[in] nTailLft Length of left tail of taper
      *  @param[in] nTailRt Length of right tail of taper
      */
-    void taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt = 0);
+    void taper(
+      exseis::PIOL::TaperFunc tapFunc, size_t nTailLft, size_t nTailRt = 0);
 
     /*! Function to add to modify function that applies automatic gain control
      *  to a set of traces
@@ -233,7 +243,10 @@ class Set {
      *  @param[in] window Length of the agc window
      *  @param[in] target_amplitude Value to which traces are normalized
      */
-    void AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude);
+    void AGC(
+      exseis::utils::Gain_function agcFunc,
+      size_t window,
+      trace_t target_amplitude);
 
     /*! Set the text-header of the output
      *  @param[in] outmsg_ The output message
@@ -248,7 +261,7 @@ class Set {
     /*! Add a file to the set based on the ReadInterface
      *  @param[in] in The file interface
      */
-    void add(std::unique_ptr<ReadInterface> in);
+    void add(std::unique_ptr<exseis::PIOL::ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
      *  @param[in] name The input name or pattern
@@ -267,13 +280,13 @@ class Set {
       std::string vmName,
       const size_t vBin,
       const size_t oGSz,
-      geom_t oInc = pi / geom_t(180LU));
+      geom_t oInc = exseis::utils::pi / geom_t(180LU));
 
     /******************************** Non-Core ********************************/
     /*! Sort the set by the specified sort type.
      *  @param[in] type The sort type
      */
-    void sort(SortType type);
+    void sort(exseis::PIOL::SortType type);
 
     /*! Get the min and the max of a set of parameters passed. This is a
      *  parallel operation. It is the collective min and max across all
@@ -284,14 +297,18 @@ class Set {
      *              maximum item.x, minimum item.y, maximum item.y and their
      *              respective trace numbers.
      */
-    void getMinMax(Meta m1, Meta m2, CoordElem* minmax);
+    void getMinMax(
+      exseis::PIOL::Meta m1,
+      exseis::PIOL::Meta m2,
+      exseis::PIOL::CoordElem* minmax);
 
     /*! Perform tailed taper on a set of traces
      * @param[in] type The type of taper to be applied to traces.
      * @param[in] nTailLft The length of left-tail taper ramp.
      * @param[in] nTailRt The length of right-tail taper ramp.
      */
-    void taper(TaperType type, size_t nTailLft, size_t nTailRt = 0U);
+    void taper(
+      exseis::PIOL::TaperType type, size_t nTailLft, size_t nTailRt = 0U);
 
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
@@ -304,9 +321,9 @@ class Set {
      * @param[in] winCntr Center of trace filtering window
      */
     void temporalFilter(
-      FltrType type,
-      FltrDmn domain,
-      PadType pad,
+      exseis::PIOL::FltrType type,
+      exseis::PIOL::FltrDmn domain,
+      exseis::PIOL::PadType pad,
       trace_t fs,
       std::vector<trace_t> corners,
       size_t nw      = 0U,
@@ -323,9 +340,9 @@ class Set {
      * @param[in] winCntr Center of trace filtering window
      */
     void temporalFilter(
-      FltrType type,
-      FltrDmn domain,
-      PadType pad,
+      exseis::PIOL::FltrType type,
+      exseis::PIOL::FltrDmn domain,
+      exseis::PIOL::PadType pad,
       trace_t fs,
       size_t N,
       std::vector<trace_t> corners,
@@ -343,9 +360,9 @@ class Set {
      * @param[in] winCntr Center of trace filtering window
      */
     void temporalFilter(
-      FltrType type,
-      FltrDmn domain,
-      PadType pad,
+      exseis::PIOL::FltrType type,
+      exseis::PIOL::FltrDmn domain,
+      exseis::PIOL::PadType pad,
       trace_t fs,
       size_t N,
       trace_t corners,
@@ -358,6 +375,7 @@ class Set {
     }
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_SET_HH

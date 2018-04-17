@@ -7,6 +7,7 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 
 
+namespace exseis {
 namespace PIOL {
 
 class MockExSeis;
@@ -31,5 +32,6 @@ class MockExSeis {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKEXSEIS_HEADER_GUARD

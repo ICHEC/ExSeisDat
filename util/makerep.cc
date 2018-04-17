@@ -9,7 +9,8 @@
 #include <iostream>
 #include <unordered_map>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 {
@@ -43,8 +44,8 @@ void smallCopy(
 
 void distribToDistrib(
   size_t rank,
-  Contiguous_decomposition old,
-  Contiguous_decomposition newd,
+  exseis::utils::Contiguous_decomposition old,
+  exseis::utils::Contiguous_decomposition newd,
   std::vector<uchar>* vec)
 {
     std::vector<MPI_Request> msg;
@@ -216,7 +217,7 @@ void mpiMakeSEGYCopyNaive(
     for (size_t i = 0; i < fsz; i += step) {
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec =
-          (Block ? block_decompose(rblock, numRank, piol.getRank()) :
+          (Block ? block_decomposition(rblock, numRank, piol.getRank()) :
                    blockDecomp(rblock, bsz, numRank, piol.getRank(), i));
 
         std::vector<uchar> buf(dec.local_size);

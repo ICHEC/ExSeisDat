@@ -7,6 +7,7 @@
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ReadSEGYModel::ReadSEGYModel(
@@ -53,7 +54,7 @@ ReadSEGYModel::ReadSEGYModel(
 std::vector<trace_t> ReadSEGYModel::readModel(
   const size_t offset,
   const size_t sz,
-  const Distributed_vector<Gather_info>& gather)
+  const utils::Distributed_vector<Gather_info>& gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
@@ -76,7 +77,7 @@ std::vector<trace_t> ReadSEGYModel::readModel(
 std::vector<trace_t> ReadSEGYModel::readModel(
   const size_t sz,
   const size_t* offset,
-  const Distributed_vector<Gather_info>& gather)
+  const utils::Distributed_vector<Gather_info>& gather)
 {
     std::vector<trace_t> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
@@ -93,3 +94,4 @@ std::vector<trace_t> ReadSEGYModel::readModel(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

@@ -7,6 +7,6 @@
 // Externed templates defined in the appropriate headers
 #include "mockparam.hh"
 
-// Include the C bindings which call the templated functions
-#include "../../src/Flow_C_bindings.cc"
-#include "../../src/PIOL_C_bindings.cc"
+// Include the C bindings from src/ which call the templated functions
+#include "Flow/Flow_C_bindings.cc"
+#include "PIOL_C_bindings.cc"

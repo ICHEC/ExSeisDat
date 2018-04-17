@@ -16,17 +16,19 @@
  */
 struct PIOL_CoordElem {
     /// The value
-    PIOL_geom_t val;
+    exseis_geom_t val;
 
     /// The trace number
     size_t num;
 };
 
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 /// @copydoc PIOL_CoordElem
 typedef PIOL_CoordElem CoordElem;
 }  // namespace PIOL
+}  // namespace exseis
 #endif  // __cplusplus
 
 
@@ -40,7 +42,10 @@ typedef PIOL_CoordElem CoordElem;
 #include <functional>
 #include <iterator>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /// Return the value associated with a particular parameter
 template<typename T>
@@ -171,6 +176,7 @@ void getMinMax(
   CoordElem* minmax);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // __cplusplus
 

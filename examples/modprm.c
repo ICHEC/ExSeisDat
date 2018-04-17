@@ -43,8 +43,8 @@ void readwriteParam(
     PIOL_File_Param* prm = PIOL_File_Param_new(NULL, tcnt);
     PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++) {
-        PIOL_geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
-        PIOL_geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
+        exseis_geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
+        exseis_geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
         PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
         PIOL_File_setPrm_double(i, PIOL_META_ySrc, xval, prm);
     }
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 
     writeHeader(piol, ifh, ofh);
 
-    struct PIOL_Contiguous_decomposition dec = PIOL_block_decompose(
+    struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
       nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
     size_t tcnt =
       memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());

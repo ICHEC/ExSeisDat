@@ -12,7 +12,8 @@
 
 #include <memory>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! Template for creating a structure for a particular operation type.
  */
@@ -29,7 +30,7 @@ struct Op : public OpParent {
      */
     Op(
       OpOpt& opt_,
-      std::shared_ptr<Rule> rule_,
+      std::shared_ptr<exseis::PIOL::Rule> rule_,
       std::shared_ptr<GatherState> state_,
       T func_) :
         OpParent(opt_, rule_, state_),
@@ -38,6 +39,7 @@ struct Op : public OpParent {
     }
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_OP_HH

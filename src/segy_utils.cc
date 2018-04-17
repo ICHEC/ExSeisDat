@@ -5,7 +5,11 @@
 
 #include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
+using namespace exseis::utils;
+
+namespace exseis {
 namespace PIOL {
 namespace SEGY_utils {
 
@@ -202,3 +206,4 @@ int16_t find_scalar(geom_t val)
 
 }  // namespace SEGY_utils
 }  // namespace PIOL
+}  // namespace exseis

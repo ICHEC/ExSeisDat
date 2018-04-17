@@ -6,7 +6,7 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 // Number less than 256 that isn't 0.
 const size_t magicNum1     = 137;

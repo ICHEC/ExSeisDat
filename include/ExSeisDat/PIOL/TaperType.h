@@ -11,10 +11,12 @@
 typedef size_t PIOL_TaperType;
 
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 /// @copydoc PIOL_TaperType
 typedef PIOL_TaperType TaperType;
 }  // namespace PIOL
+}  // namespace exseis
 #endif  // __cplusplus
 
 /// An enumeration of the different types of tapering windows.

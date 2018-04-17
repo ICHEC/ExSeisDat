@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 
+namespace exseis {
 namespace PIOL {
 
 /*! @brief The ExSeisPIOL structure. A single instance of this structure should
@@ -46,5 +47,6 @@ class ExSeisPIOL {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_EXSEISPIOL_HH

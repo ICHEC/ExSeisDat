@@ -11,6 +11,7 @@
 #include "ExSeisDat/utils/typedefs.h"
 
 
+namespace exseis {
 namespace PIOL {
 
 /*! This class provides access to the ExSeisPIOL class but with a simpler API
@@ -69,5 +70,6 @@ class ExSeis : public ExSeisPIOL {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_EXSEIS_HH

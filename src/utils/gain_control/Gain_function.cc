@@ -1,5 +1,7 @@
+///
 /// @file
 /// @brief Implementation for the build in `Gain_function`s.
+///
 
 #include "ExSeisDat/utils/gain_control/Gain_function.h"
 #include "ExSeisDat/utils/typedefs.h"
@@ -11,7 +13,8 @@
 #include <numeric>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 trace_t rectangular_RMS_gain(
   const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
@@ -28,8 +31,11 @@ trace_t rectangular_RMS_gain(
     return target_amplitude / std::sqrt(amp / std::max<size_t>(1, num));
 }
 
-extern "C" trace_t PIOL_rectangular_RMS_gain(
-  const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
+extern "C" trace_t exseis_rectangular_RMS_gain(
+  const exseis_trace_t* signal,
+  size_t window_size,
+  exseis_trace_t target_amplitude,
+  size_t)
 {
     return rectangular_RMS_gain(signal, window_size, target_amplitude, 0);
 }
@@ -115,10 +121,10 @@ trace_t triangular_RMS_gain(
     return target_amplitude / std::sqrt(amp / std::max<size_t>(1, num));
 }
 
-extern "C" trace_t PIOL_triangular_RMS_gain(
-  const trace_t* signal,
+extern "C" trace_t exseis_triangular_RMS_gain(
+  const exseis_trace_t* signal,
   size_t window_size,
-  trace_t target_amplitude,
+  exseis_trace_t target_amplitude,
   size_t window_center)
 {
     return triangular_RMS_gain(
@@ -140,8 +146,11 @@ trace_t mean_abs_gain(
     return target_amplitude / (std::abs(amp) / std::max<size_t>(1, num));
 }
 
-extern "C" trace_t PIOL_mean_abs_gain(
-  const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
+extern "C" trace_t exseis_mean_abs_gain(
+  const exseis_trace_t* signal,
+  size_t window_size,
+  exseis_trace_t target_amplitude,
+  size_t)
 {
     return mean_abs_gain(signal, window_size, target_amplitude, 0);
 }
@@ -168,10 +177,14 @@ trace_t median_gain(
     }
 }
 
-extern "C" trace_t PIOL_median_gain(
-  const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
+extern "C" trace_t exseis_median_gain(
+  const exseis_trace_t* signal,
+  size_t window_size,
+  exseis_trace_t target_amplitude,
+  size_t)
 {
     return median_gain(signal, window_size, target_amplitude, 0);
 }
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis

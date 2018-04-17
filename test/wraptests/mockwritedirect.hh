@@ -6,6 +6,7 @@
 
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 
+namespace exseis {
 namespace PIOL {
 
 class MockWriteDirect;
@@ -63,5 +64,6 @@ class MockWriteDirect {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD

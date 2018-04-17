@@ -23,6 +23,7 @@
 
 using namespace std::string_literals;
 
+namespace exseis {
 namespace PIOL {
 
 std::vector<size_t> getSortIndex(size_t sz, const size_t* list)
@@ -337,7 +338,8 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm)
     return sort(piol, prm, getComp(type));
 }
 
-bool checkOrder(ReadInterface* src, Contiguous_decomposition dec, SortType type)
+bool checkOrder(
+  ReadInterface* src, utils::Contiguous_decomposition dec, SortType type)
 {
     auto comp = getComp(type);
     Param prm(dec.local_size);
@@ -899,3 +901,4 @@ std::vector<size_t> sort(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

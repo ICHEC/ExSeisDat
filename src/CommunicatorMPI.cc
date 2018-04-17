@@ -16,6 +16,7 @@
 
 using namespace std::string_literals;
 
+namespace exseis {
 namespace PIOL {
 
 // We define functions and classes to delegate initialization and finalization
@@ -252,3 +253,4 @@ void CommunicatorMPI::barrier(void) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

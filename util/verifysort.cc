@@ -11,7 +11,8 @@
 #include <iostream>
 #include <numeric>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 int main(int argc, char** argv)
 {
@@ -40,7 +41,8 @@ int main(int argc, char** argv)
     ReadDirect src(piol, name1);
 
     // Perform the decomposition and read coordinates of interest.
-    auto dec = block_decompose(piol.get(), src);
+    auto dec = block_decomposition(
+      src.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
 
     if (checkOrder(src, dec, type)) {
         std::cout << "Success\n";

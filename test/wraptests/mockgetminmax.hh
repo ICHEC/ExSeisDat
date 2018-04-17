@@ -6,6 +6,7 @@
 
 #include "ExSeisDat/PIOL/operations/minmax.h"
 
+namespace exseis {
 namespace PIOL {
 
 class MockGetMinMax;
@@ -26,5 +27,6 @@ class MockGetMinMax {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD

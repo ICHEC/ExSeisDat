@@ -1,12 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @date January 2017
-/// @brief
-/// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef FOURDBIN4D_INCLUDE_GUARD
-#define FOURDBIN4D_INCLUDE_GUARD
+#ifndef EXSEISDAT_UTIL_4D_HH
+#define EXSEISDAT_UTIL_4D_HH
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
@@ -33,6 +29,7 @@ struct FourDOpt {
     FourDOpt(void) : verbose(false), printDsr(true), ixline(false) {}
 };
 
+namespace exseis {
 namespace PIOL {
 
 /*! Every process will call this function and process 0 will print the string.
@@ -42,4 +39,6 @@ namespace PIOL {
 void cmsg(ExSeisPIOL* piol, std::string msg);
 
 }  // namespace PIOL
-#endif
+}  // namespace exseis
+
+#endif  // EXSEISDAT_UTIL_4D_HH

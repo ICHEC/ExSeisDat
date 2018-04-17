@@ -13,6 +13,7 @@
 #include <forward_list>
 #include <string>
 
+namespace exseis {
 namespace PIOL {
 
 /*! @brief The class for managing all logging activities.
@@ -173,5 +174,6 @@ enum class Logger::Status : size_t {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_LOGGER_HH

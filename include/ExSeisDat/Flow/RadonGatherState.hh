@@ -16,13 +16,16 @@
 #include <string>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
+
+using namespace exseis::utils::typedefs;
 
 /*! The radon state structure.
  */
 struct RadonGatherState : public GatherState {
     /// The piol object.
-    std::shared_ptr<ExSeisPIOL> piol;
+    std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol;
 
     /// The name of the Velocity Model (VM) file.
     std::string vmname;
@@ -59,7 +62,7 @@ struct RadonGatherState : public GatherState {
      * @param[in] oInc_ The number of increments.
      */
     RadonGatherState(
-      std::shared_ptr<ExSeisPIOL> piol_,
+      std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
       std::string vmname_,
       const size_t vBin_,
       const size_t oGSz_,
@@ -76,9 +79,11 @@ struct RadonGatherState : public GatherState {
 
     void makeState(
       const std::vector<size_t>& offset,
-      const Distributed_vector<Gather_info>& gather) override;
+      const exseis::utils::Distributed_vector<exseis::PIOL::Gather_info>&
+        gather) override;
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_RADONGATHERSTATE_HH

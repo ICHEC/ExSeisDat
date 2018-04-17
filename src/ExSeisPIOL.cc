@@ -1,5 +1,6 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ExSeisPIOL::ExSeisPIOL(
@@ -22,3 +23,4 @@ void ExSeisPIOL::isErr(const std::string& msg) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

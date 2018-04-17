@@ -14,7 +14,7 @@
 #include <iostream>
 #include <regex>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 /*! Main function for assess.
  *  @param[in] argc The number of arguments. Should be at least 2.

@@ -15,7 +15,8 @@
 #include <cstddef>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 void AGC(
   size_t signal_size,
@@ -83,14 +84,16 @@ void AGC(
     }
 }
 
-extern "C" void PIOL_AGC(
+EXSEISDAT_CXX_ONLY(extern "C")
+void exseis_AGC(
   size_t signal_size,
-  trace_t* signal,
-  Gain_function gain_function,
+  exseis_trace_t* signal,
+  exseis_Gain_function gain_function,
   size_t window_size,
-  trace_t target_amplitude)
+  exseis_trace_t target_amplitude)
 {
     AGC(signal_size, signal, gain_function, window_size, target_amplitude);
 }
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis

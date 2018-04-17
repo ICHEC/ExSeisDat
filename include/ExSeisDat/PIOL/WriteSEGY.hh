@@ -8,6 +8,7 @@
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
+namespace exseis {
 namespace PIOL {
 
 /*! The SEG-Y implementation of the file layer
@@ -112,5 +113,6 @@ class WriteSEGY : public WriteInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_WRITESEGY_HH

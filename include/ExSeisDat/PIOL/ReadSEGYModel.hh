@@ -7,7 +7,9 @@
 
 #include "ExSeisDat/PIOL/Model3dInterface.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
+#include "ExSeisDat/utils/Distributed_vector.hh"
 
+namespace exseis {
 namespace PIOL {
 
 /*! A SEGY class for seismic velocity models
@@ -50,14 +52,15 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
     std::vector<trace_t> readModel(
       const size_t offset,
       const size_t sz,
-      const Distributed_vector<Gather_info>& gather) override;
+      const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 
     std::vector<trace_t> readModel(
       const size_t sz,
       const size_t* offset,
-      const Distributed_vector<Gather_info>& gather) override;
+      const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_READSEGYMODEL_HH

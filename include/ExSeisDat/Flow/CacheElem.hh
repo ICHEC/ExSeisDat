@@ -11,7 +11,8 @@
 #include <memory>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! A structure to store cache elements of traces and parameters corresponding
  *  to a collection of files
@@ -31,7 +32,7 @@ struct CacheElem {
      *  @param[inout] prm_ A unique_ptr to the parameter structure. The cache
      *                element takes ownership.
      */
-    CacheElem(FileDeque& desc_, std::unique_ptr<Param> prm_)
+    CacheElem(FileDeque& desc_, std::unique_ptr<exseis::PIOL::Param> prm_)
     {
         desc       = desc_;
         block      = std::make_shared<TraceBlock>();
@@ -47,7 +48,7 @@ struct CacheElem {
     CacheElem(
       FileDeque& desc_,
       std::vector<trace_t>& trc_,
-      std::unique_ptr<Param> prm_ = nullptr)
+      std::unique_ptr<exseis::PIOL::Param> prm_ = nullptr)
     {
         desc       = desc_;
         block      = std::make_shared<TraceBlock>();
@@ -74,6 +75,7 @@ struct CacheElem {
     }
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_CACHEELEM_HH

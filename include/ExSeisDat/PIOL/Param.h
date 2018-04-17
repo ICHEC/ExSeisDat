@@ -10,14 +10,16 @@
 
 #include "ExSeisDat/utils/typedefs.h"
 
-// Forward declare PIOL::Param as PIOL_Param for C export.
+// Forward declare exseis::PIOL::Param as PIOL_Param for C export.
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 struct Param;
 }  // namespace PIOL
+}  // namespace exseis
 
-/// @copydoc PIOL::Param
-typedef PIOL::Param PIOL_Param;
+/// @copydoc exseis::PIOL::Param
+typedef exseis::PIOL::Param PIOL_Param;
 #else   // __cplusplus
 typedef struct PIOL_Param PIOL_Param;
 #endif  // __cplusplus
@@ -34,7 +36,10 @@ typedef struct PIOL_Param PIOL_Param;
 #include <memory>
 #include <vector>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /*! Derived class for initialising the trace parameter structure
  *  and storing a structure with the necessary rules.
@@ -115,6 +120,7 @@ struct Param {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // __cplusplus
 

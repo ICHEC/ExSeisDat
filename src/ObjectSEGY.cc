@@ -10,6 +10,7 @@
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
+namespace exseis {
 namespace PIOL {
 
 //////////////////////      Constructor & Destructor      //////////////////////
@@ -150,3 +151,4 @@ void ObjectSEGY::writeDODF(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

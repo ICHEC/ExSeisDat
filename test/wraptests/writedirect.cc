@@ -1,5 +1,6 @@
 #include "mockwritedirect.hh"
 
+namespace exseis {
 namespace PIOL {
 
 WriteDirect::WriteDirect(
@@ -63,3 +64,4 @@ void WriteDirect::writeParamNonContiguous(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

@@ -3,8 +3,10 @@
 #include "setwraptests.hh"
 #include "wraptesttools.hh"
 
-using namespace PIOL;
 using namespace testing;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 void test_PIOL_Set(std::shared_ptr<ExSeis*> piol)
 {
@@ -72,10 +74,10 @@ void test_PIOL_Set(std::shared_ptr<ExSeis*> piol)
 
     typedef std::pair<Gain_function, Gain_function> Gain_function_pair;
     const Gain_function_pair agc_types[] = {
-      std::make_pair(PIOL_rectangular_RMS_gain, rectangular_RMS_gain),
-      std::make_pair(PIOL_triangular_RMS_gain, triangular_RMS_gain),
-      std::make_pair(PIOL_mean_abs_gain, mean_abs_gain),
-      std::make_pair(PIOL_median_gain, median_gain)};
+      std::make_pair(exseis_rectangular_RMS_gain, rectangular_RMS_gain),
+      std::make_pair(exseis_triangular_RMS_gain, triangular_RMS_gain),
+      std::make_pair(exseis_mean_abs_gain, mean_abs_gain),
+      std::make_pair(exseis_median_gain, median_gain)};
 
     for (auto agc_type : agc_types) {
         EXPECT_CALL(

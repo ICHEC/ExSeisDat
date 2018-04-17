@@ -7,10 +7,12 @@
 typedef size_t PIOL_Verbosity;
 
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 /// The enumeration for the verbosity level of records
 typedef PIOL_Verbosity Verbosity;
 }  // namespace PIOL
+}  // namespace exseis
 #endif
 
 /// Record no information beyond fatal errors and explicit requests

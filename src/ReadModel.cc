@@ -10,6 +10,7 @@
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
@@ -19,10 +20,13 @@ ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
 }
 
 std::vector<trace_t> ReadModel::readModel(
-  size_t gOffset, size_t numGather, Distributed_vector<Gather_info>& gather)
+  size_t gOffset,
+  size_t numGather,
+  utils::Distributed_vector<Gather_info>& gather)
 {
     return std::dynamic_pointer_cast<Model3dInterface>(file)->readModel(
       gOffset, numGather, gather);
 }
 
 }  // namespace PIOL
+}  // namespace exseis

@@ -1,17 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @brief Conversion functions to convert between EBCDIC and ASCII
-/// @details
+/// @brief Functions to convert between EBCDIC and ASCII encoding.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_CHARACTER_ENCODING_HH
-#define EXSEISDAT_PIOL_CHARACTER_ENCODING_HH
+#ifndef EXSEISDAT_UTILS_ENCODING_CHARACTER_ENCODING_HH
+#define EXSEISDAT_UTILS_ENCODING_CHARACTER_ENCODING_HH
 
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <string>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 /*! Convert an EBCDIC encoded character to an ASCII encoded character. Returns
  *  the ASCII SUB character if there is no ASCII equivalent.
@@ -37,6 +36,7 @@ bool is_printable_ASCII(uchar ascii_char);
 /// @return Whether \c ebcdic_char represents a printable EBCDIC character.
 bool is_printable_EBCDIC(uchar ebcdic_char);
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis
 
-#endif  // EXSEISDAT_PIOL_CHARACTER_ENCODING_HH
+#endif  // EXSEISDAT_UTILS_ENCODING_CHARACTER_ENCODING_HH

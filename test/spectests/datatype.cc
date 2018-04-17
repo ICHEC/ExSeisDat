@@ -1,14 +1,14 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "ExSeisDat/PIOL/number_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <bitset>
 #include <cstring>
 #include <stdint.h>
 #include <vector>
 
-using namespace PIOL;
+using namespace exseis::utils;
 
 TEST(Datatype, getHost32Bit1)
 {

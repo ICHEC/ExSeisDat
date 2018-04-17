@@ -11,8 +11,12 @@
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/ReadInterface.hh"
 #include "ExSeisDat/utils/Distributed_vector.hh"
+#include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /// A struct containing information about a seismic gather.
 struct Gather_info {
@@ -37,9 +41,10 @@ struct Gather_info {
 ///         Tuple elements: 1) Number of traces in the gather, 2) inline, 3)
 ///         crossline.
 ///
-Distributed_vector<Gather_info> getIlXlGathers(
+exseis::utils::Distributed_vector<Gather_info> getIlXlGathers(
   ExSeisPIOL* piol, ReadInterface* file);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_OPERATIONS_GATHER_HH

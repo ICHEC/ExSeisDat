@@ -2,12 +2,15 @@
 /// @file
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/decompose.h"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
+
+#include <algorithm>
+#include <assert.h>
 
 
 extern "C" {
 
-PIOL_Contiguous_decomposition PIOL_block_decompose(
+exseis_Contiguous_decomposition exseis_block_decomposition(
   size_t range_size, size_t num_ranks, size_t rank)
 {
     assert(num_ranks > 0);
@@ -75,15 +78,17 @@ PIOL_Contiguous_decomposition PIOL_block_decompose(
 }  // extern "C"
 
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
-Contiguous_decomposition block_decompose(ExSeisPIOL* piol, ReadInterface* file)
-{
-    return block_decompose(
-      file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
-}
+// Contiguous_decomposition block_decompose(ExSeisPIOL* piol, ReadInterface*
+// file)
+// {
+//     return block_decompose(
+//       file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+// }
 
-Decomposed_index_location block_decomposed_location(
+Decomposition_index_location block_decomposition_location(
   size_t range_size, size_t num_ranks, size_t global_index)
 {
     assert(global_index < range_size);
@@ -120,4 +125,5 @@ Decomposed_index_location block_decomposed_location(
     }
 }
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis

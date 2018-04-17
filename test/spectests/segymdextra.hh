@@ -10,9 +10,9 @@
 #define PIOLFILETESTSEGYMD_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/constants.hh"
-#include "ExSeisDat/PIOL/number_encoding.hh"
+#include "ExSeisDat/utils/constants.hh"
+#include "ExSeisDat/utils/encoding/character_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <cmath>
@@ -21,7 +21,10 @@
 #include <memory>
 #include <vector>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /*! Misc Trace Header offsets
  */
@@ -212,5 +215,6 @@ void setScale(
   const TrScal item, const int16_t scale, uchar* buf, size_t start = 0);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif

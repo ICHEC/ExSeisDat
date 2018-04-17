@@ -13,7 +13,10 @@
 // TODO: Remove when all options implemented
 #include <iostream>
 
-namespace PIOL {
+using namespace exseis::PIOL;
+
+namespace exseis {
+namespace Flow {
 
 // TODO: Generalise this for parameters and traces
 std::shared_ptr<TraceBlock> Cache::getCache(
@@ -104,4 +107,5 @@ std::vector<size_t> Cache::getOutputTrace(
     return final;
 }
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis

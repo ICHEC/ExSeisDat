@@ -5,6 +5,7 @@
 
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 
+namespace exseis {
 namespace PIOL {
 
 void WriteInterface::writeParam(
@@ -21,3 +22,4 @@ void WriteInterface::writeParamNonContiguous(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

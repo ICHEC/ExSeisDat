@@ -1,8 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date October 2016
 /// @brief Contains functions which have become redundant in the main code but
 ///        can be used as an alternative implementation for test purposes
 /// @details
@@ -12,6 +9,9 @@
 
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
+using namespace exseis::utils;
+
+namespace exseis {
 namespace PIOL {
 
 /*! @brief Get the specified scale multipler from the Trace header.
@@ -186,3 +186,4 @@ int16_t calcScale(const coord_t coord)
 // }
 
 }  // namespace PIOL
+}  // namespace exseis

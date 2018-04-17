@@ -2,7 +2,7 @@
 
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 TEST(SEGYSizes, All)
 {

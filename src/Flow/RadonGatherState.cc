@@ -7,11 +7,14 @@
 #include "ExSeisDat/PIOL/ReadSEGYModel.hh"
 #include "ExSeisDat/PIOL/makeFile.hh"
 
-namespace PIOL {
+using namespace exseis::PIOL;
+
+namespace exseis {
+namespace Flow {
 
 void RadonGatherState::makeState(
   const std::vector<size_t>& offset,
-  const Distributed_vector<Gather_info>& gather)
+  const utils::Distributed_vector<Gather_info>& gather)
 {
     // TODO: DON'T USE MAGIC NAME
     std::unique_ptr<ReadSEGYModel> vm = makeFile<ReadSEGYModel>(piol, vmname);
@@ -30,4 +33,5 @@ void RadonGatherState::makeState(
     }
 }
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis

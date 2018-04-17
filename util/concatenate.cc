@@ -16,7 +16,8 @@
 #include <assert.h>
 #include <iostream>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 /*! Prompt the user asking them if they want to continue with concatenation.
  *  Multi-process safe.

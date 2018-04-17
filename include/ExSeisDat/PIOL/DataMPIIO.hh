@@ -11,6 +11,7 @@
 
 #include <functional>
 
+namespace exseis {
 namespace PIOL {
 
 /*! The file modes possible for files.
@@ -272,5 +273,6 @@ class DataMPIIO : public DataInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_DATAMPIIO_HH

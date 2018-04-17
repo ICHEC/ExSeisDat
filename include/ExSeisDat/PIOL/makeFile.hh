@@ -15,6 +15,7 @@
 #include <type_traits>
 
 
+namespace exseis {
 namespace PIOL {
 
 /*! Construct ReadSEGY objects with default object and MPI-IO layers.
@@ -48,5 +49,6 @@ makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string& name)
 }
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_MAKEFILE_HH

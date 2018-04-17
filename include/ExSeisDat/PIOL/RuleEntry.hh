@@ -8,6 +8,7 @@
 
 #include <cstddef>
 
+namespace exseis {
 namespace PIOL {
 
 /*! An instantiation of this structure corresponds to a single metadata rule
@@ -62,5 +63,6 @@ struct RuleEntry {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_RULEENTRY_HH

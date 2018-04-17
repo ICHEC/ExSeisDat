@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <math.h>
 
+namespace exseis {
 namespace PIOL {
 namespace FOURD {
 
@@ -537,3 +538,4 @@ void calc4DBin(
 }
 }  // namespace FOURD
 }  // namespace PIOL
+}  // namespace exseis

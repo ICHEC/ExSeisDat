@@ -3,12 +3,11 @@
 #include "rulewraptests.hh"
 #include "wraptesttools.hh"
 
-using namespace PIOL;
 using namespace testing;
+using namespace exseis::PIOL;
 
 
-std::shared_ptr<PIOL::Param*> test_PIOL_File_Param(
-  std::shared_ptr<PIOL::Rule*> test_rule)
+std::shared_ptr<Param*> test_PIOL_File_Param(std::shared_ptr<Rule*> test_rule)
 {
     auto param_ptr = std::make_shared<Param*>();
     EXPECT_CALL(mockParam(), ctor(_, GetEqDeref(test_rule), 300))

@@ -16,6 +16,7 @@
 
 using namespace std::string_literals;
 
+namespace exseis {
 namespace PIOL {
 
 /////////////////////////////       Non-Class      /////////////////////////////
@@ -592,3 +593,4 @@ void DataMPIIO::write(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

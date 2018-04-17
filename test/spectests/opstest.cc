@@ -16,7 +16,7 @@
 
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 struct OpsTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::New(false);

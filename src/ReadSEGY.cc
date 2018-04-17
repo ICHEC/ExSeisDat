@@ -10,22 +10,26 @@
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/character_encoding.hh"
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/utils/encoding/character_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
-#include "ExSeisDat/PIOL/constants.hh"
+#include "ExSeisDat/utils/constants.hh"
 
 #include <algorithm>
 #include <cassert>
 
+using namespace exseis::utils;
+
+namespace exseis {
 namespace PIOL {
 
 //////////////////////      Constructor & Destructor      //////////////////////
 ReadSEGY::Opt::Opt(void)
 {
-    incFactor = micro;
+    incFactor = exseis::utils::micro;
 }
 
 ReadSEGY::ReadSEGY(
@@ -252,3 +256,4 @@ void ReadSEGY::readTraceNonMonotonic(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

@@ -1,5 +1,6 @@
 #include "mockgetminmax.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ::testing::StrictMock<MockGetMinMax>& mockGetMinMax()
@@ -9,3 +10,4 @@ namespace PIOL {
 }
 
 }  // namespace PIOL
+}  // namespace exseis

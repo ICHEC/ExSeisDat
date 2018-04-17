@@ -12,6 +12,7 @@
 
 #include "ExSeisDat/PIOL/Param.h"
 
+namespace exseis {
 namespace PIOL {
 namespace param_utils {
 
@@ -89,5 +90,6 @@ void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst);
 
 }  // namespace param_utils
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_PARAM_UTILS_HH

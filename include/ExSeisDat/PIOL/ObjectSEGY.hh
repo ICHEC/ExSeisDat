@@ -12,6 +12,7 @@
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
 
 /*! @brief The SEG-Y Obj class.
@@ -117,5 +118,6 @@ class ObjectSEGY : public ObjectInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_OBJECTSEGY_HH

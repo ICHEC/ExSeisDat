@@ -13,7 +13,7 @@
 
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 class FileTest : public Test {
   protected:

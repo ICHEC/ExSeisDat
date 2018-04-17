@@ -6,6 +6,7 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 
+namespace exseis {
 namespace PIOL {
 namespace param_utils {
 
@@ -74,3 +75,4 @@ void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst)
 
 }  // namespace param_utils
 }  // namespace PIOL
+}  // namespace exseis

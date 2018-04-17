@@ -10,8 +10,8 @@
 ///          or applies the same scalar to all traces at the same height.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/constants.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
+#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
@@ -21,6 +21,9 @@
 #include <math.h>
 #include <vector>
 
+using namespace exseis::utils;
+
+namespace exseis {
 namespace PIOL {
 
 // TODO: Use complex literals when newer compilers are available
@@ -473,3 +476,4 @@ void temporalFilter(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

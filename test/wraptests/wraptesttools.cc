@@ -1,8 +1,9 @@
 #include "wraptesttools.hh"
 
+namespace exseis {
 namespace PIOL {
 
-PIOL::CheckReturnListener*& checkReturnListener()
+CheckReturnListener*& checkReturnListener()
 {
     static PIOL::CheckReturnListener* checkReturnListener = nullptr;
     return checkReturnListener;
@@ -15,3 +16,4 @@ PIOL::CheckReturnListener*& checkReturnListener()
 }
 
 }  // namespace PIOL
+}  // namespace exseis

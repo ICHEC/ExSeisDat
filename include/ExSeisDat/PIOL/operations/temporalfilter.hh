@@ -13,7 +13,10 @@
 #include <functional>
 #include <vector>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /// An enum class of the different types of filters.
 enum class FltrType : int {
@@ -237,5 +240,6 @@ void temporalFilter(
   size_t N);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_OPERATIONS_TEMPORALFILTER_HH

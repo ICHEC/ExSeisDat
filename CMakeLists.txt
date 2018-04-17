@@ -182,12 +182,12 @@ include_directories(
 add_library(
     exseisdat
 
-    src/Flow_C_bindings.cc
     src/PIOL_C_bindings.cc
 
-    src/Cache.cc
-    src/RadonGatherState.cc
-    src/Set.cc
+    src/Flow/Cache.cc
+    src/Flow/Flow_C_bindings.cc
+    src/Flow/RadonGatherState.cc
+    src/Flow/Set.cc
 
     src/CommunicatorMPI.cc
     src/DataMPIIO.cc
@@ -207,9 +207,6 @@ add_library(
     src/WriteInterface.cc
     src/WriteSEGY.cc
 
-    src/character_encoding.cc
-    src/decompose.cc
-    src/number_encoding.cc
     src/param_utils.cc
     src/segy_utils.cc
 
@@ -219,15 +216,25 @@ add_library(
     src/taper.cc
     src/temporalfilter.cc
 
+    src/utils/decomposition/block_decomposition.cc
+    src/utils/encoding/character_encoding.cc
+    src/utils/encoding/number_encoding.cc
     src/utils/gain_control/AGC.cc
     src/utils/gain_control/Gain_function.cc
     src/utils/mpi/MPI_error_to_string.cc
 )
 
-target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES})
+target_link_libraries(
+    exseisdat
+    PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES}
+)
 set_target_properties(
     exseisdat
     PROPERTIES COMPILE_DEFINITIONS EXSEISDAT_MPIIO_COLLECTIVES
+)
+target_include_directories(
+    exseisdat BEFORE
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 

@@ -5,9 +5,6 @@
 #ifndef EXSEISDAT_PIOL_HH
 #define EXSEISDAT_PIOL_HH
 
-/// @namespace PIOL
-/// @brief The PIOL namespace is the base namespace for the ExSeisPIOL library.
-
 #include "ExSeisDat/PIOL/CommunicatorInterface.hh"
 #include "ExSeisDat/PIOL/CommunicatorMPI.hh"
 #include "ExSeisDat/PIOL/DataInterface.hh"
@@ -35,11 +32,7 @@
 #include "ExSeisDat/PIOL/WriteDirect.hh"
 #include "ExSeisDat/PIOL/WriteInterface.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/character_encoding.hh"
-#include "ExSeisDat/PIOL/constants.hh"
-#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/makeFile.hh"
-#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
@@ -48,6 +41,10 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/utils/Distributed_vector.hh"
+#include "ExSeisDat/utils/constants.hh"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
+#include "ExSeisDat/utils/encoding/character_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 #include "ExSeisDat/utils/gain_control/AGC.h"
 #include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
 #include "ExSeisDat/utils/typedefs.h"

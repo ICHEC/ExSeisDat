@@ -11,12 +11,15 @@
 #include "ExSeisDat/PIOL/DataMPIIO.hh"
 #include "ExSeisDat/PIOL/Param.h"
 #include "ExSeisDat/PIOL/ReadInterface.hh"
-#include "ExSeisDat/utils/Distributed_vector.hh"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <memory>
 #include <string>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs
  *  the Data, Object and File layers.
@@ -179,5 +182,6 @@ class ReadDirect {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_READDIRECT_HH

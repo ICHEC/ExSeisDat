@@ -9,17 +9,15 @@
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 #include "ExSeisDat/PIOL/ReadSEGY.hh"
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/decompose.h"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
 
 #include <numeric>
 
-namespace PIOL {
-
-}  // namespace PIOL
-
-using namespace PIOL;
 using namespace testing;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 class MockFile : public ReadInterface {
   public:
@@ -121,7 +119,7 @@ struct SetTest : public Test {
                     EXPECT_CALL(*mock, readInc())
                       .WillRepeatedly(Return(1000. + geom_t(i)));
 
-                    auto dec = block_decompose(
+                    auto dec = block_decomposition(
                       nt, piol->comm->getNumRank(), piol->comm->getRank());
                     prm.emplace_back(dec.local_size);
                     Param* tprm = &prm.back();

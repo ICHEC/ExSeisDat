@@ -20,12 +20,13 @@
 #ifndef EXSEISDAT_UTILS_GAIN_CONTROL_AGC_H
 #define EXSEISDAT_UTILS_GAIN_CONTROL_AGC_H
 
-#include "ExSeisDat/PIOL/c_api_utils.h"
+#include "ExSeisDat/utils/c_api_utils.h"
 #include "ExSeisDat/utils/gain_control/Gain_function.h"
 #include "ExSeisDat/utils/typedefs.h"
 
 #ifdef __cplusplus
-namespace PIOL {
+namespace exseis {
+namespace utils {
 #endif  // __cplusplus
 
 
@@ -36,7 +37,7 @@ namespace PIOL {
 /// @param[inout] signal           Array of the signal data.
 /// @param[in]    gain_function    Statistical function which returns a scaled
 ///                                value for a signal.
-/// @param[in]    window           Length of the agc window
+/// @param[in]    window_size      Length of the agc window
 /// @param[in]    target_amplitude Value to which signal are normalised
 ///
 #ifdef __cplusplus
@@ -44,21 +45,31 @@ void AGC(
   size_t signal_size,
   trace_t* signal,
   Gain_function gain_function,
-  size_t window,
+  size_t window_size,
   trace_t target_amplitude);
 #endif  // __cplusplus
 
-/// @copydoc AGC()
+/// @brief Apply automatic gain control to a set of tapers --> used for actual
+///        operation during output
+///
+/// @param[in]    signal_size      The number of samples in a signal
+/// @param[inout] signal           Array of the signal data.
+/// @param[in]    gain_function    Statistical function which returns a scaled
+///                                value for a signal.
+/// @param[in]    window_size      Length of the agc window
+/// @param[in]    target_amplitude Value to which signal are normalised
+///
 EXSEISDAT_CXX_ONLY(extern "C")
-void PIOL_AGC(
+void exseis_AGC(
   size_t signal_size,
-  PIOL_trace_t* signal,
-  PIOL_Gain_function gain_function,
-  size_t window,
-  PIOL_trace_t target_amplitude);
+  exseis_trace_t* signal,
+  exseis_Gain_function gain_function,
+  size_t window_size,
+  exseis_trace_t target_amplitude);
 
 #ifdef __cplusplus
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 #endif  // EXSEISDAT_UTILS_GAIN_CONTROL_AGC_H

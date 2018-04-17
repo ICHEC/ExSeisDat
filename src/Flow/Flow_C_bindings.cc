@@ -19,7 +19,7 @@ PIOL_Set* PIOL_Set_new(const PIOL_ExSeis* piol, const char* ptrn)
     assert(not_null(piol));
     assert(not_null(ptrn));
 
-    return new PIOL::Set(*piol, ptrn);
+    return new exseis::Flow::Set(*piol, ptrn);
 }
 
 void PIOL_Set_delete(PIOL_Set* set)
@@ -63,9 +63,9 @@ void PIOL_Set_taper(
 
 void PIOL_Set_AGC(
   PIOL_Set* set,
-  PIOL_Gain_function type,
+  exseis_Gain_function type,
   size_t window,
-  PIOL_trace_t target_amplitude)
+  exseis_trace_t target_amplitude)
 {
     assert(not_null(set));
 

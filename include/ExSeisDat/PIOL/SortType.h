@@ -11,10 +11,12 @@
 typedef size_t PIOL_SortType;
 
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 /// @copydoc PIOL_SortType
 typedef PIOL_SortType SortType;
 }  // namespace PIOL
+}  // namespace exseis
 #endif  // __cplusplus
 
 /// An enumeration of the different types of sorting operation.

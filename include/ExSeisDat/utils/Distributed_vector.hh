@@ -1,13 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
-#define EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
+#ifndef EXSEISDAT_UTILS_DISTRIBUTED_VECTOR_HH
+#define EXSEISDAT_UTILS_DISTRIBUTED_VECTOR_HH
 
 #include <cstddef>
 #include <memory>
 
-namespace PIOL {
+namespace exseis {
+namespace utils {
 
 /// @brief  A structure for global arrays.
 ///
@@ -121,6 +122,7 @@ class Distributed_vector {
     size_t size() const { return concept->size(); }
 };
 
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis
 
-#endif  // EXSEISDAT_PIOL_DISTRIBUTED_VECTOR_HH
+#endif  // EXSEISDAT_UTILS_DISTRIBUTED_VECTOR_HH

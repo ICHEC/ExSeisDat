@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 
+namespace exseis {
 namespace PIOL {
 
 /*! This class implements the C++14 File Layer API for the PIOL. It constructs
@@ -170,5 +171,6 @@ class WriteDirect {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_WRITEDIRECT_HH

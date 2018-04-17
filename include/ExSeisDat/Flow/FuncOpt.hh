@@ -6,7 +6,8 @@
 
 #include <cstddef>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! Enum class for the various function options.
  */
@@ -71,6 +72,7 @@ enum class FuncOpt : size_t {
     OwnIO
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_FUNCOPT_HH

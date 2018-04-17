@@ -1,8 +1,10 @@
+///
 /// @file
 /// @brief This file contains a number of macros for cleanly defining the C
 ///        and C++ APIs side by side.
-#ifndef EXSEISDAT_PIOL_C_API_UTILS_H
-#define EXSEISDAT_PIOL_C_API_UTILS_H
+///
+#ifndef EXSEISDAT_UTILS_C_API_UTILS_H
+#define EXSEISDAT_UTILS_C_API_UTILS_H
 
 /// Includes the macro arguments in the file only if it's being processed by
 /// a C++ compiler.
@@ -17,4 +19,4 @@
 #define EXSEISDAT_CXX_ONLY(X)
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_PIOL_C_API_UTILS_H
+#endif  // EXSEISDAT_UTILS_C_API_UTILS_H

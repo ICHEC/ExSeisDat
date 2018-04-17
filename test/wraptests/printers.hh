@@ -8,20 +8,22 @@ extern "C" struct PIOL_CoordElem;
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value);
 
+namespace exseis {
 namespace PIOL {
 
 struct Rule;
 struct Param;
 
-::std::ostream& operator<<(::std::ostream& os, PIOL::Param* value);
-::std::ostream& operator<<(::std::ostream& os, const PIOL::Param* value);
+::std::ostream& operator<<(::std::ostream& os, Param* value);
+::std::ostream& operator<<(::std::ostream& os, const Param* value);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 namespace std {
 
 ::std::ostream& operator<<(
-  ::std::ostream& os, const std::shared_ptr<PIOL::Rule>& value);
+  ::std::ostream& os, const std::shared_ptr<exseis::PIOL::Rule>& value);
 
 }  // namespace std
 

@@ -13,10 +13,12 @@
 
 #include "ExSeisDat/PIOL/ExSeisPIOL.hh"
 #include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/ReadInterface.hh"
 #include "ExSeisDat/PIOL/SortType.h"
-#include "ExSeisDat/PIOL/decompose.h"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
 #include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
 
 /// A template for the Compare less-than function
@@ -54,11 +56,13 @@ std::vector<size_t> sort(
 
 /*! Check that the file obeys the expected ordering.
  *  @param[in] src The input file.
- *  @param[in] dec The decomposition: a \c Contiguous_decomposition which contains the \c offset
- *                 and the number of traces (\c size) for the local process.
+ *  @param[in] dec The decomposition: a \c Contiguous_decomposition which
+ *                 contains the \c offset and the number of traces (\c size) for
+ *                 the local process.
  *  @return Return true if the local ordering is correct.
  */
-bool checkOrder(ReadInterface* src, Contiguous_decomposition dec);
+bool checkOrder(
+  ReadInterface* src, exseis::utils::Contiguous_decomposition dec);
 
 /********************************** Non-Core **********************************/
 /*! Perform a sort on the given parameter structure.
@@ -78,7 +82,9 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm);
  *  @return Return true if the local ordering is correct.
  */
 bool checkOrder(
-  ReadInterface* src, Contiguous_decomposition dec, SortType type);
+  ReadInterface* src,
+  exseis::utils::Contiguous_decomposition dec,
+  SortType type);
 
 /*! Return the comparison function for the particular sort type.
  *  @param[in] type The sort type
@@ -88,5 +94,6 @@ bool checkOrder(
 CompareP getComp(SortType type);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_OPERATIONS_SORT_HH

@@ -12,7 +12,10 @@
 
 #include <functional>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /// A typedef for the taper function
 typedef std::function<trace_t(trace_t, trace_t)> TaperFunc;
@@ -43,5 +46,6 @@ void taper(
 TaperFunc getTap(TaperType type);
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_OPERATIONS_TAPER_HH

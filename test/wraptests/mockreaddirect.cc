@@ -1,5 +1,6 @@
 #include "mockreaddirect.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ::testing::StrictMock<MockReadDirect>& mockReadDirect()
@@ -9,3 +10,4 @@ namespace PIOL {
 }
 
 }  // namespace PIOL
+}  // namespace exseis

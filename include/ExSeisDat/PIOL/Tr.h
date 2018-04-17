@@ -11,10 +11,12 @@
 typedef size_t PIOL_Tr;
 
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 /// @copydoc PIOL_Tr
 typedef PIOL_Tr Tr;
 }  // namespace PIOL
+}  // namespace exseis
 #endif  // __cplusplus
 
 

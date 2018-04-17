@@ -10,8 +10,8 @@
 
 ////////////////////// Unit tests of non-class functions ///////////////////////
 
-using namespace PIOL;
-using namespace SEGY_utils;
+using namespace exseis::PIOL;
+using namespace exseis::PIOL::SEGY_utils;
 
 TEST(SEGYMd, ScaleBigIntegers)
 {

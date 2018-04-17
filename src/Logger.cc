@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+namespace exseis {
 namespace PIOL {
 
 void Logger::record(
@@ -58,3 +59,4 @@ void Logger::procLog(void)
 }
 
 }  // namespace PIOL
+}  // namespace exseis

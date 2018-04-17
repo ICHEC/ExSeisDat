@@ -1,6 +1,10 @@
 #include "mockset.hh"
 
-namespace PIOL {
+using namespace exseis::utils;
+using namespace exseis::PIOL;
+
+namespace exseis {
+namespace Flow {
 
 Set::Set(
   std::shared_ptr<ExSeisPIOL> piol_,
@@ -123,4 +127,5 @@ void Set::temporalFilter(
       this, type, domain, pad, fs, N, corners, nw, winCntr);
 }
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis

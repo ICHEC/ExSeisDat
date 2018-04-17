@@ -11,10 +11,12 @@
 typedef size_t PIOL_Meta;
 
 #ifdef __cplusplus
+namespace exseis {
 namespace PIOL {
 /// @copydoc PIOL_Meta
 typedef PIOL_Meta Meta;
 }  // namespace PIOL
+}  // namespace exseis
 #endif  // __cplusplus
 
 /*! The available trace parameters

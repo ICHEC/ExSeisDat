@@ -9,6 +9,7 @@
 
 #include "ExSeisDat/PIOL/ReadInterface.hh"
 
+namespace exseis {
 namespace PIOL {
 
 const trace_t* TRACE_NULL = (trace_t*)1;
@@ -43,3 +44,4 @@ geom_t ReadInterface::readInc(void) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

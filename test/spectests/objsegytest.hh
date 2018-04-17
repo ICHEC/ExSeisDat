@@ -11,13 +11,13 @@
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
-#include "ExSeisDat/PIOL/number_encoding.hh"
+#include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <memory>
 #include <string>
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 class MockData : public DataInterface {
   public:

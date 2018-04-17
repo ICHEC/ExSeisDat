@@ -16,7 +16,10 @@
 
 #include <vector>
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 /*! @brief The Communication layer interface. Specific communication
  *         implementations work off this base class.
@@ -123,5 +126,6 @@ class CommunicatorInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_COMMUNICATORINTERFACE_HH

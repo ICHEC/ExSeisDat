@@ -1,5 +1,8 @@
 #include "mockparam.hh"
 
+using namespace exseis::utils;
+
+namespace exseis {
 namespace PIOL {
 
 Param::Param(std::shared_ptr<Rule> r_, const size_t sz)
@@ -41,8 +44,7 @@ int16_t param_utils::getPrm<int16_t>(size_t i, Meta entry, const Param* prm)
 }
 
 template<>
-PIOL::llint param_utils::getPrm<PIOL::llint>(
-  size_t i, Meta entry, const Param* prm)
+llint param_utils::getPrm<llint>(size_t i, Meta entry, const Param* prm)
 {
     return mockParamFreeFunctions().getPrm_llint(i, entry, prm);
 }
@@ -75,3 +77,4 @@ void param_utils::setPrm<geom_t>(
 }
 
 }  // namespace PIOL
+}  // namespace exseis

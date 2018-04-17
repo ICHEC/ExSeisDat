@@ -11,6 +11,7 @@
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/ObjectSEGY.hh"
 
+namespace exseis {
 namespace PIOL {
 
 std::shared_ptr<ObjectInterface> makeDefaultObj(
@@ -31,3 +32,4 @@ void ObjectInterface::setFileSz(const size_t sz) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

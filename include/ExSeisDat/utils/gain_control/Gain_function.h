@@ -6,27 +6,30 @@
 #ifndef EXSEISDAT_UTILS_GAIN_CONTROL_GAIN_FUNCTION_H
 #define EXSEISDAT_UTILS_GAIN_CONTROL_GAIN_FUNCTION_H
 
-#include "ExSeisDat/PIOL/c_api_utils.h"
+#include "ExSeisDat/utils/c_api_utils.h"
 #include "ExSeisDat/utils/typedefs.h"
 
 
 /// Function type for signal scaling in the AGC function.
-typedef PIOL_trace_t (*PIOL_Gain_function)(
-  const PIOL_trace_t* signal,
+typedef exseis_trace_t (*exseis_Gain_function)(
+  const exseis_trace_t* signal,
   size_t window,
-  PIOL_trace_t target_amplitude,
+  exseis_trace_t target_amplitude,
   size_t window_center);
 
 #ifdef __cplusplus
-namespace PIOL {
-/// @copydoc PIOL_Gain_function
-using Gain_function = PIOL_Gain_function;
-}  // namespace PIOL
+namespace exseis {
+namespace utils {
+/// @copydoc exseis_Gain_function
+using Gain_function = exseis_Gain_function;
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 
 #ifdef __cplusplus
-namespace PIOL {
+namespace exseis {
+namespace utils {
 #endif  // __cplusplus
 
 
@@ -50,10 +53,10 @@ trace_t rectangular_RMS_gain(
 
 /// @copydoc rectangular_RMS_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-PIOL_trace_t PIOL_rectangular_RMS_gain(
-  const PIOL_trace_t* signal,
+exseis_trace_t exseis_rectangular_RMS_gain(
+  const exseis_trace_t* signal,
   size_t window,
-  PIOL_trace_t target_amplitude,
+  exseis_trace_t target_amplitude,
   size_t window_center);
 
 
@@ -77,10 +80,10 @@ trace_t triangular_RMS_gain(
 
 /// @copydoc triangular_RMS_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-PIOL_trace_t PIOL_triangular_RMS_gain(
-  const PIOL_trace_t* signal,
+exseis_trace_t exseis_triangular_RMS_gain(
+  const exseis_trace_t* signal,
   size_t window,
-  PIOL_trace_t target_amplitude,
+  exseis_trace_t target_amplitude,
   size_t window_center);
 
 
@@ -104,10 +107,10 @@ trace_t mean_abs_gain(
 
 /// @copydoc mean_abs_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-PIOL_trace_t PIOL_mean_abs_gain(
-  const PIOL_trace_t* signal,
+exseis_trace_t exseis_mean_abs_gain(
+  const exseis_trace_t* signal,
   size_t window,
-  PIOL_trace_t target_amplitude,
+  exseis_trace_t target_amplitude,
   size_t window_center);
 
 
@@ -130,14 +133,15 @@ trace_t median_gain(
 
 /// @copydoc median_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-PIOL_trace_t PIOL_median_gain(
-  const PIOL_trace_t* signal,
+exseis_trace_t exseis_median_gain(
+  const exseis_trace_t* signal,
   size_t window,
-  PIOL_trace_t target_amplitude,
+  exseis_trace_t target_amplitude,
   size_t window_center);
 
 #ifdef __cplusplus
-}  // namespace PIOL
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 #endif  // EXSEISDAT_UTILS_GAIN_CONTROL_GAIN_FUNCTION_H

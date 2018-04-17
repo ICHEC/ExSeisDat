@@ -22,19 +22,21 @@
 #include <cstddef>
 #include <iostream>
 
+using namespace exseis::PIOL;
+using namespace exseis::utils::typedefs;
+
 extern "C" {
 
 PIOL_File_Rule* PIOL_File_Rule_new(bool def)
 {
-    return new std::shared_ptr<PIOL::Rule>(new PIOL::Rule(true, def));
+    return new std::shared_ptr<Rule>(new Rule(true, def));
 }
 
 PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta* m, size_t n)
 {
     assert(not_null(m));
 
-    return new std::shared_ptr<PIOL::Rule>(
-      new PIOL::Rule({m, m + n}, true, false, false));
+    return new std::shared_ptr<Rule>(new Rule({m, m + n}, true, false, false));
 }
 
 void PIOL_File_Rule_delete(PIOL_File_Rule* rule)
@@ -109,10 +111,10 @@ size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule)
 PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz)
 {
     if (not_null(rule)) {
-        return new PIOL::Param(*rule, sz);
+        return new Param(*rule, sz);
     }
     else {
-        return new PIOL::Param(sz);
+        return new Param(sz);
     }
 }
 
@@ -156,23 +158,23 @@ int16_t PIOL_File_getPrm_short(
 {
     assert(not_null(param));
 
-    return PIOL::param_utils::getPrm<int16_t>(i, entry, param);
+    return param_utils::getPrm<int16_t>(i, entry, param);
 }
 
-PIOL_llint PIOL_File_getPrm_llint(
+exseis_llint PIOL_File_getPrm_llint(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    return PIOL::param_utils::getPrm<PIOL::llint>(i, entry, param);
+    return param_utils::getPrm<llint>(i, entry, param);
 }
 
-PIOL_geom_t PIOL_File_getPrm_double(
+exseis_geom_t PIOL_File_getPrm_double(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    return PIOL::param_utils::getPrm<PIOL::geom_t>(i, entry, param);
+    return param_utils::getPrm<geom_t>(i, entry, param);
 }
 
 void PIOL_File_setPrm_short(
@@ -180,23 +182,23 @@ void PIOL_File_setPrm_short(
 {
     assert(not_null(param));
 
-    PIOL::param_utils::setPrm(i, entry, ret, param);
+    param_utils::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_setPrm_llint(
-  size_t i, PIOL_Meta entry, PIOL_llint ret, PIOL_File_Param* param)
+  size_t i, PIOL_Meta entry, exseis_llint ret, PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    PIOL::param_utils::setPrm(i, entry, ret, param);
+    param_utils::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_setPrm_double(
-  size_t i, PIOL_Meta entry, PIOL_geom_t ret, PIOL_File_Param* param)
+  size_t i, PIOL_Meta entry, exseis_geom_t ret, PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    PIOL::param_utils::setPrm(i, entry, ret, param);
+    param_utils::setPrm(i, entry, ret, param);
 }
 
 void PIOL_File_cpyPrm(
@@ -205,13 +207,13 @@ void PIOL_File_cpyPrm(
     assert(not_null(src));
     assert(not_null(dst));
 
-    PIOL::param_utils::cpyPrm(i, src, j, dst);
+    param_utils::cpyPrm(i, src, j, dst);
 }
 
 //////////////////PIOL////////////////////////////
 PIOL_ExSeis* PIOL_ExSeis_new(PIOL_Verbosity verbosity)
 {
-    return new std::shared_ptr<PIOL::ExSeis>(PIOL::ExSeis::New(verbosity));
+    return new std::shared_ptr<ExSeis>(ExSeis::New(verbosity));
 }
 
 void PIOL_ExSeis_delete(PIOL_ExSeis* piol)
@@ -267,7 +269,7 @@ PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::WriteDirect(*piol, name);
+    return new WriteDirect(*piol, name);
 }
 
 PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
@@ -276,7 +278,7 @@ PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new PIOL::ReadDirect(*piol, name);
+    return new ReadDirect(*piol, name);
 }
 
 void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect)
@@ -344,7 +346,7 @@ void PIOL_File_WriteDirect_writeNt(
 }
 
 void PIOL_File_WriteDirect_writeInc(
-  PIOL_File_WriteDirect* writeDirect, const PIOL_geom_t inc)
+  PIOL_File_WriteDirect* writeDirect, const exseis_geom_t inc)
 {
     assert(not_null(writeDirect));
 
@@ -356,7 +358,7 @@ void PIOL_File_ReadDirect_readTrace(
   const PIOL_File_ReadDirect* readDirect,
   size_t offset,
   size_t sz,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param)
 {
     assert(not_null(readDirect));
@@ -374,7 +376,7 @@ void PIOL_File_WriteDirect_writeTrace(
   PIOL_File_WriteDirect* writeDirect,
   size_t offset,
   size_t sz,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   const PIOL_File_Param* param)
 {
     assert(not_null(writeDirect));
@@ -417,7 +419,7 @@ void PIOL_File_ReadDirect_readTraceNonContiguous(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
   const size_t* offset,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param)
 {
     if (param == NULL) {
@@ -432,7 +434,7 @@ void PIOL_File_ReadDirect_readTraceNonMonotonic(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
   const size_t* offset,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param)
 {
     if (param == NULL) {
@@ -447,7 +449,7 @@ void PIOL_File_WriteDirect_writeTraceNonContiguous(
   PIOL_File_WriteDirect* writeDirect,
   size_t sz,
   const size_t* offset,
-  PIOL_trace_t* trace,
+  exseis_trace_t* trace,
   PIOL_File_Param* param)
 {
     if (param == NULL) {
@@ -491,29 +493,29 @@ void PIOL_File_getMinMax(
     assert(not_null(param));
     assert(not_null(minmax));
 
-    PIOL::getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
+    getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
 size_t PIOL_SEGY_utils_getTextSz()
 {
-    return PIOL::SEGY_utils::getTextSz();
+    return SEGY_utils::getTextSz();
 }
 
 size_t PIOL_SEGY_utils_getDFSz(size_t ns)
 {
-    return PIOL::SEGY_utils::getDFSz<float>(ns);
+    return SEGY_utils::getDFSz<float>(ns);
 }
 
 size_t PIOL_SEGY_utils_getFileSz(size_t nt, size_t ns)
 {
-    return PIOL::SEGY_utils::getFileSz<float>(nt, ns);
+    return SEGY_utils::getFileSz<float>(nt, ns);
 }
 
 // TODO UPDATE
 size_t PIOL_SEGY_utils_getMDSz(void)
 {
-    return PIOL::SEGY_utils::getMDSz();
+    return SEGY_utils::getMDSz();
 }
 
 }  // extern "C"

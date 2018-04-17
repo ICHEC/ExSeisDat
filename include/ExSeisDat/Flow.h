@@ -1,10 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date December 2016
-/// @brief
-/// @details C11 Flow API header
+/// @brief C11 Flow API header
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_FLOW_H
 #define EXSEISDAT_FLOW_H
@@ -20,11 +16,11 @@
 #ifdef __cplusplus
 #include "ExSeisDat/Flow/Set.hh"
 
-/// @copydoc PIOL::Set
-typedef PIOL::Set PIOL_Set;
+/// @copydoc exseis::Flow::Set
+typedef exseis::Flow::Set PIOL_Set;
 #else
 // Forward declare an opaque struct in C
-/// @copydoc PIOL::Set
+/// @copydoc exseis::PIOL::Set
 typedef struct PIOL_Set PIOL_Set;
 #endif
 
@@ -116,9 +112,9 @@ void PIOL_Set_add(PIOL_Set* set, const char* name);
  */
 void PIOL_Set_AGC(
   PIOL_Set* set,
-  PIOL_Gain_function type,
+  exseis_Gain_function type,
   size_t window,
-  PIOL_trace_t target_amplitude);
+  exseis_trace_t target_amplitude);
 
 #ifdef __cplusplus
 }  // extern "C"

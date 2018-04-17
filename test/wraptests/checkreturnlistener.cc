@@ -1,5 +1,6 @@
 #include "checkreturnlistener.hh"
 
+namespace exseis {
 namespace PIOL {
 
 void CheckReturnListener::OnTestPartResult(
@@ -28,3 +29,4 @@ void CheckReturnListener::got_expected_return_value()
 }
 
 }  // namespace PIOL
+}  // namespace exseis

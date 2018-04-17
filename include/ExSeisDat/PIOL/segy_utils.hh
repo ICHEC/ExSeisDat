@@ -13,12 +13,13 @@
 #define EXSEISDAT_PIOL_SEGY_UTILS_HH
 
 #include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/constants.hh"
-#include "ExSeisDat/PIOL/number_encoding.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
+namespace exseis {
 namespace PIOL {
 namespace SEGY_utils {
+
+using namespace exseis::utils::typedefs;
 
 /*! The Number Format, identifying the representation used for numbers in the
  *  SEGY file.
@@ -254,11 +255,12 @@ size_t getDODFLoc(const size_t i, const size_t ns)
 template<typename T = float>
 size_t getNt(const size_t fsz, const size_t ns)
 {
-    return (fsz - SEGY_utils::getHOSz()) / SEGY_utils::getDOSz<T>(ns);
+    return (fsz - getHOSz()) / getDOSz<T>(ns);
 }
 
 
 }  // namespace SEGY_utils
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_SEGY_UTILS_HH

@@ -10,6 +10,7 @@
 
 #include <cassert>
 
+namespace exseis {
 namespace PIOL {
 namespace FOURD {
 
@@ -50,3 +51,4 @@ void calc4DBin(
 
 }  // namespace FOURD
 }  // namespace PIOL
+}  // namespace exseis

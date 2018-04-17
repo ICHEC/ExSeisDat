@@ -10,7 +10,7 @@
 #include <memory>
 
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 class DataTest : public Test {
   protected:

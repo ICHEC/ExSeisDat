@@ -3,8 +3,8 @@
 /// @brief The \c decompose functions decompose a range over a number of
 ///        processes.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_DECOMPOSE_H
-#define EXSEISDAT_PIOL_DECOMPOSE_H
+#ifndef EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_H
+#define EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_H
 
 #include <stddef.h>
 
@@ -14,7 +14,7 @@ extern "C" {
 
 /// The \c Contiguous_decomposition class represents a section of a range on the
 /// given rank which has been distributed over a number of ranks.
-struct PIOL_Contiguous_decomposition {
+struct exseis_Contiguous_decomposition {
     /// The offset into the global range for the given rank.
     size_t global_offset;
 
@@ -34,7 +34,7 @@ struct PIOL_Contiguous_decomposition {
 /// @pre num_ranks > 0
 /// @pre rank < num_ranks
 ///
-struct PIOL_Contiguous_decomposition PIOL_block_decompose(
+struct exseis_Contiguous_decomposition exseis_block_decomposition(
   size_t range_size, size_t num_ranks, size_t rank);
 
 #ifdef __cplusplus
@@ -43,44 +43,24 @@ struct PIOL_Contiguous_decomposition PIOL_block_decompose(
 
 
 #ifdef __cplusplus
+namespace exseis {
+namespace utils {
 
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/ReadInterface.hh"
-
-namespace PIOL {
-
-/// @copydoc PIOL_Contiguous_decomposition
-using Contiguous_decomposition = PIOL_Contiguous_decomposition;
+/// @copydoc exseis_Contiguous_decomposition
+using Contiguous_decomposition = exseis_Contiguous_decomposition;
 
 
-/// @copydoc PIOL_block_decompose
-inline Contiguous_decomposition block_decompose(
+/// @copydoc exseis_block_decomposition
+inline Contiguous_decomposition block_decomposition(
   size_t range_size, size_t num_ranks, size_t rank)
 {
-    return PIOL_block_decompose(range_size, num_ranks, rank);
+    return exseis_block_decomposition(range_size, num_ranks, rank);
 }
-
-/// @brief An overload for a common decomposition case. Perform a decomposition
-///        of traces so that the load is optimally balanced across the
-///        processes `piol` is operating on.
-///
-/// @param[in] piol The piol object
-/// @param[in] file A read file object. This is used to find the number of
-///            traces.
-///
-/// @return Return a pair (offset, size).
-///         The first element is the offset for the local process,
-///         the second is the size for the local process.
-///
-/// @pre piol != NULL
-/// @pre file != NULL
-///
-Contiguous_decomposition block_decompose(ExSeisPIOL* piol, ReadInterface* file);
 
 
 /// @brief This struct represents the location and local index of a global index
 ///        in a decomposed range.
-struct Decomposed_index_location {
+struct Decomposition_index_location {
     /// The rank the global index was decomposed onto.
     size_t rank;
 
@@ -90,10 +70,10 @@ struct Decomposed_index_location {
 };
 
 
-/// @brief Find the rank and local index for a global index of a block decomposed
-///        range.
+/// @brief Find the rank and local index for a global index of a block
+///        decomposed range.
 ///
-/// @param[in] range_size  The size of the decomposed range.
+/// @param[in] range_size   The size of the decomposed range.
 /// @param[in] num_ranks    The number of ranks the range was decomposed over.
 /// @param[in] global_index The requested index in the range.
 ///
@@ -107,11 +87,11 @@ struct Decomposed_index_location {
 /// @post return.rank < num_ranks
 /// @post return.local_index <= global_index
 ///
-Decomposed_index_location block_decomposed_location(
+Decomposition_index_location block_decomposition_location(
   size_t range_size, size_t num_ranks, size_t global_index);
 
-}  // namespace PIOL
-
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_PIOL_DECOMPOSE_H
+#endif  // EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_H

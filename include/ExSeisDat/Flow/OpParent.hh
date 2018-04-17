@@ -10,7 +10,8 @@
 
 #include <memory>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! Operations parents. Specific classes of operations inherit from this parent
  */
@@ -19,7 +20,7 @@ struct OpParent {
     OpOpt opt;
 
     /// Relevant parameter rules for the operation.
-    std::shared_ptr<Rule> rule;
+    std::shared_ptr<exseis::PIOL::Rule> rule;
 
     /// Gather state if applicable.
     std::shared_ptr<GatherState> state;
@@ -31,7 +32,7 @@ struct OpParent {
      */
     OpParent(
       OpOpt& opt_,
-      std::shared_ptr<Rule> rule_,
+      std::shared_ptr<exseis::PIOL::Rule> rule_,
       std::shared_ptr<GatherState> state_) :
         opt(opt_),
         rule(rule_),
@@ -44,5 +45,7 @@ struct OpParent {
     virtual ~OpParent(void) {}
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
+
 #endif  // EXSEISDAT_FLOW_OPPARENT_HH

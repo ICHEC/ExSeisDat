@@ -10,7 +10,8 @@
 #include <initializer_list>
 #include <vector>
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 /*! A structure to hold operation options.
  */
@@ -44,6 +45,7 @@ class OpOpt {
     void add(FuncOpt opt) { optList.push_back(opt); }
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // EXSEISDAT_FLOW_OPOPT_HH

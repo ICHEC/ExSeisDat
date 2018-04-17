@@ -9,7 +9,10 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+namespace exseis {
 namespace PIOL {
+
+using namespace exseis::utils::typedefs;
 
 namespace param_utils {
 // Specify extern templates for templated functions so we can capture them
@@ -17,7 +20,7 @@ template<>
 int16_t getPrm<int16_t>(size_t i, Meta entry, const Param* prm);
 
 template<>
-PIOL::llint getPrm<PIOL::llint>(size_t i, Meta entry, const Param* prm);
+llint getPrm<llint>(size_t i, Meta entry, const Param* prm);
 
 template<>
 geom_t getPrm<geom_t>(size_t i, Meta entry, const Param* prm);
@@ -79,5 +82,6 @@ class MockParamFreeFunctions {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTMOCKPARAM_HEADER_GUARD

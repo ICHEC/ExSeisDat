@@ -13,6 +13,7 @@
 
 #include <memory>
 
+namespace exseis {
 namespace PIOL {
 
 /// The NULL parameter so that the correct internal read pattern is selected
@@ -170,5 +171,6 @@ class ReadInterface {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // EXSEISDAT_PIOL_READINTERFACE_HH

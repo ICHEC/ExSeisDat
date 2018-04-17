@@ -9,7 +9,8 @@
 #include <iostream>
 #include <sys/stat.h>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 /*! Create the initial KML file settings to order to describe the output in
  *  general
@@ -154,7 +155,9 @@ void calcMin(
 {
     ReadDirect in(piol, iname);
 
-    auto dec      = block_decompose(piol.get(), in);
+    auto dec = block_decomposition(
+      in.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 

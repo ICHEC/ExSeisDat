@@ -15,7 +15,8 @@
 #include <string>
 #include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 void createFile(std::string name, size_t nt, size_t ns, double inc)
 {
@@ -25,7 +26,7 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
     // Create new SEGY file
     WriteDirect file(piol, name);
 
-    auto dec      = block_decompose(nt, piol->getNumRank(), piol->getRank());
+    auto dec = block_decomposition(nt, piol->getNumRank(), piol->getRank());
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 

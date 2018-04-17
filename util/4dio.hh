@@ -12,8 +12,10 @@
 
 #include <limits>
 
+namespace exseis {
 namespace PIOL {
 namespace FOURD {
+
 /*! This structure is for holding ALIGN aligned memory containing the
  *  coordinates.
  */
@@ -127,5 +129,6 @@ void outputNonMono(
 
 }  // namespace FOURD
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif

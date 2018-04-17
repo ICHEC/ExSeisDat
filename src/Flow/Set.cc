@@ -8,6 +8,7 @@
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/gain_control/AGC.h"
 
 #include <glob.h>
 #include <numeric>
@@ -15,7 +16,11 @@
 
 #include <iostream>
 
-namespace PIOL {
+using namespace exseis::utils;
+using namespace exseis::PIOL;
+
+namespace exseis {
+namespace Flow {
 
 /// Typedef for functions that have separate input and output of
 /// traces/parameters
@@ -61,7 +66,9 @@ void Set::add(std::unique_ptr<ReadInterface> in)
     auto& f = file.back();
     f->ifc  = std::move(in);
 
-    auto dec = block_decompose(piol.get(), f->ifc.get());
+    auto dec = utils::block_decomposition(
+      f->ifc->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+
     f->ilst.resize(dec.local_size);
     f->olst.resize(dec.local_size);
     std::iota(f->ilst.begin(), f->ilst.end(), dec.global_offset);
@@ -272,7 +279,7 @@ std::string Set::startGather(
     for (auto& o : file) {
         // Locate gather boundaries.
         auto gather = getIlXlGathers(piol.get(), o->ifc.get());
-        auto gdec   = block_decompose(gather.size(), numRank, rank);
+        auto gdec   = utils::block_decomposition(gather.size(), numRank, rank);
 
         size_t numGather = gdec.local_size;
 
@@ -651,7 +658,7 @@ void Set::AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude)
               // Pointer to the beginning of trace i.
               auto* trace_start = &(in->trc[i * in->ns]);
 
-              PIOL::AGC(
+              exseis::utils::AGC(
                 samples_per_trace, trace_start, agcFunc, window,
                 target_amplitude);
           }
@@ -740,4 +747,5 @@ void Set::temporalFilter(
       }));
 }
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
