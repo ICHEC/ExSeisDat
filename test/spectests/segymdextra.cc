@@ -64,7 +64,11 @@ int32_t getMd(const TrGrd item, const unsigned char* src)
 void setScale(
   const TrScal item, const int16_t scale, unsigned char* buf, size_t start)
 {
-    getBigEndian(scale, &buf[size_t(item) - start - 1U]);
+    const auto be_scale = to_big_endian(scale);
+
+    std::copy(
+      std::begin(be_scale), std::end(be_scale),
+      &buf[size_t(item) - start - 1U]);
 }
 
 /*! @brief Set a coordinate point in the trace header
@@ -81,10 +85,20 @@ void setCoord(
 {
     auto pair                            = getPair(item);
     exseis::utils::Floating_point gscale = SEGY_utils::parse_scalar(scale);
-    getBigEndian(
-      int32_t(std::lround(coord.x / gscale)), &buf[size_t(pair.first) - 1U]);
-    getBigEndian(
-      int32_t(std::lround(coord.y / gscale)), &buf[size_t(pair.second) - 1U]);
+
+    const auto be_scaled_x =
+      to_big_endian(int32_t(std::lround(coord.x / gscale)));
+
+    const auto be_scaled_y =
+      to_big_endian(int32_t(std::lround(coord.y / gscale)));
+
+    std::copy(
+      std::begin(be_scaled_x), std::end(be_scaled_x),
+      &buf[size_t(pair.first) - 1U]);
+
+    std::copy(
+      std::begin(be_scaled_y), std::end(be_scaled_y),
+      &buf[size_t(pair.second) - 1U]);
 }
 
 // TODO: unit test
@@ -124,8 +138,14 @@ grid_t getGrid(const Grid item, const unsigned char* buf)
 void setGrid(const Grid item, const grid_t grid, unsigned char* buf)
 {
     auto pair = getPair(item);
-    getBigEndian(int32_t(grid.il), &buf[size_t(pair.first) - 1U]);
-    getBigEndian(int32_t(grid.xl), &buf[size_t(pair.second) - 1U]);
+
+    const auto be_il = to_big_endian(int32_t(grid.il));
+    const auto be_xl = to_big_endian(int32_t(grid.xl));
+
+    std::copy(
+      std::begin(be_il), std::end(be_il), &buf[size_t(pair.first) - 1U]);
+    std::copy(
+      std::begin(be_xl), std::end(be_xl), &buf[size_t(pair.second) - 1U]);
 }
 
 /*! Compare two scales and return the appropriate one which maximises precision
@@ -194,7 +214,9 @@ int16_t calcScale(const coord_t coord)
 //     setGrid(Grid::Line, prm->line, md);
 //
 //     //narrowing conversion of tn
-//     getBigEndian(int32_t(prm->tn), &md[size_t(TrHdr::SeqFNum) - 1U]);
+//     const auto be_tn = to_big_endian(int32_t(prm->tn));
+//     std::copy(
+//       std::begin(be_tn), std::end(be_tn), &md[size_t(TrHdr::SeqFNum) - 1U]);
 // }
 
 }  // namespace PIOL

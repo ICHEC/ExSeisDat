@@ -17,6 +17,7 @@ void insertParam(
   size_t sz, const Param* prm, unsigned char* buf, size_t stride, size_t skip)
 {
     if (prm == nullptr || !sz) return;
+
     auto r       = prm->r;
     size_t start = r->start;
 
@@ -38,20 +39,29 @@ void insertParam(
 
     for (size_t i = 0; i < sz; i++) {
         unsigned char* md = &buf[(r->extent() + stride) * i];
+
 // Compiler defects
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6
         std::unordered_map<Tr, int16_t, EnumHash> scal;
 #else
         std::unordered_map<Tr, int16_t> scal;
 #endif
+
         std::vector<const SEGYFloatRuleEntry*> rule;
+
         for (const auto v : r->translate) {
+
             const auto t = v.second;
             size_t loc   = t->loc - start - 1LU;
+
             switch (t->type()) {
+
                 case RuleEntry::MdType::Float: {
+
                     rule.push_back(dynamic_cast<SEGYFloatRuleEntry*>(t));
+
                     auto tr = static_cast<Tr>(rule.back()->scalLoc);
+
                     int16_t scal1 =
                       (scal.find(tr) != scal.end() ? scal[tr] : 1);
                     int16_t scal2 =
@@ -64,15 +74,28 @@ void insertParam(
                     scal[tr] =
                       ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) :
                                                   std::min(scal1, scal2));
+
                 } break;
-                case RuleEntry::MdType::Short:
-                    getBigEndian(
-                      prm->s[(i + skip) * r->numShort + t->num], &md[loc]);
-                    break;
-                case RuleEntry::MdType::Long:
-                    getBigEndian(
-                      int32_t(prm->i[(i + skip) * r->numLong + t->num]),
-                      &md[loc]);
+
+                case RuleEntry::MdType::Short: {
+
+                    const auto be_short =
+                      to_big_endian(prm->s[(i + skip) * r->numShort + t->num]);
+
+                    std::copy(
+                      std::begin(be_short), std::end(be_short), &md[loc]);
+
+                } break;
+
+                case RuleEntry::MdType::Long: {
+
+                    const auto be_long = to_big_endian<int32_t>(
+                      int32_t(prm->i[(i + skip) * r->numLong + t->num]));
+
+                    std::copy(std::begin(be_long), std::end(be_long), &md[loc]);
+
+                } break;
+
                 default:
                     break;
             }
@@ -80,16 +103,21 @@ void insertParam(
 
         // Finish off the floats. Floats are inherently annoying in SEG-Y
         for (const auto& s : scal) {
-            getBigEndian(s.second, &md[size_t(s.first) - start - 1LU]);
+            const auto be = to_big_endian(s.second);
+
+            std::copy(
+              std::begin(be), std::end(be), &md[size_t(s.first) - start - 1LU]);
         }
 
         for (size_t j = 0; j < rule.size(); j++) {
             exseis::utils::Floating_point gscale =
               parse_scalar(scal[static_cast<Tr>(rule[j]->scalLoc)]);
-            getBigEndian(
-              int32_t(std::lround(
-                prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)),
-              &md[rule[j]->loc - start - 1LU]);
+
+            const auto be = to_big_endian(int32_t(std::lround(
+              prm->f[(i + skip) * r->numFloat + rule[j]->num] / gscale)));
+
+            std::copy(
+              std::begin(be), std::end(be), &md[rule[j]->loc - start - 1LU]);
         }
     }
 }

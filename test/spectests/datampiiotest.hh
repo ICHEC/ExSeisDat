@@ -55,8 +55,12 @@ class MPIIOTest : public Test {
 
         for (size_t i = 0; i < nt; i++) {
             unsigned char* md = &tr[step * i];
-            getBigEndian(ilNum(i + offset), &md[188]);
-            getBigEndian(xlNum(i + offset), &md[192]);
+
+            const auto be_ilNum = to_big_endian(ilNum(i + offset));
+            const auto be_xlNum = to_big_endian(xlNum(i + offset));
+
+            std::copy(std::begin(be_ilNum), std::end(be_ilNum), &md[188]);
+            std::copy(std::begin(be_xlNum), std::end(be_xlNum), &md[192]);
         }
 
         if (block) {

@@ -5,6 +5,7 @@
 #ifndef EXSEISDAT_UTILS_ENCODING_NUMBER_ENCODING_HH
 #define EXSEISDAT_UTILS_ENCODING_NUMBER_ENCODING_HH
 
+#include <array>
 #include <cstdint>
 #include <type_traits>
 
@@ -40,18 +41,27 @@ T getHost(const unsigned char* src)
 }
 
 
-/*! @brief Convert a host type to \c char array in big endian order.
- *  @tparam T The host type
- *  @param[in] src The input type with host endianness
- *  @param[out] dst A pointer to data where the big endian data will be stored.
- *                  (pointer to array of size sizeof(T))
- *
- *  @details Big endian means dst[0] holds the most significant byte and d[3]
- *           the least.
- */
+/// @brief Convert a host-endian integer type to an `unsigned char` array in
+///        big-endian order.
+///
+/// @tparam T The type to convert to big-endian.
+///
+/// @param[in] src The value to convert from host-endian to big-endian.
+///
+/// @return An array containing the bytes of `src` in big-endian order.
+///
+/// @details For an array `dst` holding the byte-wise representation of an
+///          integer, big-endian means dst[0] holds the most significant byte
+///          and dst[3] the least.
+///
 template<typename T>
-void getBigEndian(const T src, unsigned char* dst)
+std::array<unsigned char, sizeof(T)> to_big_endian(T src)
 {
+    static_assert(
+      std::is_integral<T>::value,
+      "to_big_endian only defined for integer types.");
+
+    std::array<unsigned char, sizeof(T)> dst;
 
     // For dst[i], we want the ith byte of src.
     // We do that by shifting the ith byte into the 1st byte position and
@@ -75,6 +85,8 @@ void getBigEndian(const T src, unsigned char* dst)
         // Read byte 1 into dst.
         dst[i] = (src >> bit_shift) & 0xFF;
     }
+
+    return dst;
 }
 
 

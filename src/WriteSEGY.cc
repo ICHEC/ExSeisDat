@@ -71,31 +71,47 @@ WriteSEGY::~WriteSEGY(void)
                   std::begin(text), std::end(text), std::begin(header_buffer));
 
                 // Write ns, the number format, and the interval
-                getBigEndian<int16_t>(
-                  ns, &header_buffer[SEGYFileHeaderByte::NumSample]);
-                getBigEndian<int16_t>(
-                  static_cast<int16_t>(SEGYNumberFormat::IEEE),
+                const auto be_ns = to_big_endian<int16_t>(ns);
+                std::copy(
+                  std::begin(be_ns), std::end(be_ns),
+                  &header_buffer[SEGYFileHeaderByte::NumSample]);
+
+                const auto be_format = to_big_endian<int16_t>(
+                  static_cast<int16_t>(SEGYNumberFormat::IEEE));
+                std::copy(
+                  std::begin(be_format), std::end(be_format),
                   &header_buffer[SEGYFileHeaderByte::Type]);
-                getBigEndian<int16_t>(
-                  std::lround(inc / incFactor),
+
+                const auto be_interval =
+                  to_big_endian<int16_t>(std::lround(inc / incFactor));
+                std::copy(
+                  std::begin(be_interval), std::end(be_interval),
                   &header_buffer[SEGYFileHeaderByte::Interval]);
 
                 // Currently these are hard-coded entries:
                 // The unit system.
-                getBigEndian<int16_t>(
-                  0x0001, &header_buffer[SEGYFileHeaderByte::Units]);
+                const auto be_units = to_big_endian<int16_t>(0x0001);
+                std::copy(
+                  std::begin(be_units), std::end(be_units),
+                  &header_buffer[SEGYFileHeaderByte::Units]);
 
                 // The version of the SEGY format.
-                getBigEndian<int16_t>(
-                  0x0100, &header_buffer[SEGYFileHeaderByte::SEGYFormat]);
+                const auto be_segy_format = to_big_endian<int16_t>(0x0100);
+                std::copy(
+                  std::begin(be_segy_format), std::end(be_segy_format),
+                  &header_buffer[SEGYFileHeaderByte::SEGYFormat]);
 
                 // We always deal with fixed traces at present.
-                getBigEndian<int16_t>(
-                  0x0001, &header_buffer[SEGYFileHeaderByte::FixedTrace]);
+                const auto be_fixed_trace = to_big_endian<int16_t>(0x0001);
+                std::copy(
+                  std::begin(be_fixed_trace), std::end(be_fixed_trace),
+                  &header_buffer[SEGYFileHeaderByte::FixedTrace]);
 
                 // We do not support text extensions at present.
-                getBigEndian<int16_t>(
-                  0x0000, &header_buffer[SEGYFileHeaderByte::Extensions]);
+                const auto be_extensions = to_big_endian<int16_t>(0x0000);
+                std::copy(
+                  std::begin(be_extensions), std::end(be_extensions),
+                  &header_buffer[SEGYFileHeaderByte::Extensions]);
 
                 // Write the header from the buffer
                 obj->writeHO(header_buffer.data());

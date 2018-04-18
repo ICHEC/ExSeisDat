@@ -287,8 +287,12 @@ struct FileReadSEGYTest : public Test {
             unsigned char* md = &tr[i * SEGY_utils::getMDSz()];
 
             // Set the inline, crossline values for the current trace
-            getBigEndian(ilNum(i), &md[il]);
-            getBigEndian(xlNum(i), &md[xl]);
+            const auto be_ilNum = to_big_endian(ilNum(i));
+            const auto be_xlNum = to_big_endian(xlNum(i));
+
+            std::copy(std::begin(be_ilNum), std::end(be_ilNum), &md[il]);
+            std::copy(std::begin(be_xlNum), std::end(be_xlNum), &md[xl]);
+
 
             // Set the scale for the current trace
             int16_t scale;
@@ -302,11 +306,19 @@ struct FileReadSEGYTest : public Test {
                 scale = std::min(scal1, scal2);
             }
 
-            getBigEndian(scale, &md[ScaleCoord]);
+            const auto be_scale = to_big_endian(scale);
+            std::copy(
+              std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+
 
             // Set the x and y source header.
-            getBigEndian(int32_t(std::lround(xNum(i) / scale)), &md[xSrc]);
-            getBigEndian(int32_t(std::lround(yNum(i) / scale)), &md[ySrc]);
+            const auto be_xNum =
+              to_big_endian(int32_t(std::lround(xNum(i) / scale)));
+            const auto be_yNum =
+              to_big_endian(int32_t(std::lround(yNum(i) / scale)));
+
+            std::copy(std::begin(be_xNum), std::end(be_xNum), &md[xSrc]);
+            std::copy(std::begin(be_yNum), std::end(be_yNum), &md[ySrc]);
         }
     }
 
@@ -481,7 +493,8 @@ struct FileReadSEGYTest : public Test {
                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                 (i * ns + j) * sizeof(float);
 
-                    getBigEndian(toint(val), &buf[addr]);
+                    const auto be_val = to_big_endian(toint(val));
+                    std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
 
@@ -591,7 +604,9 @@ struct FileReadSEGYTest : public Test {
                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                 (i * ns + j) * sizeof(float);
                     float val = offset[i] + j;
-                    getBigEndian(toint(val), &buf[addr]);
+
+                    const auto be_val = to_big_endian(toint(val));
+                    std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
             if (readPrm)
@@ -727,8 +742,13 @@ struct FileWriteSEGYTest : public Test {
         tr.resize(nt * SEGY_utils::getMDSz());
         for (size_t i = 0; i < nt; i++) {
             unsigned char* md = &tr[i * SEGY_utils::getMDSz()];
-            getBigEndian(ilNum(i), &md[il]);
-            getBigEndian(xlNum(i), &md[xl]);
+
+            const auto be_ilNum = to_big_endian(ilNum(i));
+            const auto be_xlNum = to_big_endian(xlNum(i));
+
+            std::copy(std::begin(be_ilNum), std::end(be_ilNum), &md[il]);
+            std::copy(std::begin(be_xlNum), std::end(be_xlNum), &md[xl]);
+
 
             int16_t scale;
             int16_t scal1 = SEGY_utils::find_scalar(xNum(i));
@@ -739,9 +759,18 @@ struct FileWriteSEGYTest : public Test {
             else
                 scale = std::min(scal1, scal2);
 
-            getBigEndian(scale, &md[ScaleCoord]);
-            getBigEndian(int32_t(std::lround(xNum(i) / scale)), &md[xSrc]);
-            getBigEndian(int32_t(std::lround(yNum(i) / scale)), &md[ySrc]);
+            const auto be_scale = to_big_endian(scale);
+            std::copy(
+              std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+
+
+            const auto be_xNum =
+              to_big_endian(int32_t(std::lround(xNum(i) / scale)));
+            const auto be_yNum =
+              to_big_endian(int32_t(std::lround(yNum(i) / scale)));
+
+            std::copy(std::begin(be_xNum), std::end(be_xNum), &md[xSrc]);
+            std::copy(std::begin(be_yNum), std::end(be_yNum), &md[ySrc]);
         }
     }
 
@@ -788,10 +817,21 @@ struct FileWriteSEGYTest : public Test {
     void writeTrHdrGridTest(size_t offset)
     {
         std::vector<unsigned char> tr(SEGY_utils::getMDSz());
-        getBigEndian(ilNum(offset), tr.data() + il);
-        getBigEndian(xlNum(offset), tr.data() + xl);
-        getBigEndian<int16_t>(1, &tr[ScaleCoord]);
-        getBigEndian(int32_t(offset), &tr[SeqFNum]);
+
+        const auto be_ilNum = to_big_endian(ilNum(offset));
+        const auto be_xlNum = to_big_endian(xlNum(offset));
+
+        std::copy(std::begin(be_ilNum), std::end(be_ilNum), tr.data() + il);
+        std::copy(std::begin(be_xlNum), std::end(be_xlNum), tr.data() + xl);
+
+
+        const auto be_scale_coord = to_big_endian<int16_t>(1);
+        std::copy(
+          std::begin(be_scale_coord), std::end(be_scale_coord),
+          &tr[ScaleCoord]);
+
+        const auto be_seqfnum = to_big_endian(int32_t(offset));
+        std::copy(std::begin(be_seqfnum), std::end(be_seqfnum), &tr[SeqFNum]);
 
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _))
           .Times(Exactly(1))
@@ -811,10 +851,22 @@ struct FileWriteSEGYTest : public Test {
       size_t offset,
       std::vector<unsigned char>* tr)
     {
-        getBigEndian(scal, &tr->at(ScaleCoord));
-        getBigEndian(val.first, &tr->at(item.first));
-        getBigEndian(val.second, &tr->at(item.second));
-        getBigEndian(int32_t(offset), &tr->at(SeqFNum));
+        const auto be_scal = to_big_endian(scal);
+        std::copy(std::begin(be_scal), std::end(be_scal), &tr->at(ScaleCoord));
+
+        const auto be_val_first = to_big_endian(val.first);
+        std::copy(
+          std::begin(be_val_first), std::end(be_val_first),
+          &tr->at(item.first));
+
+        const auto be_val_second = to_big_endian(val.second);
+        std::copy(
+          std::begin(be_val_second), std::end(be_val_second),
+          &tr->at(item.second));
+
+        const auto be_offset = to_big_endian(int32_t(offset));
+        std::copy(std::begin(be_offset), std::end(be_offset), &tr->at(SeqFNum));
+
         EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _))
           .Times(Exactly(1))
           .WillOnce(check3(tr->data(), SEGY_utils::getMDSz()));
@@ -833,13 +885,17 @@ struct FileWriteSEGYTest : public Test {
         scale = scalComp(scale, calcScale(rcv));
         scale = scalComp(scale, calcScale(cmp));
 
-        getBigEndian(scale, &md[ScaleCoord]);
+        const auto be_scale = to_big_endian(scale);
+        std::copy(std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+
         setCoord(Coord::Src, src, scale, md);
         setCoord(Coord::Rcv, rcv, scale, md);
         setCoord(Coord::CMP, cmp, scale, md);
 
         setGrid(Grid::Line, line, md);
-        getBigEndian(int32_t(filePos), &md[SeqFNum]);
+
+        const auto be_file_pos = to_big_endian(int32_t(filePos));
+        std::copy(std::begin(be_file_pos), std::end(be_file_pos), &md[SeqFNum]);
     }
 
     template<bool writePrm = false, bool MOCK = true>
@@ -868,7 +924,9 @@ struct FileWriteSEGYTest : public Test {
                                   + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                  (i * ns + j) * sizeof(float);
                     float val = offset + i + j;
-                    getBigEndian(toint(val), &buf[addr]);
+
+                    const auto be_val = to_big_endian(toint(val));
+                    std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
             if (writePrm)
@@ -992,7 +1050,9 @@ struct FileWriteSEGYTest : public Test {
                                   + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                  (i * ns + j) * sizeof(float);
                     float val = offset[i] + j;
-                    getBigEndian(toint(val), &buf[addr]);
+
+                    const auto be_val = to_big_endian(toint(val));
+                    std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
             if (writePrm)
@@ -1104,13 +1164,20 @@ struct FileWriteSEGYTest : public Test {
                 scale         = scalComp(scale, calcScale(cmp));
 
                 unsigned char* md = &buf[i * SEGY_utils::getMDSz()];
-                getBigEndian(scale, &md[ScaleCoord]);
+
+                const auto be_scale = to_big_endian(scale);
+                std::copy(
+                  std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+
                 setCoord(Coord::Src, src, scale, md);
                 setCoord(Coord::Rcv, rcv, scale, md);
                 setCoord(Coord::CMP, cmp, scale, md);
 
                 setGrid(Grid::Line, line, md);
-                getBigEndian(int32_t(offset + i), &md[SeqFNum]);
+
+                const auto be_seqfnum = to_big_endian(int32_t(offset + i));
+                std::copy(
+                  std::begin(be_seqfnum), std::end(be_seqfnum), &md[SeqFNum]);
             }
             EXPECT_CALL(*mock.get(), writeDOMD(offset, ns, tn, _))
               .Times(Exactly(1))
