@@ -17,7 +17,7 @@ template<typename T>
 inline MPI_Datatype MPI_type()
 {
     static_assert(sizeof(T) == 0, "Unknown MPI type!");
-    return MPI_BYTE;
+    return MPI_DATATYPE_NULL;
 }
 
 /// @brief Return the MPI datatype for a \c double.

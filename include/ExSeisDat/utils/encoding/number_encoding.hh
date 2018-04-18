@@ -5,8 +5,6 @@
 #ifndef EXSEISDAT_UTILS_ENCODING_NUMBER_ENCODING_HH
 #define EXSEISDAT_UTILS_ENCODING_NUMBER_ENCODING_HH
 
-#include "ExSeisDat/utils/typedefs.h"
-
 #include <cstdint>
 #include <type_traits>
 
