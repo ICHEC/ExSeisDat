@@ -43,10 +43,10 @@ namespace utils {
 #ifdef __cplusplus
 void AGC(
   size_t signal_size,
-  trace_t* signal,
+  exseis::utils::Trace_value* signal,
   Gain_function gain_function,
   size_t window_size,
-  trace_t target_amplitude);
+  exseis::utils::Trace_value target_amplitude);
 #endif  // __cplusplus
 
 /// @brief Apply automatic gain control to a set of tapers --> used for actual
@@ -62,10 +62,10 @@ void AGC(
 EXSEISDAT_CXX_ONLY(extern "C")
 void exseis_AGC(
   size_t signal_size,
-  exseis_trace_t* signal,
+  exseis_Trace_value* signal,
   exseis_Gain_function gain_function,
   size_t window_size,
-  exseis_trace_t target_amplitude);
+  exseis_Trace_value target_amplitude);
 
 #ifdef __cplusplus
 }  // namespace utils

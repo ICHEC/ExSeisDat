@@ -73,8 +73,8 @@ void Set::add(std::unique_ptr<ReadInterface> in)
     f->olst.resize(dec.local_size);
     std::iota(f->ilst.begin(), f->ilst.end(), dec.global_offset);
 
-    auto key =
-      std::make_pair<size_t, geom_t>(f->ifc->readNs(), f->ifc->readInc());
+    auto key = std::make_pair<size_t, exseis::utils::Floating_point>(
+      f->ifc->readNs(), f->ifc->readInc());
     fmap[key].emplace_back(f);
 
     auto& off = offmap[key];
@@ -170,8 +170,8 @@ std::vector<std::string> Set::startSingle(
         std::string name;
         if (!fQue.size()) return std::vector<std::string>{};
 
-        size_t ns  = fQue[0]->ifc->readNs();
-        geom_t inc = fQue[0]->ifc->readInc();
+        size_t ns                         = fQue[0]->ifc->readNs();
+        exseis::utils::Floating_point inc = fQue[0]->ifc->readInc();
 
         if (fQue.size() == 1)
             name = outfix + ".segy";
@@ -204,7 +204,7 @@ std::vector<std::string> Set::startSingle(
               biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
             for (size_t i = 0; i < lnt; i += max) {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
-                std::vector<trace_t> trc(rblock * ns);
+                std::vector<exseis::utils::Trace_value> trc(rblock * ns);
                 /// @todo Rule should be made of rules stored in function list
                 Param prm(rule, rblock);
 
@@ -496,10 +496,10 @@ void Set::getMinMax(
   MinMaxFunc<Param> xlam, MinMaxFunc<Param> ylam, CoordElem* minmax)
 {
     // TODO: This needs to be changed to be compatible with ExSeisFlow
-    minmax[0].val = std::numeric_limits<geom_t>::max();
-    minmax[1].val = std::numeric_limits<geom_t>::min();
-    minmax[2].val = std::numeric_limits<geom_t>::max();
-    minmax[3].val = std::numeric_limits<geom_t>::min();
+    minmax[0].val = std::numeric_limits<exseis::utils::Floating_point>::max();
+    minmax[1].val = std::numeric_limits<exseis::utils::Floating_point>::min();
+    minmax[2].val = std::numeric_limits<exseis::utils::Floating_point>::max();
+    minmax[3].val = std::numeric_limits<exseis::utils::Floating_point>::min();
     for (size_t i = 0; i < 4; i++)
         minmax[i].num = std::numeric_limits<size_t>::max();
 
@@ -581,7 +581,10 @@ void Set::sort(std::shared_ptr<Rule> r, CompareP sortFunc)
 }
 
 void Set::toAngle(
-  std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
+  std::string vmName,
+  const size_t vBin,
+  const size_t oGSz,
+  exseis::utils::Floating_point oInc)
 {
     OpOpt opt = {FuncOpt::NeedMeta,   FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal,
                  FuncOpt::ModMetaVal, FuncOpt::DepTrcVal,  FuncOpt::DepTrcOrder,
@@ -603,14 +606,19 @@ void Set::toAngle(
               for (size_t z = 0; z < in->ns; z++) {
                   // We are using coordinate level accuracy when its not
                   // performance critical.
-                  geom_t vmModel =
+                  exseis::utils::Floating_point vmModel =
                     state->vtrc
                       [in->gNum * state->vNs
                        + std::min(
-                           size_t(geom_t(z * in->inc) / state->vInc),
+                           size_t(
+                             exseis::utils::Floating_point(z * in->inc)
+                             / state->vInc),
                            state->vNs)];
-                  llint k =
-                    llround(vmModel / cos(geom_t(j * out->inc))) / state->vBin;
+                  exseis::utils::Integer k =
+                    llround(
+                      vmModel
+                      / cos(exseis::utils::Floating_point(j * out->inc)))
+                    / state->vBin;
                   if (k > 0 && size_t(k) < iGSz)
                       out->trc[j * out->ns + z] = in->trc[k * in->ns + z];
               }
@@ -642,7 +650,10 @@ void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
       }));
 }
 
-void Set::AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude)
+void Set::AGC(
+  Gain_function agcFunc,
+  size_t window,
+  exseis::utils::Trace_value target_amplitude)
 {
     OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
                  FuncOpt::SingleTrace};
@@ -683,11 +694,13 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
     bool m2Add = rule->addRule(m2);
 
     Set::getMinMax(
-      [m1](const Param& a) -> geom_t {
-          return param_utils::getPrm<geom_t>(0LU, m1, &a);
+      [m1](const Param& a) -> exseis::utils::Floating_point {
+          return param_utils::getPrm<exseis::utils::Floating_point>(
+            0LU, m1, &a);
       },
-      [m2](const Param& a) -> geom_t {
-          return param_utils::getPrm<geom_t>(0LU, m2, &a);
+      [m2](const Param& a) -> exseis::utils::Floating_point {
+          return param_utils::getPrm<exseis::utils::Floating_point>(
+            0LU, m2, &a);
       },
       minmax);
 
@@ -704,8 +717,8 @@ void Set::temporalFilter(
   FltrType type,
   FltrDmn domain,
   PadType pad,
-  trace_t fs,
-  std::vector<trace_t> corners,
+  exseis::utils::Trace_value fs,
+  std::vector<exseis::utils::Trace_value> corners,
   size_t nw,
   size_t winCntr)
 {
@@ -727,9 +740,9 @@ void Set::temporalFilter(
   FltrType type,
   FltrDmn domain,
   PadType pad,
-  trace_t fs,
+  exseis::utils::Trace_value fs,
   size_t N,
-  std::vector<trace_t> corners,
+  std::vector<exseis::utils::Trace_value> corners,
   size_t nw,
   size_t winCntr)
 {

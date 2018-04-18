@@ -20,16 +20,16 @@ namespace utils {
 
 void AGC(
   size_t signal_size,
-  trace_t* signal,
+  exseis::utils::Trace_value* signal,
   Gain_function gain_function,
   size_t window_size,
-  trace_t target_amplitude)
+  exseis::utils::Trace_value target_amplitude)
 {
     // If window_size is divisible by 2, round up to nearset odd number.
     window_size = (window_size % 2 == 0 ? window_size + 1 : window_size);
     assert(signal_size > window_size);
 
-    std::vector<trace_t> gain(signal_size);
+    std::vector<exseis::utils::Trace_value> gain(signal_size);
 
     size_t win2 = window_size / 2;
 
@@ -87,10 +87,10 @@ void AGC(
 EXSEISDAT_CXX_ONLY(extern "C")
 void exseis_AGC(
   size_t signal_size,
-  exseis_trace_t* signal,
+  exseis_Trace_value* signal,
   exseis_Gain_function gain_function,
   size_t window_size,
-  exseis_trace_t target_amplitude)
+  exseis_Trace_value target_amplitude)
 {
     AGC(signal_size, signal, gain_function, window_size, target_amplitude);
 }

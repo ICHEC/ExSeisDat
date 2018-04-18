@@ -227,7 +227,8 @@ size_t CommunicatorMPI::offset(size_t val)
     return (!rank ? 0LU : offset);
 }
 
-std::vector<llint> CommunicatorMPI::gather(const std::vector<llint>& in) const
+std::vector<exseis::utils::Integer> CommunicatorMPI::gather(
+  const std::vector<exseis::utils::Integer>& in) const
 {
     return MPIGather(log, this, in);
 }

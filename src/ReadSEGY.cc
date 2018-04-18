@@ -16,8 +16,6 @@
 #include "ExSeisDat/utils/encoding/character_encoding.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
 
-#include "ExSeisDat/utils/constants.hh"
-
 #include <algorithm>
 #include <cassert>
 
@@ -29,7 +27,8 @@ namespace PIOL {
 //////////////////////      Constructor & Destructor      //////////////////////
 ReadSEGY::Opt::Opt(void)
 {
-    incFactor = exseis::utils::micro;
+    const double microsecond = 1e-6;
+    incFactor                = 1 * microsecond;
 }
 
 ReadSEGY::ReadSEGY(
@@ -49,16 +48,16 @@ ReadSEGY::ReadSEGY(
     if (fsz >= hoSz) {
 
         // Read the header into header_buffer
-        auto header_buffer = std::vector<uchar>(hoSz);
+        auto header_buffer = std::vector<unsigned char>(hoSz);
         obj->readHO(header_buffer.data());
 
         // Parse the number of samples, traces, the increment and the format
         // from header_buffer.
-        ns = getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::NumSample]);
-        nt = SEGY_utils::getNt(fsz, ns);
-        inc =
-          geom_t(getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Interval]))
-          * incFactor;
+        ns  = getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::NumSample]);
+        nt  = SEGY_utils::getNt(fsz, ns);
+        inc = exseis::utils::Floating_point(
+                getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Interval]))
+              * incFactor;
         number_format = static_cast<SEGYNumberFormat>(
           getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Type]));
 
@@ -133,13 +132,13 @@ void readTraceT(
   const T offset,
   std::function<size_t(size_t)> offunc,
   const size_t sz,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   Param* prm,
   const size_t skip)
 {
     using namespace SEGY_utils;
 
-    uchar* tbuf = reinterpret_cast<uchar*>(trc);
+    unsigned char* tbuf = reinterpret_cast<unsigned char*>(trc);
 
     if (prm == PIOL_PARAM_NULL) {
         obj->readDODF(offset, ns, sz, tbuf);
@@ -148,8 +147,8 @@ void readTraceT(
         const size_t blockSz =
           (trc == TRACE_NULL ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
 
-        std::vector<uchar> alloc(blockSz * sz);
-        uchar* buf = (sz ? alloc.data() : nullptr);
+        std::vector<unsigned char> alloc(blockSz * sz);
+        unsigned char* buf = (sz ? alloc.data() : nullptr);
 
         if (trc == TRACE_NULL) {
             obj->readDOMD(offset, ns, sz, buf);
@@ -191,7 +190,7 @@ void readTraceT(
 void ReadSEGY::readTrace(
   const size_t offset,
   const size_t sz,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   Param* prm,
   const size_t skip) const
 {
@@ -210,7 +209,7 @@ void ReadSEGY::readTrace(
 void ReadSEGY::readTraceNonContiguous(
   const size_t sz,
   const size_t* offset,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   Param* prm,
   const size_t skip) const
 {
@@ -222,7 +221,7 @@ void ReadSEGY::readTraceNonContiguous(
 void ReadSEGY::readTraceNonMonotonic(
   const size_t sz,
   const size_t* offset,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   Param* prm,
   const size_t skip) const
 {
@@ -235,7 +234,8 @@ void ReadSEGY::readTraceNonMonotonic(
             nodups.push_back(offset[idx[j]]);
 
     Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
-    std::vector<trace_t> strc(ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
+    std::vector<exseis::utils::Trace_value> strc(
+      ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
 
     readTraceNonContiguous(
       nodups.size(), nodups.data(), (trc != TRACE_NULL ? strc.data() : trc),

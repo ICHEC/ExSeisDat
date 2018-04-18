@@ -43,9 +43,9 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
         PIOL_File_setPrm_double(j, PIOL_META_yRcv, 3000000.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_xCmp, 10000.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_yCmp, 4000.0 + k, prm);
-        PIOL_File_setPrm_llint(j, PIOL_META_il, 2400 + offset + j, prm);
-        PIOL_File_setPrm_llint(j, PIOL_META_xl, 1600 + offset + j, prm);
-        PIOL_File_setPrm_llint(j, PIOL_META_tn, offset + j, prm);
+        PIOL_File_setPrm_Integer(j, PIOL_META_il, 2400 + offset + j, prm);
+        PIOL_File_setPrm_Integer(j, PIOL_META_xl, 1600 + offset + j, prm);
+        PIOL_File_setPrm_Integer(j, PIOL_META_tn, offset + j, prm);
     }
 
     // Set some traces

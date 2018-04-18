@@ -16,34 +16,37 @@
 namespace exseis {
 namespace utils {
 
-trace_t rectangular_RMS_gain(
-  const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
+exseis::utils::Trace_value rectangular_RMS_gain(
+  const exseis::utils::Trace_value* signal,
+  size_t window_size,
+  exseis::utils::Trace_value target_amplitude,
+  size_t)
 {
-    trace_t amp = 0;
+    exseis::utils::Trace_value amp = 0;
     for (size_t j = 0; j < window_size; j++) {
         amp += signal[j] * signal[j];
     }
     assert(amp != 0);
 
-    const auto non_zero = [](trace_t i) { return i != 0; };
+    const auto non_zero = [](exseis::utils::Trace_value i) { return i != 0; };
     const size_t num    = std::count_if(signal, &signal[window_size], non_zero);
 
     return target_amplitude / std::sqrt(amp / std::max<size_t>(1, num));
 }
 
-extern "C" trace_t exseis_rectangular_RMS_gain(
-  const exseis_trace_t* signal,
+extern "C" exseis::utils::Trace_value exseis_rectangular_RMS_gain(
+  const exseis_Trace_value* signal,
   size_t window_size,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t)
 {
     return rectangular_RMS_gain(signal, window_size, target_amplitude, 0);
 }
 
-trace_t triangular_RMS_gain(
-  const trace_t* signal,
+exseis::utils::Trace_value triangular_RMS_gain(
+  const exseis::utils::Trace_value* signal,
   size_t window_size,
-  trace_t target_amplitude,
+  exseis::utils::Trace_value target_amplitude,
   size_t window_center)
 {
     assert(window_size > 0);
@@ -96,9 +99,10 @@ trace_t triangular_RMS_gain(
     // window_center to window_size - 1.
     const size_t right_width = (window_size - 1) - window_center;
 
-    const trace_t half_width = std::max(left_width, right_width);
+    const exseis::utils::Trace_value half_width =
+      std::max(left_width, right_width);
 
-    trace_t amp = 0;
+    exseis::utils::Trace_value amp = 0;
     for (size_t j = 0; j < window_size; j++) {
         // A signed-sensitive std::abs(j - window_center)
         const auto distance_from_center =
@@ -115,51 +119,60 @@ trace_t triangular_RMS_gain(
     }
     assert(amp != 0);
 
-    const auto non_zero = [](trace_t i) { return i != 0; };
+    const auto non_zero = [](exseis::utils::Trace_value i) { return i != 0; };
     const size_t num    = std::count_if(signal, &signal[window_size], non_zero);
 
     return target_amplitude / std::sqrt(amp / std::max<size_t>(1, num));
 }
 
-extern "C" trace_t exseis_triangular_RMS_gain(
-  const exseis_trace_t* signal,
+extern "C" exseis::utils::Trace_value exseis_triangular_RMS_gain(
+  const exseis_Trace_value* signal,
   size_t window_size,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t window_center)
 {
     return triangular_RMS_gain(
       signal, window_size, target_amplitude, window_center);
 }
 
-trace_t mean_abs_gain(
-  const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
+exseis::utils::Trace_value mean_abs_gain(
+  const exseis::utils::Trace_value* signal,
+  size_t window_size,
+  exseis::utils::Trace_value target_amplitude,
+  size_t)
 {
     assert(window_size > 0);
 
-    const trace_t amp =
-      std::accumulate(signal, signal + window_size, trace_t(0));
+    const exseis::utils::Trace_value amp = std::accumulate(
+      signal, signal + window_size, exseis::utils::Trace_value(0));
     assert(amp != 0);
 
-    const auto non_zero = [](trace_t i) { return i != trace_t(0); };
-    const size_t num    = std::count_if(signal, &signal[window_size], non_zero);
+    const auto non_zero = [](exseis::utils::Trace_value i) {
+        return i != exseis::utils::Trace_value(0);
+    };
+    const size_t num = std::count_if(signal, &signal[window_size], non_zero);
 
     return target_amplitude / (std::abs(amp) / std::max<size_t>(1, num));
 }
 
-extern "C" trace_t exseis_mean_abs_gain(
-  const exseis_trace_t* signal,
+extern "C" exseis::utils::Trace_value exseis_mean_abs_gain(
+  const exseis_Trace_value* signal,
   size_t window_size,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t)
 {
     return mean_abs_gain(signal, window_size, target_amplitude, 0);
 }
 
 // This can be optimised with std::nth_element if required.
-trace_t median_gain(
-  const trace_t* signal, size_t window_size, trace_t target_amplitude, size_t)
+exseis::utils::Trace_value median_gain(
+  const exseis::utils::Trace_value* signal,
+  size_t window_size,
+  exseis::utils::Trace_value target_amplitude,
+  size_t)
 {
-    std::vector<trace_t> signalTmp(signal, &signal[window_size]);
+    std::vector<exseis::utils::Trace_value> signalTmp(
+      signal, &signal[window_size]);
     std::sort(signalTmp.begin(), signalTmp.end());
 
     if (window_size % 2 == 0) {
@@ -177,10 +190,10 @@ trace_t median_gain(
     }
 }
 
-extern "C" trace_t exseis_median_gain(
-  const exseis_trace_t* signal,
+extern "C" exseis::utils::Trace_value exseis_median_gain(
+  const exseis_Trace_value* signal,
   size_t window_size,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t)
 {
     return median_gain(signal, window_size, target_amplitude, 0);

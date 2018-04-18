@@ -53,8 +53,8 @@ std::unique_ptr<Coords> getCoords(
      * the trace parameters in batches because of this memory limit.
      */
     size_t biggest = piol->comm->max(lnt);
-    size_t memlim =
-      2LU * 1024LU * 1024LU * 1024LU - 4LU * biggest * sizeof(geom_t);
+    size_t memlim  = 2LU * 1024LU * 1024LU * 1024LU
+                    - 4LU * biggest * sizeof(exseis::utils::Floating_point);
     size_t max = memlim / (rule->paramMem() + SEGY_utils::getMDSz());
 
     // Collective I/O requries an equal number of MPI-IO calls on every process
@@ -85,11 +85,15 @@ std::unique_ptr<Coords> getCoords(
       piol.get(), &prm,
       [](const Param* prm, const size_t i, const size_t j) -> bool {
           return (
-            param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, prm)
-                < param_utils::getPrm<geom_t>(j, PIOL_META_xSrc, prm) ?
+            param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_xSrc, prm)
+                < param_utils::getPrm<exseis::utils::Floating_point>(
+                    j, PIOL_META_xSrc, prm) ?
               true :
-              param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, prm)
-                  == param_utils::getPrm<geom_t>(j, PIOL_META_xSrc, prm)
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xSrc, prm)
+                  == param_utils::getPrm<exseis::utils::Floating_point>(
+                       j, PIOL_META_xSrc, prm)
                 && param_utils::getPrm<size_t>(i, PIOL_META_gtn, prm)
                      < param_utils::getPrm<size_t>(j, PIOL_META_gtn, prm));
       },
@@ -125,20 +129,26 @@ std::unique_ptr<Coords> getCoords(
 
             for (size_t j = 0; j < rblock; j++) {
                 coords->xSrc[i + orig[j]] =
-                  param_utils::getPrm<geom_t>(j, PIOL_META_xSrc, &prm2);
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    j, PIOL_META_xSrc, &prm2);
                 coords->ySrc[i + orig[j]] =
-                  param_utils::getPrm<geom_t>(j, PIOL_META_ySrc, &prm2);
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    j, PIOL_META_ySrc, &prm2);
                 coords->xRcv[i + orig[j]] =
-                  param_utils::getPrm<geom_t>(j, PIOL_META_xRcv, &prm2);
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    j, PIOL_META_xRcv, &prm2);
                 coords->yRcv[i + orig[j]] =
-                  param_utils::getPrm<geom_t>(j, PIOL_META_yRcv, &prm2);
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    j, PIOL_META_yRcv, &prm2);
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
             for (size_t j = 0; ixline && j < rblock; j++) {
                 coords->il[i + orig[j]] =
-                  param_utils::getPrm<llint>(j, PIOL_META_il, &prm2);
+                  param_utils::getPrm<exseis::utils::Integer>(
+                    j, PIOL_META_il, &prm2);
                 coords->xl[i + orig[j]] =
-                  param_utils::getPrm<llint>(j, PIOL_META_xl, &prm2);
+                  param_utils::getPrm<exseis::utils::Integer>(
+                    j, PIOL_META_xl, &prm2);
             }
         }
     }
@@ -208,7 +218,7 @@ void outputNonMono(
     dst.writeNs(ns);
 
     Param prm(rule, std::min(lnt, max));
-    std::vector<trace_t> trc(ns * std::min(lnt, max));
+    std::vector<exseis::utils::Trace_value> trc(ns * std::min(lnt, max));
 
     piol->comm->barrier();
     for (size_t i = 0; i < piol->comm->getNumRank(); i++) {

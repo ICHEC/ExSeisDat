@@ -86,44 +86,58 @@ TEST_F(RuleFixList, setPrm)
     rule->addShort(PIOL_META_il, PIOL_TR_ScaleElev);
     Param prm(rule, 100);
     for (size_t i = 0; i < 100; i++) {
-        param_utils::setPrm(i, PIOL_META_xSrc, geom_t(i) + 1., &prm);
-        param_utils::setPrm(i, PIOL_META_ySrc, geom_t(i) + 2., &prm);
-        param_utils::setPrm(i, PIOL_META_xRcv, geom_t(i) + 3., &prm);
-        param_utils::setPrm(i, PIOL_META_yRcv, geom_t(i) + 4., &prm);
-        param_utils::setPrm(i, PIOL_META_dsdr, llint(i + 1), &prm);
+        param_utils::setPrm(
+          i, PIOL_META_xSrc, exseis::utils::Floating_point(i) + 1., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_ySrc, exseis::utils::Floating_point(i) + 2., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_xRcv, exseis::utils::Floating_point(i) + 3., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_yRcv, exseis::utils::Floating_point(i) + 4., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_dsdr, exseis::utils::Integer(i + 1), &prm);
         param_utils::setPrm(i, PIOL_META_il, short(i + 2), &prm);
     }
     for (size_t i = 0; i < 100; i++) {
-        if (sizeof(geom_t) == sizeof(double)) {
+        if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm),
-              geom_t(i + 1));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xSrc, &prm),
+              exseis::utils::Floating_point(i + 1));
             ASSERT_DOUBLE_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm),
-              geom_t(i + 2));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_ySrc, &prm),
+              exseis::utils::Floating_point(i + 2));
             ASSERT_DOUBLE_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_xRcv, &prm),
-              geom_t(i + 3));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xRcv, &prm),
+              exseis::utils::Floating_point(i + 3));
             ASSERT_DOUBLE_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_yRcv, &prm),
-              geom_t(i + 4));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_yRcv, &prm),
+              exseis::utils::Floating_point(i + 4));
         }
         else {
             ASSERT_FLOAT_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm),
-              geom_t(i + 1));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xSrc, &prm),
+              exseis::utils::Floating_point(i + 1));
             ASSERT_FLOAT_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm),
-              geom_t(i + 2));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_ySrc, &prm),
+              exseis::utils::Floating_point(i + 2));
             ASSERT_FLOAT_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_xRcv, &prm),
-              geom_t(i + 3));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xRcv, &prm),
+              exseis::utils::Floating_point(i + 3));
             ASSERT_FLOAT_EQ(
-              param_utils::getPrm<geom_t>(i, PIOL_META_yRcv, &prm),
-              geom_t(i + 4));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_yRcv, &prm),
+              exseis::utils::Floating_point(i + 4));
         }
         ASSERT_EQ(
-          param_utils::getPrm<llint>(i, PIOL_META_dsdr, &prm), llint(i + 1));
+          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_dsdr, &prm),
+          exseis::utils::Integer(i + 1));
         ASSERT_EQ(
           param_utils::getPrm<short>(i, PIOL_META_il, &prm), short(i + 2));
     }

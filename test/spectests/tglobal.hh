@@ -28,9 +28,9 @@ extern const std::string bigTraceSEGYFile;
 
 extern int32_t ilNum(size_t);
 extern int32_t xlNum(size_t);
-extern exseis::utils::geom_t xNum(size_t i);
-extern exseis::utils::geom_t yNum(size_t i);
-extern exseis::utils::uchar getPattern(size_t);
+extern exseis::utils::Floating_point xNum(size_t i);
+extern exseis::utils::Floating_point yNum(size_t i);
+extern unsigned char getPattern(size_t);
 extern std::vector<size_t> getRandomVec(size_t nt, int seed);
 extern std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed);
 

@@ -65,7 +65,7 @@ class MockSet {
         Set*,
         exseis::utils::Gain_function agcFunc,
         size_t window,
-        trace_t target_amplitude));
+        exseis::utils::Trace_value target_amplitude));
 
     MOCK_METHOD2(text, void(Set*, std::string outmsg_));
 
@@ -88,7 +88,7 @@ class MockSet {
         std::string vmName,
         const size_t vBin,
         const size_t oGSz,
-        geom_t oInc));
+        exseis::utils::Floating_point oInc));
 
     MOCK_METHOD2(sort, void(Set*, exseis::PIOL::SortType type));
 
@@ -112,8 +112,8 @@ class MockSet {
         exseis::PIOL::FltrType type,
         exseis::PIOL::FltrDmn domain,
         exseis::PIOL::PadType pad,
-        trace_t fs,
-        std::vector<trace_t> corners,
+        exseis::utils::Trace_value fs,
+        std::vector<exseis::utils::Trace_value> corners,
         size_t nw,
         size_t winCntr));
 
@@ -124,9 +124,9 @@ class MockSet {
         exseis::PIOL::FltrType type,
         exseis::PIOL::FltrDmn domain,
         exseis::PIOL::PadType pad,
-        trace_t fs,
+        exseis::utils::Trace_value fs,
         size_t N,
-        std::vector<trace_t> corners,
+        std::vector<exseis::utils::Trace_value> corners,
         size_t nw,
         size_t winCntr));
 };

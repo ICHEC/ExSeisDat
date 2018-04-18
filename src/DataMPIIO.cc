@@ -140,7 +140,7 @@ int iol(
   int bsz,
   int chunk,
   const MPI_Aint* offset,
-  uchar* d,
+  unsigned char* d,
   MPI_Status* stat)
 {
     // Set a view so that MPI_File_read... functions only see contiguous data.
@@ -356,7 +356,8 @@ void DataMPIIO::setFileSz(const size_t sz) const
     }
 }
 
-void DataMPIIO::read(const size_t offset, const size_t sz, uchar* d) const
+void DataMPIIO::read(
+  const size_t offset, const size_t sz, unsigned char* d) const
 {
     contigIO(
       (coll ? MPI_File_read_at_all : MPI_File_read_at), offset, sz, d,
@@ -368,7 +369,7 @@ void DataMPIIO::readv(
   const size_t bsz,
   const size_t osz,
   const size_t nb,
-  uchar* d) const
+  unsigned char* d) const
 {
     if (nb * osz > size_t(maxSize)) {
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
@@ -402,12 +403,12 @@ void DataMPIIO::read(
   const size_t bsz,
   const size_t osz,
   const size_t nb,
-  uchar* d) const
+  unsigned char* d) const
 {
     auto viewIO = [this, bsz, osz](
                     MPI_File, MPI_Offset off, void* d, int numb, MPI_Datatype,
                     MPI_Status*) -> int {
-        readv(off, bsz, osz, size_t(numb), static_cast<uchar*>(d));
+        readv(off, bsz, osz, size_t(numb), static_cast<unsigned char*>(d));
         return MPI_SUCCESS;
     };
 
@@ -421,7 +422,7 @@ void DataMPIIO::contigIO(
   const MFp<MPI_Status> fn,
   const size_t offset,
   const size_t sz,
-  uchar* d,
+  unsigned char* d,
   std::string msg,
   const size_t bsz,
   const size_t osz) const
@@ -437,7 +438,7 @@ void DataMPIIO::contigIO(
         size_t chunk = std::min(sz - i, max);
         int err      = fn(
           file, MPI_Offset(offset + osz * i), &d[bsz * i], chunk,
-          exseis::utils::MPI_type<uchar>(), &stat);
+          exseis::utils::MPI_type<unsigned char>(), &stat);
 
         if (err != MPI_SUCCESS) {
             log_->record(
@@ -448,7 +449,8 @@ void DataMPIIO::contigIO(
     }
 
     for (size_t i = 0; i < remCall; i++) {
-        int err = fn(file, 0, NULL, 0, exseis::utils::MPI_type<uchar>(), &stat);
+        int err =
+          fn(file, 0, NULL, 0, exseis::utils::MPI_type<unsigned char>(), &stat);
 
         if (err != MPI_SUCCESS) {
             log_->record(
@@ -466,7 +468,7 @@ void DataMPIIO::listIO(
   const size_t bsz,
   const size_t sz,
   const size_t* offset,
-  uchar* d,
+  unsigned char* d,
   std::string msg) const
 {
     // TODO: More accurately determine a real limit for setting a view.
@@ -515,7 +517,10 @@ void DataMPIIO::listIO(
 }
 
 void DataMPIIO::read(
-  const size_t bsz, const size_t sz, const size_t* offset, uchar* d) const
+  const size_t bsz,
+  const size_t sz,
+  const size_t* offset,
+  unsigned char* d) const
 {
     listIO(
       (coll ? MPI_File_read_at_all : MPI_File_read_at), bsz, sz, offset, d,
@@ -523,11 +528,14 @@ void DataMPIIO::read(
 }
 
 void DataMPIIO::write(
-  const size_t bsz, const size_t sz, const size_t* offset, const uchar* d) const
+  const size_t bsz,
+  const size_t sz,
+  const size_t* offset,
+  const unsigned char* d) const
 {
     listIO(
       (coll ? mpiio_write_at_all : mpiio_write_at), bsz, sz, offset,
-      const_cast<uchar*>(d), "list write failure");
+      const_cast<unsigned char*>(d), "list write failure");
 }
 
 void DataMPIIO::writev(
@@ -535,7 +543,7 @@ void DataMPIIO::writev(
   const size_t bsz,
   const size_t osz,
   const size_t nb,
-  const uchar* d) const
+  const unsigned char* d) const
 {
     if (nb * osz > size_t(maxSize)) {
         std::string msg = "(nb, bsz, osz) = (" + std::to_string(nb) + ", "
@@ -566,11 +574,11 @@ void DataMPIIO::writev(
 }
 
 void DataMPIIO::write(
-  const size_t offset, const size_t sz, const uchar* d) const
+  const size_t offset, const size_t sz, const unsigned char* d) const
 {
     contigIO(
       (coll ? mpiio_write_at_all : mpiio_write_at), offset, sz,
-      const_cast<uchar*>(d), "Non-collective write failure.");
+      const_cast<unsigned char*>(d), "Non-collective write failure.");
 }
 
 void DataMPIIO::write(
@@ -578,17 +586,17 @@ void DataMPIIO::write(
   const size_t bsz,
   const size_t osz,
   const size_t nb,
-  const uchar* d) const
+  const unsigned char* d) const
 {
     auto viewIO = [this, bsz, osz](
                     MPI_File, MPI_Offset off, void* d, int numb, MPI_Datatype,
                     MPI_Status*) -> int {
-        writev(off, bsz, osz, size_t(numb), static_cast<uchar*>(d));
+        writev(off, bsz, osz, size_t(numb), static_cast<unsigned char*>(d));
         return MPI_SUCCESS;
     };
 
     contigIO(
-      viewIO, offset, nb, const_cast<uchar*>(d),
+      viewIO, offset, nb, const_cast<unsigned char*>(d),
       "Failed to read data over the integer limit.", bsz, osz);
 }
 

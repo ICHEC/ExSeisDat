@@ -25,23 +25,32 @@ struct FakeData : public DataInterface {
 
     size_t getFileSz() const { return 0U; }
 
-    void read(const size_t, const size_t, uchar*) const {}
+    void read(const size_t, const size_t, unsigned char*) const {}
     void read(
-      const size_t, const size_t, const size_t, const size_t, uchar*) const
+      const size_t,
+      const size_t,
+      const size_t,
+      const size_t,
+      unsigned char*) const
     {
     }
-    void read(const size_t, const size_t, const size_t*, uchar*) const {}
+    void read(const size_t, const size_t, const size_t*, unsigned char*) const
+    {
+    }
     void setFileSz(const size_t) const {}
-    void write(const size_t, const size_t, const uchar*) const {}
+    void write(const size_t, const size_t, const unsigned char*) const {}
     void write(
       const size_t,
       const size_t,
       const size_t,
       const size_t,
-      const uchar*) const
+      const unsigned char*) const
     {
     }
-    void write(const size_t, const size_t, const size_t*, const uchar*) const {}
+    void write(
+      const size_t, const size_t, const size_t*, const unsigned char*) const
+    {
+    }
 };
 
 TEST_F(DataTest, Constructor)

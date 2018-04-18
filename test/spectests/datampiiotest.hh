@@ -51,10 +51,10 @@ class MPIIOTest : public Test {
     void writeSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
         size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
-        std::vector<uchar> tr(step * nt);
+        std::vector<unsigned char> tr(step * nt);
 
         for (size_t i = 0; i < nt; i++) {
-            uchar* md = &tr[step * i];
+            unsigned char* md = &tr[step * i];
             getBigEndian(ilNum(i + offset), &md[188]);
             getBigEndian(xlNum(i + offset), &md[192]);
         }
@@ -78,10 +78,10 @@ class MPIIOTest : public Test {
     {
         size_t step =
           (block ? SEGY_utils::getDFSz(ns) : SEGY_utils::getDOSz(ns));
-        std::vector<uchar> tr(step * nt);
+        std::vector<unsigned char> tr(step * nt);
 
         for (size_t i = 0; i < nt; i++) {
-            uchar* buf = &tr[step * i];
+            unsigned char* buf = &tr[step * i];
             for (size_t k = 0; k < ns; k++) {
 
                 const float f = i + k;
@@ -111,7 +111,7 @@ class MPIIOTest : public Test {
     void readSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
     {
         size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
-        std::vector<uchar> tr(step * nt);
+        std::vector<unsigned char> tr(step * nt);
 
         if (block)
             data->read(
@@ -124,7 +124,7 @@ class MPIIOTest : public Test {
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
         for (size_t i = 0; i < nt; i++) {
-            uchar* md = &tr[step * i];
+            unsigned char* md = &tr[step * i];
             ASSERT_EQ(ilNum(i + offset), getHost<int32_t>(&md[188])) << i;
             ASSERT_EQ(xlNum(i + offset), getHost<int32_t>(&md[192])) << i;
         }
@@ -135,7 +135,7 @@ class MPIIOTest : public Test {
     {
         size_t step =
           (block ? SEGY_utils::getDFSz(ns) : SEGY_utils::getDOSz(ns));
-        std::vector<uchar> tr(step * nt);
+        std::vector<unsigned char> tr(step * nt);
 
         if (block) {
             data->read(
@@ -150,7 +150,7 @@ class MPIIOTest : public Test {
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
         for (size_t i = 0; i < nt; i++) {
-            uchar* buf = &tr[step * i];
+            unsigned char* buf = &tr[step * i];
             for (size_t k = 0; k < ns; k++) {
 
                 const float f = i + k;
@@ -169,9 +169,9 @@ class MPIIOTest : public Test {
     {
         auto offset = getRandomVec(sz, 1337);
         size_t bsz  = SEGY_utils::getDFSz(ns);
-        std::vector<uchar> d(bsz * sz);
+        std::vector<unsigned char> d(bsz * sz);
         for (size_t i = 0; i < sz; i++) {
-            uchar* buf = &d[bsz * i];
+            unsigned char* buf = &d[bsz * i];
             for (size_t k = 0; k < ns; k++) {
 
                 const float f = offset[i] + k;
@@ -196,7 +196,7 @@ class MPIIOTest : public Test {
     void readList(const size_t sz, const size_t ns, const size_t* offset)
     {
         size_t bsz = SEGY_utils::getDFSz(ns);
-        std::vector<uchar> d(bsz * sz);
+        std::vector<unsigned char> d(bsz * sz);
         std::vector<size_t> boffset(sz);
         for (size_t i = 0; i < sz; i++)
             boffset[i] = SEGY_utils::getDODFLoc<float>(offset[i], ns);
@@ -204,7 +204,7 @@ class MPIIOTest : public Test {
         piol->isErr();
 
         for (size_t i = 0; i < sz; i++) {
-            uchar* buf = &d[bsz * i];
+            unsigned char* buf = &d[bsz * i];
             for (size_t k = 0; k < ns; k++) {
 
                 const float f = offset[i] + k;

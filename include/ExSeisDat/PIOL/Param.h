@@ -46,10 +46,10 @@ using namespace exseis::utils::typedefs;
  */
 struct Param {
     /// Floating point array.
-    std::vector<geom_t> f;
+    std::vector<exseis::utils::Floating_point> f;
 
     /// Integer array.
-    std::vector<llint> i;
+    std::vector<exseis::utils::Integer> i;
 
     /// Short array.
     std::vector<int16_t> s;
@@ -58,7 +58,7 @@ struct Param {
     std::vector<size_t> t;
 
     /// storage for a file format specific copy
-    std::vector<uchar> c;
+    std::vector<unsigned char> c;
 
     /// The rules which describe the indexing of the arrays.
     std::shared_ptr<Rule> r;

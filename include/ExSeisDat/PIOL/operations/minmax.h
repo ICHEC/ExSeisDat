@@ -16,7 +16,7 @@
  */
 struct PIOL_CoordElem {
     /// The value
-    exseis_geom_t val;
+    exseis_Floating_point val;
 
     /// The trace number
     size_t num;
@@ -49,7 +49,7 @@ using namespace exseis::utils::typedefs;
 
 /// Return the value associated with a particular parameter
 template<typename T>
-using MinMaxFunc = std::function<geom_t(const T&)>;
+using MinMaxFunc = std::function<exseis::utils::Floating_point(const T&)>;
 
 /************************************ Core ************************************/
 /*! Get the min and max for a parameter. Use a second parameter to decide
@@ -83,9 +83,10 @@ std::vector<CoordElem> getCoordMinMax(
     T temp;
     if (!sz || !coord) coord = &temp;
 
-    auto p                      = std::minmax_element(coord, coord + sz, min);
-    std::vector<geom_t> lminmax = {elem1(*p.first), elem1(*p.second)};
-    std::vector<size_t> ltrace  = {offset + std::distance(coord, p.first),
+    auto p = std::minmax_element(coord, coord + sz, min);
+    std::vector<exseis::utils::Floating_point> lminmax = {elem1(*p.first),
+                                                          elem1(*p.second)};
+    std::vector<size_t> ltrace = {offset + std::distance(coord, p.first),
                                   offset + std::distance(coord, p.second)};
 
     auto tminmax = piol->comm->gather(lminmax);
@@ -93,7 +94,7 @@ std::vector<CoordElem> getCoordMinMax(
     auto tsz     = piol->comm->gather(std::vector<size_t>{sz});
 
     // Remove non-participants
-    for (llint i = tsz.size() - 1U; i >= 0; i--)
+    for (exseis::utils::Integer i = tsz.size() - 1U; i >= 0; i--)
         if (!tsz[i]) {
             tminmax.erase(tminmax.begin() + 2U * i + 1U);
             tminmax.erase(tminmax.begin() + 2U * i);

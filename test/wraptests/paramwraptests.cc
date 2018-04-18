@@ -31,13 +31,13 @@ std::shared_ptr<Param*> test_PIOL_File_Param(std::shared_ptr<Rule*> test_rule)
 
     EXPECT_CALL(
       mockParamFreeFunctions(),
-      getPrm_llint(360, PIOL_META_COPY, EqDeref(param_ptr)))
+      getPrm_Integer(360, PIOL_META_COPY, EqDeref(param_ptr)))
       .WillOnce(CheckReturn(370));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(
       mockParamFreeFunctions(),
-      getPrm_geom_t(380, PIOL_META_COPY, EqDeref(param_ptr)))
+      getPrm_Floating_point(380, PIOL_META_COPY, EqDeref(param_ptr)))
       .WillOnce(CheckReturn(390.0));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
@@ -46,10 +46,11 @@ std::shared_ptr<Param*> test_PIOL_File_Param(std::shared_ptr<Rule*> test_rule)
       setPrm_int16_t(400, PIOL_META_COPY, 410, EqDeref(param_ptr)));
     EXPECT_CALL(
       mockParamFreeFunctions(),
-      setPrm_llint(420, PIOL_META_COPY, 430, EqDeref(param_ptr)));
+      setPrm_Integer(420, PIOL_META_COPY, 430, EqDeref(param_ptr)));
     EXPECT_CALL(
       mockParamFreeFunctions(),
-      setPrm_geom_t(440, PIOL_META_COPY, DoubleEq(450.0), EqDeref(param_ptr)));
+      setPrm_Floating_point(
+        440, PIOL_META_COPY, DoubleEq(450.0), EqDeref(param_ptr)));
 
     EXPECT_CALL(
       mockParamFreeFunctions(),

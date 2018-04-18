@@ -24,10 +24,10 @@ struct Gather_info {
     size_t num_traces;
 
     /// The inline coordinate of the gather (inline_ because of reserved word).
-    llint inline_;
+    exseis::utils::Integer inline_;
 
     /// The crossline coordinate of the gather.
-    llint crossline;
+    exseis::utils::Integer crossline;
 };
 
 

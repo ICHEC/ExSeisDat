@@ -58,63 +58,81 @@ class ObjectSEGY : public ObjectInterface {
       std::shared_ptr<DataInterface> data_,
       FileMode mode = FileMode::Read);
 
-    void readHO(uchar* ho) const;
+    void readHO(unsigned char* ho) const;
 
-    void writeHO(const uchar* ho) const;
+    void writeHO(const unsigned char* ho) const;
 
     void readDOMD(
-      const size_t offset, const size_t ns, const size_t sz, uchar* md) const;
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      unsigned char* md) const;
 
     void writeDOMD(
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      const uchar* md) const;
+      const unsigned char* md) const;
 
     void readDODF(
-      const size_t offset, const size_t ns, const size_t sz, uchar* df) const;
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      unsigned char* df) const;
 
     void writeDODF(
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      const uchar* df) const;
+      const unsigned char* df) const;
 
     void readDO(
-      const size_t offset, const size_t ns, const size_t sz, uchar* d) const;
+      const size_t offset,
+      const size_t ns,
+      const size_t sz,
+      unsigned char* d) const;
 
     void writeDO(
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      const uchar* d) const;
+      const unsigned char* d) const;
 
     void readDO(
-      const size_t* offset, const size_t ns, const size_t sz, uchar* d) const;
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      unsigned char* d) const;
 
     void writeDO(
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      const uchar* d) const;
+      const unsigned char* d) const;
 
     void readDOMD(
-      const size_t* offset, const size_t ns, const size_t sz, uchar* md) const;
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      unsigned char* md) const;
 
     void writeDOMD(
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      const uchar* md) const;
+      const unsigned char* md) const;
 
     void readDODF(
-      const size_t* offset, const size_t ns, const size_t sz, uchar* df) const;
+      const size_t* offset,
+      const size_t ns,
+      const size_t sz,
+      unsigned char* df) const;
 
     void writeDODF(
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      const uchar* df) const;
+      const unsigned char* df) const;
 };
 
 }  // namespace PIOL

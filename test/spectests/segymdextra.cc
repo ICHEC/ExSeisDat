@@ -24,7 +24,7 @@ namespace PIOL {
  *  1 is returned, otherwise the value is returned. No check is done
  *  to ensure other restrictions are in place (i.e 1, 10, 1000 etc).
  */
-geom_t getMd(const TrScal scal, const uchar* src)
+exseis::utils::Floating_point getMd(const TrScal scal, const unsigned char* src)
 {
     auto scale = getHost<int16_t>(&src[size_t(scal) - 1U]);
     return SEGY_utils::parse_scalar(scale);
@@ -36,9 +36,14 @@ geom_t getMd(const TrScal scal, const uchar* src)
  *  @param[in] src The buffer of the header object.
  *  @return Return the coordinate
  */
-geom_t getMd(const TrCrd item, const geom_t scale, const uchar* src)
+exseis::utils::Floating_point getMd(
+  const TrCrd item,
+  const exseis::utils::Floating_point scale,
+  const unsigned char* src)
 {
-    return scale * geom_t(getHost<int32_t>(&src[size_t(item) - 1U]));
+    return scale
+           * exseis::utils::Floating_point(
+               getHost<int32_t>(&src[size_t(item) - 1U]));
 }
 
 /*! @brief Get the specified grid component from the Trace header.
@@ -46,7 +51,7 @@ geom_t getMd(const TrCrd item, const geom_t scale, const uchar* src)
  *  @param[in] src The buffer of the header object.
  *  @return Return the grid component (two components make a grid point).
  */
-int32_t getMd(const TrGrd item, const uchar* src)
+int32_t getMd(const TrGrd item, const unsigned char* src)
 {
     return getHost<int32_t>(&src[size_t(item) - 1U]);
 }
@@ -54,9 +59,10 @@ int32_t getMd(const TrGrd item, const uchar* src)
 /*! @brief Set a trace scale in the trace header
  *  @param[in] item The scale item of interest
  *  @param[in] scale The metadata value to insert into the buffer.
- *  @param[in, out] buf The trace header as an array of uchar.
+ *  @param[in, out] buf The trace header as an array of unsigned char.
  */
-void setScale(const TrScal item, const int16_t scale, uchar* buf, size_t start)
+void setScale(
+  const TrScal item, const int16_t scale, unsigned char* buf, size_t start)
 {
     getBigEndian(scale, &buf[size_t(item) - start - 1U]);
 }
@@ -65,13 +71,16 @@ void setScale(const TrScal item, const int16_t scale, uchar* buf, size_t start)
  *  @param[in] item The coordinate point type of interest
  *  @param[in] coord The value of the coordinate point
  *  @param[in] scale The scale as an integer from the SEG-Y header
- *  @param[in, out] buf The trace header as an array of uchar.
+ *  @param[in, out] buf The trace header as an array of unsigned char.
  */
 void setCoord(
-  const Coord item, const coord_t coord, const int16_t scale, uchar* buf)
+  const Coord item,
+  const coord_t coord,
+  const int16_t scale,
+  unsigned char* buf)
 {
-    auto pair     = getPair(item);
-    geom_t gscale = SEGY_utils::parse_scalar(scale);
+    auto pair                            = getPair(item);
+    exseis::utils::Floating_point gscale = SEGY_utils::parse_scalar(scale);
     getBigEndian(
       int32_t(std::lround(coord.x / gscale)), &buf[size_t(pair.first) - 1U]);
     getBigEndian(
@@ -83,10 +92,13 @@ void setCoord(
  *  @param[in] item The coordinate point type of interest
  *  @param[in] scale The scale from the SEG-Y header
  *  @param[in] buf A buffer containing the trace header
- *  @param[in, out] buf The trace header as an array of uchar.
+ *  @param[in, out] buf The trace header as an array of unsigned char.
  *  @return The coordinate point associated with the coordinate item
  */
-coord_t getCoord(const Coord item, const geom_t scale, const uchar* buf)
+coord_t getCoord(
+  const Coord item,
+  const exseis::utils::Floating_point scale,
+  const unsigned char* buf)
 {
     auto p = getPair(item);
     return coord_t(getMd(p.first, scale, buf), getMd(p.second, scale, buf));
@@ -95,10 +107,10 @@ coord_t getCoord(const Coord item, const geom_t scale, const uchar* buf)
 /*! @brief Get a grid point from the trace header
  *  @param[in] item The grid type of interest
  *  @param[in] buf A buffer containing the trace header
- *  @param[in, out] buf The trace header as an array of uchar.
+ *  @param[in, out] buf The trace header as an array of unsigned char.
  *  @return The grid point associated with the requested grid
  */
-grid_t getGrid(const Grid item, const uchar* buf)
+grid_t getGrid(const Grid item, const unsigned char* buf)
 {
     auto p = getPair(item);
     return grid_t(getMd(p.first, buf), getMd(p.second, buf));
@@ -107,9 +119,9 @@ grid_t getGrid(const Grid item, const uchar* buf)
 /*! @brief Set a grid point in the trace header
  *  @param[in] item The grid point type of interest
  *  @param[in] grid The value of the grid point
- *  @param[out] buf The trace header as an array of uchar.
+ *  @param[out] buf The trace header as an array of unsigned char.
  */
-void setGrid(const Grid item, const grid_t grid, uchar* buf)
+void setGrid(const Grid item, const grid_t grid, unsigned char* buf)
 {
     auto pair = getPair(item);
     getBigEndian(int32_t(grid.il), &buf[size_t(pair.first) - 1U]);
@@ -154,9 +166,9 @@ int16_t calcScale(const coord_t coord)
 //  *  @param[in] md A charachter array of raw trace header contents
 //  *  @param[out] prm An array of TraceParam structures
 //  */
-// void extractTraceParam(const uchar * md, TraceParam * prm)
+// void extractTraceParam(const unsigned char * md, TraceParam * prm)
 // {
-//     geom_t scale = getMd(TrScal::ScaleCoord, md);
+//     exseis::utils::Floating_point scale = getMd(TrScal::ScaleCoord, md);
 //     prm->src = getCoord(Coord::Src, scale, md);
 //     prm->rcv = getCoord(Coord::Rcv, scale, md);
 //     prm->cmp = getCoord(Coord::CMP, scale, md);
@@ -169,7 +181,7 @@ int16_t calcScale(const coord_t coord)
 //  *  @param[in] prm An array of TraceParam structures
 //  *  @param[out] md A charachter array of raw trace header contents
 //  */
-// void insertTraceParam(const TraceParam * prm, uchar * md)
+// void insertTraceParam(const TraceParam * prm, unsigned char * md)
 // {
 //     int16_t scale = scalComp(1, calcScale(prm->src));
 //     scale = scalComp(scale, calcScale(prm->rcv));

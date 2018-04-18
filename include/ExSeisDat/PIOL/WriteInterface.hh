@@ -17,7 +17,7 @@ namespace exseis {
 namespace PIOL {
 
 /// The NULL parameter so that the correct internal read pattern is selected
-extern const trace_t* TRACE_NULL;
+extern const exseis::utils::Trace_value* TRACE_NULL;
 
 /*! @brief The \c ReadInterface class is a generic interface for reading
  *         seismic data files.
@@ -43,7 +43,7 @@ class WriteInterface {
     std::string text = "";
 
     /// The increment between samples in a trace
-    geom_t inc = 0;
+    exseis::utils::Floating_point inc = 0;
 
   public:
     /*! @brief The constructor.
@@ -83,7 +83,7 @@ class WriteInterface {
     /*! @brief Write the number of increment between trace samples.
      *  @param[in] inc_ The new increment between trace samples.
      */
-    virtual void writeInc(const geom_t inc_) = 0;
+    virtual void writeInc(const exseis::utils::Floating_point inc_) = 0;
 
     /*! @brief Write the trace parameters from offset to offset+sz to the
      *         respective trace headers.
@@ -130,7 +130,7 @@ class WriteInterface {
     virtual void writeTrace(
       const size_t offset,
       const size_t sz,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       const Param* prm  = PIOL_PARAM_NULL,
       const size_t skip = 0) = 0;
 
@@ -139,7 +139,7 @@ class WriteInterface {
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to write.
      *  @param[in] trace A contiguous array of each trace
-     *                   (size sz*ns*sizeof(trace_t))
+     *                   (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[in] prm A parameter structure
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      *
@@ -150,7 +150,7 @@ class WriteInterface {
     virtual void writeTraceNonContiguous(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       const Param* prm  = PIOL_PARAM_NULL,
       const size_t skip = 0) = 0;
 };

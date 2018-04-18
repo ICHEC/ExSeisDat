@@ -43,7 +43,7 @@ size_t ReadDirect::readNt(void) const
     return file->readNt();
 }
 
-geom_t ReadDirect::readInc(void) const
+exseis::utils::Floating_point ReadDirect::readInc(void) const
 {
     return file->readInc();
 }
@@ -55,19 +55,28 @@ void ReadDirect::readParam(
 }
 
 void ReadDirect::readTrace(
-  const size_t offset, const size_t sz, trace_t* trace, Param* prm) const
+  const size_t offset,
+  const size_t sz,
+  exseis::utils::Trace_value* trace,
+  Param* prm) const
 {
     file->readTrace(offset, sz, trace, prm);
 }
 
 void ReadDirect::readTraceNonContiguous(
-  const size_t sz, const size_t* offset, trace_t* trace, Param* prm) const
+  const size_t sz,
+  const size_t* offset,
+  exseis::utils::Trace_value* trace,
+  Param* prm) const
 {
     file->readTraceNonContiguous(sz, offset, trace, prm);
 }
 
 void ReadDirect::readTraceNonMonotonic(
-  const size_t sz, const size_t* offset, trace_t* trace, Param* prm) const
+  const size_t sz,
+  const size_t* offset,
+  exseis::utils::Trace_value* trace,
+  Param* prm) const
 {
     file->readTraceNonMonotonic(sz, offset, trace, prm);
 }

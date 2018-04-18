@@ -97,7 +97,7 @@ constexpr size_t Extensions = 3505U - 1U;
  *  @param[in] skip Skip the first "skip" entries when filling Param
  */
 void extractParam(
-  size_t sz, const uchar* md, Param* prm, size_t stride, size_t skip);
+  size_t sz, const unsigned char* md, Param* prm, size_t stride, size_t skip);
 
 
 /*! @brief Extract parameters from an unsigned char array into the parameter
@@ -111,14 +111,14 @@ void extractParam(
  *                  Param
  */
 void insertParam(
-  size_t sz, const Param* prm, uchar* md, size_t stride, size_t skip);
+  size_t sz, const Param* prm, unsigned char* md, size_t stride, size_t skip);
 
 
 /*! @brief Convert a SEG-Y scale integer to a floating point type
  *  @param[in] segy_scalar The int16_t scale taken from the SEG-Y file
  *  @return The scale convertered to floating point.
  */
-geom_t parse_scalar(int16_t segy_scalar);
+exseis::utils::Floating_point parse_scalar(int16_t segy_scalar);
 
 
 /*! @brief Take a coordinate and extract a suitable scale factor to represent
@@ -148,7 +148,7 @@ geom_t parse_scalar(int16_t segy_scalar);
  *       decimal somewhere.
  * @todo Add rounding before positive scale values
  */
-int16_t find_scalar(geom_t val);
+int16_t find_scalar(exseis::utils::Floating_point val);
 
 
 /*! @brief An enumeration containing important SEG-Y sizes

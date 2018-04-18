@@ -47,7 +47,7 @@ struct CacheElem {
      */
     CacheElem(
       FileDeque& desc_,
-      std::vector<trace_t>& trc_,
+      std::vector<exseis::utils::Trace_value>& trc_,
       std::unique_ptr<exseis::PIOL::Param> prm_ = nullptr)
     {
         desc       = desc_;

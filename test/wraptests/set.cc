@@ -55,7 +55,10 @@ void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
     mockSet().taper(this, tapFunc, nTailLft, nTailRt);
 }
 
-void Set::AGC(Gain_function agcFunc, size_t window, trace_t target_amplitude)
+void Set::AGC(
+  Gain_function agcFunc,
+  size_t window,
+  exseis::utils::Trace_value target_amplitude)
 {
     mockSet().AGC(this, agcFunc, window, target_amplitude);
 }
@@ -81,7 +84,10 @@ void Set::add(std::string name)
 }
 
 void Set::toAngle(
-  std::string vmName, const size_t vBin, const size_t oGSz, geom_t oInc)
+  std::string vmName,
+  const size_t vBin,
+  const size_t oGSz,
+  exseis::utils::Floating_point oInc)
 {
     mockSet().toAngle(this, vmName, vBin, oGSz, oInc);
 }
@@ -105,8 +111,8 @@ void Set::temporalFilter(
   FltrType type,
   FltrDmn domain,
   PadType pad,
-  trace_t fs,
-  std::vector<trace_t> corners,
+  exseis::utils::Trace_value fs,
+  std::vector<exseis::utils::Trace_value> corners,
   size_t nw,
   size_t winCntr)
 {
@@ -117,9 +123,9 @@ void Set::temporalFilter(
   FltrType type,
   FltrDmn domain,
   PadType pad,
-  trace_t fs,
+  exseis::utils::Trace_value fs,
   size_t N,
-  std::vector<trace_t> corners,
+  std::vector<exseis::utils::Trace_value> corners,
   size_t nw,
   size_t winCntr)
 {

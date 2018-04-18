@@ -129,7 +129,7 @@ void FileMake(
   size_t max,
   size_t ns,
   size_t nt,
-  geom_t inc)
+  exseis::utils::Floating_point inc)
 {
     auto piol = ExSeis::New();
 
@@ -175,13 +175,13 @@ void FileMake(
 
 int main(int argc, char** argv)
 {
-    std::string name = "";
-    size_t ns        = 0;
-    size_t nt        = 0;
-    size_t max       = 0;
-    geom_t inc       = 0.0;
-    bool lob         = false;
-    bool random      = false;
+    std::string name                  = "";
+    size_t ns                         = 0;
+    size_t nt                         = 0;
+    size_t max                        = 0;
+    exseis::utils::Floating_point inc = 0.0;
+    bool lob                          = false;
+    bool random                       = false;
 
     if (argc <= 1) {
         std::cout

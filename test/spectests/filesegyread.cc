@@ -21,7 +21,9 @@ TEST_F(FileSEGYRead, FileReadHO)
     EXPECT_EQ(ns, file->readNs());
     piol->isErr();
 
-    EXPECT_EQ(geom_t(inc * micro), file->readInc());
+    const double microsecond = 1e-6;
+    EXPECT_EQ(
+      exseis::utils::Floating_point(inc * microsecond), file->readInc());
     piol->isErr();
 
     std::string text = file->readText();

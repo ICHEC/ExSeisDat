@@ -42,10 +42,10 @@ struct Coords {
     size_t allocSz;
 
     /// The inline number
-    llint* il = NULL;
+    exseis::utils::Integer* il = NULL;
 
     /// The crossline number
-    llint* xl = NULL;
+    exseis::utils::Integer* xl = NULL;
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
@@ -71,15 +71,17 @@ struct Coords {
 
         if (ixline) {
             posix_memalign(
-              reinterpret_cast<void**>(&il), ALIGN, allocSz * sizeof(llint));
+              reinterpret_cast<void**>(&il), ALIGN,
+              allocSz * sizeof(exseis::utils::Integer));
             posix_memalign(
-              reinterpret_cast<void**>(&xl), ALIGN, allocSz * sizeof(llint));
+              reinterpret_cast<void**>(&xl), ALIGN,
+              allocSz * sizeof(exseis::utils::Integer));
         }
         for (size_t i = 0; i < allocSz; i++)
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] =
               std::numeric_limits<fourd_t>::max();
         for (size_t i = 0; ixline && i < allocSz; i++)
-            il[i] = xl[i] = std::numeric_limits<llint>::max();
+            il[i] = xl[i] = std::numeric_limits<exseis::utils::Integer>::max();
     }
 
     /*! Destructor. Deallocate all the memory.

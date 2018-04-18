@@ -15,7 +15,7 @@ using namespace exseis::PIOL::SEGY_utils;
 
 TEST(SEGYMd, ScaleBigIntegers)
 {
-    if (sizeof(double) == sizeof(geom_t)) {
+    if (sizeof(double) == sizeof(exseis::utils::Floating_point)) {
         EXPECT_EQ(10000, SEGY_utils::find_scalar(21474836470000.0));
         EXPECT_EQ(1000, SEGY_utils::find_scalar(2147483647000.0));
         EXPECT_EQ(100, SEGY_utils::find_scalar(214748364700.0));
@@ -30,7 +30,7 @@ TEST(SEGYMd, ScaleBigIntegers)
         EXPECT_EQ(100, SEGY_utils::find_scalar(214748364700.0000999));
         EXPECT_EQ(10, SEGY_utils::find_scalar(21474836470.0000999));
     }
-    else if (sizeof(float) == sizeof(geom_t)) {
+    else if (sizeof(float) == sizeof(exseis::utils::Floating_point)) {
         // Fix these due to guaranteed big precision loss
         EXPECT_EQ(10000, SEGY_utils::find_scalar(21474836470000.0));
         EXPECT_EQ(1000, SEGY_utils::find_scalar(2147483647000.0));
@@ -80,17 +80,30 @@ TEST(SEGYMd, ScaleDecimals)
 TEST(SEGYMd, scaleConv)
 {
     // Test every legitimate possibility
-    EXPECT_DOUBLE_EQ(1 / (geom_t(10000)), SEGY_utils::parse_scalar(-10000));
-    EXPECT_DOUBLE_EQ(1 / (geom_t(1000)), SEGY_utils::parse_scalar(-1000));
-    EXPECT_DOUBLE_EQ(1 / (geom_t(100)), SEGY_utils::parse_scalar(-100));
-    EXPECT_DOUBLE_EQ(1 / (geom_t(10)), SEGY_utils::parse_scalar(-10));
-    EXPECT_DOUBLE_EQ(1 / (geom_t(1)), SEGY_utils::parse_scalar(-1));
-    EXPECT_DOUBLE_EQ(geom_t(1), SEGY_utils::parse_scalar(0));
-    EXPECT_DOUBLE_EQ(geom_t(1), SEGY_utils::parse_scalar(1));
-    EXPECT_DOUBLE_EQ(geom_t(10), SEGY_utils::parse_scalar(10));
-    EXPECT_DOUBLE_EQ(geom_t(100), SEGY_utils::parse_scalar(100));
-    EXPECT_DOUBLE_EQ(geom_t(1000), SEGY_utils::parse_scalar(1000));
-    EXPECT_DOUBLE_EQ(geom_t(10000), SEGY_utils::parse_scalar(10000));
+    EXPECT_DOUBLE_EQ(
+      1 / (exseis::utils::Floating_point(10000)),
+      SEGY_utils::parse_scalar(-10000));
+    EXPECT_DOUBLE_EQ(
+      1 / (exseis::utils::Floating_point(1000)),
+      SEGY_utils::parse_scalar(-1000));
+    EXPECT_DOUBLE_EQ(
+      1 / (exseis::utils::Floating_point(100)), SEGY_utils::parse_scalar(-100));
+    EXPECT_DOUBLE_EQ(
+      1 / (exseis::utils::Floating_point(10)), SEGY_utils::parse_scalar(-10));
+    EXPECT_DOUBLE_EQ(
+      1 / (exseis::utils::Floating_point(1)), SEGY_utils::parse_scalar(-1));
+    EXPECT_DOUBLE_EQ(
+      exseis::utils::Floating_point(1), SEGY_utils::parse_scalar(0));
+    EXPECT_DOUBLE_EQ(
+      exseis::utils::Floating_point(1), SEGY_utils::parse_scalar(1));
+    EXPECT_DOUBLE_EQ(
+      exseis::utils::Floating_point(10), SEGY_utils::parse_scalar(10));
+    EXPECT_DOUBLE_EQ(
+      exseis::utils::Floating_point(100), SEGY_utils::parse_scalar(100));
+    EXPECT_DOUBLE_EQ(
+      exseis::utils::Floating_point(1000), SEGY_utils::parse_scalar(1000));
+    EXPECT_DOUBLE_EQ(
+      exseis::utils::Floating_point(10000), SEGY_utils::parse_scalar(10000));
 }
 
 /* clang-format off */
@@ -117,45 +130,45 @@ TEST(SEGYMd, scaleConv)
 //
 // TEST(SEGYMd, getScaleCoord1)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //
 //     tr[70] = 0xFC;
 //     tr[71] = 0x18;
-//     geom_t scal = getMd(TrScal::ScaleCoord, tr.data());
+//     exseis::utils::Floating_point scal = getMd(TrScal::ScaleCoord, tr.data());
 //     ASSERT_DOUBLE_EQ(1.0/1000.0, scal);
 // }
 //
 // TEST(SEGYMd, getScaleCoord2)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 // //Two's complement of 1000
 //     tr[70] = 0x03;
 //     tr[71] = 0xE8;
-//     geom_t scal = getMd(TrScal::ScaleCoord, tr.data());
+//     exseis::utils::Floating_point scal = getMd(TrScal::ScaleCoord, tr.data());
 //     ASSERT_DOUBLE_EQ(1000.0, scal);
 // }
 //
 // TEST(SEGYMd, getScaleElev1)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 // //Two's complement of 10000
 //     tr[68] = 0xD8;
 //     tr[69] = 0xF0;
-//     geom_t scal = getMd(TrScal::ScaleElev, tr.data());
+//     exseis::utils::Floating_point scal = getMd(TrScal::ScaleElev, tr.data());
 //     ASSERT_DOUBLE_EQ(1.0/10000.0, scal);
 // }
 //
 // TEST(SEGYMd, getScaleElev2)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //     tr[68] = 0x27;
 //     tr[69] = 0x10;
-//     geom_t scal = getMd(TrScal::ScaleElev, tr.data());
+//     exseis::utils::Floating_point scal = getMd(TrScal::ScaleElev, tr.data());
 //     ASSERT_DOUBLE_EQ(10000.0, scal);
 // }
 //
 // template <class T>
-// std::pair<int32_t, int32_t> testPack(const std::pair<T, T> pair, std::vector<uchar> & tr)
+// std::pair<int32_t, int32_t> testPack(const std::pair<T, T> pair, std::vector<unsigned char> & tr)
 // {
 //     //x = 0xA9876543
 //     size_t xMd = size_t(pair.first) - 1U;
@@ -177,16 +190,16 @@ TEST(SEGYMd, scaleConv)
 // template <typename T>
 // void testGetGrid(const std::pair<T, T> pair)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //     auto val = testPack(pair, tr);
 //
 //     ASSERT_EQ(val.first, getMd(pair.first, tr.data()));
 //     ASSERT_EQ(val.second, getMd(pair.second, tr.data()));
 // }
 //
-// void testGetCoord(const std::pair<TrCrd, TrCrd> pair, const geom_t scal)
+// void testGetCoord(const std::pair<TrCrd, TrCrd> pair, const exseis::utils::Floating_point scal)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //     auto val = testPack(pair, tr);
 //
 //     ASSERT_EQ(val.first*scal, getMd(pair.first, scal, tr.data()));
@@ -202,18 +215,18 @@ TEST(SEGYMd, scaleConv)
 // TEST(SEGYMd, getMdCrd)
 // {
 //     SCOPED_TRACE("Src");
-//     testGetCoord(getPair(Coord::Src), geom_t(1));
-//     testGetCoord(getPair(Coord::Src), geom_t(.1));
-//     testGetCoord(getPair(Coord::Src), geom_t(.01));
+//     testGetCoord(getPair(Coord::Src), exseis::utils::Floating_point(1));
+//     testGetCoord(getPair(Coord::Src), exseis::utils::Floating_point(.1));
+//     testGetCoord(getPair(Coord::Src), exseis::utils::Floating_point(.01));
 //     SCOPED_TRACE("Rcv");
-//     testGetCoord(getPair(Coord::Rcv), geom_t(1));
+//     testGetCoord(getPair(Coord::Rcv), exseis::utils::Floating_point(1));
 //     SCOPED_TRACE("CMP");
-//     testGetCoord(getPair(Coord::CMP), geom_t(1));
+//     testGetCoord(getPair(Coord::CMP), exseis::utils::Floating_point(1));
 // }
 //
 // void testSetMd(std::vector<Hdr> item)
 // {
-//     std::vector<uchar> ho(SEGY_utils::getHOSz());
+//     std::vector<unsigned char> ho(SEGY_utils::getHOSz());
 //     for (int16_t val = 0; val < 0x7FFF; val++)
 //     {
 //         for (size_t i = 0; i < item.size(); i++)
@@ -281,7 +294,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetScale(TrScal item, size_t check)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //     for (int16_t val = 0; val < 0x7FFF; val++)
 //     {
 //         setScale(item, val, tr.data());
@@ -304,7 +317,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetGrid(Grid item, size_t check1, size_t check2)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //     for (int32_t val = 2; val < 201337000; val += 201337)
 //     {
 //         auto p = grid_t(val, val+1LL);
@@ -340,7 +353,7 @@ TEST(SEGYMd, scaleConv)
 //
 // void testSetCoord(Coord item, size_t check1, size_t check2)
 // {
-//     std::vector<uchar> tr(SEGY_utils::getMDSz());
+//     std::vector<unsigned char> tr(SEGY_utils::getMDSz());
 //     for (int32_t val = 2; val < 201337000; val += 201337)
 //     {
 //         auto p = coord_t(val, val+3L);
@@ -364,10 +377,10 @@ TEST(SEGYMd, scaleConv)
 //
 //                 auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
 //                 auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
-//                 ASSERT_EQ(val1/geom_t(scal), p.x) << "1st " << std::lround(val1/geom_t(scal)) << " p.x " << p.x << " val "
+//                 ASSERT_EQ(val1/exseis::utils::Floating_point(scal), p.x) << "1st " << std::lround(val1/exseis::utils::Floating_point(scal)) << " p.x " << p.x << " val "
 //                                                    << val << " scal " << scal << std::endl;
 //
-//                 ASSERT_EQ(val2/geom_t(scal), p.y) << "1st " << std::lround(val1/geom_t(scal)) << " p.y " << p.y << " val "
+//                 ASSERT_EQ(val2/exseis::utils::Floating_point(scal), p.y) << "1st " << std::lround(val1/exseis::utils::Floating_point(scal)) << " p.y " << p.y << " val "
 //                                                    << val << " scal " << scal << std::endl;
 //                 tr[size_t(check1)-1U] = 0;
 //                 tr[size_t(check2)-1U] = 0;
@@ -403,9 +416,9 @@ TEST(SEGYMd, scaleConv)
 //     return prm;
 // }
 //
-// const std::vector<uchar> getTestMd(void)
+// const std::vector<unsigned char> getTestMd(void)
 // {
-//     std::vector<uchar> md(240);
+//     std::vector<unsigned char> md(240);
 //     md[7] = 100;
 //     md[71] = 1;
 //     md[75] = 1;
@@ -435,7 +448,7 @@ TEST(SEGYMd, scaleConv)
 // TEST(SEGYMd, InsertExtractTraceParam)
 // {
 //     auto prm = getTestPrm();
-//     std::vector<uchar> md(240);
+//     std::vector<unsigned char> md(240);
 //     insertTraceParam(1U, &prm, md.data());
 //
 //     TraceParam prm2;
@@ -447,7 +460,7 @@ TEST(SEGYMd, scaleConv)
 // TEST(SEGYMd, InsertTraceParam)
 // {
 //     auto prm = getTestPrm();
-//     std::vector<uchar> md(240);
+//     std::vector<unsigned char> md(240);
 //     insertTraceParam(1U, &prm, md.data());
 //
 //     auto md2 = getTestMd();

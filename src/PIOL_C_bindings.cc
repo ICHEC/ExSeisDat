@@ -161,20 +161,20 @@ int16_t PIOL_File_getPrm_short(
     return param_utils::getPrm<int16_t>(i, entry, param);
 }
 
-exseis_llint PIOL_File_getPrm_llint(
+exseis_Integer PIOL_File_getPrm_Integer(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    return param_utils::getPrm<llint>(i, entry, param);
+    return param_utils::getPrm<exseis::utils::Integer>(i, entry, param);
 }
 
-exseis_geom_t PIOL_File_getPrm_double(
+exseis_Floating_point PIOL_File_getPrm_double(
   size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
 {
     assert(not_null(param));
 
-    return param_utils::getPrm<geom_t>(i, entry, param);
+    return param_utils::getPrm<exseis::utils::Floating_point>(i, entry, param);
 }
 
 void PIOL_File_setPrm_short(
@@ -185,8 +185,8 @@ void PIOL_File_setPrm_short(
     param_utils::setPrm(i, entry, ret, param);
 }
 
-void PIOL_File_setPrm_llint(
-  size_t i, PIOL_Meta entry, exseis_llint ret, PIOL_File_Param* param)
+void PIOL_File_setPrm_Integer(
+  size_t i, PIOL_Meta entry, exseis_Integer ret, PIOL_File_Param* param)
 {
     assert(not_null(param));
 
@@ -194,7 +194,7 @@ void PIOL_File_setPrm_llint(
 }
 
 void PIOL_File_setPrm_double(
-  size_t i, PIOL_Meta entry, exseis_geom_t ret, PIOL_File_Param* param)
+  size_t i, PIOL_Meta entry, exseis_Floating_point ret, PIOL_File_Param* param)
 {
     assert(not_null(param));
 
@@ -346,7 +346,7 @@ void PIOL_File_WriteDirect_writeNt(
 }
 
 void PIOL_File_WriteDirect_writeInc(
-  PIOL_File_WriteDirect* writeDirect, const exseis_geom_t inc)
+  PIOL_File_WriteDirect* writeDirect, const exseis_Floating_point inc)
 {
     assert(not_null(writeDirect));
 
@@ -358,7 +358,7 @@ void PIOL_File_ReadDirect_readTrace(
   const PIOL_File_ReadDirect* readDirect,
   size_t offset,
   size_t sz,
-  exseis_trace_t* trace,
+  exseis_Trace_value* trace,
   PIOL_File_Param* param)
 {
     assert(not_null(readDirect));
@@ -376,7 +376,7 @@ void PIOL_File_WriteDirect_writeTrace(
   PIOL_File_WriteDirect* writeDirect,
   size_t offset,
   size_t sz,
-  exseis_trace_t* trace,
+  exseis_Trace_value* trace,
   const PIOL_File_Param* param)
 {
     assert(not_null(writeDirect));
@@ -419,7 +419,7 @@ void PIOL_File_ReadDirect_readTraceNonContiguous(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
   const size_t* offset,
-  exseis_trace_t* trace,
+  exseis_Trace_value* trace,
   PIOL_File_Param* param)
 {
     if (param == NULL) {
@@ -434,7 +434,7 @@ void PIOL_File_ReadDirect_readTraceNonMonotonic(
   PIOL_File_ReadDirect* readDirect,
   size_t sz,
   const size_t* offset,
-  exseis_trace_t* trace,
+  exseis_Trace_value* trace,
   PIOL_File_Param* param)
 {
     if (param == NULL) {
@@ -449,7 +449,7 @@ void PIOL_File_WriteDirect_writeTraceNonContiguous(
   PIOL_File_WriteDirect* writeDirect,
   size_t sz,
   const size_t* offset,
-  exseis_trace_t* trace,
+  exseis_Trace_value* trace,
   PIOL_File_Param* param)
 {
     if (param == NULL) {

@@ -26,7 +26,7 @@ struct TraceBlock {
     size_t ns;
 
     /// Increment between trace samples
-    geom_t inc;
+    exseis::utils::Floating_point inc;
 
     /// Gather number (if applicable)
     size_t gNum;
@@ -38,7 +38,7 @@ struct TraceBlock {
     std::unique_ptr<exseis::PIOL::Param> prm;
 
     /// traces (if applicable)
-    std::vector<trace_t> trc;
+    std::vector<exseis::utils::Trace_value> trc;
 };
 
 }  // namespace Flow

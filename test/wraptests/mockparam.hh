@@ -20,20 +20,27 @@ template<>
 int16_t getPrm<int16_t>(size_t i, Meta entry, const Param* prm);
 
 template<>
-llint getPrm<llint>(size_t i, Meta entry, const Param* prm);
+exseis::utils::Integer getPrm<exseis::utils::Integer>(
+  size_t i, Meta entry, const Param* prm);
 
 template<>
-geom_t getPrm<geom_t>(size_t i, Meta entry, const Param* prm);
+exseis::utils::Floating_point getPrm<exseis::utils::Floating_point>(
+  size_t i, Meta entry, const Param* prm);
 
 
 template<>
 void setPrm<int16_t>(const size_t i, const Meta entry, int16_t ret, Param* prm);
 
 template<>
-void setPrm<llint>(const size_t i, const Meta entry, llint ret, Param* prm);
+void setPrm<exseis::utils::Integer>(
+  const size_t i, const Meta entry, exseis::utils::Integer ret, Param* prm);
 
 template<>
-void setPrm<geom_t>(const size_t i, const Meta entry, geom_t ret, Param* prm);
+void setPrm<exseis::utils::Floating_point>(
+  const size_t i,
+  const Meta entry,
+  exseis::utils::Floating_point ret,
+  Param* prm);
 
 }  // namespace param_utils
 
@@ -64,21 +71,33 @@ class MockParamFreeFunctions {
     MOCK_METHOD3(
       getPrm_int16_t, int16_t(size_t i, Meta entry, const Param* prm));
 
-    MOCK_METHOD3(getPrm_llint, llint(size_t i, Meta entry, const Param* prm));
+    MOCK_METHOD3(
+      getPrm_Integer,
+      exseis::utils::Integer(size_t i, Meta entry, const Param* prm));
 
-    MOCK_METHOD3(getPrm_geom_t, geom_t(size_t i, Meta entry, const Param* prm));
+    MOCK_METHOD3(
+      getPrm_Floating_point,
+      exseis::utils::Floating_point(size_t i, Meta entry, const Param* prm));
 
     MOCK_METHOD4(
       setPrm_int16_t,
       void(const size_t i, const Meta entry, int16_t ret, Param* prm));
 
     MOCK_METHOD4(
-      setPrm_llint,
-      void(const size_t i, const Meta entry, llint ret, Param* prm));
+      setPrm_Integer,
+      void(
+        const size_t i,
+        const Meta entry,
+        exseis::utils::Integer ret,
+        Param* prm));
 
     MOCK_METHOD4(
-      setPrm_geom_t,
-      void(const size_t i, const Meta entry, geom_t ret, Param* prm));
+      setPrm_Floating_point,
+      void(
+        const size_t i,
+        const Meta entry,
+        exseis::utils::Floating_point ret,
+        Param* prm));
 };
 
 }  // namespace PIOL

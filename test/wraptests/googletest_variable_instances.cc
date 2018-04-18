@@ -12,8 +12,8 @@ template testing::DefaultValue<bool>::ValueProducer*
 template testing::DefaultValue<double>::ValueProducer*
   testing::DefaultValue<double>::producer_;
 
-template testing::DefaultValue<exseis::utils::llint>::ValueProducer*
-  testing::DefaultValue<exseis::utils::llint>::producer_;
+template testing::DefaultValue<exseis::utils::Integer>::ValueProducer*
+  testing::DefaultValue<exseis::utils::Integer>::producer_;
 
 template testing::DefaultValue<int16_t>::ValueProducer*
   testing::DefaultValue<int16_t>::producer_;

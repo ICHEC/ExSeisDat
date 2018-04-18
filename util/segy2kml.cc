@@ -41,7 +41,7 @@ void initKML(std::ofstream& file, std::string oname, std::string folder)
  *  @param[in] coord lat/long coords to change to string
  *  @return the coordinates as a string
  */
-std::string highPrecStr(geom_t coord)
+std::string highPrecStr(exseis::utils::Floating_point coord)
 {
     return std::to_string(static_cast<long long>(std::floor(coord))) + "."
            + std::to_string(static_cast<long long>(
@@ -92,34 +92,39 @@ void closeKML(std::ofstream& file)
  *          (Excel Spreadsheet is clearer than formula)
  */
 void utm2LatLong(
-  geom_t easting,
-  geom_t northing,
+  exseis::utils::Floating_point easting,
+  exseis::utils::Floating_point northing,
   std::string utmZone,
-  geom_t& lat,
-  geom_t& lng)
+  exseis::utils::Floating_point& lat,
+  exseis::utils::Floating_point& lng)
 {
-    geom_t hemi    = (utmZone.back() = "N" ? 1 : -1);
-    geom_t numZone = std::stof(utmZone);
+    exseis::utils::Floating_point hemi    = (utmZone.back() = "N" ? 1 : -1);
+    exseis::utils::Floating_point numZone = std::stof(utmZone);
 
-    geom_t const eqRad  = 6378137;
-    geom_t const polRad = 6356752;
-    geom_t const k0     = 0.9996;
-    geom_t E            = std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
-    geom_t ei = (1 - std::sqrt(1 - E * E)) / (1 + std::sqrt(1 - E * E));
-    geom_t x  = 500000 - easting;
-    geom_t mu = (northing / k0)
-                / (eqRad
-                   * (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64
-                      - 5 * std::pow(E, 6U) / 256));
-    geom_t phi = mu
-                 + (3 * ei / 2 - 27 * std::pow(ei, 3) / 32) * std::sin(2 * mu)
-                 + (21 / 16 * std::pow(ei, 2U) - 55 / 32 * std::pow(ei, 4U))
-                     * std::sin(4 * mu)
-                 + (151 / 96 * std::pow(ei, 3U) - 417 / 128 * std::pow(ei, 5U))
-                     * std::sin(6 * mu)
-                 + (1097 / 512 * std::pow(ei, 4U)) * std::sin(8 * mu);
-    geom_t c = (E * E / (1 - E * E)) * std::pow(std::cos(phi), 2);
-    geom_t d = x / (k0 * eqRad / std::sqrt(1 - std::pow(E * std::sin(phi), 2)));
+    exseis::utils::Floating_point const eqRad  = 6378137;
+    exseis::utils::Floating_point const polRad = 6356752;
+    exseis::utils::Floating_point const k0     = 0.9996;
+    exseis::utils::Floating_point E =
+      std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
+    exseis::utils::Floating_point ei =
+      (1 - std::sqrt(1 - E * E)) / (1 + std::sqrt(1 - E * E));
+    exseis::utils::Floating_point x = 500000 - easting;
+    exseis::utils::Floating_point mu =
+      (northing / k0)
+      / (eqRad
+         * (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64
+            - 5 * std::pow(E, 6U) / 256));
+    exseis::utils::Floating_point phi =
+      mu + (3 * ei / 2 - 27 * std::pow(ei, 3) / 32) * std::sin(2 * mu)
+      + (21 / 16 * std::pow(ei, 2U) - 55 / 32 * std::pow(ei, 4U))
+          * std::sin(4 * mu)
+      + (151 / 96 * std::pow(ei, 3U) - 417 / 128 * std::pow(ei, 5U))
+          * std::sin(6 * mu)
+      + (1097 / 512 * std::pow(ei, 4U)) * std::sin(8 * mu);
+    exseis::utils::Floating_point c =
+      (E * E / (1 - E * E)) * std::pow(std::cos(phi), 2);
+    exseis::utils::Floating_point d =
+      x / (k0 * eqRad / std::sqrt(1 - std::pow(E * std::sin(phi), 2)));
     lat =
       (180 * hemi / std::acos(-1))
       * (phi

@@ -18,7 +18,9 @@ namespace PIOL {
 using namespace exseis::utils::typedefs;
 
 /// A typedef for the taper function
-typedef std::function<trace_t(trace_t, trace_t)> TaperFunc;
+typedef std::function<exseis::utils::Trace_value(
+  exseis::utils::Trace_value, exseis::utils::Trace_value)>
+  TaperFunc;
 
 /************************************ Core ************************************/
 /*! Apply a taper to a set of traces.
@@ -33,7 +35,7 @@ typedef std::function<trace_t(trace_t, trace_t)> TaperFunc;
 void taper(
   size_t sz,
   size_t ns,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   TaperFunc func,
   size_t nTailLft,
   size_t nTailRt);

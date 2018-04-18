@@ -16,8 +16,9 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
     std::string text = readfile->readText();
     piol->isErr();
     ASSERT_TRUE(testString.size() <= text.size());
-    for (size_t i = 0; i < testString.size(); i++)
+    for (size_t i = 0; i < testString.size(); i++) {
         ASSERT_EQ(testString[i], text[i]);
+    }
 }
 
 // Write test of SEGY -> ObjectSEGY -> DataMPIIO
@@ -49,9 +50,11 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadParam)
     ASSERT_EQ(
       grid.xl, param_utils::getPrm<decltype(grid.xl)>(0U, PIOL_META_xl, &prm2));
     ASSERT_DOUBLE_EQ(
-      coord.x, param_utils::getPrm<geom_t>(0U, PIOL_META_xCmp, &prm2));
+      coord.x, param_utils::getPrm<exseis::utils::Floating_point>(
+                 0U, PIOL_META_xCmp, &prm2));
     ASSERT_DOUBLE_EQ(
-      coord.y, param_utils::getPrm<geom_t>(0U, PIOL_META_yCmp, &prm2));
+      coord.y, param_utils::getPrm<exseis::utils::Floating_point>(
+                 0U, PIOL_META_yCmp, &prm2));
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)

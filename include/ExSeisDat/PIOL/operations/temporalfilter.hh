@@ -10,6 +10,7 @@
 
 #include "ExSeisDat/utils/typedefs.h"
 
+#include <complex>
 #include <functional>
 #include <vector>
 
@@ -58,8 +59,12 @@ enum class PadType : int {
 };
 
 
-/// Typedef for filter padding funcitons
-typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)> FltrPad;
+/// Function interface for filter padding functions.
+using FltrPad = std::function<exseis::utils::Trace_value(
+  exseis::utils::Trace_value*, size_t, size_t, size_t)>;
+
+/// Complex type for traces
+using Complex_trace_value = std::complex<exseis::utils::Trace_value>;
 
 
 /*! Determines the filter order if given passband and stopband frequecnies
@@ -67,14 +72,19 @@ typedef std::function<trace_t(trace_t*, size_t, size_t, size_t)> FltrPad;
  *  @param[in] cornerS Stopband corner
  *  @return Filter order
  */
-size_t filterOrder(const trace_t cornerP, const trace_t cornerS);
+size_t filterOrder(
+  const exseis::utils::Trace_value cornerP,
+  const exseis::utils::Trace_value cornerS);
 
 /*! Expands a series of polynomials of the form (z-b0)(z-b1)...(z-bn)
  *  @param[in] coef Vector of b coefficients
  *  @param[in] nvx  Number of b coefficients
  *  @param[in] poly Expanded polynomial coefficients
  */
-void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly);
+void expandPoly(
+  const Complex_trace_value* coef,
+  const size_t nvx,
+  exseis::utils::Trace_value* poly);
 
 /*! Creates a digital Butterworth lowpass filter for a given corner in
  *  zero/pole/gain form
@@ -85,7 +95,11 @@ void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly);
  *  @return DOCUMENT ME
  *  @todo   DOCUMENT return type
  */
-trace_t lowpass(const size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1);
+exseis::utils::Trace_value lowpass(
+  const size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1);
 
 /*! Creates a digital Butterworth highpass filter for a given corner in
  *  zero/pole/gain form
@@ -96,7 +110,11 @@ trace_t lowpass(const size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1);
  *  @return DOCUMENT ME
  *  @todo DOCUMENT return type
  */
-trace_t highpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1);
+exseis::utils::Trace_value highpass(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1);
 
 /*! Creates a digital Butterworth bandpass filter for a given corner in
  *  zero/pole/gain form
@@ -108,8 +126,12 @@ trace_t highpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1);
  *  @return DOCUMENT ME
  *  @todo DOCUMENT return type
  */
-trace_t bandpass(
-  size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2);
+exseis::utils::Trace_value bandpass(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1,
+  exseis::utils::Trace_value cf2);
 
 /*! Creates a digital Butterworth bandstop filter for a given corner in
  *  zero/pole/gain form
@@ -121,8 +143,12 @@ trace_t bandpass(
  *  @return DOCUMENT ME
  *  @todo DOCUMENT return type
  */
-trace_t bandstop(
-  size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2);
+exseis::utils::Trace_value bandstop(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1,
+  exseis::utils::Trace_value cf2);
 
 /*! Creates a discrete, digital Butterworth filter for a given corner in
  *  polynomial transfer function form
@@ -138,12 +164,12 @@ trace_t bandstop(
  */
 void makeFilter(
   FltrType type,
-  trace_t* numer,
-  trace_t* denom,
-  llint N,
-  trace_t fs,
-  trace_t cf1,
-  trace_t cf2);
+  exseis::utils::Trace_value* numer,
+  exseis::utils::Trace_value* denom,
+  exseis::utils::Integer N,
+  exseis::utils::Trace_value fs,
+  exseis::utils::Trace_value cf1,
+  exseis::utils::Trace_value cf2);
 
 /*! Get the pattern for padding traces for filtering
  *  @param[in] type Type of padding
@@ -164,11 +190,11 @@ FltrPad getPad(PadType type);
  */
 void filterFreq(
   size_t nss,
-  trace_t* trcX,
-  trace_t fs,
+  exseis::utils::Trace_value* trcX,
+  exseis::utils::Trace_value fs,
   size_t N,
-  trace_t* numer,
-  trace_t* denom,
+  exseis::utils::Trace_value* numer,
+  exseis::utils::Trace_value* denom,
   FltrPad padding);
 
 /*! Filter trace in time domain
@@ -183,10 +209,10 @@ void filterFreq(
  */
 void filterTime(
   size_t nw,
-  trace_t* trcOrgnl,
+  exseis::utils::Trace_value* trcOrgnl,
   size_t N,
-  trace_t* numer,
-  trace_t* denom,
+  exseis::utils::Trace_value* numer,
+  exseis::utils::Trace_value* denom,
   FltrPad padding);
 
 /*! Temporally filter traces when given passband and stopband frequencies
@@ -204,14 +230,14 @@ void filterTime(
 void temporalFilter(
   size_t nt,
   size_t ns,
-  trace_t* trc,
-  trace_t fs,
+  exseis::utils::Trace_value* trc,
+  exseis::utils::Trace_value fs,
   FltrType type,
   FltrDmn domain,
   PadType pad,
   size_t nw,
   size_t winCntr,
-  std::vector<trace_t> corners);
+  std::vector<exseis::utils::Trace_value> corners);
 
 /*! Temporally filter traces when given passband frequencies and filter Order
  *  @param[in] nt      Number of traces
@@ -229,14 +255,14 @@ void temporalFilter(
 void temporalFilter(
   size_t nt,
   size_t ns,
-  trace_t* trc,
-  trace_t fs,
+  exseis::utils::Trace_value* trc,
+  exseis::utils::Trace_value fs,
   FltrType type,
   FltrDmn domain,
   PadType pad,
   size_t nw,
   size_t winCntr,
-  std::vector<trace_t> corners,
+  std::vector<exseis::utils::Trace_value> corners,
   size_t N);
 
 }  // namespace PIOL

@@ -34,13 +34,16 @@ void WriteDirect::writeNt(const size_t nt_)
     mockWriteDirect().writeNt(this, nt_);
 }
 
-void WriteDirect::writeInc(const geom_t inc_)
+void WriteDirect::writeInc(const exseis::utils::Floating_point inc_)
 {
     mockWriteDirect().writeInc(this, inc_);
 }
 
 void WriteDirect::writeTrace(
-  const size_t offset, const size_t sz, trace_t* trace, const Param* prm)
+  const size_t offset,
+  const size_t sz,
+  exseis::utils::Trace_value* trace,
+  const Param* prm)
 {
     mockWriteDirect().writeTrace(this, offset, sz, trace, prm);
 }
@@ -52,7 +55,10 @@ void WriteDirect::writeParam(
 }
 
 void WriteDirect::writeTraceNonContiguous(
-  const size_t sz, const size_t* offset, trace_t* trace, const Param* prm)
+  const size_t sz,
+  const size_t* offset,
+  exseis::utils::Trace_value* trace,
+  const Param* prm)
 {
     mockWriteDirect().writeTraceNonContiguous(this, sz, offset, trace, prm);
 }

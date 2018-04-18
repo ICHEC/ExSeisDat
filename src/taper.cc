@@ -8,10 +8,11 @@
 
 #include "ExSeisDat/PIOL/operations/taper.hh"
 
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
+#include <algorithm>
 #include <assert.h>
+#include <cmath>
 
 namespace exseis {
 namespace PIOL {
@@ -20,7 +21,7 @@ namespace PIOL {
 void taper(
   size_t sz,
   size_t ns,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   TaperFunc func,
   size_t nTailLft,
   size_t nTailRt)
@@ -42,22 +43,30 @@ void taper(
 /********************************** Non-Core **********************************/
 TaperFunc getTap(TaperType type)
 {
+    const double pi = 3.14159265358979323846264338327950288;
+
     switch (type) {
         default:
         case PIOL_TAPERTYPE_Linear:
-            return [](trace_t weight, trace_t ramp) {
+            return [](
+                     exseis::utils::Trace_value weight,
+                     exseis::utils::Trace_value ramp) {
                 return 1.0f - std::abs((weight - ramp) / ramp);
             };
             break;
         case PIOL_TAPERTYPE_Cos:
-            return [](trace_t weight, trace_t ramp) {
-                return 0.5f + 0.5f * cos(utils::pi * (weight - ramp) / ramp);
+            return [=](
+                     exseis::utils::Trace_value weight,
+                     exseis::utils::Trace_value ramp) {
+                return 0.5f + 0.5f * cos(pi * (weight - ramp) / ramp);
             };
             break;
         case PIOL_TAPERTYPE_CosSqr:
-            return [](trace_t weight, trace_t ramp) {
+            return [=](
+                     exseis::utils::Trace_value weight,
+                     exseis::utils::Trace_value ramp) {
                 return pow(
-                  0.5f + 0.5f * cos(utils::pi * (weight - ramp) / ramp), 2.0f);
+                  0.5f + 0.5f * cos(pi * (weight - ramp) / ramp), 2.0f);
             };
             break;
     }

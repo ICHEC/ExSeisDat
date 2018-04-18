@@ -41,7 +41,6 @@
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/utils/Distributed_vector.hh"
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/decomposition/block_decomposition.h"
 #include "ExSeisDat/utils/encoding/character_encoding.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"

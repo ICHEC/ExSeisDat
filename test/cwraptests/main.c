@@ -179,7 +179,7 @@ int main()
     if (PIOL_File_getPrm_short(340, PIOL_META_COPY, param) == 350)
         wraptest_ok();
 
-    if (PIOL_File_getPrm_llint(360, PIOL_META_COPY, param) == 370)
+    if (PIOL_File_getPrm_Integer(360, PIOL_META_COPY, param) == 370)
         wraptest_ok();
     if (
       fabs(PIOL_File_getPrm_double(380, PIOL_META_COPY, param) - 390.0)
@@ -188,7 +188,7 @@ int main()
     }
 
     PIOL_File_setPrm_short(400, PIOL_META_COPY, 410, param);
-    PIOL_File_setPrm_llint(420, PIOL_META_COPY, 430, param);
+    PIOL_File_setPrm_Integer(420, PIOL_META_COPY, 430, param);
     PIOL_File_setPrm_double(440, PIOL_META_COPY, 450.0, param);
 
     PIOL_File_cpyPrm(460, param, 470, param_tmp);

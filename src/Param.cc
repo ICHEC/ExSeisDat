@@ -48,9 +48,11 @@ bool Param::operator==(struct Param& p) const
 
 size_t Param::memUsage(void) const
 {
-    return f.capacity() * sizeof(geom_t) + i.capacity() * sizeof(llint)
+    return f.capacity() * sizeof(exseis::utils::Floating_point)
+           + i.capacity() * sizeof(exseis::utils::Integer)
            + s.capacity() * sizeof(int16_t) + t.capacity() * sizeof(size_t)
-           + c.capacity() * sizeof(uchar) + sizeof(Param) + r->memUsage();
+           + c.capacity() * sizeof(unsigned char) + sizeof(Param)
+           + r->memUsage();
 }
 
 }  // namespace PIOL

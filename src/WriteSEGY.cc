@@ -11,7 +11,6 @@
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <cstring>
@@ -27,7 +26,8 @@ namespace PIOL {
 
 WriteSEGY::Opt::Opt(void)
 {
-    incFactor = micro;
+    const double microsecond = 1e-6;
+    incFactor                = 1 * microsecond;
 }
 
 WriteSEGY::WriteSEGY(
@@ -64,7 +64,7 @@ WriteSEGY::~WriteSEGY(void)
             // Write file header on rank 0.
             if (piol->comm->getRank() == 0) {
                 // The buffer to build the header in
-                std::vector<uchar> header_buffer(SEGY_utils::getHOSz());
+                std::vector<unsigned char> header_buffer(SEGY_utils::getHOSz());
 
                 // Write the text header into the start of the buffer.
                 std::copy(
@@ -154,7 +154,7 @@ void WriteSEGY::writeNt(const size_t nt_)
     state.stalent = false;
 }
 
-void WriteSEGY::writeInc(const geom_t inc_)
+void WriteSEGY::writeInc(const exseis::utils::Floating_point inc_)
 {
     if (std::isnormal(inc_) == false) {
         piol->log->record(
@@ -188,11 +188,11 @@ void writeTraceT(
   const size_t ns,
   T offset,
   const size_t sz,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   const Param* prm,
   const size_t skip)
 {
-    uchar* tbuf = reinterpret_cast<uchar*>(trc);
+    unsigned char* tbuf = reinterpret_cast<unsigned char*>(trc);
 
     if (trc != TRACE_NULL && trc != nullptr) {
         for (size_t i = 0; i < ns * sz; i++) {
@@ -206,8 +206,8 @@ void writeTraceT(
     else {
         const size_t blockSz =
           (trc == TRACE_NULL ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
-        std::vector<uchar> alloc(blockSz * sz);
-        uchar* buf = (sz ? alloc.data() : nullptr);
+        std::vector<unsigned char> alloc(blockSz * sz);
+        unsigned char* buf = (sz ? alloc.data() : nullptr);
         SEGY_utils::insertParam(
           sz, prm, buf, blockSz - SEGY_utils::getMDSz(), skip);
 
@@ -235,7 +235,7 @@ void writeTraceT(
 void WriteSEGY::writeTrace(
   const size_t offset,
   const size_t sz,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   const Param* prm,
   const size_t skip)
 {
@@ -254,7 +254,7 @@ void WriteSEGY::writeTrace(
 void WriteSEGY::writeTraceNonContiguous(
   const size_t sz,
   const size_t* offset,
-  trace_t* trc,
+  exseis::utils::Trace_value* trc,
   const Param* prm,
   const size_t skip)
 {

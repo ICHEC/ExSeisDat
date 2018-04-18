@@ -54,7 +54,8 @@ T getPrm(size_t i, Meta entry, const Param* prm)
  *  @param[in] i The trace number
  *  @param[in] entry The meta entry to retrieve.
  *  @param[in] ret The parameter return structure which is initialised by
- *                 passing a geom_t, llint or short.
+ *                 passing a exseis::utils::Floating_point,
+ * exseis::utils::Integer or short.
  *  @param[in] prm The parameter structure
  */
 template<typename T>

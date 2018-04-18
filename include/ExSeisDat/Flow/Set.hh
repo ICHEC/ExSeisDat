@@ -13,7 +13,6 @@
 #include "ExSeisDat/PIOL/operations/sort.hh"
 #include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/gain_control/Gain_function.h"
 
 #include <deque>
@@ -52,10 +51,10 @@ class Set {
     FileDeque file;
 
     /// A map of (ns, inc) key to a deque of file descriptor pointers
-    std::map<std::pair<size_t, geom_t>, FileDeque> fmap;
+    std::map<std::pair<size_t, exseis::utils::Floating_point>, FileDeque> fmap;
 
     /// A map of (ns, inc) key to the current offset
-    std::map<std::pair<size_t, geom_t>, size_t> offmap;
+    std::map<std::pair<size_t, exseis::utils::Floating_point>, size_t> offmap;
 
     /// Contains a pointer to the Rules for parameters
     std::shared_ptr<exseis::PIOL::Rule> rule;
@@ -246,7 +245,7 @@ class Set {
     void AGC(
       exseis::utils::Gain_function agcFunc,
       size_t window,
-      trace_t target_amplitude);
+      exseis::utils::Trace_value target_amplitude);
 
     /*! Set the text-header of the output
      *  @param[in] outmsg_ The output message
@@ -273,14 +272,15 @@ class Set {
      *  @param[in] vmName The name of the velocity model file.
      *  @param[in] vBin The velocity model bin value.
      *  @param[in] oGSz The number of traces in the output gather.
-     *  @param[in] oInc The samples per trace for the output (i.e the angle
-     *             increment between samples.
+     *  @param[in] oInc The samples per trace for the output in radians
+     *                  (i.e the angle increment between samples.)
+     *                  (default = 1 degree).
      */
     void toAngle(
       std::string vmName,
       const size_t vBin,
       const size_t oGSz,
-      geom_t oInc = exseis::utils::pi / geom_t(180LU));
+      exseis::utils::Floating_point oInc = std::atan(1) * 4.0 / 180);
 
     /******************************** Non-Core ********************************/
     /*! Sort the set by the specified sort type.
@@ -324,8 +324,8 @@ class Set {
       exseis::PIOL::FltrType type,
       exseis::PIOL::FltrDmn domain,
       exseis::PIOL::PadType pad,
-      trace_t fs,
-      std::vector<trace_t> corners,
+      exseis::utils::Trace_value fs,
+      std::vector<exseis::utils::Trace_value> corners,
       size_t nw      = 0U,
       size_t winCntr = 0U);
 
@@ -343,9 +343,9 @@ class Set {
       exseis::PIOL::FltrType type,
       exseis::PIOL::FltrDmn domain,
       exseis::PIOL::PadType pad,
-      trace_t fs,
+      exseis::utils::Trace_value fs,
       size_t N,
-      std::vector<trace_t> corners,
+      std::vector<exseis::utils::Trace_value> corners,
       size_t nw      = 0U,
       size_t winCntr = 0U);
 
@@ -363,15 +363,15 @@ class Set {
       exseis::PIOL::FltrType type,
       exseis::PIOL::FltrDmn domain,
       exseis::PIOL::PadType pad,
-      trace_t fs,
+      exseis::utils::Trace_value fs,
       size_t N,
-      trace_t corners,
+      exseis::utils::Trace_value corners,
       size_t nw      = 0U,
       size_t winCntr = 0U)
     {
         temporalFilter(
-          type, domain, pad, fs, N, std::vector<trace_t>{corners, 0}, nw,
-          winCntr);
+          type, domain, pad, fs, N,
+          std::vector<exseis::utils::Trace_value>{corners, 0}, nw, winCntr);
     }
 };
 

@@ -31,24 +31,37 @@ struct FakeReadFile : public ReadInterface {
       std::shared_ptr<ObjectInterface> obj_) :
         ReadInterface(piol_, name_, obj_)
     {
-        inc  = geom_t(10);
+        inc  = exseis::utils::Floating_point(10);
         text = "test";
         nt   = 1101U;
         ns   = 1010U;
     }
 
     size_t readNt(void) const { return nt; }
-    void readTrace(const size_t, const size_t, trace_t*, Param*, size_t) const
+    void readTrace(
+      const size_t,
+      const size_t,
+      exseis::utils::Trace_value*,
+      Param*,
+      size_t) const
     {
     }
     void readParam(const size_t, const size_t, Param*, size_t) const {}
 
     void readTraceNonContiguous(
-      const size_t, const size_t*, trace_t*, Param*, size_t) const
+      const size_t,
+      const size_t*,
+      exseis::utils::Trace_value*,
+      Param*,
+      size_t) const
     {
     }
     void readTraceNonMonotonic(
-      const size_t, const size_t*, trace_t*, Param*, size_t) const
+      const size_t,
+      const size_t*,
+      exseis::utils::Trace_value*,
+      Param*,
+      size_t) const
     {
     }
     void readParamNonContiguous(
@@ -72,7 +85,7 @@ struct FakeWriteFile : public WriteInterface {
       std::shared_ptr<ObjectInterface> obj_) :
         WriteInterface(piol_, name_, obj_)
     {
-        inc  = geom_t(10);
+        inc  = exseis::utils::Floating_point(10);
         text = "test";
         nt   = 1101U;
         ns   = 1010U;
@@ -81,13 +94,23 @@ struct FakeWriteFile : public WriteInterface {
     void writeText(const std::string) {}
     void writeNs(const size_t) {}
     void writeNt(const size_t) {}
-    void writeInc(const geom_t) {}
-    void writeTrace(const size_t, const size_t, trace_t*, const Param*, size_t)
+    void writeInc(const exseis::utils::Floating_point) {}
+    void writeTrace(
+      const size_t,
+      const size_t,
+      exseis::utils::Trace_value*,
+      const Param*,
+      size_t)
     {
     }
     void writeParam(const size_t, const size_t, const Param*, size_t) {}
 
-    void writeTrace(const size_t, const size_t*, trace_t*, const Param*, size_t)
+    void writeTrace(
+      const size_t,
+      const size_t*,
+      exseis::utils::Trace_value*,
+      const Param*,
+      size_t)
     {
     }
     void writeParam(const size_t, const size_t*, const Param*, size_t) {}
@@ -98,7 +121,7 @@ void compareConstructor(ExSeisPIOL* piol, FakeReadFile& fake)
     EXPECT_EQ(piol, fake.piol.get());
     EXPECT_EQ(tempFile, fake.name);
     EXPECT_EQ(1010U, fake.readNs());
-    EXPECT_EQ(geom_t(10), fake.readInc());
+    EXPECT_EQ(exseis::utils::Floating_point(10), fake.readInc());
     EXPECT_EQ("test", fake.readText());
 }
 

@@ -65,7 +65,7 @@ void PIOL_Set_AGC(
   PIOL_Set* set,
   exseis_Gain_function type,
   size_t window,
-  exseis_trace_t target_amplitude)
+  exseis_Trace_value target_amplitude)
 {
     assert(not_null(set));
 

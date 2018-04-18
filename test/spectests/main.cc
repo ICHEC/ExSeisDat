@@ -34,12 +34,12 @@ int32_t xlNum(size_t i)
     return 1600L + (i % 3000L);
 }
 
-geom_t xNum(size_t i)
+exseis::utils::Floating_point xNum(size_t i)
 {
     return 1000L + (i / 2000L);
 }
 
-geom_t yNum(size_t i)
+exseis::utils::Floating_point yNum(size_t i)
 {
     return 1000L + (i % 2000L);
 }
@@ -53,12 +53,12 @@ void makeFile(std::string name, size_t sz)
         // Seek beyond the end of the file and write a single null byte. This
         // ensures the file is all zeroes according to IEEE Std 1003.1-2013
         fseek(fs, sz - 1ll, SEEK_SET);
-        fwrite(&zero, sizeof(uchar), 1, fs);
+        fwrite(&zero, sizeof(unsigned char), 1, fs);
     }
     fclose(fs);
 }
 
-uchar getPattern(size_t i)
+unsigned char getPattern(size_t i)
 {
     const size_t psz = 0x100;
     i %= psz;
@@ -70,7 +70,7 @@ std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
     srand(seed);
     if (nt == 0) return std::vector<size_t>();
 
-    llint range = (max / nt) - 1LL;
+    exseis::utils::Integer range = (max / nt) - 1LL;
     assert(range >= 0);
 
     std::vector<size_t> v(nt);

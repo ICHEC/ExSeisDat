@@ -75,7 +75,8 @@ class DataInterface {
      *  @param[in] sz     The amount of data to read from disk
      *  @param[out] d     The array to store the output in
      */
-    virtual void read(const size_t offset, const size_t sz, uchar* d) const = 0;
+    virtual void read(
+      const size_t offset, const size_t sz, unsigned char* d) const = 0;
 
     /*! @brief Read data from storage in blocks.
      *  @param[in] offset The offset in bytes from the current internal shared
@@ -90,7 +91,7 @@ class DataInterface {
       const size_t bsz,
       const size_t osz,
       const size_t nb,
-      uchar* d) const = 0;
+      unsigned char* d) const = 0;
 
     /*! read a file where each block is determined from the list of offset
      *  @param[in] bsz    The size of a block in bytes
@@ -104,7 +105,7 @@ class DataInterface {
       const size_t bsz,
       const size_t sz,
       const size_t* offset,
-      uchar* d) const = 0;
+      unsigned char* d) const = 0;
 
     /*! write a file where each block is determined from the list of offset
      *  @param[in] bsz    The size of a block in bytes
@@ -118,7 +119,7 @@ class DataInterface {
       const size_t bsz,
       const size_t sz,
       const size_t* offset,
-      const uchar* d) const = 0;
+      const unsigned char* d) const = 0;
 
     /*! @brief Write to storage.
      *  @param[in] offset The offset in bytes from the current internal shared
@@ -127,7 +128,7 @@ class DataInterface {
      *  @param[in] d      The array to read data output from
      */
     virtual void write(
-      const size_t offset, const size_t sz, const uchar* d) const = 0;
+      const size_t offset, const size_t sz, const unsigned char* d) const = 0;
 
     /*! @brief Write data to storage in blocks.
      *  @param[in] offset The offset in bytes from the current internal shared
@@ -142,7 +143,7 @@ class DataInterface {
       const size_t bsz,
       const size_t osz,
       const size_t nb,
-      const uchar* d) const = 0;
+      const unsigned char* d) const = 0;
 };
 
 }  // namespace PIOL

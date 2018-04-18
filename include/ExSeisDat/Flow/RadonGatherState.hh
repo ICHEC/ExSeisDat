@@ -31,13 +31,13 @@ struct RadonGatherState : public GatherState {
     std::string vmname;
 
     /// Trace data read from the VM file.
-    std::vector<trace_t> vtrc;
+    std::vector<exseis::utils::Trace_value> vtrc;
 
     /// A list of inlines corresponding to the VM data read.
-    std::vector<llint> il;
+    std::vector<exseis::utils::Integer> il;
 
     /// A list of crosslines corresponding to the VM data read.
-    std::vector<llint> xl;
+    std::vector<exseis::utils::Integer> xl;
 
     /// The number of samples per trace for the VM.
     size_t vNs;
@@ -49,10 +49,10 @@ struct RadonGatherState : public GatherState {
     size_t oGSz;
 
     /// The increment between samples in the VM file.
-    geom_t vInc;
+    exseis::utils::Floating_point vInc;
 
     /// The increment between samples in the output file (radians).
-    geom_t oInc;
+    exseis::utils::Floating_point oInc;
 
     /*! Constructor for the radon state.
      * @param[in] piol_ The piol object.
@@ -66,7 +66,7 @@ struct RadonGatherState : public GatherState {
       std::string vmname_,
       const size_t vBin_,
       const size_t oGSz_,
-      const geom_t oInc_) :
+      const exseis::utils::Floating_point oInc_) :
         piol(piol_),
         vmname(vmname_),
         vNs(0),

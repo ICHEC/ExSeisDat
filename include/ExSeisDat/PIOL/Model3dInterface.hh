@@ -25,20 +25,22 @@ class Model3dInterface {
     /// A class for storing coordinate parameters
     struct CoordinateParameters {
         /// The initial coordinate value
-        llint start;
+        exseis::utils::Integer start;
 
         /// The number of coordinate values
-        llint count;
+        exseis::utils::Integer count;
 
         /// The increment between coordinate values
-        llint increment;
+        exseis::utils::Integer increment;
 
         /// A value constructor for the CoordinateParameters
         /// @param[in] start     The initial coordinate value
         /// @param[in] count     The number of coordinate values
         /// @param[in] increment The increment between coordinate values
         CoordinateParameters(
-          llint start = 0, llint count = 0, llint increment = 0) :
+          exseis::utils::Integer start     = 0,
+          exseis::utils::Integer count     = 0,
+          exseis::utils::Integer increment = 0) :
             start(start),
             count(count),
             increment(increment)
@@ -60,7 +62,7 @@ class Model3dInterface {
      *                    of interest
      *  @return return a vector of traces containing the trace values requested
      */
-    virtual std::vector<trace_t> readModel(
+    virtual std::vector<exseis::utils::Trace_value> readModel(
       const size_t offset,
       const size_t sz,
       const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
@@ -73,7 +75,7 @@ class Model3dInterface {
      *                    of interest
      *  @return Return a vector of traces containing the trace values requested
      */
-    virtual std::vector<trace_t> readModel(
+    virtual std::vector<exseis::utils::Trace_value> readModel(
       const size_t sz,
       const size_t* offset,
       const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;

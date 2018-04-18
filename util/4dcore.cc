@@ -111,9 +111,11 @@ std::vector<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
     if (ixline) {
         win.resize(7);
         MPIErr(MPI_Win_create(
-          crd->il, crd->sz, sizeof(llint), info, MPI_COMM_WORLD, &win[5]));
+          crd->il, crd->sz, sizeof(exseis::utils::Integer), info,
+          MPI_COMM_WORLD, &win[5]));
         MPIErr(MPI_Win_create(
-          crd->xl, crd->sz, sizeof(llint), info, MPI_COMM_WORLD, &win[6]));
+          crd->xl, crd->sz, sizeof(exseis::utils::Integer), info,
+          MPI_COMM_WORLD, &win[6]));
     }
 
     MPI_Info_free(&info);
@@ -153,11 +155,13 @@ std::unique_ptr<Coords> getCoordsWin(
 
     if (ixline) {
         MPIErr(MPI_Get(
-          crd->il, crd->sz, exseis::utils::MPI_type<llint>(), lrank, 0, sz,
-          exseis::utils::MPI_type<llint>(), win[5]));
+          crd->il, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          lrank, 0, sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          win[5]));
         MPIErr(MPI_Get(
-          crd->xl, crd->sz, exseis::utils::MPI_type<llint>(), lrank, 0, sz,
-          exseis::utils::MPI_type<llint>(), win[6]));
+          crd->xl, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          lrank, 0, sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          win[6]));
     }
 
     for (size_t i = 0; i < win.size(); i++)
@@ -375,11 +379,11 @@ std::vector<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
     if (ixline) {
         request.resize(7);
         MPIErr(MPI_Isend(
-          crd->il, crd->sz, exseis::utils::MPI_type<llint>(), lrank, 5,
-          MPI_COMM_WORLD, &request[5]));
+          crd->il, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          lrank, 5, MPI_COMM_WORLD, &request[5]));
         MPIErr(MPI_Isend(
-          crd->xl, crd->sz, exseis::utils::MPI_type<llint>(), lrank, 6,
-          MPI_COMM_WORLD, &request[6]));
+          crd->xl, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          lrank, 6, MPI_COMM_WORLD, &request[6]));
     }
     return request;
 }
@@ -414,11 +418,11 @@ std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
     if (ixline) {
         request.resize(7);
         MPIErr(MPI_Irecv(
-          crd->il, crd->sz, exseis::utils::MPI_type<llint>(), lrank, 5,
-          MPI_COMM_WORLD, &request[5]));
+          crd->il, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          lrank, 5, MPI_COMM_WORLD, &request[5]));
         MPIErr(MPI_Irecv(
-          crd->xl, crd->sz, exseis::utils::MPI_type<llint>(), lrank, 6,
-          MPI_COMM_WORLD, &request[6]));
+          crd->xl, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+          lrank, 6, MPI_COMM_WORLD, &request[6]));
     }
     std::vector<MPI_Status> stat(request.size());
     MPIErr(MPI_Waitall(request.size(), request.data(), stat.data()));
@@ -502,9 +506,9 @@ void calc4DBin(
         auto proc = recvCrd(lrank, szall[lrank], opt.ixline);
 #endif
         double wtime = MPI_Wtime() - ltime;
-        double sent =
-          szall[lrank]
-          * (4LU * sizeof(fourd_t) + sizeof(size_t) + 2LU * sizeof(llint));
+        double sent  = szall[lrank]
+                      * (4LU * sizeof(fourd_t) + sizeof(size_t)
+                         + 2LU * sizeof(exseis::utils::Integer));
         size_t ops =
           (opt.ixline ? update<true>(crd1, proc.get(), min, minrs, dsrmax) :
                         update<false>(crd1, proc.get(), min, minrs, dsrmax));

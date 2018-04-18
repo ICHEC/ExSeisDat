@@ -14,7 +14,7 @@ namespace PIOL {
 namespace SEGY_utils {
 
 void insertParam(
-  size_t sz, const Param* prm, uchar* buf, size_t stride, size_t skip)
+  size_t sz, const Param* prm, unsigned char* buf, size_t stride, size_t skip)
 {
     if (prm == nullptr || !sz) return;
     auto r       = prm->r;
@@ -37,7 +37,7 @@ void insertParam(
     }
 
     for (size_t i = 0; i < sz; i++) {
-        uchar* md = &buf[(r->extent() + stride) * i];
+        unsigned char* md = &buf[(r->extent() + stride) * i];
 // Compiler defects
 #if defined(__INTEL_COMPILER) || __GNUC__ < 6
         std::unordered_map<Tr, int16_t, EnumHash> scal;
@@ -84,7 +84,7 @@ void insertParam(
         }
 
         for (size_t j = 0; j < rule.size(); j++) {
-            geom_t gscale =
+            exseis::utils::Floating_point gscale =
               parse_scalar(scal[static_cast<Tr>(rule[j]->scalLoc)]);
             getBigEndian(
               int32_t(std::lround(
@@ -95,7 +95,7 @@ void insertParam(
 }
 
 void extractParam(
-  size_t sz, const uchar* buf, Param* prm, size_t stride, size_t skip)
+  size_t sz, const unsigned char* buf, Param* prm, size_t stride, size_t skip)
 {
     if (prm == nullptr || !sz) return;
     Rule* r = prm->r.get();
@@ -117,7 +117,7 @@ void extractParam(
     }
 
     for (size_t i = 0; i < sz; i++) {
-        const uchar* md = &buf[(r->extent() + stride) * i];
+        const unsigned char* md = &buf[(r->extent() + stride) * i];
         // Loop through each rule and extract data
         for (const auto v : r->translate) {
             const auto t = v.second;
@@ -129,7 +129,8 @@ void extractParam(
                         &md
                           [dynamic_cast<SEGYFloatRuleEntry*>(t)->scalLoc
                            - r->start - 1LU]))
-                      * geom_t(getHost<int32_t>(&md[loc]));
+                      * exseis::utils::Floating_point(
+                          getHost<int32_t>(&md[loc]));
                     break;
                 case RuleEntry::MdType::Short:
                     prm->s[(i + skip) * r->numShort + t->num] =
@@ -145,42 +146,45 @@ void extractParam(
     }
 }
 
-geom_t parse_scalar(int16_t segy_scalar)
+exseis::utils::Floating_point parse_scalar(int16_t segy_scalar)
 {
     // If scale is zero, we assume unscaled, i.e. 1.
     if (segy_scalar == 0) segy_scalar = 1;
 
     // Positive segy_scalar represents multiplication by value
     if (segy_scalar > 0) {
-        return static_cast<geom_t>(segy_scalar);
+        return static_cast<exseis::utils::Floating_point>(segy_scalar);
     }
     // Negative segy_scalar represents division by value
-    return 1 / static_cast<geom_t>(-segy_scalar);
+    return 1 / static_cast<exseis::utils::Floating_point>(-segy_scalar);
 }
 
-int16_t find_scalar(geom_t val)
+int16_t find_scalar(exseis::utils::Floating_point val)
 {
-    constexpr llint tenk = 10000LL;
+    constexpr exseis::utils::Integer tenk = 10000LL;
 
     // First we need to determine what scale is required to store the
     // biggest decimal value of the int.
-    llint llintpart = llint(val);
-    int32_t intpart = llintpart;
-    if (llintpart != intpart) {
+    exseis::utils::Integer integer_part = exseis::utils::Integer(val);
+    int32_t int_part                    = integer_part;
+
+    if (integer_part != int_part) {
         // Starting with the smallest scale factor, see what is the smallest
         // scale we can apply and still hold the integer portion.
         // We drop as much precision as it takes to store the most significant
         // digit.
         for (int32_t scal = 10; scal <= tenk; scal *= 10) {
-            llint v    = llintpart / scal;
-            int32_t iv = v;
+            exseis::utils::Integer v = integer_part / scal;
+            int32_t iv               = v;
             if (v == iv) return scal;
         }
         return 0;
     }
     else {
         // Get the first four digits
-        llint digits = std::llround(val * geom_t(tenk)) - llintpart * tenk;
+        exseis::utils::Integer digits =
+          std::llround(val * exseis::utils::Floating_point(tenk))
+          - integer_part * tenk;
         // if the digits are all zero we don't need any scaling
         if (digits != 0) {
             // We try the most negative scale values we can first.
@@ -190,13 +194,14 @@ int16_t find_scalar(geom_t val)
                     int16_t scaleFactor = -tenk / i;
                     // Now we test that we can still store the most significant
                     // byte
-                    geom_t scal = parse_scalar(scaleFactor);
+                    exseis::utils::Floating_point scal =
+                      parse_scalar(scaleFactor);
 
-                    // int32_t t = llint(val / scal) - digits;
+                    // int32_t t = exseis::utils::Integer(val / scal) - digits;
                     int32_t t = std::lround(val / scal);
                     t /= -scaleFactor;
 
-                    if (t == llintpart) return scaleFactor;
+                    if (t == integer_part) return scaleFactor;
                 }
             }
         }

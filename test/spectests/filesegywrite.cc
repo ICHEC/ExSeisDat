@@ -14,8 +14,9 @@ TEST_F(FileSEGYWrite, FileWriteHOLongString)
     const size_t sz       = testString.size();
     const size_t extendSz = 3400U - sz;
     testString.resize(sz + extendSz);
-    for (size_t i = 3200U; i < sz + extendSz; i++)
-        testString[i] = uchar(0x7F);
+    for (size_t i = 3200U; i < sz + extendSz; i++) {
+        testString[i] = 0x7F;
+    }
 
     makeMockSEGY<true>();
 }
@@ -36,7 +37,7 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrGrid)
 TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
 {
     makeMockSEGY<true>();
-    std::vector<uchar> tr(SEGY_utils::getMDSz());
+    std::vector<unsigned char> tr(SEGY_utils::getMDSz());
     initWriteTrHdrCoord({xCMP, yCMP}, {160010, 240022}, -100, 10U, &tr);
 
 
@@ -50,7 +51,7 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
 TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
 {
     makeMockSEGY<true>();
-    std::vector<uchar> tr(SEGY_utils::getMDSz());
+    std::vector<unsigned char> tr(SEGY_utils::getMDSz());
     initWriteTrHdrCoord({xSrc, ySrc}, {1600100, 3400222}, -1000, 10U, &tr);
 
     Param prm(1U);
@@ -64,7 +65,7 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
 TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
 {
     makeMockSEGY<true>();
-    std::vector<uchar> tr(SEGY_utils::getMDSz());
+    std::vector<unsigned char> tr(SEGY_utils::getMDSz());
     initWriteTrHdrCoord({xSrc, ySrc}, {1623001001, 34002220}, -10000, 10U, &tr);
 
     Param prm(1U);
@@ -372,7 +373,7 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadnt)
 
 TEST_F(FileSEGYDeath, FileWriteAPIBadinc)
 {
-    geom_t ginc = nan("");
+    exseis::utils::Floating_point ginc = nan("");
     makeMockSEGY<false>();
     file->writeInc(ginc);
 

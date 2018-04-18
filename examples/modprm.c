@@ -43,8 +43,10 @@ void readwriteParam(
     PIOL_File_Param* prm = PIOL_File_Param_new(NULL, tcnt);
     PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++) {
-        exseis_geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
-        exseis_geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
+        exseis_Floating_point xval =
+          PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
+        exseis_Floating_point yval =
+          PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
         PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
         PIOL_File_setPrm_double(i, PIOL_META_ySrc, xval, prm);
     }

@@ -17,7 +17,7 @@ namespace exseis {
 namespace PIOL {
 
 /// The NULL parameter so that the correct internal read pattern is selected
-extern const trace_t* TRACE_NULL;
+extern const exseis::utils::Trace_value* TRACE_NULL;
 
 /*! @brief The \c ReadInterface class is a generic interface for reading
  *         seismic data files.
@@ -43,7 +43,7 @@ class ReadInterface {
     std::string text = "";
 
     /// The increment between samples in a trace
-    geom_t inc = 0;
+    exseis::utils::Floating_point inc = 0;
 
   public:
     /*! @brief The constructor.
@@ -88,7 +88,7 @@ class ReadInterface {
     /*! @brief Read the number of increment between trace samples
      *  @return The increment between trace samples
      */
-    virtual geom_t readInc(void) const;
+    virtual exseis::utils::Floating_point readInc(void) const;
 
     /*! @brief Read the trace parameters from offset to offset+sz of the
      *         respective trace headers.
@@ -128,7 +128,7 @@ class ReadInterface {
     virtual void readTrace(
       const size_t offset,
       const size_t sz,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const = 0;
 
@@ -137,7 +137,7 @@ class ReadInterface {
      *  @param[in] sz The number of traces to process
      *  @param[in] offset An array of trace numbers to read (monotonic list).
      *  @param[out] trace A contiguous array of each trace
-     *                    (size sz*ns*sizeof(trace_t))
+     *                    (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[out] prm A parameter structure
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      *
@@ -146,7 +146,7 @@ class ReadInterface {
     virtual void readTraceNonContiguous(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const = 0;
 
@@ -156,7 +156,7 @@ class ReadInterface {
      *  @param[in] offset An array of trace numbers to read
      *                    (non-monotonic list).
      *  @param[out] trace A contiguous array of each trace
-     *                    (size sz*ns*sizeof(trace_t))
+     *                    (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[out] prm A parameter structure
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      *
@@ -165,7 +165,7 @@ class ReadInterface {
     virtual void readTraceNonMonotonic(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const = 0;
 };

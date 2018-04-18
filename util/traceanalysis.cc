@@ -50,22 +50,28 @@ int main(int argc, char** argv)
 
     if (!piol->getRank()) {
         std::cout << "xSrc "
-                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_xSrc, &prm)
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_xSrc, &prm)
                   << std::endl;
         std::cout << "ySrc "
-                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_ySrc, &prm)
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_ySrc, &prm)
                   << std::endl;
         std::cout << "xRcv "
-                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_xRcv, &prm)
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_xRcv, &prm)
                   << std::endl;
         std::cout << "yRcv "
-                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_yRcv, &prm)
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_yRcv, &prm)
                   << std::endl;
         std::cout << "xCmp "
-                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_xCmp, &prm)
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_xCmp, &prm)
                   << std::endl;
         std::cout << "yCmp "
-                  << param_utils::getPrm<geom_t>(0LU, PIOL_META_yCmp, &prm)
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_yCmp, &prm)
                   << std::endl;
 
         std::cout << "il "

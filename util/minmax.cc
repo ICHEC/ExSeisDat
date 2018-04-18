@@ -63,13 +63,13 @@ void calcMin(std::string iname, std::string oname)
     in.readParamNonContiguous(usz, uniqlist.data(), &tprm);
 
     Param oprm(sz);
-    std::vector<trace_t> trace(sz);
+    std::vector<exseis::utils::Trace_value> trace(sz);
     for (size_t i = 0U; i < sz; i++)
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
                 param_utils::cpyPrm(j, &tprm, i, &oprm);
                 param_utils::setPrm(i, PIOL_META_tn, minmax[i].num, &oprm);
-                trace[i] = trace_t(1);
+                trace[i] = exseis::utils::Trace_value(1);
                 j        = usz;
             }
         }

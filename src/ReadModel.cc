@@ -19,7 +19,7 @@ ReadModel::ReadModel(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
 {
 }
 
-std::vector<trace_t> ReadModel::readModel(
+std::vector<exseis::utils::Trace_value> ReadModel::readModel(
   size_t gOffset,
   size_t numGather,
   utils::Distributed_vector<Gather_info>& gather)

@@ -22,7 +22,7 @@ class WriteSEGY : public WriteInterface {
         typedef WriteSEGY Type;
         /// The increment factor to multiply inc by (default to SEG-Y rev 1
         /// standard definition)
-        unit_t incFactor;
+        double incFactor;
 
         /*! Constructor which provides the default Rules
          */
@@ -51,7 +51,7 @@ class WriteSEGY : public WriteInterface {
     Flags state;
 
     /// The increment factor
-    unit_t incFactor;
+    double incFactor;
 
     /*! Calculate the number of traces currently stored (or implied to exist).
      *  @return Return the number of traces
@@ -95,19 +95,19 @@ class WriteSEGY : public WriteInterface {
 
     void writeNt(const size_t nt_);
 
-    void writeInc(const geom_t inc_);
+    void writeInc(const exseis::utils::Floating_point inc_);
 
     void writeTrace(
       const size_t offset,
       const size_t sz,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       const Param* prm  = PIOL_PARAM_NULL,
       const size_t skip = 0);
 
     void writeTraceNonContiguous(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       const Param* prm  = PIOL_PARAM_NULL,
       const size_t skip = 0);
 };

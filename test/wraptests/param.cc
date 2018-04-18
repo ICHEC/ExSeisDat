@@ -44,15 +44,18 @@ int16_t param_utils::getPrm<int16_t>(size_t i, Meta entry, const Param* prm)
 }
 
 template<>
-llint param_utils::getPrm<llint>(size_t i, Meta entry, const Param* prm)
+exseis::utils::Integer param_utils::getPrm<exseis::utils::Integer>(
+  size_t i, Meta entry, const Param* prm)
 {
-    return mockParamFreeFunctions().getPrm_llint(i, entry, prm);
+    return mockParamFreeFunctions().getPrm_Integer(i, entry, prm);
 }
 
 template<>
-geom_t param_utils::getPrm<geom_t>(size_t i, Meta entry, const Param* prm)
+exseis::utils::Floating_point
+param_utils::getPrm<exseis::utils::Floating_point>(
+  size_t i, Meta entry, const Param* prm)
 {
-    return mockParamFreeFunctions().getPrm_geom_t(i, entry, prm);
+    return mockParamFreeFunctions().getPrm_Floating_point(i, entry, prm);
 }
 
 template<>
@@ -63,17 +66,20 @@ void param_utils::setPrm<int16_t>(
 }
 
 template<>
-void param_utils::setPrm<llint>(
-  const size_t i, const Meta entry, llint ret, Param* prm)
+void param_utils::setPrm<exseis::utils::Integer>(
+  const size_t i, const Meta entry, exseis::utils::Integer ret, Param* prm)
 {
-    mockParamFreeFunctions().setPrm_llint(i, entry, ret, prm);
+    mockParamFreeFunctions().setPrm_Integer(i, entry, ret, prm);
 }
 
 template<>
-void param_utils::setPrm<geom_t>(
-  const size_t i, const Meta entry, geom_t ret, Param* prm)
+void param_utils::setPrm<exseis::utils::Floating_point>(
+  const size_t i,
+  const Meta entry,
+  exseis::utils::Floating_point ret,
+  Param* prm)
 {
-    mockParamFreeFunctions().setPrm_geom_t(i, entry, ret, prm);
+    mockParamFreeFunctions().setPrm_Floating_point(i, entry, ret, prm);
 }
 
 }  // namespace PIOL

@@ -41,11 +41,13 @@ void getMinMax(
 
     getMinMax<Param>(
       piol, offset, lnt, vprm.data(),
-      [m1](const Param& a) -> geom_t {
-          return param_utils::getPrm<geom_t>(0LU, m1, &a);
+      [m1](const Param& a) -> exseis::utils::Floating_point {
+          return param_utils::getPrm<exseis::utils::Floating_point>(
+            0LU, m1, &a);
       },
-      [m2](const Param& a) -> geom_t {
-          return param_utils::getPrm<geom_t>(0LU, m2, &a);
+      [m2](const Param& a) -> exseis::utils::Floating_point {
+          return param_utils::getPrm<exseis::utils::Floating_point>(
+            0LU, m2, &a);
       },
       minmax);
 }

@@ -49,12 +49,12 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
       const ReadSEGYModel::Opt& opt,
       std::shared_ptr<ObjectInterface> obj_);
 
-    std::vector<trace_t> readModel(
+    std::vector<exseis::utils::Trace_value> readModel(
       const size_t offset,
       const size_t sz,
       const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 
-    std::vector<trace_t> readModel(
+    std::vector<exseis::utils::Trace_value> readModel(
       const size_t sz,
       const size_t* offset,
       const exseis::utils::Distributed_vector<Gather_info>& gather) override;

@@ -15,7 +15,6 @@
 #include "ExSeisDat/PIOL/WriteSEGY.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/encoding/character_encoding.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
 
@@ -122,35 +121,43 @@ class MockObj : public ObjectInterface {
     }
 
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
-    MOCK_CONST_METHOD1(readHO, void(uchar*));
+    MOCK_CONST_METHOD1(readHO, void(unsigned char*));
     MOCK_CONST_METHOD1(setFileSz, void(const size_t));
-    MOCK_CONST_METHOD1(writeHO, void(const uchar*));
+    MOCK_CONST_METHOD1(writeHO, void(const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDOMD, void(const size_t, const size_t, const size_t, uchar*));
+      readDOMD, void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDOMD, void(const size_t, const size_t, const size_t, const uchar*));
+      writeDOMD,
+      void(const size_t, const size_t, const size_t, const unsigned char*));
 
     MOCK_CONST_METHOD4(
-      readDODF, void(const size_t, const size_t, const size_t, uchar*));
+      readDODF, void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDODF, void(const size_t, const size_t, const size_t, const uchar*));
+      writeDODF,
+      void(const size_t, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDO, void(const size_t, const size_t, const size_t, uchar*));
+      readDO, void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDO, void(const size_t, const size_t, const size_t, const uchar*));
+      writeDO,
+      void(const size_t, const size_t, const size_t, const unsigned char*));
 
     MOCK_CONST_METHOD4(
-      readDO, void(const size_t*, const size_t, const size_t, uchar*));
+      readDO, void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDO, void(const size_t*, const size_t, const size_t, const uchar*));
+      writeDO,
+      void(const size_t*, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDODF, void(const size_t*, const size_t, const size_t, uchar*));
+      readDODF,
+      void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDODF, void(const size_t*, const size_t, const size_t, const uchar*));
+      writeDODF,
+      void(const size_t*, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDOMD, void(const size_t*, const size_t, const size_t, uchar*));
+      readDOMD,
+      void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDOMD, void(const size_t*, const size_t, const size_t, const uchar*));
+      writeDOMD,
+      void(const size_t*, const size_t, const size_t, const unsigned char*));
 };
 
 struct FileReadSEGYTest : public Test {
@@ -177,14 +184,15 @@ struct FileReadSEGYTest : public Test {
 
     std::unique_ptr<ReadDirect> file = nullptr;
 
-    std::vector<uchar> tr;
+    std::vector<unsigned char> tr;
 
     size_t nt           = 40U;
     size_t ns           = 200U;
     int inc             = 10;
     const size_t format = 5;
 
-    std::vector<uchar> ho = std::vector<uchar>(SEGY_utils::getHOSz());
+    std::vector<unsigned char> ho =
+      std::vector<unsigned char>(SEGY_utils::getHOSz());
 
     std::shared_ptr<MockObj> mock;
 
@@ -276,7 +284,7 @@ struct FileReadSEGYTest : public Test {
         // Loop over the traces
         for (size_t i = 0; i < nt; i++) {
             // Set md to the start of the current trace
-            uchar* md = &tr[i * SEGY_utils::getMDSz()];
+            unsigned char* md = &tr[i * SEGY_utils::getMDSz()];
 
             // Set the inline, crossline values for the current trace
             getBigEndian(ilNum(i), &md[il]);
@@ -304,7 +312,7 @@ struct FileReadSEGYTest : public Test {
 
     void initReadTrMock(size_t ns, size_t offset)
     {
-        std::vector<uchar>::iterator iter =
+        std::vector<unsigned char>::iterator iter =
           tr.begin() + offset * SEGY_utils::getMDSz();
 
         EXPECT_CALL(*mock.get(), readDOMD(offset, ns, 1U, _))
@@ -315,25 +323,27 @@ struct FileReadSEGYTest : public Test {
         Param prm(1U);
         file->readParam(offset, 1U, &prm);
         ASSERT_EQ(
-          ilNum(offset), param_utils::getPrm<llint>(0U, PIOL_META_il, &prm));
+          ilNum(offset),
+          param_utils::getPrm<exseis::utils::Integer>(0U, PIOL_META_il, &prm));
         ASSERT_EQ(
-          xlNum(offset), param_utils::getPrm<llint>(0U, PIOL_META_xl, &prm));
+          xlNum(offset),
+          param_utils::getPrm<exseis::utils::Integer>(0U, PIOL_META_xl, &prm));
 
-        if (sizeof(geom_t) == sizeof(double)) {
+        if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              xNum(offset),
-              param_utils::getPrm<geom_t>(0U, PIOL_META_xSrc, &prm));
+              xNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
+                              0U, PIOL_META_xSrc, &prm));
             ASSERT_DOUBLE_EQ(
-              yNum(offset),
-              param_utils::getPrm<geom_t>(0U, PIOL_META_ySrc, &prm));
+              yNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
+                              0U, PIOL_META_ySrc, &prm));
         }
         else {
             ASSERT_FLOAT_EQ(
-              xNum(offset),
-              param_utils::getPrm<geom_t>(0U, PIOL_META_xSrc, &prm));
+              xNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
+                              0U, PIOL_META_xSrc, &prm));
             ASSERT_FLOAT_EQ(
-              yNum(offset),
-              param_utils::getPrm<geom_t>(0U, PIOL_META_ySrc, &prm));
+              yNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
+                              0U, PIOL_META_ySrc, &prm));
         }
     }
 
@@ -352,25 +362,27 @@ struct FileReadSEGYTest : public Test {
 
         for (size_t i = 0; i < tn; i++) {
             ASSERT_EQ(
-              ilNum(i), param_utils::getPrm<llint>(i, PIOL_META_il, &prm));
+              ilNum(i), param_utils::getPrm<exseis::utils::Integer>(
+                          i, PIOL_META_il, &prm));
             ASSERT_EQ(
-              xlNum(i), param_utils::getPrm<llint>(i, PIOL_META_xl, &prm));
+              xlNum(i), param_utils::getPrm<exseis::utils::Integer>(
+                          i, PIOL_META_xl, &prm));
 
-            if (sizeof(geom_t) == sizeof(double)) {
+            if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  xNum(i),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  xNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
+                             i, PIOL_META_xSrc, &prm));
                 ASSERT_DOUBLE_EQ(
-                  yNum(i),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  yNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
+                             i, PIOL_META_ySrc, &prm));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  xNum(i),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  xNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
+                             i, PIOL_META_xSrc, &prm));
                 ASSERT_FLOAT_EQ(
-                  yNum(i),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  yNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
+                             i, PIOL_META_ySrc, &prm));
             }
         }
         ASSERT_TRUE(tr.size());
@@ -392,31 +404,36 @@ struct FileReadSEGYTest : public Test {
           .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
         file->readTraceNonMonotonic(
-          tn, offset.data(), const_cast<trace_t*>(TRACE_NULL), &prm);
+          tn, offset.data(),
+          const_cast<exseis::utils::Trace_value*>(TRACE_NULL), &prm);
 
         for (size_t i = 0; i < tn; i++) {
             ASSERT_EQ(
-              ilNum(offset[i]),
-              param_utils::getPrm<llint>(i, PIOL_META_il, &prm));
+              ilNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
+                                  i, PIOL_META_il, &prm));
             ASSERT_EQ(
-              xlNum(offset[i]),
-              param_utils::getPrm<llint>(i, PIOL_META_xl, &prm));
+              xlNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
+                                  i, PIOL_META_xl, &prm));
 
-            if (sizeof(geom_t) == sizeof(double)) {
+            if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
                   xNum(offset[i]),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    i, PIOL_META_xSrc, &prm));
                 ASSERT_DOUBLE_EQ(
                   yNum(offset[i]),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    i, PIOL_META_ySrc, &prm));
             }
             else {
                 ASSERT_FLOAT_EQ(
                   xNum(offset[i]),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    i, PIOL_META_xSrc, &prm));
                 ASSERT_FLOAT_EQ(
                   yNum(offset[i]),
-                  param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                  param_utils::getPrm<exseis::utils::Floating_point>(
+                    i, PIOL_META_ySrc, &prm));
             }
         }
     }
@@ -433,7 +450,7 @@ struct FileReadSEGYTest : public Test {
             tnRead = std::min(nt - offset, tn);
         }
 
-        std::vector<uchar> buf;
+        std::vector<unsigned char> buf;
         if (MOCK) {
             if (mock == nullptr) {
                 std::cerr << "Using Mock when not initialised: LOC: "
@@ -480,7 +497,7 @@ struct FileReadSEGYTest : public Test {
             }
         }
 
-        std::vector<trace_t> bufnew(tn * ns);
+        std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
         auto rule = std::make_shared<Rule>(true, true);
         if (RmRule) {
             rule->rmRule(PIOL_META_xSrc);
@@ -516,23 +533,27 @@ struct FileReadSEGYTest : public Test {
                   param_utils::getPrm<NumType>(i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset;
 
-                if (sizeof(geom_t) == sizeof(double)) {
+                if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                       xNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
 
                     ASSERT_DOUBLE_EQ(
                       yNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                       xNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
 
                     ASSERT_FLOAT_EQ(
                       yNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
             }
 
@@ -547,7 +568,7 @@ struct FileReadSEGYTest : public Test {
     void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
     {
         ASSERT_EQ(tn, offset.size());
-        std::vector<uchar> buf;
+        std::vector<unsigned char> buf;
         if (MOCK) {
             if (mock == nullptr) {
                 std::cerr << "Using Mock when not initialised: LOC: "
@@ -593,29 +614,33 @@ struct FileReadSEGYTest : public Test {
         for (size_t i = 0U; i < tn; i++) {
             if (readPrm && tn && ns) {
                 ASSERT_EQ(
-                  ilNum(offset[i]),
-                  param_utils::getPrm<llint>(i, PIOL_META_il, &prm))
+                  ilNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
+                                      i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(
-                  xlNum(offset[i]),
-                  param_utils::getPrm<llint>(i, PIOL_META_xl, &prm))
+                  xlNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
+                                      i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
 
-                if (sizeof(geom_t) == sizeof(double)) {
+                if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                       xNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
                     ASSERT_DOUBLE_EQ(
                       yNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                       xNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
                     ASSERT_FLOAT_EQ(
                       yNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
             }
             for (size_t j = 0U; j < ns; j++)
@@ -633,12 +658,13 @@ struct FileWriteSEGYTest : public Test {
     std::string testString       = {
       "This is a string for testing EBCDIC conversion etc."};
     std::string name_;
-    std::vector<uchar> tr;
-    size_t nt             = 40U;
-    size_t ns             = 200U;
-    int inc               = 10;
-    const size_t format   = 5;
-    std::vector<uchar> ho = std::vector<uchar>(SEGY_utils::getHOSz());
+    std::vector<unsigned char> tr;
+    size_t nt           = 40U;
+    size_t ns           = 200U;
+    int inc             = 10;
+    const size_t format = 5;
+    std::vector<unsigned char> ho =
+      std::vector<unsigned char>(SEGY_utils::getHOSz());
     std::unique_ptr<WriteDirect> file = nullptr;
     std::unique_ptr<ReadDirect> readfile;
 
@@ -700,7 +726,7 @@ struct FileWriteSEGYTest : public Test {
     {
         tr.resize(nt * SEGY_utils::getMDSz());
         for (size_t i = 0; i < nt; i++) {
-            uchar* md = &tr[i * SEGY_utils::getMDSz()];
+            unsigned char* md = &tr[i * SEGY_utils::getMDSz()];
             getBigEndian(ilNum(i), &md[il]);
             getBigEndian(xlNum(i), &md[xl]);
 
@@ -751,7 +777,8 @@ struct FileWriteSEGYTest : public Test {
         file->writeNs(ns);
         piol->isErr();
 
-        file->writeInc(geom_t(inc * micro));
+        const double microsecond = 1e-6;
+        file->writeInc(inc * microsecond);
         piol->isErr();
 
         file->writeText(testString);
@@ -760,7 +787,7 @@ struct FileWriteSEGYTest : public Test {
 
     void writeTrHdrGridTest(size_t offset)
     {
-        std::vector<uchar> tr(SEGY_utils::getMDSz());
+        std::vector<unsigned char> tr(SEGY_utils::getMDSz());
         getBigEndian(ilNum(offset), tr.data() + il);
         getBigEndian(xlNum(offset), tr.data() + xl);
         getBigEndian<int16_t>(1, &tr[ScaleCoord]);
@@ -782,7 +809,7 @@ struct FileWriteSEGYTest : public Test {
       std::pair<int32_t, int32_t> val,
       int16_t scal,
       size_t offset,
-      std::vector<uchar>* tr)
+      std::vector<unsigned char>* tr)
     {
         getBigEndian(scal, &tr->at(ScaleCoord));
         getBigEndian(val.first, &tr->at(item.first));
@@ -793,7 +820,7 @@ struct FileWriteSEGYTest : public Test {
           .WillOnce(check3(tr->data(), SEGY_utils::getMDSz()));
     }
 
-    void initWriteHeaders(size_t filePos, uchar* md)
+    void initWriteHeaders(size_t filePos, unsigned char* md)
     {
         coord_t src = coord_t(xNum(filePos), yNum(filePos));
         coord_t rcv = coord_t(xNum(filePos), yNum(filePos));
@@ -818,7 +845,7 @@ struct FileWriteSEGYTest : public Test {
     template<bool writePrm = false, bool MOCK = true>
     void writeTraceTest(const size_t offset, const size_t tn)
     {
-        std::vector<uchar> buf;
+        std::vector<unsigned char> buf;
         if (MOCK) {
             EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
             EXPECT_CALL(*mock, setFileSz(_)).Times(Exactly(1));
@@ -890,7 +917,7 @@ struct FileWriteSEGYTest : public Test {
     void readTraceTest(const size_t offset, const size_t tn)
     {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
-        std::vector<trace_t> bufnew(tn * ns);
+        std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
         Param prm(tn);
         if (readPrm)
             readfile->readTrace(offset, tn, bufnew.data(), &prm);
@@ -900,32 +927,40 @@ struct FileWriteSEGYTest : public Test {
             if (readPrm && tnRead && ns) {
                 ASSERT_EQ(
                   ilNum(i + offset),
-                  param_utils::getPrm<llint>(i, PIOL_META_il, &prm))
+                  param_utils::getPrm<exseis::utils::Integer>(
+                    i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(
                   xlNum(i + offset),
-                  param_utils::getPrm<llint>(i, PIOL_META_xl, &prm))
+                  param_utils::getPrm<exseis::utils::Integer>(
+                    i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset;
 
-                if (sizeof(geom_t) == sizeof(double)) {
+                if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                       xNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
                     ASSERT_DOUBLE_EQ(
                       yNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                       xNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
                     ASSERT_FLOAT_EQ(
                       yNum(i + offset),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
             }
             for (size_t j = 0U; j < ns; j++)
-                ASSERT_EQ(bufnew[i * ns + j], trace_t(offset + i + j))
+                ASSERT_EQ(
+                  bufnew[i * ns + j],
+                  exseis::utils::Trace_value(offset + i + j))
                   << "Trace Number: " << i << " " << j;
         }
     }
@@ -934,7 +969,7 @@ struct FileWriteSEGYTest : public Test {
     void writeRandomTraceTest(size_t tn, const std::vector<size_t> offset)
     {
         ASSERT_EQ(tn, offset.size());
-        std::vector<uchar> buf;
+        std::vector<unsigned char> buf;
         if (MOCK) {
             EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
             EXPECT_CALL(*mock, setFileSz(_)).Times(Exactly(1));
@@ -1005,7 +1040,7 @@ struct FileWriteSEGYTest : public Test {
     void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
     {
         ASSERT_EQ(tn, offset.size());
-        std::vector<uchar> buf;
+        std::vector<unsigned char> buf;
         std::vector<float> bufnew(tn * ns);
         Param prm(tn);
         if (readPrm)
@@ -1016,29 +1051,33 @@ struct FileWriteSEGYTest : public Test {
         for (size_t i = 0U; i < tn; i++) {
             if (readPrm && tn && ns) {
                 ASSERT_EQ(
-                  ilNum(offset[i]),
-                  param_utils::getPrm<llint>(i, PIOL_META_il, &prm))
+                  ilNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
+                                      i, PIOL_META_il, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(
-                  xlNum(offset[i]),
-                  param_utils::getPrm<llint>(i, PIOL_META_xl, &prm))
+                  xlNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
+                                      i, PIOL_META_xl, &prm))
                   << "Trace Number " << i << " offset " << offset[i];
 
-                if (sizeof(geom_t) == sizeof(double)) {
+                if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                       xNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
                     ASSERT_DOUBLE_EQ(
                       yNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                       xNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_xSrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_xSrc, &prm));
                     ASSERT_FLOAT_EQ(
                       yNum(offset[i]),
-                      param_utils::getPrm<geom_t>(i, PIOL_META_ySrc, &prm));
+                      param_utils::getPrm<exseis::utils::Floating_point>(
+                        i, PIOL_META_ySrc, &prm));
                 }
             }
             for (size_t j = 0U; j < ns; j++)
@@ -1051,7 +1090,7 @@ struct FileWriteSEGYTest : public Test {
     void writeTraceHeaderTest(const size_t offset, const size_t tn)
     {
         const bool MOCK = true;
-        std::vector<uchar> buf;
+        std::vector<unsigned char> buf;
         if (MOCK) {
             buf.resize(tn * SEGY_utils::getMDSz());
             for (size_t i = 0; i < tn; i++) {
@@ -1064,7 +1103,7 @@ struct FileWriteSEGYTest : public Test {
                 scale         = scalComp(scale, calcScale(rcv));
                 scale         = scalComp(scale, calcScale(cmp));
 
-                uchar* md = &buf[i * SEGY_utils::getMDSz()];
+                unsigned char* md = &buf[i * SEGY_utils::getMDSz()];
                 getBigEndian(scale, &md[ScaleCoord]);
                 setCoord(Coord::Src, src, scale, md);
                 setCoord(Coord::Rcv, rcv, scale, md);

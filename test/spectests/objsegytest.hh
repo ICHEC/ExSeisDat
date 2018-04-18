@@ -27,19 +27,30 @@ class MockData : public DataInterface {
     }
 
     MOCK_CONST_METHOD0(getFileSz, size_t(void));
-    MOCK_CONST_METHOD3(read, void(const size_t, const size_t, uchar*));
+    MOCK_CONST_METHOD3(read, void(const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD5(
       read,
-      void(const size_t, const size_t, const size_t, const size_t, uchar*));
+      void(
+        const size_t,
+        const size_t,
+        const size_t,
+        const size_t,
+        unsigned char*));
     MOCK_CONST_METHOD4(
-      read, void(const size_t, const size_t, const size_t*, uchar*));
-    MOCK_CONST_METHOD3(write, void(const size_t, const size_t, const uchar*));
+      read, void(const size_t, const size_t, const size_t*, unsigned char*));
+    MOCK_CONST_METHOD3(
+      write, void(const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD5(
       write,
       void(
-        const size_t, const size_t, const size_t, const size_t, const uchar*));
+        const size_t,
+        const size_t,
+        const size_t,
+        const size_t,
+        const unsigned char*));
     MOCK_CONST_METHOD4(
-      write, void(const size_t, const size_t, const size_t*, const uchar*));
+      write,
+      void(const size_t, const size_t, const size_t*, const unsigned char*));
     // TODO: This method is not tested
     MOCK_CONST_METHOD1(setFileSz, void(const size_t));
 };
@@ -87,10 +98,10 @@ class ObjTest : public Test {
     }
 
     template<bool MOCK = true>
-    void readHOPatternTest(size_t off, uchar magic)
+    void readHOPatternTest(size_t off, unsigned char magic)
     {
         const size_t extra = 20U;
-        std::vector<uchar> cHo;
+        std::vector<unsigned char> cHo;
         if (MOCK) {
             cHo.resize(SEGY_utils::getHOSz());
             for (size_t i = 0U; i < SEGY_utils::getHOSz(); i++)
@@ -99,7 +110,7 @@ class ObjTest : public Test {
               .WillOnce(SetArrayArgument<2>(cHo.begin(), cHo.end()));
         }
 
-        std::vector<uchar> ho(SEGY_utils::getHOSz() + 2 * extra);
+        std::vector<unsigned char> ho(SEGY_utils::getHOSz() + 2 * extra);
         for (auto i = 0U; i < extra; i++)
             ho[i] = ho[ho.size() - extra + i] = magic;
 
@@ -115,7 +126,7 @@ class ObjTest : public Test {
     }
 
     template<bool MOCK = true>
-    void writeHOPattern(size_t off, uchar magic)
+    void writeHOPattern(size_t off, unsigned char magic)
     {
         if (MOCK && mock == nullptr) {
             std::cerr << "Using Mock when not initialised: LOC: " << __LINE__
@@ -123,7 +134,7 @@ class ObjTest : public Test {
             return;
         }
         const size_t extra = 20U;
-        std::vector<uchar> cHo(SEGY_utils::getHOSz());
+        std::vector<unsigned char> cHo(SEGY_utils::getHOSz());
         for (size_t i = 0U; i < SEGY_utils::getHOSz(); i++)
             cHo[i] = getPattern(off + i);
 
@@ -131,7 +142,7 @@ class ObjTest : public Test {
             EXPECT_CALL(*mock, write(0U, SEGY_utils::getHOSz(), _))
               .WillOnce(check2(cHo.data(), SEGY_utils::getHOSz()));
 
-        std::vector<uchar> ho(SEGY_utils::getHOSz() + 2 * extra);
+        std::vector<unsigned char> ho(SEGY_utils::getHOSz() + 2 * extra);
         for (auto i = 0U; i < extra; i++)
             ho[i] = ho[ho.size() - extra + i] = magic;
 
@@ -148,8 +159,8 @@ class ObjTest : public Test {
       const size_t offset,
       const size_t nt,
       const size_t ns,
-      const size_t poff = 0,
-      uchar magic       = 0)
+      const size_t poff   = 0,
+      unsigned char magic = 0)
     {
         SCOPED_TRACE("readTest " + std::to_string(size_t(Type)));
         if (MOCK && mock == nullptr) {
@@ -167,9 +178,9 @@ class ObjTest : public Test {
           (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
                                  SEGY_utils::getDODFLoc<float>);
         size_t step = nt * bsz;
-        std::vector<uchar> trnew(step + 2U * extra);
+        std::vector<unsigned char> trnew(step + 2U * extra);
 
-        std::vector<uchar> tr;
+        std::vector<unsigned char> tr;
         if (MOCK) {
             tr.resize(step);
             for (size_t i = 0U; i < nt; i++)
@@ -224,8 +235,8 @@ class ObjTest : public Test {
       const size_t offset,
       const size_t nt,
       const size_t ns,
-      const size_t poff = 0,
-      uchar magic       = 0)
+      const size_t poff   = 0,
+      unsigned char magic = 0)
     {
         SCOPED_TRACE("writeTest " + std::to_string(size_t(Type)));
 
@@ -240,8 +251,8 @@ class ObjTest : public Test {
                                  SEGY_utils::getDODFLoc<float>);
 
         size_t step = nt * bsz;
-        std::vector<uchar> tr;
-        std::vector<uchar> trnew(step + 2U * extra);
+        std::vector<unsigned char> tr;
+        std::vector<unsigned char> trnew(step + 2U * extra);
 
         if (MOCK) {
             tr.resize(step);
@@ -287,7 +298,9 @@ class ObjTest : public Test {
 
     template<Block Type, bool MOCK = true>
     void readRandomTest(
-      const size_t ns, const std::vector<size_t>& offset, uchar magic = 0)
+      const size_t ns,
+      const std::vector<size_t>& offset,
+      unsigned char magic = 0)
     {
         SCOPED_TRACE("readRandomTest " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
@@ -307,8 +320,8 @@ class ObjTest : public Test {
                                  SEGY_utils::getDODFLoc<float>);
 
         size_t step = nt * bsz;
-        std::vector<uchar> trnew(step + 2U * extra);
-        std::vector<uchar> tr;
+        std::vector<unsigned char> trnew(step + 2U * extra);
+        std::vector<unsigned char> tr;
         if (MOCK) {
             tr.resize(step);
             for (size_t i = 0U; i < nt; i++)
@@ -355,7 +368,9 @@ class ObjTest : public Test {
 
     template<Block Type, bool MOCK = true>
     void writeRandomTest(
-      const size_t ns, const std::vector<size_t>& offset, uchar magic = 0)
+      const size_t ns,
+      const std::vector<size_t>& offset,
+      unsigned char magic = 0)
     {
         SCOPED_TRACE("writeRandomTest " + std::to_string(size_t(Type)));
         size_t nt          = offset.size();
@@ -369,8 +384,8 @@ class ObjTest : public Test {
           (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
                                  SEGY_utils::getDODFLoc<float>);
         size_t step = nt * bsz;
-        std::vector<uchar> tr;
-        std::vector<uchar> trnew(step + 2U * extra);
+        std::vector<unsigned char> tr;
+        std::vector<unsigned char> trnew(step + 2U * extra);
 
         if (MOCK) {
             tr.resize(step);

@@ -26,7 +26,7 @@ class ReadSEGY : public ReadInterface {
 
         /// The increment factor to multiply inc by (default to SEG-Y rev 1
         /// standard definition)
-        unit_t incFactor;
+        double incFactor;
 
         /*! Constructor which provides the default Rules
          */
@@ -39,7 +39,7 @@ class ReadSEGY : public ReadInterface {
       SEGY_utils::SEGYNumberFormat::IEEE;
 
     /// The increment factor
-    unit_t incFactor;
+    double incFactor;
 
   public:
     /*! @brief The SEGY-Object class constructor.
@@ -73,21 +73,21 @@ class ReadSEGY : public ReadInterface {
     void readTrace(
       const size_t offset,
       const size_t sz,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const;
 
     void readTraceNonContiguous(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const;
 
     void readTraceNonMonotonic(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm        = PIOL_PARAM_NULL,
       const size_t skip = 0) const;
 };

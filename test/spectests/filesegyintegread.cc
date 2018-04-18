@@ -18,7 +18,7 @@ TEST_F(FileSEGYIntegRead, SEGYReadHO)
     piol->isErr();
     EXPECT_EQ(nt, file->readNt());
     piol->isErr();
-    if (sizeof(geom_t) == sizeof(double))
+    if (sizeof(exseis::utils::Floating_point) == sizeof(double))
         EXPECT_DOUBLE_EQ(double(20e-6), file->readInc());
     else
         EXPECT_FLOAT_EQ(float(20e-6), file->readInc());

@@ -10,7 +10,6 @@
 #define PIOLFILETESTSEGYMD_INCLUDE_GUARD
 
 #include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/encoding/character_encoding.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
 #include "ExSeisDat/utils/typedefs.h"
@@ -95,38 +94,54 @@ enum class TrGrd : size_t {
 
 struct coord_t {
     /// The x coordinate
-    geom_t x;
+    exseis::utils::Floating_point x;
     /// The y coordinate
-    geom_t y;
+    exseis::utils::Floating_point y;
 
     /*! Constructor for initialising coordinates
      *  @param[in] x_ intialisation value for x
      *  @param[in] y_ intialisation value for x
      */
-    coord_t(const geom_t x_, const geom_t y_) : x(x_), y(y_) {}
+    coord_t(
+      const exseis::utils::Floating_point x_,
+      const exseis::utils::Floating_point y_) :
+        x(x_),
+        y(y_)
+    {
+    }
 
     /*! Default constructor (set both coordinates to 0)
      */
-    coord_t() : x(geom_t(0)), y(geom_t(0)) {}
+    coord_t() :
+        x(exseis::utils::Floating_point(0)),
+        y(exseis::utils::Floating_point(0))
+    {
+    }
 };
 
 /*! A structure composed of two grid values to form a single grid point
  */
 struct grid_t {
     /// The inline value
-    llint il;
+    exseis::utils::Integer il;
     /// The crossline value
-    llint xl;
+    exseis::utils::Integer xl;
 
     /*! Constructor for initialising a grid point
      *  @param[in] i_ intialisation value for il
      *  @param[in] x_ intialisation value for xl
      */
-    grid_t(const geom_t i_, const geom_t x_) : il(i_), xl(x_) {}
+    grid_t(
+      const exseis::utils::Floating_point i_,
+      const exseis::utils::Floating_point x_) :
+        il(i_),
+        xl(x_)
+    {
+    }
 
     /*! Default constructor (set both grid values to 0)
      */
-    grid_t() : il(llint(0)), xl(llint(0)) {}
+    grid_t() : il(exseis::utils::Integer(0)), xl(exseis::utils::Integer(0)) {}
 };
 
 /*! @brief Possible coordinate sets
@@ -192,27 +207,37 @@ inline
     }
 }
 
-geom_t getMd(const TrScal scal, const uchar* src);
+exseis::utils::Floating_point getMd(
+  const TrScal scal, const unsigned char* src);
 
-geom_t getMd(const TrCrd item, const geom_t scale, const uchar* src);
+exseis::utils::Floating_point getMd(
+  const TrCrd item,
+  const exseis::utils::Floating_point scale,
+  const unsigned char* src);
 
-int32_t getMd(const TrGrd item, const uchar* src);
+int32_t getMd(const TrGrd item, const unsigned char* src);
 
 void setCoord(
-  const Coord item, const coord_t coord, const int16_t scale, uchar* buf);
+  const Coord item,
+  const coord_t coord,
+  const int16_t scale,
+  unsigned char* buf);
 
-coord_t getCoord(const Coord item, const geom_t scale, const uchar* buf);
+coord_t getCoord(
+  const Coord item,
+  const exseis::utils::Floating_point scale,
+  const unsigned char* buf);
 
-grid_t getGrid(const Grid item, const uchar* buf);
+grid_t getGrid(const Grid item, const unsigned char* buf);
 
-void setGrid(const Grid item, const grid_t grid, uchar* buf);
+void setGrid(const Grid item, const grid_t grid, unsigned char* buf);
 
 int16_t scalComp(int16_t scal1, int16_t scal2);
 
 int16_t calcScale(const coord_t coord);
 
 void setScale(
-  const TrScal item, const int16_t scale, uchar* buf, size_t start = 0);
+  const TrScal item, const int16_t scale, unsigned char* buf, size_t start = 0);
 
 }  // namespace PIOL
 }  // namespace exseis

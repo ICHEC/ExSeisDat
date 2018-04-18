@@ -77,7 +77,7 @@ TEST_F(MPIIOTest, BlockingReadSmall)
 {
     makeMPIIO(smallFile);
 
-    std::vector<uchar> d(smallSize);
+    std::vector<unsigned char> d(smallSize);
     d.back() = getPattern(d.size() - 2);
 
     data->read(0, d.size() - 1, d.data());
@@ -87,7 +87,7 @@ TEST_F(MPIIOTest, BlockingReadSmall)
 
     // Set the last element to zero
     d.back() = 0U;
-    std::vector<uchar> test(smallSize);
+    std::vector<unsigned char> test(smallSize);
     ASSERT_THAT(d, ElementsAreArray(test));
 }
 
@@ -95,7 +95,7 @@ TEST_F(MPIIOTest, ZeroSizeReadOnLarge)
 {
     makeMPIIO(plargeFile);
 
-    std::vector<uchar> d = {getPattern(1U)};
+    std::vector<unsigned char> d = {getPattern(1U)};
     data->read(0, 0, d.data());
     piol->isErr();
 
@@ -112,7 +112,7 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
     for (size_t j = 0; j < magicNum1; j += 10U) {
         size_t sz     = 16U * magicNum1 + j;
         size_t offset = (largeSize / magicNum1) * j;
-        std::vector<uchar> d(sz);
+        std::vector<unsigned char> d(sz);
 
         data->read(offset, d.size(), d.data());
         piol->isErr();
@@ -127,8 +127,9 @@ TEST_F(MPIIOTest, BlockingOneByteReadLarge)
     makeMPIIO(plargeFile);
     // Test single value reads mid file
     for (size_t i = 0; i < magicNum1; i++) {
-        size_t offset = largeSize / 2U + i;
-        uchar test[2] = {getPattern(offset - 2), getPattern(offset - 1)};
+        size_t offset         = largeSize / 2U + i;
+        unsigned char test[2] = {getPattern(offset - 2),
+                                 getPattern(offset - 1)};
 
         data->read(offset, 1, test);
         piol->isErr();

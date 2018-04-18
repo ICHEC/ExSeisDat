@@ -31,13 +31,17 @@ static utils::Distributed_vector<Gather_info> getGathers(
     size_t numRank = piol->comm->getNumRank();
     std::vector<Gather_info> lline;
 
-    llint ill = param_utils::getPrm<llint>(0LU, PIOL_META_il, prm);
-    llint xll = param_utils::getPrm<llint>(0LU, PIOL_META_xl, prm);
+    exseis::utils::Integer ill =
+      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_il, prm);
+    exseis::utils::Integer xll =
+      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_xl, prm);
     lline.push_back({1LU, ill, xll});
 
     for (size_t i = 1; i < prm->size(); i++) {
-        llint il = param_utils::getPrm<llint>(i, PIOL_META_il, prm);
-        llint xl = param_utils::getPrm<llint>(i, PIOL_META_xl, prm);
+        exseis::utils::Integer il =
+          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_il, prm);
+        exseis::utils::Integer xl =
+          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_xl, prm);
 
         if (il != ill || xl != xll) {
             lline.push_back({0LU, il, xl});

@@ -4,6 +4,7 @@
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
 
 #include <bitset>
+#include <cmath>
 #include <cstring>
 #include <stdint.h>
 #include <vector>
@@ -12,22 +13,22 @@ using namespace exseis::utils;
 
 TEST(Datatype, getHost32Bit1)
 {
-    std::vector<uchar> src = {1, 1, 1, 1};
-    auto h                 = getHost<int32_t>(src.data());
+    std::vector<unsigned char> src = {1, 1, 1, 1};
+    auto h                         = getHost<int32_t>(src.data());
     EXPECT_EQ(16843009, h);
 }
 
 TEST(Datatype, getHost32Bit2)
 {
-    std::vector<uchar> src = {0x78, 0x9A, 0xBC, 0xDE};
-    auto h                 = getHost<int32_t>(src.data());
+    std::vector<unsigned char> src = {0x78, 0x9A, 0xBC, 0xDE};
+    auto h                         = getHost<int32_t>(src.data());
     EXPECT_EQ(2023406814, h);
 }
 
 TEST(Datatype, getHost32Bit3)
 {
-    std::vector<uchar> src = {0x88, 0x9A, 0xBC, 0xDE};
-    auto h                 = getHost<int32_t>(src.data());
+    std::vector<unsigned char> src = {0x88, 0x9A, 0xBC, 0xDE};
+    auto h                         = getHost<int32_t>(src.data());
 
     int32_t ans = 0x889ABCDE;
     EXPECT_EQ(ans, h);

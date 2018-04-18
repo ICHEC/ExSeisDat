@@ -64,7 +64,8 @@ class CommunicatorMPI : public CommunicatorInterface {
 
     std::vector<float> gather(const std::vector<float>& in) const;
     std::vector<double> gather(const std::vector<double>& in) const;
-    std::vector<llint> gather(const std::vector<llint>& in) const;
+    std::vector<exseis::utils::Integer> gather(
+      const std::vector<exseis::utils::Integer>& in) const;
     std::vector<size_t> gather(const std::vector<size_t>& in) const;
 
     /// @brief TMP

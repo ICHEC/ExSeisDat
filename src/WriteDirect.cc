@@ -39,13 +39,19 @@ void WriteDirect::writeParam(
 }
 
 void WriteDirect::writeTrace(
-  const size_t offset, const size_t sz, trace_t* trace, const Param* prm)
+  const size_t offset,
+  const size_t sz,
+  exseis::utils::Trace_value* trace,
+  const Param* prm)
 {
     file->writeTrace(offset, sz, trace, prm);
 }
 
 void WriteDirect::writeTraceNonContiguous(
-  const size_t sz, const size_t* offset, trace_t* trace, const Param* prm)
+  const size_t sz,
+  const size_t* offset,
+  exseis::utils::Trace_value* trace,
+  const Param* prm)
 {
     file->writeTraceNonContiguous(sz, offset, trace, prm);
 }
@@ -71,7 +77,7 @@ void WriteDirect::writeNt(const size_t nt_)
     file->writeNt(nt_);
 }
 
-void WriteDirect::writeInc(const geom_t inc_)
+void WriteDirect::writeInc(const exseis::utils::Floating_point inc_)
 {
     file->writeInc(inc_);
 }

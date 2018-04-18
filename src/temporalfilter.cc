@@ -11,14 +11,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/utils/constants.hh"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <assert.h>
+#include <cmath>
 #include <complex>
 #include <fftw3.h>
-#include <math.h>
 #include <vector>
 
 using namespace exseis::utils;
@@ -29,27 +28,35 @@ namespace PIOL {
 // TODO: Use complex literals when newer compilers are available
 //       (Current is gcc (GCC) 5.3.0)
 /// The imaginary number, i = sqrt(-1).
-const cmtrace_t I = cmtrace_t(0, 1);
+const Complex_trace_value I = Complex_trace_value(0, 1);
+
+/// The circle constant, pi.
+const exseis::utils::Trace_value pi = 3.14159265358979323846264338327950288;
 
 // TODO: Use this when intel supports it
 // using namespace std::complex_literals;
 /************************************ Core ************************************/
 
 /********************************** Non-Core **********************************/
-size_t filterOrder(const trace_t cornerP, const trace_t cornerS)
+size_t filterOrder(
+  const exseis::utils::Trace_value cornerP,
+  const exseis::utils::Trace_value cornerS)
 {
     // unfortunately the standard doesnt require math functions to provide
     // constexpr functions
-    static const trace_t val =
-      geom_t(0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
+    static const exseis::utils::Trace_value val = exseis::utils::Floating_point(
+      0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
 
     return std::ceil(
-      val / std::log(std::tan(pi_t * cornerS) / std::tan(pi_t * cornerP)));
+      val / std::log(std::tan(pi * cornerS) / std::tan(pi * cornerP)));
 }
 
-void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
+void expandPoly(
+  const Complex_trace_value* coef,
+  const size_t nvx,
+  exseis::utils::Trace_value* poly)
 {
-    std::vector<cmtrace_t> vecXpnd(nvx + 1LU);
+    std::vector<Complex_trace_value> vecXpnd(nvx + 1LU);
 
     vecXpnd[0LU] = -coef[0LU];
     vecXpnd[1LU] = 1;
@@ -70,16 +77,21 @@ void expandPoly(const cmtrace_t* coef, const size_t nvx, trace_t* poly)
 /// Common filter division: (4 + x)/(4 - x)
 /// @param[in] x The \c x value
 /// @return (4+x)/(4-x)
-inline cmtrace_t filDiv(cmtrace_t x)
+inline Complex_trace_value filDiv(Complex_trace_value x)
 {
-    return (trace_t(4) + x) / (trace_t(4) - x);
+    return (exseis::utils::Trace_value(4) + x)
+           / (exseis::utils::Trace_value(4) - x);
 }
 
-trace_t lowpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1)
+exseis::utils::Trace_value lowpass(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1)
 {
-    cmtrace_t pprodBL(1.0, 0.0);
+    Complex_trace_value pprodBL(1.0, 0.0);
     for (size_t i = 0LU; i < N; i++) {
-        pprodBL *= trace_t(4) - p[i] * cf1;
+        pprodBL *= exseis::utils::Trace_value(4) - p[i] * cf1;
         p[i] = filDiv(p[i] * cf1);
         z[i] = -1;
     }
@@ -87,26 +99,37 @@ trace_t lowpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1)
     return std::pow(cf1, N) / pprodBL.real();
 }
 
-trace_t highpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1)
+exseis::utils::Trace_value highpass(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1)
 {
-    cmtrace_t pprod(1, 0);
-    cmtrace_t pprodBL(1, 0);
+    Complex_trace_value pprod(1, 0);
+    Complex_trace_value pprodBL(1, 0);
     for (size_t i = 0LU; i < N; i++) {
         pprod *= -p[i];
-        pprodBL *= trace_t(4) - cf1 / p[i];
+        pprodBL *= exseis::utils::Trace_value(4) - cf1 / p[i];
         p[i] = filDiv(cf1 / p[i]);
         z[i] = 1;
     }
     return (1 / pprod.real())
-           * (std::pow(trace_t(4), trace_t(N)) / pprodBL.real());
+           * (std::pow(
+                exseis::utils::Trace_value(4), exseis::utils::Trace_value(N))
+              / pprodBL.real());
 }
 
-trace_t bandpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
+exseis::utils::Trace_value bandpass(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1,
+  exseis::utils::Trace_value cf2)
 {
-    trace_t bndCntr = cf2 - cf1;
-    trace_t bndLen  = cf1 * cf2;
+    exseis::utils::Trace_value bndCntr = cf2 - cf1;
+    exseis::utils::Trace_value bndLen  = cf1 * cf2;
 
-    cmtrace_t pprodBL(1, 0);
+    Complex_trace_value pprodBL(1, 0);
 
     for (size_t i = 0LU; i < N; i++) {
         p[i] *= bndCntr / 2;
@@ -117,19 +140,26 @@ trace_t bandpass(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
     }
 
     for (size_t i = 0LU; i < 2LU * N; i++) {
-        pprodBL *= trace_t(4) - p[i];
+        pprodBL *= exseis::utils::Trace_value(4) - p[i];
         p[i] = filDiv(p[i]);
     }
 
-    return std::pow(bndCntr, N) * std::pow(trace_t(4), trace_t(N))
+    return std::pow(bndCntr, N)
+           * std::pow(
+               exseis::utils::Trace_value(4), exseis::utils::Trace_value(N))
            * pprodBL.real() / std::norm(pprodBL);
 }
 
-trace_t bandstop(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
+exseis::utils::Trace_value bandstop(
+  size_t N,
+  Complex_trace_value* z,
+  Complex_trace_value* p,
+  exseis::utils::Trace_value cf1,
+  exseis::utils::Trace_value cf2)
 {
-    trace_t bndCntr = cf2 - cf1;
-    trace_t bndLen  = std::sqrt(cf1 * cf2);
-    trace_t bndLen2 = cf1 * cf2;
+    exseis::utils::Trace_value bndCntr = cf2 - cf1;
+    exseis::utils::Trace_value bndLen  = std::sqrt(cf1 * cf2);
+    exseis::utils::Trace_value bndLen2 = cf1 * cf2;
 
     for (size_t i = 0LU; i < N; i++) {
         p[i]     = (bndCntr / 2) / p[i];
@@ -139,13 +169,13 @@ trace_t bandstop(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
         z[N + i] = -z[i];
     }
 
-    cmtrace_t zPrdct(1, 0);
-    cmtrace_t pPrdct(1, 0);
+    Complex_trace_value zPrdct(1, 0);
+    Complex_trace_value pPrdct(1, 0);
 
     for (size_t i = 0LU; i < N * 2LU; i++) {
-        zPrdct *= trace_t(4) - z[i];
+        zPrdct *= exseis::utils::Trace_value(4) - z[i];
         z[i] = filDiv(z[i]);
-        pPrdct *= trace_t(4) - p[i];
+        pPrdct *= exseis::utils::Trace_value(4) - p[i];
         p[i] = filDiv(p[i]);
     }
 
@@ -155,29 +185,33 @@ trace_t bandstop(size_t N, cmtrace_t* z, cmtrace_t* p, trace_t cf1, trace_t cf2)
 
 void makeFilter(
   FltrType type,
-  trace_t* numer,
-  trace_t* denom,
-  llint N,
-  trace_t fs,
-  trace_t cf1,
-  trace_t cf2)
+  exseis::utils::Trace_value* numer,
+  exseis::utils::Trace_value* denom,
+  exseis::utils::Integer N,
+  exseis::utils::Trace_value fs,
+  exseis::utils::Trace_value cf1,
+  exseis::utils::Trace_value cf2)
 {
-    size_t tN  = (cf2 == 0) ? N : N * 2LU;
-    trace_t Wn = 4 * std::tan(pi_t * (cf1 / (fs * trace_t(0.5))) / 2);
-    trace_t W2 = 4 * std::tan(pi_t * (cf2 / (fs * trace_t(0.5))) / 2);
+    size_t tN = (cf2 == 0) ? N : N * 2LU;
+    exseis::utils::Trace_value Wn =
+      4 * std::tan(pi * (cf1 / (fs * exseis::utils::Trace_value(0.5))) / 2);
+    exseis::utils::Trace_value W2 =
+      4 * std::tan(pi * (cf2 / (fs * exseis::utils::Trace_value(0.5))) / 2);
 
-    std::vector<cmtrace_t> z(tN);
-    std::vector<cmtrace_t> p(tN);
+    std::vector<Complex_trace_value> z(tN);
+    std::vector<Complex_trace_value> p(tN);
 
     // Determines the analogue zero-pole-gain representation of filter for given
     // number of poles
-    for (llint i = 0; i < N; i++) {
-        p[i] = -exp(I * pi_t * trace_t(1LL + 2LL * i - N) / trace_t(2LL * N));
+    for (exseis::utils::Integer i = 0; i < N; i++) {
+        p[i] = -exp(
+          I * pi * exseis::utils::Trace_value(1LL + 2LL * i - N)
+          / exseis::utils::Trace_value(2LL * N));
     }
 
     // Determines the analogue zero-pole-gain for given filter type at specific
     // frequency(ies)
-    trace_t k;
+    exseis::utils::Trace_value k;
     switch (type) {
         default:
         case FltrType::Lowpass:
@@ -212,34 +246,35 @@ void makeFilter(
 void temporalFilter(
   size_t nt,
   size_t ns,
-  trace_t* trc,
-  trace_t fs,
+  exseis::utils::Trace_value* trc,
+  exseis::utils::Trace_value fs,
   FltrType type,
   FltrDmn domain,
   PadType pad,
   size_t nw,
   size_t winCntr,
-  std::vector<trace_t> corner)
+  std::vector<exseis::utils::Trace_value> corner)
 {
     std::sort(corner.begin(), corner.end());
     switch (type) {
         default:
         case FltrType::Lowpass: {
-            std::vector<trace_t> c = {corner[0LU], 0LU};
-            size_t N               = filterOrder(corner[0LU], corner[1LU]);
+            std::vector<exseis::utils::Trace_value> c = {corner[0LU], 0LU};
+            size_t N = filterOrder(corner[0LU], corner[1LU]);
             temporalFilter(
               nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
         } break;
 
         case FltrType::Highpass: {
-            std::vector<trace_t> c = {corner[1LU], 0LU};
-            size_t N               = filterOrder(corner[1LU], corner[0LU]);
+            std::vector<exseis::utils::Trace_value> c = {corner[1LU], 0LU};
+            size_t N = filterOrder(corner[1LU], corner[0LU]);
             temporalFilter(
               nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
         } break;
 
         case FltrType::Bandpass: {
-            std::vector<trace_t> c = {corner[1LU], corner[2LU]};
+            std::vector<exseis::utils::Trace_value> c = {corner[1LU],
+                                                         corner[2LU]};
             temporalFilter(
               nt, ns, trc, fs, type, domain, pad, nw, winCntr, c,
               std::max(
@@ -248,7 +283,8 @@ void temporalFilter(
         } break;
 
         case FltrType::Bandstop: {
-            std::vector<trace_t> c = {corner[0LU], corner[3LU]};
+            std::vector<exseis::utils::Trace_value> c = {corner[0LU],
+                                                         corner[3LU]};
             temporalFilter(
               nt, ns, trc, fs, type, domain, pad, nw, winCntr, c,
               std::max(
@@ -263,23 +299,30 @@ FltrPad getPad(PadType type)
     switch (type) {
         default:
         case PadType::Zero:
-            return [](trace_t*, size_t, size_t, size_t) { return 0; };
+            return [](exseis::utils::Trace_value*, size_t, size_t, size_t) {
+                return 0;
+            };
             break;
 
         case PadType::Symmetric:
-            return [](trace_t* trc, size_t N, size_t nw, size_t j) {
+            return [](
+                     exseis::utils::Trace_value* trc, size_t N, size_t nw,
+                     size_t j) {
                 return (j <= nw ? trc[N - j] : trc[2 * (nw + N) - j]);
             };
             break;
 
         case PadType::Replicate:
-            return [](trace_t* trc, size_t, size_t nw, size_t j) {
-                return (j <= nw ? trc[0] : trc[nw]);
-            };
+            return
+              [](exseis::utils::Trace_value* trc, size_t, size_t nw, size_t j) {
+                  return (j <= nw ? trc[0] : trc[nw]);
+              };
             break;
 
         case PadType::Cyclic:
-            return [](trace_t* trc, size_t N, size_t nw, size_t j) {
+            return [](
+                     exseis::utils::Trace_value* trc, size_t N, size_t nw,
+                     size_t j) {
                 return (j <= nw ? trc[nw - (N - j)] : trc[j - nw - N]);
             };
             break;
@@ -288,18 +331,18 @@ FltrPad getPad(PadType type)
 
 void filterFreq(
   size_t nss,
-  trace_t* trcX,
-  trace_t fs,
+  exseis::utils::Trace_value* trcX,
+  exseis::utils::Trace_value fs,
   size_t N,
-  trace_t* numer,
-  trace_t* denom,
+  exseis::utils::Trace_value* numer,
+  exseis::utils::Trace_value* denom,
   FltrPad)
 {
     // TODO: Generalize fftwf for other data types besides floats
     // TODO: If creating + destroying plans becomes a bottleneck, re-use the
     //       plans
-    std::vector<cmtrace_t> frequency(nss);
-    std::vector<cmtrace_t> frequency1(nss);
+    std::vector<Complex_trace_value> frequency(nss);
+    std::vector<Complex_trace_value> frequency1(nss);
     fftwf_plan planFFT = fftwf_plan_dft_r2c_1d(
       nss, trcX, reinterpret_cast<fftwf_complex*>(frequency.data()),
       FFTW_MEASURE);
@@ -307,15 +350,19 @@ void filterFreq(
     fftwf_destroy_plan(planFFT);
 
     for (size_t i = 0; i < nss / 2LU + 1LU; i++) {
-        cmtrace_t a = 0, b = 0;
+        Complex_trace_value a = 0, b = 0;
         for (size_t j = 0; j < N + 1LU; j++) {
-            cmtrace_t val =
-              std::exp(-I * cmtrace_t(fs * trace_t(j * i) / trace_t(nss)));
+            Complex_trace_value val = std::exp(
+              -I
+              * Complex_trace_value(
+                  fs * exseis::utils::Trace_value(j * i)
+                  / exseis::utils::Trace_value(nss)));
             b += numer[j] * val;
             a += denom[j] * val;
         }
-        cmtrace_t H = b / a;
-        frequency[i] *= cmtrace_t(std::fabs(H.real()), std::fabs(H.imag()));
+        Complex_trace_value H = b / a;
+        frequency[i] *=
+          Complex_trace_value(std::fabs(H.real()), std::fabs(H.imag()));
     }
 
     fftwf_plan planIFFT = fftwf_plan_dft_c2r_1d(
@@ -343,11 +390,11 @@ void filterFreq(
 void IIR(
   size_t N,
   size_t ns,
-  trace_t* b,
-  trace_t* a,
-  trace_t* x,
-  trace_t* y,
-  trace_t* zi)
+  exseis::utils::Trace_value* b,
+  exseis::utils::Trace_value* a,
+  exseis::utils::Trace_value* x,
+  exseis::utils::Trace_value* y,
+  exseis::utils::Trace_value* zi)
 {
     y[0] = b[0] * x[0] + zi[0];
     for (size_t i = 1LU; i < N; i++) {
@@ -365,13 +412,13 @@ void IIR(
 
 void filterTime(
   size_t nw,
-  trace_t* trcOrgnl,
+  exseis::utils::Trace_value* trcOrgnl,
   size_t numTail,
-  trace_t* numer,
-  trace_t* denom,
+  exseis::utils::Trace_value* numer,
+  exseis::utils::Trace_value* denom,
   FltrPad padding)
 {
-    std::vector<trace_t> trcX(nw + 6LU * (numTail + 1LU));
+    std::vector<exseis::utils::Trace_value> trcX(nw + 6LU * (numTail + 1LU));
 
     for (size_t i = 0LU; i < 3LU * (numTail + 1LU); i++) {
         trcX[i] = padding(trcOrgnl, 3LU * (numTail + 1LU), nw, i);
@@ -383,12 +430,12 @@ void filterTime(
         trcX[i + 3LU * (numTail + 1LU)] = trcOrgnl[i];
     }
 
-    std::vector<trace_t> zi(numTail);
-    std::vector<trace_t> ziF(numTail);
-    std::vector<trace_t> trcY(nw + 6LU * (numTail + 1LU));
+    std::vector<exseis::utils::Trace_value> zi(numTail);
+    std::vector<exseis::utils::Trace_value> ziF(numTail);
+    std::vector<exseis::utils::Trace_value> trcY(nw + 6LU * (numTail + 1LU));
 
-    trace_t B    = 0;
-    trace_t Imin = 1;
+    exseis::utils::Trace_value B    = 0;
+    exseis::utils::Trace_value Imin = 1;
     for (size_t i = 1LU; i < numTail + 1LU; i++) {
         B += numer[i] - denom[i] * numer[0];
         Imin += denom[i];
@@ -396,9 +443,9 @@ void filterTime(
 
     // Applies a bilinear transform to convert analgue filter to digital filter
     // numer and denom generated by makeFilter.
-    zi[0]     = B / Imin;
-    trace_t a = 1;
-    trace_t c = 0;
+    zi[0]                        = B / Imin;
+    exseis::utils::Trace_value a = 1;
+    exseis::utils::Trace_value c = 0;
     for (size_t i = 1; i < numTail; i++) {
         a += denom[i];
         c += numer[i] - denom[i] * numer[0];
@@ -434,14 +481,14 @@ void filterTime(
 void temporalFilter(
   size_t nt,
   size_t ns,
-  trace_t* trc,
-  trace_t fs,
+  exseis::utils::Trace_value* trc,
+  exseis::utils::Trace_value fs,
   FltrType type,
   FltrDmn domain,
   PadType pad,
   size_t nw,
   size_t winCntr,
-  std::vector<trace_t> corners,
+  std::vector<exseis::utils::Trace_value> corners,
   size_t N)
 {
     nw      = (!nw || nw > ns ? ns : nw);
@@ -451,11 +498,11 @@ void temporalFilter(
     assert(winCntr < ns && "Window Center is larger than trace length");
     size_t tail    = (!corners[1] ? 1LU : 2LU);
     size_t numTail = N * tail;
-    std::vector<trace_t> numer(numTail + 1);
-    std::vector<trace_t> denom(numTail + 1);
+    std::vector<exseis::utils::Trace_value> numer(numTail + 1);
+    std::vector<exseis::utils::Trace_value> denom(numTail + 1);
     makeFilter(type, numer.data(), denom.data(), N, fs, corners[0], corners[1]);
     for (size_t i = 0; i < nt; i++) {
-        std::vector<trace_t> trcOrgnl(nw);
+        std::vector<exseis::utils::Trace_value> trcOrgnl(nw);
         for (size_t j = 0; j < nw; j++)
             trcOrgnl[j] = trc[i * ns + (winCntr - nw / 2) + j];
         switch (domain) {

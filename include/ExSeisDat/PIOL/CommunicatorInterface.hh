@@ -64,13 +64,14 @@ class CommunicatorInterface {
      */
     virtual std::vector<float> gather(const std::vector<float>& val) const = 0;
 
-    /*! @brief Pass a vector of llint and return the corresponding values to
-     *         each process
+    /*! @brief Pass a vector of exseis::utils::Integer and return the
+     * corresponding values to each process
      *  @param[in] val The local value to use in the gather
      *  @return Return a vector where the nth element is the value from the nth
      *          rank.
      */
-    virtual std::vector<llint> gather(const std::vector<llint>& val) const = 0;
+    virtual std::vector<exseis::utils::Integer> gather(
+      const std::vector<exseis::utils::Integer>& val) const = 0;
 
     /*! @brief Pass a vector of size_t and return the corresponding values to
      *         each process

@@ -109,13 +109,13 @@ class WriteDirect {
     /*! @brief Write the increment between trace samples.
      *  @param[in] inc_ The new increment between trace samples.
      */
-    void writeInc(const geom_t inc_);
+    void writeInc(const exseis::utils::Floating_point inc_);
 
     /*! @brief Read the traces from offset to offset+sz.
      *  @param[in] offset The starting trace number.
      *  @param[in] sz     The number of traces to process
      *  @param[in] trace  A contiguous array of each trace
-     *                    (size sz*ns*sizeof(trace_t))
+     *                    (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[in] prm    The parameter structure
      *  @warning This function is not thread safe.
      *
@@ -124,7 +124,7 @@ class WriteDirect {
     void writeTrace(
       const size_t offset,
       const size_t sz,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       const Param* prm = PIOL_PARAM_NULL);
 
     /*! @brief Write the trace parameters from offset to offset+sz to the
@@ -143,7 +143,7 @@ class WriteDirect {
      *  @param[in] sz     The number of traces to process
      *  @param[in] offset An array of trace numbers to write.
      *  @param[in] trace  A contiguous array of each trace
-     *                    (size sz*ns*sizeof(trace_t))
+     *                    (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[in] prm    The parameter structure
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.  It is
@@ -153,7 +153,7 @@ class WriteDirect {
     void writeTraceNonContiguous(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       const Param* prm = PIOL_PARAM_NULL);
 
     /*! @brief write the traces specified by the offsets in the passed offset

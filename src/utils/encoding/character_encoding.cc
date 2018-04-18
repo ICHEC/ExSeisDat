@@ -25,17 +25,17 @@ struct EbcdicAsciiPair {
     /// Construct an ASCII / EBCDIC equivalent pair
     /// @param ascii  The ASCII char code
     /// @param ebcdic The EBCDIC char code
-    explicit EbcdicAsciiPair(uchar ascii, uchar ebcdic) :
+    explicit EbcdicAsciiPair(unsigned char ascii, unsigned char ebcdic) :
         ascii(ascii),
         ebcdic(ebcdic)
     {
     }
 
     /// The ASCII character
-    uchar ascii;
+    unsigned char ascii;
 
     /// The EBCDIC character
-    uchar ebcdic;
+    unsigned char ebcdic;
 };
 
 /// The SUB character.
@@ -163,9 +163,9 @@ static const auto asciiToEbcdicMap = buildAsciiToEbcdicMap();
 
 // The accessor functions
 
-char ebcdicToAscii(uchar ebcdic_char)
+char ebcdicToAscii(unsigned char ebcdic_char)
 {
-    const auto compare_ebcdic = [](EbcdicAsciiPair a, uchar b) {
+    const auto compare_ebcdic = [](EbcdicAsciiPair a, unsigned char b) {
         // Search by EBCDIC
         return a.ebcdic < b;
     };
@@ -181,9 +181,9 @@ char ebcdicToAscii(uchar ebcdic_char)
     return ascii_char_it->ascii;
 }
 
-char asciiToEbcdic(uchar ascii_char)
+char asciiToEbcdic(unsigned char ascii_char)
 {
-    const auto compare_ascii = [](EbcdicAsciiPair a, uchar b) {
+    const auto compare_ascii = [](EbcdicAsciiPair a, unsigned char b) {
         // Search by ASCII
         return a.ascii < b;
     };
@@ -198,13 +198,13 @@ char asciiToEbcdic(uchar ascii_char)
     return ebcdic_char_it->ebcdic;
 }
 
-bool is_printable_ASCII(uchar ascii_char)
+bool is_printable_ASCII(unsigned char ascii_char)
 {
     // Printable ASCII chars are in the range [0x20, 0x7E].
     return (ascii_char >= 0x20 && ascii_char <= 0x7E);
 }
 
-bool is_printable_EBCDIC(uchar ebcdic_char)
+bool is_printable_EBCDIC(unsigned char ebcdic_char)
 {
     return is_printable_ASCII(ebcdicToAscii(ebcdic_char));
 }

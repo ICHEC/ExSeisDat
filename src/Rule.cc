@@ -303,9 +303,9 @@ size_t Rule::memUsage(void) const
 
 size_t Rule::paramMem(void) const
 {
-    return numLong * sizeof(llint) + numShort * sizeof(int16_t)
-           + numFloat * sizeof(geom_t) + numIndex * sizeof(size_t)
-           + (numCopy ? SEGY_utils::getMDSz() : 0);
+    return numLong * sizeof(exseis::utils::Integer) + numShort * sizeof(int16_t)
+           + numFloat * sizeof(exseis::utils::Floating_point)
+           + numIndex * sizeof(size_t) + (numCopy ? SEGY_utils::getMDSz() : 0);
 }
 
 bool Rule::addRule(const Rule& r)

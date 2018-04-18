@@ -12,7 +12,7 @@
 namespace exseis {
 namespace utils {
 
-void reverse4Bytes(uchar* src)
+void reverse4Bytes(unsigned char* src)
 {
     std::swap(src[0], src[3]);
     std::swap(src[1], src[2]);

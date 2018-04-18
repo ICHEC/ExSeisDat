@@ -7,73 +7,91 @@
 
 #include "stddef.h"
 
+#ifdef __cplusplus
+#include <type_traits>
+#endif  // __cplusplus
 
-/// A large signed integer type.
-typedef ptrdiff_t exseis_llint;
+
+///
+/// @namespace exseis::utils::typedefs
+///
+/// Aliases for fundamental types used throughout the ExSeisDat project.
+///
+
+
+/// @copydoc exseis::utils::typedefs::Integer
+typedef long long int exseis_Integer;
 
 #ifdef __cplusplus
 namespace exseis {
 namespace utils {
 inline namespace typedefs {
-/// @copydoc exseis_llint
-using llint = exseis_llint;
+
+/// A fundamental signed integer type.
+///
+/// This is used where fundamental integer type is needed, large enough to hold
+/// whatever value we might need it to, without explicitly specifying the size.
+///
+using Integer = long long int;
+
+static_assert(
+  std::is_same<Integer, exseis_Integer>::value,
+  "exseis::utils::Integer and exseis_Integer are not the same type!");
+
 }  // namespace typedefs
 }  // namespace utils
 }  // namespace exseis
 #endif  // __cplusplus
 
 
-/// The type used to store trace values
-typedef float exseis_trace_t;
+/// @copydoc exseis::utils::typedefs::Floating_point
+typedef double exseis_Floating_point;
 
 #ifdef __cplusplus
 namespace exseis {
 namespace utils {
 inline namespace typedefs {
-/// @copydoc exseis_trace_t
-using trace_t = exseis_trace_t;
+
+/// A fundamental signed floating-point type.
+///
+/// This is used where fundamental floating-point type is needed, large enough
+/// to hold whatever value we might need it to, without explicitly specifying
+/// the size.
+///
+using Floating_point = double;
+
+static_assert(
+  std::is_same<Floating_point, exseis_Floating_point>::value,
+  "exseis::utils::Floating_point and exseis_Floating_point are not the same type!");
+
 }  // namespace typedefs
 }  // namespace utils
 }  // namespace exseis
 #endif  // __cplusplus
 
 
-/// The type used for manipulating geometry and physical values
-typedef double exseis_geom_t;
+/// @copydoc exseis::utils::typedefs::Trace_value
+typedef float exseis_Trace_value;
 
 #ifdef __cplusplus
 namespace exseis {
 namespace utils {
 inline namespace typedefs {
-/// @copydoc exseis_geom_t
-using geom_t = exseis_geom_t;
-}  // namespace typedefs
-}  // namespace utils
-}  // namespace exseis
-#endif  // __cplusplus
 
+/// The floating-point type used to store trace values.
+///
+/// Traces values are usually stored in a lossy, compressed form.
+/// As a result, we don't need a high-precision storage type.
+///
+using Trace_value = float;
 
-#ifdef __cplusplus
-
-#include <complex>
-
-namespace exseis {
-namespace utils {
-inline namespace typedefs {
-
-/// The type to use for accessing individual bytes
-using uchar = unsigned char;
-
-/// Real type for physical, SI and math units
-using unit_t = double;
-
-/// Complex type for traces
-using cmtrace_t = std::complex<trace_t>;
+static_assert(
+  std::is_same<Trace_value, exseis_Trace_value>::value,
+  "exseis::utils::Trace_value and exseis_Trace_value are not the same type!");
 
 }  // namespace typedefs
 }  // namespace utils
 }  // namespace exseis
-
 #endif  // __cplusplus
 
 #endif  // EXSEISDAT_UTILS_TYPEDEFS_H

@@ -29,19 +29,25 @@ ReadSEGYModel::ReadSEGYModel(
     Param prm(vlist.size());
     readParamNonContiguous(vlist.size(), vlist.data(), &prm);
 
-    llint il_start = param_utils::getPrm<llint>(0LU, PIOL_META_il, &prm);
-    llint xl_start = param_utils::getPrm<llint>(0LU, PIOL_META_xl, &prm);
+    exseis::utils::Integer il_start =
+      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_il, &prm);
+    exseis::utils::Integer xl_start =
+      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_xl, &prm);
 
-    llint il_increment =
-      param_utils::getPrm<llint>(1LU, PIOL_META_il, &prm) - il_start;
-    llint il_count =
+    exseis::utils::Integer il_increment =
+      param_utils::getPrm<exseis::utils::Integer>(1LU, PIOL_META_il, &prm)
+      - il_start;
+    exseis::utils::Integer il_count =
       (il_increment ?
-         (param_utils::getPrm<llint>(2LU, PIOL_META_il, &prm) - il_start)
+         (param_utils::getPrm<exseis::utils::Integer>(2LU, PIOL_META_il, &prm)
+          - il_start)
            / il_increment :
          0LU);
-    llint xl_count = (ReadSEGY::readNt() / (il_count ? il_count : 1LU));
-    llint xl_increment =
-      (param_utils::getPrm<llint>(2LU, PIOL_META_xl, &prm) - xl_start)
+    exseis::utils::Integer xl_count =
+      (ReadSEGY::readNt() / (il_count ? il_count : 1LU));
+    exseis::utils::Integer xl_increment =
+      (param_utils::getPrm<exseis::utils::Integer>(2LU, PIOL_META_xl, &prm)
+       - xl_start)
       / xl_count;
 
     il_increment = (il_increment ? il_increment : 1LU);
@@ -51,12 +57,12 @@ ReadSEGYModel::ReadSEGYModel(
     xl = CoordinateParameters(xl_start, xl_count, xl_increment);
 }
 
-std::vector<trace_t> ReadSEGYModel::readModel(
+std::vector<exseis::utils::Trace_value> ReadSEGYModel::readModel(
   const size_t offset,
   const size_t sz,
   const utils::Distributed_vector<Gather_info>& gather)
 {
-    std::vector<trace_t> trc(sz * readNs());
+    std::vector<exseis::utils::Trace_value> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++) {
         auto val = gather[offset + i];
@@ -74,12 +80,12 @@ std::vector<trace_t> ReadSEGYModel::readModel(
     return trc;
 }
 
-std::vector<trace_t> ReadSEGYModel::readModel(
+std::vector<exseis::utils::Trace_value> ReadSEGYModel::readModel(
   const size_t sz,
   const size_t* offset,
   const utils::Distributed_vector<Gather_info>& gather)
 {
-    std::vector<trace_t> trc(sz * readNs());
+    std::vector<exseis::utils::Trace_value> trc(sz * readNs());
     std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++) {
         auto val   = gather[offset[i]];

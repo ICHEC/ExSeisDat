@@ -25,7 +25,7 @@ void smallCopy(
     const size_t fsz  = in->getFileSz();
     const size_t hosz = SEGY_utils::getHOSz();
     size_t wsz        = (!rank ? fsz : 0);
-    std::vector<uchar> buf(wsz);
+    std::vector<unsigned char> buf(wsz);
 
     in->read(0, wsz, buf.data());
     piol.isErr();
@@ -46,7 +46,7 @@ void distribToDistrib(
   size_t rank,
   exseis::utils::Contiguous_decomposition old,
   exseis::utils::Contiguous_decomposition newd,
-  std::vector<uchar>* vec)
+  std::vector<unsigned char>* vec)
 {
     std::vector<MPI_Request> msg;
 
@@ -72,15 +72,15 @@ void distribToDistrib(
         size_t sz = newd.global_offset - old.global_offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
-          vec->data(), sz, exseis::utils::MPI_type<uchar>(), rank - 1, 1,
-          MPI_COMM_WORLD, &msg.back());
+          vec->data(), sz, exseis::utils::MPI_type<unsigned char>(), rank - 1,
+          1, MPI_COMM_WORLD, &msg.back());
     }
     else if (old.global_offset > newd.global_offset) {
         size_t sz = old.global_offset - newd.global_offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
-          vec->data(), sz, exseis::utils::MPI_type<uchar>(), rank - 1, 0,
-          MPI_COMM_WORLD, &msg.back());
+          vec->data(), sz, exseis::utils::MPI_type<unsigned char>(), rank - 1,
+          0, MPI_COMM_WORLD, &msg.back());
     }
 
     if (
@@ -90,8 +90,9 @@ void distribToDistrib(
                     - (newd.global_offset + newd.local_size);
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
-          vec->data() + vec->size() - sz, sz, exseis::utils::MPI_type<uchar>(),
-          rank + 1, 0, MPI_COMM_WORLD, &msg.back());
+          vec->data() + vec->size() - sz, sz,
+          exseis::utils::MPI_type<unsigned char>(), rank + 1, 0, MPI_COMM_WORLD,
+          &msg.back());
     }
     else if (
       old.global_offset + old.local_size
@@ -100,8 +101,9 @@ void distribToDistrib(
                     - (old.global_offset + old.local_size);
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
-          vec->data() + vec->size() - sz, sz, exseis::utils::MPI_type<uchar>(),
-          rank + 1, 1, MPI_COMM_WORLD, &msg.back());
+          vec->data() + vec->size() - sz, sz,
+          exseis::utils::MPI_type<unsigned char>(), rank + 1, 1, MPI_COMM_WORLD,
+          &msg.back());
     }
 
     MPI_Status stat;
@@ -137,7 +139,7 @@ Contiguous_decomposition writeArb(
   size_t bsz,
   Contiguous_decomposition dec,
   size_t tsz,
-  std::vector<uchar>* vec)
+  std::vector<unsigned char>* vec)
 {
     auto newdec = blockDecomp(tsz, bsz, numRank, rank, off);
 
@@ -178,7 +180,7 @@ void mpiMakeSEGYCopy(
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec      = blockDecomp(rblock, bsz, numRank, rank, i);
 
-        std::vector<uchar> buf(dec.local_size);
+        std::vector<unsigned char> buf(dec.local_size);
         in->read(i + dec.global_offset, dec.local_size, buf.data());
         piol.isErr();
         out->write(i + dec.global_offset, dec.local_size, buf.data());
@@ -220,7 +222,7 @@ void mpiMakeSEGYCopyNaive(
           (Block ? block_decomposition(rblock, numRank, piol.getRank()) :
                    blockDecomp(rblock, bsz, numRank, piol.getRank(), i));
 
-        std::vector<uchar> buf(dec.local_size);
+        std::vector<unsigned char> buf(dec.local_size);
         in->read(i + dec.global_offset, dec.local_size, buf.data());
         out->write(i + dec.global_offset, dec.local_size, buf.data());
         if (i == 0) {

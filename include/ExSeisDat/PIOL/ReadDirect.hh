@@ -112,13 +112,13 @@ class ReadDirect {
     /*! @brief Read the number of increment between trace samples
      *  @return The increment between trace samples
      */
-    geom_t readInc(void) const;
+    exseis::utils::Floating_point readInc(void) const;
 
     /*! @brief Read the traces from offset to offset+sz.
      *  @param[in]  offset The starting trace number.
      *  @param[in]  sz     The number of traces to process
      *  @param[out] trace  A contiguous array of each trace
-     *                     (size sz*ns*sizeof(trace_t))
+     *                     (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[out] prm    The parameter structure
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
@@ -126,7 +126,7 @@ class ReadDirect {
     void readTrace(
       const size_t offset,
       const size_t sz,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm = PIOL_PARAM_NULL) const;
 
     /*! @brief Function to read the trace parameters from offset to offset+sz of
@@ -143,7 +143,7 @@ class ReadDirect {
      *  @param[in]  sz     The number of traces to process
      *  @param[in]  offset An array of trace numbers to read.
      *  @param[out] trace  A contiguous array of each trace
-     *                     (size sz*ns*sizeof(trace_t))
+     *                     (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[out] prm    The parameter structure
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
@@ -151,7 +151,7 @@ class ReadDirect {
     void readTraceNonContiguous(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm = PIOL_PARAM_NULL) const;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
@@ -159,7 +159,7 @@ class ReadDirect {
      *  @param[in]  sz     The number of traces to process
      *  @param[in]  offset An array of trace numbers to read.
      *  @param[out] trace  A contiguous array of each trace
-     *                     (size sz*ns*sizeof(trace_t))
+     *                     (size sz*ns*sizeof(exseis::utils::Trace_value))
      *  @param[out] prm    The parameter structure
      *
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
@@ -167,7 +167,7 @@ class ReadDirect {
     void readTraceNonMonotonic(
       const size_t sz,
       const size_t* offset,
-      trace_t* trace,
+      exseis::utils::Trace_value* trace,
       Param* prm = PIOL_PARAM_NULL) const;
 
     /*! @brief Read the traces specified by the offsets in the passed offset

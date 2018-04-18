@@ -30,7 +30,7 @@ class ReadModel : public ReadDirect {
     /// @param[in] numGather DOCUMENT ME
     /// @param[in] gather    DOCUMENT ME
     /// @return DOCUMENT ME
-    std::vector<trace_t> virtual readModel(
+    std::vector<exseis::utils::Trace_value> virtual readModel(
       size_t gOffset,
       size_t numGather,
       exseis::utils::Distributed_vector<Gather_info>& gather);

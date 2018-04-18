@@ -98,7 +98,7 @@ class DataMPIIO : public DataInterface {
       const size_t bsz,
       const size_t osz,
       const size_t sz,
-      uchar* d) const;
+      unsigned char* d) const;
 
     /*! Write a file using MPI-IO views. This function does not handle the
      *  integer limit
@@ -114,7 +114,7 @@ class DataMPIIO : public DataInterface {
       const size_t bsz,
       const size_t osz,
       const size_t sz,
-      const uchar* d) const;
+      const unsigned char* d) const;
 
     /*! @brief The MPI-IO Init function.
      *  @param[in] opt  The MPI-IO options
@@ -139,7 +139,7 @@ class DataMPIIO : public DataInterface {
       const MFp<MPI_Status> fn,
       const size_t offset,
       const size_t sz,
-      uchar* d,
+      unsigned char* d,
       std::string msg,
       const size_t bsz = 1U,
       const size_t osz = 1U) const;
@@ -160,7 +160,7 @@ class DataMPIIO : public DataInterface {
       const size_t bsz,
       const size_t sz,
       const size_t* offset,
-      uchar* d,
+      unsigned char* d,
       std::string msg) const;
 
   public:
@@ -208,7 +208,7 @@ class DataMPIIO : public DataInterface {
     /// @param[in]  sz     The amount to read
     /// @param[out] d      The buffer to read into
     ///                    (pointer to array of size \c sz)
-    void read(const size_t offset, const size_t sz, uchar* d) const;
+    void read(const size_t offset, const size_t sz, unsigned char* d) const;
 
     /// Write a contiguous chunk of size \c sz beginning a position \c offset
     /// from the buffer \c d into the file.
@@ -216,7 +216,8 @@ class DataMPIIO : public DataInterface {
     /// @param[in]  sz     The amount to write
     /// @param[out] d      The buffer to write from
     ///                    (pointer to array of size \c sz)
-    void write(const size_t offset, const size_t sz, const uchar* d) const;
+    void write(
+      const size_t offset, const size_t sz, const unsigned char* d) const;
 
 
     /// Read a file in regularly spaced, non-contiguous blocks.
@@ -232,7 +233,7 @@ class DataMPIIO : public DataInterface {
       const size_t bsz,
       const size_t osz,
       const size_t sz,
-      uchar* d) const;
+      unsigned char* d) const;
 
 
     /// Write to a file in regularly spaced, non-contiguous blocks.
@@ -248,7 +249,7 @@ class DataMPIIO : public DataInterface {
       const size_t bsz,
       const size_t osz,
       const size_t nb,
-      const uchar* d) const;
+      const unsigned char* d) const;
 
     /// Read a file in irregularly spaced, non-contiguous chunks
     /// @param[in]  bsz    The block size to read in bytes
@@ -257,7 +258,10 @@ class DataMPIIO : public DataInterface {
     /// @param[out] d      Pointer to the buffer to read the data into
     ///                    (pointer to array of size \c bsz*sz)
     void read(
-      const size_t bsz, const size_t sz, const size_t* offset, uchar* d) const;
+      const size_t bsz,
+      const size_t sz,
+      const size_t* offset,
+      unsigned char* d) const;
 
     /// Write to a file in irregularly spaced, non-contiguous chunks
     /// @param[in]  bsz    The block size to write in bytes
@@ -269,7 +273,7 @@ class DataMPIIO : public DataInterface {
       const size_t bsz,
       const size_t sz,
       const size_t* offset,
-      const uchar* d) const;
+      const unsigned char* d) const;
 };
 
 }  // namespace PIOL

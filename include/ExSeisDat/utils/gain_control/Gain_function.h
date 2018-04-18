@@ -11,10 +11,10 @@
 
 
 /// Function type for signal scaling in the AGC function.
-typedef exseis_trace_t (*exseis_Gain_function)(
-  const exseis_trace_t* signal,
+typedef exseis_Trace_value (*exseis_Gain_function)(
+  const exseis_Trace_value* signal,
   size_t window,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t window_center);
 
 #ifdef __cplusplus
@@ -44,19 +44,19 @@ namespace utils {
 /// @return The normalised signal value using RMS
 ///
 #ifdef __cplusplus
-trace_t rectangular_RMS_gain(
-  const trace_t* signal,
+exseis::utils::Trace_value rectangular_RMS_gain(
+  const exseis::utils::Trace_value* signal,
   size_t window,
-  trace_t target_amplitude,
+  exseis::utils::Trace_value target_amplitude,
   size_t window_center);
 #endif  // __cplusplus
 
 /// @copydoc rectangular_RMS_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-exseis_trace_t exseis_rectangular_RMS_gain(
-  const exseis_trace_t* signal,
+exseis_Trace_value exseis_rectangular_RMS_gain(
+  const exseis_Trace_value* signal,
   size_t window,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t window_center);
 
 
@@ -71,19 +71,19 @@ exseis_trace_t exseis_rectangular_RMS_gain(
 /// @return The normalised signal value using RMS with a triangular window
 ///
 #ifdef __cplusplus
-trace_t triangular_RMS_gain(
-  const trace_t* signal,
+exseis::utils::Trace_value triangular_RMS_gain(
+  const exseis::utils::Trace_value* signal,
   size_t window,
-  trace_t target_amplitude,
+  exseis::utils::Trace_value target_amplitude,
   size_t window_center);
 #endif  // __cplusplus
 
 /// @copydoc triangular_RMS_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-exseis_trace_t exseis_triangular_RMS_gain(
-  const exseis_trace_t* signal,
+exseis_Trace_value exseis_triangular_RMS_gain(
+  const exseis_Trace_value* signal,
   size_t window,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t window_center);
 
 
@@ -98,19 +98,19 @@ exseis_trace_t exseis_triangular_RMS_gain(
 /// @return The normalised signal value using MAV
 ///
 #ifdef __cplusplus
-trace_t mean_abs_gain(
-  const trace_t* signal,
+exseis::utils::Trace_value mean_abs_gain(
+  const exseis::utils::Trace_value* signal,
   size_t window,
-  trace_t target_amplitude,
+  exseis::utils::Trace_value target_amplitude,
   size_t window_center);
 #endif  // __cplusplus
 
 /// @copydoc mean_abs_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-exseis_trace_t exseis_mean_abs_gain(
-  const exseis_trace_t* signal,
+exseis_Trace_value exseis_mean_abs_gain(
+  const exseis_Trace_value* signal,
   size_t window,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t window_center);
 
 
@@ -124,19 +124,19 @@ exseis_trace_t exseis_mean_abs_gain(
 /// @return The normalised median signal value.
 ///
 #ifdef __cplusplus
-trace_t median_gain(
-  const trace_t* signal,
+exseis::utils::Trace_value median_gain(
+  const exseis::utils::Trace_value* signal,
   size_t window,
-  trace_t target_amplitude,
+  exseis::utils::Trace_value target_amplitude,
   size_t window_center);
 #endif  // __cplusplus
 
 /// @copydoc median_gain()
 EXSEISDAT_CXX_ONLY(extern "C")
-exseis_trace_t exseis_median_gain(
-  const exseis_trace_t* signal,
+exseis_Trace_value exseis_median_gain(
+  const exseis_Trace_value* signal,
   size_t window,
-  exseis_trace_t target_amplitude,
+  exseis_Trace_value target_amplitude,
   size_t window_center);
 
 #ifdef __cplusplus

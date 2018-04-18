@@ -24,7 +24,7 @@ namespace utils {
  *           shifted (as it is the least significant byte.
  */
 template<typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
-T getHost(const uchar* src)
+T getHost(const unsigned char* src)
 {
     return (T(src[0]) << 8) | T(src[1]);
 }
@@ -36,7 +36,7 @@ T getHost(const uchar* src)
  *  @return Return a short
  */
 template<typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-T getHost(const uchar* src)
+T getHost(const unsigned char* src)
 {
     return (T(src[0]) << 24) | (T(src[1]) << 16) | (T(src[2]) << 8) | T(src[3]);
 }
@@ -52,7 +52,7 @@ T getHost(const uchar* src)
  *           the least.
  */
 template<typename T>
-void getBigEndian(const T src, uchar* dst)
+void getBigEndian(const T src, unsigned char* dst)
 {
 
     // For dst[i], we want the ith byte of src.
@@ -84,7 +84,7 @@ void getBigEndian(const T src, uchar* dst)
  *  @param[in] src Data to be reversed
  *  @details This can be used to switch between endianness representations.
  */
-void reverse4Bytes(uchar* src);
+void reverse4Bytes(unsigned char* src);
 
 
 /*! Convert the underlying bit representation of a 4 byte integer to a float.

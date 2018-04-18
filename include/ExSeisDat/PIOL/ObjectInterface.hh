@@ -87,13 +87,13 @@ class ObjectInterface {
      *  @param[out] ho An array which the caller guarantees is long enough
      *                 to hold the header object.
      */
-    virtual void readHO(uchar* ho) const = 0;
+    virtual void readHO(unsigned char* ho) const = 0;
 
     /*! @brief Write the header object.
      *  @param[in] ho An array which the caller guarantees is long enough to
      *                hold the header object.
      */
-    virtual void writeHO(const uchar* ho) const = 0;
+    virtual void writeHO(const unsigned char* ho) const = 0;
 
     /*! @brief Read a sequence of DOMDs.
      *  @param[in] offset The starting data-object we are interested in.
@@ -106,7 +106,7 @@ class ObjectInterface {
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      uchar* md) const = 0;
+      unsigned char* md) const = 0;
 
     /*! @brief Write the data-object metadata.
      *  @param[in] offset The starting data-object we are interested in.
@@ -119,7 +119,7 @@ class ObjectInterface {
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      const uchar* md) const = 0;
+      const unsigned char* md) const = 0;
 
     /*! @brief Read a sequence of data-fields.
      *  @param[in] offset The starting data-object we are interested in.
@@ -132,7 +132,7 @@ class ObjectInterface {
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      uchar* df) const = 0;
+      unsigned char* df) const = 0;
 
     /*! @brief Write a sequence of data-fields.
      *  @param[in] offset The starting data-object we are interested in.
@@ -145,7 +145,7 @@ class ObjectInterface {
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      const uchar* df) const = 0;
+      const unsigned char* df) const = 0;
 
     /*! @brief Read a sequence of data-objects.
      *  @param[in] offset The starting data-object we are interested in.
@@ -158,7 +158,7 @@ class ObjectInterface {
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      uchar* d) const = 0;
+      unsigned char* d) const = 0;
 
     /*! @brief Write a sequence of data-objects.
      *  @param[in] offset The starting data-object we are interested in.
@@ -171,7 +171,7 @@ class ObjectInterface {
       const size_t offset,
       const size_t ns,
       const size_t sz,
-      const uchar* d) const = 0;
+      const unsigned char* d) const = 0;
 
     /*! @brief Read a list of data-objects.
      *  @param[in] offset An array of the starting data-objects we are
@@ -185,7 +185,7 @@ class ObjectInterface {
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      uchar* d) const = 0;
+      unsigned char* d) const = 0;
 
     /*! @brief Write a list of data-objects.
      *  @param[in] ns The number of elements per data field.
@@ -199,7 +199,7 @@ class ObjectInterface {
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      const uchar* d) const = 0;
+      const unsigned char* d) const = 0;
 
     /*! @brief read a list of data-object metadata blocks.
      *  @param[in] offset an array of the starting data-objects we are
@@ -213,7 +213,7 @@ class ObjectInterface {
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      uchar* md) const = 0;
+      unsigned char* md) const = 0;
 
     /*! @brief Write a list of data-object metadata blocks.
      *  @param[in] offset An array of the starting data-object we are interested
@@ -227,7 +227,7 @@ class ObjectInterface {
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      const uchar* md) const = 0;
+      const unsigned char* md) const = 0;
 
     /*! @brief Read a list of data-fields.
      *  @param[in] offset An array of the starting data-objects we are
@@ -241,7 +241,7 @@ class ObjectInterface {
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      uchar* df) const = 0;
+      unsigned char* df) const = 0;
 
     /*! @brief Write a list of data-fields
      *  @param[in] offset An array of the starting data-object we are interested
@@ -255,7 +255,7 @@ class ObjectInterface {
       const size_t* offset,
       const size_t ns,
       const size_t sz,
-      const uchar* df) const = 0;
+      const unsigned char* df) const = 0;
 };
 
 }  // namespace PIOL
