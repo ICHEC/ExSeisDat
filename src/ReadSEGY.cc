@@ -98,7 +98,7 @@ ReadSEGY::ReadSEGY(
             // The string is in EBCDIC, transform and copy it.
             std::transform(
               text_header_begin, text_header_end, std::begin(text),
-              ebcdicToAscii);
+              to_ASCII_from_EBCDIC);
         }
     }
 }
