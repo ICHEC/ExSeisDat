@@ -15,6 +15,7 @@
 
 namespace exseis {
 namespace utils {
+inline namespace gain_control {
 
 Trace_value rectangular_RMS_gain(
   const Trace_value* signal,
@@ -198,5 +199,6 @@ extern "C" Trace_value exseis_median_gain(
     return median_gain(signal, window_size, target_amplitude, 0);
 }
 
+}  // namespace gain_control
 }  // namespace utils
 }  // namespace exseis

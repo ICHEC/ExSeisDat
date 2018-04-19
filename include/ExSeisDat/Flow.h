@@ -16,6 +16,9 @@
 #ifdef __cplusplus
 #include "ExSeisDat/Flow/Set.hh"
 
+/// @todo DELETE ME! The functions here should be wrapped in namespaces.
+using exseis::utils::exseis_Gain_function;
+
 /// @copydoc exseis::Flow::Set
 typedef exseis::Flow::Set PIOL_Set;
 #else

@@ -9,9 +9,20 @@
 #include <cstdint>
 #include <type_traits>
 
+///
+/// @namespace exseis::utils::number_encoding
+///
+/// @brief Routines for converting between different representations of number
+///        types.
+///
+/// The routines in this namespace deal with conversion between endianness and
+/// conversion between number formats, e.g. IBM floating point and IEEE floating
+/// point formats.
+///
 
 namespace exseis {
 namespace utils {
+inline namespace number_encoding {
 
 /// @brief Convert a 2 byte \c char array in big endian to a host 2 byte
 ///        datatype
@@ -265,6 +276,7 @@ float to_float(Float_components components);
 float from_IBM_to_float(
   std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
+}  // namespace number_encoding
 }  // namespace utils
 }  // namespace exseis
 

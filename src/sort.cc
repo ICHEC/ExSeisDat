@@ -401,7 +401,9 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm)
 }
 
 bool checkOrder(
-  ReadInterface* src, utils::Contiguous_decomposition dec, SortType type)
+  ReadInterface* src,
+  exseis::utils::Contiguous_decomposition dec,
+  SortType type)
 {
     auto comp = getComp(type);
     Param prm(dec.local_size);

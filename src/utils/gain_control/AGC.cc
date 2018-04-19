@@ -17,6 +17,7 @@
 
 namespace exseis {
 namespace utils {
+inline namespace gain_control {
 
 void AGC(
   size_t signal_size,
@@ -95,5 +96,6 @@ void exseis_AGC(
     AGC(signal_size, signal, gain_function, window_size, target_amplitude);
 }
 
+}  // namespace gain_control
 }  // namespace utils
 }  // namespace exseis

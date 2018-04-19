@@ -11,6 +11,7 @@
 
 namespace exseis {
 namespace utils {
+inline namespace number_encoding {
 
 
 Float_components from_IBM(
@@ -272,5 +273,6 @@ float from_IBM_to_float(
     return to_float(ibm_components);
 }
 
+}  // namespace number_encoding
 }  // namespace utils
 }  // namespace exseis

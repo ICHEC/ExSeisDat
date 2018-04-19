@@ -24,9 +24,18 @@
 #include "ExSeisDat/utils/gain_control/Gain_function.h"
 #include "ExSeisDat/utils/typedefs.h"
 
+
+///
+/// @namespace exseis::utils::gain_control
+///
+/// @brief Functions for applying gain control to signals.
+///
+
+
 #ifdef __cplusplus
 namespace exseis {
 namespace utils {
+inline namespace gain_control {
 #endif  // __cplusplus
 
 
@@ -39,6 +48,8 @@ namespace utils {
 ///                                value for a signal.
 /// @param[in]    window_size      Length of the agc window
 /// @param[in]    target_amplitude Value to which signal are normalised
+///
+/// @remark C API: \ref exseis_AGC
 ///
 #ifdef __cplusplus
 void AGC(
@@ -49,16 +60,11 @@ void AGC(
   Trace_value target_amplitude);
 #endif  // __cplusplus
 
-/// @brief Apply automatic gain control to a set of tapers --> used for actual
-///        operation during output
-///
-/// @param[in]    signal_size      The number of samples in a signal
-/// @param[inout] signal           Array of the signal data.
-/// @param[in]    gain_function    Statistical function which returns a scaled
-///                                value for a signal.
-/// @param[in]    window_size      Length of the agc window
-/// @param[in]    target_amplitude Value to which signal are normalised
-///
+/// @name C API
+/// @{
+
+/// @brief C API interface for \ref AGC
+/// @copydoc AGC
 EXSEISDAT_CXX_ONLY(extern "C")
 void exseis_AGC(
   size_t signal_size,
@@ -67,7 +73,10 @@ void exseis_AGC(
   size_t window_size,
   exseis_Trace_value target_amplitude);
 
+/// @} C API
+
 #ifdef __cplusplus
+}  // inline namespace gain_control
 }  // namespace utils
 }  // namespace exseis
 #endif  // __cplusplus

@@ -6,14 +6,31 @@
 #ifndef EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_H
 #define EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_H
 
+#include "ExSeisDat/utils/c_api_utils.h"
 #include <stddef.h>
 
+///
+/// @namespace exseis::utils::decomposition
+///
+/// @brief Functions for splitting ranges across processes.
+///
+
 #ifdef __cplusplus
-extern "C" {
+namespace exseis {
+namespace utils {
+inline namespace decomposition {
 #endif  // __cplusplus
 
-/// The \c Contiguous_decomposition class represents a section of a range on the
-/// given rank which has been distributed over a number of ranks.
+
+/// @name C API
+///
+/// Interfaces visible to a C caller.
+///
+/// @{
+
+/// @brief The \c Contiguous_decomposition class represents a section of a range
+///        on the given rank which has been distributed over a number of ranks.
+EXSEISDAT_CXX_ONLY(extern "C")
 struct exseis_Contiguous_decomposition {
     /// The offset into the global range for the given rank.
     size_t global_offset;
@@ -21,6 +38,33 @@ struct exseis_Contiguous_decomposition {
     /// The local size of the section of the range on the local process
     size_t local_size;
 };
+
+
+/// C API for \ref block_decomposition()
+/// @copydoc exseis::utils::decomposition::block_decomposition
+EXSEISDAT_CXX_ONLY(extern "C")
+struct exseis_Contiguous_decomposition exseis_block_decomposition(
+  size_t range_size, size_t num_ranks, size_t rank);
+
+/// @} C API
+
+
+#ifdef __cplusplus
+/// @copydoc exseis_Contiguous_decomposition
+struct Contiguous_decomposition : public exseis_Contiguous_decomposition {
+
+    /// @brief Value constructor for Contiguous_decomposition.
+    ///
+    /// @param[in] global_offset Value for the global_offset member.
+    /// @param[in] local_size    Value for the local_size member.
+    ///
+    Contiguous_decomposition(size_t global_offset, size_t local_size) :
+        exseis_Contiguous_decomposition{global_offset, local_size}
+    {
+    }
+};
+#endif  // __cplusplus
+
 
 /// @brief Perform a 1d decomposition of the interval [0,range_size-1] into
 ///        `num_ranks` pieces so it is optimally spread across each `rank`.
@@ -34,30 +78,13 @@ struct exseis_Contiguous_decomposition {
 /// @pre num_ranks > 0
 /// @pre rank < num_ranks
 ///
-struct exseis_Contiguous_decomposition exseis_block_decomposition(
-  size_t range_size, size_t num_ranks, size_t rank);
-
 #ifdef __cplusplus
-}  // extern "C"
+Contiguous_decomposition block_decomposition(
+  size_t range_size, size_t num_ranks, size_t rank);
 #endif  // __cplusplus
 
 
 #ifdef __cplusplus
-namespace exseis {
-namespace utils {
-
-/// @copydoc exseis_Contiguous_decomposition
-using Contiguous_decomposition = exseis_Contiguous_decomposition;
-
-
-/// @copydoc exseis_block_decomposition
-inline Contiguous_decomposition block_decomposition(
-  size_t range_size, size_t num_ranks, size_t rank)
-{
-    return exseis_block_decomposition(range_size, num_ranks, rank);
-}
-
-
 /// @brief This struct represents the location and local index of a global index
 ///        in a decomposed range.
 struct Decomposition_index_location {
@@ -90,6 +117,11 @@ struct Decomposition_index_location {
 Decomposition_index_location block_decomposition_location(
   size_t range_size, size_t num_ranks, size_t global_index);
 
+#endif  // __cplusplus
+
+
+#ifdef __cplusplus
+}  // inline namespace decomposition
 }  // namespace utils
 }  // namespace exseis
 #endif  // __cplusplus

@@ -8,9 +8,17 @@
 #include <assert.h>
 
 
-extern "C" {
+namespace exseis {
+namespace utils {
+inline namespace decomposition {
 
-exseis_Contiguous_decomposition exseis_block_decomposition(
+extern "C" exseis_Contiguous_decomposition exseis_block_decomposition(
+  size_t range_size, size_t num_ranks, size_t rank)
+{
+    return block_decomposition(range_size, num_ranks, rank);
+}
+
+Contiguous_decomposition block_decomposition(
   size_t range_size, size_t num_ranks, size_t rank)
 {
     assert(num_ranks > 0);
@@ -75,11 +83,6 @@ exseis_Contiguous_decomposition exseis_block_decomposition(
     return {global_offset, local_size};
 }
 
-}  // extern "C"
-
-
-namespace exseis {
-namespace utils {
 
 // Contiguous_decomposition block_decompose(ExSeisPIOL* piol, ReadInterface*
 // file)
@@ -125,5 +128,6 @@ Decomposition_index_location block_decomposition_location(
     }
 }
 
+}  // namespace decomposition
 }  // namespace utils
 }  // namespace exseis
