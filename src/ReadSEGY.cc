@@ -53,13 +53,20 @@ ReadSEGY::ReadSEGY(
 
         // Parse the number of samples, traces, the increment and the format
         // from header_buffer.
-        ns  = getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::NumSample]);
-        nt  = SEGY_utils::getNt(fsz, ns);
-        inc = exseis::utils::Floating_point(
-                getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Interval]))
-              * incFactor;
-        number_format = static_cast<SEGYNumberFormat>(
-          getHost<int16_t>(&header_buffer[SEGYFileHeaderByte::Type]));
+        ns = from_big_endian<int16_t>(
+          header_buffer[SEGYFileHeaderByte::NumSample + 0],
+          header_buffer[SEGYFileHeaderByte::NumSample + 1]);
+
+        nt = SEGY_utils::getNt(fsz, ns);
+
+        inc = incFactor
+              * exseis::utils::Floating_point(from_big_endian<int16_t>(
+                  header_buffer[SEGYFileHeaderByte::Interval + 0],
+                  header_buffer[SEGYFileHeaderByte::Interval + 1]));
+
+        number_format = static_cast<SEGYNumberFormat>(from_big_endian<int16_t>(
+          header_buffer[SEGYFileHeaderByte::Type + 0],
+          header_buffer[SEGYFileHeaderByte::Type + 1]));
 
         // Set this->text to the ASCII encoding of the text header data read
         // into header_buffer.
@@ -174,14 +181,29 @@ void readTraceT(
     }
 
     if (trc != TRACE_NULL && trc != nullptr) {
+
+        // Convert trace values from SEGY floating point format to host format
         if (number_format == SEGYNumberFormat::IBM) {
             for (size_t i = 0; i < ns * sz; i++) {
-                trc[i] = convertIBMtoIEEE(trc[i], true);
+                const exseis::utils::Floating_point be_trc_i = trc[i];
+
+                const unsigned char* be_trc_i_bytes =
+                  reinterpret_cast<const unsigned char*>(&be_trc_i);
+
+                std::array<unsigned char, 4> be_bytes_array = {
+                  {be_trc_i_bytes[0], be_trc_i_bytes[1], be_trc_i_bytes[2],
+                   be_trc_i_bytes[3]}};
+
+                trc[i] = from_IBM_to_float(be_bytes_array, true);
             }
         }
         else {
             for (size_t i = 0; i < ns * sz; i++) {
-                reverse4Bytes(&tbuf[i * sizeof(float)]);
+                trc[i] = from_big_endian<exseis::utils::Trace_value>(
+                  tbuf[i * sizeof(exseis::utils::Trace_value) + 0],
+                  tbuf[i * sizeof(exseis::utils::Trace_value) + 1],
+                  tbuf[i * sizeof(exseis::utils::Trace_value) + 2],
+                  tbuf[i * sizeof(exseis::utils::Trace_value) + 3]);
             }
         }
     }

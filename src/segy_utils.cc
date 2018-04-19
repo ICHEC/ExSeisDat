@@ -51,8 +51,8 @@ void insertParam(
 
         for (const auto v : r->translate) {
 
-            const auto t = v.second;
-            size_t loc   = t->loc - start - 1LU;
+            const auto t     = v.second;
+            const size_t loc = t->loc - start - 1LU;
 
             switch (t->type()) {
 
@@ -62,9 +62,9 @@ void insertParam(
 
                     auto tr = static_cast<Tr>(rule.back()->scalLoc);
 
-                    int16_t scal1 =
+                    const int16_t scal1 =
                       (scal.find(tr) != scal.end() ? scal[tr] : 1);
-                    int16_t scal2 =
+                    const int16_t scal2 =
                       find_scalar(prm->f[(i + skip) * r->numFloat + t->num]);
 
                     // if the scale is bigger than 1 that means we need to use
@@ -145,34 +145,57 @@ void extractParam(
     }
 
     for (size_t i = 0; i < sz; i++) {
+
         const unsigned char* md = &buf[(r->extent() + stride) * i];
+
         // Loop through each rule and extract data
         for (const auto v : r->translate) {
+
             const auto t = v.second;
             size_t loc   = t->loc - r->start - 1LU;
+
             switch (t->type()) {
-                case RuleEntry::MdType::Float:
+                case RuleEntry::MdType::Float: {
+
+                    const size_t scalar_offset =
+                      dynamic_cast<SEGYFloatRuleEntry*>(t)->scalLoc - r->start
+                      - 1LU;
+
+                    const auto parsed_scalar =
+                      parse_scalar(from_big_endian<int16_t>(
+                        md[scalar_offset + 0], md[scalar_offset + 1]));
+
+                    const auto unscaled_value = from_big_endian<int32_t>(
+                      md[loc + 0], md[loc + 1], md[loc + 2], md[loc + 3]);
+
+
+                    typedef decltype(prm->f)::value_type F_type;
+
                     prm->f[(i + skip) * r->numFloat + t->num] =
-                      parse_scalar(getHost<int16_t>(
-                        &md
-                          [dynamic_cast<SEGYFloatRuleEntry*>(t)->scalLoc
-                           - r->start - 1LU]))
-                      * exseis::utils::Floating_point(
-                          getHost<int32_t>(&md[loc]));
-                    break;
+                      parsed_scalar * static_cast<const F_type>(unscaled_value);
+                } break;
+
                 case RuleEntry::MdType::Short:
+
                     prm->s[(i + skip) * r->numShort + t->num] =
-                      getHost<int16_t>(&md[loc]);
+                      from_big_endian<int16_t>(md[loc + 0], md[loc + 1]);
+
                     break;
+
                 case RuleEntry::MdType::Long:
+
                     prm->i[(i + skip) * r->numLong + t->num] =
-                      getHost<int32_t>(&md[loc]);
+                      from_big_endian<int32_t>(
+                        md[loc + 0], md[loc + 1], md[loc + 2], md[loc + 3]);
+
+                    break;
+
                 default:
                     break;
             }
         }
     }
-}
+}  // namespace SEGY_utils
 
 exseis::utils::Floating_point parse_scalar(int16_t segy_scalar)
 {

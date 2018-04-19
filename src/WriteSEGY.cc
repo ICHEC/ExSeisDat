@@ -210,11 +210,23 @@ void writeTraceT(
 {
     unsigned char* tbuf = reinterpret_cast<unsigned char*>(trc);
 
+
+    // Convert from host-endianness to SEGY endianness for writing
+
     if (trc != TRACE_NULL && trc != nullptr) {
         for (size_t i = 0; i < ns * sz; i++) {
-            reverse4Bytes(&tbuf[i * sizeof(float)]);
+            const auto be_trc_i_bytes =
+              to_big_endian<exseis::utils::Trace_value>(trc[i]);
+
+            unsigned char* trc_i_bytes =
+              reinterpret_cast<unsigned char*>(&trc[i]);
+
+            std::copy(
+              std::begin(be_trc_i_bytes), std::end(be_trc_i_bytes),
+              trc_i_bytes);
         }
     }
+
 
     if (prm == PIOL_PARAM_NULL) {
         obj->writeDODF(offset, ns, sz, tbuf);
@@ -222,8 +234,10 @@ void writeTraceT(
     else {
         const size_t blockSz =
           (trc == TRACE_NULL ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
+
         std::vector<unsigned char> alloc(blockSz * sz);
         unsigned char* buf = (sz ? alloc.data() : nullptr);
+
         SEGY_utils::insertParam(
           sz, prm, buf, blockSz - SEGY_utils::getMDSz(), skip);
 
@@ -237,16 +251,29 @@ void writeTraceT(
                   &tbuf[(i + 1) * SEGY_utils::getDFSz(ns)],
                   &buf[i * SEGY_utils::getDOSz(ns) + SEGY_utils::getMDSz()]);
             }
+
             obj->writeDO(offset, ns, sz, buf);
         }
     }
 
+
+    // Convert back from SEGY endianness to native endianness, as it was
+    // before calling this routine
+
     if (trc != TRACE_NULL && trc != nullptr) {
         for (size_t i = 0; i < ns * sz; i++) {
-            reverse4Bytes(&tbuf[i * sizeof(float)]);
+            const exseis::utils::Trace_value be_trc_i = trc[i];
+
+            const unsigned char* be_trc_i_bytes =
+              reinterpret_cast<const unsigned char*>(&be_trc_i);
+
+            trc[i] = from_big_endian<exseis::utils::Trace_value>(
+              be_trc_i_bytes[0], be_trc_i_bytes[1], be_trc_i_bytes[2],
+              be_trc_i_bytes[3]);
         }
     }
 }
+
 
 void WriteSEGY::writeTrace(
   const size_t offset,

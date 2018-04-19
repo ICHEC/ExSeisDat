@@ -26,7 +26,9 @@ namespace PIOL {
  */
 exseis::utils::Floating_point getMd(const TrScal scal, const unsigned char* src)
 {
-    auto scale = getHost<int16_t>(&src[size_t(scal) - 1U]);
+    auto scale = from_big_endian<int16_t>(
+      src[size_t(scal) - 1U + 0], src[size_t(scal) - 1U + 1]);
+
     return SEGY_utils::parse_scalar(scale);
 }
 
@@ -42,8 +44,9 @@ exseis::utils::Floating_point getMd(
   const unsigned char* src)
 {
     return scale
-           * exseis::utils::Floating_point(
-               getHost<int32_t>(&src[size_t(item) - 1U]));
+           * exseis::utils::Floating_point(from_big_endian<int32_t>(
+               src[size_t(item) - 1U + 0], src[size_t(item) - 1U + 1],
+               src[size_t(item) - 1U + 2], src[size_t(item) - 1U + 3]));
 }
 
 /*! @brief Get the specified grid component from the Trace header.
@@ -53,7 +56,9 @@ exseis::utils::Floating_point getMd(
  */
 int32_t getMd(const TrGrd item, const unsigned char* src)
 {
-    return getHost<int32_t>(&src[size_t(item) - 1U]);
+    return from_big_endian<int32_t>(
+      src[size_t(item) - 1U + 0], src[size_t(item) - 1U + 1],
+      src[size_t(item) - 1U + 2], src[size_t(item) - 1U + 3]);
 }
 
 /*! @brief Set a trace scale in the trace header
@@ -193,7 +198,7 @@ int16_t calcScale(const coord_t coord)
 //     prm->rcv = getCoord(Coord::Rcv, scale, md);
 //     prm->cmp = getCoord(Coord::CMP, scale, md);
 //     prm->line = getGrid(Grid::Line, md);
-//     prm->tn = getHost<int32_t>(&md[size_t(TrHdr::SeqFNum)-1]);
+//     prm->tn = from_big_endian<int32_t>(&md[size_t(TrHdr::SeqFNum)-1]);
 // }
 
 // /*! Insert the trace parameters from a TraceParam structure and

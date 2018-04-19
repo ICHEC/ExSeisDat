@@ -361,8 +361,8 @@ TEST(SEGYMd, scaleConv)
 //         {
 //             {
 //                 setCoord(item, p, scal, tr.data());
-//                 auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
-//                 auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
+//                 auto val1 = from_big_endian<int32_t>(&tr[size_t(check1)-1U]);
+//                 auto val2 = from_big_endian<int32_t>(&tr[size_t(check2)-1U]);
 //                 ASSERT_EQ(val1, std::lround(p.x / scal)) << "val1 " << val1 << " p.x " << p.x << " val "
 //                                               << val << " scal " << scal << std::endl;
 //                 ASSERT_EQ(val2, std::lround(p.y / scal)) << "val1 " << val2 << " p.y " << p.y << " val "
@@ -375,8 +375,8 @@ TEST(SEGYMd, scaleConv)
 //                 int nscal = -scal;
 //                 setCoord(item, p, nscal, tr.data());
 //
-//                 auto val1 = getHost<int32_t>(&tr[size_t(check1)-1U]);
-//                 auto val2 = getHost<int32_t>(&tr[size_t(check2)-1U]);
+//                 auto val1 = from_big_endian<int32_t>(&tr[size_t(check1)-1U]);
+//                 auto val2 = from_big_endian<int32_t>(&tr[size_t(check2)-1U]);
 //                 ASSERT_EQ(val1/exseis::utils::Floating_point(scal), p.x) << "1st " << std::lround(val1/exseis::utils::Floating_point(scal)) << " p.x " << p.x << " val "
 //                                                    << val << " scal " << scal << std::endl;
 //

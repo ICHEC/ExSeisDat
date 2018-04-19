@@ -487,13 +487,14 @@ struct FileReadSEGYTest : public Test {
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
-                    float val = offset + i + j;
+                    const float val = offset + i + j;
+
                     size_t addr =
                       readPrm ? (i * SEGY_utils::getDOSz(ns)
                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                 (i * ns + j) * sizeof(float);
 
-                    const auto be_val = to_big_endian(toint(val));
+                    const auto be_val = to_big_endian<float>(val);
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
@@ -603,9 +604,10 @@ struct FileReadSEGYTest : public Test {
                       readPrm ? (i * SEGY_utils::getDOSz(ns)
                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                 (i * ns + j) * sizeof(float);
-                    float val = offset[i] + j;
 
-                    const auto be_val = to_big_endian(toint(val));
+                    const float val = offset[i] + j;
+
+                    const auto be_val = to_big_endian<float>(val);
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
@@ -919,13 +921,14 @@ struct FileWriteSEGYTest : public Test {
                     initWriteHeaders(
                       offset + i, &buf[i * SEGY_utils::getDOSz(ns)]);
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr =
+                    const size_t addr =
                       writePrm ? (i * SEGY_utils::getDOSz(ns)
                                   + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                  (i * ns + j) * sizeof(float);
-                    float val = offset + i + j;
 
-                    const auto be_val = to_big_endian(toint(val));
+                    const float val = offset + i + j;
+
+                    const auto be_val = to_big_endian<float>(val);
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
@@ -1045,13 +1048,14 @@ struct FileWriteSEGYTest : public Test {
                     initWriteHeaders(
                       offset[i], &buf[i * SEGY_utils::getDOSz(ns)]);
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr =
+                    const size_t addr =
                       writePrm ? (i * SEGY_utils::getDOSz(ns)
                                   + SEGY_utils::getMDSz() + j * sizeof(float)) :
                                  (i * ns + j) * sizeof(float);
-                    float val = offset[i] + j;
 
-                    const auto be_val = to_big_endian(toint(val));
+                    const float val = offset[i] + j;
+
+                    const auto be_val = to_big_endian<float>(val);
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }

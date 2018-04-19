@@ -13,31 +13,119 @@
 namespace exseis {
 namespace utils {
 
-/*! @brief Convert a 2 byte \c char array in big endian to a host 2 byte
- *         datatype
- *  @param[in] src Data in big endian order to stuff into the host datatype
- *  @return Return a 2 byte datatype (host endianness)
- *  @details src[0] contains the most significant byte in big endian. src[1]
- *           contains the least significant. Shift src[0] to be in the position
- *           of the most significant byte and OR it with src[1] which is not
- *           shifted (as it is the least significant byte.
- */
-template<typename T, typename std::enable_if<sizeof(T) == 2U, T>::type = 0>
-T getHost(const unsigned char* src)
+/// @brief Convert a 2 byte \c char array in big endian to a host 2 byte
+///        datatype
+///
+/// @param[in] src Data in big endian order to stuff into the host datatype
+///
+/// @return Return a 2 byte datatype (host endianness)
+///
+/// @details src[0] contains the most significant byte in big endian. src[1]
+///          contains the least significant. Shift src[0] to be in the position
+///          of the most significant byte and OR it with src[1] which is not
+///          shifted (as it is the least significant byte.
+///
+/// @pre sizeof(T) == 2
+///
+template<typename T>
+T from_big_endian(std::array<unsigned char, 2> src)
 {
-    return (T(src[0]) << 8) | T(src[1]);
+    static_assert(
+      std::is_integral<T>::value,
+      "from_big_endian only defined for integer types.");
+
+    static_assert(sizeof(T) == 2, "Type should be of size 2!");
+
+    return (T(src[0]) << 8) | T(src[1] << 0);
 }
 
 
-/*! @overload
- *  @brief Convert a 4 byte datatype in big endian to a host 4 byte datatype
- *  @param[in] src Data in big endian order to stuff into the host datatype
- *  @return Return a short
- */
-template<typename T, typename std::enable_if<sizeof(T) == 4U, T>::type = 0>
-T getHost(const unsigned char* src)
+/// @overload
+///
+/// @brief Convert a 4 byte datatype in big endian to a host 4 byte datatype
+///
+/// @param[in] src Data in big-endian order to stuff into the datype in
+///                host-endian order.
+///
+/// @return Return a 4 byte datatype
+///
+/// @pre sizeof(T) == 4
+///
+template<typename T>
+T from_big_endian(std::array<unsigned char, 4> src)
 {
-    return (T(src[0]) << 24) | (T(src[1]) << 16) | (T(src[2]) << 8) | T(src[3]);
+    static_assert(
+      std::is_integral<T>::value,
+      "from_big_endian only defined for integer types.");
+
+    static_assert(sizeof(T) == 4, "Type should be of size 4!");
+
+    return (T(src[0]) << 24) | (T(src[1]) << 16) | (T(src[2]) << 8)
+           | T(src[3] << 0);
+}
+
+
+/// @overload
+///
+/// @brief Convert a list of bytes representing a float in big-endian order
+///        into a float in native-endianness.
+///
+/// @param[in] src The array of bytes in big-endian order to convert.
+///
+/// @return The float with native endianness.
+///
+template<>
+inline float from_big_endian<float>(std::array<unsigned char, 4> src)
+{
+    static_assert(
+      sizeof(float) == sizeof(uint32_t),
+      "from_big_endian expects float and uint32_t to have the same size!");
+
+    // Put the input bytes into a host-endian integer type, then copy
+    // the bytes to a float.
+
+    const uint32_t int_dst = from_big_endian<uint32_t>(src);
+
+    float float_dst = 0;
+    std::memcpy(&float_dst, &int_dst, sizeof(float));
+
+    return float_dst;
+}
+
+
+/// @brief Convert a set of bytes representing a big-endian number into a
+///        host integer type in the host-endianness.
+///
+/// @tparam T     The host integer type to convert to.
+/// @tparam Bytes The byte type passed in. Should be unsigned char.
+///
+/// @param[in] byte  The highest value byte to convert
+/// @param[in] bytes The rest of the bytes to convert, passed in in big-endian
+///                  order.
+///
+/// @return The integer type in host-endianness constructed from the big-endian
+///         ordered bytes passed in.
+///
+/// This is a convenience function to avoid having to construct the
+/// `std::array`s necessary to call the other specializations.
+///
+/// In big-endian, higher value bytes come before lower value bytes.
+/// In the case of this function, when calling, say,
+/// `from_big_endian<int16_t>(x, y)`,
+/// The byte held by `x` will be represented in the highest 8 bits of the 16 bit
+/// integer, and `y` will be represented in the lowest 8 bits.
+///
+/// @pre sizeof(T) == number of parameters
+///
+template<typename T, typename... Bytes>
+T from_big_endian(unsigned char byte, Bytes... bytes)
+{
+    static_assert(
+      sizeof(T) == (sizeof...(Bytes) + 1),
+      "from_big_endian expects the number of bytes passed in to match the number of bytes in the requested type.");
+
+    return from_big_endian<T>(std::array<unsigned char, sizeof...(Bytes) + 1>{
+      {byte, static_cast<unsigned char>(bytes)...}});
 }
 
 
@@ -90,38 +178,39 @@ std::array<unsigned char, sizeof(T)> to_big_endian(T src)
 }
 
 
-/*! @brief Reverse the byte sequence of a 4 byte \c char array
- *  @param[in] src Data to be reversed
- *  @details This can be used to switch between endianness representations.
- */
-void reverse4Bytes(unsigned char* src);
+/// @brief Convert a host-endian integer type to an `unsigned char` array in
+///        big-endian order.
+///
+/// @param[in] src The value to convert from host-endian to big-endian.
+///
+/// @return An array containing the bytes of `src` in big-endian order.
+///
+/// @details For an array `dst` holding the byte-wise representation of an
+///          integer, big-endian means dst[0] holds the most significant byte
+///          and dst[3] the least.
+///
+template<>
+inline std::array<unsigned char, sizeof(float)> to_big_endian(float src)
+{
+    static_assert(
+      sizeof(float) == sizeof(uint32_t),
+      "to_big_endian<float> expects float and uint32_t to be the same size!");
+
+    uint32_t int_src = 0;
+    std::memcpy(&int_src, &src, sizeof(float));
+
+    return to_big_endian<uint32_t>(int_src);
+}
 
 
-/*! Convert the underlying bit representation of a 4 byte integer to a float.
- *  @param[in] i The input 32 bit integer
- *  @return The corresponding float
- *  @details One could think of this function as providing the cast
- *           reinterpret_cast<float>(i).
- */
-float tofloat(const uint32_t i);
-
-
-/*! Convert the underlying bit representation of a float to a 4 byte integer.
- *  @param[in] f The input float
- *  @return The corresponding 4 byte integer
- *  @details This function is the same as the above but in reverse.
- */
-uint32_t toint(const float f);
-
-
-/// The \c FloatComponents class represents a floating point number in terms
+/// The \c Float_components class represents a floating point number in terms
 /// of its components: {sign, exponent, significand}.
 ///
 /// @details The number can be found natively as
 ///     std::pow(-1,sign) * (significand * std::pow(2,-32))
 ///       * std::pow(2,exponent);
 ///
-struct FloatComponents {
+struct Float_components {
     /// The sign of the number.
     uint32_t sign = 0;
 
@@ -134,32 +223,47 @@ struct FloatComponents {
 
 
 /// Extract the sign, exponent and significand from an IBM floating point number
-/// and return it as a set of FloatComponents.
-/// @param[in] ibm_float  The bit representation of the IBM floating point
-///                       number.
-/// @param[in] big_endian Whether the bit representation was read from a big
-///                       endian stream.
-/// @returns The FloatComponents for the IBM number:
+/// and return it as a set of Float_components.
+///
+/// @param[in] ibm_float_bytes The bit representation of the IBM floating point
+///                            number.
+/// @param[in] is_big_endian   Whether the bit representation was read from a
+///                            big endian stream.
+///
+/// @returns The Float_components for the IBM number:
 ///          {sign, exponent, significand}.
 ///
-FloatComponents from_IBM(uint32_t ibm_float, bool big_endian);
+Float_components from_IBM(
+  std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
 
-/// Build an IEEE floating point representation from a set of FloatComponents
+/// Build a native floating point representation from a set of Float_components
+///
 /// @param[in] components The components of the floating point number:
 ///                       {sign, exponent, significand}.
-/// @returns The bit representation of an IEEE floating point number.
 ///
-uint32_t to_IEEE(FloatComponents components);
+/// @returns A native float equivalent to the representation in `components`.
+///
+/// This function assumes the system is using IEEE 754 floating point numbers.
+///
+/// @pre The native `float` type is IEEE 754 with round-half-to-even rounding.
+///
+float to_float(Float_components components);
 
-/*! Convert the underlying bit representation of a 4 byte integer whose bits are
- *  in IBM format to an IEEE754 float.
- *  @param[in] f The input float
- *  @param[in] bigEndian True if the data is in big endian format
- *  @return The corresponding 4 byte integer
- *  @details This function assumes that the system uses IEEE754.
- */
-float convertIBMtoIEEE(const float f, bool bigEndian);
+
+/// Convert an array of bytes representing an IBM single-precision floating
+/// point number to a native single-precision float.
+///
+/// @param[in] ibm_float_bytes The byte representation of the IBM float.
+/// @param[in] is_big_endian   True if the data in `ibm_float_bytes` is in
+///                            big-endian order.
+///
+/// @return The corresponding 4 byte integer
+///
+/// @details This function assumes that the system uses IEEE754.
+///
+float from_IBM_to_float(
+  std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
 }  // namespace utils
 }  // namespace exseis

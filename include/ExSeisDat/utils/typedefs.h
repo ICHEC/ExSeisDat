@@ -15,7 +15,7 @@
 ///
 /// @namespace exseis::utils::typedefs
 ///
-/// Aliases for fundamental types used throughout the ExSeisDat project.
+/// @brief Aliases for fundamental types used throughout the ExSeisDat project.
 ///
 
 

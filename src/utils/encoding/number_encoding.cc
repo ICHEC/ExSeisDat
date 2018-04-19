@@ -12,45 +12,19 @@
 namespace exseis {
 namespace utils {
 
-void reverse4Bytes(unsigned char* src)
-{
-    std::swap(src[0], src[3]);
-    std::swap(src[1], src[2]);
-}
 
-float tofloat(uint32_t i)
-{
-    static_assert(sizeof(uint32_t) == sizeof(float), "float isn't 32 bits!");
-
-    float f;
-    std::memcpy(&f, &i, sizeof(float));
-
-    return f;
-}
-
-uint32_t toint(float f)
-{
-    static_assert(sizeof(float) == sizeof(uint32_t), "float isn't 32 bits!");
-
-    uint32_t i;
-    std::memcpy(&i, &f, sizeof(uint32_t));
-
-    return i;
-}
-
-
-FloatComponents from_IBM(uint32_t ibm_float, bool big_endian)
+Float_components from_IBM(
+  std::array<unsigned char, 4> ibm_float_bytes, bool big_endian)
 {
     // Get the IBM float in the native endian order
     const uint32_t ibm_bits = [=]() {
-        const uint8_t* bits = reinterpret_cast<const uint8_t*>(&ibm_float);
-
         if (big_endian == true) {
-            return (bits[0] << 24) | (bits[1] << 16) | (bits[2] << 8)
-                   | (bits[3] << 0);
+            return (ibm_float_bytes[0] << 24) | (ibm_float_bytes[1] << 16)
+                   | (ibm_float_bytes[2] << 8) | (ibm_float_bytes[3] << 0);
         }
-        return (bits[3] << 24) | (bits[2] << 16) | (bits[1] << 8)
-               | (bits[0] << 0);
+
+        return (ibm_float_bytes[3] << 24) | (ibm_float_bytes[2] << 16)
+               | (ibm_float_bytes[1] << 8) | (ibm_float_bytes[0] << 0);
     }();
 
 
@@ -184,8 +158,12 @@ static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift)
 }
 
 
-uint32_t to_IEEE(FloatComponents components)
+float to_float(Float_components components)
 {
+    static_assert(
+      sizeof(float) == sizeof(uint32_t),
+      "to_float expects float and uint32_t to be the same size");
+
     uint32_t sign = components.sign;
     int32_t exp   = components.exponent;
     uint32_t frac = components.significand;
@@ -271,19 +249,27 @@ uint32_t to_IEEE(FloatComponents components)
     // Exp is at bits 31 to 24
     exp <<= 23;
 
-    return sign | exp | frac;
+
+    const uint32_t int_float = sign | exp | frac;
+
+    float rval = 0;
+    std::memcpy(&rval, &int_float, sizeof(float));
+
+    return rval;
 }
 
 
 // TODO: Haven't done anything for underflow, overflow or nans
 // TODO: Not extensively tested yet
-float convertIBMtoIEEE(const float f, bool bigEndian)
+float from_IBM_to_float(
+  std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian)
 {
-    const uint32_t i          = toint(f);
-    const auto ibm_components = from_IBM(i, bigEndian);
-    const uint32_t ieee       = to_IEEE(ibm_components);
+    static_assert(
+      sizeof(float) == sizeof(uint32_t),
+      "from_IBM_to_float expects float and uint32_t to have the same size!");
 
-    return tofloat(ieee);
+    const auto ibm_components = from_IBM(ibm_float_bytes, is_big_endian);
+    return to_float(ibm_components);
 }
 
 }  // namespace utils

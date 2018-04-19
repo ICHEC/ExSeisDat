@@ -128,9 +128,19 @@ class MPIIOTest : public Test {
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
         for (size_t i = 0; i < nt; i++) {
+
             unsigned char* md = &tr[step * i];
-            ASSERT_EQ(ilNum(i + offset), getHost<int32_t>(&md[188])) << i;
-            ASSERT_EQ(xlNum(i + offset), getHost<int32_t>(&md[192])) << i;
+
+            ASSERT_EQ(
+              ilNum(i + offset),
+              from_big_endian<int32_t>(
+                md[188 + 0], md[188 + 1], md[188 + 2], md[188 + 3]))
+              << i;
+            ASSERT_EQ(
+              xlNum(i + offset),
+              from_big_endian<int32_t>(
+                md[192 + 0], md[192 + 1], md[192 + 2], md[192 + 3]))
+              << i;
         }
     }
 

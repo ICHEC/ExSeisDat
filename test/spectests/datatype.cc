@@ -11,24 +11,21 @@
 
 using namespace exseis::utils;
 
-TEST(Datatype, getHost32Bit1)
+TEST(Datatype, from_big_endian32Bit1)
 {
-    std::vector<unsigned char> src = {1, 1, 1, 1};
-    auto h                         = getHost<int32_t>(src.data());
+    auto h = from_big_endian<int32_t>(0x01, 0x01, 0x01, 0x01);
     EXPECT_EQ(16843009, h);
 }
 
-TEST(Datatype, getHost32Bit2)
+TEST(Datatype, from_big_endian32Bit2)
 {
-    std::vector<unsigned char> src = {0x78, 0x9A, 0xBC, 0xDE};
-    auto h                         = getHost<int32_t>(src.data());
+    auto h = from_big_endian<int32_t>(0x78, 0x9A, 0xBC, 0xDE);
     EXPECT_EQ(2023406814, h);
 }
 
-TEST(Datatype, getHost32Bit3)
+TEST(Datatype, from_big_endian32Bit3)
 {
-    std::vector<unsigned char> src = {0x88, 0x9A, 0xBC, 0xDE};
-    auto h                         = getHost<int32_t>(src.data());
+    auto h = from_big_endian<int32_t>(0x88, 0x9A, 0xBC, 0xDE);
 
     int32_t ans = 0x889ABCDE;
     EXPECT_EQ(ans, h);
@@ -167,11 +164,16 @@ TEST(Datatype, IBMToIEEE)
                 const uint32_t built_ibm   = pair.ibm.to_ulong();
                 const uint32_t built_float = pair.native.to_ulong();
 
-                // Built an ieee float with convertIBMtoIEEE using the IBM
+                // Built an ieee float with from_IBM_to_float using the IBM
                 // float we just made.
-                float ibm_float = 0;
-                std::memcpy(&ibm_float, &built_ibm, sizeof(float));
-                const float ieee = convertIBMtoIEEE(ibm_float, false);
+                const unsigned char* built_ibm_bytes =
+                  reinterpret_cast<const unsigned char*>(&built_ibm);
+
+                const std::array<unsigned char, 4> built_ibm_bytes_array = {
+                  {built_ibm_bytes[0], built_ibm_bytes[1], built_ibm_bytes[2],
+                   built_ibm_bytes[3]}};
+                const float ieee =
+                  from_IBM_to_float(built_ibm_bytes_array, false);
 
                 // Integer representation for the IEEE constructed float.
                 uint32_t built_ieee = 0;
