@@ -13,18 +13,22 @@ std::vector<size_t> lobdecompose(
     size_t lnt = std::lround(double(sz * rank) / total);
 
     auto rem = sz - piol->comm->sum(lnt);
-    if (rank == 1) lnt += rem;
+    if (rank == 1) {
+        lnt += rem;
+    }
 
     auto nts       = piol->comm->gather<size_t>(lnt);
     size_t biggest = *std::max_element(nts.begin(), nts.end());
     assert(sz == std::accumulate(nts.begin(), nts.end(), 0U));
 
-    if (rank == 1)
+    if (rank == 1) {
         return std::vector<size_t>{0U, lnt, biggest};
-    else
+    }
+    else {
         return std::vector<size_t>{
           std::accumulate(nts.begin(), nts.begin() + rank - 1U, 0U), lnt,
           biggest};
+    }
 }
 
 exseis::utils::Contiguous_decomposition blockDecomp(
@@ -45,7 +49,9 @@ exseis::utils::Contiguous_decomposition blockDecomp(
 
     newdec.global_offset *= bsz;
     newdec.local_size *= bsz;
-    if (newdec.local_size == 0) return {sz, 0};
+    if (newdec.local_size == 0) {
+        return {sz, 0};
+    }
 
     // Now we compensate for the fact that the start and end block sizes can be
     // different.

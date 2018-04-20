@@ -202,7 +202,9 @@ struct FileReadSEGYTest : public Test {
     template<bool OPTS = false>
     void makeSEGY(std::string name)
     {
-        if (file.get() != nullptr) file.reset();
+        if (file.get() != nullptr) {
+            file.reset();
+        }
 
         // Make a ReadDirect reader with options if OPTS = true.
         if (OPTS) {
@@ -221,8 +223,12 @@ struct FileReadSEGYTest : public Test {
     // Make a ReadDirect with mock Object layer instance. Set this.file to it.
     void makeMockSEGY()
     {
-        if (file.get() != nullptr) file.reset();
-        if (mock != nullptr) mock.reset();
+        if (file.get() != nullptr) {
+            file.reset();
+        }
+        if (mock != nullptr) {
+            mock.reset();
+        }
 
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
         piol->isErr();
@@ -589,16 +595,22 @@ struct FileReadSEGYTest : public Test {
                           << __LINE__ << std::endl;
                 return;
             }
-            if (readPrm)
+
+            if (readPrm) {
                 buf.resize(tn * SEGY_utils::getDOSz(ns));
-            else
+            }
+            else {
                 buf.resize(tn * SEGY_utils::getDFSz(ns));
+            }
+
             for (size_t i = 0U; i < tn; i++) {
-                if (readPrm && ns && tn)
+                if (readPrm && ns && tn) {
                     std::copy(
                       tr.begin() + offset[i] * SEGY_utils::getMDSz(),
                       tr.begin() + (offset[i] + 1) * SEGY_utils::getMDSz(),
                       buf.begin() + i * SEGY_utils::getDOSz(ns));
+                }
+
                 for (size_t j = 0U; j < ns; j++) {
                     size_t addr =
                       readPrm ? (i * SEGY_utils::getDOSz(ns)
@@ -611,23 +623,29 @@ struct FileReadSEGYTest : public Test {
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
-            if (readPrm)
+
+            if (readPrm) {
                 EXPECT_CALL(*mock, readDO(offset.data(), ns, tn, _))
                   .Times(Exactly(1))
                   .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-            else
+            }
+            else {
                 EXPECT_CALL(*mock, readDODF(offset.data(), ns, tn, _))
                   .Times(Exactly(1))
                   .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
+            }
         }
 
         std::vector<float> bufnew(tn * ns);
         Param prm(tn);
-        if (readPrm)
+        if (readPrm) {
             file->readTraceNonContiguous(
               tn, offset.data(), bufnew.data(), &prm);
-        else
+        }
+        else {
             file->readTraceNonContiguous(tn, offset.data(), bufnew.data());
+        }
+
         for (size_t i = 0U; i < tn; i++) {
             if (readPrm && tn && ns) {
                 ASSERT_EQ(
@@ -660,9 +678,11 @@ struct FileReadSEGYTest : public Test {
                         i, PIOL_META_ySrc, &prm));
                 }
             }
-            for (size_t j = 0U; j < ns; j++)
+
+            for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(bufnew[i * ns + j], float(offset[i] + j))
                   << "Trace Number: " << offset[i] << " " << j;
+            }
         }
     }
 };
@@ -690,7 +710,9 @@ struct FileWriteSEGYTest : public Test {
     void makeSEGY(std::string name)
     {
         name_ = name;
-        if (file.get() != nullptr) file.reset();
+        if (file.get() != nullptr) {
+            file.reset();
+        }
         piol->isErr();
 
         WriteSEGY::Opt f;
@@ -719,8 +741,12 @@ struct FileWriteSEGYTest : public Test {
     template<bool callHO = true>
     void makeMockSEGY()
     {
-        if (file.get() != nullptr) file.reset();
-        if (mock != nullptr) mock.reset();
+        if (file.get() != nullptr) {
+            file.reset();
+        }
+        if (mock != nullptr) {
+            mock.reset();
+        }
         mock = std::make_shared<MockObj>(piol, notFile, nullptr);
         piol->isErr();
         Mock::AllowLeak(mock.get());
@@ -756,10 +782,12 @@ struct FileWriteSEGYTest : public Test {
             int16_t scal1 = SEGY_utils::find_scalar(xNum(i));
             int16_t scal2 = SEGY_utils::find_scalar(yNum(i));
 
-            if (scal1 > 1 || scal2 > 1)
+            if (scal1 > 1 || scal2 > 1) {
                 scale = std::max(scal1, scal2);
-            else
+            }
+            else {
                 scale = std::min(scal1, scal2);
+            }
 
             const auto be_scale = to_big_endian(scale);
             std::copy(
@@ -784,8 +812,10 @@ struct FileWriteSEGYTest : public Test {
             EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
 
             for (size_t i = 0U;
-                 i < std::min(testString.size(), SEGY_utils::getTextSz()); i++)
+                 i < std::min(testString.size(), SEGY_utils::getTextSz());
+                 i++) {
                 ho[i] = testString[i];
+            }
 
             ho[NumSample + 1] = ns & 0xFF;
             ho[NumSample]     = ns >> 8 & 0xFF;
@@ -912,14 +942,17 @@ struct FileWriteSEGYTest : public Test {
                           << __LINE__ << std::endl;
                 return;
             }
+
             buf.resize(
               tn
               * (writePrm ? SEGY_utils::getDOSz(ns) : SEGY_utils::getDFSz(ns)));
 
             for (size_t i = 0U; i < tn; i++) {
-                if (writePrm)
+                if (writePrm) {
                     initWriteHeaders(
                       offset + i, &buf[i * SEGY_utils::getDOSz(ns)]);
+                }
+
                 for (size_t j = 0U; j < ns; j++) {
                     const size_t addr =
                       writePrm ? (i * SEGY_utils::getDOSz(ns)
@@ -932,14 +965,17 @@ struct FileWriteSEGYTest : public Test {
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
-            if (writePrm)
+
+            if (writePrm) {
                 EXPECT_CALL(*mock, writeDO(offset, ns, tn, _))
                   .Times(Exactly(1))
                   .WillOnce(check3(buf.data(), buf.size()));
-            else
+            }
+            else {
                 EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
                   .Times(Exactly(1))
                   .WillOnce(check3(buf.data(), buf.size()));
+            }
         }
         std::vector<float> bufnew(tn * ns);
         if (writePrm) {
@@ -954,16 +990,21 @@ struct FileWriteSEGYTest : public Test {
                 param_utils::setPrm(i, PIOL_META_il, ilNum(offset + i), &prm);
                 param_utils::setPrm(i, PIOL_META_xl, xlNum(offset + i), &prm);
                 param_utils::setPrm(i, PIOL_META_tn, offset + i, &prm);
-                for (size_t j = 0U; j < ns; j++)
+
+                for (size_t j = 0U; j < ns; j++) {
                     bufnew[i * ns + j] = float(offset + i + j);
+                }
             }
 
             file->writeTrace(offset, tn, bufnew.data(), &prm);
         }
         else {
-            for (size_t i = 0U; i < tn; i++)
-                for (size_t j = 0U; j < ns; j++)
+            for (size_t i = 0U; i < tn; i++) {
+                for (size_t j = 0U; j < ns; j++) {
                     bufnew[i * ns + j] = float(offset + i + j);
+                }
+            }
+
             file->writeTrace(offset, tn, bufnew.data());
         }
 
@@ -980,10 +1021,13 @@ struct FileWriteSEGYTest : public Test {
         size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
         std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
         Param prm(tn);
-        if (readPrm)
+        if (readPrm) {
             readfile->readTrace(offset, tn, bufnew.data(), &prm);
-        else
+        }
+        else {
             readfile->readTrace(offset, tn, bufnew.data());
+        }
+
         for (size_t i = 0U; i < tnRead; i++) {
             if (readPrm && tnRead && ns) {
                 ASSERT_EQ(
@@ -1018,11 +1062,13 @@ struct FileWriteSEGYTest : public Test {
                         i, PIOL_META_ySrc, &prm));
                 }
             }
-            for (size_t j = 0U; j < ns; j++)
+
+            for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(
                   bufnew[i * ns + j],
                   exseis::utils::Trace_value(offset + i + j))
                   << "Trace Number: " << i << " " << j;
+            }
         }
     }
 
@@ -1039,14 +1085,20 @@ struct FileWriteSEGYTest : public Test {
                           << __LINE__ << std::endl;
                 return;
             }
-            if (writePrm)
+
+            if (writePrm) {
                 buf.resize(tn * SEGY_utils::getDOSz(ns));
-            else
+            }
+            else {
                 buf.resize(tn * SEGY_utils::getDFSz(ns));
+            }
+
             for (size_t i = 0U; i < tn; i++) {
-                if (writePrm)
+                if (writePrm) {
                     initWriteHeaders(
                       offset[i], &buf[i * SEGY_utils::getDOSz(ns)]);
+                }
+
                 for (size_t j = 0U; j < ns; j++) {
                     const size_t addr =
                       writePrm ? (i * SEGY_utils::getDOSz(ns)
@@ -1059,14 +1111,17 @@ struct FileWriteSEGYTest : public Test {
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
-            if (writePrm)
+
+            if (writePrm) {
                 EXPECT_CALL(*mock, writeDO(offset.data(), ns, tn, _))
                   .Times(Exactly(1))
                   .WillOnce(check3(buf.data(), buf.size()));
-            else
+            }
+            else {
                 EXPECT_CALL(*mock, writeDODF(offset.data(), ns, tn, _))
                   .Times(Exactly(1))
                   .WillOnce(check3(buf.data(), buf.size()));
+            }
         }
         Param prm(tn);
         std::vector<float> bufnew(tn * ns);
@@ -1082,20 +1137,25 @@ struct FileWriteSEGYTest : public Test {
                 param_utils::setPrm(i, PIOL_META_xl, xlNum(offset[i]), &prm);
                 param_utils::setPrm(i, PIOL_META_tn, offset[i], &prm);
             }
-            for (size_t j = 0U; j < ns; j++)
+
+            for (size_t j = 0U; j < ns; j++) {
                 bufnew[i * ns + j] = float(offset[i] + j);
+            }
         }
 
-        if (writePrm)
+        if (writePrm) {
             file->writeTraceNonContiguous(
               tn, offset.data(), bufnew.data(), &prm);
-        else
+        }
+        else {
             file->writeTraceNonContiguous(tn, offset.data(), bufnew.data());
+        }
 
         if (MOCK == false) {
-            for (size_t i = 0U; i < tn; i++)
+            for (size_t i = 0U; i < tn; i++) {
                 ReadSEGY_public::get(*readfile)->nt =
                   std::max(offset[i], ReadSEGY_public::get(*readfile)->nt);
+            }
             readRandomTraceTest<writePrm>(tn, offset);
         }
     }
@@ -1107,11 +1167,14 @@ struct FileWriteSEGYTest : public Test {
         std::vector<unsigned char> buf;
         std::vector<float> bufnew(tn * ns);
         Param prm(tn);
-        if (readPrm)
+        if (readPrm) {
             readfile->readTraceNonContiguous(
               tn, offset.data(), bufnew.data(), &prm);
-        else
+        }
+        else {
             readfile->readTraceNonContiguous(tn, offset.data(), bufnew.data());
+        }
+
         for (size_t i = 0U; i < tn; i++) {
             if (readPrm && tn && ns) {
                 ASSERT_EQ(
@@ -1144,9 +1207,11 @@ struct FileWriteSEGYTest : public Test {
                         i, PIOL_META_ySrc, &prm));
                 }
             }
-            for (size_t j = 0U; j < ns; j++)
+
+            for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(bufnew[i * ns + j], float(offset[i] + j))
                   << "Trace Number: " << offset[i] << " " << j;
+            }
         }
     }
 

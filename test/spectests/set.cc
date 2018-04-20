@@ -339,8 +339,9 @@ TEST_F(SetTest, getActive)
     init(1, 1000U, 10);
 
     size_t nt = 0U;
-    for (auto& f : set->file)
+    for (auto& f : set->file) {
         nt += f->ifc->readNt();
+    }
     EXPECT_EQ(nt, 1000U);
 
     // EXPECT_EQ(set->getLNt(), 1000U - 10U);
@@ -363,8 +364,9 @@ TEST_F(SetTest, getActive3)
     init(2, 3333, 1111);
 
     size_t nt = 0U;
-    for (auto& f : set->file)
+    for (auto& f : set->file) {
         nt += f->ifc->readNt();
+    }
     EXPECT_EQ(nt, 2U * 3333U);
     // EXPECT_EQ(set->getLNt(), 2U*2222U);
 }
@@ -456,7 +458,9 @@ TEST_F(SetTest, agcRMS)
         size_t num = std::count_if(
           &trc[0], &trc[window],
           [](exseis::utils::Trace_value j) { return j != 0.0f; });
-        if (num < 1) num = 1;
+        if (num < 1) {
+            num = 1;
+        }
         return std::sqrt(amp / num);
     };
     agcTest(100, 1000, rectangular_RMS_gain, agcFunc, 25, 1.0f);
@@ -480,7 +484,9 @@ TEST_F(SetTest, agcRMSTri)
           size_t num = std::count_if(
             &trc[0], &trc[window],
             [](exseis::utils::Trace_value i) { return i != 0.0f; });
-          if (num < 1) num = 1;
+          if (num < 1) {
+              num = 1;
+          }
           return std::sqrt(amp / num);
       };
     agcTest(100, 1000, triangular_RMS_gain, agcFunc, 25, 1.0f);
@@ -496,7 +502,9 @@ TEST_F(SetTest, agcMeanAbs)
         size_t num = std::count_if(
           &trc[0], &trc[window],
           [](exseis::utils::Trace_value j) { return j != 0.0f; });
-        if (num < 1) num = 1;
+        if (num < 1) {
+            num = 1;
+        }
         return std::abs(amp) / num;
     };
     agcTest(100, 1000, mean_abs_gain, agcFunc, 25, 1.0f);
@@ -506,10 +514,12 @@ TEST_F(SetTest, agcMedian)
 {
     auto agcFunc = [](size_t window, exseis::utils::Trace_value* trc, size_t) {
         std::sort(&trc[0], &trc[window]);
-        if (window % 2 == 0)
+        if (window % 2 == 0) {
             return (trc[window / 2U] + trc[(window / 2U) + 1U]) / 2.0f;
-        else
+        }
+        else {
             return trc[window / 2U];
+        }
     };
     agcTest(100, 1000, median_gain, agcFunc, 25, 1.0f);
 }

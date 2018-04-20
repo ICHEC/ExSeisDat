@@ -68,15 +68,18 @@ unsigned char getPattern(size_t i)
 std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
 {
     srand(seed);
-    if (nt == 0) return std::vector<size_t>();
+    if (nt == 0) {
+        return std::vector<size_t>();
+    }
 
     exseis::utils::Integer range = (max / nt) - 1LL;
     assert(range >= 0);
 
     std::vector<size_t> v(nt);
     v[0] = (range ? rand() % range : 0);
-    for (size_t i = 1; i < nt; i++)
+    for (size_t i = 1; i < nt; i++) {
         v[i] = v[i - 1] + 1U + (range ? rand() % range : 0);
+    }
     return v;
 }
 

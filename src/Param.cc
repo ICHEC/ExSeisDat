@@ -11,16 +11,26 @@ namespace PIOL {
 
 Param::Param(std::shared_ptr<Rule> r_, const size_t sz_) : r(r_), sz(sz_)
 {
-    if (r->numFloat) f.resize(sz * r->numFloat);
+    if (r->numFloat) {
+        f.resize(sz * r->numFloat);
+    }
 
-    if (r->numLong) i.resize(sz * r->numLong);
+    if (r->numLong) {
+        i.resize(sz * r->numLong);
+    }
 
-    if (r->numShort) s.resize(sz * r->numShort);
+    if (r->numShort) {
+        s.resize(sz * r->numShort);
+    }
 
-    if (r->numIndex) t.resize(sz * r->numIndex);
+    if (r->numIndex) {
+        t.resize(sz * r->numIndex);
+    }
 
     // TODO: This must be file format agnostic
-    if (r->numCopy) c.resize(sz * (r->numCopy ? SEGY_utils::getMDSz() : 0));
+    if (r->numCopy) {
+        c.resize(sz * (r->numCopy ? SEGY_utils::getMDSz() : 0));
+    }
 }
 
 Param::Param(const size_t sz_) : r(std::make_shared<Rule>(true, true)), sz(sz_)

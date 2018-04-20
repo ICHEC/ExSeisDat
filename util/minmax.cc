@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <unistd.h>
 
 using namespace exseis::utils;
 using namespace exseis::PIOL;
@@ -49,8 +50,9 @@ void calcMin(std::string iname, std::string oname)
     std::vector<size_t> uniqlist(sz);
 
     if (sz) {
-        for (size_t i = 0U; i < sz; i++)
+        for (size_t i = 0U; i < sz; i++) {
             uniqlist[i] = list[i] = minmax[i].num;
+        }
 
         std::sort(uniqlist.begin(), uniqlist.end());
         auto end = std::unique(uniqlist.begin(), uniqlist.end());
@@ -64,7 +66,7 @@ void calcMin(std::string iname, std::string oname)
 
     Param oprm(sz);
     std::vector<exseis::utils::Trace_value> trace(sz);
-    for (size_t i = 0U; i < sz; i++)
+    for (size_t i = 0U; i < sz; i++) {
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
                 param_utils::cpyPrm(j, &tprm, i, &oprm);
@@ -73,6 +75,7 @@ void calcMin(std::string iname, std::string oname)
                 j        = usz;
             }
         }
+    }
 
     WriteDirect out(piol, oname);
     out.writeNt(sz);
@@ -96,7 +99,7 @@ int main(int argc, char** argv)
 
     std::string opt = "i:o:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 iname = optarg;
@@ -108,6 +111,7 @@ int main(int argc, char** argv)
                 std::cerr << "One of the command line arguments is invalid.\n";
                 return -1;
         }
+    }
 
     if (iname == "" || oname == "") {
         std::cerr << "Invalid arguments given.\n";

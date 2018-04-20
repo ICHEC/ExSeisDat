@@ -42,10 +42,14 @@ int strideView(
   MPI_Datatype* type)
 {
     int err = MPI_Type_create_hvector(count, block, stride, MPI_CHAR, type);
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     err = MPI_Type_commit(type);
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     return MPI_File_set_view(file, offset, MPI_CHAR, *type, "native", info);
 }
@@ -70,8 +74,10 @@ int randBlockView(
 {
 #ifndef HINDEXED_BLOCK_WORKS
     std::vector<int> bl(count);
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++) {
         bl[i] = block;
+    }
+
     assert(
       size_t(count)
       < std::numeric_limits<int>::max() / (sizeof(int) + sizeof(MPI_Aint)));
@@ -82,10 +88,14 @@ int randBlockView(
     int err =
       MPI_Type_create_hindexed_block(count, block, offset, MPI_CHAR, type);
 #endif
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     err = MPI_Type_commit(type);
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     return MPI_File_set_view(file, 0, MPI_BYTE, *type, "native", info);
 }
@@ -146,14 +156,20 @@ int iol(
     // Set a view so that MPI_File_read... functions only see contiguous data.
     MPI_Datatype type;
     int err = randBlockView(file, info, chunk, bsz, offset, &type);
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     fn(file, 0, d, chunk * bsz, MPI_CHAR, stat);
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     // Reset the view.
     err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
-    if (err != MPI_SUCCESS) return err;
+    if (err != MPI_SUCCESS) {
+        return err;
+    }
 
     return MPI_Type_free(&type);
 }
@@ -193,7 +209,9 @@ DataMPIIO::Opt::Opt(void)
 
 DataMPIIO::Opt::~Opt(void)
 {
-    if (info != MPI_INFO_NULL) MPI_Info_free(&info);
+    if (info != MPI_INFO_NULL) {
+        MPI_Info_free(&info);
+    }
 }
 
 /*! Get an MPI mode flag
@@ -206,10 +224,13 @@ int getMPIMode(FileMode mode)
         default:
         case FileMode::Read:
             return MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN;
+
         case FileMode::Write:
             return MPI_MODE_CREATE | MPI_MODE_WRONLY | MPI_MODE_UNIQUE_OPEN;
+
         case FileMode::ReadWrite:
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_UNIQUE_OPEN;
+
         case FileMode::Test:
             return MPI_MODE_CREATE | MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE;
     }
@@ -409,6 +430,7 @@ void DataMPIIO::read(
                     MPI_File, MPI_Offset off, void* d, int numb, MPI_Datatype,
                     MPI_Status*) -> int {
         readv(off, bsz, osz, size_t(numb), static_cast<unsigned char*>(d));
+
         return MPI_SUCCESS;
     };
 

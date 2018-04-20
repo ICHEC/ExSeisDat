@@ -32,7 +32,10 @@ class MPIIOTest : public Test {
     template<bool WRITE = false>
     void makeMPIIO(std::string name)
     {
-        if (data != nullptr) data.reset();
+        if (data != nullptr) {
+            data.reset();
+        }
+
         FileMode mode = (WRITE ? FileMode::Test : FileMode::Read);
         data          = std::make_shared<DataMPIIO>(piol, name, mode);
     }
@@ -99,14 +102,16 @@ class MPIIOTest : public Test {
             }
         }
 
-        if (block)
+        if (block) {
             data->write(
               SEGY_utils::getDODFLoc<float>(offset, ns),
               SEGY_utils::getDFSz(ns), SEGY_utils::getDOSz(ns), nt, tr.data());
-        else
+        }
+        else {
             data->write(
               SEGY_utils::getDODFLoc<float>(offset, ns),
               SEGY_utils::getDOSz(ns) * nt, tr.data());
+        }
 
         readBigBlocks<block>(nt, ns, offset);
     }
@@ -117,14 +122,16 @@ class MPIIOTest : public Test {
         size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
         std::vector<unsigned char> tr(step * nt);
 
-        if (block)
+        if (block) {
             data->read(
               SEGY_utils::getHOSz() + offset * SEGY_utils::getDOSz(ns),
               SEGY_utils::getMDSz(), SEGY_utils::getDOSz(ns), nt, tr.data());
-        else
+        }
+        else {
             data->read(
               SEGY_utils::getHOSz() + offset * SEGY_utils::getDOSz(ns),
               SEGY_utils::getDOSz(ns) * nt, tr.data());
+        }
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
         for (size_t i = 0; i < nt; i++) {
@@ -200,20 +207,24 @@ class MPIIOTest : public Test {
         }
 
         std::vector<size_t> boffset(sz);
-        for (size_t i = 0; i < sz; i++)
+        for (size_t i = 0; i < sz; i++) {
             boffset[i] = SEGY_utils::getDODFLoc<float>(offset[i], ns);
+        }
         data->write(bsz, sz, boffset.data(), d.data());
         piol->isErr();
+
         readList(sz, ns, offset.data());
     }
 
     void readList(const size_t sz, const size_t ns, const size_t* offset)
     {
-        size_t bsz = SEGY_utils::getDFSz(ns);
+        const size_t bsz = SEGY_utils::getDFSz(ns);
         std::vector<unsigned char> d(bsz * sz);
+
         std::vector<size_t> boffset(sz);
-        for (size_t i = 0; i < sz; i++)
+        for (size_t i = 0; i < sz; i++) {
             boffset[i] = SEGY_utils::getDODFLoc<float>(offset[i], ns);
+        }
         data->read(bsz, sz, boffset.data(), d.data());
         piol->isErr();
 

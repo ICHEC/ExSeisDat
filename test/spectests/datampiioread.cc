@@ -8,12 +8,16 @@ size_t modifyNt(
     // present after the given offset if the real number of traces is less than
     // expected.  We support this because it is allowed behaviour.
 
-    size_t realnt = SEGY_utils::getNt(fs, ns);
-    if (realnt >= offset + nt)
+    const size_t realnt = SEGY_utils::getNt(fs, ns);
+
+    if (realnt >= offset + nt) {
         return nt;
-    else if (realnt < offset)
+    }
+    else if (realnt < offset) {
         return 0;
-    return realnt -= offset;
+    }
+
+    return (realnt - offset);
 }
 
 typedef MPIIOTest MPIIODeathTest;
@@ -117,8 +121,9 @@ TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
         data->read(offset, d.size(), d.data());
         piol->isErr();
 
-        for (size_t i = 0; i < d.size(); i++)
+        for (size_t i = 0; i < d.size(); i++) {
             ASSERT_EQ(d[i], getPattern(offset + i));
+        }
     }
 }
 

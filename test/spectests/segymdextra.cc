@@ -165,10 +165,12 @@ int16_t scalComp(int16_t scal1, int16_t scal2)
     // to ensure conservation of the most significant digit
     // otherwise we choose the scale that preserves the most digits
     // after the decimal place.
-    if (scal1 > 1 || scal2 > 1)
+    if (scal1 > 1 || scal2 > 1) {
         return std::max(scal1, scal2);
-    else
+    }
+    else {
         return std::min(scal1, scal2);
+    }
 }
 
 /*! Extract the scale value from each coordinate from a coordinate point

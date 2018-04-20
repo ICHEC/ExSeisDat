@@ -16,7 +16,9 @@ namespace SEGY_utils {
 void insertParam(
   size_t sz, const Param* prm, unsigned char* buf, size_t stride, size_t skip)
 {
-    if (prm == nullptr || !sz) return;
+    if (prm == nullptr || !sz) {
+        return;
+    }
 
     auto r       = prm->r;
     size_t start = r->start;
@@ -125,7 +127,10 @@ void insertParam(
 void extractParam(
   size_t sz, const unsigned char* buf, Param* prm, size_t stride, size_t skip)
 {
-    if (prm == nullptr || !sz) return;
+    if (prm == nullptr || !sz) {
+        return;
+    }
+
     Rule* r = prm->r.get();
 
     if (r->numCopy) {
@@ -200,12 +205,15 @@ void extractParam(
 exseis::utils::Floating_point parse_scalar(int16_t segy_scalar)
 {
     // If scale is zero, we assume unscaled, i.e. 1.
-    if (segy_scalar == 0) segy_scalar = 1;
+    if (segy_scalar == 0) {
+        segy_scalar = 1;
+    }
 
     // Positive segy_scalar represents multiplication by value
     if (segy_scalar > 0) {
         return static_cast<exseis::utils::Floating_point>(segy_scalar);
     }
+
     // Negative segy_scalar represents division by value
     return 1 / static_cast<exseis::utils::Floating_point>(-segy_scalar);
 }
@@ -227,8 +235,12 @@ int16_t find_scalar(exseis::utils::Floating_point val)
         for (int32_t scal = 10; scal <= tenk; scal *= 10) {
             exseis::utils::Integer v = integer_part / scal;
             int32_t iv               = v;
-            if (v == iv) return scal;
+
+            if (v == iv) {
+                return scal;
+            }
         }
+
         return 0;
     }
     else {
@@ -252,7 +264,9 @@ int16_t find_scalar(exseis::utils::Floating_point val)
                     int32_t t = std::lround(val / scal);
                     t /= -scaleFactor;
 
-                    if (t == integer_part) return scaleFactor;
+                    if (t == integer_part) {
+                        return scaleFactor;
+                    }
                 }
             }
         }

@@ -101,7 +101,9 @@ MPI_Distributed_vector<T>::Model::~Model()
 template<typename T>
 void MPI_Distributed_vector<T>::Model::set(size_t i, const T& val)
 {
-    if (i > global_size) return;
+    if (i > global_size) {
+        return;
+    }
 
     int rank;
     int num_ranks;

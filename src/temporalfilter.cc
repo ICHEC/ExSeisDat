@@ -1,9 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Meghan Fisher - meghan.fisher@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date May 2017
-/// @brief The Temporal Bandpass operation
+/// @brief   The Temporal Bandpass operation
 /// @details The algorithm finds some type of moving average (RMS, RMS with
 ///          Triangle window, Mean Abs, and Median) to trace amplitudes for
 ///          visualization purposes. It can be applied to traces independantly
@@ -399,14 +396,16 @@ void IIR(
     y[0] = b[0] * x[0] + zi[0];
     for (size_t i = 1LU; i < N; i++) {
         y[i] = b[0] * x[i] + zi[i];
-        for (size_t j = 1LU; j < i + 1LU; j++)
+        for (size_t j = 1LU; j < i + 1LU; j++) {
             y[i] += b[j] * x[i - j] - a[j] * y[i - j];
+        }
     }
 
     for (size_t i = N; i < ns; i++) {
         y[i] = b[0] * x[i];
-        for (size_t j = 1; j < N + 1LU; j++)
+        for (size_t j = 1; j < N + 1LU; j++) {
             y[i] += b[j] * x[i - j] - a[j] * y[i - j];
+        }
     }
 }
 
@@ -501,24 +500,31 @@ void temporalFilter(
     std::vector<exseis::utils::Trace_value> numer(numTail + 1);
     std::vector<exseis::utils::Trace_value> denom(numTail + 1);
     makeFilter(type, numer.data(), denom.data(), N, fs, corners[0], corners[1]);
+
     for (size_t i = 0; i < nt; i++) {
+
         std::vector<exseis::utils::Trace_value> trcOrgnl(nw);
-        for (size_t j = 0; j < nw; j++)
+
+        for (size_t j = 0; j < nw; j++) {
             trcOrgnl[j] = trc[i * ns + (winCntr - nw / 2) + j];
+        }
         switch (domain) {
             case FltrDmn::Time:
                 filterTime(
                   nw, trcOrgnl.data(), numTail, numer.data(), denom.data(),
                   getPad(pad));
                 break;
+
             case FltrDmn::Freq:
                 filterFreq(
                   nw, trcOrgnl.data(), fs, numTail, numer.data(), denom.data(),
                   getPad(pad));
                 break;
         }
-        for (size_t j = 0; j < nw; j++)
+
+        for (size_t j = 0; j < nw; j++) {
             trc[i * ns + (winCntr - nw / 2LL) + j] = trcOrgnl[j];
+        }
     }
 }
 

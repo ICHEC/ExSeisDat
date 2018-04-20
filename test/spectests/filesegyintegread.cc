@@ -18,10 +18,12 @@ TEST_F(FileSEGYIntegRead, SEGYReadHO)
     piol->isErr();
     EXPECT_EQ(nt, file->readNt());
     piol->isErr();
-    if (sizeof(exseis::utils::Floating_point) == sizeof(double))
+    if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
         EXPECT_DOUBLE_EQ(double(20e-6), file->readInc());
-    else
+    }
+    else {
         EXPECT_FLOAT_EQ(float(20e-6), file->readInc());
+    }
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceSmall)

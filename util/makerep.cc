@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <unistd.h>
 #include <unordered_map>
 
 using namespace exseis::utils;
@@ -33,7 +34,9 @@ void smallCopy(
     out->write(0, wsz, buf.data());
     piol.isErr();
 
-    if (!rank) std::copy(buf.begin() + hosz, buf.end(), buf.begin());
+    if (!rank) {
+        std::copy(buf.begin() + hosz, buf.end(), buf.begin());
+    }
 
     for (size_t j = 1; j < repRate; j++) {
         out->write(
@@ -63,10 +66,13 @@ void distribToDistrib(
     }
 
     if (
-      old.global_offset + old.local_size < newd.global_offset + newd.local_size)
+      (old.global_offset + old.local_size)
+      < (newd.global_offset + newd.local_size)) {
+
         vec->resize(
           vec->size() + newd.global_offset + newd.local_size
           - (old.global_offset + old.local_size));
+    }
 
     if (old.global_offset < newd.global_offset) {
         size_t sz = newd.global_offset - old.global_offset;
@@ -192,16 +198,19 @@ void mpiMakeSEGYCopy(
                 dec.local_size -= hosz;
                 buf.resize(dec.local_size);
             }
-            else
+            else {
                 dec.global_offset -= hosz;
+            }
+
             rblock -= hosz;
         }
         size_t rank    = piol.getRank();
         size_t numRank = piol.getNumRank();
-        for (size_t j = 1; j < repRate; j++)
+        for (size_t j = 1; j < repRate; j++) {
             dec = writeArb(
               rank, numRank, out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock,
               &buf);
+        }
     }
 }
 
@@ -265,25 +274,30 @@ int main(int argc, char** argv)
     size_t rep        = 1;
     size_t version    = size_t(Version::Block);
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 iname = optarg;
                 break;
+
             case 'o':
                 oname = optarg;
                 break;
+
             case 'v':
                 version = getVersion(optarg);
                 break;
+
             case 'r':
                 rep = std::stoul(optarg);
                 break;
+
             default:
                 fprintf(
                   stderr, "One of the command line arguments is invalid\n");
                 break;
         }
+    }
     assert(iname.size() && oname.size());
 
     auto piol = ExSeis::New();
@@ -296,23 +310,34 @@ int main(int argc, char** argv)
 
     const size_t fsz = in.getFileSz();
     piol->isErr();
-    if (fsz / numRank < SEGY_utils::getHOSz())
+    if (fsz / numRank < SEGY_utils::getHOSz()) {
         smallCopy(*piol, &in, &out, rep);
-    else
+    }
+    else {
         switch (version) {
             case Version::Block:
-                if (!piol->getRank()) std::cout << "Standard\n";
+                if (!piol->getRank()) {
+                    std::cout << "Standard\n";
+                }
                 mpiMakeSEGYCopy(*piol, &in, &out, rep);
                 break;
+
             case Version::Naive1:
-                if (!piol->getRank()) std::cout << "Naive 1\n";
+                if (!piol->getRank()) {
+                    std::cout << "Naive 1\n";
+                }
                 mpiMakeSEGYCopyNaive<true>(*piol, &in, &out, rep);
                 break;
+
             default:
             case Version::Naive2:
-                if (!piol->getRank()) std::cout << "Naive 2\n";
+                if (!piol->getRank()) {
+                    std::cout << "Naive 2\n";
+                }
                 mpiMakeSEGYCopyNaive<false>(*piol, &in, &out, rep);
                 break;
         }
+    }
+
     return 0;
 }

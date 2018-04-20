@@ -29,10 +29,12 @@ void printxSrcMinMax(
 {
     piol->comm->barrier();
     assert(xsmin.size() == xsmax.size());
-    if (!piol->comm->getRank())
-        for (size_t i = 0; i < xsmin.size(); i++)
+    if (!piol->comm->getRank()) {
+        for (size_t i = 0; i < xsmin.size(); i++) {
             std::cout << "minmax " << i << " " << xsmin[i] << " " << xsmax[i]
                       << std::endl;
+        }
+    }
     piol->comm->barrier();
 }
 
@@ -60,14 +62,17 @@ void printxSMinMax(
     FILE* fOut       = fopen(name.c_str(), "w+");
     fprintf(fOut, "1-xsmin/max %f %f\n", xslmin, xslmax);
     fprintf(fOut, "2-xsmin/max %f %f\n", xsrmin, xsrmax);
-    for (size_t i = 0; i < active.size(); i++)
+    for (size_t i = 0; i < active.size(); i++) {
         fprintf(fOut, "%zu\n", active[i]);
+    }
     fclose(fOut);
 
     auto lxsmin = piol->comm->gather(std::vector<fourd_t>{xslmin});
     auto lxsmax = piol->comm->gather(std::vector<fourd_t>{xslmax});
     printxSrcMinMax(piol, lxsmin, lxsmax);
-    if (!rank) std::cout << "file2 min/max\n";
+    if (!rank) {
+        std::cout << "file2 min/max\n";
+    }
 }
 
 /*! Calculate the hypotenuse of a RH triangle using x and y as lengths.
@@ -134,8 +139,9 @@ std::unique_ptr<Coords> getCoordsWin(
   size_t lrank, size_t sz, std::vector<MPI_Win>& win, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz, ixline);
-    for (size_t i = 0; i < win.size(); i++)
+    for (size_t i = 0; i < win.size(); i++) {
         MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
+    }
 
     MPIErr(MPI_Get(
       crd->xSrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0, sz,
@@ -164,8 +170,9 @@ std::unique_ptr<Coords> getCoordsWin(
           win[6]));
     }
 
-    for (size_t i = 0; i < win.size(); i++)
+    for (size_t i = 0; i < win.size(); i++) {
         MPIErr(MPI_Win_unlock(lrank, win[i]));
+    }
 
     return crd;
 }
@@ -277,17 +284,17 @@ size_t update(
     // the min/max
     // of src x.
     for (; rstart < rend && crd2->xSrc[rstart] < crd1->xSrc[lstart] - dsrmax;
-         rstart++)
-        ;
+         rstart++) {
+    }
     for (; rend >= rstart && crd2->xSrc[rend] > crd1->xSrc[lend - 1] + dsrmax;
-         rend--)
-        ;
+         rend--) {
+    }
     for (; lstart < lend && crd1->xSrc[lstart] < crd2->xSrc[rstart] - dsrmax;
-         lstart++)
-        ;
+         lstart++) {
+    }
     for (; lend >= lstart && crd1->xSrc[lend] > crd2->xSrc[rend - 1] + dsrmax;
-         lend--)
-        ;
+         lend--) {
+    }
 
     // TODO: Check if theoretical speedup is realisable for this alignment
     lstart     = size_t(lstart / ALIGN) * ALIGN;
@@ -454,17 +461,21 @@ void calc4DBin(
     auto xslmax = crd1->xSrc[crd1->sz - 1LU];
 
     // Perform a local initialisation update of min and minrs
-    if (opt.ixline)
+    if (opt.ixline) {
         initUpdate<true>(crd1, crd2, min, minrs);
-    else
+    }
+    else {
         initUpdate<false>(crd1, crd2, min, minrs);
+    }
 
     // This for loop determines the processes the local process will need to be
     // communicating with.
     std::vector<size_t> active;
-    for (size_t i = 0LU; i < numRank; i++)
-        if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin))
+    for (size_t i = 0LU; i < numRank; i++) {
+        if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin)) {
             active.push_back(i);
+        }
+    }
 
     if (opt.verbose) {
         printxSMinMax(piol, xslmin, xslmax, xsmin[rank], xsmax[rank], active);
@@ -527,8 +538,9 @@ void calc4DBin(
               << " Time: " << MPI_Wtime() - time << " seconds" << std::endl;
 
 #ifdef ONE_WAY_COMM
-    for (size_t i = 0; i < win.size(); i++)
+    for (size_t i = 0; i < win.size(); i++) {
         MPIErr(MPI_Win_free(&win[i]));
+    }
 #else
 
     std::vector<MPI_Status> stat(reqs.size());

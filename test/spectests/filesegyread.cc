@@ -31,9 +31,10 @@ TEST_F(FileSEGYRead, FileReadHO)
 
     // EBCDIC conversion check
     size_t slen = testString.size();
-    for (size_t i = 0; i < text.size(); i++)
+    for (size_t i = 0; i < text.size(); i++) {
         ASSERT_EQ(testString[i % slen], text[i])
           << "Loop number " << i << std::endl;
+    }
 }
 
 TEST_F(FileSEGYRead, FileReadHOAPI)
@@ -45,9 +46,10 @@ TEST_F(FileSEGYRead, FileReadHOAPI)
     EXPECT_EQ(3200U, text.size());
     EXPECT_EQ(SEGY_utils::getTextSz(), text.size());
     size_t slen = testString.size();
-    for (size_t i = 0; i < text.size(); i++)
+    for (size_t i = 0; i < text.size(); i++) {
         ASSERT_EQ(testString[i % slen], text[i])
           << "Loop number " << i << std::endl;
+    }
 }
 
 ///////////////TRACE COORDINATES + GRIDS///////////////////////////////
@@ -56,8 +58,9 @@ TEST_F(FileSEGYRead, FileReadTraceHeader)
 {
     makeMockSEGY();
     initTrBlock();
-    for (size_t i = 0; i < nt; i++)
+    for (size_t i = 0; i < nt; i++) {
         initReadTrMock(ns, i);
+    }
 }
 
 TEST_F(FileSEGYRead, FileReadTrHdrBigNs)

@@ -41,10 +41,12 @@ void ObjectSEGY::readHO(unsigned char* ho) const
 
 void ObjectSEGY::writeHO(const unsigned char* ho) const
 {
-    if (ho)
+    if (ho) {
         data_->write(0LU, SEGY_utils::getHOSz(), ho);
-    else
+    }
+    else {
         data_->write(0LU, 0U, ho);
+    }
 }
 
 void ObjectSEGY::readDO(
@@ -116,8 +118,11 @@ void ObjectSEGY::readDO(
   unsigned char* d) const
 {
     std::vector<size_t> dooff(sz);
-    for (size_t i = 0; i < sz; i++)
+
+    for (size_t i = 0; i < sz; i++) {
         dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+    }
+
     data_->read(SEGY_utils::getDOSz(ns), sz, dooff.data(), d);
 }
 
@@ -128,8 +133,11 @@ void ObjectSEGY::writeDO(
   const unsigned char* d) const
 {
     std::vector<size_t> dooff(sz);
-    for (size_t i = 0; i < sz; i++)
+
+    for (size_t i = 0; i < sz; i++) {
         dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+    }
+
     data_->write(SEGY_utils::getDOSz(ns), sz, dooff.data(), d);
 }
 
@@ -140,8 +148,11 @@ void ObjectSEGY::readDOMD(
   unsigned char* md) const
 {
     std::vector<size_t> dooff(sz);
-    for (size_t i = 0; i < sz; i++)
+
+    for (size_t i = 0; i < sz; i++) {
         dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+    }
+
     data_->read(SEGY_utils::getMDSz(), sz, dooff.data(), md);
 }
 
@@ -152,8 +163,11 @@ void ObjectSEGY::writeDOMD(
   const unsigned char* md) const
 {
     std::vector<size_t> dooff(sz);
-    for (size_t i = 0; i < sz; i++)
+
+    for (size_t i = 0; i < sz; i++) {
         dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+    }
+
     data_->write(SEGY_utils::getMDSz(), sz, dooff.data(), md);
 }
 
@@ -163,10 +177,16 @@ void ObjectSEGY::readDODF(
   const size_t sz,
   unsigned char* df) const
 {
-    if (ns == 0) return;
+    if (ns == 0) {
+        return;
+    }
+
     std::vector<size_t> dooff(sz);
-    for (size_t i = 0; i < sz; i++)
+
+    for (size_t i = 0; i < sz; i++) {
         dooff[i] = SEGY_utils::getDODFLoc(offset[i], ns);
+    }
+
     data_->read(SEGY_utils::getDFSz(ns), sz, dooff.data(), df);
 }
 
@@ -176,10 +196,16 @@ void ObjectSEGY::writeDODF(
   const size_t sz,
   const unsigned char* df) const
 {
-    if (ns == 0) return;
+    if (ns == 0) {
+        return;
+    }
+
     std::vector<size_t> dooff(sz);
-    for (size_t i = 0; i < sz; i++)
+
+    for (size_t i = 0; i < sz; i++) {
         dooff[i] = SEGY_utils::getDODFLoc(offset[i], ns);
+    }
+
     data_->write(SEGY_utils::getDFSz(ns), sz, dooff.data(), df);
 }
 

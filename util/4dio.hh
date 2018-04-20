@@ -77,24 +77,40 @@ struct Coords {
               reinterpret_cast<void**>(&xl), ALIGN,
               allocSz * sizeof(exseis::utils::Integer));
         }
-        for (size_t i = 0; i < allocSz; i++)
+        for (size_t i = 0; i < allocSz; i++) {
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] =
               std::numeric_limits<fourd_t>::max();
-        for (size_t i = 0; ixline && i < allocSz; i++)
+        }
+        for (size_t i = 0; ixline && i < allocSz; i++) {
             il[i] = xl[i] = std::numeric_limits<exseis::utils::Integer>::max();
+        }
     }
 
     /*! Destructor. Deallocate all the memory.
      */
     ~Coords(void)
     {
-        if (xSrc) free(xSrc);
-        if (ySrc) free(ySrc);
-        if (xRcv) free(xRcv);
-        if (yRcv) free(yRcv);
-        if (tn) free(tn);
-        if (il) free(il);
-        if (xl) free(xl);
+        if (xSrc) {
+            free(xSrc);
+        }
+        if (ySrc) {
+            free(ySrc);
+        }
+        if (xRcv) {
+            free(xRcv);
+        }
+        if (yRcv) {
+            free(yRcv);
+        }
+        if (tn) {
+            free(tn);
+        }
+        if (il) {
+            free(il);
+        }
+        if (xl) {
+            free(xl);
+        }
     }
 };
 

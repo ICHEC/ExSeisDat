@@ -1,15 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
-/// @brief The Sort Operation
-/// @details The algorithm used is a nearest neighbour approach where at each
-///          iteration the lowest valued metadata entries are moved to adjacent
-///          processes with a lower rank and a sort is performed. After the sort
-///          the highest entries are moved again to the process with a higher
-///          rank. If each process has the same traces it started off with, the
-///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ExSeisDat/PIOL/operations/minmax.h"

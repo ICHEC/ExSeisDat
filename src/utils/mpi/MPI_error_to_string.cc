@@ -59,15 +59,16 @@ std::string MPI_error_to_string(int mpi_error, const MPI_Status* mpi_status)
         return "MPI_SUCCESS";
     }
 
-    // Special return case: Error, status needed, but status omitted.
-    if (
-      mpi_error_class == MPI_ERR_IN_STATUS && mpi_status == MPI_STATUS_IGNORE) {
-        return "MPI_Error: MPI_ERR_IN_STATUS, but status was OMITTED!"s;
-    }
-
     // Special return case: Error in status.
-    if (mpi_error == MPI_ERR_IN_STATUS) {
-        return MPI_error_to_string(mpi_status->MPI_ERROR);
+    if (mpi_error_class == MPI_ERR_IN_STATUS) {
+
+        if (mpi_status == MPI_STATUS_IGNORE || mpi_status == nullptr) {
+            // Error: status needed, but status omitted.
+            return "MPI_Error: MPI_ERR_IN_STATUS, but status was OMITTED!"s;
+        }
+        else {
+            return MPI_error_to_string(mpi_status->MPI_ERROR);
+        }
     }
 
     // Build basic error message

@@ -251,9 +251,11 @@ void ReadSEGY::readTraceNonMonotonic(
     auto idx = getSortIndex(sz, offset);
     std::vector<size_t> nodups;
     nodups.push_back(offset[idx[0]]);
-    for (size_t j = 1; j < sz; j++)
-        if (offset[idx[j - 1]] != offset[idx[j]])
+    for (size_t j = 1; j < sz; j++) {
+        if (offset[idx[j - 1]] != offset[idx[j]]) {
             nodups.push_back(offset[idx[j]]);
+        }
+    }
 
     Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
     std::vector<exseis::utils::Trace_value> strc(
@@ -263,18 +265,23 @@ void ReadSEGY::readTraceNonMonotonic(
       nodups.size(), nodups.data(), (trc != TRACE_NULL ? strc.data() : trc),
       (prm != PIOL_PARAM_NULL ? &sprm : prm), 0LU);
 
-    if (prm != PIOL_PARAM_NULL)
+    if (prm != PIOL_PARAM_NULL) {
         for (size_t n = 0, j = 0; j < sz; ++j) {
             n += (j && offset[idx[j - 1]] != offset[idx[j]]);
+
             param_utils::cpyPrm(n, &sprm, skip + idx[j], prm);
         }
+    }
 
-    if (trc != TRACE_NULL)
+    if (trc != TRACE_NULL) {
         for (size_t n = 0, j = 0; j < sz; ++j) {
             n += (j && offset[idx[j - 1]] != offset[idx[j]]);
-            for (size_t k = 0; k < ns; k++)
+
+            for (size_t k = 0; k < ns; k++) {
                 trc[idx[j] * ns + k] = strc[n * ns + k];
+            }
         }
+    }
 }
 
 }  // namespace PIOL

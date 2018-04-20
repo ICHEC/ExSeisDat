@@ -72,32 +72,37 @@ constexpr size_t prefix(const size_t pow)
 
 ACTION_P2(check0, buf, sz)
 {
-    for (size_t i = 0; i < sz; i++)
+    for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(buf[i], arg0[i]) << "Error with byte: " << i << "\n";
+    }
 }
 
 ACTION_P2(check1, buf, sz)
 {
-    for (size_t i = 0; i < sz; i++)
+    for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(buf[i], arg1[i]) << "Error with byte: " << i << "\n";
+    }
 }
 
 ACTION_P2(check2, buf, sz)
 {
-    for (size_t i = 0; i < sz; i++)
+    for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(buf[i], arg2[i]) << "Error with byte: " << i << "\n";
+    }
 }
 
 ACTION_P2(check3, buf, sz)
 {
-    for (size_t i = 0; i < sz; i++)
+    for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(buf[i], arg3[i]) << "Error with byte: " << i << "\n";
+    }
 }
 
 ACTION_P2(check4, buf, sz)
 {
-    for (size_t i = 0; i < sz; i++)
+    for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(buf[i], arg4[i]) << "Error with byte: " << i << "\n";
+    }
 }
 
 #endif

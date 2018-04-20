@@ -15,6 +15,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <unistd.h>
 
 using namespace exseis::PIOL;
 using namespace exseis::Flow;
@@ -41,8 +42,9 @@ void doPrompt(ExSeisPIOL* piol)
         std::cout << "Exit\n";
         exit(0);
     }
-    else if (!rank)
+    else if (!rank) {
         std::cout << "Continuing\n";
+    }
 }
 
 /*! The main functon for concatenation.
@@ -65,28 +67,35 @@ int main(int argc, char** argv)
     bool prompt           = false;
     std::string opt       = "i:o:m:p";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 pattern = optarg;
-                if (!piol->getRank())
+                if (!piol->getRank()) {
                     std::cout << "Pattern: " << pattern << "\n";
+                }
                 break;
+
             case 'o':
                 outprefix = optarg;
-                if (!piol->getRank())
+                if (!piol->getRank()) {
                     std::cout << "output prefix: " << outprefix << "\n";
+                }
                 break;
+
             case 'm':
                 msg = optarg;
                 break;
+
             case 'p':
                 prompt = true;
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
+    }
     assert(pattern != "" && outprefix != "");
 
     Set set(piol, pattern);

@@ -8,8 +8,7 @@
 #include "ExSeisDat/utils/decomposition/block_decomposition.h"
 #include "ExSeisDat/utils/typedefs.h"
 
-#include <unistd.h>
-#include <utility>
+#include <stddef.h>
 
 /*! Decomposition which takes account that the data may come in logical blocks
  *  @param[in] sz The size of the problem.
@@ -35,4 +34,4 @@ exseis::utils::Contiguous_decomposition blockDecomp(
 std::vector<size_t> lobdecompose(
   exseis::PIOL::ExSeisPIOL* piol, size_t sz, size_t numRank, size_t rank);
 
-#endif
+#endif  // UTIL_SGLOBALHH_INCLUDE_GUARD

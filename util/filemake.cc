@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unistd.h>
 
 using namespace exseis::utils;
 using namespace exseis::PIOL;
@@ -43,9 +44,10 @@ void writeContig(
             param_utils::setPrm(j, PIOL_META_xl, 1600 + k, &prm);
             param_utils::setPrm(j, PIOL_META_tn, offset + i + j, &prm);
         }
-        for (size_t j = 0; j < trc.size(); j++)
+        for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
               fhalf - std::abs(-fhalf + float((offset + i) * ns + j)) - off;
+        }
         file->writeTrace(offset + i, rblock, trc.data(), &prm);
         piol.isErr();
     }
@@ -79,7 +81,7 @@ void writeRandom(
 
     // Work out offsets
     while (num[rank] > 0 && offcount < nt) {
-        for (size_t j = 0; j < numRank; j++)
+        for (size_t j = 0; j < numRank; j++) {
             if (j != rank) {
                 if (num[j] != 0) {
                     num[j]--;
@@ -90,6 +92,7 @@ void writeRandom(
                 num[rank]--;
                 offset[t++] = offcount++;
             }
+        }
     }
 
     for (size_t i = 0; i < lnt; i += max) {
@@ -109,9 +112,10 @@ void writeRandom(
             param_utils::setPrm(j, PIOL_META_xl, 1600 + k, &prm);
             param_utils::setPrm(j, PIOL_META_tn, offset[i + j], &prm);
         }
-        for (size_t j = 0; j < trc.size(); j++)
+        for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
               fhalf - std::abs(-fhalf + float((offset[i]) * ns + j)) - off;
+        }
         file->writeTraceNonContiguous(rblock, &offset[i], trc.data(), &prm);
         piol.isErr();
     }
@@ -199,33 +203,41 @@ int main(int argc, char** argv)
     //           -r 'random' offsets
     std::string opt = "s:t:m:o:i:lr";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'o':
                 name = optarg;
                 break;
+
             case 's':
                 ns = std::stoul(optarg);
                 break;
+
             case 't':
                 nt = std::stoul(optarg);
                 break;
+
             case 'm':
                 max = std::stoul(optarg);
                 break;
+
             case 'i':
                 inc = std::stod(optarg);
                 break;
+
             case 'l':
                 lob = true;
                 break;
+
             case 'r':
                 random = true;
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
+    }
 
     assert(name.size() && max && inc != 0.0);
     max *= 1024 * 1024;

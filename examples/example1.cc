@@ -23,14 +23,16 @@ int main(int argc, char** argv)
     std::string opt  = "o:";  // TODO: uses a GNU extension
     std::string name = "";
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
-        if (c == 'o')
+         c     = getopt(argc, argv, opt.c_str())) {
+        if (c == 'o') {
             name = optarg;
+        }
         else {
             std::cerr << "One of the command line arguments is invalid"
                       << std::endl;
             return -1;
         }
+    }
     assert(name.size() > 0);
 
     // Initialise the PIOL by creating an ExSeisPIOL object
@@ -72,8 +74,9 @@ int main(int argc, char** argv)
 
     // Set and write some traces
     std::vector<float> trc(lnt * ns);
-    for (size_t j = 0; j < lnt * ns; j++)
+    for (size_t j = 0; j < lnt * ns; j++) {
         trc[j] = float(offset * ns + j);
+    }
     file.writeTrace(offset, lnt, trc.data());
     return 0;
 }

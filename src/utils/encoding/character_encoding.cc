@@ -173,7 +173,6 @@ static const auto ascii_sorted_array = build_ascii_sorted_array();
 }  // namespace
 
 
-
 unsigned char to_ASCII_from_EBCDIC(unsigned char ebcdic_char)
 {
     const auto compare_ebcdic = [](Character_encoding a, unsigned char b) {

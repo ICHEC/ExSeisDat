@@ -637,7 +637,9 @@ void sort(
               PIOL_VERBOSITY_NONE);
         }
 
-        if (!greduced) break;
+        if (!greduced) {
+            break;
+        }
     }
 
     for (size_t i = 0; i < lnt; i++) {
@@ -950,7 +952,9 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
               PIOL_VERBOSITY_NONE);
         }
 
-        if (!greduced) break;
+        if (!greduced) {
+            break;
+        }
     }
 
     for (size_t i = 0; i < lnt; i++) {
@@ -964,8 +968,9 @@ std::vector<size_t> sort(
     sortP(piol, prm, comp);
 
     std::vector<size_t> list(prm->size());
-    for (size_t i = 0; i < prm->size(); i++)
+    for (size_t i = 0; i < prm->size(); i++) {
         list[i] = param_utils::getPrm<size_t>(i, PIOL_META_gtn, prm);
+    }
 
     return (FileOrder ? sort(piol, list) : list);
 }

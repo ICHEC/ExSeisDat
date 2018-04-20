@@ -57,7 +57,9 @@ Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_) :
 
 Set::~Set(void)
 {
-    if (outfix != "") output(outfix);
+    if (outfix != "") {
+        output(outfix);
+    }
 }
 
 void Set::add(std::unique_ptr<ReadInterface> in)
@@ -87,7 +89,9 @@ void Set::add(std::string pattern)
     outmsg = "ExSeisPIOL: Set layer output\n";
     glob_t globs;
     int err = glob(pattern.c_str(), GLOB_TILDE | GLOB_MARK, NULL, &globs);
-    if (err) exit(-1);
+    if (err) {
+        exit(-1);
+    }
 
     std::regex reg(
       ".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize
@@ -138,7 +142,10 @@ std::unique_ptr<TraceBlock> Set::calcFunc(
   FuncOpt type,
   std::unique_ptr<TraceBlock> bIn)
 {
-    if (fCurr == fEnd || !(*fCurr)->opt.check(type)) return bIn;
+    if (fCurr == fEnd || !(*fCurr)->opt.check(type)) {
+        return bIn;
+    }
+
     switch (type) {
         case FuncOpt::Gather:
             if ((*fCurr)->opt.check(FuncOpt::Gather)) {
@@ -168,16 +175,20 @@ std::vector<std::string> Set::startSingle(
         auto& fQue = o.second;
 
         std::string name;
-        if (!fQue.size()) return std::vector<std::string>{};
+        if (!fQue.size()) {
+            return std::vector<std::string>{};
+        }
 
         size_t ns                         = fQue[0]->ifc->readNs();
         exseis::utils::Floating_point inc = fQue[0]->ifc->readInc();
 
-        if (fQue.size() == 1)
+        if (fQue.size() == 1) {
             name = outfix + ".segy";
-        else
+        }
+        else {
             name =
               outfix + std::to_string(ns) + "_" + std::to_string(inc) + ".segy";
+        }
 
         names.push_back(name);
 
@@ -223,8 +234,9 @@ std::vector<std::string> Set::startSingle(
 
                 for (size_t j = 0LU; j < rblock; j++) {
                     param_utils::cpyPrm(sortlist[j], &prm, j, bIn->prm.get());
-                    for (size_t k = 0LU; k < ns; k++)
+                    for (size_t k = 0LU; k < ns; k++) {
                         bIn->trc[j * ns + k] = trc[sortlist[j] * ns + k];
+                    }
                     sortlist[j] = f->olst[i + sortlist[j]];
                 }
 
@@ -288,8 +300,9 @@ std::string Set::startGather(
              fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather); fTemp++) {
             auto* p = dynamic_cast<Op<Mod>*>(fTemp->get());
             assert(p);
-            for (size_t i = 0; i < numGather; i++)
+            for (size_t i = 0; i < numGather; i++) {
                 gNums.push_back(i * numRank + rank);
+            }
 
             p->state->makeState(gNums, gather);
         }
@@ -301,8 +314,8 @@ std::string Set::startGather(
           std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
 
         auto fTemp = fCurr;
-        while (++fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather))
-            ;
+        while (++fTemp != fEnd && (*fTemp)->opt.check(FuncOpt::Gather)) {
+        }
 
         gname = (fTemp != fEnd ? "gtemp.segy" : outfix + ".segy");
 
@@ -368,16 +381,17 @@ std::string Set::startGather(
         }
     }
 
-    while (++fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather))
-        ;
+    while (++fCurr != fEnd && (*fCurr)->opt.check(FuncOpt::Gather)) {
+    }
 
     if (fCurr != fEnd) {
         drop();
         add(gname);
         return "";
     }
-    else
+    else {
         return gname;
+    }
 }
 
 // calc for subsets only
@@ -387,13 +401,16 @@ Set::FuncLst::iterator Set::calcFuncS(
     std::shared_ptr<TraceBlock> block;
 
     if ((*fCurr)->opt.check(FuncOpt::NeedMeta)) {
-        if (!(*fCurr)->opt.check(FuncOpt::NeedTrcVal))
+        if (!(*fCurr)->opt.check(FuncOpt::NeedTrcVal)) {
             block = cache.cachePrm((*fCurr)->rule, fQue);
-        else
+        }
+        else {
             std::cerr << "Not implemented both trace + parameters yet\n";
+        }
     }
-    else if ((*fCurr)->opt.check(FuncOpt::NeedTrcVal))
+    else if ((*fCurr)->opt.check(FuncOpt::NeedTrcVal)) {
         block = cache.cacheTrc(fQue);
+    }
 
     // The operation call
     std::vector<size_t> trlist =
@@ -405,9 +422,11 @@ Set::FuncLst::iterator Set::calcFuncS(
         j += f->olst.size();
     }
 
-    if (++fCurr != fEnd)
-        if ((*fCurr)->opt.check(FuncOpt::SubSetOnly))
+    if (++fCurr != fEnd) {
+        if ((*fCurr)->opt.check(FuncOpt::SubSetOnly)) {
             return calcFuncS(fCurr, fEnd, fQue);
+        }
+    }
     return fCurr;
 }
 
@@ -500,8 +519,9 @@ void Set::getMinMax(
     minmax[1].val = std::numeric_limits<exseis::utils::Floating_point>::min();
     minmax[2].val = std::numeric_limits<exseis::utils::Floating_point>::max();
     minmax[3].val = std::numeric_limits<exseis::utils::Floating_point>::min();
-    for (size_t i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++) {
         minmax[i].num = std::numeric_limits<size_t>::max();
+    }
 
     CoordElem tminmax[4LU];
 
@@ -598,7 +618,9 @@ void Set::toAngle(
           out->inc          = state->oInc;  // 1 degree in radians
           out->trc.resize(state->oGSz * out->ns);
           out->prm.reset(new Param(in->prm->r, state->oGSz));
-          if (!in->prm->size()) return;
+          if (!in->prm->size()) {
+              return;
+          }
 
           // For each angle in the angle gather
           for (size_t j = 0; j < state->oGSz; j++) {
@@ -619,8 +641,9 @@ void Set::toAngle(
                       vmModel
                       / cos(exseis::utils::Floating_point(j * out->inc)))
                     / state->vBin;
-                  if (k > 0 && size_t(k) < iGSz)
+                  if (k > 0 && size_t(k) < iGSz) {
                       out->trc[j * out->ns + z] = in->trc[k * in->ns + z];
+                  }
               }
           }
 
@@ -704,8 +727,12 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
       },
       minmax);
 
-    if (m1Add) rule->rmRule(m1);
-    if (m2Add) rule->rmRule(m2);
+    if (m1Add) {
+        rule->rmRule(m1);
+    }
+    if (m2Add) {
+        rule->rmRule(m2);
+    }
 }
 
 void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)

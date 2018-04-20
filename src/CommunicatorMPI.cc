@@ -62,12 +62,16 @@ struct MPIManager {
     MPIManager()
     {
         // If we're not managing MPI, just do nothing.
-        if (managingMPI() == ManagingMPI::no) return;
+        if (managingMPI() == ManagingMPI::no) {
+            return;
+        }
 
         int initialized = 0;
         MPI_Initialized(&initialized);
 
-        if (!initialized) MPI_Init(NULL, NULL);
+        if (!initialized) {
+            MPI_Init(NULL, NULL);
+        }
 
         // Set managingMPI value if the user hasn't already
         if (managingMPI() == ManagingMPI::unset) {

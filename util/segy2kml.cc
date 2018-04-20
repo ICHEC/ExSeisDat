@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <sys/stat.h>
+#include <unistd.h>
 
 using namespace exseis::utils;
 using namespace exseis::PIOL;
@@ -199,26 +200,31 @@ int main(int argc, char** argv)
 
     std::string opt = "i:o:f:z:h";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 iname.push_back(optarg);
                 break;
+
             case 'o':
                 oname = optarg;
                 break;
+
             case 'f':
                 folder = optarg;
                 break;
+
             case 'z':
                 utmZone = optarg;
                 break;
+
             case 'h':
                 help = optarg;
                 break;
 
                 return -1;
         }
+    }
 
     if (iname.size() < 1 || oname == "") {
         std::cerr << "Invalid arguments given.\n";
@@ -258,8 +264,9 @@ int main(int argc, char** argv)
         std::ifstream fileLst(iname[0]);
         iname.clear();
         std::string sgynm;
-        while (std::getline(fileLst, sgynm))
+        while (std::getline(fileLst, sgynm)) {
             iname.push_back(sgynm);
+        }
     }
     std::vector<CoordElem> minmax(8U);
 

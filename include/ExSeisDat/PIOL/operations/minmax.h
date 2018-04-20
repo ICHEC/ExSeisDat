@@ -75,17 +75,27 @@ std::vector<CoordElem> getCoordMinMax(
   MinMaxFunc<T> elem2)
 {
     auto min = [elem1, elem2](const T& a, const T& b) -> bool {
-        if (elem1(a) < elem1(b)) return true;
-        if (elem1(a) == elem1(b) && elem2(a) < elem2(b)) return true;
+        if (elem1(a) < elem1(b)) {
+            return true;
+        }
+
+        if (elem1(a) == elem1(b) && elem2(a) < elem2(b)) {
+            return true;
+        }
+
         return false;
     };
 
     T temp;
-    if (!sz || !coord) coord = &temp;
+    if (!sz || !coord) {
+        coord = &temp;
+    }
 
     auto p = std::minmax_element(coord, coord + sz, min);
+
     std::vector<exseis::utils::Floating_point> lminmax = {elem1(*p.first),
                                                           elem1(*p.second)};
+
     std::vector<size_t> ltrace = {offset + std::distance(coord, p.first),
                                   offset + std::distance(coord, p.second)};
 
@@ -94,22 +104,24 @@ std::vector<CoordElem> getCoordMinMax(
     auto tsz     = piol->comm->gather(std::vector<size_t>{sz});
 
     // Remove non-participants
-    for (exseis::utils::Integer i = tsz.size() - 1U; i >= 0; i--)
+    for (exseis::utils::Integer i = tsz.size() - 1U; i >= 0; i--) {
         if (!tsz[i]) {
             tminmax.erase(tminmax.begin() + 2U * i + 1U);
             tminmax.erase(tminmax.begin() + 2U * i);
             ttrace.erase(ttrace.begin() + 2U * i + 1U);
             ttrace.erase(ttrace.begin() + 2U * i);
         }
+    }
 
     // Global
     auto s = std::minmax_element(tminmax.begin(), tminmax.end());
     std::vector<CoordElem> minmax;
     if (s.first != s.second) {
-        minmax = {
-          CoordElem{*s.first, ttrace[std::distance(tminmax.begin(), s.first)]},
-          CoordElem{*s.second,
-                    ttrace[std::distance(tminmax.begin(), s.second)]}};
+        const auto d_first  = std::distance(tminmax.begin(), s.first);
+        const auto d_second = std::distance(tminmax.begin(), s.second);
+
+        minmax = {CoordElem{*s.first, ttrace[d_first]},
+                  CoordElem{*s.second, ttrace[d_second]}};
     }
     else {
         minmax = {CoordElem{0, std::numeric_limits<size_t>::max()},

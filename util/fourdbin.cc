@@ -28,7 +28,9 @@ namespace PIOL {
 void cmsg(ExSeisPIOL* piol, std::string msg)
 {
     piol->comm->barrier();
-    if (!piol->comm->getRank()) std::cout << msg << std::endl;
+    if (!piol->comm->getRank()) {
+        std::cout << msg << std::endl;
+    }
 }
 
 }  // namespace PIOL
@@ -61,43 +63,53 @@ int main(int argc, char** argv)
     char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING - 1];
     int len;
     MPI_Get_library_version(MPIVersion, &len);
-    if (!piol->getRank())
+    if (!piol->getRank()) {
         std::cout << "MPI Version " << MPIVersion << std::endl;
+    }
 
     /*****************  Reading options from the command line *****************/
     std::string opt = "a:b:c:d:t:vpx";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'a':
                 name1 = optarg;
                 break;
+
             case 'b':
                 name2 = optarg;
                 break;
+
             case 'c':
                 name3 = optarg;
                 break;
+
             case 'd':
                 name4 = optarg;
                 break;
+
             case 't':
                 dsrmax = std::stod(optarg);
                 break;
+
             case 'v':
                 fopt.verbose = true;
                 cmsg(piol.get(), "Verbose mode enabled");
                 break;
+
             case 'p':
                 fopt.printDsr = false;
                 break;
+
             case 'x':
                 fopt.ixline = true;
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
+    }
     assert(name1.size() && name2.size() && name3.size() && name4.size());
 
     /**************************************************************************/
@@ -121,12 +133,13 @@ int main(int argc, char** argv)
     std::vector<size_t> list2;
     std::vector<fourd_t> lminrs;
 
-    for (size_t i = 0U; i < coords1->sz; i++)
+    for (size_t i = 0U; i < coords1->sz; i++) {
         if (minrs[i] <= dsrmax) {
             list2.push_back(min[i]);
             lminrs.push_back(minrs[i]);
             list1.push_back(coords1->tn[i]);
         }
+    }
 
     if (fopt.verbose) {
         std::string name = "tmp/restart" + std::to_string(piol->getRank());

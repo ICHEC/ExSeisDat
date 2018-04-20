@@ -24,11 +24,14 @@ int main(int argc, char** argv)
     std::string opt   = "i:";  // TODO: uses a GNU extension
     std::string iname = "";
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
-        if (c == 'i')
+         c     = getopt(argc, argv, opt.c_str())) {
+        if (c == 'i') {
             iname = optarg;
-        else
+        }
+        else {
             std::cerr << "One of the command line arguments is invalid.\n";
+        }
+    }
     assert(iname != "");
 
     Set set(piol, iname);

@@ -81,13 +81,15 @@ void writePayload(
     size_t extra =
       biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
-    for (size_t i = 0U; i < lnt; i += tcnt)
+    for (size_t i = 0U; i < lnt; i += tcnt) {
         readWriteFullTrace(
           piol, ifh, ofh, goff + i, (i + tcnt < lnt ? tcnt : lnt - i), ftrc,
           fprm);
+    }
 
-    for (size_t i = 0U; i < extra; i++)
+    for (size_t i = 0U; i < extra; i++) {
         readWriteFullTrace(piol, ifh, ofh, goff, 0, ftrc, fprm);
+    }
 }
 
 int ReadWriteFile(

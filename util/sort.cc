@@ -19,21 +19,25 @@ int main(int argc, char** argv)
     std::string name2 = "";
     SortType type     = PIOL_SORTTYPE_SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 name1 = optarg;
                 break;
+
             case 'o':
                 name2 = optarg;
                 break;
+
             case 't':
                 type = static_cast<SortType>(std::stoul(optarg));
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
+    }
 
     assert(name1.size() && name2.size());
 

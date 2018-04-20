@@ -54,8 +54,9 @@ void createFile(std::string name, size_t nt, size_t ns, double inc)
 
     // Set and write some traces
     std::vector<float> trc(lnt * ns);
-    for (size_t j = 0; j < lnt * ns; j++)
+    for (size_t j = 0; j < lnt * ns; j++) {
         trc[j] = float(offset * ns + j);
+    }
     file.writeTrace(offset, lnt, trc.data());
 }
 

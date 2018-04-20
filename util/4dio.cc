@@ -72,13 +72,15 @@ std::unique_ptr<Coords> getCoords(
         //         non-exposed function
         file->readParam(offset + i, rblock, &prm, i);
 
-        for (size_t j = 0; j < rblock; j++)
+        for (size_t j = 0; j < rblock; j++) {
             param_utils::setPrm(i + j, PIOL_META_gtn, offset + i + j, &prm);
+        }
     }
 
     // Any extra readParam calls the particular process needs
-    for (size_t i = 0; i < extra; i++)
+    for (size_t i = 0; i < extra; i++) {
         file.readParam(size_t(0), size_t(0), nullptr);
+    }
     cmsg(piol.get(), "getCoords sort");
 
     auto trlist = sort(
@@ -104,13 +106,15 @@ std::unique_ptr<Coords> getCoords(
     ////////////////////////////////////////////////////////////////////////////
 
     std::shared_ptr<Rule> crule;
-    if (ixline)
+    if (ixline) {
         crule = std::make_shared<Rule>(std::initializer_list<Meta>{
           PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv,
           PIOL_META_il, PIOL_META_xl});
-    else
+    }
+    else {
         crule = std::make_shared<Rule>(std::initializer_list<Meta>{
           PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv});
+    }
 
     max = memlim
           / (crule->paramMem() + SEGY_utils::getMDSz() + 2LU * sizeof(size_t));
@@ -122,8 +126,9 @@ std::unique_ptr<Coords> getCoords(
 
             auto sortlist = getSortIndex(rblock, trlist.data() + i);
             auto orig     = sortlist;
-            for (size_t j = 0; j < sortlist.size(); j++)
+            for (size_t j = 0; j < sortlist.size(); j++) {
                 sortlist[j] = trlist[i + sortlist[j]];
+            }
 
             file.readParamNonContiguous(rblock, sortlist.data(), &prm2);
 
@@ -200,7 +205,9 @@ void outputNonMono(
     {
         auto nts = piol->comm->gather(std::vector<size_t>{lnt});
         for (size_t i = 0; i < nts.size(); i++) {
-            if (i == piol->comm->getRank()) offset = sz;
+            if (i == piol->comm->getRank()) {
+                offset = sz;
+            }
             sz += nts[i];
             biggest = std::max(biggest, nts[i]);
         }
@@ -222,18 +229,21 @@ void outputNonMono(
 
     piol->comm->barrier();
     for (size_t i = 0; i < piol->comm->getNumRank(); i++) {
-        if (i == piol->comm->getRank())
+        if (i == piol->comm->getRank()) {
             std::cout << "rank " << piol->comm->getRank() << " loops "
                       << lnt / max + extra << std::endl;
+        }
         piol->comm->barrier();
     }
 
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         src.readTraceNonMonotonic(rblock, &list[i], trc.data(), &prm);
-        if (printDsr)
-            for (size_t j = 0; j < rblock; j++)
+        if (printDsr) {
+            for (size_t j = 0; j < rblock; j++) {
                 param_utils::setPrm(j, PIOL_META_dsdr, minrs[i + j], &prm);
+            }
+        }
         dst.writeTrace(offset + i, rblock, trc.data(), &prm);
     }
 

@@ -121,7 +121,9 @@ struct SetTest : public Test {
 
     void init(size_t numFile, size_t numNs, size_t numInc, size_t, bool linear)
     {
-        if (set.get() != nullptr) set.release();
+        if (set.get() != nullptr) {
+            set.release();
+        }
         set = std::make_unique<Set_public>(piol);
         for (size_t j = 0; j < numNs; j++) {
             for (size_t k = 0; k < numInc; k++) {
@@ -275,7 +277,9 @@ struct SetTest : public Test {
         std::vector<exseis::utils::Trace_value> trcMan(nt * ns);
         Param prm(nt);
         std::fill(trc.begin(), trc.end(), 1.0f);
-        if (mute != 0) muting(nt, ns, trc.data(), mute);
+        if (mute != 0) {
+            muting(nt, ns, trc.data(), mute);
+        }
         trcMan = trc;
 
         std::vector<size_t> offsets(nt);
@@ -304,9 +308,11 @@ struct SetTest : public Test {
         in->readTrace(0U, in->readNt(), trc.data());
 
         taperMan(nt, ns, trcMan.data(), tapFunc, nTailLft, nTailRt);
-        for (size_t i = 0; i < nt; i++)
-            for (size_t j = 0; j < ns; j++)
+        for (size_t i = 0; i < nt; i++) {
+            for (size_t j = 0; j < ns; j++) {
                 EXPECT_FLOAT_EQ(trc[i * ns + j], trcMan[i * ns + j]);
+            }
+        }
     }
 
     void agcTest(
@@ -361,7 +367,7 @@ struct SetTest : public Test {
         size_t win;
         size_t winStr;
         size_t winCntr;
-        for (size_t i = 0; i < nt; i++)
+        for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
                 if (j < (window / 2U) + 1) {
                     win     = j + 1 + (window / 2U);
@@ -385,6 +391,7 @@ struct SetTest : public Test {
                                      / agcFunc(win, trcWin.data(), winCntr))
                   << i << " " << j << std::endl;
             }
+        }
     }
 
     void filterTest(
@@ -402,8 +409,8 @@ struct SetTest : public Test {
 
         std::vector<exseis::utils::Trace_value> trc(trcRef.size());
 
-        for (size_t i = 0; i < nt; i++)
-            for (size_t j = 0; j < ns; j++)
+        for (size_t i = 0; i < nt; i++) {
+            for (size_t j = 0; j < ns; j++) {
                 trc[i * ns + j] =
                   std::sin(
                     exseis::utils::Trace_value(4.8) * PI
@@ -417,6 +424,8 @@ struct SetTest : public Test {
                       * std::sin(
                           48 * PI * (exseis::utils::Trace_value(j))
                           / exseis::utils::Trace_value(ns));
+            }
+        }
 
 
         set.reset(new Set_public(piol));
@@ -449,10 +458,11 @@ struct SetTest : public Test {
 
         in->readTrace(0U, in->readNt(), trc.data());
 
-        for (size_t i = 0; i < nt * ns; i++)
+        for (size_t i = 0; i < nt * ns; i++) {
             ASSERT_NEAR(
               trc[i], trcRef[i],
               (__GNUC__ ? exseis::utils::Trace_value(0.00011) :
                           exseis::utils::Trace_value(.00001)));
+        }
     }
 };

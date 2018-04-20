@@ -58,9 +58,12 @@ std::shared_ptr<TraceBlock> Cache::getCache(
             it = cache.end() - 1LU;
         }
         else {
-            if (!it->block) it->block = std::make_shared<TraceBlock>();
+            if (!it->block) {
+                it->block = std::make_shared<TraceBlock>();
+            }
             it->block->prm = std::move(prm);
         }
+
         it->block->nt  = nt;
         it->block->ns  = desc[0]->ifc->readNs();
         it->block->inc = desc[0]->ifc->readInc();
@@ -101,9 +104,11 @@ std::vector<size_t> Cache::getOutputTrace(
         }
 
         std::vector<size_t> sortlist = getSortIndex(sz, final.data());
-        for (size_t j = 0LU; j < sz; j++)
+        for (size_t j = 0LU; j < sz; j++) {
             param_utils::cpyPrm(sortlist[j], iprm, j, prm);
+        }
     }
+
     return final;
 }
 

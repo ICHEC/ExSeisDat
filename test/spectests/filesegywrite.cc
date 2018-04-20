@@ -30,8 +30,9 @@ TEST_F(FileSEGYWrite, FileWriteHOEmptyString)
 TEST_F(FileSEGYWrite, FileWriteTrHdrGrid)
 {
     makeMockSEGY<true>();
-    for (size_t i = 0; i < nt; i++)
+    for (size_t i = 0; i < nt; i++) {
         writeTrHdrGridTest(i);
+    }
 }
 
 TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)

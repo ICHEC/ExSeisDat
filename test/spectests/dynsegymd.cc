@@ -36,13 +36,15 @@ TEST_F(RuleFixList, List)
         auto entry = dynamic_cast<SEGYFloatRuleEntry*>(m.second);
 
         int match = 0;
-        for (auto& me : meta)
+        for (auto& me : meta) {
             match += (me == m.first);
+        }
         EXPECT_EQ(match, 1) << i;
 
         match = 0;
-        for (auto loc : locs)
+        for (auto loc : locs) {
             match += (loc == entry->loc);
+        }
         ASSERT_EQ(match, 1) << i;
         ASSERT_EQ(size_t(PIOL_TR_ScaleCoord), entry->scalLoc) << i;
     }

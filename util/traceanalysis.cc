@@ -31,18 +31,22 @@ int main(int argc, char** argv)
     size_t tn        = 0LU;
     std::string opt  = "i:t:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 name = optarg;
                 break;
+
             case 't':
                 tn = std::stoul(optarg);
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
+    }
+
     ReadDirect file(piol, name);
 
     Param prm(1LU);

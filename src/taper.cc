@@ -29,14 +29,17 @@ void taper(
     assert(ns > nTailLft && ns > nTailRt);
     for (size_t i = 0; i < sz; i++) {
         size_t jstart;
-        for (jstart = 0; jstart < ns && trc[i * ns + jstart] == 0.0f; jstart++)
-            ;
+        for (jstart = 0; jstart < ns && trc[i * ns + jstart] == 0.0f;
+             jstart++) {
+        }
 
-        for (size_t j = jstart; j < std::min(jstart + nTailLft, ns); j++)
+        for (size_t j = jstart; j < std::min(jstart + nTailLft, ns); j++) {
             trc[i * ns + j] *= func(j - jstart + 1, nTailLft);
+        }
 
-        for (size_t j = ns - nTailRt; j < ns; j++)
+        for (size_t j = ns - nTailRt; j < ns; j++) {
             trc[i * ns + j] *= func(ns - j - 1LU, nTailRt);
+        }
     }
 }
 

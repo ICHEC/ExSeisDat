@@ -46,12 +46,16 @@ const exseis_Gain_function agc_types[] = {
 /* Functions for testing PIOL_Set_sort_fn */
 bool set_sort_function_true(const PIOL_File_Param* param, size_t i, size_t j)
 {
-    if (param == NULL && i == 840 && j == 850) wraptest_ok();
+    if (param == NULL && i == 840 && j == 850) {
+        wraptest_ok();
+    }
     return true;
 }
 bool set_sort_function_false(const PIOL_File_Param* param, size_t i, size_t j)
 {
-    if (param == NULL && i == 860 && j == 870) wraptest_ok();
+    if (param == NULL && i == 860 && j == 870) {
+        wraptest_ok();
+    }
     return false;
 }
 
@@ -77,12 +81,20 @@ int main()
     PIOL_ExSeis* piol_tmp_4 = PIOL_ExSeis_new(PIOL_VERBOSITY_VERBOSE);
     PIOL_ExSeis* piol_tmp_5 = PIOL_ExSeis_new(PIOL_VERBOSITY_MAX);
 
-    if (PIOL_ExSeis_getRank(piol) == 0) wraptest_ok();
-    if (PIOL_ExSeis_getNumRank(piol) == 10) wraptest_ok();
+    if (PIOL_ExSeis_getRank(piol) == 0) {
+        wraptest_ok();
+    }
+    if (PIOL_ExSeis_getNumRank(piol) == 10) {
+        wraptest_ok();
+    }
     PIOL_ExSeis_barrier(piol);
 
-    if (PIOL_ExSeis_max(piol, 0) == 30) wraptest_ok();
-    if (PIOL_ExSeis_max(piol, 40) == 50) wraptest_ok();
+    if (PIOL_ExSeis_max(piol, 0) == 30) {
+        wraptest_ok();
+    }
+    if (PIOL_ExSeis_max(piol, 40) == 50) {
+        wraptest_ok();
+    }
 
     PIOL_ExSeis_isErr(piol, NULL);
     PIOL_ExSeis_isErr(piol, "Test isErr message");
@@ -107,10 +119,12 @@ int main()
     PIOL_File_Rule* rule_tmp2 =
       PIOL_File_Rule_new_from_list(metas, sizeof(metas) / sizeof(metas[0]));
 
-    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true)
+    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true) {
         wraptest_ok();
-    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == false)
+    }
+    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == false) {
         wraptest_ok();
+    }
     PIOL_File_Rule_addRule_Rule(rule, rule_tmp);
 
     PIOL_File_Rule_addLong(rule, PIOL_META_COPY, PIOL_TR_SeqNum);
@@ -120,9 +134,15 @@ int main()
     PIOL_File_Rule_addIndex(rule, PIOL_META_COPY);
     PIOL_File_Rule_addCopy(rule);
     PIOL_File_Rule_rmRule(rule, PIOL_META_COPY);
-    if (PIOL_File_Rule_extent(rule) == 100) wraptest_ok();
-    if (PIOL_File_Rule_memUsage(rule) == 110) wraptest_ok();
-    if (PIOL_File_Rule_paramMem(rule) == 120) wraptest_ok();
+    if (PIOL_File_Rule_extent(rule) == 100) {
+        wraptest_ok();
+    }
+    if (PIOL_File_Rule_memUsage(rule) == 110) {
+        wraptest_ok();
+    }
+    if (PIOL_File_Rule_paramMem(rule) == 120) {
+        wraptest_ok();
+    }
 
     PIOL_File_Rule_delete(rule_tmp2);
     PIOL_File_Rule_delete(rule_tmp);
@@ -173,14 +193,20 @@ int main()
     PIOL_File_Param* param     = PIOL_File_Param_new(rule, 300);
     PIOL_File_Param* param_tmp = PIOL_File_Param_new(NULL, 310);
 
-    if (PIOL_File_Param_size(param) == 320) wraptest_ok();
-    if (PIOL_File_Param_memUsage(param) == 330) wraptest_ok();
-
-    if (PIOL_File_getPrm_short(340, PIOL_META_COPY, param) == 350)
+    if (PIOL_File_Param_size(param) == 320) {
         wraptest_ok();
-
-    if (PIOL_File_getPrm_Integer(360, PIOL_META_COPY, param) == 370)
+    }
+    if (PIOL_File_Param_memUsage(param) == 330) {
         wraptest_ok();
+    }
+
+    if (PIOL_File_getPrm_short(340, PIOL_META_COPY, param) == 350) {
+        wraptest_ok();
+    }
+
+    if (PIOL_File_getPrm_Integer(360, PIOL_META_COPY, param) == 370) {
+        wraptest_ok();
+    }
     if (
       fabs(PIOL_File_getPrm_double(380, PIOL_META_COPY, param) - 390.0)
       < 1e-5) {
@@ -225,8 +251,12 @@ int main()
     }
 
     const size_t read_direct_ns = PIOL_File_ReadDirect_readNs(read_direct);
-    if (read_direct_ns == 600) wraptest_ok();
-    if (PIOL_File_ReadDirect_readNt(read_direct) == 610) wraptest_ok();
+    if (read_direct_ns == 600) {
+        wraptest_ok();
+    }
+    if (PIOL_File_ReadDirect_readNt(read_direct) == 610) {
+        wraptest_ok();
+    }
     if (fabs(PIOL_File_ReadDirect_readInc(read_direct) - 620.0) < 1e-5) {
         wraptest_ok();
     };
@@ -251,7 +281,9 @@ int main()
             read_direct_trace_ok = 0;
         }
     }
-    if (read_direct_trace_ok == 1) wraptest_ok();
+    if (read_direct_trace_ok == 1) {
+        wraptest_ok();
+    }
     free(read_direct_trace);
     read_direct_trace = NULL;
 
@@ -264,9 +296,13 @@ int main()
     PIOL_File_ReadDirect_readTraceNonContiguous(
       read_direct, 680, read_direct_offsets, read_direct_trace, param);
     for (size_t i = 0; i < read_direct_ns * 680; i++) {
-        if (read_direct_trace[i] != i) read_direct_trace_ok = 0;
+        if (read_direct_trace[i] != i) {
+            read_direct_trace_ok = 0;
+        }
     }
-    if (read_direct_trace_ok == 1) wraptest_ok();
+    if (read_direct_trace_ok == 1) {
+        wraptest_ok();
+    }
     free(read_direct_trace);
     free(read_direct_offsets);
 
@@ -278,9 +314,13 @@ int main()
     PIOL_File_ReadDirect_readTraceNonMonotonic(
       read_direct, 690, read_direct_offsets, read_direct_trace, param);
     for (size_t i = 0; i < read_direct_ns * 690; i++) {
-        if (read_direct_trace[i] != i) read_direct_trace_ok = 0;
+        if (read_direct_trace[i] != i) {
+            read_direct_trace_ok = 0;
+        }
     }
-    if (read_direct_trace_ok == 1) wraptest_ok();
+    if (read_direct_trace_ok == 1) {
+        wraptest_ok();
+    }
     free(read_direct_trace);
     free(read_direct_offsets);
 

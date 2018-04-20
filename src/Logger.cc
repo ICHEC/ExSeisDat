@@ -17,7 +17,9 @@ void Logger::record(
   const Verbosity verbosity,
   bool condition)
 {
-    if (condition) record(file, layer, stat, msg, verbosity);
+    if (condition) {
+        record(file, layer, stat, msg, verbosity);
+    }
 }
 
 void Logger::record(
@@ -27,10 +29,13 @@ void Logger::record(
   const std::string msg,
   const Verbosity verbosity)
 {
-    if (static_cast<size_t>(verbosity) <= static_cast<size_t>(maxLevel))
+    if (verbosity <= maxLevel) {
         loglist_.push_front({file, layer, stat, msg, verbosity});
+    }
 
-    if (stat == Logger::Status::Error) error = true;
+    if (stat == Logger::Status::Error) {
+        error = true;
+    }
 }
 
 size_t Logger::numStat(const Logger::Status stat) const
@@ -40,6 +45,7 @@ size_t Logger::numStat(const Logger::Status stat) const
         // The spec guarantees this is one if the equality holds
         sz += (item.stat == stat);
     }
+
     return sz;
 }
 
@@ -55,6 +61,7 @@ void Logger::procLog(void)
                   << static_cast<size_t>(item.stat) << " " << item.msg << " "
                   << static_cast<size_t>(item.vrbsy) << std::endl;
     }
+
     loglist_.clear();
 }
 
