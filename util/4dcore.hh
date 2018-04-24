@@ -42,10 +42,10 @@ inline void MPIErr(int err)
  */
 void calc4DBin(
   ExSeisPIOL* piol,
-  const fourd_t dsrmax,
+  fourd_t dsrmax,
   const Coords* coords1,
   const Coords* coords2,
-  const FourDOpt opt,
+  FourDOpt opt,
   std::vector<size_t>& min,
   std::vector<fourd_t>& minrs);
 

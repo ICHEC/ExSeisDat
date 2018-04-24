@@ -75,7 +75,7 @@ std::shared_ptr<TraceBlock> Cache::getCache(
 }
 
 std::vector<size_t> Cache::getOutputTrace(
-  FileDeque& desc, const size_t offset, const size_t sz, Param* prm)
+  FileDeque& desc, size_t offset, size_t sz, Param* prm)
 {
     std::vector<size_t> final;
 

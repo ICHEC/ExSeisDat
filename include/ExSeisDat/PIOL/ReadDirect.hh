@@ -73,7 +73,7 @@ class ReadDirect {
      *                  another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      */
-    ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name);
+    ReadDirect(std::shared_ptr<ExSeisPIOL> piol, std::string name);
 
     /*! Copy constructor for a std::shared_ptr<ReadInterface> object
      * @param[in] file The ReadInterface shared_ptr object.
@@ -82,7 +82,7 @@ class ReadDirect {
 
     /*! Empty destructor
      */
-    ~ReadDirect(void);
+    ~ReadDirect();
 
     /*! Overload of member of pointer access
      *  @return Return the base File layer class Interface.
@@ -102,17 +102,17 @@ class ReadDirect {
     /*! @brief Read the number of samples per trace
      *  @return The number of samples per trace
      */
-    size_t readNs(void) const;
+    size_t readNs() const;
 
     /*! @brief Read the number of traces in the file
      *  @return The number of traces
      */
-    size_t readNt(void) const;
+    size_t readNt() const;
 
     /*! @brief Read the number of increment between trace samples
      *  @return The increment between trace samples
      */
-    exseis::utils::Floating_point readInc(void) const;
+    exseis::utils::Floating_point readInc() const;
 
     /*! @brief Read the traces from offset to offset+sz.
      *  @param[in]  offset The starting trace number.
@@ -124,8 +124,8 @@ class ReadDirect {
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
     void readTrace(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       exseis::utils::Trace_value* trace,
       Param* prm = PIOL_PARAM_NULL) const;
 
@@ -135,7 +135,7 @@ class ReadDirect {
      *  @param[in]  sz     The number of traces to process.
      *  @param[out] prm    The parameter structure
      */
-    void readParam(const size_t offset, const size_t sz, Param* prm) const;
+    void readParam(size_t offset, size_t sz, Param* prm) const;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array. The offsets should in ascending order,
@@ -149,7 +149,7 @@ class ReadDirect {
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
     void readTraceNonContiguous(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
       Param* prm = PIOL_PARAM_NULL) const;
@@ -165,7 +165,7 @@ class ReadDirect {
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
     void readTraceNonMonotonic(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
       Param* prm = PIOL_PARAM_NULL) const;
@@ -178,7 +178,7 @@ class ReadDirect {
      *  @param[out] prm   The parameter structure
      */
     void readParamNonContiguous(
-      const size_t sz, const size_t* offset, Param* prm) const;
+      size_t sz, const size_t* offset, Param* prm) const;
 };
 
 }  // namespace PIOL

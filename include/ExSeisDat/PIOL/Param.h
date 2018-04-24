@@ -72,13 +72,13 @@ struct Param {
      *  @param[in] r_ The rules which describe the layout of the arrays.
      *  @param[in] sz The number of sets of trace parameters.
      */
-    Param(std::shared_ptr<Rule> r_, const size_t sz);
+    Param(std::shared_ptr<Rule> r_, size_t sz);
 
     /*! Allocate the basic space required to store the arrays and store the
      *  rules. Default rules
      *  @param[in] sz The number of sets of trace parameters.
      */
-    Param(const size_t sz = 1);
+    Param(size_t sz = 1);
 
     /*! Default destructor
      */
@@ -87,12 +87,12 @@ struct Param {
     /*! Return the number of sets of trace parameters.
      *  @return Number of sets
      */
-    size_t size(void) const;
+    size_t size() const;
 
     /*! Estimate of the total memory used
      *  @return Return estimate in bytes.
      */
-    size_t memUsage(void) const;
+    size_t memUsage() const;
 
     /*! Less-than operator. An operator overload required for template
      *  subsitution

@@ -44,7 +44,7 @@ class WriteDirect {
     template<class D, class O, class F>
     WriteDirect(
       std::shared_ptr<ExSeisPIOL> piol,
-      const std::string name,
+      std::string name,
       const D& d,
       const O& o,
       const F& f)
@@ -70,7 +70,7 @@ class WriteDirect {
      *                  another shared_ptr.
      *  @param[in] name The name of the file associated with the instantiation.
      */
-    WriteDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name);
+    WriteDirect(std::shared_ptr<ExSeisPIOL> piol, std::string name);
 
     /*! Copy constructor for a std::shared_ptr<ReadInterface> object
      * @param[in] file The ReadInterface shared_ptr object.
@@ -79,7 +79,7 @@ class WriteDirect {
 
     /*! Empty destructor
      */
-    ~WriteDirect(void);
+    ~WriteDirect();
 
     /*! Overload of member of pointer access
      *  @return Return the base File layer class Interface.
@@ -94,22 +94,22 @@ class WriteDirect {
     /*! @brief Write the human readable text from the file.
      *  @param[in] text_ The new string containing the text (in ASCII format).
      */
-    void writeText(const std::string text_);
+    void writeText(std::string text_);
 
     /*! @brief Write the number of samples per trace
      *  @param[in] ns_ The new number of samples per trace.
      */
-    void writeNs(const size_t ns_);
+    void writeNs(size_t ns_);
 
     /*! @brief Write the number of traces in the file
      *  @param[in] nt_ The new number of traces.
      */
-    void writeNt(const size_t nt_);
+    void writeNt(size_t nt_);
 
     /*! @brief Write the increment between trace samples.
      *  @param[in] inc_ The new increment between trace samples.
      */
-    void writeInc(const exseis::utils::Floating_point inc_);
+    void writeInc(exseis::utils::Floating_point inc_);
 
     /*! @brief Read the traces from offset to offset+sz.
      *  @param[in] offset The starting trace number.
@@ -122,8 +122,8 @@ class WriteDirect {
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is written.
      */
     void writeTrace(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       exseis::utils::Trace_value* trace,
       const Param* prm = PIOL_PARAM_NULL);
 
@@ -136,7 +136,7 @@ class WriteDirect {
      *  @details It is assumed that this operation is not an update. Any
      *           previous contents of the trace header will be overwritten.
      */
-    void writeParam(const size_t offset, const size_t sz, const Param* prm);
+    void writeParam(size_t offset, size_t sz, const Param* prm);
 
     /*! @brief write the traces specified by the offsets in the passed offset
      *         array.
@@ -151,7 +151,7 @@ class WriteDirect {
      *           Any previous contents of the trace header will be overwritten.
      */
     void writeTraceNonContiguous(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
       const Param* prm = PIOL_PARAM_NULL);
@@ -167,7 +167,7 @@ class WriteDirect {
      *           overwritten.
      */
     void writeParamNonContiguous(
-      const size_t sz, const size_t* offset, const Param* prm);
+      size_t sz, const size_t* offset, const Param* prm);
 };
 
 }  // namespace PIOL

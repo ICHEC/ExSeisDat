@@ -49,7 +49,7 @@ class ObjectInterface {
      */
     ObjectInterface(
       std::shared_ptr<ExSeisPIOL> piol,
-      const std::string name,
+      std::string name,
       std::shared_ptr<DataInterface> data) :
         piol_(piol),
         name_(name),
@@ -76,12 +76,12 @@ class ObjectInterface {
     /*! @brief Find out the file size.
      *  @return The file size in bytes.
      */
-    virtual size_t getFileSz(void) const;
+    virtual size_t getFileSz() const;
 
     /*! @brief Set the file size.
      *  @param[in] sz The size in bytes
      */
-    virtual void setFileSz(const size_t sz) const;
+    virtual void setFileSz(size_t sz) const;
 
     /*! @brief Read the header object.
      *  @param[out] ho An array which the caller guarantees is long enough
@@ -103,10 +103,7 @@ class ObjectInterface {
      *                 the DO metadata.
      */
     virtual void readDOMD(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* md) const = 0;
+      size_t offset, size_t ns, size_t sz, unsigned char* md) const = 0;
 
     /*! @brief Write the data-object metadata.
      *  @param[in] offset The starting data-object we are interested in.
@@ -116,10 +113,7 @@ class ObjectInterface {
      *                the data-field.
      */
     virtual void writeDOMD(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* md) const = 0;
+      size_t offset, size_t ns, size_t sz, const unsigned char* md) const = 0;
 
     /*! @brief Read a sequence of data-fields.
      *  @param[in] offset The starting data-object we are interested in.
@@ -129,10 +123,7 @@ class ObjectInterface {
      *                 the data-field.
      */
     virtual void readDODF(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* df) const = 0;
+      size_t offset, size_t ns, size_t sz, unsigned char* df) const = 0;
 
     /*! @brief Write a sequence of data-fields.
      *  @param[in] offset The starting data-object we are interested in.
@@ -142,10 +133,7 @@ class ObjectInterface {
      *                the data-field.
      */
     virtual void writeDODF(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* df) const = 0;
+      size_t offset, size_t ns, size_t sz, const unsigned char* df) const = 0;
 
     /*! @brief Read a sequence of data-objects.
      *  @param[in] offset The starting data-object we are interested in.
@@ -155,10 +143,7 @@ class ObjectInterface {
      *                the data-objects.
      */
     virtual void readDO(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* d) const = 0;
+      size_t offset, size_t ns, size_t sz, unsigned char* d) const = 0;
 
     /*! @brief Write a sequence of data-objects.
      *  @param[in] offset The starting data-object we are interested in.
@@ -168,10 +153,7 @@ class ObjectInterface {
      *               the data-objects.
      */
     virtual void writeDO(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* d) const = 0;
+      size_t offset, size_t ns, size_t sz, const unsigned char* d) const = 0;
 
     /*! @brief Read a list of data-objects.
      *  @param[in] offset An array of the starting data-objects we are
@@ -182,10 +164,7 @@ class ObjectInterface {
      *                the data-objects.
      */
     virtual void readDO(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* d) const = 0;
+      const size_t* offset, size_t ns, size_t sz, unsigned char* d) const = 0;
 
     /*! @brief Write a list of data-objects.
      *  @param[in] ns The number of elements per data field.
@@ -197,8 +176,8 @@ class ObjectInterface {
      */
     virtual void writeDO(
       const size_t* offset,
-      const size_t ns,
-      const size_t sz,
+      size_t ns,
+      size_t sz,
       const unsigned char* d) const = 0;
 
     /*! @brief read a list of data-object metadata blocks.
@@ -210,10 +189,7 @@ class ObjectInterface {
      *  the metadata blocks.
      */
     virtual void readDOMD(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* md) const = 0;
+      const size_t* offset, size_t ns, size_t sz, unsigned char* md) const = 0;
 
     /*! @brief Write a list of data-object metadata blocks.
      *  @param[in] offset An array of the starting data-object we are interested
@@ -225,8 +201,8 @@ class ObjectInterface {
      */
     virtual void writeDOMD(
       const size_t* offset,
-      const size_t ns,
-      const size_t sz,
+      size_t ns,
+      size_t sz,
       const unsigned char* md) const = 0;
 
     /*! @brief Read a list of data-fields.
@@ -238,10 +214,7 @@ class ObjectInterface {
      *                 the data-fields.
      */
     virtual void readDODF(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* df) const = 0;
+      const size_t* offset, size_t ns, size_t sz, unsigned char* df) const = 0;
 
     /*! @brief Write a list of data-fields
      *  @param[in] offset An array of the starting data-object we are interested
@@ -253,8 +226,8 @@ class ObjectInterface {
      */
     virtual void writeDODF(
       const size_t* offset,
-      const size_t ns,
-      const size_t sz,
+      size_t ns,
+      size_t sz,
       const unsigned char* df) const = 0;
 };
 

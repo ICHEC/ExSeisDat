@@ -16,12 +16,14 @@ add_custom_command(
 )
 
 include_directories(
+    SYSTEM
     # Include googletest directories.
     ${GOOGLETEST_DIR}/googletest/include
     ${GOOGLETEST_DIR}/googletest
     ${GOOGLETEST_DIR}/googlemock/include
     ${GOOGLETEST_DIR}/googlemock
-
+)
+include_directories(
     # Include test directory
     ${CMAKE_CURRENT_SOURCE_DIR}
 

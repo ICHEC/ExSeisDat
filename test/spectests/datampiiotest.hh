@@ -19,8 +19,7 @@ using namespace testing;
 using namespace exseis::utils;
 using namespace exseis::PIOL;
 
-size_t modifyNt(
-  const size_t fs, const size_t offset, const size_t nt, const size_t ns);
+size_t modifyNt(size_t fs, size_t offset, size_t nt, size_t ns);
 
 class MPIIOTest : public Test {
   protected:
@@ -40,7 +39,7 @@ class MPIIOTest : public Test {
         data          = std::make_shared<DataMPIIO>(piol, name, mode);
     }
 
-    void makeTestSz(const size_t sz)
+    void makeTestSz(size_t sz)
     {
         makeMPIIO<true>(tempFile);
         data->setFileSz(sz);
@@ -51,7 +50,7 @@ class MPIIOTest : public Test {
     }
 
     template<bool block>
-    void writeSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
+    void writeSmallBlocks(size_t nt, size_t ns, size_t offset = 0)
     {
         size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
         std::vector<unsigned char> tr(step * nt);
@@ -81,7 +80,7 @@ class MPIIOTest : public Test {
     }
 
     template<bool block>
-    void writeBigBlocks(size_t nt, const size_t ns, const size_t offset = 0)
+    void writeBigBlocks(size_t nt, size_t ns, size_t offset = 0)
     {
         size_t step =
           (block ? SEGY_utils::getDFSz(ns) : SEGY_utils::getDOSz(ns));
@@ -117,7 +116,7 @@ class MPIIOTest : public Test {
     }
 
     template<bool block>
-    void readSmallBlocks(size_t nt, const size_t ns, const size_t offset = 0)
+    void readSmallBlocks(size_t nt, size_t ns, size_t offset = 0)
     {
         size_t step = (block ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
         std::vector<unsigned char> tr(step * nt);
@@ -152,7 +151,7 @@ class MPIIOTest : public Test {
     }
 
     template<bool block>
-    void readBigBlocks(size_t nt, const size_t ns, const size_t offset = 0)
+    void readBigBlocks(size_t nt, size_t ns, const size_t offset = 0)
     {
         size_t step =
           (block ? SEGY_utils::getDFSz(ns) : SEGY_utils::getDOSz(ns));

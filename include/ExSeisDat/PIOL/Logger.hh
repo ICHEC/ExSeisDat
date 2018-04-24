@@ -57,14 +57,14 @@ class Logger {
     /*! @brief The constructor with the most options
      *  @param[in] maxLevel_ The maximum verbosity level of stored logs.
      */
-    Logger(const Verbosity maxLevel_) : maxLevel(maxLevel_), error(false) {}
+    Logger(Verbosity maxLevel_) : maxLevel(maxLevel_), error(false) {}
 
     /// @overload
-    Logger(void) : Logger(PIOL_VERBOSITY_NONE) {}
+    Logger() : Logger(PIOL_VERBOSITY_NONE) {}
 
     /*! @brief The default destructor. It processes all of the logs
      */
-    ~Logger(void) { procLog(); }
+    ~Logger() { procLog(); }
 
     /*! @brief The list of current log items.
      *  @return The list of current log items.
@@ -80,11 +80,11 @@ class Logger {
      *  @param[in] verbosity The verbosity level of the message.
      */
     void record(
-      const std::string file,
-      const Layer layer,
-      const Status stat,
-      const std::string msg,
-      const Verbosity verbosity);
+      std::string file,
+      Layer layer,
+      Status stat,
+      std::string msg,
+      Verbosity verbosity);
 
     /*! @overload
      *  @brief Records a message to the log layer if the condition holds.
@@ -97,28 +97,28 @@ class Logger {
      *  @param[in] condition If the condition is true log a message
      */
     void record(
-      const std::string file,
-      const Layer layer,
-      const Status stat,
-      const std::string msg,
-      const Verbosity verbosity,
-      const bool condition);
+      std::string file,
+      Layer layer,
+      Status stat,
+      std::string msg,
+      Verbosity verbosity,
+      bool condition);
 
     /*! @brief Process the list of log items.
      */
-    void procLog(void);
+    void procLog();
 
     /*! @brief Find out the number of items in the log list with a given status.
      *  @param[in] stat The status to be queried
      *  @return The number of items with a status of \c stat
      */
-    size_t numStat(const Status stat) const;
+    size_t numStat(Status stat) const;
 
     /*! @brief Check if the Log object has recorded an error.
      *  @retval true An error has been encountered.
      *  @retval false An error has not been encountered.
      */
-    bool isErr(void) const;
+    bool isErr() const;
 };
 
 

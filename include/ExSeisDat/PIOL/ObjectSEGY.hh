@@ -40,7 +40,7 @@ class ObjectSEGY : public ObjectInterface {
      */
     ObjectSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       const Opt& opt_,
       std::shared_ptr<DataInterface> data_,
       FileMode mode = FileMode::Read);
@@ -54,7 +54,7 @@ class ObjectSEGY : public ObjectInterface {
      */
     ObjectSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       std::shared_ptr<DataInterface> data_,
       FileMode mode = FileMode::Read);
 
@@ -62,76 +62,43 @@ class ObjectSEGY : public ObjectInterface {
 
     void writeHO(const unsigned char* ho) const;
 
-    void readDOMD(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* md) const;
+    void readDOMD(size_t offset, size_t ns, size_t sz, unsigned char* md) const;
 
     void writeDOMD(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* md) const;
+      size_t offset, size_t ns, size_t sz, const unsigned char* md) const;
 
-    void readDODF(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* df) const;
+    void readDODF(size_t offset, size_t ns, size_t sz, unsigned char* df) const;
 
     void writeDODF(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* df) const;
+      size_t offset, size_t ns, size_t sz, const unsigned char* df) const;
 
-    void readDO(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* d) const;
+    void readDO(size_t offset, size_t ns, size_t sz, unsigned char* d) const;
 
     void writeDO(
-      const size_t offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* d) const;
+      size_t offset, size_t ns, size_t sz, const unsigned char* d) const;
 
     void readDO(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* d) const;
+      const size_t* offset, size_t ns, size_t sz, unsigned char* d) const;
 
     void writeDO(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      const unsigned char* d) const;
+      const size_t* offset, size_t ns, size_t sz, const unsigned char* d) const;
 
     void readDOMD(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* md) const;
+      const size_t* offset, size_t ns, size_t sz, unsigned char* md) const;
 
     void writeDOMD(
       const size_t* offset,
-      const size_t ns,
-      const size_t sz,
+      size_t ns,
+      size_t sz,
       const unsigned char* md) const;
 
     void readDODF(
-      const size_t* offset,
-      const size_t ns,
-      const size_t sz,
-      unsigned char* df) const;
+      const size_t* offset, size_t ns, size_t sz, unsigned char* df) const;
 
     void writeDODF(
       const size_t* offset,
-      const size_t ns,
-      const size_t sz,
+      size_t ns,
+      size_t sz,
       const unsigned char* df) const;
 };
 

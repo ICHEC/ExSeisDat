@@ -73,8 +73,7 @@ using Complex_trace_value = std::complex<exseis::utils::Trace_value>;
  *  @return Filter order
  */
 size_t filterOrder(
-  const exseis::utils::Trace_value cornerP,
-  const exseis::utils::Trace_value cornerS);
+  exseis::utils::Trace_value cornerP, exseis::utils::Trace_value cornerS);
 
 /*! Expands a series of polynomials of the form (z-b0)(z-b1)...(z-bn)
  *  @param[in] coef Vector of b coefficients
@@ -83,7 +82,7 @@ size_t filterOrder(
  */
 void expandPoly(
   const Complex_trace_value* coef,
-  const size_t nvx,
+  size_t nvx,
   exseis::utils::Trace_value* poly);
 
 /*! Creates a digital Butterworth lowpass filter for a given corner in
@@ -96,7 +95,7 @@ void expandPoly(
  *  @todo   DOCUMENT return type
  */
 exseis::utils::Trace_value lowpass(
-  const size_t N,
+  size_t N,
   Complex_trace_value* z,
   Complex_trace_value* p,
   exseis::utils::Trace_value cf1);

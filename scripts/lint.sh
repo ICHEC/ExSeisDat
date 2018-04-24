@@ -32,5 +32,6 @@ echo "Linting (clang-tidy) ${target_file}"
 pushd ${source_dir} >/dev/null
 clang-tidy "${target_file}" \
     -p "${build_dir}" \
-    --header-filter="${source_dir}"
+    --header-filter="${source_dir}" \
+    --quiet
 popd > /dev/null

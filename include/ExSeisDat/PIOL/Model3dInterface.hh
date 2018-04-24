@@ -63,8 +63,8 @@ class Model3dInterface {
      *  @return return a vector of traces containing the trace values requested
      */
     virtual std::vector<exseis::utils::Trace_value> readModel(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
 
     /*! Read the 3d file based on il and xl that match those in the given
@@ -76,7 +76,7 @@ class Model3dInterface {
      *  @return Return a vector of traces containing the trace values requested
      */
     virtual std::vector<exseis::utils::Trace_value> readModel(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
 };

@@ -55,26 +55,31 @@ T getPrm(size_t i, Meta entry, const Param* prm)
  *  @param[in] entry The meta entry to retrieve.
  *  @param[in] ret The parameter return structure which is initialised by
  *                 passing a exseis::utils::Floating_point,
- * exseis::utils::Integer or short.
+ *                 exseis::utils::Integer or short.
  *  @param[in] prm The parameter structure
  */
 template<typename T>
-void setPrm(const size_t i, const Meta entry, T ret, Param* prm)
+void setPrm(size_t i, Meta entry, T ret, Param* prm)
 {
     Rule* r       = prm->r.get();
     RuleEntry* id = r->getEntry(entry);
+
     switch (id->type()) {
         case RuleEntry::MdType::Float:
             prm->f[r->numFloat * i + id->num] = ret;
             break;
+
         case RuleEntry::MdType::Long:
             prm->i[r->numLong * i + id->num] = ret;
             break;
+
         case RuleEntry::MdType::Short:
             prm->s[r->numShort * i + id->num] = ret;
             break;
+
         case RuleEntry::MdType::Index:
             prm->t[r->numIndex * i + id->num] = ret;
+
         default:
             break;
     }
@@ -86,7 +91,7 @@ void setPrm(const size_t i, const Meta entry, T ret, Param* prm)
  *  @param[in] k The trace number of the destination.
  *  @param[out] dst The destination parameter structure.
  */
-void cpyPrm(const size_t j, const Param* src, const size_t k, Param* dst);
+void cpyPrm(size_t j, const Param* src, size_t k, Param* dst);
 
 
 }  // namespace param_utils

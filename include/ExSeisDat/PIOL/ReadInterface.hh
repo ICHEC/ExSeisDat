@@ -98,11 +98,7 @@ class ReadInterface {
      *                 (size sizeof(Param)*sz)
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
-    void readParam(
-      const size_t offset,
-      const size_t sz,
-      Param* prm,
-      const size_t skip = 0) const;
+    void readParam(size_t offset, size_t sz, Param* prm, size_t skip = 0) const;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array.
@@ -112,10 +108,7 @@ class ReadInterface {
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     void readParamNonContiguous(
-      const size_t sz,
-      const size_t* offset,
-      Param* prm,
-      const size_t skip = 0) const;
+      size_t sz, const size_t* offset, Param* prm, size_t skip = 0) const;
 
     /*! @brief Read the traces from offset to offset+sz
      *  @param[in] offset The starting trace number.
@@ -126,11 +119,11 @@ class ReadInterface {
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void readTrace(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       exseis::utils::Trace_value* trace,
-      Param* prm        = PIOL_PARAM_NULL,
-      const size_t skip = 0) const = 0;
+      Param* prm  = PIOL_PARAM_NULL,
+      size_t skip = 0) const = 0;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array. Assumes Monotonic.
@@ -144,11 +137,11 @@ class ReadInterface {
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
     virtual void readTraceNonContiguous(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
-      Param* prm        = PIOL_PARAM_NULL,
-      const size_t skip = 0) const = 0;
+      Param* prm  = PIOL_PARAM_NULL,
+      size_t skip = 0) const = 0;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array. Does not assume monotonic
@@ -163,11 +156,11 @@ class ReadInterface {
      *  @details When prm==PIOL_PARAM_NULL only the trace DF is read.
      */
     virtual void readTraceNonMonotonic(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
-      Param* prm        = PIOL_PARAM_NULL,
-      const size_t skip = 0) const = 0;
+      Param* prm  = PIOL_PARAM_NULL,
+      size_t skip = 0) const = 0;
 };
 
 }  // namespace PIOL

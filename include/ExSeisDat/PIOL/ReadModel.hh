@@ -23,7 +23,7 @@ class ReadModel : public ReadDirect {
     /// @param[in] piol_ This PIOL ptr is not modified but is used to
     ///                  instantiate another shared_ptr.
     /// @param[in] name_ The name of the file associated with the instantiation.
-    ReadModel(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_);
+    ReadModel(std::shared_ptr<ExSeisPIOL> piol_, std::string name_);
 
     /// @todo DOCUMENT brief and return type
     /// @param[in] gOffset   DOCUMENT ME

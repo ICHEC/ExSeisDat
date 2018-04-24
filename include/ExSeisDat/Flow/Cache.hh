@@ -116,10 +116,7 @@ class Cache {
      *  @return Return the output trace locations
      */
     std::vector<size_t> getOutputTrace(
-      FileDeque& desc,
-      const size_t offset,
-      const size_t sz,
-      exseis::PIOL::Param* prm);
+      FileDeque& desc, size_t offset, size_t sz, exseis::PIOL::Param* prm);
 };
 
 }  // namespace Flow

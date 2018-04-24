@@ -24,8 +24,7 @@ class ExSeis : public ExSeisPIOL {
      *  @return A shared pointer to a PIOL object.
      */
     static std::shared_ptr<ExSeis> New(
-      const Verbosity maxLevel = PIOL_VERBOSITY_NONE,
-      MPI_Comm comm            = MPI_COMM_WORLD)
+      Verbosity maxLevel = PIOL_VERBOSITY_NONE, MPI_Comm comm = MPI_COMM_WORLD)
     {
         return std::shared_ptr<ExSeis>(new ExSeis(maxLevel, comm));
     }
@@ -37,16 +36,16 @@ class ExSeis : public ExSeisPIOL {
     /*! Shortcut to get the commrank.
      *  @return The comm rank.
      */
-    size_t getRank(void) const;
+    size_t getRank() const;
 
     /*! Shortcut to get the number of ranks.
      *  @return The comm number of ranks.
      */
-    size_t getNumRank(void) const;
+    size_t getNumRank() const;
 
     /*! Shortcut for a communication barrier
      */
-    void barrier(void) const;
+    void barrier() const;
 
     /*! Return the maximum value amongst the processes
      *  @param[in] n The value to take part in the reduction
@@ -65,8 +64,7 @@ class ExSeis : public ExSeisPIOL {
     /// The constructor is private! Use the ExSeis::New(...) function.
     /// @copydetails ExSeis::New
     ExSeis(
-      const Verbosity maxLevel = PIOL_VERBOSITY_NONE,
-      MPI_Comm comm            = MPI_COMM_WORLD);
+      Verbosity maxLevel = PIOL_VERBOSITY_NONE, MPI_Comm comm = MPI_COMM_WORLD);
 };
 
 }  // namespace PIOL

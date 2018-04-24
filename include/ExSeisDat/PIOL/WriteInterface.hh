@@ -68,22 +68,22 @@ class WriteInterface {
     /*! @brief Write the human readable text from the file.
      *  @param[in] text_ The new string containing the text (in ASCII format).
      */
-    virtual void writeText(const std::string text_) = 0;
+    virtual void writeText(std::string text_) = 0;
 
     /*! @brief Write the number of samples per trace
      *  @param[in] ns_ The new number of samples per trace.
      */
-    virtual void writeNs(const size_t ns_) = 0;
+    virtual void writeNs(size_t ns_) = 0;
 
     /*! @brief Write the number of traces in the file
      *  @param[in] nt_ The new number of traces.
      */
-    virtual void writeNt(const size_t nt_) = 0;
+    virtual void writeNt(size_t nt_) = 0;
 
     /*! @brief Write the number of increment between trace samples.
      *  @param[in] inc_ The new increment between trace samples.
      */
-    virtual void writeInc(const exseis::utils::Floating_point inc_) = 0;
+    virtual void writeInc(exseis::utils::Floating_point inc_) = 0;
 
     /*! @brief Write the trace parameters from offset to offset+sz to the
      *         respective trace headers.
@@ -97,10 +97,7 @@ class WriteInterface {
      *           previous contents of the trace header will be overwritten.
      */
     void writeParam(
-      const size_t offset,
-      const size_t sz,
-      const Param* prm,
-      const size_t skip = 0);
+      size_t offset, size_t sz, const Param* prm, size_t skip = 0);
 
     /*! @brief Write the parameters specified by the offsets in the passed
      *         offset array.
@@ -114,10 +111,7 @@ class WriteInterface {
      *           overwritten.
      */
     void writeParamNonContiguous(
-      const size_t sz,
-      const size_t* offset,
-      const Param* prm,
-      const size_t skip = 0);
+      size_t sz, const size_t* offset, const Param* prm, size_t skip = 0);
 
     /*! @brief Write the traces from offset to offset+sz
      *  @param[in] offset The starting trace number.
@@ -128,11 +122,11 @@ class WriteInterface {
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      */
     virtual void writeTrace(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       exseis::utils::Trace_value* trace,
-      const Param* prm  = PIOL_PARAM_NULL,
-      const size_t skip = 0) = 0;
+      const Param* prm = PIOL_PARAM_NULL,
+      size_t skip      = 0) = 0;
 
     /*! @brief Write the traces specified by the offsets in the passed offset
      *         array.
@@ -148,11 +142,11 @@ class WriteInterface {
      *           Any previous contents of the trace header will be overwritten.
      */
     virtual void writeTraceNonContiguous(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
-      const Param* prm  = PIOL_PARAM_NULL,
-      const size_t skip = 0) = 0;
+      const Param* prm = PIOL_PARAM_NULL,
+      size_t skip      = 0) = 0;
 };
 
 }  // namespace PIOL

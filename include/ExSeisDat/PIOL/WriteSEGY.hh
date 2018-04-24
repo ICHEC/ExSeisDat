@@ -69,7 +69,7 @@ class WriteSEGY : public WriteInterface {
      */
     WriteSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       const WriteSEGY::Opt& segyOpt,
       std::shared_ptr<ObjectInterface> obj_);
 
@@ -82,34 +82,34 @@ class WriteSEGY : public WriteInterface {
      */
     WriteSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       std::shared_ptr<ObjectInterface> obj_);
 
     /*! @brief Destructor. Processes any remaining flags
      */
     ~WriteSEGY(void);
 
-    void writeText(const std::string text_);
+    void writeText(std::string text_);
 
-    void writeNs(const size_t ns_);
+    void writeNs(size_t ns_);
 
-    void writeNt(const size_t nt_);
+    void writeNt(size_t nt_);
 
-    void writeInc(const exseis::utils::Floating_point inc_);
+    void writeInc(exseis::utils::Floating_point inc_);
 
     void writeTrace(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       exseis::utils::Trace_value* trace,
-      const Param* prm  = PIOL_PARAM_NULL,
-      const size_t skip = 0);
+      const Param* prm = PIOL_PARAM_NULL,
+      size_t skip      = 0);
 
     void writeTraceNonContiguous(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
-      const Param* prm  = PIOL_PARAM_NULL,
-      const size_t skip = 0);
+      const Param* prm = PIOL_PARAM_NULL,
+      size_t skip      = 0);
 };
 
 }  // namespace PIOL

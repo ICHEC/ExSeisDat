@@ -34,7 +34,7 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
      */
     ReadSEGYModel(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       std::shared_ptr<ObjectInterface> obj_);
 
     /*! The Constructor.
@@ -45,17 +45,17 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
      */
     ReadSEGYModel(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       const ReadSEGYModel::Opt& opt,
       std::shared_ptr<ObjectInterface> obj_);
 
     std::vector<exseis::utils::Trace_value> readModel(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 
     std::vector<exseis::utils::Trace_value> readModel(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 };

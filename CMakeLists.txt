@@ -119,7 +119,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_C_COMPILE_FLAGS}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${MPI_C_COMPILE_FLAGS}")
 
 # Include the MPI directories
-include_directories(${MPI_C_INCLUDE_PATH})
+include_directories(SYSTEM ${MPI_C_INCLUDE_PATH})
 
 # Set the MPI linker flags
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
@@ -171,10 +171,8 @@ endif(NOT FFTW3_LIBRARIES)
 
 # Setup header includes ########################################################
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${FFTW3_INCLUDES}
-)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(SYSTEM ${FFTW3_INCLUDES})
 
 
 # Setup the exseisdat library ##################################################

@@ -67,7 +67,7 @@ class DataInterface {
     /*! @brief set the file size.
      *  @param[in] sz The size in bytes
      */
-    virtual void setFileSz(const size_t sz) const = 0;
+    virtual void setFileSz(size_t sz) const = 0;
 
     /*! @brief Read from storage.
      *  @param[in] offset The offset in bytes from the current internal shared
@@ -75,8 +75,7 @@ class DataInterface {
      *  @param[in] sz     The amount of data to read from disk
      *  @param[out] d     The array to store the output in
      */
-    virtual void read(
-      const size_t offset, const size_t sz, unsigned char* d) const = 0;
+    virtual void read(size_t offset, size_t sz, unsigned char* d) const = 0;
 
     /*! @brief Read data from storage in blocks.
      *  @param[in] offset The offset in bytes from the current internal shared
@@ -87,10 +86,10 @@ class DataInterface {
      *  @param[out] d     The array to store the output in
      */
     virtual void read(
-      const size_t offset,
-      const size_t bsz,
-      const size_t osz,
-      const size_t nb,
+      size_t offset,
+      size_t bsz,
+      size_t osz,
+      size_t nb,
       unsigned char* d) const = 0;
 
     /*! read a file where each block is determined from the list of offset
@@ -102,10 +101,7 @@ class DataInterface {
      *  @param[out] d     The array to store the output in
      */
     virtual void read(
-      const size_t bsz,
-      const size_t sz,
-      const size_t* offset,
-      unsigned char* d) const = 0;
+      size_t bsz, size_t sz, const size_t* offset, unsigned char* d) const = 0;
 
     /*! write a file where each block is determined from the list of offset
      *  @param[in] bsz    The size of a block in bytes
@@ -116,8 +112,8 @@ class DataInterface {
      *  @param[in] d      The array to get the input from
      */
     virtual void write(
-      const size_t bsz,
-      const size_t sz,
+      size_t bsz,
+      size_t sz,
       const size_t* offset,
       const unsigned char* d) const = 0;
 
@@ -128,7 +124,7 @@ class DataInterface {
      *  @param[in] d      The array to read data output from
      */
     virtual void write(
-      const size_t offset, const size_t sz, const unsigned char* d) const = 0;
+      size_t offset, size_t sz, const unsigned char* d) const = 0;
 
     /*! @brief Write data to storage in blocks.
      *  @param[in] offset The offset in bytes from the current internal shared
@@ -139,10 +135,10 @@ class DataInterface {
      *  @param[in] d      The array to read data output from
      */
     virtual void write(
-      const size_t offset,
-      const size_t bsz,
-      const size_t osz,
-      const size_t nb,
+      size_t offset,
+      size_t bsz,
+      size_t osz,
+      size_t nb,
       const unsigned char* d) const = 0;
 };
 

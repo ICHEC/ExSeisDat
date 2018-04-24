@@ -88,7 +88,7 @@ class Set {
      *  @return Return the final iterator reached by the last deque.
      */
     FuncLst::iterator startSubset(
-      FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+      FuncLst::iterator fCurr, FuncLst::iterator fEnd);
 
     /*! Start unwinding the function list for gather operations on the given
      *  iterators.
@@ -97,8 +97,7 @@ class Set {
      *             been reached.
      *  @return Return a file name if fEnd is reached. Otherwise return "".
      */
-    std::string startGather(
-      FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+    std::string startGather(FuncLst::iterator fCurr, FuncLst::iterator fEnd);
 
     /*! Start unwinding the function list for single-trace operations on the
      *  given iterators.
@@ -109,7 +108,7 @@ class Set {
      *          created.
      */
     std::vector<std::string> startSingle(
-      FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+      FuncLst::iterator fCurr, FuncLst::iterator fEnd);
 
     /*! The entry point for unwinding the function list for all use-cases.
      *  @param[in] fCurr The iterator for the current function to process.
@@ -118,7 +117,7 @@ class Set {
      *  @return Return a list of all file names.
      */
     std::vector<std::string> calcFunc(
-      FuncLst::iterator fCurr, const FuncLst::iterator fEnd);
+      FuncLst::iterator fCurr, FuncLst::iterator fEnd);
 
     /*! The entry point for unwinding the function list for single-traces and
      *  gathers only.
@@ -136,9 +135,9 @@ class Set {
      */
     std::unique_ptr<TraceBlock> calcFunc(
       FuncLst::iterator fCurr,
-      const FuncLst::iterator fEnd,
+      FuncLst::iterator fEnd,
       FuncOpt type,
-      const std::unique_ptr<TraceBlock> bIn);
+      std::unique_ptr<TraceBlock> bIn);
 
     /*! The entry point for unwinding the function list for subsets.
      *  @param[in] fCurr The iterator for the current function to process.
@@ -148,7 +147,7 @@ class Set {
      *  @return Return the final iterator reached.
      */
     FuncLst::iterator calcFuncS(
-      FuncLst::iterator fCurr, const FuncLst::iterator fEnd, FileDeque& fQue);
+      FuncLst::iterator fCurr, FuncLst::iterator fEnd, FileDeque& fQue);
 
   public:
     /*! Constructor
@@ -255,7 +254,7 @@ class Set {
     /*! Summarise the current status by whatever means the PIOL intrinsically
      *  supports
      */
-    void summary(void) const;
+    void summary() const;
 
     /*! Add a file to the set based on the ReadInterface
      *  @param[in] in The file interface
@@ -278,8 +277,8 @@ class Set {
      */
     void toAngle(
       std::string vmName,
-      const size_t vBin,
-      const size_t oGSz,
+      size_t vBin,
+      size_t oGSz,
       exseis::utils::Floating_point oInc = std::atan(1) * 4.0 / 180);
 
     /******************************** Non-Core ********************************/

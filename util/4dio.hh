@@ -143,7 +143,7 @@ void outputNonMono(
   std::string sname,
   std::vector<size_t>& list,
   std::vector<fourd_t>& minrs,
-  const bool printDsr);
+  bool printDsr);
 
 }  // namespace FOURD
 }  // namespace PIOL

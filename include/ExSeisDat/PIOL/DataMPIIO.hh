@@ -94,11 +94,7 @@ class DataMPIIO : public DataInterface {
      *  @param[out] d     The array to store the output in
      */
     void readv(
-      const size_t offset,
-      const size_t bsz,
-      const size_t osz,
-      const size_t sz,
-      unsigned char* d) const;
+      size_t offset, size_t bsz, size_t osz, size_t sz, unsigned char* d) const;
 
     /*! Write a file using MPI-IO views. This function does not handle the
      *  integer limit
@@ -110,10 +106,10 @@ class DataMPIIO : public DataInterface {
      *  @param[in] d      The array to read data output from
      */
     void writev(
-      const size_t offset,
-      const size_t bsz,
-      const size_t osz,
-      const size_t sz,
+      size_t offset,
+      size_t bsz,
+      size_t osz,
+      size_t sz,
       const unsigned char* d) const;
 
     /*! @brief The MPI-IO Init function.
@@ -136,13 +132,13 @@ class DataMPIIO : public DataInterface {
      *  @param[in] osz The stride size in bytes (block start to block start)
      */
     void contigIO(
-      const MFp<MPI_Status> fn,
-      const size_t offset,
-      const size_t sz,
+      MFp<MPI_Status> fn,
+      size_t offset,
+      size_t sz,
       unsigned char* d,
       std::string msg,
-      const size_t bsz = 1U,
-      const size_t osz = 1U) const;
+      size_t bsz = 1U,
+      size_t osz = 1U) const;
 
     /*! @brief Perform I/O on blocks of data where each block starts at the
      *         location specified by an array of offsets.
@@ -156,9 +152,9 @@ class DataMPIIO : public DataInterface {
      *  @param[in] msg The message to be written if there is an error
      */
     void listIO(
-      const MFp<MPI_Status> fn,
-      const size_t bsz,
-      const size_t sz,
+      MFp<MPI_Status> fn,
+      size_t bsz,
+      size_t sz,
       const size_t* offset,
       unsigned char* d,
       std::string msg) const;
@@ -173,7 +169,7 @@ class DataMPIIO : public DataInterface {
      */
     DataMPIIO(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       const DataMPIIO::Opt& opt,
       FileMode mode = FileMode::Read);
 
@@ -185,10 +181,10 @@ class DataMPIIO : public DataInterface {
      */
     DataMPIIO(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       FileMode mode = FileMode::Read);
 
-    ~DataMPIIO(void);
+    ~DataMPIIO();
 
     /// Test if file == MPI_FILE_NULL
     /// @return Returns \c true if the MPI_File is MPI_FILE_NULL
@@ -200,7 +196,7 @@ class DataMPIIO : public DataInterface {
 
     /// Set the size of the file, either by truncating or expanding it.
     /// @param[in] sz The new size of the file.
-    void setFileSz(const size_t sz) const;
+    void setFileSz(size_t sz) const;
 
     /// Read a contiguous chunk of size \c sz beginning a position \c offset
     /// from the file into the buffer \c d.
@@ -208,7 +204,7 @@ class DataMPIIO : public DataInterface {
     /// @param[in]  sz     The amount to read
     /// @param[out] d      The buffer to read into
     ///                    (pointer to array of size \c sz)
-    void read(const size_t offset, const size_t sz, unsigned char* d) const;
+    void read(size_t offset, size_t sz, unsigned char* d) const;
 
     /// Write a contiguous chunk of size \c sz beginning a position \c offset
     /// from the buffer \c d into the file.
@@ -216,8 +212,7 @@ class DataMPIIO : public DataInterface {
     /// @param[in]  sz     The amount to write
     /// @param[out] d      The buffer to write from
     ///                    (pointer to array of size \c sz)
-    void write(
-      const size_t offset, const size_t sz, const unsigned char* d) const;
+    void write(size_t offset, size_t sz, const unsigned char* d) const;
 
 
     /// Read a file in regularly spaced, non-contiguous blocks.
@@ -229,26 +224,22 @@ class DataMPIIO : public DataInterface {
     /// @param[out] d      Pointer to the buffer to read the data into
     ///                    (pointer to array of size \c bsz*sz)
     void read(
-      const size_t offset,
-      const size_t bsz,
-      const size_t osz,
-      const size_t sz,
-      unsigned char* d) const;
+      size_t offset, size_t bsz, size_t osz, size_t sz, unsigned char* d) const;
 
 
     /// Write to a file in regularly spaced, non-contiguous blocks.
-    /// @param[in]  offset The position in the file to start writing to
-    /// @param[in]  bsz    The block size to write in bytes
-    /// @param[in]  osz    The stride size in bytes, i.e. the total size from
+    /// @param[in] offset The position in the file to start writing to
+    /// @param[in] bsz    The block size to write in bytes
+    /// @param[in] osz    The stride size in bytes, i.e. the total size from
     ///                    the start of one block to the next
-    /// @param[in]  nb     The number of blocks to be written
-    /// @param[out] d      Pointer to the buffer to write the data from
-    ///                    (pointer to array of size \c bsz*sz)
+    /// @param[in] nb     The number of blocks to be written
+    /// @param[in] d      Pointer to the buffer to write the data from
+    ///                   (pointer to array of size \c bsz*sz)
     void write(
-      const size_t offset,
-      const size_t bsz,
-      const size_t osz,
-      const size_t nb,
+      size_t offset,
+      size_t bsz,
+      size_t osz,
+      size_t nb,
       const unsigned char* d) const;
 
     /// Read a file in irregularly spaced, non-contiguous chunks
@@ -258,10 +249,7 @@ class DataMPIIO : public DataInterface {
     /// @param[out] d      Pointer to the buffer to read the data into
     ///                    (pointer to array of size \c bsz*sz)
     void read(
-      const size_t bsz,
-      const size_t sz,
-      const size_t* offset,
-      unsigned char* d) const;
+      size_t bsz, size_t sz, const size_t* offset, unsigned char* d) const;
 
     /// Write to a file in irregularly spaced, non-contiguous chunks
     /// @param[in]  bsz    The block size to write in bytes
@@ -270,8 +258,8 @@ class DataMPIIO : public DataInterface {
     /// @param[out] d      Pointer to the buffer to write the data from
     ///                    (pointer to array of size \c bsz*sz)
     void write(
-      const size_t bsz,
-      const size_t sz,
+      size_t bsz,
+      size_t sz,
       const size_t* offset,
       const unsigned char* d) const;
 };

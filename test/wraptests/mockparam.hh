@@ -29,18 +29,15 @@ exseis::utils::Floating_point getPrm<exseis::utils::Floating_point>(
 
 
 template<>
-void setPrm<int16_t>(const size_t i, const Meta entry, int16_t ret, Param* prm);
+void setPrm<int16_t>(size_t i, Meta entry, int16_t ret, Param* prm);
 
 template<>
 void setPrm<exseis::utils::Integer>(
-  const size_t i, const Meta entry, exseis::utils::Integer ret, Param* prm);
+  size_t i, Meta entry, exseis::utils::Integer ret, Param* prm);
 
 template<>
 void setPrm<exseis::utils::Floating_point>(
-  const size_t i,
-  const Meta entry,
-  exseis::utils::Floating_point ret,
-  Param* prm);
+  size_t i, Meta entry, exseis::utils::Floating_point ret, Param* prm);
 
 }  // namespace param_utils
 
@@ -53,8 +50,8 @@ class MockParamFreeFunctions;
 
 class MockParam {
   public:
-    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, const size_t sz));
-    MOCK_METHOD2(ctor, void(Param*, const size_t sz));
+    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, size_t sz));
+    MOCK_METHOD2(ctor, void(Param*, size_t sz));
     MOCK_METHOD1(dtor, void(Param*));
 
     MOCK_CONST_METHOD1(size, size_t(const Param*));
@@ -65,8 +62,7 @@ class MockParam {
 class MockParamFreeFunctions {
   public:
     MOCK_METHOD4(
-      cpyPrm,
-      void(const size_t j, const Param* src, const size_t k, Param* dst));
+      cpyPrm, void(size_t j, const Param* src, size_t k, Param* dst));
 
     MOCK_METHOD3(
       getPrm_int16_t, int16_t(size_t i, Meta entry, const Param* prm));
@@ -80,24 +76,16 @@ class MockParamFreeFunctions {
       exseis::utils::Floating_point(size_t i, Meta entry, const Param* prm));
 
     MOCK_METHOD4(
-      setPrm_int16_t,
-      void(const size_t i, const Meta entry, int16_t ret, Param* prm));
+      setPrm_int16_t, void(size_t i, Meta entry, int16_t ret, Param* prm));
 
     MOCK_METHOD4(
       setPrm_Integer,
-      void(
-        const size_t i,
-        const Meta entry,
-        exseis::utils::Integer ret,
-        Param* prm));
+      void(size_t i, Meta entry, exseis::utils::Integer ret, Param* prm));
 
     MOCK_METHOD4(
       setPrm_Floating_point,
       void(
-        const size_t i,
-        const Meta entry,
-        exseis::utils::Floating_point ret,
-        Param* prm));
+        size_t i, Meta entry, exseis::utils::Floating_point ret, Param* prm));
 };
 
 }  // namespace PIOL

@@ -52,7 +52,7 @@ class ReadSEGY : public ReadInterface {
      */
     ReadSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       const ReadSEGY::Opt& segyOpt,
       std::shared_ptr<ObjectInterface> obj_);
 
@@ -65,31 +65,31 @@ class ReadSEGY : public ReadInterface {
      */
     ReadSEGY(
       std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
+      std::string name_,
       std::shared_ptr<ObjectInterface> obj_);
 
-    size_t readNt(void) const;
+    size_t readNt() const;
 
     void readTrace(
-      const size_t offset,
-      const size_t sz,
+      size_t offset,
+      size_t sz,
       exseis::utils::Trace_value* trace,
-      Param* prm        = PIOL_PARAM_NULL,
-      const size_t skip = 0) const;
+      Param* prm  = PIOL_PARAM_NULL,
+      size_t skip = 0) const;
 
     void readTraceNonContiguous(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
-      Param* prm        = PIOL_PARAM_NULL,
-      const size_t skip = 0) const;
+      Param* prm  = PIOL_PARAM_NULL,
+      size_t skip = 0) const;
 
     void readTraceNonMonotonic(
-      const size_t sz,
+      size_t sz,
       const size_t* offset,
       exseis::utils::Trace_value* trace,
-      Param* prm        = PIOL_PARAM_NULL,
-      const size_t skip = 0) const;
+      Param* prm  = PIOL_PARAM_NULL,
+      size_t skip = 0) const;
 };
 
 }  // namespace PIOL

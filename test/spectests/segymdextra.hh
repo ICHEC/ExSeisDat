@@ -103,8 +103,7 @@ struct coord_t {
      *  @param[in] y_ intialisation value for x
      */
     coord_t(
-      const exseis::utils::Floating_point x_,
-      const exseis::utils::Floating_point y_) :
+      exseis::utils::Floating_point x_, exseis::utils::Floating_point y_) :
         x(x_),
         y(y_)
     {
@@ -131,9 +130,7 @@ struct grid_t {
      *  @param[in] i_ intialisation value for il
      *  @param[in] x_ intialisation value for xl
      */
-    grid_t(
-      const exseis::utils::Floating_point i_,
-      const exseis::utils::Floating_point x_) :
+    grid_t(exseis::utils::Floating_point i_, exseis::utils::Floating_point x_) :
         il(i_),
         xl(x_)
     {
@@ -207,37 +204,27 @@ inline
     }
 }
 
-exseis::utils::Floating_point getMd(
-  const TrScal scal, const unsigned char* src);
+exseis::utils::Floating_point getMd(TrScal scal, unsigned char* src);
 
 exseis::utils::Floating_point getMd(
-  const TrCrd item,
-  const exseis::utils::Floating_point scale,
-  const unsigned char* src);
+  TrCrd item, exseis::utils::Floating_point scale, const unsigned char* src);
 
-int32_t getMd(const TrGrd item, const unsigned char* src);
+int32_t getMd(TrGrd item, const unsigned char* src);
 
-void setCoord(
-  const Coord item,
-  const coord_t coord,
-  const int16_t scale,
-  unsigned char* buf);
+void setCoord(Coord item, coord_t coord, int16_t scale, unsigned char* buf);
 
 coord_t getCoord(
-  const Coord item,
-  const exseis::utils::Floating_point scale,
-  const unsigned char* buf);
+  Coord item, exseis::utils::Floating_point scale, const unsigned char* buf);
 
-grid_t getGrid(const Grid item, const unsigned char* buf);
+grid_t getGrid(Grid item, const unsigned char* buf);
 
-void setGrid(const Grid item, const grid_t grid, unsigned char* buf);
+void setGrid(Grid item, grid_t grid, unsigned char* buf);
 
 int16_t scalComp(int16_t scal1, int16_t scal2);
 
-int16_t calcScale(const coord_t coord);
+int16_t calcScale(coord_t coord);
 
-void setScale(
-  const TrScal item, const int16_t scale, unsigned char* buf, size_t start = 0);
+void setScale(TrScal item, int16_t scale, unsigned char* buf, size_t start = 0);
 
 }  // namespace PIOL
 }  // namespace exseis
