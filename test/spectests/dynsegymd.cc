@@ -37,13 +37,17 @@ TEST_F(RuleFixList, List)
 
         int match = 0;
         for (auto& me : meta) {
-            match += (me == m.first);
+            if (me == m.first) {
+                match++;
+            }
         }
         EXPECT_EQ(match, 1) << i;
 
         match = 0;
         for (auto loc : locs) {
-            match += (loc == entry->loc);
+            if (loc == entry->loc) {
+                match++;
+            }
         }
         ASSERT_EQ(match, 1) << i;
         ASSERT_EQ(size_t(PIOL_TR_ScaleCoord), entry->scalLoc) << i;

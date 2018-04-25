@@ -24,19 +24,19 @@ CheckReturnListener*& checkReturnListener();
 
 
 // EqDeref(p): *p == arg
-MATCHER_P(EqDeref, p, "")
+MATCHER_P(EqDeref, p, "EqDeref")
 {
     return *p == arg;
 }
 
 // GetEqDeref(p) *p == arg.get()
-MATCHER_P(GetEqDeref, p, "")
+MATCHER_P(GetEqDeref, p, "GetEqDeref")
 {
     return *p == arg.get();
 }
 
 // AddressEqDeref(p): *p == &arg
-MATCHER_P(AddressEqDeref, p, "")
+MATCHER_P(AddressEqDeref, p, "AddressEqDeref")
 {
     return *p == &arg;
 }

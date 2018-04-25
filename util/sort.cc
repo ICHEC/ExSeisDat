@@ -13,11 +13,13 @@ using namespace exseis::Flow;
 
 int main(int argc, char** argv)
 {
-    auto piol         = ExSeis::New();
-    std::string opt   = "i:o:t:";  // TODO: uses a GNU extension
-    std::string name1 = "";
-    std::string name2 = "";
-    SortType type     = PIOL_SORTTYPE_SrcRcv;
+    auto piol       = ExSeis::New();
+    std::string opt = "i:o:t:";  // TODO: uses a GNU extension
+
+    std::string name1;
+    std::string name2;
+
+    SortType type = PIOL_SORTTYPE_SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -39,7 +41,7 @@ int main(int argc, char** argv)
         }
     }
 
-    assert(name1.size() && name2.size());
+    assert(!name1.empty() && !name2.empty());
 
     Set set(piol, name1, name2);
     set.sort(type);

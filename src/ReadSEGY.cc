@@ -216,8 +216,8 @@ void ReadSEGY::readTrace(
   Param* prm,
   const size_t skip) const
 {
-    size_t ntz = (!sz ? sz : (offset + sz > nt ? nt - offset : sz));
-    if (offset >= nt && sz) {
+    size_t ntz = ((sz == 0) ? sz : (offset + sz > nt ? nt - offset : sz));
+    if (offset >= nt && sz != 0) {
         // Nothing to be read.
         piol->log->record(
           name, Logger::Layer::File, Logger::Status::Warning,
@@ -267,7 +267,9 @@ void ReadSEGY::readTraceNonMonotonic(
 
     if (prm != PIOL_PARAM_NULL) {
         for (size_t n = 0, j = 0; j < sz; ++j) {
-            n += (j && offset[idx[j - 1]] != offset[idx[j]]);
+            if (j != 0 && offset[idx[j - 1]] != offset[idx[j]]) {
+                n++;
+            }
 
             param_utils::cpyPrm(n, &sprm, skip + idx[j], prm);
         }
@@ -275,7 +277,9 @@ void ReadSEGY::readTraceNonMonotonic(
 
     if (trc != TRACE_NULL) {
         for (size_t n = 0, j = 0; j < sz; ++j) {
-            n += (j && offset[idx[j - 1]] != offset[idx[j]]);
+            if (j != 0 && offset[idx[j - 1]] != offset[idx[j]]) {
+                n++;
+            }
 
             for (size_t k = 0; k < ns; k++) {
                 trc[idx[j] * ns + k] = strc[n * ns + k];

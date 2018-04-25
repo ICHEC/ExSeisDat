@@ -57,9 +57,14 @@ static utils::Distributed_vector<Gather_info> getGathers(
     auto ilf    = piol->comm->gather<size_t>(lline.front().inline_);
     auto xlf    = piol->comm->gather<size_t>(lline.front().crossline);
 
-    size_t start =
-      (rank ? ilb[rank - 1LU] == ilf[rank] && xlb[rank - 1LU] == xlf[rank] :
-              0U);
+    size_t start = 0;
+    if (
+      rank != 0 && ilb[rank - 1LU] == ilf[rank]
+      && xlb[rank - 1LU] == xlf[rank]) {
+
+        start = 1;
+    }
+
     if (start < lline.size()) {
         if (ilf[rank + 1LU] == ilb[rank] && xlf[rank + 1LU] == xlb[rank]) {
             for (size_t i = rank + 1LU; i < numRank; i++) {

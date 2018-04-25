@@ -76,9 +76,9 @@ std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
     assert(range >= 0);
 
     std::vector<size_t> v(nt);
-    v[0] = (range ? rand() % range : 0);
+    v[0] = (range != 0 ? rand() % range : 0);
     for (size_t i = 1; i < nt; i++) {
-        v[i] = v[i - 1] + 1U + (range ? rand() % range : 0);
+        v[i] = v[i - 1] + 1U + (range != 0 ? rand() % range : 0);
     }
     return v;
 }
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     auto piol = ExSeis::New();
     InitGoogleTest(&argc, argv);
 
-    if (!piol->getRank()) {
+    if (piol->getRank() == 0) {
         makeFile(zeroFile, 0U);
         makeFile(smallFile, smallSize);
         makeFile(largeFile, largeSize);
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
     int code = RUN_ALL_TESTS();
 
     piol->barrier();
-    if (piol->getRank()) {
+    if (piol->getRank() != 0) {
         std::remove(zeroFile.c_str());
         std::remove(smallFile.c_str());
         std::remove(largeFile.c_str());

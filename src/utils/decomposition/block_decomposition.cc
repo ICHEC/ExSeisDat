@@ -78,7 +78,8 @@ Contiguous_decomposition block_decomposition(
     // i.e. if `rank` < `remainder`. Otherwise it is `chunk_size`.
     // The `(rank < remainder)` statement evaluates to `1` when true and `0`
     // when false.
-    const size_t local_size = chunk_size + (rank < remainder);
+    const size_t extra_piece = static_cast<size_t>(rank < remainder);
+    const size_t local_size  = chunk_size + extra_piece;
 
     return {global_offset, local_size};
 }

@@ -248,7 +248,7 @@ struct FileReadSEGYTest : public Test {
         }
 
         // Fill the header to SEGY_utils::getTextSz().
-        if (testString.size()) {
+        if (!testString.empty()) {
             for (size_t i = testString.size(); i < SEGY_utils::getTextSz();
                  i++) {
                 ho[i] = ho[i % testString.size()];

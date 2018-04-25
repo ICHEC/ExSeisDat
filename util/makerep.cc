@@ -25,7 +25,7 @@ void smallCopy(
 
     const size_t fsz  = in->getFileSz();
     const size_t hosz = SEGY_utils::getHOSz();
-    size_t wsz        = (!rank ? fsz : 0);
+    size_t wsz        = (rank == 0 ? fsz : 0);
     std::vector<unsigned char> buf(wsz);
 
     in->read(0, wsz, buf.data());
@@ -34,13 +34,13 @@ void smallCopy(
     out->write(0, wsz, buf.data());
     piol.isErr();
 
-    if (!rank) {
+    if (rank == 0) {
         std::copy(buf.begin() + hosz, buf.end(), buf.begin());
     }
 
     for (size_t j = 1; j < repRate; j++) {
         out->write(
-          hosz + (fsz - hosz) * j, (!rank ? fsz - hosz : 0), buf.data());
+          hosz + (fsz - hosz) * j, (rank == 0 ? fsz - hosz : 0), buf.data());
         piol.isErr();
     }
 }
@@ -268,11 +268,11 @@ size_t getVersion(std::string version)
 
 int main(int argc, char** argv)
 {
-    std::string opt   = "i:o:v:r:";  // TODO: uses a GNU extension
-    std::string iname = "";
-    std::string oname = "";
-    size_t rep        = 1;
-    size_t version    = size_t(Version::Block);
+    std::string opt = "i:o:v:r:";  // TODO: uses a GNU extension
+    std::string iname;
+    std::string oname;
+    size_t rep     = 1;
+    size_t version = size_t(Version::Block);
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -298,7 +298,7 @@ int main(int argc, char** argv)
                 break;
         }
     }
-    assert(iname.size() && oname.size());
+    assert(!iname.empty() && !oname.empty());
 
     auto piol = ExSeis::New();
 
@@ -316,14 +316,14 @@ int main(int argc, char** argv)
     else {
         switch (version) {
             case Version::Block:
-                if (!piol->getRank()) {
+                if (piol->getRank() == 0) {
                     std::cout << "Standard\n";
                 }
                 mpiMakeSEGYCopy(*piol, &in, &out, rep);
                 break;
 
             case Version::Naive1:
-                if (!piol->getRank()) {
+                if (piol->getRank() == 0) {
                     std::cout << "Naive 1\n";
                 }
                 mpiMakeSEGYCopyNaive<true>(*piol, &in, &out, rep);
@@ -331,7 +331,7 @@ int main(int argc, char** argv)
 
             default:
             case Version::Naive2:
-                if (!piol->getRank()) {
+                if (piol->getRank() == 0) {
                     std::cout << "Naive 2\n";
                 }
                 mpiMakeSEGYCopyNaive<false>(*piol, &in, &out, rep);

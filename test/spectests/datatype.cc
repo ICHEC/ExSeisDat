@@ -35,7 +35,7 @@ std::string printBinary(uint32_t val)
 {
     std::stringstream s;
     for (int i = 31; i >= 0; i--) {
-        if (!((i + 1) % 4) && i != 31) {
+        if ((i + 1) % 4 == 0 && i != 31) {
             s << " ";
         }
         s << ((val >> i) & 0x1);

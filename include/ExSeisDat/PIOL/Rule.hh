@@ -74,10 +74,10 @@ struct Rule {
     /// processing.
     struct StateFlags {
         /// Flag marking if the extent calculation is stale.
-        uint32_t badextent;
+        bool badextent;
 
         /// Flag marking if the full header buffer is processed.
-        uint32_t fullextent;
+        bool fullextent;
     };
 
     /// The StateFlags instance for the Rule instance.

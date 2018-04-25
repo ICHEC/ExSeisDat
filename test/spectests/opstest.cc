@@ -19,7 +19,7 @@ using namespace testing;
 using namespace exseis::PIOL;
 
 struct OpsTest : public Test {
-    std::shared_ptr<ExSeis> piol = ExSeis::New(false);
+    std::shared_ptr<ExSeis> piol = ExSeis::New();
 };
 
 /*! Get the min and the max of a set of parameters passed. This is a parallel

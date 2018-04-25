@@ -67,7 +67,7 @@ extern template typename testing::DefaultValue<double>::ValueProducer*
 
 constexpr size_t prefix(const size_t pow)
 {
-    return (pow ? 1024U * prefix(pow - 1U) : 1U);
+    return (pow != 0 ? 1024U * prefix(pow - 1U) : 1U);
 }
 
 ACTION_P2(check0, buf, sz)

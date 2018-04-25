@@ -24,28 +24,28 @@ struct Coords {
     size_t sz;
 
     /// The x src coordinates
-    fourd_t* xSrc = NULL;
+    fourd_t* xSrc = nullptr;
 
     /// The y src coordinates
-    fourd_t* ySrc = NULL;
+    fourd_t* ySrc = nullptr;
 
     /// The x rcv coordinates
-    fourd_t* xRcv = NULL;
+    fourd_t* xRcv = nullptr;
 
     /// The y rcv coordinates
-    fourd_t* yRcv = NULL;
+    fourd_t* yRcv = nullptr;
 
     /// The trace number
-    size_t* tn = NULL;
+    size_t* tn = nullptr;
 
     /// The size which was actually allocated
     size_t allocSz;
 
     /// The inline number
-    exseis::utils::Integer* il = NULL;
+    exseis::utils::Integer* il = nullptr;
 
     /// The crossline number
-    exseis::utils::Integer* xl = NULL;
+    exseis::utils::Integer* xl = nullptr;
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
@@ -90,27 +90,13 @@ struct Coords {
      */
     ~Coords(void)
     {
-        if (xSrc) {
-            free(xSrc);
-        }
-        if (ySrc) {
-            free(ySrc);
-        }
-        if (xRcv) {
-            free(xRcv);
-        }
-        if (yRcv) {
-            free(yRcv);
-        }
-        if (tn) {
-            free(tn);
-        }
-        if (il) {
-            free(il);
-        }
-        if (xl) {
-            free(xl);
-        }
+        free(xSrc);
+        free(ySrc);
+        free(xRcv);
+        free(yRcv);
+        free(tn);
+        free(il);
+        free(xl);
     }
 };
 

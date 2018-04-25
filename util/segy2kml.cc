@@ -99,7 +99,8 @@ void utm2LatLong(
   exseis::utils::Floating_point& lat,
   exseis::utils::Floating_point& lng)
 {
-    exseis::utils::Floating_point hemi    = (utmZone.back() = "N" ? 1 : -1);
+    exseis::utils::Floating_point hemi =
+      (std::toupper(utmZone.back()) == 'N' ? 1 : -1);
     exseis::utils::Floating_point numZone = std::stof(utmZone);
 
     exseis::utils::Floating_point const eqRad  = 6378137;
@@ -193,10 +194,10 @@ void calcMin(
 int main(int argc, char** argv)
 {
     std::vector<std::string> iname;
-    std::string oname   = "";
-    std::string utmZone = "";
-    std::string folder  = "SEG-Y";
-    bool help           = false;
+    std::string oname;
+    std::string utmZone;
+    std::string folder = "SEG-Y";
+    bool help          = false;
 
     std::string opt = "i:o:f:z:h";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
@@ -219,17 +220,11 @@ int main(int argc, char** argv)
                 break;
 
             case 'h':
-                help = optarg;
+                help = true;
                 break;
 
                 return -1;
         }
-    }
-
-    if (iname.size() < 1 || oname == "") {
-        std::cerr << "Invalid arguments given.\n";
-        std::cerr << "Arguments: -i for input file, -o for KML output file\n";
-        return -2;
     }
 
     if (help) {
@@ -242,10 +237,16 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    if (iname.empty() || oname.empty()) {
+        std::cerr << "Invalid arguments given.\n";
+        std::cerr << "Arguments: -i for input file, -o for KML output file\n";
+        return -2;
+    }
+
     // Expect UTM zone to have the form xS or xN where x is an integer between 1
     // and 60
     if (
-      utmZone != ""
+      !utmZone.empty()
       && ((std::toupper(utmZone.back()) != 'N'
            && std::toupper(utmZone.back()) != 'S')
           || (std::stof(utmZone) < 1 || std::stof(utmZone) > 60)
@@ -255,7 +256,7 @@ int main(int argc, char** argv)
           << "Zones must an integer between 1 and 60 in hemisphere N or S\n";
         return -1;
     }
-    else if (utmZone == "") {
+    else if (utmZone.empty()) {
         std::cout
           << "No UTM zone specified. Assuming Lat/Long coordinates in input files.\n";
     }
@@ -278,7 +279,7 @@ int main(int argc, char** argv)
         // If Longitude/Easting is greater than 180, coordinate is in UTM format
         // and must be converted to latitude/longitude (mimimum UTM Easting is
         // 100,000)
-        if (minmax[0].val > 180 && utmZone != "") {
+        if (minmax[0].val > 180 && !utmZone.empty()) {
             utm2LatLong(
               minmax[0].val, minmax[2].val, utmZone, minmax[0].val,
               minmax[2].val);
@@ -286,7 +287,7 @@ int main(int argc, char** argv)
               minmax[1].val, minmax[3].val, utmZone, minmax[1].val,
               minmax[3].val);
         }
-        else if (utmZone == "") {
+        else if (utmZone.empty()) {
             std::cerr << "\nError: Invalid coordinates found in file.\n";
             std::cerr << "       Expected lat/long but values must be UTM.\n";
             std::cerr << "       Use the -z option to specify the UTM zone.\n";

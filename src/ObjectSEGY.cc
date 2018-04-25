@@ -41,7 +41,7 @@ void ObjectSEGY::readHO(unsigned char* ho) const
 
 void ObjectSEGY::writeHO(const unsigned char* ho) const
 {
-    if (ho) {
+    if (ho != nullptr) {
         data_->write(0LU, SEGY_utils::getHOSz(), ho);
     }
     else {

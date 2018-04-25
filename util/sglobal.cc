@@ -55,7 +55,7 @@ exseis::utils::Contiguous_decomposition blockDecomp(
 
     // Now we compensate for the fact that the start and end block sizes can be
     // different.
-    if (!rank) {
+    if (rank == 0) {
         // If the rank is zero, we shrink the first block by the leftover
         newdec.local_size -= bsz - rstart;
     }
@@ -66,7 +66,8 @@ exseis::utils::Contiguous_decomposition blockDecomp(
 
     // The last rank with work must remove the leftover of its last block
     if (
-      newdec.local_size && ((newdec.global_offset + newdec.local_size) > sz)) {
+      newdec.local_size != 0
+      && ((newdec.global_offset + newdec.local_size) > sz)) {
         newdec.local_size -= bsz - rend;
     }
 

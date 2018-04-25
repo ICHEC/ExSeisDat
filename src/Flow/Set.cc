@@ -57,7 +57,7 @@ Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_) :
 
 Set::~Set(void)
 {
-    if (outfix != "") {
+    if (!outfix.empty()) {
         output(outfix);
     }
 }
@@ -89,7 +89,8 @@ void Set::add(std::string pattern)
     outmsg = "ExSeisPIOL: Set layer output\n";
     glob_t globs;
     int err = glob(pattern.c_str(), GLOB_TILDE | GLOB_MARK, NULL, &globs);
-    if (err) {
+    if (err != 0) {
+        /// @todo: Is this std::exit ?!?
         exit(-1);
     }
 
@@ -121,7 +122,7 @@ void Set::summary(void) const
           PIOL_VERBOSITY_NONE);
     }
 
-    if (!rank) {
+    if (rank == 0) {
         for (auto& m : fmap) {
             piol->log->record(
               "", Logger::Layer::Set, Logger::Status::Request,
@@ -175,7 +176,7 @@ std::vector<std::string> Set::startSingle(
         auto& fQue = o.second;
 
         std::string name;
-        if (!fQue.size()) {
+        if (fQue.empty()) {
             return std::vector<std::string>{};
         }
 
@@ -211,8 +212,9 @@ std::vector<std::string> Set::startSingle(
             size_t ns         = in->readNs();
             // Initialise the blocks
             auto biggest = piol->comm->max(lnt);
-            size_t extra =
-              biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
+            size_t extra = biggest / max
+                           + static_cast<size_t>(biggest % max > 0)
+                           - (lnt / max + static_cast<size_t>(lnt % max > 0));
             for (size_t i = 0; i < lnt; i += max) {
                 size_t rblock = (i + max < lnt ? max : lnt - i);
                 std::vector<exseis::utils::Trace_value> trc(rblock * ns);
@@ -355,8 +357,9 @@ std::string Set::startGather(
 
             out->writeTrace(
               wOffset + woff, bOut->prm->size(),
-              (bOut->prm->size() ? bOut->trc.data() : nullptr),
+              (bOut->prm->size() != 0 ? bOut->trc.data() : nullptr),
               bOut->prm.get());
+
             wOffset += piol->comm->sum(bOut->prm->size());
         }
         for (size_t i = 0; i < extra; i++) {
@@ -458,7 +461,7 @@ std::vector<std::string> Set::calcFunc(
 
             // If startGather returned an empty string, then fCurr == fEnd was
             // reached.
-            if (gname != "") {
+            if (!gname.empty()) {
                 return std::vector<std::string>{gname};
             }
 
@@ -474,7 +477,7 @@ std::vector<std::string> Set::calcFunc(
         else if ((*fCurr)->opt.check(FuncOpt::SingleTrace)) {
             std::vector<std::string> sname = startSingle(fCurr, fEnd);
 
-            if (sname.size()) {
+            if (!sname.empty()) {
                 return sname;
             }
 
@@ -618,7 +621,7 @@ void Set::toAngle(
           out->inc          = state->oInc;  // 1 degree in radians
           out->trc.resize(state->oGSz * out->ns);
           out->prm.reset(new Param(in->prm->r, state->oGSz));
-          if (!in->prm->size()) {
+          if (in->prm->size() == 0) {
               return;
           }
 

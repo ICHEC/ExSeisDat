@@ -71,7 +71,7 @@ struct CacheElem {
      */
     bool checkTrc(const FileDeque& desc_) const
     {
-        return desc == desc_ && !block && block->trc.size();
+        return desc == desc_ && !block && !block->trc.empty();
     }
 };
 

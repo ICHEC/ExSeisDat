@@ -27,9 +27,9 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    std::string name = "";
-    size_t tn        = 0LU;
-    std::string opt  = "i:t:";  // TODO: uses a GNU extension
+    std::string name;
+    size_t tn       = 0LU;
+    std::string opt = "i:t:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     Param prm(1LU);
     file->readParam(tn, 1LU, &prm);
 
-    if (!piol->getRank()) {
+    if (piol->getRank() == 0) {
         std::cout << "xSrc "
                   << param_utils::getPrm<exseis::utils::Floating_point>(
                        0LU, PIOL_META_xSrc, &prm)

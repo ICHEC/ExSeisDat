@@ -310,7 +310,7 @@ void WriteSEGY::writeTraceNonContiguous(
 
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
-    if (sz) {
+    if (sz != 0) {
         nt = std::max(offset[sz - 1LU] + 1LU, nt);
     }
 }

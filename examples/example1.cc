@@ -20,8 +20,8 @@ using namespace exseis::PIOL;
 
 int main(int argc, char** argv)
 {
-    std::string opt  = "o:";  // TODO: uses a GNU extension
-    std::string name = "";
+    std::string opt = "o:";  // TODO: uses a GNU extension
+    std::string name;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         if (c == 'o') {
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
             return -1;
         }
     }
-    assert(name.size() > 0);
+    assert(!name.empty());
 
     // Initialise the PIOL by creating an ExSeisPIOL object
     auto piol = ExSeis::New();

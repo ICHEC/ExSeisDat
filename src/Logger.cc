@@ -43,7 +43,9 @@ size_t Logger::numStat(const Logger::Status stat) const
     size_t sz = 0;
     for (auto& item : loglist_) {
         // The spec guarantees this is one if the equality holds
-        sz += (item.stat == stat);
+        if (item.stat == stat) {
+            sz++;
+        }
     }
 
     return sz;

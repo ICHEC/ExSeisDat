@@ -16,15 +16,15 @@ namespace SEGY_utils {
 void insertParam(
   size_t sz, const Param* prm, unsigned char* buf, size_t stride, size_t skip)
 {
-    if (prm == nullptr || !sz) {
+    if (prm == nullptr || sz == 0) {
         return;
     }
 
     auto r       = prm->r;
     size_t start = r->start;
 
-    if (r->numCopy) {
-        if (!stride) {
+    if (r->numCopy != 0) {
+        if (stride == 0) {
             std::copy(
               &prm->c[skip * SEGY_utils::getMDSz()],
               &prm->c[(skip + sz) * SEGY_utils::getMDSz()], buf);
@@ -127,14 +127,14 @@ void insertParam(
 void extractParam(
   size_t sz, const unsigned char* buf, Param* prm, size_t stride, size_t skip)
 {
-    if (prm == nullptr || !sz) {
+    if (prm == nullptr || sz == 0) {
         return;
     }
 
     Rule* r = prm->r.get();
 
-    if (r->numCopy) {
-        if (!stride) {
+    if (r->numCopy != 0) {
+        if (stride == 0) {
             std::copy(
               buf, &buf[sz * SEGY_utils::getMDSz()],
               &prm->c[skip * SEGY_utils::getMDSz()]);
@@ -253,7 +253,7 @@ int16_t find_scalar(exseis::utils::Floating_point val)
             // We try the most negative scale values we can first.
             //(scale = - 10000 / i)
             for (int32_t i = 1; i < tenk; i *= 10) {
-                if (digits % (i * 10)) {
+                if ((digits % (i * 10)) != 0) {
                     int16_t scaleFactor = -tenk / i;
                     // Now we test that we can still store the most significant
                     // byte

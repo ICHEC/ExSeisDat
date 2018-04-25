@@ -490,12 +490,12 @@ void temporalFilter(
   std::vector<exseis::utils::Trace_value> corners,
   size_t N)
 {
-    nw      = (!nw || nw > ns ? ns : nw);
-    nw      = (nw % 2 ? nw : nw - 1);
-    winCntr = (!winCntr ? ns / 2LU : winCntr);
+    nw      = ((nw == 0 || nw > ns) ? ns : nw);
+    nw      = ((nw % 2) != 0 ? nw : nw - 1);
+    winCntr = ((winCntr == 0) ? ns / 2LU : winCntr);
 
     assert(winCntr < ns && "Window Center is larger than trace length");
-    size_t tail    = (!corners[1] ? 1LU : 2LU);
+    size_t tail    = ((corners[1] == 0) ? 1LU : 2LU);
     size_t numTail = N * tail;
     std::vector<exseis::utils::Trace_value> numer(numTail + 1);
     std::vector<exseis::utils::Trace_value> denom(numTail + 1);

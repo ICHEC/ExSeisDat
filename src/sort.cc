@@ -450,7 +450,7 @@ void Wait(
         }
     }
 
-    if (piol->comm->getRank()) {
+    if (piol->comm->getRank() != 0) {
         for (size_t i = 0; i < req2.size(); i++) {
             err = MPI_Wait(&req2[i], &stat);
 
@@ -724,7 +724,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
         };
     };
 
-    if (rank) {
+    if (rank != 0) {
         /// @todo Replace this with type deducing implementation
 
         log_on_error(
@@ -772,7 +772,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 
     Wait(piol, rsnd, rrcv);
 
-    if (rank) {
+    if (rank != 0) {
         for (size_t i = 0; i < regionSz; i++) {
             param_utils::cpyPrm(i, &rprm, i, prm);
         }
@@ -810,7 +810,7 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
         };
     };
 
-    if (rank) {
+    if (rank != 0) {
         for (size_t i = 0; i < regionSz; i++) {
             param_utils::cpyPrm(i, prm, i, &sprm);
         }
@@ -871,7 +871,7 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
     size_t numRank  = piol->comm->getNumRank();
     size_t rank     = piol->comm->getRank();
     size_t regionSz = piol->comm->min(lnt) / 4LU;
-    size_t edge1    = (rank ? regionSz : 0LU);
+    size_t edge1    = (rank != 0 ? regionSz : 0LU);
     size_t edge2    = (rank != numRank - 1 ? regionSz : 0LU);
 
     std::vector<size_t> t1(lnt);
@@ -932,12 +932,16 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
         }
 
         int reduced = 0;
-        for (size_t j = 0; j < lnt && !reduced; j++) {
-            reduced +=
-              (param_utils::getPrm<exseis::utils::Integer>(
-                 j, PIOL_META_gtn, &temp1)
-               != param_utils::getPrm<exseis::utils::Integer>(
-                    j, PIOL_META_gtn, &temp2));
+        for (size_t j = 0; j < lnt && reduced == 0; j++) {
+            const auto param1 = param_utils::getPrm<exseis::utils::Integer>(
+              j, PIOL_META_gtn, &temp1);
+
+            const auto param2 = param_utils::getPrm<exseis::utils::Integer>(
+              j, PIOL_META_gtn, &temp2);
+
+            if (param1 != param2) {
+                reduced++;
+            }
         }
         int greduced = 1;
 
@@ -952,7 +956,7 @@ void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
               PIOL_VERBOSITY_NONE);
         }
 
-        if (!greduced) {
+        if (greduced == 0) {
             break;
         }
     }

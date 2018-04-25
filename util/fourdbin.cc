@@ -28,7 +28,7 @@ namespace PIOL {
 void cmsg(ExSeisPIOL* piol, std::string msg)
 {
     piol->comm->barrier();
-    if (!piol->comm->getRank()) {
+    if (piol->comm->getRank() == 0) {
         std::cout << msg << std::endl;
     }
 }
@@ -53,17 +53,17 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    fourd_t dsrmax    = 1.0;  // Default dsdr criteria
-    std::string name1 = "";
-    std::string name2 = "";
-    std::string name3 = "";
-    std::string name4 = "";
+    fourd_t dsrmax = 1.0;  // Default dsdr criteria
+    std::string name1;
+    std::string name2;
+    std::string name3;
+    std::string name4;
     FourDOpt fopt;
 
     char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING - 1];
     int len;
     MPI_Get_library_version(MPIVersion, &len);
-    if (!piol->getRank()) {
+    if (piol->getRank() == 0) {
         std::cout << "MPI Version " << MPIVersion << std::endl;
     }
 
@@ -110,7 +110,8 @@ int main(int argc, char** argv)
                 break;
         }
     }
-    assert(name1.size() && name2.size() && name3.size() && name4.size());
+    assert(
+      !name1.empty() && !name2.empty() && !name3.empty() && !name4.empty());
 
     /**************************************************************************/
 

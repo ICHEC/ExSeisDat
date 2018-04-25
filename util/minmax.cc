@@ -44,12 +44,12 @@ void calcMin(std::string iname, std::string oname)
       piol.get(), offset, lnt, PIOL_META_xCmp, PIOL_META_yCmp, &prm,
       minmax.data() + 8U);
 
-    size_t sz  = (!piol->getRank() ? minmax.size() : 0U);
+    size_t sz  = (piol->getRank() == 0 ? minmax.size() : 0U);
     size_t usz = 0;
     std::vector<size_t> list(sz);
     std::vector<size_t> uniqlist(sz);
 
-    if (sz) {
+    if (sz != 0) {
         for (size_t i = 0U; i < sz; i++) {
             uniqlist[i] = list[i] = minmax[i].num;
         }
@@ -94,8 +94,8 @@ void calcMin(std::string iname, std::string oname)
  */
 int main(int argc, char** argv)
 {
-    std::string iname = "";
-    std::string oname = "";
+    std::string iname;
+    std::string oname;
 
     std::string opt = "i:o:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
@@ -104,16 +104,18 @@ int main(int argc, char** argv)
             case 'i':
                 iname = optarg;
                 break;
+
             case 'o':
                 oname = optarg;
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid.\n";
                 return -1;
         }
     }
 
-    if (iname == "" || oname == "") {
+    if (iname.empty() || oname.empty()) {
         std::cerr << "Invalid arguments given.\n";
         std::cerr << "Arguments: -i for input file, -o for output file\n";
         return -1;

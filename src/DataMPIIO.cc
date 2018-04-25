@@ -441,11 +441,13 @@ void DataMPIIO::contigIO(
   size_t osz) const
 {
     MPI_Status stat;
-    size_t max     = maxSize / osz;
-    size_t remCall = 0;
-    auto vec       = piol_->comm->gather<size_t>(sz);
-    remCall        = *std::max_element(vec.begin(), vec.end());
-    remCall = remCall / max + (remCall % max > 0) - sz / max - (sz % max > 0);
+    size_t max = maxSize / osz;
+    auto vec   = piol_->comm->gather<size_t>(sz);
+
+    size_t remCall = *std::max_element(vec.begin(), vec.end());
+
+    remCall = (remCall / max + static_cast<size_t>(remCall % max > 0))
+              - (sz / max + static_cast<size_t>(sz % max > 0));
 
     for (size_t i = 0; i < sz; i += max) {
         size_t chunk = std::min(sz - i, max);
@@ -486,13 +488,14 @@ void DataMPIIO::listIO(
 {
     // TODO: More accurately determine a real limit for setting a view.
     //       Is the problem strides that are too big?
-    size_t max     = maxSize / (bsz ? bsz * 2LU : 1LU);
+    size_t max     = maxSize / (bsz != 0 ? bsz * 2LU : 1LU);
     size_t remCall = 0;
     {
         auto vec = piol_->comm->gather<size_t>(sz);
         remCall  = *std::max_element(vec.begin(), vec.end());
-        remCall =
-          remCall / max + (remCall % max > 0) - (sz / max) - (sz % max > 0);
+
+        remCall = remCall / max + static_cast<size_t>(remCall % max > 0)
+                  - ((sz / max) + static_cast<size_t>(sz % max > 0));
     }
 
     MPI_Status stat;
@@ -515,7 +518,7 @@ void DataMPIIO::listIO(
         }
     }
 
-    if (remCall) {
+    if (remCall != 0) {
         for (size_t i = 0; i < remCall; i++) {
             int err = iol(fn, file, info, 0, 0, nullptr, nullptr, &stat);
 

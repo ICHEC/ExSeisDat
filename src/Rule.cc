@@ -304,7 +304,7 @@ void Rule::addIndex(Meta m)
 
 void Rule::addCopy(void)
 {
-    if (!numCopy) {
+    if (numCopy == 0) {
         translate[PIOL_META_COPY] = new SEGYCopyRuleEntry();
         numCopy++;
     }
@@ -373,7 +373,8 @@ size_t Rule::paramMem(void) const
 {
     return numLong * sizeof(exseis::utils::Integer) + numShort * sizeof(int16_t)
            + numFloat * sizeof(exseis::utils::Floating_point)
-           + numIndex * sizeof(size_t) + (numCopy ? SEGY_utils::getMDSz() : 0);
+           + numIndex * sizeof(size_t)
+           + (numCopy != 0 ? SEGY_utils::getMDSz() : 0);
 }
 
 bool Rule::addRule(const Rule& r)

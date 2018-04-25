@@ -61,8 +61,8 @@ std::unique_ptr<Coords> getCoords(
     // in exactly the same sequence as each other.
     // If not, the code will deadlock. Communication is done to ensure we
     // balance  out the correct number of redundant calls
-    size_t extra =
-      biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
+    size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
+                   - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
     Param prm(rule, lnt);
     for (size_t i = 0; i < lnt; i += max) {
@@ -216,8 +216,8 @@ void outputNonMono(
     size_t memlim = 1024LU * 1024LU * 1024LU;
     size_t max =
       memlim / (4LU * SEGY_utils::getDOSz(ns) + 4LU * rule->extent());
-    size_t extra =
-      biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
+    size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
+                   - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
     dst.writeText("ExSeisDat 4d-bin file.\n");
     dst.writeNt(sz);

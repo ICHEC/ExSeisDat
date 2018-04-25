@@ -18,15 +18,13 @@ typedef float fourd_t;
  */
 struct FourDOpt {
     /// Be verbose in the output
-    uint64_t verbose : 1;
-    /// print the dsr value to the SEG-Y output files
-    uint64_t printDsr : 1;
-    /// Constrain by inline and crossline
-    uint64_t ixline : 1;
+    bool verbose = false;
 
-    /*! FourdOpt constructor
-     */
-    FourDOpt(void) : verbose(false), printDsr(true), ixline(false) {}
+    /// print the dsr value to the SEG-Y output files
+    bool printDsr = true;
+
+    /// Constrain by inline and crossline
+    bool ixline = false;
 };
 
 namespace exseis {

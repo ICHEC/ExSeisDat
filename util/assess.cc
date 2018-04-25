@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     glob_t globs;
     std::cout << "Pattern: " << argv[1] << "\n";
     int err = glob(argv[1], GLOB_TILDE | GLOB_MARK, NULL, &globs);
-    if (err) {
+    if (err != 0) {
         return -1;
     }
 

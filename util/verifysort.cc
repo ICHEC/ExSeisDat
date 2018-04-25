@@ -19,9 +19,9 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    std::string opt   = "i:o:t:d";  // TODO: uses a GNU extension
-    std::string name1 = "";
-    SortType type     = PIOL_SORTTYPE_SrcRcv;
+    std::string opt = "i:o:t:d";  // TODO: uses a GNU extension
+    std::string name1;
+    SortType type = PIOL_SORTTYPE_SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
         }
     }
 
-    assert(name1.size());
+    assert(!name1.empty());
 
     ReadDirect src(piol, name1);
 

@@ -13,9 +13,13 @@ using namespace exseis::Flow;
 
 int main(int argc, char** argv)
 {
-    auto piol         = ExSeis::New();
-    std::string opt   = "i:o:v:b:a:";  // TODO: uses a GNU extension
-    std::string radon = "", angle = "", velocity = "";
+    auto piol       = ExSeis::New();
+    std::string opt = "i:o:v:b:a:";  // TODO: uses a GNU extension
+
+    std::string radon;
+    std::string angle;
+    std::string velocity;
+
     auto vBin = 20LU;
     auto oInc = 60LU;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
@@ -47,8 +51,9 @@ int main(int argc, char** argv)
         }
     }
 
-    assert(radon.size() && angle.size() && velocity.size());
-    if (!piol->getRank()) {
+    assert(!radon.empty() && !angle.empty() && !velocity.empty());
+
+    if (piol->getRank() == 0) {
         std::cout << "Radon to Angle Transformation"
                   << "\n-\tInput radon file:\t" << radon
                   << "\n-\tVelocity model file:\t" << velocity
@@ -61,7 +66,7 @@ int main(int argc, char** argv)
     set.toAngle(velocity, vBin, oInc);
 
     piol->isErr();
-    if (!piol->getRank()) {
+    if (piol->getRank() == 0) {
         std::cout << "Begin output\n";
     }
 

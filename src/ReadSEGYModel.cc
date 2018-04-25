@@ -38,20 +38,20 @@ ReadSEGYModel::ReadSEGYModel(
       param_utils::getPrm<exseis::utils::Integer>(1LU, PIOL_META_il, &prm)
       - il_start;
     exseis::utils::Integer il_count =
-      (il_increment ?
+      (il_increment != 0 ?
          (param_utils::getPrm<exseis::utils::Integer>(2LU, PIOL_META_il, &prm)
           - il_start)
            / il_increment :
          0LU);
     exseis::utils::Integer xl_count =
-      (ReadSEGY::readNt() / (il_count ? il_count : 1LU));
+      (ReadSEGY::readNt() / (il_count != 0 ? il_count : 1LU));
     exseis::utils::Integer xl_increment =
       (param_utils::getPrm<exseis::utils::Integer>(2LU, PIOL_META_xl, &prm)
        - xl_start)
       / xl_count;
 
-    il_increment = (il_increment ? il_increment : 1LU);
-    xl_increment = (xl_increment ? xl_increment : 1LU);
+    il_increment = (il_increment != 0 ? il_increment : 1LU);
+    xl_increment = (xl_increment != 0 ? xl_increment : 1LU);
 
     il = CoordinateParameters(il_start, il_count, il_increment);
     xl = CoordinateParameters(xl_start, xl_count, xl_increment);

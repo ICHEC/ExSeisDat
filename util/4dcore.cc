@@ -29,7 +29,7 @@ void printxSrcMinMax(
 {
     piol->comm->barrier();
     assert(xsmin.size() == xsmax.size());
-    if (!piol->comm->getRank()) {
+    if (piol->comm->getRank() == 0) {
         for (size_t i = 0; i < xsmin.size(); i++) {
             std::cout << "minmax " << i << " " << xsmin[i] << " " << xsmax[i]
                       << std::endl;
@@ -70,7 +70,7 @@ void printxSMinMax(
     auto lxsmin = piol->comm->gather(std::vector<fourd_t>{xslmin});
     auto lxsmax = piol->comm->gather(std::vector<fourd_t>{xslmax});
     printxSrcMinMax(piol, lxsmin, lxsmax);
-    if (!rank) {
+    if (rank == 0) {
         std::cout << "file2 min/max\n";
     }
 }

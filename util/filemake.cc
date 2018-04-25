@@ -167,8 +167,8 @@ void FileMake(
 
     // TODO: Add memusage for Param
     max /= (SEGY_utils::getDOSz(ns) + SEGY_utils::getDFSz(ns) + sizeof(size_t));
-    size_t extra =
-      biggest / max - lnt / max + (biggest % max > 0) - (lnt % max > 0);
+    size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
+                   - (lnt / max + (lnt % max > 0 ? 1 : 0));
     if (random) {
         writeRandom(*piol, &file, nt, ns, lnt, extra, max);
     }
@@ -179,7 +179,7 @@ void FileMake(
 
 int main(int argc, char** argv)
 {
-    std::string name                  = "";
+    std::string name;
     size_t ns                         = 0;
     size_t nt                         = 0;
     size_t max                        = 0;
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
         }
     }
 
-    assert(name.size() && max && inc != 0.0);
+    assert(!name.empty() && max != 0 && inc != 0.0);
     max *= 1024 * 1024;
     FileMake(lob, random, name, max, ns, nt, inc);
 

@@ -69,13 +69,13 @@ struct MPIManager {
         int initialized = 0;
         MPI_Initialized(&initialized);
 
-        if (!initialized) {
+        if (initialized == 0) {
             MPI_Init(NULL, NULL);
         }
 
         // Set managingMPI value if the user hasn't already
         if (managingMPI() == ManagingMPI::unset) {
-            if (initialized) {
+            if (initialized != 0) {
                 // MPI was already initialized
                 managingMPI() = ManagingMPI::no;
             }
@@ -90,10 +90,10 @@ struct MPIManager {
     ~MPIManager()
     {
         if (managingMPI() == ManagingMPI::yes) {
-            int finalized = false;
+            int finalized = 0;
             MPI_Finalized(&finalized);
 
-            if (!finalized) {
+            if (finalized == 0) {
                 MPI_Finalize();
             }
         }
@@ -228,7 +228,7 @@ size_t CommunicatorMPI::offset(size_t val)
     MPI_Exscan(
       &val, &offset, 1LU, exseis::utils::MPI_type<size_t>(), MPI_SUM,
       MPI_COMM_WORLD);
-    return (!rank ? 0LU : offset);
+    return (rank == 0 ? 0LU : offset);
 }
 
 std::vector<exseis::utils::Integer> CommunicatorMPI::gather(

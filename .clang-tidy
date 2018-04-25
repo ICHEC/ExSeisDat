@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,-clang-analyzer-security.insecureAPI.rand,readability-braces-around-statements,readability-avoid-const-params-in-decls'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,-clang-analyzer-security.insecureAPI.rand,readability-braces-around-statements,readability-avoid-const-params-in-decls,readability-redundant-string-init,readability-container-size-empty,readability-implicit-bool-conversion'
 WarningsAsErrors: ''
 HeaderFilterRegex: '^.*\.hh?'
 AnalyzeTemporaryDtors: false
