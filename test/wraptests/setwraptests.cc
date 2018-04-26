@@ -57,10 +57,15 @@ void test_PIOL_Set(std::shared_ptr<ExSeis*> piol)
         }))));
     EXPECT_CALL(returnChecker(), Call()).WillOnce(ClearCheckReturn());
 
-    const PIOL_TaperType taper_types[] = {
-      PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos, PIOL_TAPERTYPE_CosSqr};
+    const std::pair<Taper_function, Taper_function> taper_types[] = {
+      {exseis_linear_taper, linear_taper},
+      {exseis_cosine_taper, cosine_taper},
+      {exseis_cosine_square_taper, exseis_cosine_square_taper}};
     for (auto taper_type : taper_types) {
-        EXPECT_CALL(mockSet(), taper(EqDeref(set_ptr), taper_type, 880, 890));
+        EXPECT_CALL(
+          mockSet(), taper(
+                       EqDeref(set_ptr),
+                       AnyOf(taper_type.first, taper_type.second), 880, 890));
     }
 
     EXPECT_CALL(

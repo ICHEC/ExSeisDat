@@ -11,9 +11,9 @@
 
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/utils/gain_control/Gain_function.h"
+#include "ExSeisDat/utils/signal_processing/Gain_function.h"
+#include "ExSeisDat/utils/signal_processing/taper.h"
 
 #include <deque>
 #include <list>
@@ -228,12 +228,14 @@ class Set {
 
     /*! Function to add to modify function that applies a 2 tailed taper to a
      *  set of traces
-     *  @param[in] tapFunc Weight function for the taper ramp
+     *  @param[in] taper_function Weight function for the taper ramp
      *  @param[in] nTailLft Length of left tail of taper
      *  @param[in] nTailRt Length of right tail of taper
      */
     void taper(
-      exseis::PIOL::TaperFunc tapFunc, size_t nTailLft, size_t nTailRt = 0);
+      exseis::utils::Taper_function taper_function,
+      size_t nTailLft,
+      size_t nTailRt = 0);
 
     /*! Function to add to modify function that applies automatic gain control
      *  to a set of traces
@@ -300,14 +302,6 @@ class Set {
       exseis::PIOL::Meta m1,
       exseis::PIOL::Meta m2,
       exseis::PIOL::CoordElem* minmax);
-
-    /*! Perform tailed taper on a set of traces
-     * @param[in] type The type of taper to be applied to traces.
-     * @param[in] nTailLft The length of left-tail taper ramp.
-     * @param[in] nTailRt The length of right-tail taper ramp.
-     */
-    void taper(
-      exseis::PIOL::TaperType type, size_t nTailLft, size_t nTailRt = 0U);
 
 
     /*! Filter traces or part of traces using a IIR Butterworth filter

@@ -33,8 +33,8 @@ const PIOL_SortType sort_types[] = {
 
 
 /* List of all the PIOL_TaperType values */
-const PIOL_TaperType taper_types[] = {PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos,
-                                      PIOL_TAPERTYPE_CosSqr};
+const exseis_Taper_function taper_types[] = {
+  exseis_linear_taper, exseis_cosine_taper, exseis_cosine_square_taper};
 
 
 /* List of all the exseis_Gain_function values */

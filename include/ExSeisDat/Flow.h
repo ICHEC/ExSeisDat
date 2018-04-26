@@ -6,8 +6,8 @@
 #define EXSEISDAT_FLOW_H
 
 #include "ExSeisDat/PIOL/SortType.h"
-#include "ExSeisDat/PIOL/TaperType.h"
-#include "ExSeisDat/utils/gain_control/AGC.h"
+#include "ExSeisDat/utils/signal_processing/AGC.h"
+#include "ExSeisDat/utils/signal_processing/Taper_function.h"
 #include "PIOL.h"
 
 //
@@ -18,6 +18,7 @@
 
 /// @todo DELETE ME! The functions here should be wrapped in namespaces.
 using exseis::utils::exseis_Gain_function;
+using exseis::utils::exseis_Taper_function;
 
 /// @copydoc exseis::Flow::Set
 typedef exseis::Flow::Set PIOL_Set;
@@ -73,15 +74,18 @@ void PIOL_Set_sort_fn(
   PIOL_Set* set,
   bool (*func)(const PIOL_File_Param* param, size_t i, size_t j));
 
-/*! Preform tailed taper on a set of traces
+/*! Perform tailed taper on a set of traces
  *  @param[in,out] set    A handle for the set
- *  @param[in]     type   The type of taper to be applied to traces.
+ *  @param[in]     taper_function The type of taper to be applied to traces.
  *  @param[in]     ntpstr The length of left-tail taper ramp.
  *  @param[in]     ntpend The length of right-tail taper ramp
  *                        (pass 0 for no ramp).
  */
 void PIOL_Set_taper(
-  PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend);
+  PIOL_Set* set,
+  exseis_Taper_function taper_function,
+  size_t ntpstr,
+  size_t ntpend);
 
 /*! Output using the given output prefix
  *  @param[in,out] set   The set handle

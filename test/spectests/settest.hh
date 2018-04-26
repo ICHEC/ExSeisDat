@@ -82,7 +82,7 @@ void taperMan(
   size_t nt,
   size_t ns,
   exseis::utils::Trace_value* trc,
-  TaperFunc func,
+  Taper_function func,
   size_t nTailLft,
   size_t nTailRt);
 
@@ -117,7 +117,6 @@ struct SetTest : public Test {
     std::unique_ptr<Set_public> set = nullptr;
     std::deque<Param> prm;
     CommunicatorMPI::Opt opt;
-    const double pi = M_PI;
 
     void init(size_t numFile, size_t numNs, size_t numInc, size_t, bool linear)
     {
@@ -265,8 +264,8 @@ struct SetTest : public Test {
       size_t nt,
       size_t ns,
       size_t mute,
-      TaperFunc tapFunc,
-      TaperType type,
+      Taper_function correct_trace_function,
+      Taper_function test_trace_function,
       size_t nTailLft,
       size_t nTailRt)
     {
@@ -299,7 +298,7 @@ struct SetTest : public Test {
             SetArrayArgument<2>(trc.begin(), trc.end())));
         set->add(std::move(mock));
 
-        set->taper(type, nTailLft, nTailRt);
+        set->taper(test_trace_function, nTailLft, nTailRt);
         set->outfix = "tmp/temp";
         set.reset();
 
@@ -307,7 +306,8 @@ struct SetTest : public Test {
         auto in          = makeTest<ReadSEGY>(piol, name);
         in->readTrace(0U, in->readNt(), trc.data());
 
-        taperMan(nt, ns, trcMan.data(), tapFunc, nTailLft, nTailRt);
+        taperMan(
+          nt, ns, trcMan.data(), correct_trace_function, nTailLft, nTailRt);
         for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
                 EXPECT_FLOAT_EQ(trc[i * ns + j], trcMan[i * ns + j]);

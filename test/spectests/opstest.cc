@@ -9,10 +9,10 @@
 #include "ExSeisDat/PIOL/ExSeis.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/gain_control/AGC.h"
+#include "ExSeisDat/utils/signal_processing/AGC.h"
+#include "ExSeisDat/utils/signal_processing/taper.h"
 
 
 using namespace testing;

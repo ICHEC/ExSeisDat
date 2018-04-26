@@ -3,7 +3,7 @@
 /// @brief Implementation for the build in `Gain_function`s.
 ///
 
-#include "ExSeisDat/utils/gain_control/Gain_function.h"
+#include "ExSeisDat/utils/signal_processing/Gain_function.h"
 #include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
@@ -15,7 +15,7 @@
 
 namespace exseis {
 namespace utils {
-inline namespace gain_control {
+inline namespace signal_processing {
 
 Trace_value rectangular_RMS_gain(
   const Trace_value* signal,
@@ -199,6 +199,6 @@ extern "C" Trace_value exseis_median_gain(
     return median_gain(signal, window_size, target_amplitude, 0);
 }
 
-}  // namespace gain_control
+}  // namespace signal_processing
 }  // namespace utils
 }  // namespace exseis

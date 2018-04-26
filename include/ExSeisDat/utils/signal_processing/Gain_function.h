@@ -3,8 +3,8 @@
 /// @brief The interface for signal scaling functions for gain control, along
 ///        with a number of default implementations.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_UTILS_GAIN_CONTROL_GAIN_FUNCTION_H
-#define EXSEISDAT_UTILS_GAIN_CONTROL_GAIN_FUNCTION_H
+#ifndef EXSEISDAT_UTILS_SIGNAL_PROCESSING_GAIN_FUNCTION_H
+#define EXSEISDAT_UTILS_SIGNAL_PROCESSING_GAIN_FUNCTION_H
 
 #include "ExSeisDat/utils/c_api_utils.h"
 #include "ExSeisDat/utils/typedefs.h"
@@ -17,7 +17,7 @@
 #ifdef __cplusplus
 namespace exseis {
 namespace utils {
-inline namespace gain_control {
+inline namespace signal_processing {
 #endif  // __cplusplus
 
 
@@ -74,6 +74,9 @@ static_assert(
   "exseis::utils::Gain_function and exseis_Gain_function are not the same type!");
 #endif  // __cplusplus
 
+
+/// @name Gain Functions
+/// @{
 
 /// @brief Find the normalised root mean square (RMS) of a signal in a
 ///        rectangular window.
@@ -156,6 +159,8 @@ Trace_value median_gain(
   size_t window_center);
 #endif  // __cplusplus
 
+/// @} Gain Functions
+
 
 /// @name C API
 ///
@@ -206,9 +211,9 @@ exseis_Trace_value exseis_median_gain(
 /// @} C API
 
 #ifdef __cplusplus
-}  // inline namespace gain_control
+}  // inline namespace signal_processing
 }  // namespace utils
 }  // namespace exseis
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_UTILS_GAIN_CONTROL_GAIN_FUNCTION_H
+#endif  // EXSEISDAT_UTILS_SIGNAL_PROCESSING_GAIN_FUNCTION_H

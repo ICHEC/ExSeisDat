@@ -8,7 +8,7 @@
 #include "ExSeisDat/PIOL/makeFile.hh"
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/gain_control/AGC.h"
+#include "ExSeisDat/utils/signal_processing/AGC.h"
 
 #include <glob.h>
 #include <numeric>
@@ -662,16 +662,25 @@ void Set::toAngle(
 }
 
 
-void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
+void Set::taper(Taper_function taper_function, size_t nTailLft, size_t nTailRt)
 {
     OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
                  FuncOpt::SingleTrace};
     func.emplace_back(std::make_shared<Op<InPlaceMod>>(
       opt, rule, nullptr,
-      [tapFunc, nTailLft, nTailRt](TraceBlock* in) -> std::vector<size_t> {
-          PIOL::taper(
-            in->prm->size(), in->ns, in->trc.data(), tapFunc, nTailLft,
-            nTailRt);
+      [taper_function, nTailLft,
+       nTailRt](TraceBlock* in) -> std::vector<size_t> {
+          // Loop over traces and apply the taper to each one
+          for (size_t i = 0; i < in->prm->size(); i++) {
+
+              const auto trace_length = in->ns;
+
+              auto* trace_i = &(in->trc[i * trace_length]);
+
+              exseis::utils::taper(
+                trace_length, trace_i, taper_function, nTailLft, nTailRt);
+          }
+
           return std::vector<size_t>{};
       }));
 }
@@ -736,11 +745,6 @@ void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
     if (m2Add) {
         rule->rmRule(m2);
     }
-}
-
-void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
-{
-    Set::taper(getTap(type), nTailLft, nTailRt);
 }
 
 void Set::temporalFilter(

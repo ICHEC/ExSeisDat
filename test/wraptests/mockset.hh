@@ -55,7 +55,7 @@ class MockSet {
       taper,
       void(
         Set*,
-        exseis::PIOL::TaperFunc tapFunc,
+        exseis::utils::Taper_function taper_function,
         size_t nTailLft,
         size_t nTailRt));
 
@@ -99,11 +99,6 @@ class MockSet {
         exseis::PIOL::Meta m1,
         exseis::PIOL::Meta m2,
         exseis::PIOL::CoordElem* minmax));
-
-    MOCK_METHOD4(
-      taper,
-      void(
-        Set*, exseis::PIOL::TaperType type, size_t nTailLft, size_t nTailRt));
 
     MOCK_METHOD8(
       temporalFilter,

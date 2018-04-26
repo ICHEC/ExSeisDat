@@ -50,9 +50,9 @@ void Set::getMinMax(
     mockSet().getMinMax(this, xlam, ylam, minmax);
 }
 
-void Set::taper(TaperFunc tapFunc, size_t nTailLft, size_t nTailRt)
+void Set::taper(Taper_function taper_function, size_t nTailLft, size_t nTailRt)
 {
-    mockSet().taper(this, tapFunc, nTailLft, nTailRt);
+    mockSet().taper(this, taper_function, nTailLft, nTailRt);
 }
 
 void Set::AGC(
@@ -100,11 +100,6 @@ void Set::sort(SortType type)
 void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
 {
     mockSet().getMinMax(this, m1, m2, minmax);
-}
-
-void Set::taper(TaperType type, size_t nTailLft, size_t nTailRt)
-{
-    mockSet().taper(this, type, nTailLft, nTailRt);
 }
 
 void Set::temporalFilter(

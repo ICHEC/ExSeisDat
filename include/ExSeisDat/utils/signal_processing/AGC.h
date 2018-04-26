@@ -17,25 +17,25 @@
 ///          the same gain is applied to the jth sample in every trace. The
 ///          window has a spatial componet.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_UTILS_GAIN_CONTROL_AGC_H
-#define EXSEISDAT_UTILS_GAIN_CONTROL_AGC_H
+#ifndef EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_H
+#define EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_H
 
 #include "ExSeisDat/utils/c_api_utils.h"
-#include "ExSeisDat/utils/gain_control/Gain_function.h"
+#include "ExSeisDat/utils/signal_processing/Gain_function.h"
 #include "ExSeisDat/utils/typedefs.h"
 
 
 ///
-/// @namespace exseis::utils::gain_control
+/// @namespace exseis::utils::signal_processing
 ///
-/// @brief Functions for applying gain control to signals.
+/// @brief Functions for processing seismic signals.
 ///
 
 
 #ifdef __cplusplus
 namespace exseis {
 namespace utils {
-inline namespace gain_control {
+inline namespace signal_processing {
 #endif  // __cplusplus
 
 
@@ -76,9 +76,9 @@ void exseis_AGC(
 /// @} C API
 
 #ifdef __cplusplus
-}  // inline namespace gain_control
+}  // inline namespace signal_processing
 }  // namespace utils
 }  // namespace exseis
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_UTILS_GAIN_CONTROL_AGC_H
+#endif  // EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_H

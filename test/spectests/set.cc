@@ -182,7 +182,7 @@ void taperMan(
   size_t nt,
   size_t ns,
   exseis::utils::Trace_value* trc,
-  TaperFunc func,
+  Taper_function func,
   size_t nTailLft,
   size_t nTailRt)
 {
@@ -199,8 +199,8 @@ void taperMan(
                 trc[i * ns + j] *= func(wtLft, nTailLft);
             }
             else if ((ns - j) <= nTailRt) {
-                --wtRt;
                 trc[i * ns + j] *= func(wtRt, nTailRt);
+                --wtRt;
             }
         }
     }
@@ -378,7 +378,7 @@ TEST_F(SetTest, Taper2TailLin)
       [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 50, 60);
+      linear_taper, 50, 60);
 }
 
 TEST_F(SetTest, Taper1TailLin)
@@ -388,64 +388,74 @@ TEST_F(SetTest, Taper1TailLin)
       [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 50, 0);
+      linear_taper, 50, 0);
 }
 TEST_F(SetTest, Taper2TailCos)
 {
     taperTest(
       100, 200, 0,
-      [&](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return 0.5f + 0.5 * cos(pi * (wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Cos, 50, 60);
+      cosine_taper, 50, 60);
 }
 
 TEST_F(SetTest, Taper1TailCos)
 {
     taperTest(
       100, 200, 0,
-      [&](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return 0.5f + 0.5 * cos(pi * (wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Cos, 50, 0);
+      cosine_taper, 50, 0);
 }
 TEST_F(SetTest, Taper2TailCosSq)
 {
     taperTest(
       100, 200, 0,
-      [&](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return pow(0.5f + 0.5 * cos(pi * (wt - ramp) / ramp), 2.0f);
       },
-      PIOL_TAPERTYPE_CosSqr, 50, 60);
+      cosine_square_taper, 50, 60);
 }
 TEST_F(SetTest, Taper1TailCosSq)
 {
     taperTest(
       100, 200, 0,
-      [&](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return pow(0.5f + 0.5 * cos(pi * (wt - ramp) / ramp), 2.0f);
       },
-      PIOL_TAPERTYPE_CosSqr, 50, 0);
+      cosine_square_taper, 50, 0);
 }
 
 TEST_F(SetTest, Taper2TailLinMute)
 {
     taperTest(
       100, 200, 30,
-      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 25, 30);
+      linear_taper, 25, 30);
 }
 
 TEST_F(SetTest, Taper1TailLinMute)
 {
     taperTest(
       100, 200, 30,
-      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 50, 0);
+      linear_taper, 50, 0);
 }
 
 TEST_F(SetTest, agcRMS)

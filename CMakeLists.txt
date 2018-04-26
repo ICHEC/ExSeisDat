@@ -211,15 +211,16 @@ add_library(
     src/gather.cc
     src/minmax.cc
     src/sort.cc
-    src/taper.cc
     src/temporalfilter.cc
 
     src/utils/decomposition/block_decomposition.cc
     src/utils/encoding/character_encoding.cc
     src/utils/encoding/number_encoding.cc
-    src/utils/gain_control/AGC.cc
-    src/utils/gain_control/Gain_function.cc
     src/utils/mpi/MPI_error_to_string.cc
+    src/utils/signal_processing/AGC.cc
+    src/utils/signal_processing/Gain_function.cc
+    src/utils/signal_processing/taper.cc
+    src/utils/signal_processing/Taper_function.cc
 )
 
 target_link_libraries(

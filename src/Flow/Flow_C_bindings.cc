@@ -54,11 +54,15 @@ void PIOL_Set_sort_fn(
 }
 
 void PIOL_Set_taper(
-  PIOL_Set* set, PIOL_TaperType type, size_t ntpstr, size_t ntpend)
+  PIOL_Set* set,
+  exseis_Taper_function taper_function,
+  size_t ntpstr,
+  size_t ntpend)
 {
     assert(not_null(set));
+    assert(taper_function != nullptr);
 
-    set->taper(type, ntpstr, ntpend);
+    set->taper(taper_function, ntpstr, ntpend);
 }
 
 void PIOL_Set_AGC(

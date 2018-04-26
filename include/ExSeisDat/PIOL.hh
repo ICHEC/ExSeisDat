@@ -26,7 +26,6 @@
 #include "ExSeisDat/PIOL/RuleEntry.hh"
 #include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
 #include "ExSeisDat/PIOL/SortType.h"
-#include "ExSeisDat/PIOL/TaperType.h"
 #include "ExSeisDat/PIOL/Tr.h"
 #include "ExSeisDat/PIOL/Verbosity.h"
 #include "ExSeisDat/PIOL/WriteDirect.hh"
@@ -36,7 +35,6 @@
 #include "ExSeisDat/PIOL/operations/gather.hh"
 #include "ExSeisDat/PIOL/operations/minmax.h"
 #include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/operations/taper.hh"
 #include "ExSeisDat/PIOL/operations/temporalfilter.hh"
 #include "ExSeisDat/PIOL/param_utils.hh"
 #include "ExSeisDat/PIOL/segy_utils.hh"
@@ -44,8 +42,9 @@
 #include "ExSeisDat/utils/decomposition/block_decomposition.h"
 #include "ExSeisDat/utils/encoding/character_encoding.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
-#include "ExSeisDat/utils/gain_control/AGC.h"
 #include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
+#include "ExSeisDat/utils/signal_processing/AGC.h"
+#include "ExSeisDat/utils/signal_processing/taper.h"
 #include "ExSeisDat/utils/typedefs.h"
 
 #endif  // EXSEISDAT_PIOL_HH
