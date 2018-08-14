@@ -180,38 +180,50 @@ void readTraceT(
   const size_t skip)
 {
     uchar* tbuf = reinterpret_cast<uchar*>(trc);
-    if (prm == PIOL_PARAM_NULL)
+
+    if (prm == PIOL_PARAM_NULL) {
         obj->readDODF(offset, ns, sz, tbuf);
+    }
     else {
         const size_t blockSz =
           (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
+
         std::vector<uchar> alloc(blockSz * sz);
         uchar* buf = (sz ? alloc.data() : nullptr);
 
-        if (trc == TRACE_NULL)
+        if (trc == TRACE_NULL) {
             obj->readDOMD(offset, ns, sz, buf);
+        }
         else {
             obj->readDO(offset, ns, sz, buf);
-            for (size_t i = 0; i < sz; i++)
+
+            for (size_t i = 0; i < sz; i++) {
                 std::copy(
                   &buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()],
                   &buf[(i + 1) * SEGSz::getDOSz(ns)],
                   &tbuf[i * SEGSz::getDFSz(ns)]);
+            }
         }
 
         extractParam(
           sz, buf, prm, (trc != TRACE_NULL ? SEGSz::getDFSz(ns) : 0LU), skip);
-        for (size_t i = 0; i < sz; i++)
+
+        for (size_t i = 0; i < sz; i++) {
             setPrm(i + skip, PIOL_META_ltn, offunc(i), prm);
+        }
     }
 
     if (trc != TRACE_NULL && trc != nullptr) {
-        if (format == Format::IBM)
-            for (size_t i = 0; i < ns * sz; i++)
+        if (format == Format::IBM) {
+            for (size_t i = 0; i < ns * sz; i++) {
                 trc[i] = convertIBMtoIEEE(trc[i], true);
-        else
-            for (size_t i = 0; i < ns * sz; i++)
+            }
+        }
+        else {
+            for (size_t i = 0; i < ns * sz; i++) {
                 reverse4Bytes(&tbuf[i * sizeof(float)]);
+            }
+        }
     }
 }
 

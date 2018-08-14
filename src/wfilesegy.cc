@@ -20,6 +20,7 @@ namespace PIOL {
 namespace File {
 
 //////////////////////      Constructor & Destructor      //////////////////////
+
 WriteSEGY::Opt::Opt(void)
 {
     incFactor = SI::Micro;
@@ -50,20 +51,26 @@ WriteSEGY::~WriteSEGY(void)
     // TODO: On error this can be a source of a deadlock
     if (!piol->log->isErr()) {
         calcNt();
-        if (state.resize) obj->setFileSz(SEGSz::getFileSz(nt, ns));
+
+        if (state.resize) {
+            obj->setFileSz(SEGSz::getFileSz(nt, ns));
+        }
+
         if (state.writeHO) {
             if (!piol->comm->getRank()) {
                 std::vector<uchar> buf(SEGSz::getHOSz());
                 packHeader(buf.data());
                 obj->writeHO(buf.data());
             }
-            else
+            else {
                 obj->writeHO(NULL);
+            }
         }
     }
 }
 
 //////////////////////////       Member functions      /////////////////////////
+
 void WriteSEGY::packHeader(uchar* buf) const
 {
     for (size_t i = 0; i < text.size(); i++)
@@ -180,12 +187,16 @@ void writeTraceT(
   const size_t skip)
 {
     uchar* tbuf = reinterpret_cast<uchar*>(trc);
-    if (trc != TRACE_NULL && trc != nullptr)
-        for (size_t i = 0; i < ns * sz; i++)
-            reverse4Bytes(&tbuf[i * sizeof(float)]);
 
-    if (prm == PIOL_PARAM_NULL)
+    if (trc != TRACE_NULL && trc != nullptr) {
+        for (size_t i = 0; i < ns * sz; i++) {
+            reverse4Bytes(&tbuf[i * sizeof(float)]);
+        }
+    }
+
+    if (prm == PIOL_PARAM_NULL) {
         obj->writeDODF(offset, ns, sz, tbuf);
+    }
     else {
         const size_t blockSz =
           (trc == TRACE_NULL ? SEGSz::getMDSz() : SEGSz::getDOSz(ns));
@@ -193,21 +204,25 @@ void writeTraceT(
         uchar* buf = (sz ? alloc.data() : nullptr);
         insertParam(sz, prm, buf, blockSz - SEGSz::getMDSz(), skip);
 
-        if (trc == TRACE_NULL)
+        if (trc == TRACE_NULL) {
             obj->writeDOMD(offset, ns, sz, buf);
+        }
         else {
-            for (size_t i = 0; i < sz; i++)
+            for (size_t i = 0; i < sz; i++) {
                 std::copy(
                   &tbuf[i * SEGSz::getDFSz(ns)],
                   &tbuf[(i + 1) * SEGSz::getDFSz(ns)],
                   &buf[i * SEGSz::getDOSz(ns) + SEGSz::getMDSz()]);
+            }
             obj->writeDO(offset, ns, sz, buf);
         }
     }
 
-    if (trc != TRACE_NULL && trc != nullptr)
-        for (size_t i = 0; i < ns * sz; i++)
+    if (trc != TRACE_NULL && trc != nullptr) {
+        for (size_t i = 0; i < ns * sz; i++) {
             reverse4Bytes(&tbuf[i * sizeof(float)]);
+        }
+    }
 }
 
 void WriteSEGY::writeTrace(
@@ -217,11 +232,12 @@ void WriteSEGY::writeTrace(
   const Param* prm,
   const size_t skip)
 {
-    if (!nsSet)
+    if (!nsSet) {
         piol->log->record(
           name, Log::Layer::File, Log::Status::Error,
           "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
           PIOL_VERBOSITY_NONE);
+    }
 
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
@@ -235,15 +251,18 @@ void WriteSEGY::writeTraceNonContiguous(
   const Param* prm,
   const size_t skip)
 {
-    if (!nsSet)
+    if (!nsSet) {
         piol->log->record(
           name, Log::Layer::File, Log::Status::Error,
           "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
           PIOL_VERBOSITY_NONE);
+    }
 
     writeTraceT(obj.get(), ns, offset, sz, trc, prm, skip);
     state.stalent = true;
-    if (sz) nt = std::max(offset[sz - 1LU] + 1LU, nt);
+    if (sz) {
+        nt = std::max(offset[sz - 1LU] + 1LU, nt);
+    }
 }
 
 }  // namespace File

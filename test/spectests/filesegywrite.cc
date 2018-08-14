@@ -372,7 +372,7 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadnt)
 
 TEST_F(FileSEGYDeath, FileWriteAPIBadinc)
 {
-    geom_t ginc = geom_t(1) / geom_t(0);
+    geom_t ginc = nan("");
     makeMockSEGY<false>();
     file->writeInc(ginc);
 

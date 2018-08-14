@@ -151,6 +151,7 @@ add_genfile(largesegy.tmp)
 # Define spectests here with the *Farm* tests disabled
 add_test(
     NAME spectests_test
+    #COMMAND spectests --gtest_filter=-*Farm* --gtest_filter=*IBM*
     COMMAND spectests --gtest_filter=-*Farm*
 )
 

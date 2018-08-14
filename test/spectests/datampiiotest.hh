@@ -1,6 +1,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <unistd.h>
@@ -54,14 +55,16 @@ class MPIIOTest : public Test {
             getBigEndian(xlNum(i + offset), &md[192]);
         }
 
-        if (block)
+        if (block) {
             data->write(
               SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns), SEGSz::getMDSz(),
               SEGSz::getDOSz(ns), nt, tr.data());
-        else
+        }
+        else {
             data->write(
               SEGSz::getHOSz() + offset * SEGSz::getDOSz(ns),
               SEGSz::getDOSz(ns) * nt, tr.data());
+        }
 
         readSmallBlocks<block>(nt, ns, offset);
     }
@@ -75,15 +78,15 @@ class MPIIOTest : public Test {
         for (size_t i = 0; i < nt; i++) {
             uchar* buf = &tr[step * i];
             for (size_t k = 0; k < ns; k++) {
-                union {
-                    float f;
-                    uint32_t i;
-                } n;
-                n.f            = i + k;
-                buf[4 * k + 0] = n.i >> 24 & 0xFF;
-                buf[4 * k + 1] = n.i >> 16 & 0xFF;
-                buf[4 * k + 2] = n.i >> 8 & 0xFF;
-                buf[4 * k + 3] = n.i & 0xFF;
+
+                const float f = i + k;
+                uint32_t n    = 0;
+                std::memcpy(&n, &f, sizeof(uint32_t));
+
+                buf[4 * k + 0] = n >> 24 & 0xFF;
+                buf[4 * k + 1] = n >> 16 & 0xFF;
+                buf[4 * k + 2] = n >> 8 & 0xFF;
+                buf[4 * k + 3] = n & 0xFF;
             }
         }
 
@@ -128,28 +131,30 @@ class MPIIOTest : public Test {
         size_t step = (block ? SEGSz::getDFSz(ns) : SEGSz::getDOSz(ns));
         std::vector<uchar> tr(step * nt);
 
-        if (block)
+        if (block) {
             data->read(
               SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDFSz(ns),
               SEGSz::getDOSz(ns), nt, tr.data());
-        else
+        }
+        else {
             data->read(
               SEGSz::getDODFLoc<float>(offset, ns), SEGSz::getDOSz(ns) * nt,
               tr.data());
+        }
 
         nt = modifyNt(data->getFileSz(), offset, nt, ns);
         for (size_t i = 0; i < nt; i++) {
             uchar* buf = &tr[step * i];
             for (size_t k = 0; k < ns; k++) {
-                union {
-                    float f;
-                    uint32_t i;
-                } n;
-                n.f = i + k;
-                ASSERT_EQ(buf[4 * k + 0], n.i >> 24 & 0xFF);
-                ASSERT_EQ(buf[4 * k + 1], n.i >> 16 & 0xFF);
-                ASSERT_EQ(buf[4 * k + 2], n.i >> 8 & 0xFF);
-                ASSERT_EQ(buf[4 * k + 3], n.i & 0xFF);
+
+                const float f = i + k;
+                uint32_t n    = 0;
+                std::memcpy(&n, &f, sizeof(uint32_t));
+
+                ASSERT_EQ(buf[4 * k + 0], n >> 24 & 0xFF);
+                ASSERT_EQ(buf[4 * k + 1], n >> 16 & 0xFF);
+                ASSERT_EQ(buf[4 * k + 2], n >> 8 & 0xFF);
+                ASSERT_EQ(buf[4 * k + 3], n & 0xFF);
             }
         }
     }
@@ -162,15 +167,15 @@ class MPIIOTest : public Test {
         for (size_t i = 0; i < sz; i++) {
             uchar* buf = &d[bsz * i];
             for (size_t k = 0; k < ns; k++) {
-                union {
-                    float f;
-                    uint32_t i;
-                } n;
-                n.f            = offset[i] + k;
-                buf[4 * k + 0] = n.i >> 24 & 0xFF;
-                buf[4 * k + 1] = n.i >> 16 & 0xFF;
-                buf[4 * k + 2] = n.i >> 8 & 0xFF;
-                buf[4 * k + 3] = n.i & 0xFF;
+
+                const float f = offset[i] + k;
+                uint32_t n    = 0;
+                std::memcpy(&n, &f, sizeof(uint32_t));
+
+                buf[4 * k + 0] = n >> 24 & 0xFF;
+                buf[4 * k + 1] = n >> 16 & 0xFF;
+                buf[4 * k + 2] = n >> 8 & 0xFF;
+                buf[4 * k + 3] = n & 0xFF;
             }
         }
 
@@ -195,15 +200,15 @@ class MPIIOTest : public Test {
         for (size_t i = 0; i < sz; i++) {
             uchar* buf = &d[bsz * i];
             for (size_t k = 0; k < ns; k++) {
-                union {
-                    float f;
-                    uint32_t i;
-                } n;
-                n.f = offset[i] + k;
-                ASSERT_EQ(buf[4 * k + 0], n.i >> 24 & 0xFF) << i << " " << k;
-                ASSERT_EQ(buf[4 * k + 1], n.i >> 16 & 0xFF) << i << " " << k;
-                ASSERT_EQ(buf[4 * k + 2], n.i >> 8 & 0xFF) << i << " " << k;
-                ASSERT_EQ(buf[4 * k + 3], n.i & 0xFF) << i << " " << k;
+
+                const float f = offset[i] + k;
+                uint32_t n    = 0;
+                std::memcpy(&n, &f, sizeof(uint32_t));
+
+                ASSERT_EQ(buf[4 * k + 0], n >> 24 & 0xFF) << i << " " << k;
+                ASSERT_EQ(buf[4 * k + 1], n >> 16 & 0xFF) << i << " " << k;
+                ASSERT_EQ(buf[4 * k + 2], n >> 8 & 0xFF) << i << " " << k;
+                ASSERT_EQ(buf[4 * k + 3], n & 0xFF) << i << " " << k;
             }
         }
     }
