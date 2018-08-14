@@ -33,6 +33,7 @@ class ReadSEGY : public ReadInterface {
     struct Opt {
         /// The Type of the class this structure is nested in
         typedef ReadSEGY Type;
+
         /// The increment factor to multiply inc by (default to SEG-Y rev 1
         /// standard definition)
         unit_t incFactor;
@@ -45,6 +46,7 @@ class ReadSEGY : public ReadInterface {
   private:
     /// Type formats
     Format format;
+
     /// The increment factor
     unit_t incFactor;
 

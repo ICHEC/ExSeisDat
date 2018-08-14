@@ -44,7 +44,7 @@ void printErr(
  *  @tparam T The C++ datatype
  */
 template<typename T>
-constexpr MPI_Datatype MPIType()
+inline MPI_Datatype MPIType()
 {
     static_assert(sizeof(T) == 0, "Unknown MPI type!");
     return MPI_BYTE;
@@ -53,7 +53,7 @@ constexpr MPI_Datatype MPIType()
 /// @brief Return the MPI datatype for a \c double.
 /// @return The MPI datatype for \c double.
 template<>
-constexpr MPI_Datatype MPIType<double>()
+inline MPI_Datatype MPIType<double>()
 {
     return MPI_DOUBLE;
 }
@@ -61,7 +61,7 @@ constexpr MPI_Datatype MPIType<double>()
 /// @brief Return the MPI datatype for a \c long double.
 /// @return The MPI datatype for \c long \c double.
 template<>
-constexpr MPI_Datatype MPIType<long double>()
+inline MPI_Datatype MPIType<long double>()
 {
     return MPI_LONG_DOUBLE;
 }
@@ -69,7 +69,7 @@ constexpr MPI_Datatype MPIType<long double>()
 /// @brief Return the MPI datatype for a \c long double.
 /// @return The MPI datatype for a \c long double.
 template<>
-constexpr MPI_Datatype MPIType<char>()
+inline MPI_Datatype MPIType<char>()
 {
     return MPI_CHAR;
 }
@@ -77,7 +77,7 @@ constexpr MPI_Datatype MPIType<char>()
 /// @brief Return the MPI datatype for an \c unsigned \c char.
 /// @return The MPI datatype for an \c unsigned \c char.
 template<>
-constexpr MPI_Datatype MPIType<unsigned char>()
+inline MPI_Datatype MPIType<unsigned char>()
 {
     return MPI_UNSIGNED_CHAR;
 }
@@ -85,7 +85,7 @@ constexpr MPI_Datatype MPIType<unsigned char>()
 /// @brief Return the MPI datatype for an \c int.
 /// @return The MPI datatype for an \c int.
 template<>
-constexpr MPI_Datatype MPIType<int>()
+inline MPI_Datatype MPIType<int>()
 {
     return MPI_INT;
 }
@@ -93,7 +93,7 @@ constexpr MPI_Datatype MPIType<int>()
 /// @brief Return the MPI datatype for a \c long \c int.
 /// @return The MPI datatype for a \c long \c int.
 template<>
-constexpr MPI_Datatype MPIType<long int>()
+inline MPI_Datatype MPIType<long int>()
 {
     return MPI_LONG;
 }
@@ -101,7 +101,7 @@ constexpr MPI_Datatype MPIType<long int>()
 /// @brief Return the MPI datatype for an \c unsigned \c long \c int.
 /// @return The MPI datatype for an \c unsigned \c long \c int.
 template<>
-constexpr MPI_Datatype MPIType<unsigned long int>()
+inline MPI_Datatype MPIType<unsigned long int>()
 {
     return MPI_UNSIGNED_LONG;
 }
@@ -109,7 +109,7 @@ constexpr MPI_Datatype MPIType<unsigned long int>()
 /// @brief Return the MPI datatype for an \c unsigned \c int.
 /// @return The MPI datatype for an \c unsigned \c int.
 template<>
-constexpr MPI_Datatype MPIType<unsigned int>()
+inline MPI_Datatype MPIType<unsigned int>()
 {
     return MPI_UNSIGNED;
 }
@@ -117,7 +117,7 @@ constexpr MPI_Datatype MPIType<unsigned int>()
 /// @brief Return the MPI datatype for a \c long \c long \c int.
 /// @return The MPI datatype for a \c long \c long \c int.
 template<>
-constexpr MPI_Datatype MPIType<long long int>()
+inline MPI_Datatype MPIType<long long int>()
 {
     return MPI_LONG_LONG_INT;
 }
@@ -125,7 +125,7 @@ constexpr MPI_Datatype MPIType<long long int>()
 /// @brief Return the MPI datatype for a \c float.
 /// @return The MPI datatype for a \c float.
 template<>
-constexpr MPI_Datatype MPIType<float>()
+inline MPI_Datatype MPIType<float>()
 {
     return MPI_FLOAT;
 }
@@ -133,7 +133,7 @@ constexpr MPI_Datatype MPIType<float>()
 /// @brief Return the MPI datatype for a \c signed \c short.
 /// @return The MPI datatype for a \c signed \c short.
 template<>
-constexpr MPI_Datatype MPIType<signed short>()
+inline MPI_Datatype MPIType<signed short>()
 {
     return MPI_SHORT;
 }
@@ -141,7 +141,7 @@ constexpr MPI_Datatype MPIType<signed short>()
 /// @brief Return the MPI datatype for an \c unsigned \c short.
 /// @return The MPI datatype for an \c unsigned \c short.
 template<>
-constexpr MPI_Datatype MPIType<unsigned short>()
+inline MPI_Datatype MPIType<unsigned short>()
 {
     return MPI_UNSIGNED_SHORT;
 }
