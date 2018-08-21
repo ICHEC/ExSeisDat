@@ -2,10 +2,11 @@
  * as the system tests.
  */
 #include "settest.hh"
+
 #include <string>
 #include <vector>
 
-const std::vector<trace_t> lowpassTime = {
+const std::vector<exseis::utils::Trace_value> lowpassTime = {
   0.422621,   0.530021,  0.632801,   0.722758,  0.791212,  0.829939,  0.832105,
   0.793097,   0.711253,  0.588246,   0.429078,  0.241856,  0.0372786, -0.172197,
   -0.373282,  -0.552796, -0.698696,  -0.801013, -0.852533, -0.849352, -0.791238,
@@ -15,7 +16,8 @@ const std::vector<trace_t> lowpassTime = {
   -0.823804,  -0.847317, -0.815159,  -0.730171, -0.598976, -0.431485, -0.240139,
   -0.0390237, 0.157239,  0.334753,   0.481512,  0.588441,  0.650331,  0.666335,
   0.639985,   0.57875,   0.492984};
-const std::vector<trace_t> lowpassFreq = {
+
+const std::vector<exseis::utils::Trace_value> lowpassFreq = {
   0.359491,   0.214919,  0.0781371,  0.525465,   -0.175032,  0.404092,
   0.115523,   0.0978552, 0.430723,   -0.231177,  0.42044,    -0.00717656,
   0.113677,   0.314939,  -0.254676,  0.42335,    -0.112378,  0.149612,
@@ -26,7 +28,8 @@ const std::vector<trace_t> lowpassFreq = {
   0.384012,   -0.105317, 0.0703506,  0.252984,   -0.156939,  0.470727,
   -0.0906565, 0.185677,  0.269209,   -0.0514363, 0.541974,   -0.0869746,
   0.285883,   0.264967,  0.0310879,  0.565055,   -0.117917};
-const std::vector<trace_t> bandpassTime = {
+
+const std::vector<exseis::utils::Trace_value> bandpassTime = {
   0.0115611,  -0.248154,   -0.29143,   -0.0883583,  0.0774772,  0.118759,
   0.136654,   0.137429,    0.121763,   0.133754,    0.118454,   0.0458482,
   0.00828449, 0.00423072,  -0.0429585, -0.0805662,  -0.0689311, -0.082975,
@@ -37,7 +40,8 @@ const std::vector<trace_t> bandpassTime = {
   -0.0756111, -0.0892643,  -0.1303,    -0.116654,   -0.0882243, -0.104921,
   -0.0892009, -0.0161884,  0.0444233,  0.100936,    0.15324,    0.159191,
   0.227195,   0.421919,    0.461863,   0.104624,    -0.385033};
-const std::vector<trace_t> bandpassFreq = {
+
+const std::vector<exseis::utils::Trace_value> bandpassFreq = {
   0.72428,    0.331669,  0.239852,  0.502776,  -0.409657, 0.144657,   -0.456118,
   -0.357781,  -0.243053, -0.883959, -0.272044, -1.01206,  -0.713787,  -0.649706,
   -1.04527,   -0.367378, -1.07208,  -0.536751, -0.47469,  -0.62768,   0.169675,
@@ -47,6 +51,7 @@ const std::vector<trace_t> bandpassFreq = {
   -0.383137,  -0.985877, -0.333746, -0.150852, -0.392555, 0.543525,   0.0571215,
   0.844476,   0.821583,  0.672036,  1.38692,   0.719453,  1.23663,    0.986613,
   0.81142,    1.25001,   0.325807};
+
 const std::vector<size_t> sortOffLine = {
   0,   2,   5,   10,  16,  25,  34,  44,  57,  72,  88,  99,  109, 122, 133,
   144, 154, 165, 175, 186, 196, 206, 217, 227, 237, 248, 258, 268, 278, 288,
@@ -120,8 +125,9 @@ void testRcvPattern(std::deque<std::shared_ptr<FileDesc>>& file)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 1;
-        for (size_t j = 1; j < file[i]->olst.size(); j++, l++)
+        for (size_t j = 1; j < file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(file[i]->olst[j] - 1, file[i]->olst[j - 1]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -131,10 +137,12 @@ void testLineOffPattern(std::deque<std::shared_ptr<FileDesc>>& file)
     for (size_t i = 0; i < file.size(); i++) {
         size_t total = file[i]->olst.size();
         size_t l     = 0;
-        for (size_t j = 0; j < 10U; j++)
-            for (size_t k = 0; k < total / 10; k++, l++)
+        for (size_t j = 0; j < 10U; j++) {
+            for (size_t k = 0; k < total / 10; k++, l++) {
                 EXPECT_EQ(file[i]->olst[l], 10 * k + j)
                   << i << " " << j << " " << k << " " << l;
+            }
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -143,8 +151,9 @@ void testOffLinePattern(std::deque<std::shared_ptr<FileDesc>>& file)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 0;
-        for (size_t j = 0; j < file[i]->olst.size(); j++, l++)
+        for (size_t j = 0; j < file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(sortOffLine[j], file[i]->olst[j]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -153,24 +162,27 @@ void testSrcOffPattern(std::deque<std::shared_ptr<FileDesc>>& file)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 1;
-        for (size_t j = 1; j < file[i]->olst.size(); j++, l++)
+        for (size_t j = 1; j < file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(file[i]->olst[j] - 1, file[i]->olst[j - 1]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
 
-void muting(size_t nt, size_t ns, trace_t* trc, size_t mute)
+void muting(size_t nt, size_t ns, exseis::utils::Trace_value* trc, size_t mute)
 {
-    for (size_t i = 0; i < nt; i++)
-        for (size_t j = 0; j < mute; j++)
-            trc[i * ns + j] = 0.0f;
+    for (size_t i = 0; i < nt; i++) {
+        for (size_t j = 0; j < mute; j++) {
+            trc[i * ns + j] = 0;
+        }
+    }
 }
 
 void taperMan(
   size_t nt,
   size_t ns,
-  trace_t* trc,
-  TaperFunc func,
+  exseis::utils::Trace_value* trc,
+  Taper_function func,
   size_t nTailLft,
   size_t nTailRt)
 {
@@ -187,8 +199,8 @@ void taperMan(
                 trc[i * ns + j] *= func(wtLft, nTailLft);
             }
             else if ((ns - j) <= nTailRt) {
-                --wtRt;
                 trc[i * ns + j] *= func(wtRt, nTailRt);
+                --wtRt;
             }
         }
     }
@@ -203,8 +215,9 @@ TEST_F(SetTest, SortSrcX)
 
     for (size_t i = 0; i < set->file.size(); i++) {
         size_t l = 1;
-        for (size_t j = 1; j < set->file[i]->olst.size(); j++, l++)
+        for (size_t j = 1; j < set->file[i]->olst.size(); j++, l++) {
             EXPECT_EQ(set->file[i]->olst[j] + 1, set->file[i]->olst[j - 1]);
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -295,11 +308,13 @@ TEST_F(SetTest, SortSrcXRcvY)
     for (size_t i = 0; i < set->file.size(); i++) {
         size_t total = set->file[i]->olst.size();
         size_t l     = 0;
-        for (llint j = 0; j < 10U; j++)
-            for (llint k = total / 10U - 1; k >= 0; k--, l++)
+        for (exseis::utils::Integer j = 0; j < 10U; j++) {
+            for (exseis::utils::Integer k = total / 10U - 1; k >= 0; k--, l++) {
                 EXPECT_EQ(
                   set->file[i]->olst[l], static_cast<size_t>(10 * k + j))
                   << i << " " << j << " " << k << " " << l;
+            }
+        }
         EXPECT_EQ(l, 1000 + i);
     }
 }
@@ -324,8 +339,9 @@ TEST_F(SetTest, getActive)
     init(1, 1000U, 10);
 
     size_t nt = 0U;
-    for (auto& f : set->file)
+    for (auto& f : set->file) {
         nt += f->ifc->readNt();
+    }
     EXPECT_EQ(nt, 1000U);
 
     // EXPECT_EQ(set->getLNt(), 1000U - 10U);
@@ -336,8 +352,9 @@ TEST_F(SetTest, getActive2)
     init(1, 3333, 1111);
 
     size_t nt = 0U;
-    for (auto& f : set->file)
+    for (auto& f : set->file) {
         nt += f->ifc->readNt();
+    }
     EXPECT_EQ(nt, 3333U);
     // EXPECT_EQ(set->getLNt(), 2222U);
 }
@@ -347,8 +364,9 @@ TEST_F(SetTest, getActive3)
     init(2, 3333, 1111);
 
     size_t nt = 0U;
-    for (auto& f : set->file)
+    for (auto& f : set->file) {
         nt += f->ifc->readNt();
+    }
     EXPECT_EQ(nt, 2U * 3333U);
     // EXPECT_EQ(set->getLNt(), 2U*2222U);
 }
@@ -357,160 +375,189 @@ TEST_F(SetTest, Taper2TailLin)
 {
     taperTest(
       100, 200, 0,
-      [](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 50, 60);
+      linear_taper, 50, 60);
 }
 
 TEST_F(SetTest, Taper1TailLin)
 {
     taperTest(
       100, 200, 0,
-      [](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp) {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 50, 0);
+      linear_taper, 50, 0);
 }
 TEST_F(SetTest, Taper2TailCos)
 {
     taperTest(
       100, 200, 0,
-      [&](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return 0.5f + 0.5 * cos(pi * (wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Cos, 50, 60);
+      cosine_taper, 50, 60);
 }
 
 TEST_F(SetTest, Taper1TailCos)
 {
     taperTest(
       100, 200, 0,
-      [&](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return 0.5f + 0.5 * cos(pi * (wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Cos, 50, 0);
+      cosine_taper, 50, 0);
 }
 TEST_F(SetTest, Taper2TailCosSq)
 {
     taperTest(
       100, 200, 0,
-      [&](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return pow(0.5f + 0.5 * cos(pi * (wt - ramp) / ramp), 2.0f);
       },
-      PIOL_TAPERTYPE_CosSqr, 50, 60);
+      cosine_square_taper, 50, 60);
 }
 TEST_F(SetTest, Taper1TailCosSq)
 {
     taperTest(
       100, 200, 0,
-      [&](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
+          const float pi = M_PI;
           return pow(0.5f + 0.5 * cos(pi * (wt - ramp) / ramp), 2.0f);
       },
-      PIOL_TAPERTYPE_CosSqr, 50, 0);
+      cosine_square_taper, 50, 0);
 }
 
 TEST_F(SetTest, Taper2TailLinMute)
 {
     taperTest(
       100, 200, 30,
-      [](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 25, 30);
+      linear_taper, 25, 30);
 }
 
 TEST_F(SetTest, Taper1TailLinMute)
 {
     taperTest(
       100, 200, 30,
-      [](trace_t wt, trace_t ramp) {
+      [](exseis::utils::Trace_value wt, exseis::utils::Trace_value ramp)
+        -> exseis::utils::Trace_value {
           return 1.0f - std::abs((wt - ramp) / ramp);
       },
-      PIOL_TAPERTYPE_Linear, 50, 0);
+      linear_taper, 50, 0);
 }
 
 TEST_F(SetTest, agcRMS)
 {
-    auto agcFunc = [](size_t window, trace_t* trc, size_t) {
-        trace_t amp = 0.0f;
-        for (size_t i = 0; i < window; i++)
+    auto agcFunc = [](size_t window, exseis::utils::Trace_value* trc, size_t) {
+        exseis::utils::Trace_value amp = 0.0f;
+        for (size_t i = 0; i < window; i++) {
             amp += pow(trc[i], 2.0f);
+        }
         size_t num = std::count_if(
-          &trc[0], &trc[window], [](trace_t j) { return j != 0.0f; });
-        if (num < 1) num = 1;
+          &trc[0], &trc[window],
+          [](exseis::utils::Trace_value j) { return j != 0.0f; });
+        if (num < 1) {
+            num = 1;
+        }
         return std::sqrt(amp / num);
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_RMS, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, rectangular_RMS_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcRMSTri)
 {
-    auto agcFunc = [](size_t window, trace_t* trc, size_t winCntr) {
-        trace_t amp         = 0.0f;
-        trace_t winFullTail = std::max(winCntr, window - winCntr - 1);
-        for (size_t j = 0; j < window; j++)
-            amp += pow(
-              trc[j] * (1.0f - trace_t(abs(llint(j - winCntr))) / winFullTail),
-              2.0f);
-        size_t num = std::count_if(
-          &trc[0], &trc[window], [](trace_t i) { return i != 0.0f; });
-        if (num < 1) num = 1;
-        return std::sqrt(amp / num);
-    };
-    agcTest(100, 1000, PIOL_AGCTYPE_RMSTri, agcFunc, 25, 1.0f);
+    auto agcFunc =
+      [](size_t window, exseis::utils::Trace_value* trc, size_t winCntr) {
+          exseis::utils::Trace_value amp = 0.0f;
+          exseis::utils::Trace_value winFullTail =
+            std::max(winCntr, window - winCntr - 1);
+          for (size_t j = 0; j < window; j++) {
+              const float scaling =
+                (1.0f
+                 - exseis::utils::Trace_value(
+                     abs(exseis::utils::Integer(j - winCntr)))
+                     / winFullTail);
+              amp += pow(trc[j] * scaling, 2.0f);
+          }
+          size_t num = std::count_if(
+            &trc[0], &trc[window],
+            [](exseis::utils::Trace_value i) { return i != 0.0f; });
+          if (num < 1) {
+              num = 1;
+          }
+          return std::sqrt(amp / num);
+      };
+    agcTest(100, 1000, triangular_RMS_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMeanAbs)
 {
-    auto agcFunc = [](size_t window, trace_t* trc, size_t) {
-        trace_t amp = 0.0f;
-        for (size_t i = 0; i < window; i++)
+    auto agcFunc = [](size_t window, exseis::utils::Trace_value* trc, size_t) {
+        exseis::utils::Trace_value amp = 0.0f;
+        for (size_t i = 0; i < window; i++) {
             amp += trc[i];
+        }
         size_t num = std::count_if(
-          &trc[0], &trc[window], [](trace_t j) { return j != 0.0f; });
-        if (num < 1) num = 1;
+          &trc[0], &trc[window],
+          [](exseis::utils::Trace_value j) { return j != 0.0f; });
+        if (num < 1) {
+            num = 1;
+        }
         return std::abs(amp) / num;
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_MeanAbs, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, mean_abs_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, agcMedian)
 {
-    auto agcFunc = [](size_t window, trace_t* trc, size_t) {
+    auto agcFunc = [](size_t window, exseis::utils::Trace_value* trc, size_t) {
         std::sort(&trc[0], &trc[window]);
-        if (window % 2 == 0)
+        if (window % 2 == 0) {
             return (trc[window / 2U] + trc[(window / 2U) + 1U]) / 2.0f;
-        else
+        }
+        else {
             return trc[window / 2U];
+        }
     };
-    agcTest(100, 1000, PIOL_AGCTYPE_Median, agcFunc, 25, 1.0f);
+    agcTest(100, 1000, median_gain, agcFunc, 25, 1.0f);
 }
 
 TEST_F(SetTest, FilterOneTailTime)
 {
-    std::vector<trace_t> c = {1.667, 0};
+    std::vector<exseis::utils::Trace_value> c = {1.667, 0};
     ASSERT_EQ(lowpassTime.size(), static_cast<size_t>(59));
     filterTest(FltrType::Lowpass, FltrDmn::Time, c, lowpassTime);
 }
 
 TEST_F(SetTest, FilterOneTailFreq)
 {
-    std::vector<trace_t> c = {1.667, 0};
+    std::vector<exseis::utils::Trace_value> c = {1.667, 0};
     ASSERT_EQ(lowpassFreq.size(), static_cast<size_t>(59));
     filterTest(FltrType::Lowpass, FltrDmn::Freq, c, lowpassFreq);
 }
 
 TEST_F(SetTest, FilterTwoTailTime)
 {
-    std::vector<trace_t> c = {1.667, 6.5};
+    std::vector<exseis::utils::Trace_value> c = {1.667, 6.5};
     ASSERT_EQ(bandpassTime.size(), static_cast<size_t>(59));
     filterTest(FltrType::Bandpass, FltrDmn::Time, c, bandpassTime);
 }
 
 TEST_F(SetTest, FilterTwoTailFreq)
 {
-    std::vector<trace_t> c = {1.667_t, 6.5_t};
+    std::vector<exseis::utils::Trace_value> c = {1.667, 6.5};
     ASSERT_EQ(bandpassFreq.size(), static_cast<size_t>(59));
     filterTest(FltrType::Bandpass, FltrDmn::Freq, c, bandpassFreq);
 }

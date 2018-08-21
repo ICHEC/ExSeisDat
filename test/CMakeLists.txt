@@ -16,14 +16,19 @@ add_custom_command(
 )
 
 include_directories(
+    SYSTEM
     # Include googletest directories.
     ${GOOGLETEST_DIR}/googletest/include
     ${GOOGLETEST_DIR}/googletest
     ${GOOGLETEST_DIR}/googlemock/include
     ${GOOGLETEST_DIR}/googlemock
-
+)
+include_directories(
     # Include test directory
     ${CMAKE_CURRENT_SOURCE_DIR}
+
+    # Include src directory
+    ${CMAKE_SOURCE_DIR}/src
 )
 
 
@@ -39,6 +44,8 @@ target_link_libraries(genfiles exseisdat)
 
 add_executable(
     spectests
+
+    spectests/tglobal.cc
 
     spectests/data.cc
     spectests/datampiioread.cc
@@ -72,7 +79,10 @@ target_link_libraries(spectests exseisdat)
 add_library(
     wraptests
 
-    wraptests/cfileapiwrap.cc
+    wraptests/googletest_variable_instances.cc
+
+    wraptests/intercepted_c_bindings.cc
+
     wraptests/checkreturnlistener.cc
     wraptests/exseis.cc
     wraptests/exseiswraptest.cc

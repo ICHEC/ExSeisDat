@@ -21,17 +21,20 @@ TEST_F(FileSEGYRead, FileReadHO)
     EXPECT_EQ(ns, file->readNs());
     piol->isErr();
 
-    EXPECT_EQ(geom_t(inc * SI::Micro), file->readInc());
+    const double microsecond = 1e-6;
+    EXPECT_EQ(
+      exseis::utils::Floating_point(inc * microsecond), file->readInc());
     piol->isErr();
 
     std::string text = file->readText();
-    EXPECT_EQ(SEGSz::getTextSz(), text.size());
+    EXPECT_EQ(SEGY_utils::getTextSz(), text.size());
 
     // EBCDIC conversion check
     size_t slen = testString.size();
-    for (size_t i = 0; i < text.size(); i++)
+    for (size_t i = 0; i < text.size(); i++) {
         ASSERT_EQ(testString[i % slen], text[i])
           << "Loop number " << i << std::endl;
+    }
 }
 
 TEST_F(FileSEGYRead, FileReadHOAPI)
@@ -41,11 +44,12 @@ TEST_F(FileSEGYRead, FileReadHOAPI)
 
     std::string text = file->readText();
     EXPECT_EQ(3200U, text.size());
-    EXPECT_EQ(SEGSz::getTextSz(), text.size());
+    EXPECT_EQ(SEGY_utils::getTextSz(), text.size());
     size_t slen = testString.size();
-    for (size_t i = 0; i < text.size(); i++)
+    for (size_t i = 0; i < text.size(); i++) {
         ASSERT_EQ(testString[i % slen], text[i])
           << "Loop number " << i << std::endl;
+    }
 }
 
 ///////////////TRACE COORDINATES + GRIDS///////////////////////////////
@@ -54,8 +58,9 @@ TEST_F(FileSEGYRead, FileReadTraceHeader)
 {
     makeMockSEGY();
     initTrBlock();
-    for (size_t i = 0; i < nt; i++)
+    for (size_t i = 0; i < nt; i++) {
         initReadTrMock(ns, i);
+    }
 }
 
 TEST_F(FileSEGYRead, FileReadTrHdrBigNs)
@@ -104,7 +109,6 @@ TEST_F(FileSEGYRead, FileReadTraceBigOffset)
     nt = 3738270;
     ns = 3000;
     makeMockSEGY();
-#warning  // TODO: should be readTraceTest( 3728270, nt)?
     readTraceTest(3728270, 3000);
 }
 
@@ -113,7 +117,6 @@ TEST_F(FileSEGYRead, FileReadTraceWPrmBigOffset)
     nt = 3738270;
     ns = 3000;
     makeMockSEGY();
-#warning  // TODO: should be readTraceTest( 3728270, nt)?
     initTrBlock();
     readTraceTest<true>(3728270, 3000);
 }

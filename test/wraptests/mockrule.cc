@@ -1,7 +1,7 @@
 #include "mockrule.hh"
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 ::testing::StrictMock<MockRule>& mockRule()
 {
@@ -9,5 +9,5 @@ namespace File {
     return mockRule;
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

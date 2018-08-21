@@ -1,13 +1,17 @@
-#include "cppfileapi.hh"
-#include "ops/minmax.hh"
 #include "sglobal.hh"
+
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sys/stat.h>
+#include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 /*! Create the initial KML file settings to order to describe the output in
  *  general
@@ -38,7 +42,7 @@ void initKML(std::ofstream& file, std::string oname, std::string folder)
  *  @param[in] coord lat/long coords to change to string
  *  @return the coordinates as a string
  */
-std::string highPrecStr(geom_t coord)
+std::string highPrecStr(exseis::utils::Floating_point coord)
 {
     return std::to_string(static_cast<long long>(std::floor(coord))) + "."
            + std::to_string(static_cast<long long>(
@@ -89,34 +93,40 @@ void closeKML(std::ofstream& file)
  *          (Excel Spreadsheet is clearer than formula)
  */
 void utm2LatLong(
-  geom_t easting,
-  geom_t northing,
+  exseis::utils::Floating_point easting,
+  exseis::utils::Floating_point northing,
   std::string utmZone,
-  geom_t& lat,
-  geom_t& lng)
+  exseis::utils::Floating_point& lat,
+  exseis::utils::Floating_point& lng)
 {
-    geom_t hemi    = (utmZone.back() = "N" ? 1 : -1);
-    geom_t numZone = std::stof(utmZone);
+    exseis::utils::Floating_point hemi =
+      (std::toupper(utmZone.back()) == 'N' ? 1 : -1);
+    exseis::utils::Floating_point numZone = std::stof(utmZone);
 
-    geom_t const eqRad  = 6378137;
-    geom_t const polRad = 6356752;
-    geom_t const k0     = 0.9996;
-    geom_t E            = std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
-    geom_t ei = (1 - std::sqrt(1 - E * E)) / (1 + std::sqrt(1 - E * E));
-    geom_t x  = 500000 - easting;
-    geom_t mu = (northing / k0)
-                / (eqRad
-                   * (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64
-                      - 5 * std::pow(E, 6U) / 256));
-    geom_t phi = mu
-                 + (3 * ei / 2 - 27 * std::pow(ei, 3) / 32) * std::sin(2 * mu)
-                 + (21 / 16 * std::pow(ei, 2U) - 55 / 32 * std::pow(ei, 4U))
-                     * std::sin(4 * mu)
-                 + (151 / 96 * std::pow(ei, 3U) - 417 / 128 * std::pow(ei, 5U))
-                     * std::sin(6 * mu)
-                 + (1097 / 512 * std::pow(ei, 4U)) * std::sin(8 * mu);
-    geom_t c = (E * E / (1 - E * E)) * std::pow(std::cos(phi), 2);
-    geom_t d = x / (k0 * eqRad / std::sqrt(1 - std::pow(E * std::sin(phi), 2)));
+    exseis::utils::Floating_point const eqRad  = 6378137;
+    exseis::utils::Floating_point const polRad = 6356752;
+    exseis::utils::Floating_point const k0     = 0.9996;
+    exseis::utils::Floating_point E =
+      std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
+    exseis::utils::Floating_point ei =
+      (1 - std::sqrt(1 - E * E)) / (1 + std::sqrt(1 - E * E));
+    exseis::utils::Floating_point x = 500000 - easting;
+    exseis::utils::Floating_point mu =
+      (northing / k0)
+      / (eqRad
+         * (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64
+            - 5 * std::pow(E, 6U) / 256));
+    exseis::utils::Floating_point phi =
+      mu + (3 * ei / 2 - 27 * std::pow(ei, 3) / 32) * std::sin(2 * mu)
+      + (21 / 16 * std::pow(ei, 2U) - 55 / 32 * std::pow(ei, 4U))
+          * std::sin(4 * mu)
+      + (151 / 96 * std::pow(ei, 3U) - 417 / 128 * std::pow(ei, 5U))
+          * std::sin(6 * mu)
+      + (1097 / 512 * std::pow(ei, 4U)) * std::sin(8 * mu);
+    exseis::utils::Floating_point c =
+      (E * E / (1 - E * E)) * std::pow(std::cos(phi), 2);
+    exseis::utils::Floating_point d =
+      x / (k0 * eqRad / std::sqrt(1 - std::pow(E * std::sin(phi), 2)));
     lat =
       (180 * hemi / std::acos(-1))
       * (phi
@@ -150,19 +160,21 @@ void calcMin(
   std::string iname,
   std::vector<CoordElem>& minmax)
 {
-    File::ReadDirect in(piol, iname);
+    ReadDirect in(piol, iname);
 
-    auto dec      = decompose(piol.get(), in);
-    size_t offset = dec.first;
-    size_t lnt    = dec.second;
+    auto dec = block_decomposition(
+      in.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
 
-    File::Param prm(lnt);
+    size_t offset = dec.global_offset;
+    size_t lnt    = dec.local_size;
+
+    Param prm(lnt);
     in.readParam(offset, lnt, &prm);
 
-    File::getMinMax(
+    getMinMax(
       piol.get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm,
       minmax.data());
-    File::getMinMax(
+    getMinMax(
       piol.get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm,
       minmax.data() + 4U);
 }
@@ -182,38 +194,37 @@ void calcMin(
 int main(int argc, char** argv)
 {
     std::vector<std::string> iname;
-    std::string oname   = "";
-    std::string utmZone = "";
-    std::string folder  = "SEG-Y";
-    bool help           = false;
+    std::string oname;
+    std::string utmZone;
+    std::string folder = "SEG-Y";
+    bool help          = false;
 
     std::string opt = "i:o:f:z:h";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 iname.push_back(optarg);
                 break;
+
             case 'o':
                 oname = optarg;
                 break;
+
             case 'f':
                 folder = optarg;
                 break;
+
             case 'z':
                 utmZone = optarg;
                 break;
+
             case 'h':
-                help = optarg;
+                help = true;
                 break;
 
                 return -1;
         }
-
-    if (iname.size() < 1 || oname == "") {
-        std::cerr << "Invalid arguments given.\n";
-        std::cerr << "Arguments: -i for input file, -o for KML output file\n";
-        return -2;
     }
 
     if (help) {
@@ -226,10 +237,16 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    if (iname.empty() || oname.empty()) {
+        std::cerr << "Invalid arguments given.\n";
+        std::cerr << "Arguments: -i for input file, -o for KML output file\n";
+        return -2;
+    }
+
     // Expect UTM zone to have the form xS or xN where x is an integer between 1
     // and 60
     if (
-      utmZone != ""
+      !utmZone.empty()
       && ((std::toupper(utmZone.back()) != 'N'
            && std::toupper(utmZone.back()) != 'S')
           || (std::stof(utmZone) < 1 || std::stof(utmZone) > 60)
@@ -239,7 +256,7 @@ int main(int argc, char** argv)
           << "Zones must an integer between 1 and 60 in hemisphere N or S\n";
         return -1;
     }
-    else if (utmZone == "") {
+    else if (utmZone.empty()) {
         std::cout
           << "No UTM zone specified. Assuming Lat/Long coordinates in input files.\n";
     }
@@ -248,8 +265,9 @@ int main(int argc, char** argv)
         std::ifstream fileLst(iname[0]);
         iname.clear();
         std::string sgynm;
-        while (std::getline(fileLst, sgynm))
+        while (std::getline(fileLst, sgynm)) {
             iname.push_back(sgynm);
+        }
     }
     std::vector<CoordElem> minmax(8U);
 
@@ -261,7 +279,7 @@ int main(int argc, char** argv)
         // If Longitude/Easting is greater than 180, coordinate is in UTM format
         // and must be converted to latitude/longitude (mimimum UTM Easting is
         // 100,000)
-        if (minmax[0].val > 180 && utmZone != "") {
+        if (minmax[0].val > 180 && !utmZone.empty()) {
             utm2LatLong(
               minmax[0].val, minmax[2].val, utmZone, minmax[0].val,
               minmax[2].val);
@@ -269,7 +287,7 @@ int main(int argc, char** argv)
               minmax[1].val, minmax[3].val, utmZone, minmax[1].val,
               minmax[3].val);
         }
-        else if (utmZone == "") {
+        else if (utmZone.empty()) {
             std::cerr << "\nError: Invalid coordinates found in file.\n";
             std::cerr << "       Expected lat/long but values must be UTM.\n";
             std::cerr << "       Use the -z option to specify the UTM zone.\n";

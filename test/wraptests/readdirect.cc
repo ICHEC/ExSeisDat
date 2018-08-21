@@ -1,7 +1,7 @@
 #include "mockreaddirect.hh"
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 ReadDirect::ReadDirect(std::shared_ptr<ExSeisPIOL> piol, const std::string name)
 {
@@ -33,13 +33,16 @@ size_t ReadDirect::readNt() const
     return mockReadDirect().readNt(this);
 }
 
-geom_t ReadDirect::readInc() const
+exseis::utils::Floating_point ReadDirect::readInc() const
 {
     return mockReadDirect().readInc(this);
 }
 
 void ReadDirect::readTrace(
-  const size_t offset, const size_t sz, trace_t* trace, Param* prm) const
+  const size_t offset,
+  const size_t sz,
+  exseis::utils::Trace_value* trace,
+  Param* prm) const
 {
     mockReadDirect().readTrace(this, offset, sz, trace, prm);
 }
@@ -51,13 +54,19 @@ void ReadDirect::readParam(
 }
 
 void ReadDirect::readTraceNonContiguous(
-  const size_t sz, const size_t* offset, trace_t* trace, Param* prm) const
+  const size_t sz,
+  const size_t* offset,
+  exseis::utils::Trace_value* trace,
+  Param* prm) const
 {
     mockReadDirect().readTraceNonContiguous(this, sz, offset, trace, prm);
 }
 
 void ReadDirect::readTraceNonMonotonic(
-  const size_t sz, const size_t* offset, trace_t* trace, Param* prm) const
+  const size_t sz,
+  const size_t* offset,
+  exseis::utils::Trace_value* trace,
+  Param* prm) const
 {
     mockReadDirect().readTraceNonMonotonic(this, sz, offset, trace, prm);
 }
@@ -68,5 +77,5 @@ void ReadDirect::readParamNonContiguous(
     mockReadDirect().readParamNonContiguous(this, sz, offset, prm);
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

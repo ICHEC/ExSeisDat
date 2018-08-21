@@ -4,38 +4,39 @@
 #include "checkreturnlistener.hh"
 #include "printers.hh"
 
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "cppfileapi.hh"
 
-
+namespace exseis {
 namespace PIOL {
 
 // A global instance of CheckReturnListener.
 // This should be set to the pointer passed into the gtest listeners.
-PIOL::CheckReturnListener*& checkReturnListener();
+CheckReturnListener*& checkReturnListener();
 
 // Returns a mocked function which, when called, will call
 // checkReturnListener->got_expected_return_value();
 ::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker();
 
 }  // namespace PIOL
+}  // namespace exseis
 
 
 // EqDeref(p): *p == arg
-MATCHER_P(EqDeref, p, "")
+MATCHER_P(EqDeref, p, "EqDeref")
 {
     return *p == arg;
 }
 
 // GetEqDeref(p) *p == arg.get()
-MATCHER_P(GetEqDeref, p, "")
+MATCHER_P(GetEqDeref, p, "GetEqDeref")
 {
     return *p == arg.get();
 }
 
 // AddressEqDeref(p): *p == &arg
-MATCHER_P(AddressEqDeref, p, "")
+MATCHER_P(AddressEqDeref, p, "AddressEqDeref")
 {
     return *p == &arg;
 }
@@ -43,18 +44,20 @@ MATCHER_P(AddressEqDeref, p, "")
 
 ACTION_P(CheckReturn, v)
 {
-    PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
+    exseis::PIOL::checkReturnListener()->expect_return_value(
+      testing::PrintToString(v));
     return v;
 }
 
 ACTION_P(CheckInOutParam, v)
 {
-    PIOL::checkReturnListener()->expect_return_value(testing::PrintToString(v));
+    exseis::PIOL::checkReturnListener()->expect_return_value(
+      testing::PrintToString(v));
 }
 
 ACTION(ClearCheckReturn)
 {
-    PIOL::checkReturnListener()->got_expected_return_value();
+    exseis::PIOL::checkReturnListener()->got_expected_return_value();
 }
 
 

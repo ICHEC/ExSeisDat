@@ -1,12 +1,13 @@
 #ifndef PIOLWRAPTESTSMOCKREADDIRECT_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKREADDIRECT_HEADER_GUARD
 
-#include "cppfileapi.hh"
-
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 class MockReadDirect;
 ::testing::StrictMock<MockReadDirect>& mockReadDirect();
@@ -28,7 +29,8 @@ class MockReadDirect {
 
     MOCK_CONST_METHOD1(readNt, size_t(const ReadDirect*));
 
-    MOCK_CONST_METHOD1(readInc, geom_t(const ReadDirect*));
+    MOCK_CONST_METHOD1(
+      readInc, exseis::utils::Floating_point(const ReadDirect*));
 
     MOCK_CONST_METHOD5(
       readTrace,
@@ -36,7 +38,7 @@ class MockReadDirect {
         const ReadDirect*,
         const size_t offset,
         const size_t sz,
-        trace_t* trace,
+        exseis::utils::Trace_value* trace,
         Param* prm));
 
     MOCK_CONST_METHOD4(
@@ -50,7 +52,7 @@ class MockReadDirect {
         const ReadDirect*,
         const size_t sz,
         const size_t* offset,
-        trace_t* trace,
+        exseis::utils::Trace_value* trace,
         Param* prm));
 
     MOCK_CONST_METHOD5(
@@ -59,7 +61,7 @@ class MockReadDirect {
         const ReadDirect*,
         const size_t sz,
         const size_t* offset,
-        trace_t* trace,
+        exseis::utils::Trace_value* trace,
         Param* prm));
 
     MOCK_CONST_METHOD4(
@@ -68,7 +70,7 @@ class MockReadDirect {
         const ReadDirect*, const size_t sz, const size_t* offset, Param* prm));
 };
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKREADDIRECT_HEADER_GUARD

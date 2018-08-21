@@ -6,12 +6,14 @@
 /// @details Perform an analysis of a single trace.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
+
 #include <iostream>
+#include <unistd.h>
 
-#include <unistd.h>  //getopt
-
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 /*! Main function for traceanalysis.
  *  @param[in] argc The number of input strings.
@@ -25,44 +27,62 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    std::string name = "";
-    size_t tn        = 0LU;
-    std::string opt  = "i:t:";  // TODO: uses a GNU extension
+    std::string name;
+    size_t tn       = 0LU;
+    std::string opt = "i:t:";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 name = optarg;
                 break;
+
             case 't':
                 tn = std::stoul(optarg);
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
-    File::ReadDirect file(piol, name);
+    }
 
-    File::Param prm(1LU);
+    ReadDirect file(piol, name);
+
+    Param prm(1LU);
     file->readParam(tn, 1LU, &prm);
 
-    if (!piol->getRank()) {
-        std::cout << "xSrc " << File::getPrm<geom_t>(0LU, PIOL_META_xSrc, &prm)
+    if (piol->getRank() == 0) {
+        std::cout << "xSrc "
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_xSrc, &prm)
                   << std::endl;
-        std::cout << "ySrc " << File::getPrm<geom_t>(0LU, PIOL_META_ySrc, &prm)
+        std::cout << "ySrc "
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_ySrc, &prm)
                   << std::endl;
-        std::cout << "xRcv " << File::getPrm<geom_t>(0LU, PIOL_META_xRcv, &prm)
+        std::cout << "xRcv "
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_xRcv, &prm)
                   << std::endl;
-        std::cout << "yRcv " << File::getPrm<geom_t>(0LU, PIOL_META_yRcv, &prm)
+        std::cout << "yRcv "
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_yRcv, &prm)
                   << std::endl;
-        std::cout << "xCmp " << File::getPrm<geom_t>(0LU, PIOL_META_xCmp, &prm)
+        std::cout << "xCmp "
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_xCmp, &prm)
                   << std::endl;
-        std::cout << "yCmp " << File::getPrm<geom_t>(0LU, PIOL_META_yCmp, &prm)
+        std::cout << "yCmp "
+                  << param_utils::getPrm<exseis::utils::Floating_point>(
+                       0LU, PIOL_META_yCmp, &prm)
                   << std::endl;
 
-        std::cout << "il " << File::getPrm<size_t>(0LU, PIOL_META_il, &prm)
+        std::cout << "il "
+                  << param_utils::getPrm<size_t>(0LU, PIOL_META_il, &prm)
                   << std::endl;
-        std::cout << "xl " << File::getPrm<size_t>(0LU, PIOL_META_xl, &prm)
+        std::cout << "xl "
+                  << param_utils::getPrm<size_t>(0LU, PIOL_META_xl, &prm)
                   << std::endl;
     }
     return 0;

@@ -1,15 +1,17 @@
-#include "cppfileapi.hh"
-#include "data/datampiio.hh"
 #include "sglobal.hh"
-#include "share/mpi.hh"
-#include "share/segy.hh"
+
+#include "ExSeisDat/PIOL/DataMPIIO.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "ExSeisDat/PIOL/segy_utils.hh"
+#include "ExSeisDat/utils/mpi/MPI_type.hh"
 
 #include <assert.h>
 #include <iostream>
+#include <unistd.h>
 #include <unordered_map>
 
-using namespace PIOL;
-using namespace Data;
+using namespace exseis::utils;
+using namespace exseis::PIOL;
 
 void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 {
@@ -17,14 +19,14 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 }
 
 void smallCopy(
-  const ExSeis& piol, Data::Interface* in, Data::Interface* out, size_t repRate)
+  const ExSeis& piol, DataInterface* in, DataInterface* out, size_t repRate)
 {
     const size_t rank = piol.comm->getRank();
 
     const size_t fsz  = in->getFileSz();
-    const size_t hosz = SEGSz::getHOSz();
-    size_t wsz        = (!rank ? fsz : 0);
-    std::vector<uchar> buf(wsz);
+    const size_t hosz = SEGY_utils::getHOSz();
+    size_t wsz        = (rank == 0 ? fsz : 0);
+    std::vector<unsigned char> buf(wsz);
 
     in->read(0, wsz, buf.data());
     piol.isErr();
@@ -32,20 +34,22 @@ void smallCopy(
     out->write(0, wsz, buf.data());
     piol.isErr();
 
-    if (!rank) std::copy(buf.begin() + hosz, buf.end(), buf.begin());
+    if (rank == 0) {
+        std::copy(buf.begin() + hosz, buf.end(), buf.begin());
+    }
 
     for (size_t j = 1; j < repRate; j++) {
         out->write(
-          hosz + (fsz - hosz) * j, (!rank ? fsz - hosz : 0), buf.data());
+          hosz + (fsz - hosz) * j, (rank == 0 ? fsz - hosz : 0), buf.data());
         piol.isErr();
     }
 }
 
 void distribToDistrib(
   size_t rank,
-  std::pair<size_t, size_t> old,
-  std::pair<size_t, size_t> newd,
-  std::vector<uchar>* vec)
+  exseis::utils::Contiguous_decomposition old,
+  exseis::utils::Contiguous_decomposition newd,
+  std::vector<unsigned char>* vec)
 {
     std::vector<MPI_Request> msg;
 
@@ -54,45 +58,58 @@ void distribToDistrib(
     //-1 lower ranked process
 
     // Cases 2, 3, 8
-    if (old.first > newd.first) {
-        size_t incStart = old.first - newd.first;
+    if (old.global_offset > newd.global_offset) {
+        size_t incStart = old.global_offset - newd.global_offset;
         vec->resize(vec->size() + incStart);
         // Making space for the move
         std::move_backward(vec->begin(), vec->end() - incStart, vec->end());
     }
 
-    if (old.first + old.second < newd.first + newd.second)
+    if (
+      (old.global_offset + old.local_size)
+      < (newd.global_offset + newd.local_size)) {
+
         vec->resize(
-          vec->size() + newd.first + newd.second - (old.first + old.second));
-
-    if (old.first < newd.first) {
-        size_t sz = newd.first - old.first;
-        msg.push_back(MPI_REQUEST_NULL);
-        MPI_Isend(
-          vec->data(), sz, MPIType<uchar>(), rank - 1, 1, MPI_COMM_WORLD,
-          &msg.back());
-    }
-    else if (old.first > newd.first) {
-        size_t sz = old.first - newd.first;
-        msg.push_back(MPI_REQUEST_NULL);
-        MPI_Irecv(
-          vec->data(), sz, MPIType<uchar>(), rank - 1, 0, MPI_COMM_WORLD,
-          &msg.back());
+          vec->size() + newd.global_offset + newd.local_size
+          - (old.global_offset + old.local_size));
     }
 
-    if (old.first + old.second > newd.first + newd.second) {
-        size_t sz = old.first + old.second - (newd.first + newd.second);
+    if (old.global_offset < newd.global_offset) {
+        size_t sz = newd.global_offset - old.global_offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Isend(
-          vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank + 1, 0,
-          MPI_COMM_WORLD, &msg.back());
+          vec->data(), sz, exseis::utils::MPI_type<unsigned char>(), rank - 1,
+          1, MPI_COMM_WORLD, &msg.back());
     }
-    else if (old.first + old.second < newd.first + newd.second) {
-        size_t sz = (newd.first + newd.second) - (old.first + old.second);
+    else if (old.global_offset > newd.global_offset) {
+        size_t sz = old.global_offset - newd.global_offset;
         msg.push_back(MPI_REQUEST_NULL);
         MPI_Irecv(
-          vec->data() + vec->size() - sz, sz, MPIType<uchar>(), rank + 1, 1,
-          MPI_COMM_WORLD, &msg.back());
+          vec->data(), sz, exseis::utils::MPI_type<unsigned char>(), rank - 1,
+          0, MPI_COMM_WORLD, &msg.back());
+    }
+
+    if (
+      old.global_offset + old.local_size
+      > newd.global_offset + newd.local_size) {
+        size_t sz = old.global_offset + old.local_size
+                    - (newd.global_offset + newd.local_size);
+        msg.push_back(MPI_REQUEST_NULL);
+        MPI_Isend(
+          vec->data() + vec->size() - sz, sz,
+          exseis::utils::MPI_type<unsigned char>(), rank + 1, 0, MPI_COMM_WORLD,
+          &msg.back());
+    }
+    else if (
+      old.global_offset + old.local_size
+      < newd.global_offset + newd.local_size) {
+        size_t sz = (newd.global_offset + newd.local_size)
+                    - (old.global_offset + old.local_size);
+        msg.push_back(MPI_REQUEST_NULL);
+        MPI_Irecv(
+          vec->data() + vec->size() - sz, sz,
+          exseis::utils::MPI_type<unsigned char>(), rank + 1, 1, MPI_COMM_WORLD,
+          &msg.back());
     }
 
     MPI_Status stat;
@@ -108,27 +125,27 @@ void distribToDistrib(
     }
 
     // Cases 1, 4, 7
-    if (old.first < newd.first) {
-        size_t decStart = newd.first - old.first;
+    if (old.global_offset < newd.global_offset) {
+        size_t decStart = newd.global_offset - old.global_offset;
         std::move(vec->begin() + decStart, vec->end(), vec->begin());
     }
 
-    vec->resize(newd.second);
+    vec->resize(newd.local_size);
 }
 
 // Write an arbitrary parallelised block sz to an arbitrary offset with the
 // minimal block contention possible between processes.
 // writeArb(out, hosz + decSz*i + (fsz - hosz) * (j+1), decSz, &out)
 // off is the global offset
-std::pair<size_t, size_t> writeArb(
+Contiguous_decomposition writeArb(
   size_t rank,
   size_t numRank,
-  Data::Interface* out,
+  DataInterface* out,
   size_t off,
   size_t bsz,
-  std::pair<size_t, size_t> dec,
+  Contiguous_decomposition dec,
   size_t tsz,
-  std::vector<uchar>* vec)
+  std::vector<unsigned char>* vec)
 {
     auto newdec = blockDecomp(tsz, bsz, numRank, rank, off);
 
@@ -138,7 +155,7 @@ std::pair<size_t, size_t> writeArb(
         distribToDistrib(rank, dec, newdec, vec);
     }
 
-    out->write(off + newdec.first, newdec.second, vec->data());
+    out->write(off + newdec.global_offset, newdec.local_size, vec->data());
 
     return newdec;
 }
@@ -152,7 +169,7 @@ std::pair<size_t, size_t> writeArb(
  *  @param[in] repRate The repetition rate
  */
 void mpiMakeSEGYCopy(
-  const ExSeis& piol, Interface* in, Interface* out, size_t repRate)
+  const ExSeis& piol, DataInterface* in, DataInterface* out, size_t repRate)
 {
     size_t rank    = piol.getRank();
     size_t numRank = piol.getNumRank();
@@ -161,7 +178,7 @@ void mpiMakeSEGYCopy(
     piol.isErr();
 
     const size_t bsz  = 2097152LU;
-    const size_t hosz = SEGSz::getHOSz();
+    const size_t hosz = SEGY_utils::getHOSz();
     size_t memlim     = 512U * bsz;
     size_t step       = numRank * memlim;
 
@@ -169,65 +186,72 @@ void mpiMakeSEGYCopy(
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec      = blockDecomp(rblock, bsz, numRank, rank, i);
 
-        std::vector<uchar> buf(dec.second);
-        in->read(i + dec.first, dec.second, buf.data());
+        std::vector<unsigned char> buf(dec.local_size);
+        in->read(i + dec.global_offset, dec.local_size, buf.data());
         piol.isErr();
-        out->write(i + dec.first, dec.second, buf.data());
+        out->write(i + dec.global_offset, dec.local_size, buf.data());
         piol.isErr();
         if (i == 0) {
             // If zero, then current process has read the header object
-            if (dec.first == 0) {
+            if (dec.global_offset == 0) {
                 std::move(buf.begin() + hosz, buf.end(), buf.begin());
-                dec.second -= hosz;
-                buf.resize(dec.second);
+                dec.local_size -= hosz;
+                buf.resize(dec.local_size);
             }
-            else
-                dec.first -= hosz;
+            else {
+                dec.global_offset -= hosz;
+            }
+
             rblock -= hosz;
         }
         size_t rank    = piol.getRank();
         size_t numRank = piol.getNumRank();
-        for (size_t j = 1; j < repRate; j++)
+        for (size_t j = 1; j < repRate; j++) {
             dec = writeArb(
               rank, numRank, out, hosz + (fsz - hosz) * j + i, bsz, dec, rblock,
               &buf);
+        }
     }
 }
 
 template<bool Block>
 void mpiMakeSEGYCopyNaive(
-  const ExSeis& piol, Interface* in, Interface* out, size_t repRate)
+  const ExSeis& piol, DataInterface* in, DataInterface* out, size_t repRate)
 {
     size_t numRank    = piol.getNumRank();
     const size_t fsz  = in->getFileSz();
     const size_t bsz  = 2097152LU;
-    const size_t hosz = SEGSz::getHOSz();
+    const size_t hosz = SEGY_utils::getHOSz();
     size_t memlim     = 512U * bsz;
     size_t step       = numRank * memlim;
 
     for (size_t i = 0; i < fsz; i += step) {
         size_t rblock = (i + step < fsz ? step : fsz - i);
         auto dec =
-          (Block ? decompose(rblock, numRank, piol.getRank()) :
+          (Block ? block_decomposition(rblock, numRank, piol.getRank()) :
                    blockDecomp(rblock, bsz, numRank, piol.getRank(), i));
 
-        std::vector<uchar> buf(dec.second);
-        in->read(i + dec.first, dec.second, buf.data());
-        out->write(i + dec.first, dec.second, buf.data());
+        std::vector<unsigned char> buf(dec.local_size);
+        in->read(i + dec.global_offset, dec.local_size, buf.data());
+        out->write(i + dec.global_offset, dec.local_size, buf.data());
         if (i == 0) {
             // If zero, then current process has read the header object
-            if (dec.first == 0) {
+            if (dec.global_offset == 0) {
                 std::move(
-                  buf.begin() + hosz, buf.begin() + dec.second, buf.begin());
-                dec.second -= hosz;
-                buf.resize(dec.second);
+                  buf.begin() + hosz, buf.begin() + dec.local_size,
+                  buf.begin());
+                dec.local_size -= hosz;
+                buf.resize(dec.local_size);
             }
-            else
-                dec.first -= hosz;
+            else {
+                dec.global_offset -= hosz;
+            }
         }
-        for (size_t j = 1; j < repRate; j++)
+        for (size_t j = 1; j < repRate; j++) {
             out->write(
-              hosz + (fsz - hosz) * j + i + dec.first, dec.second, buf.data());
+              hosz + (fsz - hosz) * j + i + dec.global_offset, dec.local_size,
+              buf.data());
+        }
     }
 }
 
@@ -244,60 +268,76 @@ size_t getVersion(std::string version)
 
 int main(int argc, char** argv)
 {
-    std::string opt   = "i:o:v:r:";  // TODO: uses a GNU extension
-    std::string iname = "";
-    std::string oname = "";
-    size_t rep        = 1;
-    size_t version    = size_t(Version::Block);
+    std::string opt = "i:o:v:r:";  // TODO: uses a GNU extension
+    std::string iname;
+    std::string oname;
+    size_t rep     = 1;
+    size_t version = size_t(Version::Block);
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 iname = optarg;
                 break;
+
             case 'o':
                 oname = optarg;
                 break;
+
             case 'v':
                 version = getVersion(optarg);
                 break;
+
             case 'r':
                 rep = std::stoul(optarg);
                 break;
+
             default:
                 fprintf(
                   stderr, "One of the command line arguments is invalid\n");
                 break;
         }
-    assert(iname.size() && oname.size());
+    }
+    assert(!iname.empty() && !oname.empty());
 
     auto piol = ExSeis::New();
 
     size_t numRank = piol->getNumRank();
 
-    MPIIO in(piol, iname, FileMode::Read);
-    MPIIO out(piol, oname, FileMode::Write);
+    DataMPIIO in(piol, iname, FileMode::Read);
+    DataMPIIO out(piol, oname, FileMode::Write);
     piol->isErr();
 
     const size_t fsz = in.getFileSz();
     piol->isErr();
-    if (fsz / numRank < SEGSz::getHOSz())
+    if (fsz / numRank < SEGY_utils::getHOSz()) {
         smallCopy(*piol, &in, &out, rep);
-    else
+    }
+    else {
         switch (version) {
             case Version::Block:
-                if (!piol->getRank()) std::cout << "Standard\n";
+                if (piol->getRank() == 0) {
+                    std::cout << "Standard\n";
+                }
                 mpiMakeSEGYCopy(*piol, &in, &out, rep);
                 break;
+
             case Version::Naive1:
-                if (!piol->getRank()) std::cout << "Naive 1\n";
+                if (piol->getRank() == 0) {
+                    std::cout << "Naive 1\n";
+                }
                 mpiMakeSEGYCopyNaive<true>(*piol, &in, &out, rep);
                 break;
+
             default:
             case Version::Naive2:
-                if (!piol->getRank()) std::cout << "Naive 2\n";
+                if (piol->getRank() == 0) {
+                    std::cout << "Naive 2\n";
+                }
                 mpiMakeSEGYCopyNaive<false>(*piol, &in, &out, rep);
                 break;
         }
+    }
+
     return 0;
 }

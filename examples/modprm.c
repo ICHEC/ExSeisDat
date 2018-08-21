@@ -5,13 +5,24 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "cfileapi.h"
-#include "ctest.h"
-#include "sglobal.h"
+//#include "ctest.h"
+
+#include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+size_t max(size_t a, size_t b)
+{
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
 
 /*! Read nt parameters from the input file ifh and write it to
  *  the output file ofh. Parameters are read and written from
@@ -32,8 +43,10 @@ void readwriteParam(
     PIOL_File_Param* prm = PIOL_File_Param_new(NULL, tcnt);
     PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++) {
-        PIOL_geom_t xval = PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
-        PIOL_geom_t yval = PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
+        exseis_Floating_point xval =
+          PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
+        exseis_Floating_point yval =
+          PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
         PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
         PIOL_File_setPrm_double(i, PIOL_META_ySrc, xval, prm);
     }
@@ -100,21 +113,37 @@ int main(int argc, char** argv)
     char* iname   = NULL;
     char* oname   = NULL;
     size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         switch (c) {
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = copyString(optarg);
+                free(iname);
+                iname = malloc(optarg_length * sizeof(char));
+
+                strncpy(iname, optarg, optarg_length);
+
                 break;
+
             case 'o':
-                oname = copyString(optarg);
+                free(oname);
+                oname = malloc(optarg_length * sizeof(char));
+
+                strncpy(oname, optarg, optarg_length);
+
                 break;
+
             default:
                 fprintf(
                   stderr, "One of the command line arguments is invalid\n");
+
                 break;
         }
+    }
     assert(iname && oname);
 
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -131,11 +160,12 @@ int main(int argc, char** argv)
 
     writeHeader(piol, ifh, ofh);
 
-    Extent dec =
-      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt = memmax / MAX(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
+    struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
+      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    size_t tcnt =
+      memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
 
-    writePayload(piol, dec.start, dec.sz, tcnt, ifh, ofh);
+    writePayload(piol, dec.global_offset, dec.local_size, tcnt, ifh, ofh);
 
     PIOL_ExSeis_isErr(piol, "");
     PIOL_File_WriteDirect_delete(ofh);

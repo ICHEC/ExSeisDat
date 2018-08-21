@@ -9,6 +9,8 @@
 #include "4dcore.hh"
 #include "4dio.hh"
 
+#include "ExSeisDat/PIOL/ExSeis.hh"
+
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
@@ -17,18 +19,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
 using namespace FOURD;
 
+namespace exseis {
 namespace PIOL {
 
 void cmsg(ExSeisPIOL* piol, std::string msg)
 {
     piol->comm->barrier();
-    if (!piol->comm->getRank()) std::cout << msg << std::endl;
+    if (piol->comm->getRank() == 0) {
+        std::cout << msg << std::endl;
+    }
 }
 
 }  // namespace PIOL
+}  // namespace exseis
 
 /*! Main function for fourdbin.
  *  @param[in] argc The number of input strings.
@@ -47,54 +53,65 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    fourd_t dsrmax    = 1.0;  // Default dsdr criteria
-    std::string name1 = "";
-    std::string name2 = "";
-    std::string name3 = "";
-    std::string name4 = "";
+    fourd_t dsrmax = 1.0;  // Default dsdr criteria
+    std::string name1;
+    std::string name2;
+    std::string name3;
+    std::string name4;
     FourDOpt fopt;
 
     char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING - 1];
     int len;
     MPI_Get_library_version(MPIVersion, &len);
-    if (!piol->getRank())
+    if (piol->getRank() == 0) {
         std::cout << "MPI Version " << MPIVersion << std::endl;
+    }
 
     /*****************  Reading options from the command line *****************/
     std::string opt = "a:b:c:d:t:vpx";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'a':
                 name1 = optarg;
                 break;
+
             case 'b':
                 name2 = optarg;
                 break;
+
             case 'c':
                 name3 = optarg;
                 break;
+
             case 'd':
                 name4 = optarg;
                 break;
+
             case 't':
                 dsrmax = std::stod(optarg);
                 break;
+
             case 'v':
                 fopt.verbose = true;
                 cmsg(piol.get(), "Verbose mode enabled");
                 break;
+
             case 'p':
                 fopt.printDsr = false;
                 break;
+
             case 'x':
                 fopt.ixline = true;
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
-    assert(name1.size() && name2.size() && name3.size() && name4.size());
+    }
+    assert(
+      !name1.empty() && !name2.empty() && !name3.empty() && !name4.empty());
 
     /**************************************************************************/
 
@@ -105,24 +122,25 @@ int main(int argc, char** argv)
     auto coords1 = getCoords(piol, name1, fopt.ixline);
     auto coords2 = getCoords(piol, name2, fopt.ixline);
 
-    vec<size_t> min(coords1->sz);
-    vec<fourd_t> minrs(coords1->sz);
+    std::vector<size_t> min(coords1->sz);
+    std::vector<fourd_t> minrs(coords1->sz);
     calc4DBin(
       piol.get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
     cmsg(piol.get(), "Final list pass");
     // Now we weed out traces that have a match that is too far away
-    vec<size_t> list1;
-    vec<size_t> list2;
-    vec<fourd_t> lminrs;
+    std::vector<size_t> list1;
+    std::vector<size_t> list2;
+    std::vector<fourd_t> lminrs;
 
-    for (size_t i = 0U; i < coords1->sz; i++)
+    for (size_t i = 0U; i < coords1->sz; i++) {
         if (minrs[i] <= dsrmax) {
             list2.push_back(min[i]);
             lminrs.push_back(minrs[i]);
             list1.push_back(coords1->tn[i]);
         }
+    }
 
     if (fopt.verbose) {
         std::string name = "tmp/restart" + std::to_string(piol->getRank());

@@ -9,12 +9,13 @@
 #define FOURDBIN4DIO_INCLUDE_GUARD
 
 #include "4d.hh"
-#include "share/segy.hh"
 
 #include <limits>
 
+namespace exseis {
 namespace PIOL {
 namespace FOURD {
+
 /*! This structure is for holding ALIGN aligned memory containing the
  *  coordinates.
  */
@@ -23,28 +24,28 @@ struct Coords {
     size_t sz;
 
     /// The x src coordinates
-    fourd_t* xSrc = NULL;
+    fourd_t* xSrc = nullptr;
 
     /// The y src coordinates
-    fourd_t* ySrc = NULL;
+    fourd_t* ySrc = nullptr;
 
     /// The x rcv coordinates
-    fourd_t* xRcv = NULL;
+    fourd_t* xRcv = nullptr;
 
     /// The y rcv coordinates
-    fourd_t* yRcv = NULL;
+    fourd_t* yRcv = nullptr;
 
     /// The trace number
-    size_t* tn = NULL;
+    size_t* tn = nullptr;
 
     /// The size which was actually allocated
     size_t allocSz;
 
     /// The inline number
-    llint* il = NULL;
+    exseis::utils::Integer* il = nullptr;
 
     /// The crossline number
-    llint* xl = NULL;
+    exseis::utils::Integer* xl = nullptr;
 
     /*! Constructor for coords. Allocate each array to take sz_ entries
      *  but also make sure that the allocated space is aligned.
@@ -70,28 +71,32 @@ struct Coords {
 
         if (ixline) {
             posix_memalign(
-              reinterpret_cast<void**>(&il), ALIGN, allocSz * sizeof(llint));
+              reinterpret_cast<void**>(&il), ALIGN,
+              allocSz * sizeof(exseis::utils::Integer));
             posix_memalign(
-              reinterpret_cast<void**>(&xl), ALIGN, allocSz * sizeof(llint));
+              reinterpret_cast<void**>(&xl), ALIGN,
+              allocSz * sizeof(exseis::utils::Integer));
         }
-        for (size_t i = 0; i < allocSz; i++)
+        for (size_t i = 0; i < allocSz; i++) {
             xSrc[i] = ySrc[i] = xRcv[i] = yRcv[i] =
               std::numeric_limits<fourd_t>::max();
-        for (size_t i = 0; ixline && i < allocSz; i++)
-            il[i] = xl[i] = std::numeric_limits<llint>::max();
+        }
+        for (size_t i = 0; ixline && i < allocSz; i++) {
+            il[i] = xl[i] = std::numeric_limits<exseis::utils::Integer>::max();
+        }
     }
 
     /*! Destructor. Deallocate all the memory.
      */
     ~Coords(void)
     {
-        if (xSrc) free(xSrc);
-        if (ySrc) free(ySrc);
-        if (xRcv) free(xRcv);
-        if (yRcv) free(yRcv);
-        if (tn) free(tn);
-        if (il) free(il);
-        if (xl) free(xl);
+        free(xSrc);
+        free(ySrc);
+        free(xRcv);
+        free(yRcv);
+        free(tn);
+        free(il);
+        free(xl);
     }
 };
 
@@ -122,11 +127,12 @@ void outputNonMono(
   std::shared_ptr<ExSeisPIOL> piol,
   std::string dname,
   std::string sname,
-  vec<size_t>& list,
-  vec<fourd_t>& minrs,
-  const bool printDsr);
+  std::vector<size_t>& list,
+  std::vector<fourd_t>& minrs,
+  bool printDsr);
 
 }  // namespace FOURD
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif

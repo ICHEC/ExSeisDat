@@ -14,6 +14,7 @@ export CLANG_FORMAT_EXECUTABLE
 file="$1"
 tmpfile="$(mktemp)"
 
+# Make sure tmpfile is cleaned up on exit
 trap "rm -f \"${tmpfile}\"" EXIT
 
 # Run clang format over file with changes, write to tmpfile
@@ -23,5 +24,13 @@ cat "${file}" \
     | sed 's|//@#pragma omp|#pragma omp|' \
     > "${tmpfile}"
 
-# Swap file for tmpfile
-mv "${tmpfile}" "${file}"
+# Swap file for tmpfile, but only if there's a change
+set +o errexit
+if cmp --quiet "${tmpfile}" "${file}"
+then
+    echo "Formatting ${file}: No Change..."
+    rm "${tmpfile}"
+else
+    echo "Formatting ${file}: Updating..."
+    mv "${tmpfile}" "${file}"
+fi

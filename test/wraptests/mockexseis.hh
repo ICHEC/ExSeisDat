@@ -1,10 +1,13 @@
 #ifndef PIOLWRAPTESTSMOCKEXSEIS_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKEXSEIS_HEADER_GUARD
 
-#include "cppfileapi.hh"
-
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+#include "ExSeisDat/PIOL/ExSeis.hh"
+
+
+namespace exseis {
 namespace PIOL {
 
 class MockExSeis;
@@ -29,5 +32,6 @@ class MockExSeis {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKEXSEIS_HEADER_GUARD

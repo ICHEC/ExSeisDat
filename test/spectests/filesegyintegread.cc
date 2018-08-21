@@ -6,7 +6,7 @@ const size_t bigtns  = 32000U;
 const size_t smallns = 261U;
 const size_t smallnt = 400U;
 
-// Read test of File::SEGY -> Obj::SEGY -> Data::MPIIO
+// Read test of SEGY -> ObjectSEGY -> DataMPIIO
 TEST_F(FileSEGYIntegRead, SEGYReadHO)
 {
     nt = smallnt;
@@ -18,10 +18,12 @@ TEST_F(FileSEGYIntegRead, SEGYReadHO)
     piol->isErr();
     EXPECT_EQ(nt, file->readNt());
     piol->isErr();
-    if (sizeof(geom_t) == sizeof(double))
+    if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
         EXPECT_DOUBLE_EQ(double(20e-6), file->readInc());
-    else
+    }
+    else {
         EXPECT_FLOAT_EQ(float(20e-6), file->readInc());
+    }
 }
 
 TEST_F(FileSEGYIntegRead, FileReadTraceSmall)

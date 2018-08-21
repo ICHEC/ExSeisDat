@@ -1,41 +1,40 @@
 #include "printers.hh"
 
-#include "file/dynsegymd.hh"
-#include "share/api.hh"
-#include "share/param.hh"
+#include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/operations/minmax.h"
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value)
 {
-    os << "PIOL::CoordElem { "
+    os << "exseis::PIOL::CoordElem { "
        << ".val = " << value.val << ", "
        << ".num = " << value.num << " }";
     return os;
 }
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
-::std::ostream& operator<<(::std::ostream& os, PIOL::File::Param* value)
+::std::ostream& operator<<(::std::ostream& os, Param* value)
 {
-    os << "PIOL::File::Param* " << static_cast<void*>(value);
+    os << "exseis::PIOL::Param* " << static_cast<void*>(value);
     return os;
 }
 
-::std::ostream& operator<<(::std::ostream& os, const PIOL::File::Param* value)
+::std::ostream& operator<<(::std::ostream& os, const Param* value)
 {
-    os << "const PIOL::File::Param* " << static_cast<const void*>(value);
+    os << "const exseis::PIOL::Param* " << static_cast<const void*>(value);
     return os;
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis
 
 namespace std {
 
 ::std::ostream& operator<<(
-  ::std::ostream& os, const std::shared_ptr<PIOL::File::Rule>& value)
+  ::std::ostream& os, const std::shared_ptr<exseis::PIOL::Rule>& value)
 {
-    os << "std::shared_ptr<PIOL::File::Rule> "
+    os << "std::shared_ptr<exseis::PIOL::Rule> "
        << static_cast<void*>(value.get());
     return os;
 }

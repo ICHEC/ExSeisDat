@@ -7,9 +7,10 @@
 /// Sort a file in 9 lines
 ///
 
-#include "flow.hh"
+#include "ExSeisDat/Flow.hh"
 
-using namespace PIOL;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 int main(void)
 {

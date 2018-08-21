@@ -1,0 +1,45 @@
+// This file contains the documentation for the various namespaces in the
+// ExSeisDat project.
+
+///
+/// @namespace exseis
+///
+/// @brief The ExSeisDat library: High-Performance, Parallel Processing of
+///        Seismic Data.
+///
+
+///
+/// @namespace exseis::utils
+///
+/// @brief Utility classes and functions.
+///
+/// @details The exseis::utils class contains utility functions for parallel
+///          programming, seismic data processing, converting between data types
+///          etc.
+///
+
+///
+/// @namespace exseis::PIOL
+///
+/// @brief %ExSeisPIOL: A High-Performance Parallel Seismic file I/O library.
+///
+/// @details The %ExSeisPIOL library is an
+///          <b>Ex</b>treme-scale
+///          <b>Seis</b>mic
+///          <b>P</b>arallel
+///          <b>I/O</b>
+///          <b>L</b>ibrary.
+///          It primarily handles high-performance, parallel I/O of seismic data
+///          files.
+///
+
+///
+/// @namespace exseis::Flow
+///
+/// @brief %ExSeisFlow: A High-Performance, Parallel Seismic Workflow library.
+///
+/// @details The ExSeisFlow library is a seismic data workflow library that
+///          leverages %ExSeisPIOL for fast, parallel I/O, and uses workflow
+///          optimizations and smart caching to minimize I/O bandwidth and
+///          memory usage.
+///

@@ -4,11 +4,11 @@
 // POSIX includes
 #define _POSIX_C_SOURCE 200809L
 
-#include "global.hh"
-#include "share/decomp.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/utils/decomposition/block_decomposition.h"
+#include "ExSeisDat/utils/typedefs.h"
 
-#include <unistd.h>
-#include <utility>
+#include <stddef.h>
 
 /*! Decomposition which takes account that the data may come in logical blocks
  *  @param[in] sz The size of the problem.
@@ -19,7 +19,7 @@
  *  @return Return an extent, a starting point (generally for a 'for' loop) and
  *          the number of iterations.
  */
-std::pair<size_t, size_t> blockDecomp(
+exseis::utils::Contiguous_decomposition blockDecomp(
   size_t sz, size_t bsz, size_t numRank, size_t rank, size_t off = 0);
 
 /*! Unequal decomposition, weights towards the lower ranks. Useful for testing
@@ -32,6 +32,6 @@ std::pair<size_t, size_t> blockDecomp(
  *          the number of iterations.
  */
 std::vector<size_t> lobdecompose(
-  PIOL::ExSeisPIOL* piol, size_t sz, size_t numRank, size_t rank);
+  exseis::PIOL::ExSeisPIOL* piol, size_t sz, size_t numRank, size_t rank);
 
-#endif
+#endif  // UTIL_SGLOBALHH_INCLUDE_GUARD

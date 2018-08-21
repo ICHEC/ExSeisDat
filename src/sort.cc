@@ -1,9 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
-/// @brief The Sort Operation
+/// @brief   The Sort Operation
 /// @details The algorithm used is a nearest neighbour approach where at each
 ///          iteration the lowest valued metadata entries are moved to adjacent
 ///          processes with a lower rank and a sort is performed. After the sort
@@ -12,17 +9,32 @@
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "global.hh"
-#include "ops/sort.hh"
-#include "share/api.hh"
-#include "share/mpi.hh"
+#include "ExSeisDat/PIOL/operations/sort.hh"
+
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <numeric>
+#include <string>
+#include <vector>
 
+using namespace std::string_literals;
+
+namespace exseis {
 namespace PIOL {
-namespace File {
+
+std::vector<size_t> getSortIndex(size_t sz, const size_t* list)
+{
+    std::vector<size_t> index(sz);
+    std::iota(index.begin(), index.end(), 0);
+    std::sort(index.begin(), index.end(), [list](size_t s1, size_t s2) {
+        return list[s1] < list[s2];
+    });
+    return index;
+}
 
 /*! Calculate the square of the hypotenuse
  *  @param[in] sx The source x coordinate
@@ -31,7 +43,11 @@ namespace File {
  *  @param[in] ry The receiver y coordinate
  *  @return square of the hypotenuse
  */
-inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
+inline exseis::utils::Floating_point off(
+  exseis::utils::Floating_point sx,
+  exseis::utils::Floating_point sy,
+  exseis::utils::Floating_point rx,
+  exseis::utils::Floating_point ry)
 {
     return (sx - rx) * (sx - rx) + (sy - ry) * (sy - ry);
 }
@@ -43,39 +59,49 @@ inline geom_t off(geom_t sx, geom_t sy, geom_t rx, geom_t ry)
  *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
  *          of the sort.
  */
-bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
+static bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
 {
-    auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
-    auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
+    auto e1sx = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_xSrc, prm);
+    auto e2sx = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_xSrc, prm);
 
     if (e1sx < e2sx) {
         return true;
     }
     else if (e1sx == e2sx) {
-        auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
-        auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
+        auto e1sy = param_utils::getPrm<exseis::utils::Floating_point>(
+          i, PIOL_META_ySrc, prm);
+        auto e2sy = param_utils::getPrm<exseis::utils::Floating_point>(
+          j, PIOL_META_ySrc, prm);
 
         if (e1sy < e2sy) {
             return true;
         }
         else if (e1sy == e2sy) {
-            auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
-            auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
+            auto e1rx = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_xRcv, prm);
+            auto e2rx = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_xRcv, prm);
 
             if (e1rx < e2rx) {
                 return true;
             }
             else if (e1rx == e2rx) {
-                auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
-                auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
+                auto e1ry = param_utils::getPrm<exseis::utils::Floating_point>(
+                  i, PIOL_META_yRcv, prm);
+                auto e2ry = param_utils::getPrm<exseis::utils::Floating_point>(
+                  j, PIOL_META_yRcv, prm);
 
                 if (e1ry < e2ry) {
                     return true;
                 }
                 else if (e1ry == e2ry) {
                     return (
-                      getPrm<llint>(i, PIOL_META_ltn, prm)
-                      < getPrm<llint>(j, PIOL_META_ltn, prm));
+                      param_utils::getPrm<exseis::utils::Integer>(
+                        i, PIOL_META_ltn, prm)
+                      < param_utils::getPrm<exseis::utils::Integer>(
+                          j, PIOL_META_ltn, prm));
                 }
             }
         }
@@ -96,39 +122,49 @@ bool lessSrcRcv(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
+static bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
 {
-    auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
-    auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
+    auto e1sx = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_xSrc, prm);
+    auto e2sx = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_xSrc, prm);
 
     if (e1sx < e2sx) {
         return true;
     }
     else if (e1sx == e2sx) {
-        auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
-        auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
+        auto e1sy = param_utils::getPrm<exseis::utils::Floating_point>(
+          i, PIOL_META_ySrc, prm);
+        auto e2sy = param_utils::getPrm<exseis::utils::Floating_point>(
+          j, PIOL_META_ySrc, prm);
 
         if (e1sy < e2sy) {
             return true;
         }
         else if (e1sy == e2sy) {
-            auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
-            auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
+            auto e1rx = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_xRcv, prm);
+            auto e1ry = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_yRcv, prm);
             auto off1 =
               (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                         getPrm<size_t>(i, PIOL_META_Offset, prm));
+                         param_utils::getPrm<size_t>(i, PIOL_META_Offset, prm));
 
-            auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
-            auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
+            auto e2rx = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_xRcv, prm);
+            auto e2ry = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_yRcv, prm);
             auto off2 =
               (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                         getPrm<size_t>(j, PIOL_META_Offset, prm));
+                         param_utils::getPrm<size_t>(j, PIOL_META_Offset, prm));
 
             return (
               off1 < off2
               || (off1 == off2
-                  && getPrm<llint>(i, PIOL_META_ltn, prm)
-                       < getPrm<llint>(j, PIOL_META_ltn, prm)));
+                  && param_utils::getPrm<exseis::utils::Integer>(
+                       i, PIOL_META_ltn, prm)
+                       < param_utils::getPrm<exseis::utils::Integer>(
+                           j, PIOL_META_ltn, prm)));
         }
     }
     return false;
@@ -146,39 +182,49 @@ bool lessSrcOff(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
+static bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
 {
-    auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
-    auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
+    auto e1rx = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_xRcv, prm);
+    auto e2rx = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_xRcv, prm);
 
     if (e1rx < e2rx) {
         return true;
     }
     else if (e1rx == e2rx) {
-        auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
-        auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
+        auto e1ry = param_utils::getPrm<exseis::utils::Floating_point>(
+          i, PIOL_META_yRcv, prm);
+        auto e2ry = param_utils::getPrm<exseis::utils::Floating_point>(
+          j, PIOL_META_yRcv, prm);
 
         if (e1ry < e2ry) {
             return true;
         }
         else if (e1ry == e2ry) {
-            auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
-            auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
+            auto e1sx = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_xSrc, prm);
+            auto e1sy = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_ySrc, prm);
             auto off1 =
               (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                         getPrm<size_t>(i, PIOL_META_Offset, prm));
+                         param_utils::getPrm<size_t>(i, PIOL_META_Offset, prm));
 
-            auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
-            auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
+            auto e2sx = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_xSrc, prm);
+            auto e2sy = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_ySrc, prm);
             auto off2 =
               (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                         getPrm<size_t>(j, PIOL_META_Offset, prm));
+                         param_utils::getPrm<size_t>(j, PIOL_META_Offset, prm));
 
             return (
               off1 < off2
               || (off1 == off2
-                  && getPrm<llint>(i, PIOL_META_ltn, prm)
-                       < getPrm<llint>(j, PIOL_META_ltn, prm)));
+                  && param_utils::getPrm<exseis::utils::Integer>(
+                       i, PIOL_META_ltn, prm)
+                       < param_utils::getPrm<exseis::utils::Integer>(
+                           j, PIOL_META_ltn, prm)));
         }
     }
     return false;
@@ -194,42 +240,56 @@ bool lessRcvOff(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessLineOff(const Param* prm, const size_t i, const size_t j)
+static bool lessLineOff(const Param* prm, const size_t i, const size_t j)
 {
-    auto e1il = getPrm<llint>(i, PIOL_META_il, prm);
-    auto e2il = getPrm<llint>(j, PIOL_META_il, prm);
+    auto e1il =
+      param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_il, prm);
+    auto e2il =
+      param_utils::getPrm<exseis::utils::Integer>(j, PIOL_META_il, prm);
 
     if (e1il < e2il) {
         return true;
     }
     else if (e1il == e2il) {
-        auto e1xl = getPrm<llint>(i, PIOL_META_xl, prm);
-        auto e2xl = getPrm<llint>(j, PIOL_META_xl, prm);
+        auto e1xl =
+          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_xl, prm);
+        auto e2xl =
+          param_utils::getPrm<exseis::utils::Integer>(j, PIOL_META_xl, prm);
         if (e1xl < e2xl) {
             return true;
         }
         else if (e1xl == e2xl) {
-            auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
-            auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
-            auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
-            auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
+            auto e1sx = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_xSrc, prm);
+            auto e1sy = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_ySrc, prm);
+            auto e1rx = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_xRcv, prm);
+            auto e1ry = param_utils::getPrm<exseis::utils::Floating_point>(
+              i, PIOL_META_yRcv, prm);
 
-            auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
-            auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
-            auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
-            auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
+            auto e2sx = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_xSrc, prm);
+            auto e2sy = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_ySrc, prm);
+            auto e2rx = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_xRcv, prm);
+            auto e2ry = param_utils::getPrm<exseis::utils::Floating_point>(
+              j, PIOL_META_yRcv, prm);
 
             auto off1 =
               (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                         getPrm<size_t>(i, PIOL_META_Offset, prm));
+                         param_utils::getPrm<size_t>(i, PIOL_META_Offset, prm));
             auto off2 =
               (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                         getPrm<size_t>(j, PIOL_META_Offset, prm));
+                         param_utils::getPrm<size_t>(j, PIOL_META_Offset, prm));
             return (
               off1 < off2
               || (off1 == off2
-                  && getPrm<llint>(i, PIOL_META_ltn, prm)
-                       < getPrm<llint>(j, PIOL_META_ltn, prm)));
+                  && param_utils::getPrm<exseis::utils::Integer>(
+                       i, PIOL_META_ltn, prm)
+                       < param_utils::getPrm<exseis::utils::Integer>(
+                           j, PIOL_META_ltn, prm)));
         }
     }
     return false;
@@ -247,41 +307,55 @@ bool lessLineOff(const Param* prm, const size_t i, const size_t j)
  *          of the sort.
  */
 template<bool CalcOff>
-bool lessOffLine(const Param* prm, const size_t i, const size_t j)
+static bool lessOffLine(const Param* prm, const size_t i, const size_t j)
 {
-    auto e1sx = getPrm<geom_t>(i, PIOL_META_xSrc, prm);
-    auto e1sy = getPrm<geom_t>(i, PIOL_META_ySrc, prm);
-    auto e1rx = getPrm<geom_t>(i, PIOL_META_xRcv, prm);
-    auto e1ry = getPrm<geom_t>(i, PIOL_META_yRcv, prm);
+    auto e1sx = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_xSrc, prm);
+    auto e1sy = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_ySrc, prm);
+    auto e1rx = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_xRcv, prm);
+    auto e1ry = param_utils::getPrm<exseis::utils::Floating_point>(
+      i, PIOL_META_yRcv, prm);
     auto off1 =
       (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                 getPrm<size_t>(i, PIOL_META_Offset, prm));
+                 param_utils::getPrm<size_t>(i, PIOL_META_Offset, prm));
 
-    auto e2sx = getPrm<geom_t>(j, PIOL_META_xSrc, prm);
-    auto e2sy = getPrm<geom_t>(j, PIOL_META_ySrc, prm);
-    auto e2rx = getPrm<geom_t>(j, PIOL_META_xRcv, prm);
-    auto e2ry = getPrm<geom_t>(j, PIOL_META_yRcv, prm);
+    auto e2sx = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_xSrc, prm);
+    auto e2sy = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_ySrc, prm);
+    auto e2rx = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_xRcv, prm);
+    auto e2ry = param_utils::getPrm<exseis::utils::Floating_point>(
+      j, PIOL_META_yRcv, prm);
     auto off2 =
       (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                 getPrm<size_t>(j, PIOL_META_Offset, prm));
+                 param_utils::getPrm<size_t>(j, PIOL_META_Offset, prm));
 
     if (off1 < off2) {
         return true;
     }
     else if (off1 == off2) {
-        auto e1il = getPrm<llint>(i, PIOL_META_il, prm);
-        auto e2il = getPrm<llint>(j, PIOL_META_il, prm);
+        auto e1il =
+          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_il, prm);
+        auto e2il =
+          param_utils::getPrm<exseis::utils::Integer>(j, PIOL_META_il, prm);
         if (e1il < e2il) {
             return true;
         }
         else if (e1il == e2il) {
-            auto e1xl = getPrm<llint>(i, PIOL_META_xl, prm);
-            auto e2xl = getPrm<llint>(j, PIOL_META_xl, prm);
+            auto e1xl =
+              param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_xl, prm);
+            auto e2xl =
+              param_utils::getPrm<exseis::utils::Integer>(j, PIOL_META_xl, prm);
             return (
               e1xl < e2xl
               || (e1xl == e2xl
-                  && getPrm<llint>(i, PIOL_META_ltn, prm)
-                       < getPrm<llint>(j, PIOL_META_ltn, prm)));
+                  && param_utils::getPrm<exseis::utils::Integer>(
+                       i, PIOL_META_ltn, prm)
+                       < param_utils::getPrm<exseis::utils::Integer>(
+                           j, PIOL_META_ltn, prm)));
         }
     }
     return false;
@@ -327,14 +401,16 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Param* prm)
 }
 
 bool checkOrder(
-  ReadInterface* src, std::pair<size_t, size_t> dec, SortType type)
+  ReadInterface* src,
+  exseis::utils::Contiguous_decomposition dec,
+  SortType type)
 {
     auto comp = getComp(type);
-    Param prm(dec.second);
+    Param prm(dec.local_size);
 
-    src->readParam(dec.first, dec.second, &prm);
+    src->readParam(dec.global_offset, dec.local_size, &prm);
 
-    for (size_t i = 1; i < dec.second; i++) {
+    for (size_t i = 1; i < dec.local_size; i++) {
         if (!comp(&prm, i - 1, i)) {
             return false;
         }
@@ -359,21 +435,32 @@ void Wait(
 {
     MPI_Status stat;
     int err;
+
     if (piol->comm->getRank() != piol->comm->getNumRank() - 1) {
         for (size_t i = 0; i < req1.size(); i++) {
             err = MPI_Wait(&req1[i], &stat);
-            printErr(
-              piol->log.get(), "", Log::Layer::Ops, err, &stat,
-              "Sort Rcv error");
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  "Sort Rcv error: "s
+                    + exseis::utils::MPI_error_to_string(err, &stat),
+                  PIOL_VERBOSITY_NONE);
+            }
         }
     }
 
-    if (piol->comm->getRank()) {
+    if (piol->comm->getRank() != 0) {
         for (size_t i = 0; i < req2.size(); i++) {
             err = MPI_Wait(&req2[i], &stat);
-            printErr(
-              piol->log.get(), "", Log::Layer::Ops, err, &stat,
-              "Sort Snd error");
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  "Sort Snd error: "s
+                    + exseis::utils::MPI_error_to_string(err, &stat),
+                  PIOL_VERBOSITY_NONE);
+            }
         }
     }
 }
@@ -391,6 +478,7 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
 {
     size_t rank = piol->comm->getRank();
     size_t cnt  = regionSz * sizeof(T);
+
     std::vector<MPI_Request> rsnd(1);
     std::vector<MPI_Request> rrcv(1);
 
@@ -398,18 +486,28 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
     if (rank) {
         int err = MPI_Irecv(
           dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
-        printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
-          "Sort MPI_Recv error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Recv error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
         int err = MPI_Isend(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 1,
           MPI_COMM_WORLD, &rsnd[0]);
-        printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
-          "Sort MPI_Send error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Send error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     Wait(piol, rsnd, rrcv);
@@ -428,24 +526,35 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, std::vector<T>& dat)
 {
     size_t rank = piol->comm->getRank();
     size_t cnt  = regionSz * sizeof(T);
+
     std::vector<MPI_Request> rsnd(1);
     std::vector<MPI_Request> rrcv(1);
 
     if (rank) {
         int err = MPI_Isend(
           dat.data(), cnt, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rsnd[0]);
-        printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
-          "Sort MPI_Send error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Send error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
         int err = MPI_Irecv(
           &dat[dat.size() - regionSz], cnt, MPI_CHAR, rank + 1, 0,
           MPI_COMM_WORLD, &rrcv[0]);
-        printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
-          "Sort MPI_Recv error");
+
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Recv error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
     }
 
     Wait(piol, rrcv, rsnd);
@@ -519,11 +628,18 @@ void sort(
 
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
-          "Sort MPI_Allreduce error");
 
-        if (!greduced) break;
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Allreduce error: "s
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
+
+        if (!greduced) {
+            break;
+        }
     }
 
     for (size_t i = 0; i < lnt; i++) {
@@ -593,68 +709,72 @@ void sendRight(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     std::vector<MPI_Request> rsnd(4);
     std::vector<MPI_Request> rrcv(4);
 
-    Log::Logger* log = piol->log.get();
-    auto err         = [log](int errc, std::string msg, size_t i) -> void {
-        printErr(log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
+    // Lambda for wrapping an MPI call with logging.
+    auto log_on_error = [&piol](auto mpi_function, std::string function_name) {
+        return [=](auto&&... args) {
+            int err = mpi_function(std::forward<decltype(args)>(args)...);
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  function_name + " error: "s
+                    + exseis::utils::MPI_error_to_string(err),
+                  PIOL_VERBOSITY_NONE);
+            }
+        };
     };
 
-    if (rank) {
-        std::string msg = "Sort right MPI_Irecv error ";
-        err(
-          MPI_Irecv(
-            rprm.f.data(), rprm.f.size() * sizeof(geom_t), MPI_CHAR, rank - 1,
-            0, MPI_COMM_WORLD, &rrcv[0]),
-          msg, 1);
-        err(
-          MPI_Irecv(
-            rprm.i.data(), rprm.i.size() * sizeof(llint), MPI_CHAR, rank - 1, 0,
-            MPI_COMM_WORLD, &rrcv[1]),
-          msg, 2);
-        err(
-          MPI_Irecv(
-            rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 0,
-            MPI_COMM_WORLD, &rrcv[2]),
-          msg, 3);
-        err(
-          MPI_Irecv(
-            rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1,
-            0, MPI_COMM_WORLD, &rrcv[3]),
-          msg, 4);
+    if (rank != 0) {
+        /// @todo Replace this with type deducing implementation
+
+        log_on_error(
+          MPI_Irecv, "Sort right exseis::utils::Floating_point MPI_Irecv")(
+          rprm.f.data(), rprm.f.size() * sizeof(exseis::utils::Floating_point),
+          MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rrcv[0]);
+
+        log_on_error(MPI_Irecv, "Sort right exseis::utils::Integer MPI_Irecv")(
+          rprm.i.data(), rprm.i.size() * sizeof(exseis::utils::Integer),
+          MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rrcv[1]);
+
+        log_on_error(MPI_Irecv, "Sort right short MPI_Irecv")(
+          rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 0,
+          MPI_COMM_WORLD, &rrcv[2]);
+
+        log_on_error(MPI_Irecv, "Sort right size_t MPI_Irecv")(
+          rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1, 0,
+          MPI_COMM_WORLD, &rrcv[3]);
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
         for (size_t i = 0; i < regionSz; i++) {
-            cpyPrm(i + prm->size() - regionSz, prm, i, &sprm);
+            param_utils::cpyPrm(i + prm->size() - regionSz, prm, i, &sprm);
         }
 
-        std::string msg = "Sort right MPI_Isend error ";
-        err(
-          MPI_Isend(
-            sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank + 1,
-            0, MPI_COMM_WORLD, &rsnd[0]),
-          msg, 1);
-        err(
-          MPI_Isend(
-            sprm.i.data(), sprm.i.size() * sizeof(llint), MPI_CHAR, rank + 1, 0,
-            MPI_COMM_WORLD, &rsnd[1]),
-          msg, 2);
-        err(
-          MPI_Isend(
-            sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 0,
-            MPI_COMM_WORLD, &rsnd[2]),
-          msg, 3);
-        err(
-          MPI_Isend(
-            sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1,
-            0, MPI_COMM_WORLD, &rsnd[3]),
-          msg, 4);
+        /// @todo Replace this with type deducing implementation
+
+        log_on_error(
+          MPI_Isend, "Sort right exseis::utils::Floating_point MPI_Isend")(
+          sprm.f.data(), sprm.f.size() * sizeof(exseis::utils::Floating_point),
+          MPI_CHAR, rank + 1, 0, MPI_COMM_WORLD, &rsnd[0]);
+
+        log_on_error(MPI_Isend, "Sort right exseis::utils::Integer MPI_Isend")(
+          sprm.i.data(), sprm.i.size() * sizeof(exseis::utils::Integer),
+          MPI_CHAR, rank + 1, 0, MPI_COMM_WORLD, &rsnd[1]);
+
+        log_on_error(MPI_Isend, "Sort right short MPI_Isend")(
+          sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 0,
+          MPI_COMM_WORLD, &rsnd[2]);
+
+        log_on_error(MPI_Isend, "Sort right size_t MPI_Isend")(
+          sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1, 0,
+          MPI_COMM_WORLD, &rsnd[3]);
     }
 
     Wait(piol, rsnd, rrcv);
 
-    if (rank) {
+    if (rank != 0) {
         for (size_t i = 0; i < regionSz; i++) {
-            cpyPrm(i, &rprm, i, prm);
+            param_utils::cpyPrm(i, &rprm, i, prm);
         }
     }
 }
@@ -675,68 +795,68 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
     std::vector<MPI_Request> rsnd(4);
     std::vector<MPI_Request> rrcv(4);
 
-    Log::Logger* log = piol->log.get();
-    auto err         = [log](int errc, std::string msg, size_t i) -> void {
-        printErr(log, "", Log::Layer::Ops, errc, NULL, msg + std::to_string(i));
+    // Lambda for wrapping an MPI call with logging.
+    auto log_on_error = [&piol](auto mpi_function, std::string function_name) {
+        return [=](auto&&... args) {
+            int err = mpi_function(std::forward<decltype(args)>(args)...);
+
+            if (err != MPI_SUCCESS) {
+                piol->log->record(
+                  "", Logger::Layer::Ops, Logger::Status::Error,
+                  function_name + " error: "s
+                    + exseis::utils::MPI_error_to_string(err),
+                  PIOL_VERBOSITY_NONE);
+            }
+        };
     };
 
-    if (rank) {
+    if (rank != 0) {
         for (size_t i = 0; i < regionSz; i++) {
-            cpyPrm(i, prm, i, &sprm);
+            param_utils::cpyPrm(i, prm, i, &sprm);
         }
 
-        std::string msg = "Sort left MPI_Irecv error ";
-        err(
-          MPI_Isend(
-            sprm.f.data(), sprm.f.size() * sizeof(geom_t), MPI_CHAR, rank - 1,
-            1, MPI_COMM_WORLD, &rsnd[0]),
-          msg, 1);
-        err(
-          MPI_Isend(
-            sprm.i.data(), sprm.i.size() * sizeof(llint), MPI_CHAR, rank - 1, 1,
-            MPI_COMM_WORLD, &rsnd[1]),
-          msg, 2);
-        err(
-          MPI_Isend(
-            sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 1,
-            MPI_COMM_WORLD, &rsnd[2]),
-          msg, 3);
-        err(
-          MPI_Isend(
-            sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1,
-            1, MPI_COMM_WORLD, &rsnd[3]),
-          msg, 4);
+        log_on_error(
+          MPI_Isend, "Sort left exseis::utils::Floating_point MPI_Isend")(
+          sprm.f.data(), sprm.f.size() * sizeof(exseis::utils::Floating_point),
+          MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rsnd[0]);
+
+        log_on_error(MPI_Isend, "Sort left exseis::utils::Integer MPI_Isend")(
+          sprm.i.data(), sprm.i.size() * sizeof(exseis::utils::Integer),
+          MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rsnd[1]);
+
+        log_on_error(MPI_Isend, "Sort left short MPI_Isend")(
+          sprm.s.data(), sprm.s.size() * sizeof(short), MPI_CHAR, rank - 1, 1,
+          MPI_COMM_WORLD, &rsnd[2]);
+
+        log_on_error(MPI_Isend, "Sort left size_t MPI_Isend")(
+          sprm.t.data(), sprm.t.size() * sizeof(size_t), MPI_CHAR, rank - 1, 1,
+          MPI_COMM_WORLD, &rsnd[3]);
     }
 
     if (rank != piol->comm->getNumRank() - 1) {
-        std::string msg = "Sort left MPI_Isend error ";
-        err(
-          MPI_Irecv(
-            rprm.f.data(), rprm.f.size() * sizeof(geom_t), MPI_CHAR, rank + 1,
-            1, MPI_COMM_WORLD, &rrcv[0]),
-          msg, 1);
-        err(
-          MPI_Irecv(
-            rprm.i.data(), rprm.i.size() * sizeof(llint), MPI_CHAR, rank + 1, 1,
-            MPI_COMM_WORLD, &rrcv[1]),
-          msg, 2);
-        err(
-          MPI_Irecv(
-            rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 1,
-            MPI_COMM_WORLD, &rrcv[2]),
-          msg, 3);
-        err(
-          MPI_Irecv(
-            rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1,
-            1, MPI_COMM_WORLD, &rrcv[3]),
-          msg, 4);
+        log_on_error(
+          MPI_Irecv, "Sort left exseis::utils::Floating_point MPI_Irecv")(
+          rprm.f.data(), rprm.f.size() * sizeof(exseis::utils::Floating_point),
+          MPI_CHAR, rank + 1, 1, MPI_COMM_WORLD, &rrcv[0]);
+
+        log_on_error(MPI_Irecv, "Sort left exseis::utils::Integer MPI_Irecv")(
+          rprm.i.data(), rprm.i.size() * sizeof(exseis::utils::Integer),
+          MPI_CHAR, rank + 1, 1, MPI_COMM_WORLD, &rrcv[1]);
+
+        log_on_error(MPI_Irecv, "Sort left short MPI_Irecv")(
+          rprm.s.data(), rprm.s.size() * sizeof(short), MPI_CHAR, rank + 1, 1,
+          MPI_COMM_WORLD, &rrcv[2]);
+
+        log_on_error(MPI_Irecv, "Sort left size_t MPI_Irecv")(
+          rprm.t.data(), rprm.t.size() * sizeof(size_t), MPI_CHAR, rank + 1, 1,
+          MPI_COMM_WORLD, &rrcv[3]);
     }
 
     Wait(piol, rrcv, rsnd);
 
     if (rank != piol->comm->getNumRank() - 1) {
         for (size_t i = 0; i < regionSz; i++) {
-            cpyPrm(i, &rprm, i + prm->size() - regionSz, prm);
+            param_utils::cpyPrm(i, &rprm, i + prm->size() - regionSz, prm);
         }
     }
 }
@@ -745,13 +865,13 @@ void sendLeft(ExSeisPIOL* piol, size_t regionSz, Param* prm)
 /// @param[in] piol The ExSeisPIOL object
 /// @param[in] prm  The parameter structure
 /// @param[in] comp The comparison operator to sort the headers by.
-void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
+void sortP(ExSeisPIOL* piol, Param* prm, CompareP comp = nullptr)
 {
     size_t lnt      = prm->size();
     size_t numRank  = piol->comm->getNumRank();
     size_t rank     = piol->comm->getRank();
     size_t regionSz = piol->comm->min(lnt) / 4LU;
-    size_t edge1    = (rank ? regionSz : 0LU);
+    size_t edge1    = (rank != 0 ? regionSz : 0LU);
     size_t edge2    = (rank != numRank - 1 ? regionSz : 0LU);
 
     std::vector<size_t> t1(lnt);
@@ -760,12 +880,12 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
         return comp(prm, a, b);
     });
 
-    File::Param temp1(prm->r, lnt + edge2);
-    File::Param temp2(temp1.r, temp1.size());
-    File::Param temp3(prm->r, temp1.size());
+    Param temp1(prm->r, lnt + edge2);
+    Param temp2(temp1.r, temp1.size());
+    Param temp3(prm->r, temp1.size());
 
     for (size_t i = 0; i < lnt; i++) {
-        cpyPrm(t1[i], prm, i, &temp1);
+        param_utils::cpyPrm(t1[i], prm, i, &temp1);
     }
 
     // Infinite loop if there is more than one process, otherwise no loop
@@ -783,11 +903,11 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
               });
 
             for (size_t i = 0; i < t1.size(); i++) {
-                cpyPrm(t1[i], &temp1, i, &temp3);
+                param_utils::cpyPrm(t1[i], &temp1, i, &temp3);
             }
 
             for (size_t i = 0; i < t1.size(); i++) {
-                cpyPrm(i, &temp3, i + edge1, &temp1);
+                param_utils::cpyPrm(i, &temp3, i + edge1, &temp1);
             }
         }
 
@@ -803,34 +923,46 @@ void sortP(ExSeisPIOL* piol, File::Param* prm, CompareP comp = nullptr)
               });
 
             for (size_t i = 0; i < t1.size(); i++) {
-                cpyPrm(t1[i], &temp1, i, &temp3);
+                param_utils::cpyPrm(t1[i], &temp1, i, &temp3);
             }
 
             for (size_t i = 0; i < t1.size(); i++) {
-                cpyPrm(i, &temp3, i, &temp1);
+                param_utils::cpyPrm(i, &temp3, i, &temp1);
             }
         }
 
         int reduced = 0;
-        for (size_t j = 0; j < lnt && !reduced; j++) {
-            reduced +=
-              (getPrm<llint>(j, PIOL_META_gtn, &temp1)
-               != getPrm<llint>(j, PIOL_META_gtn, &temp2));
+        for (size_t j = 0; j < lnt && reduced == 0; j++) {
+            const auto param1 = param_utils::getPrm<exseis::utils::Integer>(
+              j, PIOL_META_gtn, &temp1);
+
+            const auto param2 = param_utils::getPrm<exseis::utils::Integer>(
+              j, PIOL_META_gtn, &temp2);
+
+            if (param1 != param2) {
+                reduced++;
+            }
         }
         int greduced = 1;
 
         int err = MPI_Allreduce(
           &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-        printErr(
-          piol->log.get(), "", Log::Layer::Ops, err, NULL,
-          "Sort MPI_Allreduce error");
+        if (err != MPI_SUCCESS) {
+            piol->log->record(
+              "", Logger::Layer::Ops, Logger::Status::Error,
+              "Sort MPI_Allreduce error: "
+                + exseis::utils::MPI_error_to_string(err),
+              PIOL_VERBOSITY_NONE);
+        }
 
-        if (!greduced) break;
+        if (greduced == 0) {
+            break;
+        }
     }
 
     for (size_t i = 0; i < lnt; i++) {
-        cpyPrm(i, &temp1, i, prm);
+        param_utils::cpyPrm(i, &temp1, i, prm);
     }
 }
 
@@ -840,11 +972,12 @@ std::vector<size_t> sort(
     sortP(piol, prm, comp);
 
     std::vector<size_t> list(prm->size());
-    for (size_t i = 0; i < prm->size(); i++)
-        list[i] = getPrm<size_t>(i, PIOL_META_gtn, prm);
+    for (size_t i = 0; i < prm->size(); i++) {
+        list[i] = param_utils::getPrm<size_t>(i, PIOL_META_gtn, prm);
+    }
 
     return (FileOrder ? sort(piol, list) : list);
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

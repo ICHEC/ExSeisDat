@@ -8,14 +8,17 @@
 ///          increment.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "flow.hh"
 #include "sglobal.hh"
-#include "share/api.hh"
+
+#include "ExSeisDat/Flow/Set.hh"
+#include "ExSeisDat/PIOL/ExSeis.hh"
 
 #include <assert.h>
 #include <iostream>
+#include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 /*! Prompt the user asking them if they want to continue with concatenation.
  *  Multi-process safe.
@@ -25,7 +28,7 @@ void doPrompt(ExSeisPIOL* piol)
 {
     char cont   = '0';
     size_t rank = piol->comm->getRank();
-    if (!rank) {
+    if (rank == 0) {
         std::cout << "Continue concatenation? (y/n)\n";
         std::cin >> cont;
     }
@@ -39,8 +42,9 @@ void doPrompt(ExSeisPIOL* piol)
         std::cout << "Exit\n";
         exit(0);
     }
-    else if (!rank)
+    else if (rank == 0) {
         std::cout << "Continuing\n";
+    }
 }
 
 /*! The main functon for concatenation.
@@ -57,35 +61,42 @@ int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    std::string pattern   = "";
-    std::string outprefix = "";
-    std::string msg       = "Concatenated with ExSeisPIOL";
-    bool prompt           = false;
-    std::string opt       = "i:o:m:p";  // TODO: uses a GNU extension
+    std::string pattern;
+    std::string outprefix;
+    std::string msg = "Concatenated with ExSeisPIOL";
+    bool prompt     = false;
+    std::string opt = "i:o:m:p";  // TODO: uses a GNU extension
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
+         c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
             case 'i':
                 pattern = optarg;
-                if (!piol->getRank())
+                if (piol->getRank() == 0) {
                     std::cout << "Pattern: " << pattern << "\n";
+                }
                 break;
+
             case 'o':
                 outprefix = optarg;
-                if (!piol->getRank())
+                if (piol->getRank() == 0) {
                     std::cout << "output prefix: " << outprefix << "\n";
+                }
                 break;
+
             case 'm':
                 msg = optarg;
                 break;
+
             case 'p':
                 prompt = true;
                 break;
+
             default:
                 std::cerr << "One of the command line arguments is invalid\n";
                 break;
         }
-    assert(pattern != "" && outprefix != "");
+    }
+    assert(!pattern.empty() && !outprefix.empty());
 
     Set set(piol, pattern);
     set.text(msg);

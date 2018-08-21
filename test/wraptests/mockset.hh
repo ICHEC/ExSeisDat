@@ -1,12 +1,13 @@
 #ifndef PIOLWRAPTESTMOCKSET_HEADER_GUARD
 #define PIOLWRAPTESTMOCKSET_HEADER_GUARD
 
-#include "file/dynsegymd.hh"
-#include "flow/set.hh"
-
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-namespace PIOL {
+#include "ExSeisDat/Flow/Set.hh"
+
+namespace exseis {
+namespace Flow {
 
 class MockSet;
 ::testing::StrictMock<MockSet>& mockSet();
@@ -17,24 +18,28 @@ class MockSet {
       ctor,
       void(
         Set*,
-        std::shared_ptr<ExSeisPIOL> piol_,
+        std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
         std::string pattern,
         std::string outfix_,
-        std::shared_ptr<File::Rule> rule_));
+        std::shared_ptr<exseis::PIOL::Rule> rule_));
 
     MOCK_METHOD3(
       ctor,
       void(
         Set*,
-        std::shared_ptr<ExSeisPIOL> piol_,
-        std::shared_ptr<File::Rule> rule_));
+        std::shared_ptr<exseis::PIOL::ExSeisPIOL> piol_,
+        std::shared_ptr<exseis::PIOL::Rule> rule_));
 
     MOCK_METHOD1(dtor, void(Set*));
 
-    MOCK_METHOD2(sort, void(Set*, CompareP sortFunc));
+    MOCK_METHOD2(sort, void(Set*, exseis::PIOL::CompareP sortFunc));
 
     MOCK_METHOD3(
-      sort, void(Set*, std::shared_ptr<File::Rule> r, CompareP sortFunc));
+      sort,
+      void(
+        Set*,
+        std::shared_ptr<exseis::PIOL::Rule> r,
+        exseis::PIOL::CompareP sortFunc));
 
     MOCK_METHOD2(output, std::vector<std::string>(Set*, std::string oname));
 
@@ -42,24 +47,34 @@ class MockSet {
       getMinMax,
       void(
         Set*,
-        MinMaxFunc<File::Param> xlam,
-        MinMaxFunc<File::Param> ylam,
-        CoordElem* minmax));
+        exseis::PIOL::MinMaxFunc<exseis::PIOL::Param> xlam,
+        exseis::PIOL::MinMaxFunc<exseis::PIOL::Param> ylam,
+        exseis::PIOL::CoordElem* minmax));
 
     MOCK_METHOD4(
-      taper, void(Set*, TaperFunc tapFunc, size_t nTailLft, size_t nTailRt));
+      taper,
+      void(
+        Set*,
+        exseis::utils::Taper_function taper_function,
+        size_t nTailLft,
+        size_t nTailRt));
 
     MOCK_METHOD4(
-      AGC, void(Set*, AGCFunc agcFunc, size_t window, trace_t normR));
+      AGC,
+      void(
+        Set*,
+        exseis::utils::Gain_function agcFunc,
+        size_t window,
+        exseis::utils::Trace_value target_amplitude));
 
     MOCK_METHOD2(text, void(Set*, std::string outmsg_));
 
     MOCK_CONST_METHOD1(summary, void(const Set*));
 
     MOCK_METHOD2(
-      add_impl, void(Set*, std::unique_ptr<File::ReadInterface>& in));
+      add_impl, void(Set*, std::unique_ptr<exseis::PIOL::ReadInterface>& in));
 
-    void add(Set* set, std::unique_ptr<File::ReadInterface> in)
+    void add(Set* set, std::unique_ptr<exseis::PIOL::ReadInterface> in)
     {
         add_impl(set, in);
     }
@@ -73,26 +88,27 @@ class MockSet {
         std::string vmName,
         const size_t vBin,
         const size_t oGSz,
-        geom_t oInc));
+        exseis::utils::Floating_point oInc));
 
-    MOCK_METHOD2(sort, void(Set*, SortType type));
-
-    MOCK_METHOD4(getMinMax, void(Set*, Meta m1, Meta m2, CoordElem* minmax));
+    MOCK_METHOD2(sort, void(Set*, exseis::PIOL::SortType type));
 
     MOCK_METHOD4(
-      taper, void(Set*, TaperType type, size_t nTailLft, size_t nTailRt));
-
-    MOCK_METHOD4(AGC, void(Set*, AGCType type, size_t window, trace_t normR));
+      getMinMax,
+      void(
+        Set*,
+        exseis::PIOL::Meta m1,
+        exseis::PIOL::Meta m2,
+        exseis::PIOL::CoordElem* minmax));
 
     MOCK_METHOD8(
       temporalFilter,
       void(
         Set*,
-        FltrType type,
-        FltrDmn domain,
-        PadType pad,
-        trace_t fs,
-        std::vector<trace_t> corners,
+        exseis::PIOL::FltrType type,
+        exseis::PIOL::FltrDmn domain,
+        exseis::PIOL::PadType pad,
+        exseis::utils::Trace_value fs,
+        std::vector<exseis::utils::Trace_value> corners,
         size_t nw,
         size_t winCntr));
 
@@ -100,16 +116,17 @@ class MockSet {
       temporalFilter,
       void(
         Set*,
-        FltrType type,
-        FltrDmn domain,
-        PadType pad,
-        trace_t fs,
+        exseis::PIOL::FltrType type,
+        exseis::PIOL::FltrDmn domain,
+        exseis::PIOL::PadType pad,
+        exseis::utils::Trace_value fs,
         size_t N,
-        std::vector<trace_t> corners,
+        std::vector<exseis::utils::Trace_value> corners,
         size_t nw,
         size_t winCntr));
 };
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTMOCKSET_HEADER_GUARD

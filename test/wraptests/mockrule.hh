@@ -1,11 +1,14 @@
 #ifndef PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKRULE_HEADER_GUARD
 
-#include "file/dynsegymd.hh"
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+#include "ExSeisDat/PIOL/Rule.hh"
+#include "ExSeisDat/PIOL/RuleEntry.hh"
+
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 class MockRule;
 ::testing::StrictMock<MockRule>& mockRule();
@@ -23,7 +26,7 @@ class MockRule {
         bool defaults,
         bool extras));
 
-    MOCK_METHOD3(ctor, void(Rule*, RuleMap translate_, bool full));
+    MOCK_METHOD3(ctor, void(Rule*, Rule::RuleMap translate_, bool full));
 
     MOCK_METHOD1(dtor, void(Rule*));
 
@@ -52,7 +55,7 @@ class MockRule {
     MOCK_METHOD2(getEntry, RuleEntry*(Rule*, Meta entry));
 };
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKRULE_HEADER_GUARD

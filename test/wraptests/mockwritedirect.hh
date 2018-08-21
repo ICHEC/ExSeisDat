@@ -1,12 +1,13 @@
 #ifndef PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD
 
-#include "cppfileapi.hh"
-
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+#include "ExSeisDat/PIOL/WriteDirect.hh"
+
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 class MockWriteDirect;
 ::testing::StrictMock<MockWriteDirect>& mockWriteDirect();
@@ -31,7 +32,8 @@ class MockWriteDirect {
 
     MOCK_METHOD2(writeNt, void(WriteDirect*, const size_t nt_));
 
-    MOCK_METHOD2(writeInc, void(WriteDirect*, const geom_t inc_));
+    MOCK_METHOD2(
+      writeInc, void(WriteDirect*, const exseis::utils::Floating_point inc_));
 
     MOCK_METHOD5(
       writeTrace,
@@ -39,7 +41,7 @@ class MockWriteDirect {
         WriteDirect*,
         const size_t offset,
         const size_t sz,
-        trace_t* trace,
+        exseis::utils::Trace_value* trace,
         const Param* prm));
 
     MOCK_METHOD4(
@@ -53,7 +55,7 @@ class MockWriteDirect {
         WriteDirect*,
         const size_t sz,
         const size_t* offset,
-        trace_t* trace,
+        exseis::utils::Trace_value* trace,
         const Param* prm));
 
     MOCK_METHOD4(
@@ -62,7 +64,7 @@ class MockWriteDirect {
         WriteDirect*, const size_t sz, const size_t* offset, const Param* prm));
 };
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKWRITEDIRECT_HEADER_GUARD

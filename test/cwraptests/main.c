@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cfileapi.h"
-#include "flow.h"
+#include "ExSeisDat/Flow.h"
+#include "ExSeisDat/PIOL.h"
 
 #include "wraptests/wraptests.h"
 
@@ -33,24 +33,29 @@ const PIOL_SortType sort_types[] = {
 
 
 /* List of all the PIOL_TaperType values */
-const PIOL_TaperType taper_types[] = {PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos,
-                                      PIOL_TAPERTYPE_CosSqr};
+const exseis_Taper_function taper_types[] = {
+  exseis_linear_taper, exseis_cosine_taper, exseis_cosine_square_taper};
 
 
-/* List of all the PIOL_AGCType values */
-const PIOL_AGCType agc_types[] = {PIOL_TAPERTYPE_Linear, PIOL_TAPERTYPE_Cos,
-                                  PIOL_TAPERTYPE_CosSqr};
+/* List of all the exseis_Gain_function values */
+const exseis_Gain_function agc_types[] = {
+  exseis_rectangular_RMS_gain, exseis_triangular_RMS_gain, exseis_mean_abs_gain,
+  exseis_median_gain};
 
 
 /* Functions for testing PIOL_Set_sort_fn */
 bool set_sort_function_true(const PIOL_File_Param* param, size_t i, size_t j)
 {
-    if (param == NULL && i == 840 && j == 850) wraptest_ok();
+    if (param == NULL && i == 840 && j == 850) {
+        wraptest_ok();
+    }
     return true;
 }
 bool set_sort_function_false(const PIOL_File_Param* param, size_t i, size_t j)
 {
-    if (param == NULL && i == 860 && j == 870) wraptest_ok();
+    if (param == NULL && i == 860 && j == 870) {
+        wraptest_ok();
+    }
     return false;
 }
 
@@ -76,12 +81,20 @@ int main()
     PIOL_ExSeis* piol_tmp_4 = PIOL_ExSeis_new(PIOL_VERBOSITY_VERBOSE);
     PIOL_ExSeis* piol_tmp_5 = PIOL_ExSeis_new(PIOL_VERBOSITY_MAX);
 
-    if (PIOL_ExSeis_getRank(piol) == 0) wraptest_ok();
-    if (PIOL_ExSeis_getNumRank(piol) == 10) wraptest_ok();
+    if (PIOL_ExSeis_getRank(piol) == 0) {
+        wraptest_ok();
+    }
+    if (PIOL_ExSeis_getNumRank(piol) == 10) {
+        wraptest_ok();
+    }
     PIOL_ExSeis_barrier(piol);
 
-    if (PIOL_ExSeis_max(piol, 0) == 30) wraptest_ok();
-    if (PIOL_ExSeis_max(piol, 40) == 50) wraptest_ok();
+    if (PIOL_ExSeis_max(piol, 0) == 30) {
+        wraptest_ok();
+    }
+    if (PIOL_ExSeis_max(piol, 40) == 50) {
+        wraptest_ok();
+    }
 
     PIOL_ExSeis_isErr(piol, NULL);
     PIOL_ExSeis_isErr(piol, "Test isErr message");
@@ -106,10 +119,12 @@ int main()
     PIOL_File_Rule* rule_tmp2 =
       PIOL_File_Rule_new_from_list(metas, sizeof(metas) / sizeof(metas[0]));
 
-    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true)
+    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == true) {
         wraptest_ok();
-    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == false)
+    }
+    if (PIOL_File_Rule_addRule_Meta(rule, PIOL_META_COPY) == false) {
         wraptest_ok();
+    }
     PIOL_File_Rule_addRule_Rule(rule, rule_tmp);
 
     PIOL_File_Rule_addLong(rule, PIOL_META_COPY, PIOL_TR_SeqNum);
@@ -119,45 +134,51 @@ int main()
     PIOL_File_Rule_addIndex(rule, PIOL_META_COPY);
     PIOL_File_Rule_addCopy(rule);
     PIOL_File_Rule_rmRule(rule, PIOL_META_COPY);
-    if (PIOL_File_Rule_extent(rule) == 100) wraptest_ok();
-    if (PIOL_File_Rule_memUsage(rule) == 110) wraptest_ok();
-    if (PIOL_File_Rule_paramMem(rule) == 120) wraptest_ok();
+    if (PIOL_File_Rule_extent(rule) == 100) {
+        wraptest_ok();
+    }
+    if (PIOL_File_Rule_memUsage(rule) == 110) {
+        wraptest_ok();
+    }
+    if (PIOL_File_Rule_paramMem(rule) == 120) {
+        wraptest_ok();
+    }
 
     PIOL_File_Rule_delete(rule_tmp2);
     PIOL_File_Rule_delete(rule_tmp);
 
 
     /*
-    ** Testing SEGSz
+    ** Testing SEGY_utils
     */
-    printf("Testing SEGSz\n");
+    printf("Testing SEGY_utils\n");
     fflush(stdout);
 
-    if (PIOL_SEGSz_getTextSz() != 3200u) {
+    if (PIOL_SEGY_utils_getTextSz() != 3200u) {
         printf(
-          "PIOL_SEGSz_getTextSz() expected return value of %u, got %lu\n", 3200,
-          PIOL_SEGSz_getTextSz());
+          "PIOL_SEGY_utils_getTextSz() expected return value of %u, got %lu\n",
+          3200, PIOL_SEGY_utils_getTextSz());
         fflush(stdout);
         return EXIT_FAILURE;
     }
-    if (PIOL_SEGSz_getFileSz(200, 210) != 219600u) {
+    if (PIOL_SEGY_utils_getFileSz(200, 210) != 219600u) {
         printf(
-          "PIOL_SEGSz_getFileSz(200, 210) expected return value of %u, got %lu\n",
-          219600u, PIOL_SEGSz_getFileSz(200, 210));
+          "PIOL_SEGY_utils_getFileSz(200, 210) expected return value of %u, got %lu\n",
+          219600u, PIOL_SEGY_utils_getFileSz(200, 210));
         fflush(stdout);
         return EXIT_FAILURE;
     }
-    if (PIOL_SEGSz_getDFSz(220) != 880u) {
+    if (PIOL_SEGY_utils_getDFSz(220) != 880u) {
         printf(
-          "PIOL_SEGSz_getDFSz(220) expected return value of %u, got %lu\n",
-          880u, PIOL_SEGSz_getDFSz(220));
+          "PIOL_SEGY_utils_getDFSz(220) expected return value of %u, got %lu\n",
+          880u, PIOL_SEGY_utils_getDFSz(220));
         fflush(stdout);
         return EXIT_FAILURE;
     }
-    if (PIOL_SEGSz_getMDSz() != 240u) {
+    if (PIOL_SEGY_utils_getMDSz() != 240u) {
         printf(
-          "PIOL_SEGSz_getMDSz() expected return value of %u, got %lu\n", 240u,
-          PIOL_SEGSz_getMDSz());
+          "PIOL_SEGY_utils_getMDSz() expected return value of %u, got %lu\n",
+          240u, PIOL_SEGY_utils_getMDSz());
         fflush(stdout);
         return EXIT_FAILURE;
     }
@@ -172,14 +193,20 @@ int main()
     PIOL_File_Param* param     = PIOL_File_Param_new(rule, 300);
     PIOL_File_Param* param_tmp = PIOL_File_Param_new(NULL, 310);
 
-    if (PIOL_File_Param_size(param) == 320) wraptest_ok();
-    if (PIOL_File_Param_memUsage(param) == 330) wraptest_ok();
-
-    if (PIOL_File_getPrm_short(340, PIOL_META_COPY, param) == 350)
+    if (PIOL_File_Param_size(param) == 320) {
         wraptest_ok();
-
-    if (PIOL_File_getPrm_llint(360, PIOL_META_COPY, param) == 370)
+    }
+    if (PIOL_File_Param_memUsage(param) == 330) {
         wraptest_ok();
+    }
+
+    if (PIOL_File_getPrm_short(340, PIOL_META_COPY, param) == 350) {
+        wraptest_ok();
+    }
+
+    if (PIOL_File_getPrm_Integer(360, PIOL_META_COPY, param) == 370) {
+        wraptest_ok();
+    }
     if (
       fabs(PIOL_File_getPrm_double(380, PIOL_META_COPY, param) - 390.0)
       < 1e-5) {
@@ -187,7 +214,7 @@ int main()
     }
 
     PIOL_File_setPrm_short(400, PIOL_META_COPY, 410, param);
-    PIOL_File_setPrm_llint(420, PIOL_META_COPY, 430, param);
+    PIOL_File_setPrm_Integer(420, PIOL_META_COPY, 430, param);
     PIOL_File_setPrm_double(440, PIOL_META_COPY, 450.0, param);
 
     PIOL_File_cpyPrm(460, param, 470, param_tmp);
@@ -224,8 +251,12 @@ int main()
     }
 
     const size_t read_direct_ns = PIOL_File_ReadDirect_readNs(read_direct);
-    if (read_direct_ns == 600) wraptest_ok();
-    if (PIOL_File_ReadDirect_readNt(read_direct) == 610) wraptest_ok();
+    if (read_direct_ns == 600) {
+        wraptest_ok();
+    }
+    if (PIOL_File_ReadDirect_readNt(read_direct) == 610) {
+        wraptest_ok();
+    }
     if (fabs(PIOL_File_ReadDirect_readInc(read_direct) - 620.0) < 1e-5) {
         wraptest_ok();
     };
@@ -250,7 +281,9 @@ int main()
             read_direct_trace_ok = 0;
         }
     }
-    if (read_direct_trace_ok == 1) wraptest_ok();
+    if (read_direct_trace_ok == 1) {
+        wraptest_ok();
+    }
     free(read_direct_trace);
     read_direct_trace = NULL;
 
@@ -263,9 +296,13 @@ int main()
     PIOL_File_ReadDirect_readTraceNonContiguous(
       read_direct, 680, read_direct_offsets, read_direct_trace, param);
     for (size_t i = 0; i < read_direct_ns * 680; i++) {
-        if (read_direct_trace[i] != i) read_direct_trace_ok = 0;
+        if (read_direct_trace[i] != i) {
+            read_direct_trace_ok = 0;
+        }
     }
-    if (read_direct_trace_ok == 1) wraptest_ok();
+    if (read_direct_trace_ok == 1) {
+        wraptest_ok();
+    }
     free(read_direct_trace);
     free(read_direct_offsets);
 
@@ -277,9 +314,13 @@ int main()
     PIOL_File_ReadDirect_readTraceNonMonotonic(
       read_direct, 690, read_direct_offsets, read_direct_trace, param);
     for (size_t i = 0; i < read_direct_ns * 690; i++) {
-        if (read_direct_trace[i] != i) read_direct_trace_ok = 0;
+        if (read_direct_trace[i] != i) {
+            read_direct_trace_ok = 0;
+        }
     }
-    if (read_direct_trace_ok == 1) wraptest_ok();
+    if (read_direct_trace_ok == 1) {
+        wraptest_ok();
+    }
     free(read_direct_trace);
     free(read_direct_offsets);
 

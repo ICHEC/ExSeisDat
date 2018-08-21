@@ -1,7 +1,7 @@
 #include "mockgetminmax.hh"
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 void getMinMax(
   ExSeisPIOL* piol,
@@ -15,5 +15,5 @@ void getMinMax(
     return mockGetMinMax().getMinMax(piol, offset, sz, m1, m2, prm, minmax);
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

@@ -1,6 +1,9 @@
 #include "dynsegymdtest.hh"
 
-// TODO: Add test for cpyPrm called with different sets of rules, i.e dst and
+#include "ExSeisDat/PIOL/param_utils.hh"
+
+// TODO: Add test for param_utils::cpyPrm called with different sets of rules,
+// i.e dst and
 //       src disagree on rules
 
 TEST(RuleEntry, SEGYFloat)
@@ -33,13 +36,19 @@ TEST_F(RuleFixList, List)
         auto entry = dynamic_cast<SEGYFloatRuleEntry*>(m.second);
 
         int match = 0;
-        for (auto& me : meta)
-            match += (me == m.first);
+        for (auto& me : meta) {
+            if (me == m.first) {
+                match++;
+            }
+        }
         EXPECT_EQ(match, 1) << i;
 
         match = 0;
-        for (auto loc : locs)
-            match += (loc == entry->loc);
+        for (auto loc : locs) {
+            if (loc == entry->loc) {
+                match++;
+            }
+        }
         ASSERT_EQ(match, 1) << i;
         ASSERT_EQ(size_t(PIOL_TR_ScaleCoord), entry->scalLoc) << i;
     }
@@ -83,36 +92,60 @@ TEST_F(RuleFixList, setPrm)
     rule->addShort(PIOL_META_il, PIOL_TR_ScaleElev);
     Param prm(rule, 100);
     for (size_t i = 0; i < 100; i++) {
-        setPrm(i, PIOL_META_xSrc, geom_t(i) + 1., &prm);
-        setPrm(i, PIOL_META_ySrc, geom_t(i) + 2., &prm);
-        setPrm(i, PIOL_META_xRcv, geom_t(i) + 3., &prm);
-        setPrm(i, PIOL_META_yRcv, geom_t(i) + 4., &prm);
-        setPrm(i, PIOL_META_dsdr, llint(i + 1), &prm);
-        setPrm(i, PIOL_META_il, short(i + 2), &prm);
+        param_utils::setPrm(
+          i, PIOL_META_xSrc, exseis::utils::Floating_point(i) + 1., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_ySrc, exseis::utils::Floating_point(i) + 2., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_xRcv, exseis::utils::Floating_point(i) + 3., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_yRcv, exseis::utils::Floating_point(i) + 4., &prm);
+        param_utils::setPrm(
+          i, PIOL_META_dsdr, exseis::utils::Integer(i + 1), &prm);
+        param_utils::setPrm(i, PIOL_META_il, short(i + 2), &prm);
     }
     for (size_t i = 0; i < 100; i++) {
-        if (sizeof(geom_t) == sizeof(double)) {
+        if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_xSrc, &prm), geom_t(i + 1));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xSrc, &prm),
+              exseis::utils::Floating_point(i + 1));
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_ySrc, &prm), geom_t(i + 2));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_ySrc, &prm),
+              exseis::utils::Floating_point(i + 2));
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_xRcv, &prm), geom_t(i + 3));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xRcv, &prm),
+              exseis::utils::Floating_point(i + 3));
             ASSERT_DOUBLE_EQ(
-              getPrm<geom_t>(i, PIOL_META_yRcv, &prm), geom_t(i + 4));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_yRcv, &prm),
+              exseis::utils::Floating_point(i + 4));
         }
         else {
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_xSrc, &prm), geom_t(i + 1));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xSrc, &prm),
+              exseis::utils::Floating_point(i + 1));
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_ySrc, &prm), geom_t(i + 2));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_ySrc, &prm),
+              exseis::utils::Floating_point(i + 2));
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_xRcv, &prm), geom_t(i + 3));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_xRcv, &prm),
+              exseis::utils::Floating_point(i + 3));
             ASSERT_FLOAT_EQ(
-              getPrm<geom_t>(i, PIOL_META_yRcv, &prm), geom_t(i + 4));
+              param_utils::getPrm<exseis::utils::Floating_point>(
+                i, PIOL_META_yRcv, &prm),
+              exseis::utils::Floating_point(i + 4));
         }
-        ASSERT_EQ(getPrm<llint>(i, PIOL_META_dsdr, &prm), llint(i + 1));
-        ASSERT_EQ(getPrm<short>(i, PIOL_META_il, &prm), short(i + 2));
+        ASSERT_EQ(
+          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_dsdr, &prm),
+          exseis::utils::Integer(i + 1));
+        ASSERT_EQ(
+          param_utils::getPrm<short>(i, PIOL_META_il, &prm), short(i + 2));
     }
 }
 

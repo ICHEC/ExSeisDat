@@ -1,11 +1,12 @@
-#include "cppfileapi.hh"
-#include "tglobal.hh"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tglobal.hh"
+
+#include "ExSeisDat/PIOL/ExSeis.hh"
+
 using namespace testing;
-using namespace PIOL;
+using namespace exseis::PIOL;
 
 // Number less than 256 that isn't 0.
 const size_t magicNum1     = 137;
@@ -33,12 +34,12 @@ int32_t xlNum(size_t i)
     return 1600L + (i % 3000L);
 }
 
-geom_t xNum(size_t i)
+exseis::utils::Floating_point xNum(size_t i)
 {
     return 1000L + (i / 2000L);
 }
 
-geom_t yNum(size_t i)
+exseis::utils::Floating_point yNum(size_t i)
 {
     return 1000L + (i % 2000L);
 }
@@ -52,12 +53,12 @@ void makeFile(std::string name, size_t sz)
         // Seek beyond the end of the file and write a single null byte. This
         // ensures the file is all zeroes according to IEEE Std 1003.1-2013
         fseek(fs, sz - 1ll, SEEK_SET);
-        fwrite(&zero, sizeof(uchar), 1, fs);
+        fwrite(&zero, sizeof(unsigned char), 1, fs);
     }
     fclose(fs);
 }
 
-uchar getPattern(size_t i)
+unsigned char getPattern(size_t i)
 {
     const size_t psz = 0x100;
     i %= psz;
@@ -67,15 +68,18 @@ uchar getPattern(size_t i)
 std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed)
 {
     srand(seed);
-    if (nt == 0) return std::vector<size_t>();
+    if (nt == 0) {
+        return std::vector<size_t>();
+    }
 
-    llint range = (max / nt) - 1LL;
+    exseis::utils::Integer range = (max / nt) - 1LL;
     assert(range >= 0);
 
     std::vector<size_t> v(nt);
-    v[0] = (range ? rand() % range : 0);
-    for (size_t i = 1; i < nt; i++)
-        v[i] = v[i - 1] + 1U + (range ? rand() % range : 0);
+    v[0] = (range != 0 ? rand() % range : 0);
+    for (size_t i = 1; i < nt; i++) {
+        v[i] = v[i - 1] + 1U + (range != 0 ? rand() % range : 0);
+    }
     return v;
 }
 
@@ -89,7 +93,7 @@ int main(int argc, char** argv)
     auto piol = ExSeis::New();
     InitGoogleTest(&argc, argv);
 
-    if (!piol->getRank()) {
+    if (piol->getRank() == 0) {
         makeFile(zeroFile, 0U);
         makeFile(smallFile, smallSize);
         makeFile(largeFile, largeSize);
@@ -99,7 +103,7 @@ int main(int argc, char** argv)
     int code = RUN_ALL_TESTS();
 
     piol->barrier();
-    if (piol->getRank()) {
+    if (piol->getRank() != 0) {
         std::remove(zeroFile.c_str());
         std::remove(smallFile.c_str());
         std::remove(largeFile.c_str());

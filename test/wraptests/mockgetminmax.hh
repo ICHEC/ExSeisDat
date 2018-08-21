@@ -1,11 +1,13 @@
 #ifndef PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
 #define PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
 
-#include "ops/minmax.hh"
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+#include "ExSeisDat/PIOL/operations/minmax.h"
+
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 class MockGetMinMax;
 ::testing::StrictMock<MockGetMinMax>& mockGetMinMax();
@@ -24,7 +26,7 @@ class MockGetMinMax {
         CoordElem* minmax));
 };
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD

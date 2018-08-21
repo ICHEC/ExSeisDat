@@ -1,28 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @date January 2017
-/// @brief
-/// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef FOURDBIN4D_INCLUDE_GUARD
-#define FOURDBIN4D_INCLUDE_GUARD
+#ifndef EXSEISDAT_UTIL_4D_HH
+#define EXSEISDAT_UTIL_4D_HH
 
-#include "cppfileapi.hh"
+#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+
 #include <iostream>
 
 /// Constant for alignment reasons.
 #define ALIGN 32U
-
-/*! A typedef to simplify const std::vector
- */
-template<class T>
-using cvec = const std::vector<T>;
-
-/*! A typedef to simplify std::vector
- */
-template<class T>
-using vec = std::vector<T>;
 
 /// A typedef for the precision used for coordinates during the 4dbin
 typedef float fourd_t;
@@ -31,17 +18,16 @@ typedef float fourd_t;
  */
 struct FourDOpt {
     /// Be verbose in the output
-    uint64_t verbose : 1;
-    /// print the dsr value to the SEG-Y output files
-    uint64_t printDsr : 1;
-    /// Constrain by inline and crossline
-    uint64_t ixline : 1;
+    bool verbose = false;
 
-    /*! FourdOpt constructor
-     */
-    FourDOpt(void) : verbose(false), printDsr(true), ixline(false) {}
+    /// print the dsr value to the SEG-Y output files
+    bool printDsr = true;
+
+    /// Constrain by inline and crossline
+    bool ixline = false;
 };
 
+namespace exseis {
 namespace PIOL {
 
 /*! Every process will call this function and process 0 will print the string.
@@ -51,4 +37,6 @@ namespace PIOL {
 void cmsg(ExSeisPIOL* piol, std::string msg);
 
 }  // namespace PIOL
-#endif
+}  // namespace exseis
+
+#endif  // EXSEISDAT_UTIL_4D_HH

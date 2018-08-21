@@ -1,7 +1,7 @@
 #include "mockgetminmax.hh"
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 ::testing::StrictMock<MockGetMinMax>& mockGetMinMax()
 {
@@ -9,5 +9,5 @@ namespace File {
     return mockGetMinMax;
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

@@ -1,13 +1,15 @@
-#include "file/dynsegymd.hh"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "tglobal.hh"
+
+#include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
 
 #include <memory>
 
 using namespace testing;
-using namespace PIOL;
-using namespace File;
+using namespace exseis::PIOL;
 
 struct RuleFix : public Test {
     std::shared_ptr<Rule> rule;

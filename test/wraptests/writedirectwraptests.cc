@@ -2,9 +2,8 @@
 #include "wraptesttools.hh"
 #include "writedirectwraptests.hh"
 
-using namespace PIOL;
-using namespace File;
 using namespace testing;
+using namespace exseis::PIOL;
 
 const auto writeText_return = std::string{"Test WriteDirect Text"};
 

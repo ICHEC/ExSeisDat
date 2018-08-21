@@ -119,11 +119,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_C_COMPILE_FLAGS}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${MPI_C_COMPILE_FLAGS}")
 
 # Include the MPI directories
-include_directories(${MPI_C_INCLUDE_PATH})
+include_directories(SYSTEM ${MPI_C_INCLUDE_PATH})
 
 # Set the MPI linker flags
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
 
 
 #
@@ -171,13 +171,8 @@ endif(NOT FFTW3_LIBRARIES)
 
 # Setup header includes ########################################################
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/api
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/util
-
-    ${FFTW3_INCLUDES}
-)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(SYSTEM ${FFTW3_INCLUDES})
 
 
 # Setup the exseisdat library ##################################################
@@ -185,46 +180,60 @@ include_directories(
 add_library(
     exseisdat
 
-    # Public API sources
-    api/cfileapi.cc
-    api/cppfileapi.cc
+    src/PIOL_C_bindings.cc
 
-    # Private API sources
-    src/agc.cc
-    src/cache.cc
-    src/cmpi.cc
-    src/datampiio.cc
-    src/decomp.cc
-    src/dynsegymd.cc
-    src/flow.cc
+    src/Flow/Cache.cc
+    src/Flow/Flow_C_bindings.cc
+    src/Flow/RadonGatherState.cc
+    src/Flow/Set.cc
+
+    src/CommunicatorMPI.cc
+    src/DataMPIIO.cc
+    src/ExSeis.cc
+    src/ExSeisPIOL.cc
+    src/Logger.cc
+    src/ObjectInterface.cc
+    src/ObjectSEGY.cc
+    src/Param.cc
+    src/ReadDirect.cc
+    src/ReadInterface.cc
+    src/ReadModel.cc
+    src/ReadSEGY.cc
+    src/ReadSEGYModel.cc
+    src/Rule.cc
+    src/WriteDirect.cc
+    src/WriteInterface.cc
+    src/WriteSEGY.cc
+
+    src/param_utils.cc
+    src/segy_utils.cc
+
     src/gather.cc
-    src/characterconversion.cc
-    src/log.cc
     src/minmax.cc
-    src/misc.cc
-    src/object.cc
-    src/objsegy.cc
-    src/piol.cc
-    src/rfile.cc
-    src/rfilesegy.cc
-    src/sdatatype.cc
-    src/segymd.cc
-    src/smpi.cc
     src/sort.cc
-    src/taper.cc
     src/temporalfilter.cc
-    src/wfilesegy.cc
 
-    # utils
-    #TODO Remove me!
-    util/sglobal.cc
-    util/sglobal.c
+    src/utils/decomposition/block_decomposition.cc
+    src/utils/encoding/character_encoding.cc
+    src/utils/encoding/number_encoding.cc
+    src/utils/mpi/MPI_error_to_string.cc
+    src/utils/signal_processing/AGC.cc
+    src/utils/signal_processing/Gain_function.cc
+    src/utils/signal_processing/taper.cc
+    src/utils/signal_processing/Taper_function.cc
 )
 
-target_link_libraries(exseisdat PUBLIC ${MPI_C_LIBRARIES} ${FFTW3_LIBRARIES})
+target_link_libraries(
+    exseisdat
+    PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES}
+)
 set_target_properties(
     exseisdat
     PROPERTIES COMPILE_DEFINITIONS EXSEISDAT_MPIIO_COLLECTIVES
+)
+target_include_directories(
+    exseisdat BEFORE
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 

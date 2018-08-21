@@ -1,6 +1,7 @@
 #include "mockset.hh"
 
-namespace PIOL {
+namespace exseis {
+namespace Flow {
 
 ::testing::StrictMock<MockSet>& mockSet()
 {
@@ -8,4 +9,5 @@ namespace PIOL {
     return mockSet;
 }
 
-}  // namespace PIOL
+}  // namespace Flow
+}  // namespace exseis

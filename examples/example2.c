@@ -5,11 +5,12 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "cfileapi.h"
-#include "sglobal.h"
+#include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 int main(int argc, char** argv)
@@ -17,20 +18,36 @@ int main(int argc, char** argv)
     char* opt   = "i:o:";  // TODO: uses a GNU extension
     char* iname = NULL;
     char* oname = NULL;
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         switch (c) {
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = copyString(optarg);
+                free(iname);
+                iname = malloc(optarg_length * sizeof(char));
+
+                strncpy(iname, optarg, optarg_length);
+
                 break;
+
             case 'o':
-                oname = copyString(optarg);
+                free(oname);
+                oname = malloc(optarg_length * sizeof(char));
+
+                strncpy(oname, optarg, optarg_length);
+
                 break;
+
             default:
                 fprintf(stderr, "Invalid command line arguments\n");
+
                 break;
         }
+    }
     assert(iname && oname);
 
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -44,12 +61,13 @@ int main(int argc, char** argv)
     size_t nt = PIOL_File_ReadDirect_readNt(ifh);
     size_t ns = PIOL_File_ReadDirect_readNs(ifh);
 
-    Extent dec    = decompose(nt, PIOL_ExSeis_getNumRank(piol), rank);
-    size_t offset = dec.start;
-    size_t lnt    = dec.sz;
+    struct exseis_Contiguous_decomposition dec =
+      exseis_block_decomposition(nt, PIOL_ExSeis_getNumRank(piol), rank);
+    size_t offset = dec.global_offset;
+    size_t lnt    = dec.local_size;
 
     // Alloc the required memory for the data we want.
-    float* trace           = malloc(lnt * PIOL_SEGSz_getDFSz(ns));
+    float* trace           = malloc(lnt * PIOL_SEGY_utils_getDFSz(ns));
     PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, lnt);
 
     // Create a SEGY file object for output
@@ -66,13 +84,21 @@ int main(int argc, char** argv)
     PIOL_File_ReadDirect_readTrace(ifh, offset, lnt, trace, trhdr);
     PIOL_File_WriteDirect_writeTrace(ofh, offset, lnt, trace, trhdr);
 
-    free(trace);
+    // Cleanup
+    //
+    // We want to clean everything up, because some operations are only run,
+    // e.g. file writing when the classes go out of scope, i.e. are deleted.
+    //
     PIOL_File_Param_delete(trhdr);
+    free(trace);
 
-    // Close the file handles and close the piol
     PIOL_File_ReadDirect_delete(ifh);
     PIOL_File_WriteDirect_delete(ofh);
+
     PIOL_ExSeis_delete(piol);
+
+    free(iname);
+    free(oname);
 
     return 0;
 }

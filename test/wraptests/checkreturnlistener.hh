@@ -1,8 +1,10 @@
 #ifndef PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
 #define PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
 
+#include "googletest_variable_instances.hh"
 #include "gtest/gtest.h"
 
+namespace exseis {
 namespace PIOL {
 
 class CheckReturnListener : public ::testing::EmptyTestEventListener {
@@ -30,5 +32,6 @@ class CheckReturnListener : public ::testing::EmptyTestEventListener {
 };
 
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD

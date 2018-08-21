@@ -5,10 +5,10 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "cfileapi.h"
-#include "sglobal.h"
+#include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 void createFile(const char* name, size_t nt, size_t ns, size_t inc)
 {
@@ -19,13 +19,13 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
     PIOL_File_WriteDirect* fh = PIOL_File_WriteDirect_new(piol, name);
 
     // Perform some decomposition (user decides how they will decompose)
-    Extent dec =
-      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
+      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
 
     // The offset for the local process
-    size_t offset = dec.start;
+    size_t offset = dec.global_offset;
     // The number of traces for the local process to handle
-    size_t lnt = dec.sz;
+    size_t lnt = dec.local_size;
 
     // Write some header parameters
     PIOL_File_WriteDirect_writeNs(fh, ns);
@@ -43,12 +43,13 @@ void createFile(const char* name, size_t nt, size_t ns, size_t inc)
         PIOL_File_setPrm_double(j, PIOL_META_yRcv, 3000000.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_xCmp, 10000.0 + k, prm);
         PIOL_File_setPrm_double(j, PIOL_META_yCmp, 4000.0 + k, prm);
-        PIOL_File_setPrm_llint(j, PIOL_META_il, 2400 + offset + j, prm);
-        PIOL_File_setPrm_llint(j, PIOL_META_xl, 1600 + offset + j, prm);
-        PIOL_File_setPrm_llint(j, PIOL_META_tn, offset + j, prm);
+        PIOL_File_setPrm_Integer(j, PIOL_META_il, 2400 + offset + j, prm);
+        PIOL_File_setPrm_Integer(j, PIOL_META_xl, 1600 + offset + j, prm);
+        PIOL_File_setPrm_Integer(j, PIOL_META_tn, offset + j, prm);
     }
 
     // Set some traces
+    assert(lnt * ns > 0);
     float* trc = calloc(lnt * ns, sizeof(float));
     for (size_t j = 0; j < lnt * ns; j++) {
         trc[j] = (float)(offset * ns + j);

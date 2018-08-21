@@ -1,34 +1,45 @@
 #ifndef PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
 #define PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
 
-#include "file/dynsegymd.hh"
-#include "printers.hh"
-#include "share/param.hh"
+#include "ExSeisDat/PIOL/Param.h"
+#include "ExSeisDat/PIOL/param_utils.hh"
 
+#include "printers.hh"
+
+#include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
+using namespace exseis::utils::typedefs;
+
+namespace param_utils {
 // Specify extern templates for templated functions so we can capture them
 template<>
 int16_t getPrm<int16_t>(size_t i, Meta entry, const Param* prm);
 
 template<>
-PIOL::llint getPrm<PIOL::llint>(size_t i, Meta entry, const Param* prm);
+exseis::utils::Integer getPrm<exseis::utils::Integer>(
+  size_t i, Meta entry, const Param* prm);
 
 template<>
-geom_t getPrm<geom_t>(size_t i, Meta entry, const Param* prm);
+exseis::utils::Floating_point getPrm<exseis::utils::Floating_point>(
+  size_t i, Meta entry, const Param* prm);
 
 
 template<>
-void setPrm<int16_t>(const size_t i, const Meta entry, int16_t ret, Param* prm);
+void setPrm<int16_t>(size_t i, Meta entry, int16_t ret, Param* prm);
 
 template<>
-void setPrm<llint>(const size_t i, const Meta entry, llint ret, Param* prm);
+void setPrm<exseis::utils::Integer>(
+  size_t i, Meta entry, exseis::utils::Integer ret, Param* prm);
 
 template<>
-void setPrm<geom_t>(const size_t i, const Meta entry, geom_t ret, Param* prm);
+void setPrm<exseis::utils::Floating_point>(
+  size_t i, Meta entry, exseis::utils::Floating_point ret, Param* prm);
+
+}  // namespace param_utils
 
 
 class MockParam;
@@ -37,61 +48,47 @@ class MockParam;
 class MockParamFreeFunctions;
 ::testing::StrictMock<MockParamFreeFunctions>& mockParamFreeFunctions();
 
-// size_t return types for mocks hang during construction with
-// -fsanitize=address on g++ 7.2.0 , but not for const size_t return type.
-// WTF?
-#ifdef __SANITIZE_ADDRESS__
-#define EXSEISDAT_MOCK_PARAM_CONST const
-#else
-#define EXSEISDAT_MOCK_PARAM_CONST
-#endif
-
 class MockParam {
   public:
-    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, const size_t sz));
-    MOCK_METHOD2(ctor, void(Param*, const size_t sz));
+    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, size_t sz));
+    MOCK_METHOD2(ctor, void(Param*, size_t sz));
     MOCK_METHOD1(dtor, void(Param*));
 
-    MOCK_CONST_METHOD1(size, EXSEISDAT_MOCK_PARAM_CONST size_t(const Param*));
+    MOCK_CONST_METHOD1(size, size_t(const Param*));
 
-    MOCK_CONST_METHOD1(
-      memUsage, EXSEISDAT_MOCK_PARAM_CONST size_t(const Param*));
+    MOCK_CONST_METHOD1(memUsage, size_t(const Param*));
 };
 
 class MockParamFreeFunctions {
   public:
     MOCK_METHOD4(
-      cpyPrm,
-      void(const size_t j, const Param* src, const size_t k, Param* dst));
+      cpyPrm, void(size_t j, const Param* src, size_t k, Param* dst));
 
     MOCK_METHOD3(
-      getPrm_int16_t,
-      EXSEISDAT_MOCK_PARAM_CONST int16_t(
-        size_t i, Meta entry, const Param* prm));
+      getPrm_int16_t, int16_t(size_t i, Meta entry, const Param* prm));
 
     MOCK_METHOD3(
-      getPrm_llint,
-      EXSEISDAT_MOCK_PARAM_CONST llint(size_t i, Meta entry, const Param* prm));
+      getPrm_Integer,
+      exseis::utils::Integer(size_t i, Meta entry, const Param* prm));
 
     MOCK_METHOD3(
-      getPrm_geom_t,
-      EXSEISDAT_MOCK_PARAM_CONST geom_t(
-        size_t i, Meta entry, const Param* prm));
+      getPrm_Floating_point,
+      exseis::utils::Floating_point(size_t i, Meta entry, const Param* prm));
 
     MOCK_METHOD4(
-      setPrm_int16_t,
-      void(const size_t i, const Meta entry, int16_t ret, Param* prm));
+      setPrm_int16_t, void(size_t i, Meta entry, int16_t ret, Param* prm));
 
     MOCK_METHOD4(
-      setPrm_llint,
-      void(const size_t i, const Meta entry, llint ret, Param* prm));
+      setPrm_Integer,
+      void(size_t i, Meta entry, exseis::utils::Integer ret, Param* prm));
 
     MOCK_METHOD4(
-      setPrm_geom_t,
-      void(const size_t i, const Meta entry, geom_t ret, Param* prm));
+      setPrm_Floating_point,
+      void(
+        size_t i, Meta entry, exseis::utils::Floating_point ret, Param* prm));
 };
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis
 
 #endif  // PIOLWRAPTESTMOCKPARAM_HEADER_GUARD

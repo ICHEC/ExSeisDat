@@ -1,7 +1,7 @@
 #include "mockparam.hh"
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 ::testing::StrictMock<MockParam>& mockParam()
 {
@@ -15,5 +15,5 @@ namespace File {
     return mockParamFreeFunctions;
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

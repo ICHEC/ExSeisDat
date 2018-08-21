@@ -7,28 +7,32 @@
 /// This is an example of using minmax through the Set API is complete.
 ///
 
-#include "flow.hh"
+#include "ExSeisDat/Flow.hh"
 
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <unistd.h>
 
-using namespace PIOL;
+using namespace exseis::PIOL;
+using namespace exseis::Flow;
 
 int main(int argc, char** argv)
 {
     auto piol = ExSeis::New();
 
-    std::string opt   = "i:";  // TODO: uses a GNU extension
-    std::string iname = "";
+    std::string opt = "i:";  // TODO: uses a GNU extension
+    std::string iname;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str()))
-        if (c == 'i')
+         c     = getopt(argc, argv, opt.c_str())) {
+        if (c == 'i') {
             iname = optarg;
-        else
+        }
+        else {
             std::cerr << "One of the command line arguments is invalid.\n";
-    assert(iname != "");
+        }
+    }
+    assert(!iname.empty());
 
     Set set(piol, iname);
 
@@ -37,7 +41,7 @@ int main(int argc, char** argv)
     set.getMinMax(PIOL_META_xRcv, PIOL_META_yRcv, &minmax[4]);
     set.getMinMax(PIOL_META_xCmp, PIOL_META_yCmp, &minmax[8]);
 
-    if (!piol->getRank()) {
+    if (piol->getRank() == 0) {
         std::cout << "x Src " << minmax[0].val << " (" << minmax[0].num
                   << ") -> " << minmax[1].val << " (" << minmax[1].num << ")\n";
         std::cout << "y Src " << minmax[2].val << " (" << minmax[2].num

@@ -1,5 +1,6 @@
 #include "mockexseis.hh"
 
+namespace exseis {
 namespace PIOL {
 
 ExSeis::ExSeis(const PIOL::Verbosity maxLevel, MPI_Comm comm)
@@ -38,3 +39,4 @@ void ExSeis::isErr(const std::string& msg) const
 }
 
 }  // namespace PIOL
+}  // namespace exseis

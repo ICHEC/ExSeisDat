@@ -2,13 +2,11 @@
 #include "mockgetminmax.hh"
 #include "wraptesttools.hh"
 
-using namespace PIOL;
-using namespace File;
 using namespace testing;
+using namespace exseis::PIOL;
 
 void test_PIOL_File_getMinMax(
-  std::shared_ptr<PIOL::ExSeis*> piol,
-  std::shared_ptr<PIOL::File::Param*> param)
+  std::shared_ptr<ExSeis*> piol, std::shared_ptr<Param*> param)
 {
     EXPECT_CALL(
       mockGetMinMax(), getMinMax(

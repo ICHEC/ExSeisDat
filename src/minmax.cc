@@ -1,27 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
-/// @date November 2016
-/// @brief The Sort Operation
-/// @details The algorithm used is a nearest neighbour approach where at each
-///          iteration the lowest valued metadata entries are moved to adjacent
-///          processes with a lower rank and a sort is performed. After the sort
-///          the highest entries are moved again to the process with a higher
-///          rank. If each process has the same traces it started off with, the
-///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file/dynsegymd.hh"
-#include "global.hh"
-#include "ops/minmax.hh"
+#include "ExSeisDat/PIOL/operations/minmax.h"
+#include "ExSeisDat/PIOL/param_utils.hh"
+#include "ExSeisDat/utils/typedefs.h"
 
 #include <algorithm>
 #include <functional>
 #include <iterator>
 
+namespace exseis {
 namespace PIOL {
-namespace File {
 
 void getMinMax(
   ExSeisPIOL* piol,
@@ -36,15 +26,21 @@ void getMinMax(
     // TODO: Just add the two meta options to the rules with defaults?
     for (size_t i = 0; i < lnt; i++) {
         vprm.emplace_back(prm->r, 1LU);
-        cpyPrm(i, prm, 0, &vprm.back());
+        param_utils::cpyPrm(i, prm, 0, &vprm.back());
     }
 
     getMinMax<Param>(
       piol, offset, lnt, vprm.data(),
-      [m1](const Param& a) -> geom_t { return getPrm<geom_t>(0LU, m1, &a); },
-      [m2](const Param& a) -> geom_t { return getPrm<geom_t>(0LU, m2, &a); },
+      [m1](const Param& a) -> exseis::utils::Floating_point {
+          return param_utils::getPrm<exseis::utils::Floating_point>(
+            0LU, m1, &a);
+      },
+      [m2](const Param& a) -> exseis::utils::Floating_point {
+          return param_utils::getPrm<exseis::utils::Floating_point>(
+            0LU, m2, &a);
+      },
       minmax);
 }
 
-}  // namespace File
 }  // namespace PIOL
+}  // namespace exseis

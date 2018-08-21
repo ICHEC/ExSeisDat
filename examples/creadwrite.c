@@ -9,13 +9,25 @@
 /// produce an identical copy.
 ///
 
-#include "cfileapi.h"
-#include "ctest.h"
-#include "sglobal.h"
+#include "ExSeisDat/PIOL.h"
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+typedef void (*ModTrc)(size_t, size_t, float*);
+typedef void (*ModPrm)(size_t, size_t, PIOL_File_Param*);
+
+size_t max(size_t a, size_t b)
+{
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
 
 void readWriteFullTrace(
   PIOL_ExSeis* piol,
@@ -28,17 +40,23 @@ void readWriteFullTrace(
 {
     PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, tcnt);
     size_t ns              = PIOL_File_ReadDirect_readNs(ifh);
-    float* trace           = malloc(tcnt * PIOL_SEGSz_getDFSz(ns));
+
+    assert(tcnt * PIOL_SEGY_utils_getDFSz(ns) > 0);
+    float* trace = malloc(tcnt * PIOL_SEGY_utils_getDFSz(ns));
     assert(trace);
 
     PIOL_File_ReadDirect_readTrace(ifh, off, tcnt, trace, trhdr);
-    if (ftrc != NULL)
-        for (size_t i = 0; i < tcnt; i++)
+    if (ftrc != NULL) {
+        for (size_t i = 0; i < tcnt; i++) {
             ftrc(off, ns, &trace[i]);
+        }
+    }
 
-    if (fprm != NULL)
-        for (size_t i = 0; i < tcnt; i++)
+    if (fprm != NULL) {
+        for (size_t i = 0; i < tcnt; i++) {
             fprm(off, i, trhdr);
+        }
+    }
 
     PIOL_File_WriteDirect_writeTrace(ofh, off, tcnt, trace, trhdr);
     PIOL_ExSeis_isErr(piol, NULL);
@@ -63,13 +81,15 @@ void writePayload(
     size_t extra =
       biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
-    for (size_t i = 0U; i < lnt; i += tcnt)
+    for (size_t i = 0U; i < lnt; i += tcnt) {
         readWriteFullTrace(
           piol, ifh, ofh, goff + i, (i + tcnt < lnt ? tcnt : lnt - i), ftrc,
           fprm);
+    }
 
-    for (size_t i = 0U; i < extra; i++)
+    for (size_t i = 0U; i < extra; i++) {
         readWriteFullTrace(piol, ifh, ofh, goff, 0, ftrc, fprm);
+    }
 }
 
 int ReadWriteFile(
@@ -95,11 +115,13 @@ int ReadWriteFile(
     PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
     PIOL_ExSeis_isErr(piol, NULL);
 
-    Extent dec =
-      decompose(nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt = memmax / MAX(PIOL_SEGSz_getDFSz(ns), PIOL_SEGSz_getMDSz());
+    struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
+      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
+    size_t tcnt =
+      memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
 
-    writePayload(piol, ifh, ofh, dec.start, dec.sz, tcnt, fprm, ftrc);
+    writePayload(
+      piol, ifh, ofh, dec.global_offset, dec.local_size, tcnt, fprm, ftrc);
 
     PIOL_ExSeis_isErr(piol, NULL);
     PIOL_File_WriteDirect_delete(ofh);
@@ -115,8 +137,9 @@ void SourceX1600Y2400(size_t offset, size_t i, PIOL_File_Param* prm)
 
 void TraceLinearInc(size_t offset, size_t ns, float* trc)
 {
-    for (size_t i = 0; i < ns; i++)
+    for (size_t i = 0; i < ns; i++) {
         trc[i] = 2.0 * i + offset;
+    }
 }
 
 
@@ -128,41 +151,71 @@ int main(int argc, char** argv)
     // -m maximum memory
     // -p modify trace paramaters
     // -t modify trace values
-    char* opt     = "i:o:m:pt";  // TODO: uses a GNU extension
-    char* iname   = NULL;
-    char* oname   = NULL;
+    char* opt = "i:o:m:pt";  // TODO: uses a GNU extension
+
+    char* iname = NULL;
+    char* oname = NULL;
+
     size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
+
     ModPrm modPrm = NULL;
     ModTrc modTrc = false;
-    for (int c = getopt(argc, argv, opt); c != -1; c = getopt(argc, argv, opt))
+
+    for (int c = getopt(argc, argv, opt); c != -1;
+         c     = getopt(argc, argv, opt)) {
+
+        const size_t optarg_length = strlen(optarg) + 1;
+
         switch (c) {
             case 'i':
                 // TODO: POSIX is vague about the lifetime of optarg. Next
                 //       function may be unnecessary
-                iname = copyString(optarg);
+                free(iname);
+                iname = malloc(optarg_length * sizeof(char));
+
+                strncpy(iname, optarg, optarg_length);
+
                 break;
+
             case 'o':
-                oname = copyString(optarg);
+                free(oname);
+                oname = malloc(optarg_length * sizeof(char));
+
+                strncpy(oname, optarg, optarg_length);
+
                 break;
+
             case 'm':
                 if (sscanf(optarg, "%zu", &memmax) != 1) {
                     fprintf(stderr, "Incorrect arguments to memmax option\n");
+
+                    free(iname);
+                    free(oname);
+
                     return -1;
                 }
+
                 break;
+
             case 'p':
                 printf("The trace parameters will be modified\n");
                 modPrm = SourceX1600Y2400;
+
                 break;
+
             case 't':
                 printf("The traces will be modified\n");
                 modTrc = TraceLinearInc;
+
                 break;
+
             default:
                 fprintf(
                   stderr, "One of the command line arguments is invalid\n");
+
                 break;
         }
+    }
     assert(iname && oname);
 
     PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
@@ -172,7 +225,8 @@ int main(int argc, char** argv)
 
     PIOL_ExSeis_delete(piol);
 
-    if (iname != NULL) free(iname);
-    if (oname != NULL) free(oname);
+    free(iname);
+    free(oname);
+
     return 0;
 }

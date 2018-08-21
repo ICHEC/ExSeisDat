@@ -4,7 +4,9 @@
 #include "mockparam.hh"
 #include "mockrule.hh"
 
-std::shared_ptr<PIOL::File::Param*> test_PIOL_File_Param(
-  std::shared_ptr<PIOL::File::Rule*> test_rule);
+#include "googletest_variable_instances.hh"
+
+std::shared_ptr<exseis::PIOL::Param*> test_PIOL_File_Param(
+  std::shared_ptr<exseis::PIOL::Rule*> test_rule);
 
 #endif

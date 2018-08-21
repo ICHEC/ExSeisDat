@@ -2,12 +2,11 @@
 #include "rulewraptests.hh"
 #include "wraptesttools.hh"
 
-using namespace PIOL;
-using namespace PIOL::File;
 using namespace testing;
+using namespace exseis::PIOL;
 
 
-std::shared_ptr<PIOL::File::Rule*> test_PIOL_File_Rule()
+std::shared_ptr<Rule*> test_PIOL_File_Rule()
 {
     auto rule_ptr = std::make_shared<Rule*>();
     EXPECT_CALL(mockRule(), ctor(_, true, true, false))
