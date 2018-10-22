@@ -1,300 +1,431 @@
 #include "datampiiotest.hh"
 
-size_t modifyNt(
-  const size_t fs, const size_t offset, const size_t nt, const size_t ns)
+size_t modify_nt(
+  const size_t fs,
+  const size_t offset,
+  const size_t requested_nt,
+  const size_t ns)
 {
     // We shouldn't have our ASSERT_EQ test beyond the actual number of traces
-    // which are so we reduce the number of traces down to the number of traces
-    // present after the given offset if the real number of traces is less than
-    // expected.  We support this because it is allowed behaviour.
+    // we've written to the file, because we don't know what those values
+    // will be.
+    //
+    // We allow this, rather than throwing an error, because this is allowed
+    // behaviour.
+    //
+    // We find how many traces are in the actual file, and if the requested
+    // number of traces would go beyond that, we truncate the requested number
+    // to the number remaining in the file.
 
-    const size_t realnt = SEGY_utils::getNt(fs, ns);
+    // Total number of traces in the file
+    const size_t total_nt = segy::get_nt(fs, ns);
 
-    if (realnt >= offset + nt) {
-        return nt;
-    }
-    else if (realnt < offset) {
-        return 0;
-    }
+    // Number of traces remaining after the offset
+    const size_t remaining_nt = ([&]() -> size_t {
+        if (total_nt < offset) {
+            return 0;
+        }
 
-    return (realnt - offset);
+        return total_nt - offset;
+    }());
+
+    return std::min(requested_nt, remaining_nt);
 }
 
-typedef MPIIOTest MPIIODeathTest;
 
-TEST_F(MPIIODeathTest, FailedConstructor)
+// Test fixture preparing an ExSeis and a Binary_file using a MPI_Binary_file
+// instance.
+class MPI_Binary_file_Read : public Test {
+  public:
+    std::shared_ptr<exseis::piol::ExSeis> piol      = nullptr;
+    std::shared_ptr<exseis::piol::Binary_file> file = nullptr;
+
+    void make_mpiio(
+      std::string filename,
+      const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt())
+    {
+        piol = exseis::piol::ExSeis::make();
+        file = std::make_shared<MPI_Binary_file>(
+          piol, filename, FileMode::Read, opt);
+    }
+};
+
+
+TEST_F(MPI_Binary_file_Read, Death_FailedConstructor)
 {
-    makeMPIIO(notFile);
-
-    EXPECT_EQ(piol, data->piol());
-    EXPECT_EQ(notFile, data->name());
-
-    // const Logger::Item* item = &piol->log->loglist().front();
-    // EXPECT_EQ(notFile, item->file);
-    // EXPECT_EQ(Logger::Layer::Data, item->layer);
-    // EXPECT_EQ(Logger::Status::Error, item->stat);
-    // EXPECT_NE(static_cast<size_t>(0), item->msg.size());
-    // EXPECT_EQ(PIOL_VERBOSITY_NONE, item->vrbsy);
+    make_mpiio(nonexistant_filename());
 
     EXPECT_EXIT(
-      piol->isErr(), ExitedWithCode(EXIT_FAILURE),
-      ".*8 3 Fatal Error in PIOL. . Dumping Log 0");
+      piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
+      ".*Fatal Error in PIOL\\. Dumping Log\\..*");
 }
 
 ///////////////////////// MPI-IO getting the file size /////////////////////////
-TEST_F(MPIIOTest, Constructor)
+TEST_F(MPI_Binary_file_Read, Constructor)
 {
-    makeMPIIO(zeroFile);
-    EXPECT_EQ(piol, data->piol());
-    EXPECT_EQ(zeroFile, data->name());
-    piol->isErr();
-    piol->log->procLog();
+    make_mpiio(zero_file());
+    piol->assert_ok();
+    piol->log->process_entries();
 
-    EXPECT_TRUE(piol->log->loglist().empty()) << "Unexpected log message";
+    EXPECT_NE(nullptr, file) << "file is null";
+    auto mio = std::dynamic_pointer_cast<MPI_Binary_file>(file);
+    EXPECT_NE(nullptr, mio) << "MPI-IO file cast failed";
+    EXPECT_FALSE(mio->is_open()) << "File was not opened";
 
-    EXPECT_NE(nullptr, data) << "data is null";
-    auto mio = std::dynamic_pointer_cast<DataMPIIO>(data);
-    EXPECT_NE(nullptr, mio) << "MPI-IO data cast failed";
-    EXPECT_FALSE(mio->isFileNull()) << "File was not opened";
-
-    piol->isErr();
-    EXPECT_EQ(static_cast<size_t>(0), data->getFileSz());
+    piol->assert_ok();
+    EXPECT_EQ(static_cast<size_t>(0), file->get_file_size());
 }
 
-TEST_F(MPIIOTest, SmallFileSize)
+TEST_F(MPI_Binary_file_Read, SmallFileSize)
 {
-    makeMPIIO(smallFile);
-    piol->isErr();
-    EXPECT_EQ(smallSize, data->getFileSz());
+    make_mpiio(small_file());
+    piol->assert_ok();
+    EXPECT_EQ(small_size, file->get_file_size());
 }
 
-TEST_F(MPIIOTest, LargeFileSize)
+TEST_F(MPI_Binary_file_Read, LargeFileSize)
 {
-    makeMPIIO(largeFile);
-    piol->isErr();
-    EXPECT_EQ(largeSize, data->getFileSz());
+    make_mpiio(large_file());
+    piol->assert_ok();
+    EXPECT_EQ(large_size, file->get_file_size());
 }
 
 //////////////////////// MPI-IO reading contiguous data ////////////////////////
 
-TEST_F(MPIIOTest, BlockingReadSmall)
+TEST_F(MPI_Binary_file_Read, BlockingReadSmall)
 {
-    makeMPIIO(smallFile);
+    make_mpiio(small_file());
 
-    std::vector<unsigned char> d(smallSize);
-    d.back() = getPattern(d.size() - 2);
+    std::vector<unsigned char> d(small_size);
+    d.back() = get_pattern(d.size() - 2);
 
-    data->read(0, d.size() - 1, d.data());
-    piol->isErr();
+    file->read(0, d.size() - 1, d.data());
+    piol->assert_ok();
 
-    EXPECT_EQ(getPattern(d.size() - 2), d.back());
+    EXPECT_EQ(get_pattern(d.size() - 2), d.back());
 
     // Set the last element to zero
     d.back() = 0U;
-    std::vector<unsigned char> test(smallSize);
+    std::vector<unsigned char> test(small_size);
     ASSERT_THAT(d, ElementsAreArray(test));
 }
 
-TEST_F(MPIIOTest, ZeroSizeReadOnLarge)
+TEST_F(MPI_Binary_file_Read, ZeroSizeReadOnLarge)
 {
-    makeMPIIO(plargeFile);
+    make_mpiio(plarge_file());
 
-    std::vector<unsigned char> d = {getPattern(1U)};
-    data->read(0, 0, d.data());
-    piol->isErr();
+    std::vector<unsigned char> d = {get_pattern(1U)};
+    file->read(0, 0, d.data());
+    piol->assert_ok();
 
-    EXPECT_EQ(getPattern(1U), d[0]);
-    EXPECT_NE(getPattern(0U), d[0]);
+    EXPECT_EQ(get_pattern(1U), d[0]);
+    EXPECT_NE(get_pattern(0U), d[0]);
 }
 
-TEST_F(MPIIOTest, OffsetsBlockingReadLarge)
+TEST_F(MPI_Binary_file_Read, OffsetsBlockingReadLarge)
 {
-    ioopt.maxSize = magicNum1;
-    makeMPIIO(plargeFile);
+    MPI_Binary_file::Opt opt;
+    opt.max_size = magic_num1;
+    make_mpiio(plarge_file(), opt);
 
     // Test looping logic for big files, various offsets
-    for (size_t j = 0; j < magicNum1; j += 10U) {
-        size_t sz     = 16U * magicNum1 + j;
-        size_t offset = (largeSize / magicNum1) * j;
+    for (size_t j = 0; j < magic_num1; j += 10U) {
+        size_t sz     = 16U * magic_num1 + j;
+        size_t offset = (large_size / magic_num1) * j;
         std::vector<unsigned char> d(sz);
 
-        data->read(offset, d.size(), d.data());
-        piol->isErr();
+        file->read(offset, d.size(), d.data());
+        piol->assert_ok();
 
         for (size_t i = 0; i < d.size(); i++) {
-            ASSERT_EQ(d[i], getPattern(offset + i));
+            ASSERT_EQ(d[i], get_pattern(offset + i));
         }
     }
 }
 
-TEST_F(MPIIOTest, BlockingOneByteReadLarge)
+TEST_F(MPI_Binary_file_Read, BlockingOneByteReadLarge)
 {
-    makeMPIIO(plargeFile);
+    make_mpiio(plarge_file());
     // Test single value reads mid file
-    for (size_t i = 0; i < magicNum1; i++) {
-        size_t offset         = largeSize / 2U + i;
-        unsigned char test[2] = {getPattern(offset - 2),
-                                 getPattern(offset - 1)};
+    for (size_t i = 0; i < magic_num1; i++) {
+        size_t offset         = large_size / 2U + i;
+        unsigned char test[2] = {get_pattern(offset - 2),
+                                 get_pattern(offset - 1)};
 
-        data->read(offset, 1, test);
-        piol->isErr();
-        EXPECT_EQ(test[0], getPattern(offset));
-        EXPECT_EQ(test[1], getPattern(offset - 1));
+        file->read(offset, 1, test);
+        piol->assert_ok();
+        EXPECT_EQ(test[0], get_pattern(offset));
+        EXPECT_EQ(test[1], get_pattern(offset - 1));
     }
 }
 
 ///////////////// MPI-IO reading non-contiguous blocks of data /////////////////
-TEST_F(MPIIOTest, ReadContigZero)
+
+/// Read a contiguous block of `nt` traces starting from the `offset`th block,
+/// test that the in-line and cross-line values match the expected test values.
+///
+/// This function implementing the ReadContiguous* tests
+///
+std::vector<unsigned char> read_contiguous(
+  const std::shared_ptr<Binary_file>& file, size_t nt, size_t ns, size_t offset)
 {
-    makeMPIIO(smallSEGYFile);
-    const size_t nt = 0;
-    const size_t ns = 0;
-    readSmallBlocks<false>(nt, ns);
-    piol->isErr();
+    const auto trace_packet_size = segy::segy_trace_size(ns);
+    std::vector<unsigned char> trace_buffer(trace_packet_size * nt);
+
+    // Read a contiguous block of `nt` traces starting from the `offset`th block
+    const auto trace_data_start = segy::segy_binary_file_header_size();
+    file->read(
+      trace_data_start + offset * trace_packet_size, trace_packet_size * nt,
+      trace_buffer.data());
+
+    return trace_buffer;
 }
 
-TEST_F(MPIIOTest, ReadContigSSS)
+/// Test the inline and crossline metadata held by trace_buffer matches the
+/// expected test values.
+void test_il_xl_metadata(
+  const std::shared_ptr<Binary_file>& file,
+  size_t nt,
+  size_t ns,
+  size_t offset,
+  const std::vector<unsigned char>& trace_buffer)
 {
-    makeMPIIO(smallSEGYFile);
-    const size_t nt = 400;
-    const size_t ns = 261;
-    readSmallBlocks<false>(nt, ns);
-    piol->isErr();
+    const auto trace_packet_size = segy::segy_trace_size(ns);
+
+    nt = modify_nt(file->get_file_size(), offset, nt, ns);
+    for (size_t i = 0; i < nt; i++) {
+
+        // The trace buffer starting at the `ith` read trace
+        const unsigned char* trace_buffer_i =
+          &trace_buffer[trace_packet_size * i];
+
+        // The buffer position starting at the in-line and cross-line metadata
+        // values.
+        const unsigned char* il_bytes =
+          &trace_buffer_i[static_cast<size_t>(Tr::il) - 1];
+        const unsigned char* xl_bytes =
+          &trace_buffer_i[static_cast<size_t>(Tr::xl) - 1];
+
+        ASSERT_EQ(
+          il_num(i + offset),
+          from_big_endian<int32_t>(
+            il_bytes[0], il_bytes[1], il_bytes[2], il_bytes[3]))
+          << "i: " << i << ", nt: " << nt << ", ns: " << ns
+          << ", offset: " << offset;
+
+        ASSERT_EQ(
+          xl_num(i + offset),
+          from_big_endian<int32_t>(
+            xl_bytes[0], xl_bytes[1], xl_bytes[2], xl_bytes[3]))
+          << i;
+    }
+}
+
+
+TEST_F(MPI_Binary_file_Read, ReadContiguousZero)
+{
+    make_mpiio(small_segy_file());
+    const size_t nt        = 0;
+    const size_t ns        = 0;
+    const auto trace_bufer = read_contiguous(file, nt, ns, 0);
+    piol->assert_ok();
+    test_il_xl_metadata(file, nt, ns, 0, trace_bufer);
+}
+
+TEST_F(MPI_Binary_file_Read, ReadContiguousSSS)
+{
+    make_mpiio(small_segy_file());
+    const size_t nt        = 400;
+    const size_t ns        = 261;
+    const auto trace_bufer = read_contiguous(file, nt, ns, 0);
+    piol->assert_ok();
+    test_il_xl_metadata(file, nt, ns, 0, trace_bufer);
 }
 
 // Intentionally read much beyond the end of the file to make sure that MPI-IO
 // doesn't abort/fails.  MPI 3.1 spec says (or at least strongly implies) it
 // should work.
-TEST_F(MPIIOTest, FarmReadContigEnd)
+TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousEnd)
 {
-    makeMPIIO(smallSEGYFile);
+    make_mpiio(small_segy_file());
     size_t nt       = 400;
     const size_t ns = 261;
 
     // Read extra
     nt *= 1024;
-    readSmallBlocks<false>(nt, ns, 200);
-    piol->isErr();
+    const auto trace_bufer = read_contiguous(file, nt, ns, 200);
+    piol->assert_ok();
+    test_il_xl_metadata(file, nt, ns, 200, trace_bufer);
 }
 
-TEST_F(MPIIOTest, ReadContigSLS)
+TEST_F(MPI_Binary_file_Read, ReadContiguousSLS)
 {
-    makeMPIIO(bigTraceSEGYFile);
+    make_mpiio(big_trace_segy_file());
+
     const size_t nt = 40U;
     const size_t ns = 32000U;
-    readSmallBlocks<false>(nt, ns, 1000U);
-    piol->isErr();
+
+    const auto trace_bufer = read_contiguous(file, nt, ns, 1000U);
+    piol->assert_ok();
+    test_il_xl_metadata(file, nt, ns, 1000U, trace_bufer);
 }
 
-TEST_F(MPIIOTest, FarmReadContigSLM)
+TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousSLM)
 {
-    makeMPIIO(bigTraceSEGYFile);
+    make_mpiio(big_trace_segy_file());
+
     const size_t nt = 40000U;
     const size_t ns = 32000U;
-    readSmallBlocks<false>(nt, ns);
-    piol->isErr();
+
+    const auto trace_bufer = read_contiguous(file, nt, ns, 0);
+    piol->assert_ok();
+    test_il_xl_metadata(file, nt, ns, 0, trace_bufer);
 }
 
-TEST_F(MPIIOTest, FarmReadContigSLL)
+TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousSLL)
 {
-    makeMPIIO(largeSEGYFile);
+    make_mpiio(large_segy_file());
+
     const size_t nt = 2000000U;
     const size_t ns = 1000U;
-    readSmallBlocks<false>(nt, ns);
-    piol->isErr();
+
+    const auto trace_bufer = read_contiguous(file, nt, ns, 0);
+    piol->assert_ok();
+    test_il_xl_metadata(file, nt, ns, 0, trace_bufer);
 }
 
-TEST_F(MPIIOTest, FarmReadContigLLM)
+
+/// Test the trace data held by the trace_buffer matches the expected test
+/// values.
+void test_trace_data(
+  const std::shared_ptr<Binary_file>& file,
+  size_t nt,
+  size_t ns,
+  size_t offset,
+  const std::vector<unsigned char>& trace_buffer)
 {
-    makeMPIIO(bigTraceSEGYFile);
+    const auto trace_packet_size = segy::segy_trace_size(ns);
+
+    nt = modify_nt(file->get_file_size(), offset, nt, ns);
+    for (size_t i = 0; i < nt; i++) {
+
+        const unsigned char* md =
+          &trace_buffer[trace_packet_size * i + segy::segy_trace_header_size()];
+
+        for (size_t k = 0; k < ns; k++) {
+
+            const float f = i + k;
+            uint32_t n    = 0;
+            std::memcpy(&n, &f, sizeof(uint32_t));
+
+            ASSERT_EQ(md[4 * k + 0], n >> 24 & 0xFF);
+            ASSERT_EQ(md[4 * k + 1], n >> 16 & 0xFF);
+            ASSERT_EQ(md[4 * k + 2], n >> 8 & 0xFF);
+            ASSERT_EQ(md[4 * k + 3], n & 0xFF);
+        }
+    }
+}
+
+TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousLLM)
+{
+    make_mpiio(big_trace_segy_file());
+
     const size_t nt = 40000U;
     const size_t ns = 32000U;
-    readBigBlocks<false>(nt, ns);
-    piol->isErr();
+
+    const auto trace_bufer = read_contiguous(file, nt, ns, 0);
+    piol->assert_ok();
+    test_trace_data(file, nt, ns, 0, trace_bufer);
 }
 
-TEST_F(MPIIOTest, FarmReadContigMLL)
+TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousMLL)
 {
-    makeMPIIO(largeSEGYFile);
+    make_mpiio(large_segy_file());
+
     const size_t nt = 2000000U;
     const size_t ns = 1000U;
-    readBigBlocks<false>(nt, ns);
-    piol->isErr();
+
+    const auto trace_bufer = read_contiguous(file, nt, ns, 0);
+    piol->assert_ok();
+    test_trace_data(file, nt, ns, 0, trace_bufer);
 }
+
 
 TEST_F(MPIIOTest, ReadBlocksZero)
 {
-    makeMPIIO(smallSEGYFile);
+    make_mpiio(small_segy_file());
+
     const size_t nt = 0;
     const size_t ns = 0;
-    readSmallBlocks<true>(nt, ns);
-    piol->isErr();
+
+    read_small_blocks<true>(nt, ns);
+    m_piol->assert_ok();
 }
 
 TEST_F(MPIIOTest, ReadBlocksSSS)
 {
-    makeMPIIO(smallSEGYFile);
+    make_mpiio(small_segy_file());
     const size_t nt = 400;
     const size_t ns = 261;
-    readSmallBlocks<true>(nt, ns);
-    piol->isErr();
+    read_small_blocks<true>(nt, ns);
+    m_piol->assert_ok();
 }
 
 TEST_F(MPIIOTest, ReadBlocksEnd)
 {
-    makeMPIIO(smallSEGYFile);
+    make_mpiio(small_segy_file());
     size_t nt       = 400;
     const size_t ns = 261;
 
     // Read extra
     nt *= 1024;
-    readSmallBlocks<true>(nt, ns, 200);
-    piol->isErr();
+    read_small_blocks<true>(nt, ns, 200);
+    m_piol->assert_ok();
 }
 
 TEST_F(MPIIOTest, ReadBlocksSLS)
 {
-    makeMPIIO(bigTraceSEGYFile);
+    make_mpiio(big_trace_segy_file());
     const size_t nt = 40U;
     const size_t ns = 32000U;
-    readSmallBlocks<true>(nt, ns, 1000U);
-    piol->isErr();
+    read_small_blocks<true>(nt, ns, 1000U);
+    m_piol->assert_ok();
 }
 
-TEST_F(MPIIOTest, FarmReadBlocksSLM)
+TEST_F(MPIIOTest, Farm_ReadBlocksSLM)
 {
-    makeMPIIO(bigTraceSEGYFile);
+    make_mpiio(big_trace_segy_file());
     const size_t nt = 40000U;
     const size_t ns = 32000U;
-    readSmallBlocks<true>(nt, ns);
-    piol->isErr();
+    read_small_blocks<true>(nt, ns);
+    m_piol->assert_ok();
 }
 
-TEST_F(MPIIOTest, FarmReadBlocksSLL)
+TEST_F(MPIIOTest, Farm_ReadBlocksSLL)
 {
-    makeMPIIO(largeSEGYFile);
+    make_mpiio(large_segy_file());
     const size_t nt = 2000000U;
     const size_t ns = 1000U;
-    readSmallBlocks<true>(nt, ns);
-    piol->isErr();
+    read_small_blocks<true>(nt, ns);
+    m_piol->assert_ok();
 }
 
-TEST_F(MPIIOTest, FarmReadBlocksLLM)
+TEST_F(MPIIOTest, Farm_ReadBlocksLLM)
 {
-    makeMPIIO(bigTraceSEGYFile);
+    make_mpiio(big_trace_segy_file());
     const size_t nt = 40000U;
     const size_t ns = 32000U;
-    readBigBlocks<true>(nt, ns);
-    piol->isErr();
+    read_big_blocks<true>(nt, ns);
+    m_piol->assert_ok();
 }
 
-TEST_F(MPIIOTest, FarmReadBlocksMLL)
+TEST_F(MPIIOTest, Farm_ReadBlocksMLL)
 {
-    makeMPIIO(largeSEGYFile);
+    make_mpiio(large_segy_file());
     const size_t nt = 2000000U;
     const size_t ns = 1000U;
-    readBigBlocks<true>(nt, ns);
-    piol->isErr();
+    read_big_blocks<true>(nt, ns);
+    m_piol->assert_ok();
 }
 
 ///////Lists//////////
@@ -305,25 +436,25 @@ const size_t smallnt = 400U;
 
 TEST_F(MPIIOTest, ReadListZero)
 {
-    makeMPIIO(smallSEGYFile);
-    readList(0, 0, NULL);
-    piol->isErr();
+    make_mpiio(small_segy_file());
+    read_list(0, 0, NULL);
+    m_piol->assert_ok();
 }
 
 TEST_F(MPIIOTest, ReadListSmall)
 {
-    makeMPIIO(smallSEGYFile);
-    auto vec = getRandomVec(smallnt / 2, smallnt, 1337);
-    readList(smallnt / 2, smallns, vec.data());
-    piol->isErr();
+    make_mpiio(small_segy_file());
+    auto vec = get_random_vec(smallnt / 2, smallnt, 1337);
+    read_list(smallnt / 2, smallns, vec.data());
+    m_piol->assert_ok();
 }
 
 
-TEST_F(MPIIOTest, FarmReadListLarge)
+TEST_F(MPIIOTest, Farm_ReadListLarge)
 {
-    makeMPIIO(largeSEGYFile);
-    auto vec = getRandomVec(largent / 2, largent, 1337);
+    make_mpiio(large_segy_file());
+    auto vec = get_random_vec(largent / 2, largent, 1337);
 
-    readList(largent / 2, largens, vec.data());
-    piol->isErr();
+    read_list(largent / 2, largens, vec.data());
+    m_piol->assert_ok();
 }

@@ -17,8 +17,6 @@ Below are a number of tutorials on how to use ExSeisDat.
 - @subpage examples_exampleCreateFile_c
 - @subpage examples_exampleCreateFile_cc
 - @subpage examples_exampleFilterTaper_cc
-- @subpage examples_exampleSort_c
-- @subpage examples_exampleSort_cc
 - @subpage examples_minmax_c
 - @subpage examples_minmax_cc
 - @subpage examples_modprm_c

@@ -4,8 +4,8 @@
 ///         datatypes.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/encoding/number_encoding.hh"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/utils/encoding/number_encoding.hh"
+#include "exseisdat/utils/typedefs.hh"
 
 #include <cstring>
 
@@ -14,18 +14,22 @@ namespace utils {
 inline namespace number_encoding {
 
 
-Float_components from_IBM(
+Float_components from_ibm(
   std::array<unsigned char, 4> ibm_float_bytes, bool big_endian)
 {
     // Get the IBM float in the native endian order
     const uint32_t ibm_bits = [=]() {
         if (big_endian == true) {
-            return (ibm_float_bytes[0] << 24) | (ibm_float_bytes[1] << 16)
-                   | (ibm_float_bytes[2] << 8) | (ibm_float_bytes[3] << 0);
+            return (uint32_t(ibm_float_bytes[0]) << 24)
+                   | (uint32_t(ibm_float_bytes[1]) << 16)
+                   | (uint32_t(ibm_float_bytes[2]) << 8)
+                   | (uint32_t(ibm_float_bytes[3]) << 0);
         }
 
-        return (ibm_float_bytes[3] << 24) | (ibm_float_bytes[2] << 16)
-               | (ibm_float_bytes[1] << 8) | (ibm_float_bytes[0] << 0);
+        return (uint32_t(ibm_float_bytes[3]) << 24)
+               | (uint32_t(ibm_float_bytes[2]) << 16)
+               | (uint32_t(ibm_float_bytes[1]) << 8)
+               | (uint32_t(ibm_float_bytes[0]) << 0);
     }();
 
 
@@ -82,7 +86,7 @@ Float_components from_IBM(
     //  011 -> 3  ---> needs offset of 1
     // and so on.
     //
-    const uint32_t offsets[]         = {3, 2, 1, 1, 0, 0, 0, 0};
+    const int32_t offsets[]          = {3, 2, 1, 1, 0, 0, 0, 0};
     const uint32_t leading_frac_bits = frac >> 21;
     const int32_t shift              = offsets[leading_frac_bits];
 
@@ -111,7 +115,7 @@ static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift)
     // last `shift` bits
 
     // mask is 0000 0000 ... 1111, where the 1s are `shift` bits wide
-    const uint32_t mask = (1UL << shift) - 1;
+    const uint32_t mask = (uint32_t(1) << shift) - 1;
 
     // trunc is the last `shift` bits of `value`
     const uint32_t trunc = value & mask;
@@ -139,7 +143,7 @@ static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift)
 
     // half is the value 0000...1000... representing when the truncated
     // part is exactly half, i.e. 0b0.1000...
-    const uint32_t half = (1UL << (shift - 1));
+    const uint32_t half = (uint32_t(1) << (shift - 1));
 
     // If the truncated part is > 0b0.1000, round up. When it's < 0b0.1000,
     // round down, i.e. just allow the number to be truncated.
@@ -219,7 +223,7 @@ float to_float(Float_components components)
         // denorm numbers get an extra shift of 1, because they're in the
         // form 0.bbbb... rather than 1.bbbb... for regular numbers.
 
-        frac = rshift_with_rounding(frac, -exp + 1);
+        frac = rshift_with_rounding(frac, static_cast<uint32_t>(-exp) + 1);
         exp  = 0;
     }
 
@@ -239,7 +243,8 @@ float to_float(Float_components components)
     frac = frac & 0x7FFFFF;
 
     // Make sure we've only got 8 bits for the exponent!
-    exp = exp & 0xFF;
+    // Make it unsigned, like the rest of the types.
+    uint32_t exp_bits = exp & 0xFF;
 
     // Shift components to the positions of IEEE float.
     // Frac is already at the correct position.
@@ -248,10 +253,10 @@ float to_float(Float_components components)
     sign <<= 31;
 
     // Exp is at bits 31 to 24
-    exp <<= 23;
+    exp_bits <<= 23;
 
 
-    const uint32_t int_float = sign | exp | frac;
+    const uint32_t int_float = sign | exp_bits | frac;
 
     float rval = 0;
     std::memcpy(&rval, &int_float, sizeof(float));
@@ -262,14 +267,14 @@ float to_float(Float_components components)
 
 // TODO: Haven't done anything for underflow, overflow or nans
 // TODO: Not extensively tested yet
-float from_IBM_to_float(
+float from_ibm_to_float(
   std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian)
 {
     static_assert(
       sizeof(float) == sizeof(uint32_t),
-      "from_IBM_to_float expects float and uint32_t to have the same size!");
+      "from_ibm_to_float expects float and uint32_t to have the same size!");
 
-    const auto ibm_components = from_IBM(ibm_float_bytes, is_big_endian);
+    const auto ibm_components = from_ibm(ibm_float_bytes, is_big_endian);
     return to_float(ibm_components);
 }
 

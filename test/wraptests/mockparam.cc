@@ -1,19 +1,13 @@
 #include "mockparam.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-::testing::StrictMock<MockParam>& mockParam()
+::testing::StrictMock<Mock_Trace_metadata>& mock_trace_metadata()
 {
-    static ::testing::StrictMock<MockParam> mockParam;
-    return mockParam;
+    static ::testing::StrictMock<Mock_Trace_metadata> mock_trace_metadata;
+    return mock_trace_metadata;
 }
 
-::testing::StrictMock<MockParamFreeFunctions>& mockParamFreeFunctions()
-{
-    static ::testing::StrictMock<MockParamFreeFunctions> mockParamFreeFunctions;
-    return mockParamFreeFunctions;
-}
-
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

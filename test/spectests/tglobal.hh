@@ -1,38 +1,40 @@
-#ifndef TGLOBAL_TEST_INCLUDE_GUARD
-#define TGLOBAL_TEST_INCLUDE_GUARD
+#ifndef EXSEISDAT_TEST_SPECTESTS_TGLOBAL_HH
+#define EXSEISDAT_TEST_SPECTESTS_TGLOBAL_HH
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/utils/typedefs.hh"
 
 #include <cstdlib>
 #include <string>
 
-extern const size_t magicNum1;
-extern const size_t smallSize;
-extern const size_t largeSize;
-extern const size_t largeSEGYSize;
+extern const size_t magic_num1;
+extern const size_t small_size;
+extern const size_t large_size;
+extern const size_t large_segy_size;
 
-extern const std::string notFile;
-extern const std::string zeroFile;
-extern const std::string smallFile;
-extern const std::string largeFile;
+std::string zero_file();
+std::string small_file();
+std::string large_file();
 // Large file with a pattern
-extern const std::string plargeFile;
-// File which is deleted after each creation
-extern const std::string tempFile;
-extern const std::string smallSEGYFile;
-extern const std::string largeSEGYFile;
-extern const std::string bigTraceSEGYFile;
+std::string plarge_file();
+std::string temp_file();
+std::string temp_file_segy();
+std::string small_segy_file();
+std::string large_segy_file();
+std::string big_trace_segy_file();
 
-extern int32_t ilNum(size_t);
-extern int32_t xlNum(size_t);
-extern exseis::utils::Floating_point xNum(size_t i);
-extern exseis::utils::Floating_point yNum(size_t i);
-extern unsigned char getPattern(size_t);
-extern std::vector<size_t> getRandomVec(size_t nt, int seed);
-extern std::vector<size_t> getRandomVec(size_t nt, size_t max, int seed);
+/// Generate a unique filename. MPI Collective call.
+std::string nonexistant_filename();
+
+extern int32_t il_num(size_t);
+extern int32_t xl_num(size_t);
+extern exseis::utils::Floating_point x_num(size_t i);
+extern exseis::utils::Floating_point y_num(size_t i);
+extern unsigned char get_pattern(size_t);
+extern std::vector<size_t> get_random_vec(size_t nt, int seed);
+extern std::vector<size_t> get_random_vec(size_t nt, size_t max, int seed);
 
 
 // List of TypeIdHelper<T> instances to avoid global weak variables due
@@ -105,4 +107,4 @@ ACTION_P2(check4, buf, sz)
     }
 }
 
-#endif
+#endif  // EXSEISDAT_TEST_SPECTESTS_TGLOBAL_HH

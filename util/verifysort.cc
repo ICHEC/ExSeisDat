@@ -1,8 +1,8 @@
 #include "sglobal.hh"
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/operations/sort.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/operations/sort.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -13,15 +13,15 @@
 #include <unistd.h>
 
 using namespace exseis::utils;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 int main(int argc, char** argv)
 {
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     std::string opt = "i:o:t:d";  // TODO: uses a GNU extension
     std::string name1;
-    SortType type = PIOL_SORTTYPE_SrcRcv;
+    SortType type = SortType::SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -42,13 +42,13 @@ int main(int argc, char** argv)
 
     assert(!name1.empty());
 
-    ReadDirect src(piol, name1);
+    ReadSEGY src(piol, name1);
 
     // Perform the decomposition and read coordinates of interest.
     auto dec = block_decomposition(
-      src.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+      src.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
-    if (checkOrder(src, dec, type)) {
+    if (check_order(src, dec, type)) {
         std::cout << "Success\n";
     }
     else {

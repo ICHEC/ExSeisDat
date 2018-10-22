@@ -27,7 +27,10 @@ do
     do
         # Run clang-format on all the files with the given extension in each
         # directory
-        find $dir -iname "*.${ext}" -print0 \
-            | xargs -n 1 -0 -P "${nprocs}" ${FORMAT_EXECUTABLE}
+        if [ ! -z "$(find $dir -iname "*.${ext}")" ]
+        then
+            find $dir -iname "*.${ext}" -print0 \
+                | xargs -n 1 -0 -P "${nprocs}" ${FORMAT_EXECUTABLE}
+        fi
     done
 done

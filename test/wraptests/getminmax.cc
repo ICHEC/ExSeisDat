@@ -1,19 +1,20 @@
 #include "mockgetminmax.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-void getMinMax(
+void get_min_max(
   ExSeisPIOL* piol,
   size_t offset,
   size_t sz,
   Meta m1,
   Meta m2,
-  const Param* prm,
+  const Trace_metadata& prm,
   CoordElem* minmax)
 {
-    return mockGetMinMax().getMinMax(piol, offset, sz, m1, m2, prm, minmax);
+    return mock_get_min_max().get_min_max(
+      piol, offset, sz, m1, m2, prm, minmax);
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

@@ -7,7 +7,7 @@
 /// This example shows how to make a new file with the file api is complete.
 ///
 
-#include "ExSeisDat/PIOL.hh"
+#include "exseisdat/piol.hh"
 
 #include <assert.h>
 #include <iostream>
@@ -16,7 +16,7 @@
 #include <unistd.h>
 
 using namespace exseis::utils;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 int main(int argc, char** argv)
 {
@@ -36,47 +36,47 @@ int main(int argc, char** argv)
     assert(!name.empty());
 
     // Initialise the PIOL by creating an ExSeisPIOL object
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     // Create a SEGY file object
-    WriteDirect file(piol, name);
+    WriteSEGY file(piol, name);
 
     // nt is the number of traces, ns the number of samples per trace
     size_t nt = 40000, ns = 1000;
     // inc is the increment step between traces (microseconds)
-    double inc = 4.0;
+    double sample_interval = 4.0;
 
-    auto dec = block_decomposition(nt, piol->getNumRank(), piol->getRank());
+    auto dec = block_decomposition(nt, piol->get_num_rank(), piol->get_rank());
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
     // Write some header parameters
-    file.writeNs(ns);
-    file.writeNt(nt);
-    file.writeInc(inc);
-    file.writeText("Test file\n");
+    file.write_ns(ns);
+    file.write_nt(nt);
+    file.write_sample_interval(sample_interval);
+    file.write_text("Test file\n");
 
     // Set and write some trace parameters
-    Param prm(lnt);
+    Trace_metadata prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
-        param_utils::setPrm(j, PIOL_META_xSrc, 1600.0 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_ySrc, 2400.0 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_xRcv, 100000.0 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_yRcv, 3000000.0 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_xCmp, 10000.0 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_yCmp, 4000.0 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_il, 2400 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_xl, 1600 + k, &prm);
-        param_utils::setPrm(j, PIOL_META_tn, offset + j, &prm);
+        prm.set_floating_point(j, Meta::x_src, 1600.0 + k);
+        prm.set_floating_point(j, Meta::y_src, 2400.0 + k);
+        prm.set_floating_point(j, Meta::x_rcv, 100000.0 + k);
+        prm.set_floating_point(j, Meta::y_rcv, 3000000.0 + k);
+        prm.set_floating_point(j, Meta::xCmp, 10000.0 + k);
+        prm.set_floating_point(j, Meta::yCmp, 4000.0 + k);
+        prm.set_integer(j, Meta::il, 2400 + k);
+        prm.set_integer(j, Meta::xl, 1600 + k);
+        prm.set_integer(j, Meta::tn, offset + j);
     }
-    file.writeParam(offset, lnt, &prm);
+    file.write_param(offset, lnt, &prm);
 
     // Set and write some traces
     std::vector<float> trc(lnt * ns);
     for (size_t j = 0; j < lnt * ns; j++) {
         trc[j] = float(offset * ns + j);
     }
-    file.writeTrace(offset, lnt, trc.data());
+    file.write_trace(offset, lnt, trc.data());
     return 0;
 }

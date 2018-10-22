@@ -1,13 +1,13 @@
 #include "mockexseis.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-::testing::StrictMock<MockExSeis>& mockExSeis()
+::testing::StrictMock<MockExSeis>& mock_exseis()
 {
-    static ::testing::StrictMock<MockExSeis> mockExSeis;
-    return mockExSeis;
+    static ::testing::StrictMock<MockExSeis> mock_exseis;
+    return mock_exseis;
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

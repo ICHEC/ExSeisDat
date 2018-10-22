@@ -1,19 +1,20 @@
 #include "wraptesttools.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-CheckReturnListener*& checkReturnListener()
+CheckReturnListener*& check_return_listener()
 {
-    static PIOL::CheckReturnListener* checkReturnListener = nullptr;
-    return checkReturnListener;
+    static piol::CheckReturnListener* check_return_listener = nullptr;
+    return check_return_listener;
 }
 
-::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker()
+::testing::StrictMock<::testing::MockFunction<void()>>& return_checker()
 {
-    static ::testing::StrictMock<::testing::MockFunction<void()>> returnChecker;
-    return returnChecker;
+    static ::testing::StrictMock<::testing::MockFunction<void()>>
+      return_checker;
+    return return_checker;
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

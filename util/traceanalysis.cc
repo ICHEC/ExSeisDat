@@ -6,14 +6,13 @@
 /// @details Perform an analysis of a single trace.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
 
 #include <iostream>
 #include <unistd.h>
 
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 /*! Main function for traceanalysis.
  *  @param[in] argc The number of input strings.
@@ -25,7 +24,7 @@ using namespace exseis::PIOL;
  */
 int main(int argc, char** argv)
 {
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     std::string name;
     size_t tn       = 0LU;
@@ -47,43 +46,27 @@ int main(int argc, char** argv)
         }
     }
 
-    ReadDirect file(piol, name);
+    ReadSEGY file(piol, name);
 
-    Param prm(1LU);
-    file->readParam(tn, 1LU, &prm);
+    Trace_metadata prm(1LU);
+    file.read_param(tn, 1LU, &prm);
 
-    if (piol->getRank() == 0) {
-        std::cout << "xSrc "
-                  << param_utils::getPrm<exseis::utils::Floating_point>(
-                       0LU, PIOL_META_xSrc, &prm)
+    if (piol->get_rank() == 0) {
+        std::cout << "x_src " << prm.get_floating_point(0LU, Meta::x_src)
                   << std::endl;
-        std::cout << "ySrc "
-                  << param_utils::getPrm<exseis::utils::Floating_point>(
-                       0LU, PIOL_META_ySrc, &prm)
+        std::cout << "y_src " << prm.get_floating_point(0LU, Meta::y_src)
                   << std::endl;
-        std::cout << "xRcv "
-                  << param_utils::getPrm<exseis::utils::Floating_point>(
-                       0LU, PIOL_META_xRcv, &prm)
+        std::cout << "x_rcv " << prm.get_floating_point(0LU, Meta::x_rcv)
                   << std::endl;
-        std::cout << "yRcv "
-                  << param_utils::getPrm<exseis::utils::Floating_point>(
-                       0LU, PIOL_META_yRcv, &prm)
+        std::cout << "y_rcv " << prm.get_floating_point(0LU, Meta::y_rcv)
                   << std::endl;
-        std::cout << "xCmp "
-                  << param_utils::getPrm<exseis::utils::Floating_point>(
-                       0LU, PIOL_META_xCmp, &prm)
+        std::cout << "xCmp " << prm.get_floating_point(0LU, Meta::xCmp)
                   << std::endl;
-        std::cout << "yCmp "
-                  << param_utils::getPrm<exseis::utils::Floating_point>(
-                       0LU, PIOL_META_yCmp, &prm)
+        std::cout << "yCmp " << prm.get_floating_point(0LU, Meta::yCmp)
                   << std::endl;
 
-        std::cout << "il "
-                  << param_utils::getPrm<size_t>(0LU, PIOL_META_il, &prm)
-                  << std::endl;
-        std::cout << "xl "
-                  << param_utils::getPrm<size_t>(0LU, PIOL_META_xl, &prm)
-                  << std::endl;
+        std::cout << "il " << prm.get_integer(0LU, Meta::il) << std::endl;
+        std::cout << "xl " << prm.get_integer(0LU, Meta::xl) << std::endl;
     }
     return 0;
 }

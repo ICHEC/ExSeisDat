@@ -3,84 +3,80 @@
 using namespace exseis::utils;
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-Param::Param(std::shared_ptr<Rule> r_, const size_t sz)
+Trace_metadata::Trace_metadata(Rule rules, size_t num_traces) :
+    rules(true, true, true)
 {
-    mockParam().ctor(this, r_, sz);
+    mock_trace_metadata().ctor(this, rules, num_traces);
 }
 
-Param::Param(const size_t sz)
+Trace_metadata::Trace_metadata(size_t num_traces) : rules(true, true, true)
 {
-    mockParam().ctor(this, sz);
+    mock_trace_metadata().ctor(this, num_traces);
 }
 
-Param::~Param()
+Trace_metadata::~Trace_metadata()
 {
-    mockParam().dtor(this);
+    mock_trace_metadata().dtor(this);
 }
 
-size_t Param::size(void) const
+exseis::utils::Floating_point Trace_metadata::get_floating_point(
+  size_t trace_index, Trace_metadata::Key entry) const
 {
-    return mockParam().size(this);
+    return mock_trace_metadata().get_floating_point(this, trace_index, entry);
 }
 
-size_t Param::memUsage(void) const
+void Trace_metadata::set_floating_point(
+  size_t trace_index,
+  Trace_metadata::Key entry,
+  exseis::utils::Floating_point value)
 {
-    return mockParam().memUsage(this);
+    mock_trace_metadata().set_floating_point(this, trace_index, entry, value);
 }
 
-void param_utils::cpyPrm(
-  const size_t j, const Param* src, const size_t k, Param* dst)
+exseis::utils::Integer Trace_metadata::get_integer(
+  size_t trace_index, Trace_metadata::Key entry) const
 {
-    mockParamFreeFunctions().cpyPrm(j, src, k, dst);
+    return mock_trace_metadata().get_integer(this, trace_index, entry);
 }
 
-
-template<>
-int16_t param_utils::getPrm<int16_t>(size_t i, Meta entry, const Param* prm)
+void Trace_metadata::set_integer(
+  size_t trace_index, Trace_metadata::Key entry, exseis::utils::Integer value)
 {
-    return mockParamFreeFunctions().getPrm_int16_t(i, entry, prm);
+    mock_trace_metadata().set_integer(this, trace_index, entry, value);
 }
 
-template<>
-exseis::utils::Integer param_utils::getPrm<exseis::utils::Integer>(
-  size_t i, Meta entry, const Param* prm)
+size_t Trace_metadata::get_index(
+  size_t trace_index, Trace_metadata::Key entry) const
 {
-    return mockParamFreeFunctions().getPrm_Integer(i, entry, prm);
+    return mock_trace_metadata().get_index(this, trace_index, entry);
 }
 
-template<>
-exseis::utils::Floating_point
-param_utils::getPrm<exseis::utils::Floating_point>(
-  size_t i, Meta entry, const Param* prm)
+void Trace_metadata::set_index(
+  size_t trace_index, Trace_metadata::Key entry, size_t value)
 {
-    return mockParamFreeFunctions().getPrm_Floating_point(i, entry, prm);
+    mock_trace_metadata().set_index(this, trace_index, entry, value);
 }
 
-template<>
-void param_utils::setPrm<int16_t>(
-  const size_t i, const Meta entry, int16_t ret, Param* prm)
+void Trace_metadata::copy_entries(
+  size_t trace_index,
+  const Trace_metadata& source_trace_metadata,
+  size_t source_trace_index)
 {
-    mockParamFreeFunctions().setPrm_int16_t(i, entry, ret, prm);
+    mock_trace_metadata().copy_entries(
+      this, trace_index, source_trace_metadata, source_trace_index);
 }
 
-template<>
-void param_utils::setPrm<exseis::utils::Integer>(
-  const size_t i, const Meta entry, exseis::utils::Integer ret, Param* prm)
+size_t Trace_metadata::size(void) const
 {
-    mockParamFreeFunctions().setPrm_Integer(i, entry, ret, prm);
+    return mock_trace_metadata().size(this);
 }
 
-template<>
-void param_utils::setPrm<exseis::utils::Floating_point>(
-  const size_t i,
-  const Meta entry,
-  exseis::utils::Floating_point ret,
-  Param* prm)
+size_t Trace_metadata::memory_usage(void) const
 {
-    mockParamFreeFunctions().setPrm_Floating_point(i, entry, ret, prm);
+    return mock_trace_metadata().memory_usage(this);
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

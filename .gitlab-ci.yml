@@ -1,0 +1,142 @@
+image: ubuntu:18.04
+
+before_script:
+    - apt-get update
+    - apt-get install -y
+        cmake
+        doxygen graphviz
+        gcc-8 g++-8
+        git
+        clang
+        clang-tidy clang-format
+        libfftw3-dev
+        mpich
+
+
+.snippets:
+    - &configure
+        mkdir build
+        && pushd build
+        && cmake
+            -DCMAKE_VERBOSE_MAKEFILE=ON
+            -DBUILD_SHARED_LIBS=ON
+            -DCMAKE_BUILD_TYPE=${cmake_build_type}
+            -DCMAKE_C_COMPILER=${CC}
+            -DCMAKE_C_FLAGS="
+                ${sanitizer_flags}
+                ${performance_flags}
+                ${warning_flags}
+                ${max_error_flag}
+                ${extra_flags}"
+            -DCMAKE_CXX_COMPILER=${CXX}
+            -DCMAKE_CXX_FLAGS="
+                ${sanitizer_flags}
+                ${performance_flags}
+                ${warning_flags}
+                ${max_error_flag}
+                ${extra_flags}"
+            -DCMAKE_CXX_EXTENSIONS=OFF
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            ..
+        && popd
+    - &build
+        make -C build
+    - &test
+        make -C build test ARGS=-V
+
+
+.default_job: &default_job
+    tags:
+        - docker
+    script:
+        - *configure
+        - *build
+        - *test
+
+.environment_variables:
+    default_environment_variables: &default_environment_variables
+        ASAN_OPTIONS: detect_leaks=0:detect_odr_violation=1
+
+.flags:
+    default_debug_flags: &default_debug_flags
+        sanitizer_flags:
+            -fsanitize=address,undefined
+            -fno-sanitize-recover=all
+            -fno-omit-frame-pointer
+        performance_flags: -Og -g -fstrict-aliasing
+        warning_flags:
+            -Wall -Wextra -Wpedantic -pedantic
+            -Wno-error=unknown-pragmas
+            -Wswitch-enum
+            -Wimplicit-fallthrough
+            -Werror
+        extra_flags: ""
+        cmake_build_type: Debug
+    gcc_debug_flags: &gcc_debug_flags
+        <<: *default_debug_flags
+        max_error_flag: -fmax-errors=1
+    clang_debug_flags: &clang_debug_flags
+        <<: *default_debug_flags
+        max_error_flag: -ferror-limit=1
+
+stages:
+    - static analysis
+    - gcc debug test
+    - clang debug test
+
+Clang Format:
+    <<: *default_job
+    stage: static analysis
+    variables:
+        <<: *default_environment_variables
+        <<: *clang_debug_flags
+        CC: clang
+        CXX: clang++
+    script:
+        - ./scripts/run_format.sh
+            && git status
+            && git diff-index --quiet HEAD
+            || { echo "This commit contains unformatted files! Run scripts/run_format.sh on the project to format them correctly."; false; }
+
+Clang Tidy:
+    <<: *default_job
+    stage: static analysis
+    variables:
+        <<: *default_environment_variables
+        <<: *clang_debug_flags
+        CC: clang
+        CXX: clang++
+    script:
+        - *configure
+        - make -C build/test unpack_googletest
+        - ./scripts/run_lint.sh build
+
+Doxygen:
+    <<: *default_job
+    stage: static analysis
+    variables:
+        <<: *default_environment_variables
+        <<: *clang_debug_flags
+        CC: clang
+        CXX: clang++
+    script:
+        - *configure
+        - make -C build/doc
+
+Gcc Debug Test:
+    <<: *default_job
+    stage: gcc debug test
+    variables:
+        <<: *default_environment_variables
+        <<: *gcc_debug_flags
+        CC: gcc-8
+        CXX: g++-8
+
+Clang Debug Test: &clang_debug_test
+    <<: *default_job
+    stage: clang debug test
+    variables:
+        <<: *default_environment_variables
+        <<: *clang_debug_flags
+        CC: clang
+        CXX: clang++

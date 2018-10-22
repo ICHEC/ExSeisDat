@@ -1,5 +1,5 @@
-#ifndef PIOLWRAPTESTSPRINTERS_INCLUDE_GUARD
-#define PIOLWRAPTESTSPRINTERS_INCLUDE_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_PRINTERS_HH
+#define EXSEISDAT_TEST_WRAPTESTS_PRINTERS_HH
 
 #include <iostream>
 #include <memory>
@@ -9,22 +9,22 @@ extern "C" struct PIOL_CoordElem;
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value);
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-struct Rule;
-struct Param;
+class Rule;
+class Trace_metadata;
 
-::std::ostream& operator<<(::std::ostream& os, Param* value);
-::std::ostream& operator<<(::std::ostream& os, const Param* value);
+::std::ostream& operator<<(::std::ostream& os, Trace_metadata* value);
+::std::ostream& operator<<(::std::ostream& os, const Trace_metadata* value);
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
 namespace std {
 
 ::std::ostream& operator<<(
-  ::std::ostream& os, const std::shared_ptr<exseis::PIOL::Rule>& value);
+  ::std::ostream& os, const std::shared_ptr<exseis::piol::Rule>& value);
 
 }  // namespace std
 
-#endif  // PIOLWRAPTESTSPRINTERS_INCLUDE_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_PRINTERS_HH

@@ -1,11 +1,11 @@
-#ifndef PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
-#define PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_CHECKRETURNLISTENER_HH
+#define EXSEISDAT_TEST_WRAPTESTS_CHECKRETURNLISTENER_HH
 
 #include "googletest_variable_instances.hh"
 #include "gtest/gtest.h"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 class CheckReturnListener : public ::testing::EmptyTestEventListener {
   public:
@@ -25,13 +25,13 @@ class CheckReturnListener : public ::testing::EmptyTestEventListener {
 
   private:
     // A flag to say if the listener is awaiting a return value.
-    bool expecting_return_value = false;
+    bool m_expecting_return_value = false;
 
     // A pretty string representing the expected return value.
-    std::string return_value;
+    std::string m_return_value;
 };
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
-#endif  // PIOLWRAPTESTSCHECKRETURNLISTENER_HEADER_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_CHECKRETURNLISTENER_HH

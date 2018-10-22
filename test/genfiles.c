@@ -11,7 +11,7 @@
 /// @param[in] pattern      The pattern to write to the file
 ///                         (pointer to array of size \c pattern_size)
 /// @param[in] pattern_size The size of the \c pattern array
-void makeFile(
+void make_file(
   const char* filename,
   size_t file_size,
   const unsigned char* pattern,
@@ -52,7 +52,7 @@ void makeFile(
 
 /// Function to generate the in-line trace parameter for trace \c i
 /// @param[in] trace_num The id of the trace to generate the in-line value for.
-int32_t ilNum(size_t trace_num)
+int32_t il_num(size_t trace_num)
 {
     return 1600L + (trace_num / 3000L);
 }
@@ -60,7 +60,7 @@ int32_t ilNum(size_t trace_num)
 /// Function to generate the cross-line trace parameter for trace \c i
 /// @param[in] trace_num The id of the trace to generate the cross-line value
 ///                      for.
-int32_t xlNum(size_t trace_num)
+int32_t xl_num(size_t trace_num)
 {
     return 1600L + (trace_num % 3000L);
 }
@@ -68,7 +68,7 @@ int32_t xlNum(size_t trace_num)
 /// Function to generate the source x coordinate trace parameter for trace \c i
 /// @param[in] trace_num The id of the trace to generate the source x coordinate
 ///                      value for.
-int32_t xNum(size_t trace_num)
+int32_t x_num(size_t trace_num)
 {
     return 1000L + (trace_num / 2000L);
 }
@@ -76,7 +76,7 @@ int32_t xNum(size_t trace_num)
 /// Function to generate the source y coordinate trace parameter for trace \c i
 /// @param[in] trace_num The id of the trace to generate the source y coordinate
 ///                      value for.
-int32_t yNum(size_t trace_num)
+int32_t y_num(size_t trace_num)
 {
     return 1000L + (trace_num % 2000L);
 }
@@ -98,7 +98,7 @@ static size_t min(size_t a, size_t b)
 /// @param[in] ns       The number of samples per trace
 /// @param[in] nt       The number of traces in the SEGY file
 /// @param[in] maxBlock The maximum amount of memory to use for writing.
-void makeSEGY(const char* filename, size_t ns, size_t nt, size_t maxBlock)
+void make_segy(const char* filename, size_t ns, size_t nt, size_t max_block)
 {
     const size_t header_size       = 3600;
     const size_t trace_header_size = 240U;
@@ -144,7 +144,7 @@ void makeSEGY(const char* filename, size_t ns, size_t nt, size_t maxBlock)
 
         // Find write buffer size and number of traces per write buffer,
         // up to a maximum of maxBlock.
-        size_t buffer_size = min(maxBlock, (file_size - header_size));
+        size_t buffer_size = min(max_block, (file_size - header_size));
         buffer_size -= buffer_size % data_object_size;
         size_t nt_per_buffer = buffer_size / data_object_size;
 
@@ -168,15 +168,16 @@ void makeSEGY(const char* filename, size_t ns, size_t nt, size_t maxBlock)
                 for (size_t k = 0; k < ns; k++) {
 
                     const float f = i + j + k;
-                    uint32_t i    = 0;
-                    memcpy(&i, &f, sizeof(uint32_t));
+                    uint32_t f_i  = 0;
+                    memcpy(&f_i, &f, sizeof(uint32_t));
 
                     trace_buffer[trace_header_size + 4 * k + 0] =
-                      i >> 24 & 0xFF;
+                      f_i >> 24 & 0xFF;
                     trace_buffer[trace_header_size + 4 * k + 1] =
-                      i >> 16 & 0xFF;
-                    trace_buffer[trace_header_size + 4 * k + 2] = i >> 8 & 0xFF;
-                    trace_buffer[trace_header_size + 4 * k + 3] = i & 0xFF;
+                      f_i >> 16 & 0xFF;
+                    trace_buffer[trace_header_size + 4 * k + 2] =
+                      f_i >> 8 & 0xFF;
+                    trace_buffer[trace_header_size + 4 * k + 3] = f_i & 0xFF;
                 }
 
 
@@ -188,28 +189,28 @@ void makeSEGY(const char* filename, size_t ns, size_t nt, size_t maxBlock)
                 trace_buffer[71] = scale & 0xFF;
 
                 // Source coordinate - X
-                int32_t x        = xNum(i + j);
+                int32_t x        = x_num(i + j);
                 trace_buffer[72] = x >> 24 & 0xFF;
                 trace_buffer[73] = x >> 16 & 0xFF;
                 trace_buffer[74] = x >> 8 & 0xFF;
                 trace_buffer[75] = x & 0xFF;
 
                 // Source coordinate - Y
-                int32_t y        = yNum(i + j);
+                int32_t y        = y_num(i + j);
                 trace_buffer[76] = y >> 24 & 0xFF;
                 trace_buffer[77] = y >> 16 & 0xFF;
                 trace_buffer[78] = y >> 8 & 0xFF;
                 trace_buffer[79] = y & 0xFF;
 
                 // In-line number
-                int32_t il        = ilNum(i + j);
+                int32_t il        = il_num(i + j);
                 trace_buffer[188] = il >> 24 & 0xFF;
                 trace_buffer[189] = il >> 16 & 0xFF;
                 trace_buffer[190] = il >> 8 & 0xFF;
                 trace_buffer[191] = il & 0xFF;
 
                 // Cross-line number
-                int32_t xl        = xlNum(i + j);
+                int32_t xl        = xl_num(i + j);
                 trace_buffer[192] = xl >> 24 & 0xFF;
                 trace_buffer[193] = xl >> 16 & 0xFF;
                 trace_buffer[194] = xl >> 8 & 0xFF;
@@ -247,27 +248,37 @@ int main(int argc, char* argv[])
 
         const char* filename = argv[i];
 
+        // Find the base name of the file
+        const char* base_name = filename + strlen(filename);
+        while (base_name != filename) {
+            base_name--;
+            if (*base_name == '/' || *base_name == '\\') {
+                base_name++;
+                break;
+            }
+        }
+
         printf("Generating file: %s\n", filename);
 
-        if (strcmp("smallFilePattern.tmp", filename) == 0) {
-            makeFile(filename, 4096ll, pattern, pattern_size);
+        if (strcmp("small_file_pattern.tmp", base_name) == 0) {
+            make_file(filename, 4096ll, pattern, pattern_size);
             continue;
         }
-        if (strcmp("largeFilePattern.tmp", filename) == 0) {
-            makeFile(
+        if (strcmp("large_file_pattern.tmp", base_name) == 0) {
+            make_file(
               filename, 10ll * 1024ll * 1024ll * 1024ll, pattern, pattern_size);
             continue;
         }
-        if (strcmp("smallsegy.tmp", filename) == 0) {
-            makeSEGY(filename, 261U, 400U, 1024U * 1024U);
+        if (strcmp("small_segy.tmp", base_name) == 0) {
+            make_segy(filename, 261U, 400U, 1024U * 1024U);
             continue;
         }
-        if (strcmp("bigtracesegy.tmp", filename) == 0) {
-            makeSEGY(filename, 32000U, 40000U, 1024U * 1024U);
+        if (strcmp("big_trace_segy.tmp", base_name) == 0) {
+            make_segy(filename, 32000U, 40000U, 1024U * 1024U);
             continue;
         }
-        if (strcmp("largesegy.tmp", filename) == 0) {
-            makeSEGY(filename, 1000U, 2000000U, 1024U * 1024U);
+        if (strcmp("large_segy.tmp", base_name) == 0) {
+            make_segy(filename, 1000U, 2000000U, 1024U * 1024U);
             continue;
         }
 
@@ -276,20 +287,20 @@ int main(int argc, char* argv[])
         // Files for system tests
         //
 
-        if (strcmp("notrace.segy", filename) == 0) {
-            makeSEGY(filename, 1000U, 0U, 3600U);
+        if (strcmp("no_trace.segy", base_name) == 0) {
+            make_segy(filename, 1000U, 0U, 3600U);
             continue;
         }
-        if (strcmp("onetrace.segy", filename) == 0) {
-            makeSEGY(filename, 1000U, 1U, 1024U * 1024U * 1024U);
+        if (strcmp("one_trace.segy", base_name) == 0) {
+            make_segy(filename, 1000U, 1U, 1024U * 1024U * 1024U);
             continue;
         }
-        if (strcmp("onebigtrace.segy", filename) == 0) {
-            makeSEGY(filename, 32768U, 1U, 16U * 1024U * 1024U);
+        if (strcmp("one_big_trace.segy", base_name) == 0) {
+            make_segy(filename, 32768U, 1U, 16U * 1024U * 1024U);
             continue;
         }
-        if (strcmp("smallsegy.segy", filename) == 0) {
-            makeSEGY(filename, 1000U, 2200000U, 1024U * 1024U * 1024U);
+        if (strcmp("small_segy.segy", base_name) == 0) {
+            make_segy(filename, 1000U, 2200000U, 1024U * 1024U * 1024U);
             continue;
         }
 

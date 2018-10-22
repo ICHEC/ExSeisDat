@@ -11,10 +11,10 @@
 #include "exseiswraptest.hh"
 #include "getminmaxwraptests.hh"
 #include "paramwraptests.hh"
-#include "readdirectwraptests.hh"
+#include "readinterfacewraptests.hh"
 #include "rulewraptests.hh"
 #include "setwraptests.hh"
-#include "writedirectwraptests.hh"
+#include "writeinterfacewraptests.hh"
 
 extern "C" {
 
@@ -43,31 +43,33 @@ void init_wraptests()
     listeners.Release(listeners.default_result_printer());
 
     // Setup and add the CheckReturnListener
-    exseis::PIOL::checkReturnListener() = new exseis::PIOL::CheckReturnListener;
-    listeners.Append(exseis::PIOL::checkReturnListener());
+    exseis::piol::check_return_listener() =
+      new exseis::piol::CheckReturnListener;
+    listeners.Append(exseis::piol::check_return_listener());
 
     //::testing::FLAGS_gmock_verbose = "info";
     ::testing::FLAGS_gmock_verbose = "error";
 
     // Add test initializers here
     testing::InSequence s;
-    auto test_exseis = test_PIOL_ExSeis();
-    auto test_rule   = test_PIOL_File_Rule();
-    auto test_param  = test_PIOL_File_Param(test_rule);
-    test_PIOL_File_getMinMax(test_exseis, test_param);
-    test_PIOL_File_ReadDirect(test_exseis, test_param);
-    test_PIOL_File_WriteDirect(test_exseis, test_param);
-    test_PIOL_Set(test_exseis);
+    auto test_exseis = test_piol_exseis();
+    auto test_rule   = test_piol_file_rule();
+    auto test_param  = test_piol_file_trace_metadata(test_rule);
+    test_piol_file_get_min_max(test_exseis, test_param);
+    test_piol_file_read_interface(test_exseis, test_param);
+    test_piol_file_write_interface(test_exseis, test_param);
+    test_piol_set(test_exseis, test_param);
 
     // Add cleanup
-    EXPECT_CALL(exseis::PIOL::mockParam(), dtor(EqDeref(test_param)));
-    EXPECT_CALL(exseis::PIOL::mockRule(), dtor(EqDeref(test_rule)));
-    EXPECT_CALL(exseis::PIOL::mockExSeis(), dtor(EqDeref(test_exseis)));
+    EXPECT_CALL(exseis::piol::mock_trace_metadata(), dtor(EqDeref(test_param)));
+    EXPECT_CALL(exseis::piol::mock_rule(), Rule_dtor(testing::_));
+    EXPECT_CALL(exseis::piol::mock_rule(), Rule_dtor(EqDeref(test_rule)));
+    EXPECT_CALL(exseis::piol::mock_exseis(), dtor(EqDeref(test_exseis)));
 }
 
 void wraptest_ok()
 {
-    exseis::PIOL::returnChecker().Call();
+    exseis::piol::return_checker().Call();
 }
 
 }  // extern "C"

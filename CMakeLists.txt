@@ -78,6 +78,11 @@ set(
 )
 
 set(
+    EXSEISDAT_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE STRING
+    "The install directory for ExSeisDat headers."
+)
+
+set(
     EXSEISDAT_INSTALL_DOCDIR ${CMAKE_INSTALL_DOCDIR} CACHE STRING
     "The install directory for ExSeisDat libraries."
 )
@@ -103,6 +108,16 @@ if(NOT CMAKE_BUILD_TYPE)
     )
     unset(_CMAKE_BUILD_TYPE_HELPSTRING)
 endif(NOT CMAKE_BUILD_TYPE)
+
+
+#
+# Set up configuration specifics
+#
+option(
+    EXSEISDAT_USE_MPIIO_COLLECTIVES
+    "Use collective MPI I/O operations by default"
+    OFF
+)
 
 
 # Find needed libraries ########################################################
@@ -182,31 +197,26 @@ add_library(
 
     src/PIOL_C_bindings.cc
 
-    src/Flow/Cache.cc
-    src/Flow/Flow_C_bindings.cc
-    src/Flow/RadonGatherState.cc
-    src/Flow/Set.cc
+    src/flow/Cache.cc
+    src/flow/Flow_C_bindings.cc
+    src/flow/RadonGatherState.cc
+    src/flow/Set.cc
+
+    src/piol/mpi/MPI_Binary_file.cc
+    src/piol/segy/utils.cc
 
     src/CommunicatorMPI.cc
-    src/DataMPIIO.cc
     src/ExSeis.cc
     src/ExSeisPIOL.cc
-    src/Logger.cc
     src/ObjectInterface.cc
     src/ObjectSEGY.cc
-    src/Param.cc
-    src/ReadDirect.cc
     src/ReadInterface.cc
-    src/ReadModel.cc
     src/ReadSEGY.cc
     src/ReadSEGYModel.cc
     src/Rule.cc
-    src/WriteDirect.cc
+    src/Trace_metadata.cc
     src/WriteInterface.cc
     src/WriteSEGY.cc
-
-    src/param_utils.cc
-    src/segy_utils.cc
 
     src/gather.cc
     src/minmax.cc
@@ -216,24 +226,41 @@ add_library(
     src/utils/decomposition/block_decomposition.cc
     src/utils/encoding/character_encoding.cc
     src/utils/encoding/number_encoding.cc
+    src/utils/logging/Log.cc
+    src/utils/logging/Status.cc
     src/utils/mpi/MPI_error_to_string.cc
+    src/utils/mpi/MPI_max_array_length.cc
     src/utils/signal_processing/AGC.cc
     src/utils/signal_processing/Gain_function.cc
-    src/utils/signal_processing/taper.cc
     src/utils/signal_processing/Taper_function.cc
+    src/utils/signal_processing/taper.cc
 )
 
 target_link_libraries(
     exseisdat
     PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES}
 )
-set_target_properties(
-    exseisdat
-    PROPERTIES COMPILE_DEFINITIONS EXSEISDAT_MPIIO_COLLECTIVES
-)
 target_include_directories(
     exseisdat BEFORE
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+set_target_properties(
+    exseisdat
+    PROPERTIES DEFINE_SYMBOL "EXSEISDAT_EXPORTS"
+)
+
+#
+# Setup extra compiler flags
+#
+set(_EXSEISDAT_DEFINITIONS)
+
+if(EXSEISDAT_USE_MPIIO_COLLECTIVES)
+    list(APPEND _EXSEISDAT_DEFINITIONS "EXSEISDAT_USE_MPIIO_COLLECTIVES")
+endif(EXSEISDAT_USE_MPIIO_COLLECTIVES)
+
+set_target_properties(
+    exseisdat
+    PROPERTIES COMPILE_DEFINITIONS "${_EXSEISDAT_DEFINITIONS}"
 )
 
 
@@ -273,9 +300,14 @@ endif(EXSEISDAT_BUILD_DOCUMENTATION)
 # Install libexseisdat
 install(
     TARGETS exseisdat
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${EXSEISDAT_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${EXSEISDAT_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${EXSEISDAT_INSTALL_LIBDIR}
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/exseisdat
+    DESTINATION ${EXSEISDAT_INSTALL_INCLUDEDIR}
 )
 
 # TODO: setup install for headers

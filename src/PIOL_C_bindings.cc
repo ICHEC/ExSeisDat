@@ -7,254 +7,276 @@
 /// @details Functions etc for C11 API
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL.h"
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/operations/minmax.h"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/piol.h"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ReadInterface.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/Trace_metadata.hh"
+#include "exseisdat/piol/WriteInterface.hh"
+#include "exseisdat/piol/operations/minmax.hh"
+#include "exseisdat/utils/typedefs.hh"
 
 #include "not_null.hh"
 
 #include <assert.h>
 #include <cstddef>
-#include <iostream>
 
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 using namespace exseis::utils::typedefs;
 
+namespace exseis {
+namespace piol {
 extern "C" {
 
-PIOL_File_Rule* PIOL_File_Rule_new(bool def)
+piol_file_rule* piol_file_rule_new(bool def)
 {
-    return new std::shared_ptr<Rule>(new Rule(true, def));
+    return new Rule(true, def);
 }
 
-PIOL_File_Rule* PIOL_File_Rule_new_from_list(const PIOL_Meta* m, size_t n)
+piol_file_rule* piol_file_rule_new_from_list(const exseis_Meta* m, size_t n)
 {
     assert(not_null(m));
 
-    return new std::shared_ptr<Rule>(new Rule({m, m + n}, true, false, false));
+    std::vector<Meta> metas;
+    metas.reserve(n);
+    for (size_t i = 0; i < n; i++) {
+        metas.push_back(static_cast<Meta>(m[i]));
+    }
+
+    return new Rule(std::move(metas), true, false, false);
 }
 
-void PIOL_File_Rule_delete(PIOL_File_Rule* rule)
+void piol_file_rule_delete(piol_file_rule* rule)
 {
     delete rule;
 }
 
-void PIOL_File_Rule_addLong(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc)
+void piol_file_rule_add_long(piol_file_rule* rule, exseis_Meta m, exseis_Tr loc)
 {
     assert(not_null(rule));
 
-    (**rule).addLong(m, loc);
+    (*rule).add_long(static_cast<Meta>(m), static_cast<Tr>(loc));
 }
 
-void PIOL_File_Rule_addShort(PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc)
+void piol_file_rule_add_short(
+  piol_file_rule* rule, exseis_Meta m, exseis_Tr loc)
 {
     assert(not_null(rule));
 
-    (**rule).addShort(m, loc);
+    (*rule).add_short(static_cast<Meta>(m), static_cast<Tr>(loc));
 }
 
-void PIOL_File_Rule_addSEGYFloat(
-  PIOL_File_Rule* rule, PIOL_Meta m, PIOL_Tr loc, PIOL_Tr scalLoc)
+void piol_file_rule_add_segy_float(
+  piol_file_rule* rule, exseis_Meta m, exseis_Tr loc, exseis_Tr scalar_location)
 {
     assert(not_null(rule));
 
-    (**rule).addSEGYFloat(m, loc, scalLoc);
+    (*rule).add_segy_float(
+      static_cast<Meta>(m), static_cast<Tr>(loc),
+      static_cast<Tr>(scalar_location));
 }
 
-void PIOL_File_Rule_addIndex(PIOL_File_Rule* rule, PIOL_Meta m)
+void piol_file_rule_add_index(piol_file_rule* rule, exseis_Meta m)
 {
     assert(not_null(rule));
 
-    (**rule).addIndex(m);
+    (*rule).add_index(static_cast<Meta>(m));
 }
 
-void PIOL_File_Rule_addCopy(PIOL_File_Rule* rule)
+void piol_file_rule_add_copy(piol_file_rule* rule)
 {
     assert(not_null(rule));
 
-    (**rule).addCopy();
+    (*rule).add_copy();
 }
 
-void PIOL_File_Rule_rmRule(PIOL_File_Rule* rule, PIOL_Meta m)
+void piol_file_rule_rm_rule(piol_file_rule* rule, exseis_Meta m)
 {
     assert(not_null(rule));
 
-    (**rule).rmRule(m);
+    (*rule).rm_rule(static_cast<Meta>(m));
 }
 
-size_t PIOL_File_Rule_extent(PIOL_File_Rule* rule)
+size_t piol_file_rule_extent(piol_file_rule* rule)
 {
     assert(not_null(rule));
 
-    return (**rule).extent();
+    return (*rule).extent();
 }
 
-size_t PIOL_File_Rule_memUsage(const PIOL_File_Rule* rule)
+size_t piol_file_rule_memory_usage(const piol_file_rule* rule)
 {
     assert(not_null(rule));
 
-    return (**rule).memUsage();
+    return (*rule).memory_usage();
 }
 
-size_t PIOL_File_Rule_paramMem(const PIOL_File_Rule* rule)
+size_t piol_file_rule_memory_usage_per_header(const piol_file_rule* rule)
 {
     assert(not_null(rule));
 
-    return (**rule).paramMem();
+    return (*rule).memory_usage_per_header();
 }
 
-PIOL_File_Param* PIOL_File_Param_new(PIOL_File_Rule* rule, size_t sz)
+piol_file_trace_metadata* piol_file_trace_metadata_new(
+  piol_file_rule* rule, size_t sz)
 {
     if (not_null(rule)) {
-        return new Param(*rule, sz);
+        return new Trace_metadata(*rule, sz);
     }
     else {
-        return new Param(sz);
+        return new Trace_metadata(sz);
     }
 }
 
-void PIOL_File_Param_delete(PIOL_File_Param* param)
+void piol_file_trace_metadata_delete(piol_file_trace_metadata* param)
 {
     delete param;
 }
 
-size_t PIOL_File_Param_size(const PIOL_File_Param* param)
+size_t piol_file_trace_metadata_size(const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
     return param->size();
 }
 
-size_t PIOL_File_Param_memUsage(const PIOL_File_Param* param)
+size_t piol_file_trace_metadata_memory_usage(
+  const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    return param->memUsage();
+    return param->memory_usage();
 }
 
-bool PIOL_File_Rule_addRule_Meta(PIOL_File_Rule* rule, PIOL_Meta m)
+bool piol_file_rule_add_rule_meta(piol_file_rule* rule, exseis_Meta m)
 {
     assert(not_null(rule));
 
-    return (**rule).addRule(m);
+    return (*rule).add_rule(static_cast<Meta>(m));
 }
 
-bool PIOL_File_Rule_addRule_Rule(
-  PIOL_File_Rule* rule, const PIOL_File_Rule* ruleToCopy)
+bool piol_file_rule_add_rule_rule(
+  piol_file_rule* rule, const piol_file_rule* rule_to_copy)
 {
     assert(not_null(rule));
-    assert(not_null(ruleToCopy));
+    assert(not_null(rule_to_copy));
 
-    return (**rule).addRule(**ruleToCopy);
+    return (*rule).add_rule(*rule_to_copy);
 }
 
-int16_t PIOL_File_getPrm_short(
-  size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
+size_t piol_file_get_prm_index(
+  size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    return param_utils::getPrm<int16_t>(i, entry, param);
+    return param->get_index(i, static_cast<Meta>(entry));
 }
 
-exseis_Integer PIOL_File_getPrm_Integer(
-  size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
+exseis_Integer piol_file_get_prm_integer(
+  size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    return param_utils::getPrm<exseis::utils::Integer>(i, entry, param);
+    return param->get_integer(i, static_cast<Meta>(entry));
 }
 
-exseis_Floating_point PIOL_File_getPrm_double(
-  size_t i, PIOL_Meta entry, const PIOL_File_Param* param)
+exseis_Floating_point piol_file_get_prm_double(
+  size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    return param_utils::getPrm<exseis::utils::Floating_point>(i, entry, param);
+    return param->get_floating_point(i, static_cast<Meta>(entry));
 }
 
-void PIOL_File_setPrm_short(
-  size_t i, PIOL_Meta entry, int16_t ret, PIOL_File_Param* param)
+void piol_file_set_prm_index(
+  size_t i, exseis_Meta entry, size_t ret, piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    param_utils::setPrm(i, entry, ret, param);
+    param->set_index(i, static_cast<Meta>(entry), ret);
 }
 
-void PIOL_File_setPrm_Integer(
-  size_t i, PIOL_Meta entry, exseis_Integer ret, PIOL_File_Param* param)
+void piol_file_set_prm_integer(
+  size_t i,
+  exseis_Meta entry,
+  exseis_Integer ret,
+  piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    param_utils::setPrm(i, entry, ret, param);
+    param->set_integer(i, static_cast<Meta>(entry), ret);
 }
 
-void PIOL_File_setPrm_double(
-  size_t i, PIOL_Meta entry, exseis_Floating_point ret, PIOL_File_Param* param)
+void piol_file_set_prm_double(
+  size_t i,
+  exseis_Meta entry,
+  exseis_Floating_point ret,
+  piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
-    param_utils::setPrm(i, entry, ret, param);
+    param->set_floating_point(i, static_cast<Meta>(entry), ret);
 }
 
-void PIOL_File_cpyPrm(
-  size_t i, const PIOL_File_Param* src, size_t j, PIOL_File_Param* dst)
+void piol_file_cpy_prm(
+  size_t i,
+  const piol_file_trace_metadata* src,
+  size_t j,
+  piol_file_trace_metadata* dst)
 {
     assert(not_null(src));
     assert(not_null(dst));
 
-    param_utils::cpyPrm(i, src, j, dst);
+    dst->copy_entries(j, *src, i);
 }
 
 //////////////////PIOL////////////////////////////
-PIOL_ExSeis* PIOL_ExSeis_new(PIOL_Verbosity verbosity)
+piol_exseis* piol_exseis_new(exseis_Verbosity verbosity)
 {
-    return new std::shared_ptr<ExSeis>(ExSeis::New(verbosity));
+    return new std::shared_ptr<ExSeis>(
+      ExSeis::make(static_cast<exseis::utils::Verbosity>(verbosity)));
 }
 
-void PIOL_ExSeis_delete(PIOL_ExSeis* piol)
+void piol_exseis_delete(piol_exseis* piol)
 {
     delete piol;
 }
 
-void PIOL_ExSeis_barrier(const PIOL_ExSeis* piol)
+void piol_exseis_barrier(const piol_exseis* piol)
 {
     assert(not_null(piol));
 
     (**piol).barrier();
 }
 
-void PIOL_ExSeis_isErr(const PIOL_ExSeis* piol, const char* msg)
+void piol_exseis_assert_ok(const piol_exseis* piol, const char* msg)
 {
     assert(not_null(piol));
 
-    if (msg != NULL) {
-        (**piol).isErr(msg);
+    if (msg != nullptr) {
+        (**piol).assert_ok(msg);
     }
     else {
-        (**piol).isErr();
+        (**piol).assert_ok();
     }
 }
 
-size_t PIOL_ExSeis_getRank(const PIOL_ExSeis* piol)
+size_t piol_exseis_get_rank(const piol_exseis* piol)
 {
     assert(not_null(piol));
 
-    return (**piol).getRank();
+    return (**piol).get_rank();
 }
 
-size_t PIOL_ExSeis_getNumRank(const PIOL_ExSeis* piol)
+size_t piol_exseis_get_num_rank(const piol_exseis* piol)
 {
     assert(not_null(piol));
 
-    return (**piol).getNumRank();
+    return (**piol).get_num_rank();
 }
 
-size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n)
+size_t piol_exseis_max(const piol_exseis* piol, size_t n)
 {
     assert(not_null(piol));
 
@@ -263,259 +285,267 @@ size_t PIOL_ExSeis_max(const PIOL_ExSeis* piol, size_t n)
 
 ////////////////// File Layer ////////////////////////////
 
-PIOL_File_WriteDirect* PIOL_File_WriteDirect_new(
-  const PIOL_ExSeis* piol, const char* name)
+piol_file_write_interface* piol_file_write_segy_new(
+  const piol_exseis* piol, const char* name)
 {
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new WriteDirect(*piol, name);
+    return new WriteSEGY(*piol, name);
 }
 
-PIOL_File_ReadDirect* PIOL_File_ReadDirect_new(
-  const PIOL_ExSeis* piol, const char* name)
+piol_file_read_interface* piol_file_read_segy_new(
+  const piol_exseis* piol, const char* name)
 {
     assert(not_null(piol));
     assert(not_null(name));
 
-    return new ReadDirect(*piol, name);
+    return new ReadSEGY(*piol, name);
 }
 
-void PIOL_File_ReadDirect_delete(PIOL_File_ReadDirect* readDirect)
+void piol_file_read_interface_delete(piol_file_read_interface* read_direct)
 {
-    delete readDirect;
+    delete read_direct;
 }
 
-void PIOL_File_WriteDirect_delete(PIOL_File_WriteDirect* writeDirect)
+void piol_file_write_interface_delete(piol_file_write_interface* write_direct)
 {
-    delete writeDirect;
+    delete write_direct;
 }
 
-const char* PIOL_File_ReadDirect_readText(
-  const PIOL_File_ReadDirect* readDirect)
+const char* piol_file_read_interface_read_text(
+  const piol_file_read_interface* read_direct)
 {
-    assert(not_null(readDirect));
+    assert(not_null(read_direct));
 
-    return readDirect->readText().c_str();
+    return read_direct->read_text().c_str();
 }
 
-size_t PIOL_File_ReadDirect_readNs(const PIOL_File_ReadDirect* readDirect)
+size_t piol_file_read_interface_read_ns(
+  const piol_file_read_interface* read_direct)
 {
-    assert(not_null(readDirect));
+    assert(not_null(read_direct));
 
-    return readDirect->readNs();
+    return read_direct->read_ns();
 }
 
-size_t PIOL_File_ReadDirect_readNt(const PIOL_File_ReadDirect* readDirect)
+size_t piol_file_read_interface_read_nt(
+  const piol_file_read_interface* read_direct)
 {
-    assert(not_null(readDirect));
+    assert(not_null(read_direct));
 
-    return readDirect->readNt();
+    return read_direct->read_nt();
 }
 
-double PIOL_File_ReadDirect_readInc(const PIOL_File_ReadDirect* readDirect)
+double piol_file_read_interface_read_sample_interval(
+  const piol_file_read_interface* read_direct)
 {
-    assert(not_null(readDirect));
+    assert(not_null(read_direct));
 
-    return readDirect->readInc();
+    return read_direct->read_sample_interval();
 }
 
-void PIOL_File_WriteDirect_writeText(
-  PIOL_File_WriteDirect* writeDirect, const char* text)
+void piol_file_write_interface_write_text(
+  piol_file_write_interface* write_direct, const char* text)
 {
-    assert(not_null(writeDirect));
+    assert(not_null(write_direct));
     assert(not_null(text));
 
-    writeDirect->writeText(text);
+    write_direct->write_text(text);
 }
 
-void PIOL_File_WriteDirect_writeNs(
-  PIOL_File_WriteDirect* writeDirect, size_t ns)
+void piol_file_write_interface_write_ns(
+  piol_file_write_interface* write_direct, size_t ns)
 {
-    assert(not_null(writeDirect));
+    assert(not_null(write_direct));
 
-    writeDirect->writeNs(ns);
+    write_direct->write_ns(ns);
 }
 
-void PIOL_File_WriteDirect_writeNt(
-  PIOL_File_WriteDirect* writeDirect, size_t nt)
+void piol_file_write_interface_write_nt(
+  piol_file_write_interface* write_direct, size_t nt)
 {
-    assert(not_null(writeDirect));
+    assert(not_null(write_direct));
 
-    writeDirect->writeNt(nt);
+    write_direct->write_nt(nt);
 }
 
-void PIOL_File_WriteDirect_writeInc(
-  PIOL_File_WriteDirect* writeDirect, const exseis_Floating_point inc)
+void piol_file_write_interface_write_sample_interval(
+  piol_file_write_interface* write_direct,
+  const exseis_Floating_point sample_interval)
 {
-    assert(not_null(writeDirect));
+    assert(not_null(write_direct));
 
-    writeDirect->writeInc(inc);
+    write_direct->write_sample_interval(sample_interval);
 }
 
 // Contiguous traces
-void PIOL_File_ReadDirect_readTrace(
-  const PIOL_File_ReadDirect* readDirect,
+void piol_file_read_interface_read_trace(
+  const piol_file_read_interface* read_direct,
   size_t offset,
   size_t sz,
   exseis_Trace_value* trace,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    assert(not_null(readDirect));
+    assert(not_null(read_direct));
     assert(not_null(trace));
 
-    if (param == NULL) {
-        readDirect->readTrace(offset, sz, trace);
+    if (param == nullptr) {
+        read_direct->read_trace(offset, sz, trace);
     }
     else {
-        readDirect->readTrace(offset, sz, trace, param);
+        read_direct->read_trace(offset, sz, trace, param);
     }
 }
 
-void PIOL_File_WriteDirect_writeTrace(
-  PIOL_File_WriteDirect* writeDirect,
+void piol_file_write_interface_write_trace(
+  piol_file_write_interface* write_direct,
   size_t offset,
   size_t sz,
   exseis_Trace_value* trace,
-  const PIOL_File_Param* param)
+  const piol_file_trace_metadata* param)
 {
-    assert(not_null(writeDirect));
+    assert(not_null(write_direct));
     assert(not_null(trace));
 
-    if (param == NULL) {
-        writeDirect->writeTrace(offset, sz, trace);
+    if (param == nullptr) {
+        write_direct->write_trace(offset, sz, trace);
     }
     else {
-        writeDirect->writeTrace(offset, sz, trace, param);
+        write_direct->write_trace(offset, sz, trace, param);
     }
 }
 
-void PIOL_File_WriteDirect_writeParam(
-  PIOL_File_WriteDirect* writeDirect,
+void piol_file_write_interface_write_param(
+  piol_file_write_interface* write_direct,
   size_t offset,
   size_t sz,
-  const PIOL_File_Param* param)
+  const piol_file_trace_metadata* param)
 {
-    assert(not_null(writeDirect));
+    assert(not_null(write_direct));
     assert(not_null(param));
 
-    writeDirect->writeParam(offset, sz, param);
+    write_direct->write_param(offset, sz, param);
 }
 
-void PIOL_File_ReadDirect_readParam(
-  const PIOL_File_ReadDirect* readDirect,
+void piol_file_read_interface_read_param(
+  const piol_file_read_interface* read_direct,
   size_t offset,
   size_t sz,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    assert(not_null(readDirect));
+    assert(not_null(read_direct));
     assert(not_null(param));
 
-    readDirect->readParam(offset, sz, param);
+    read_direct->read_param(offset, sz, param);
 }
 
 // List traces
-void PIOL_File_ReadDirect_readTraceNonContiguous(
-  PIOL_File_ReadDirect* readDirect,
+void piol_file_read_interface_read_trace_non_contiguous(
+  piol_file_read_interface* read_direct,
   size_t sz,
   const size_t* offset,
   exseis_Trace_value* trace,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    if (param == NULL) {
-        readDirect->readTraceNonContiguous(sz, offset, trace);
+    if (param == nullptr) {
+        read_direct->read_trace_non_contiguous(sz, offset, trace);
     }
     else {
-        readDirect->readTraceNonContiguous(sz, offset, trace, param);
+        read_direct->read_trace_non_contiguous(sz, offset, trace, param);
     }
 }
 
-void PIOL_File_ReadDirect_readTraceNonMonotonic(
-  PIOL_File_ReadDirect* readDirect,
+void piol_file_read_interface_read_trace_non_monotonic(
+  piol_file_read_interface* read_direct,
   size_t sz,
   const size_t* offset,
   exseis_Trace_value* trace,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    if (param == NULL) {
-        readDirect->readTraceNonMonotonic(sz, offset, trace);
+    if (param == nullptr) {
+        read_direct->read_trace_non_monotonic(sz, offset, trace);
     }
     else {
-        readDirect->readTraceNonMonotonic(sz, offset, trace, param);
+        read_direct->read_trace_non_monotonic(sz, offset, trace, param);
     }
 }
 
-void PIOL_File_WriteDirect_writeTraceNonContiguous(
-  PIOL_File_WriteDirect* writeDirect,
+void piol_file_write_interface_write_trace_non_contiguous(
+  piol_file_write_interface* write_direct,
   size_t sz,
   const size_t* offset,
   exseis_Trace_value* trace,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    if (param == NULL) {
-        writeDirect->writeTraceNonContiguous(sz, offset, trace);
+    if (param == nullptr) {
+        write_direct->write_trace_non_contiguous(sz, offset, trace);
     }
     else {
-        writeDirect->writeTraceNonContiguous(sz, offset, trace, param);
+        write_direct->write_trace_non_contiguous(sz, offset, trace, param);
     }
 }
 
-void PIOL_File_WriteDirect_writeParamNonContiguous(
-  PIOL_File_WriteDirect* writeDirect,
+void piol_file_write_interface_write_param_non_contiguous(
+  piol_file_write_interface* write_direct,
   size_t sz,
   const size_t* offset,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    writeDirect->writeParamNonContiguous(sz, offset, param);
+    write_direct->write_param_non_contiguous(sz, offset, param);
 }
 
-void PIOL_File_ReadDirect_readParamNonContiguous(
-  PIOL_File_ReadDirect* readDirect,
+void piol_file_read_interface_read_param_non_contiguous(
+  piol_file_read_interface* read_direct,
   size_t sz,
   const size_t* offset,
-  PIOL_File_Param* param)
+  piol_file_trace_metadata* param)
 {
-    readDirect->readParamNonContiguous(sz, offset, param);
+    read_direct->read_param_non_contiguous(sz, offset, param);
 }
 
 /////////////////////////////////////Operations///////////////////////////////
 
-void PIOL_File_getMinMax(
-  const PIOL_ExSeis* piol,
+void piol_file_get_min_max(
+  const piol_exseis* piol,
   size_t offset,
   size_t sz,
-  PIOL_Meta m1,
-  PIOL_Meta m2,
-  const PIOL_File_Param* param,
+  exseis_Meta m1,
+  exseis_Meta m2,
+  const piol_file_trace_metadata* param,
   struct PIOL_CoordElem* minmax)
 {
     assert(not_null(piol));
     assert(not_null(param));
     assert(not_null(minmax));
 
-    getMinMax((*piol).get(), offset, sz, m1, m2, param, minmax);
+    get_min_max(
+      (*piol).get(), offset, sz, static_cast<Meta>(m1), static_cast<Meta>(m2),
+      *param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////
-size_t PIOL_SEGY_utils_getTextSz()
+size_t piol_segy_segy_text_header_size()
 {
-    return SEGY_utils::getTextSz();
+    return segy::segy_text_header_size();
 }
 
-size_t PIOL_SEGY_utils_getDFSz(size_t ns)
+size_t piol_segy_segy_trace_data_size(size_t ns)
 {
-    return SEGY_utils::getDFSz<float>(ns);
+    return segy::segy_trace_data_size<float>(ns);
 }
 
-size_t PIOL_SEGY_utils_getFileSz(size_t nt, size_t ns)
+size_t piol_segy_get_file_size(size_t nt, size_t ns)
 {
-    return SEGY_utils::getFileSz<float>(nt, ns);
+    return segy::get_file_size<float>(nt, ns);
 }
 
 // TODO UPDATE
-size_t PIOL_SEGY_utils_getMDSz(void)
+size_t piol_segy_segy_trace_header_size(void)
 {
-    return SEGY_utils::getMDSz();
+    return segy::segy_trace_header_size();
 }
 
 }  // extern "C"
+}  // namespace piol
+}  // namespace exseis

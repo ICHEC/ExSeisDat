@@ -1,6 +1,17 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,clang-diagnostic-*,clang-analyzer-*,-clang-analyzer-security.insecureAPI.rand,readability-braces-around-statements,readability-avoid-const-params-in-decls,readability-redundant-string-init,readability-container-size-empty,readability-implicit-bool-conversion'
-WarningsAsErrors: ''
+Checks:          clang-diagnostic-*,
+                 clang-analyzer-*,
+                 clang-diagnostic-*,
+                 clang-analyzer-*,
+                 -clang-analyzer-security.insecureAPI.rand,
+                 mpi-*,
+                 readability-braces-around-statements,
+                 readability-avoid-const-params-in-decls,
+                 readability-redundant-string-init,
+                 readability-container-size-empty,
+                 readability-implicit-bool-conversion,
+                 readability-identifier-naming
+WarningsAsErrors: '*'
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
@@ -32,5 +43,36 @@ CheckOptions:
     value:           '0'
   - key:             readability-implicit-bool-conversion.AllowPointerConditions
     value:           '0'
+  - key:             cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value:           '1'
+#
+# Identifier Naming
+#
+# TODO: Add TypeDefCase, TypeAliasCase, EnumCase, EnumConstantCase, ClassCase,
+#       and UnionCase
+  - key:             readability-identifier-naming.NamespaceCase
+    value:           lower_case
+  - key:             readability-identifier-naming.MemberCase
+    value:           lower_case
+  - key:             readability-identifier-naming.PrivateMemberCase
+    value:           lower_case
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           m_
+  - key:             readability-identifier-naming.ProtectedMemberCase
+    value:           lower_case
+  - key:             readability-identifier-naming.ProtectedMemberPrefix
+    value:           m_
+  - key:             readability-identifier-naming.FunctionCase
+    value:           lower_case
+  - key:             readability-identifier-naming.ParameterCase
+    value:           lower_case
+  - key:             readability-identifier-naming.VariableCase
+    value:           lower_case
+  - key:             readability-identifier-naming.TemplateParameterCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.MacroDefinitionCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.MacroDefinitionPrefix
+    value:           EXSEISDAT_
 ...
 

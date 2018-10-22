@@ -11,6 +11,7 @@ set(EXSEISDAT_UTILITIES_EXES)
 macro(util_add_executable)
     add_executable(${ARGV})
     list(APPEND EXSEISDAT_UTILITIES_EXES ${ARGV0})
+    set_target_properties(${ARGV0} PROPERTIES LINKER_LANGUAGE CXX)
 endmacro(util_add_executable)
 
 

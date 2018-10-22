@@ -19,7 +19,7 @@
 ///
 
 ///
-/// @namespace exseis::PIOL
+/// @namespace exseis::piol
 ///
 /// @brief %ExSeisPIOL: A High-Performance Parallel Seismic file I/O library.
 ///
@@ -34,7 +34,7 @@
 ///
 
 ///
-/// @namespace exseis::Flow
+/// @namespace exseis::flow
 ///
 /// @brief %ExSeisFlow: A High-Performance, Parallel Seismic Workflow library.
 ///

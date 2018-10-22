@@ -3,7 +3,8 @@
 /// @brief Implementation of the built in `Taper_function`s.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/signal_processing/Taper_function.h"
+#include "exseisdat/utils/signal_processing/Taper_function.h"
+#include "exseisdat/utils/signal_processing/Taper_function.hh"
 
 #include <cmath>
 
@@ -26,7 +27,7 @@ extern "C" exseis_Trace_value exseis_linear_taper(
 
 Trace_value cosine_taper(Trace_value weight, Trace_value ramp)
 {
-    constexpr Trace_value pi = 3.14159265358979323846264338327950288;
+    constexpr auto pi = Trace_value(3.14159265358979323846264338327950288);
     return 0.5f + 0.5f * std::cos(pi * (weight - ramp) / ramp);
 }
 
@@ -39,7 +40,7 @@ extern "C" exseis_Trace_value exseis_cosine_taper(
 
 Trace_value cosine_square_taper(Trace_value weight, Trace_value ramp)
 {
-    return std::pow(cosine_taper(weight, ramp), 2);
+    return std::pow(cosine_taper(weight, ramp), Trace_value(2));
 }
 
 extern "C" exseis_Trace_value exseis_cosine_square_taper(

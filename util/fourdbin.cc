@@ -9,7 +9,7 @@
 #include "4dcore.hh"
 #include "4dio.hh"
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "exseisdat/piol/ExSeis.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -19,21 +19,21 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-using namespace exseis::PIOL;
-using namespace FOURD;
+using namespace exseis::piol;
+using namespace four_d;
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 void cmsg(ExSeisPIOL* piol, std::string msg)
 {
     piol->comm->barrier();
-    if (piol->comm->getRank() == 0) {
+    if (piol->comm->get_rank() == 0) {
         std::cout << msg << std::endl;
     }
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
 /*! Main function for fourdbin.
@@ -51,7 +51,7 @@ void cmsg(ExSeisPIOL* piol, std::string msg)
  */
 int main(int argc, char** argv)
 {
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     fourd_t dsrmax = 1.0;  // Default dsdr criteria
     std::string name1;
@@ -60,11 +60,11 @@ int main(int argc, char** argv)
     std::string name4;
     FourDOpt fopt;
 
-    char MPIVersion[MPI_MAX_LIBRARY_VERSION_STRING - 1];
+    char mpi_version[MPI_MAX_LIBRARY_VERSION_STRING - 1];
     int len;
-    MPI_Get_library_version(MPIVersion, &len);
-    if (piol->getRank() == 0) {
-        std::cout << "MPI Version " << MPIVersion << std::endl;
+    MPI_Get_library_version(mpi_version, &len);
+    if (piol->get_rank() == 0) {
+        std::cout << "MPI Version " << mpi_version << std::endl;
     }
 
     /*****************  Reading options from the command line *****************/
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
                 break;
 
             case 'p':
-                fopt.printDsr = false;
+                fopt.print_dsr = false;
                 break;
 
             case 'x':
@@ -119,12 +119,12 @@ int main(int argc, char** argv)
     cmsg(piol.get(), "Parameter-read phase");
 
     // Perform the decomposition and read the coordinates of interest.
-    auto coords1 = getCoords(piol, name1, fopt.ixline);
-    auto coords2 = getCoords(piol, name2, fopt.ixline);
+    auto coords1 = get_coords(piol, name1, fopt.ixline);
+    auto coords2 = get_coords(piol, name2, fopt.ixline);
 
     std::vector<size_t> min(coords1->sz);
     std::vector<fourd_t> minrs(coords1->sz);
-    calc4DBin(
+    calc_4d_bin(
       piol.get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
@@ -143,14 +143,14 @@ int main(int argc, char** argv)
     }
 
     if (fopt.verbose) {
-        std::string name = "tmp/restart" + std::to_string(piol->getRank());
-        FILE* fOut       = fopen(name.c_str(), "w+");
+        std::string name = "tmp/restart" + std::to_string(piol->get_rank());
+        FILE* f_out      = fopen(name.c_str(), "w+");
         size_t sz        = list1.size();
-        assert(fwrite(&sz, sizeof(size_t), 1U, fOut) == 1U);
-        assert(fwrite(list1.data(), sizeof(size_t), sz, fOut) == sz);
-        assert(fwrite(list2.data(), sizeof(size_t), sz, fOut) == sz);
-        assert(fwrite(lminrs.data(), sizeof(fourd_t), sz, fOut) == sz);
-        fclose(fOut);
+        assert(fwrite(&sz, sizeof(size_t), 1U, f_out) == 1U);
+        assert(fwrite(list1.data(), sizeof(size_t), sz, f_out) == sz);
+        assert(fwrite(list2.data(), sizeof(size_t), sz, f_out) == sz);
+        assert(fwrite(lminrs.data(), sizeof(fourd_t), sz, f_out) == sz);
+        fclose(f_out);
     }
 
     // free up some memory
@@ -158,8 +158,8 @@ int main(int argc, char** argv)
 
     cmsg(piol.get(), "Output phase");
 
-    outputNonMono(piol, name3, name1, list1, lminrs, fopt.printDsr);
-    outputNonMono(piol, name4, name2, list2, lminrs, fopt.printDsr);
+    output_non_mono(piol, name3, name1, list1, lminrs, fopt.print_dsr);
+    output_non_mono(piol, name4, name2, list2, lminrs, fopt.print_dsr);
 
     return 0;
 }

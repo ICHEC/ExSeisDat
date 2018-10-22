@@ -7,15 +7,15 @@
 /// Sort a file in 9 lines
 ///
 
-#include "ExSeisDat/Flow.hh"
+#include "exseisdat/flow.hh"
 
-using namespace exseis::PIOL;
-using namespace exseis::Flow;
+using namespace exseis::piol;
+using namespace exseis::flow;
 
 int main(void)
 {
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
     Set set(piol, "/ichec/work/exseisdat/*dat/10*/b*", "temp");
-    set.sort(PIOL_SORTTYPE_OffLine);
+    set.sort(SortType::OffLine);
     return 0;
 }

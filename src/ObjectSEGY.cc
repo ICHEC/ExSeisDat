@@ -4,114 +4,129 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/DataInterface.hh"
-#include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
-#include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
+#include "exseisdat/piol/Binary_file.hh"
+#include "exseisdat/piol/ExSeisPIOL.hh"
+#include "exseisdat/piol/ObjectSEGY.hh"
+#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/segy/utils.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 //////////////////////      Constructor & Destructor      //////////////////////
 ObjectSEGY::ObjectSEGY(
-  std::shared_ptr<ExSeisPIOL> piol_,
-  std::string name_,
-  const ObjectSEGY::Opt&,
-  std::shared_ptr<DataInterface> data_,
-  FileMode) :
-    ObjectInterface(piol_, name_, data_)
+  std::shared_ptr<ExSeisPIOL> piol,
+  std::string name,
+  std::shared_ptr<Binary_file> data) :
+    m_piol(piol),
+    m_name(name),
+    m_data(data)
 {
 }
 
-ObjectSEGY::ObjectSEGY(
-  std::shared_ptr<ExSeisPIOL> piol_,
-  std::string name_,
-  std::shared_ptr<DataInterface> data_,
-  FileMode) :
-    ObjectInterface(piol_, name_, data_)
+std::shared_ptr<ExSeisPIOL> ObjectSEGY::piol() const
 {
+    return m_piol;
 }
 
-//////////////////////////       Member functions      /////////////////////////
-void ObjectSEGY::readHO(unsigned char* ho) const
+std::string ObjectSEGY::name() const
 {
-    data_->read(0LU, SEGY_utils::getHOSz(), ho);
+    return m_name;
 }
 
-void ObjectSEGY::writeHO(const unsigned char* ho) const
+std::shared_ptr<Binary_file> ObjectSEGY::data() const
+{
+    return m_data;
+}
+
+size_t ObjectSEGY::get_file_size(void) const
+{
+    return m_data->get_file_size();
+}
+
+void ObjectSEGY::set_file_size(const size_t sz) const
+{
+    return m_data->set_file_size(sz);
+}
+
+void ObjectSEGY::read_ho(unsigned char* ho) const
+{
+    m_data->read(0LU, segy::segy_binary_file_header_size(), ho);
+}
+
+void ObjectSEGY::should_write_file_header(const unsigned char* ho) const
 {
     if (ho != nullptr) {
-        data_->write(0LU, SEGY_utils::getHOSz(), ho);
+        m_data->write(0LU, segy::segy_binary_file_header_size(), ho);
     }
     else {
-        data_->write(0LU, 0U, ho);
+        m_data->write(0LU, 0U, ho);
     }
 }
 
-void ObjectSEGY::readDO(
+void ObjectSEGY::read_trace(
   const size_t offset, const size_t ns, const size_t sz, unsigned char* d) const
 {
-    data_->read(
-      SEGY_utils::getDOLoc(offset, ns), sz * SEGY_utils::getDOSz(ns), d);
+    m_data->read(
+      segy::segy_trace_location(offset, ns), sz * segy::segy_trace_size(ns), d);
 }
 
-void ObjectSEGY::writeDO(
+void ObjectSEGY::write_trace(
   const size_t offset,
   const size_t ns,
   const size_t sz,
   const unsigned char* d) const
 {
-    data_->write(
-      SEGY_utils::getDOLoc(offset, ns), sz * SEGY_utils::getDOSz(ns), d);
+    m_data->write(
+      segy::segy_trace_location(offset, ns), sz * segy::segy_trace_size(ns), d);
 }
 
-void ObjectSEGY::readDOMD(
+void ObjectSEGY::read_trace_metadata(
   const size_t offset,
   const size_t ns,
   const size_t sz,
   unsigned char* md) const
 {
-    data_->read(
-      SEGY_utils::getDOLoc(offset, ns), SEGY_utils::getMDSz(),
-      SEGY_utils::getDOSz(ns), sz, md);
+    m_data->read_noncontiguous(
+      segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
+      segy::segy_trace_size(ns), sz, md);
 }
 
-void ObjectSEGY::writeDOMD(
+void ObjectSEGY::write_trace_metadata(
   const size_t offset,
   const size_t ns,
   const size_t sz,
   const unsigned char* md) const
 {
-    data_->write(
-      SEGY_utils::getDOLoc(offset, ns), SEGY_utils::getMDSz(),
-      SEGY_utils::getDOSz(ns), sz, md);
+    m_data->write_noncontiguous(
+      segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
+      segy::segy_trace_size(ns), sz, md);
 }
 
-void ObjectSEGY::readDODF(
+void ObjectSEGY::read_trace_data(
   const size_t offset,
   const size_t ns,
   const size_t sz,
   unsigned char* df) const
 {
-    data_->read(
-      SEGY_utils::getDODFLoc(offset, ns), SEGY_utils::getDFSz(ns),
-      SEGY_utils::getDOSz(ns), sz, df);
+    m_data->read_noncontiguous(
+      segy::segy_trace_data_location(offset, ns),
+      segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
 }
 
-void ObjectSEGY::writeDODF(
+void ObjectSEGY::write_trace_data(
   const size_t offset,
   const size_t ns,
   const size_t sz,
   const unsigned char* df) const
 {
-    data_->write(
-      SEGY_utils::getDODFLoc(offset, ns), SEGY_utils::getDFSz(ns),
-      SEGY_utils::getDOSz(ns), sz, df);
+    m_data->write_noncontiguous(
+      segy::segy_trace_data_location(offset, ns),
+      segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
 }
 
 // TODO: Add optional validation in this layer?
-void ObjectSEGY::readDO(
+void ObjectSEGY::read_trace(
   const size_t* offset,
   const size_t ns,
   const size_t sz,
@@ -120,28 +135,30 @@ void ObjectSEGY::readDO(
     std::vector<size_t> dooff(sz);
 
     for (size_t i = 0; i < sz; i++) {
-        dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+        dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    data_->read(SEGY_utils::getDOSz(ns), sz, dooff.data(), d);
+    m_data->read_noncontiguous_irregular(
+      segy::segy_trace_size(ns), sz, dooff.data(), d);
 }
 
-void ObjectSEGY::writeDO(
+void ObjectSEGY::write_trace(
   const size_t* offset,
   const size_t ns,
-  const size_t sz,
-  const unsigned char* d) const
+  const size_t number_of_traces,
+  const unsigned char* buffer) const
 {
-    std::vector<size_t> dooff(sz);
+    std::vector<size_t> dooff(number_of_traces);
 
-    for (size_t i = 0; i < sz; i++) {
-        dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+    for (size_t i = 0; i < number_of_traces; i++) {
+        dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    data_->write(SEGY_utils::getDOSz(ns), sz, dooff.data(), d);
+    m_data->write_noncontiguous_irregular(
+      segy::segy_trace_size(ns), number_of_traces, dooff.data(), buffer);
 }
 
-void ObjectSEGY::readDOMD(
+void ObjectSEGY::read_trace_metadata(
   const size_t* offset,
   const size_t ns,
   const size_t sz,
@@ -150,13 +167,14 @@ void ObjectSEGY::readDOMD(
     std::vector<size_t> dooff(sz);
 
     for (size_t i = 0; i < sz; i++) {
-        dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+        dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    data_->read(SEGY_utils::getMDSz(), sz, dooff.data(), md);
+    m_data->read_noncontiguous_irregular(
+      segy::segy_trace_header_size(), sz, dooff.data(), md);
 }
 
-void ObjectSEGY::writeDOMD(
+void ObjectSEGY::write_trace_metadata(
   const size_t* offset,
   const size_t ns,
   const size_t sz,
@@ -165,13 +183,14 @@ void ObjectSEGY::writeDOMD(
     std::vector<size_t> dooff(sz);
 
     for (size_t i = 0; i < sz; i++) {
-        dooff[i] = SEGY_utils::getDOLoc(offset[i], ns);
+        dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    data_->write(SEGY_utils::getMDSz(), sz, dooff.data(), md);
+    m_data->write_noncontiguous_irregular(
+      segy::segy_trace_header_size(), sz, dooff.data(), md);
 }
 
-void ObjectSEGY::readDODF(
+void ObjectSEGY::read_trace_data(
   const size_t* offset,
   const size_t ns,
   const size_t sz,
@@ -184,13 +203,14 @@ void ObjectSEGY::readDODF(
     std::vector<size_t> dooff(sz);
 
     for (size_t i = 0; i < sz; i++) {
-        dooff[i] = SEGY_utils::getDODFLoc(offset[i], ns);
+        dooff[i] = segy::segy_trace_data_location(offset[i], ns);
     }
 
-    data_->read(SEGY_utils::getDFSz(ns), sz, dooff.data(), df);
+    m_data->read_noncontiguous_irregular(
+      segy::segy_trace_data_size(ns), sz, dooff.data(), df);
 }
 
-void ObjectSEGY::writeDODF(
+void ObjectSEGY::write_trace_data(
   const size_t* offset,
   const size_t ns,
   const size_t sz,
@@ -203,11 +223,12 @@ void ObjectSEGY::writeDODF(
     std::vector<size_t> dooff(sz);
 
     for (size_t i = 0; i < sz; i++) {
-        dooff[i] = SEGY_utils::getDODFLoc(offset[i], ns);
+        dooff[i] = segy::segy_trace_data_location(offset[i], ns);
     }
 
-    data_->write(SEGY_utils::getDFSz(ns), sz, dooff.data(), df);
+    m_data->write_noncontiguous_irregular(
+      segy::segy_trace_data_size(ns), sz, dooff.data(), df);
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

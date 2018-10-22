@@ -5,7 +5,7 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "ExSeisDat/PIOL.h"
+#include "exseisdat/piol.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -16,7 +16,7 @@
 int main(int argc, char** argv)
 {
     // Initialise the PIOL by creating an ExSeis object
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
 
     // Parse command line options
     //      -o OUTPUT_NAME
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     assert(name);
 
     // Create a SEGY file object
-    PIOL_File_WriteDirect* fh = PIOL_File_WriteDirect_new(piol, name);
+    piol_file_write_interface* fh = piol_file_write_segy_new(piol, name);
 
 
     // The number of traces
@@ -50,14 +50,14 @@ int main(int argc, char** argv)
     size_t ns = 1000;
 
     // The increment step between traces (microseconds)
-    double inc = 4.0;
+    double sample_interval = 4.0;
 
 
     // Perform some decomposition (user decides how they will decompose)
 
     // Get number of process and current process number
-    size_t num_ranks = PIOL_ExSeis_getNumRank(piol);
-    size_t rank      = PIOL_ExSeis_getRank(piol);
+    size_t num_ranks = piol_exseis_get_num_rank(piol);
+    size_t rank      = piol_exseis_get_rank(piol);
 
     // Get decomposition of the range [0..nt) for the current rank
     struct exseis_Contiguous_decomposition dec =
@@ -71,31 +71,32 @@ int main(int argc, char** argv)
 
 
     // Write some global header parameters
-    PIOL_File_WriteDirect_writeNs(fh, ns);
-    PIOL_File_WriteDirect_writeNt(fh, nt);
-    PIOL_File_WriteDirect_writeInc(fh, inc);
-    PIOL_File_WriteDirect_writeText(fh, "Test file\n");
+    piol_file_write_interface_write_ns(fh, ns);
+    piol_file_write_interface_write_nt(fh, nt);
+    piol_file_write_interface_write_sample_interval(fh, sample_interval);
+    piol_file_write_interface_write_text(fh, "Test file\n");
 
     // Generate parameter structure for the local traces
-    PIOL_File_Param* prm = PIOL_File_Param_new(NULL, local_nt);
+    piol_file_trace_metadata* prm =
+      piol_file_trace_metadata_new(NULL, local_nt);
 
     // Set some trace parameters
     for (size_t j = 0; j < local_nt; j++) {
         float k = offset + j;
 
-        PIOL_File_setPrm_double(j, PIOL_META_xSrc, 1600.0 + k, prm);
-        PIOL_File_setPrm_double(j, PIOL_META_ySrc, 2400.0 + k, prm);
+        piol_file_set_prm_double(j, exseis_meta_x_src, 1600.0 + k, prm);
+        piol_file_set_prm_double(j, exseis_meta_y_src, 2400.0 + k, prm);
 
-        PIOL_File_setPrm_double(j, PIOL_META_xRcv, 100000.0 + k, prm);
-        PIOL_File_setPrm_double(j, PIOL_META_yRcv, 3000000.0 + k, prm);
+        piol_file_set_prm_double(j, exseis_meta_x_rcv, 100000.0 + k, prm);
+        piol_file_set_prm_double(j, exseis_meta_y_rcv, 3000000.0 + k, prm);
 
-        PIOL_File_setPrm_double(j, PIOL_META_xCmp, 10000.0 + k, prm);
-        PIOL_File_setPrm_double(j, PIOL_META_yCmp, 4000.0 + k, prm);
+        piol_file_set_prm_double(j, exseis_meta_xCmp, 10000.0 + k, prm);
+        piol_file_set_prm_double(j, exseis_meta_yCmp, 4000.0 + k, prm);
 
-        PIOL_File_setPrm_Integer(j, PIOL_META_il, 2400 + offset + j, prm);
-        PIOL_File_setPrm_Integer(j, PIOL_META_xl, 1600 + offset + j, prm);
+        piol_file_set_prm_integer(j, exseis_meta_il, 2400 + offset + j, prm);
+        piol_file_set_prm_integer(j, exseis_meta_xl, 1600 + offset + j, prm);
 
-        PIOL_File_setPrm_Integer(j, PIOL_META_tn, offset + j, prm);
+        piol_file_set_prm_integer(j, exseis_meta_tn, offset + j, prm);
     }
 
     // Set some traces
@@ -106,15 +107,15 @@ int main(int argc, char** argv)
     }
 
     // Write the traces and trace parameters
-    PIOL_File_WriteDirect_writeTrace(fh, offset, local_nt, trc, prm);
+    piol_file_write_interface_write_trace(fh, offset, local_nt, trc, prm);
 
     // Free the data
-    PIOL_File_Param_delete(prm);
+    piol_file_trace_metadata_delete(prm);
     free(trc);
 
     // Free/close the file handle and free the piol
-    PIOL_File_WriteDirect_delete(fh);
-    PIOL_ExSeis_delete(piol);
+    piol_file_write_interface_delete(fh);
+    piol_exseis_delete(piol);
 
     free(name);
 

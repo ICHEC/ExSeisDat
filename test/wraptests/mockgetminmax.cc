@@ -1,13 +1,13 @@
 #include "mockgetminmax.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-::testing::StrictMock<MockGetMinMax>& mockGetMinMax()
+::testing::StrictMock<MockGetMinMax>& mock_get_min_max()
 {
-    static ::testing::StrictMock<MockGetMinMax> mockGetMinMax;
-    return mockGetMinMax;
+    static ::testing::StrictMock<MockGetMinMax> mock_get_min_max;
+    return mock_get_min_max;
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

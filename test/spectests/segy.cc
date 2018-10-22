@@ -1,13 +1,14 @@
 #include "tglobal.hh"
 
-#include "ExSeisDat/PIOL/segy_utils.hh"
+#include "exseisdat/piol/segy/utils.hh"
 
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 TEST(SEGYSizes, All)
 {
-    ASSERT_EQ(3600U, SEGY_utils::getHOSz());
-    ASSERT_EQ(240U, SEGY_utils::getMDSz());
+    ASSERT_EQ(3600U, segy::segy_binary_file_header_size());
+    ASSERT_EQ(240U, segy::segy_trace_header_size());
     ASSERT_EQ(
-      3600U + (1111U * 4U + 240U) * 3333U, SEGY_utils::getDOLoc(3333, 1111));
+      3600U + (1111U * 4U + 240U) * 3333U,
+      segy::segy_trace_location(3333, 1111));
 }

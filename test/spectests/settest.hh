@@ -1,233 +1,212 @@
+#ifndef EXSEISDAT_TEST_SPECTESTS_SETTEST_HH
+#define EXSEISDAT_TEST_SPECTESTS_SETTEST_HH
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tglobal.hh"
 
-#include "ExSeisDat/Flow/Set.hh"
-#include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/ReadSEGY.hh"
-#include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/decomposition/block_decomposition.h"
+#include "exseisdat/flow/Set.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ObjectSEGY.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/utils/decomposition/block_decomposition.hh"
 
 #include <numeric>
 
 using namespace testing;
 using namespace exseis::utils;
-using namespace exseis::PIOL;
-using namespace exseis::Flow;
+using namespace exseis::piol;
+using namespace exseis::flow;
 
 class MockFile : public ReadInterface {
   public:
-    MockFile() :
-        ReadInterface(
-          std::shared_ptr<ExSeisPIOL>(), "", std::shared_ptr<ObjectInterface>())
-    {
-    }
+    MOCK_CONST_METHOD0(file_name, const std::string&(void));
+    MOCK_METHOD0(read_file_headers, void(void));
 
-    MOCK_CONST_METHOD0(readNs, size_t(void));
-    MOCK_CONST_METHOD0(readNt, size_t(void));
-    MOCK_CONST_METHOD0(readInc, exseis::utils::Floating_point(void));
-
-    MOCK_METHOD1(writeText, void(const std::string));
-    MOCK_METHOD1(writeNs, void(const size_t));
-    MOCK_METHOD1(writeNt, void(const size_t));
-    MOCK_METHOD1(writeInc, void(const exseis::utils::Floating_point));
+    MOCK_CONST_METHOD0(read_text, const std::string&(void));
+    MOCK_CONST_METHOD0(read_ns, size_t(void));
+    MOCK_CONST_METHOD0(read_nt, size_t(void));
+    MOCK_CONST_METHOD0(
+      read_sample_interval, exseis::utils::Floating_point(void));
 
     MOCK_CONST_METHOD4(
-      readParam, void(const size_t, const size_t, Param*, const size_t));
+      read_param,
+      void(const size_t, const size_t, Trace_metadata*, const size_t));
 
     MOCK_CONST_METHOD4(
-      readParamNonContiguous,
-      void(const size_t, const size_t*, Param*, const size_t));
+      read_param_non_contiguous,
+      void(const size_t, const size_t*, Trace_metadata*, const size_t));
 
     MOCK_CONST_METHOD5(
-      readTrace,
+      read_trace,
       void(
         const size_t,
         const size_t,
         exseis::utils::Trace_value*,
-        Param*,
+        Trace_metadata*,
         const size_t));
 
     MOCK_CONST_METHOD5(
-      readTraceNonContiguous,
+      read_trace_non_contiguous,
       void(
         const size_t,
         const size_t*,
         exseis::utils::Trace_value*,
-        Param*,
+        Trace_metadata*,
         const size_t));
 
     MOCK_CONST_METHOD5(
-      readTraceNonMonotonic,
+      read_trace_non_monotonic,
       void(
         const size_t,
         const size_t*,
         exseis::utils::Trace_value*,
-        Param*,
+        Trace_metadata*,
         const size_t));
 };
 
 ACTION_P(cpyprm, src)
 {
-    *arg3 = *src;
+    *arg2 = *src;
 }
 
 void muting(size_t nt, size_t ns, exseis::utils::Trace_value* trc, size_t mute);
 
-void taperMan(
+void taper_man(
   size_t nt,
   size_t ns,
   exseis::utils::Trace_value* trc,
   Taper_function func,
-  size_t nTailLft,
-  size_t nTailRt);
+  size_t n_tail_lft,
+  size_t n_tail_rt);
 
 
 template<class T>
-std::shared_ptr<T> makeTest(std::shared_ptr<ExSeisPIOL> piol, std::string name)
+std::shared_ptr<T> make_test(std::shared_ptr<ExSeisPIOL> piol, std::string name)
 {
-    WriteSEGY::Opt f;
-    ReadSEGY::Opt rf;
-    ObjectSEGY::Opt o;
-    DataMPIIO::Opt d;
-
-    auto data = std::make_shared<DataMPIIO>(piol, name, d, FileMode::Test);
-
-    auto obj =
-      std::make_shared<ObjectSEGY>(piol, name, o, data, FileMode::Test);
-
-    return std::make_shared<T>(piol, name, obj);
+    return std::make_shared<T>(piol, name);
 }
 
 struct Set_public : public Set {
     using Set::Set;
 
-    using Set::calcFunc;
-    using Set::file;
-    using Set::func;
-    using Set::outfix;
+    using Set::calc_func;
+    using Set::m_file;
+    using Set::m_func;
+    using Set::m_outfix;
 };
 
 struct SetTest : public Test {
-    std::shared_ptr<ExSeis> piol    = ExSeis::New();
+    std::shared_ptr<ExSeis> piol    = ExSeis::make();
     std::unique_ptr<Set_public> set = nullptr;
-    std::deque<Param> prm;
+    std::deque<Trace_metadata> prm;
     CommunicatorMPI::Opt opt;
 
-    void init(size_t numFile, size_t numNs, size_t numInc, size_t, bool linear)
+    void init(
+      size_t num_file, size_t num_ns, size_t num_inc, size_t, bool linear)
     {
         if (set.get() != nullptr) {
             set.release();
         }
         set = std::make_unique<Set_public>(piol);
-        for (size_t j = 0; j < numNs; j++) {
-            for (size_t k = 0; k < numInc; k++) {
-                for (size_t i = 0; i < numFile; i++) {
+        for (size_t j = 0; j < num_ns; j++) {
+            for (size_t k = 0; k < num_inc; k++) {
+                for (size_t i = 0; i < num_file; i++) {
                     auto mock = std::make_unique<MockFile>();
                     size_t nt = 1000U + i;
-                    EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
-                    EXPECT_CALL(*mock, readNs())
+                    EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
+                    EXPECT_CALL(*mock, read_ns())
                       .WillRepeatedly(Return(1000U + i));
-                    EXPECT_CALL(*mock, readInc())
+                    EXPECT_CALL(*mock, read_sample_interval())
                       .WillRepeatedly(
                         Return(1000. + exseis::utils::Floating_point(i)));
 
                     auto dec = block_decomposition(
-                      nt, piol->comm->getNumRank(), piol->comm->getRank());
+                      nt, piol->comm->get_num_rank(), piol->comm->get_rank());
                     prm.emplace_back(dec.local_size);
-                    Param* tprm = &prm.back();
+                    Trace_metadata& tprm = prm.back();
 
                     if (linear) {
                         for (size_t l = 0; l < dec.local_size; l++) {
-                            param_utils::setPrm(
-                              l, PIOL_META_xSrc,
+                            tprm.set_floating_point(
+                              l, Meta::x_src,
                               2000.
                                 - exseis::utils::Floating_point(
-                                    dec.global_offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_ySrc,
+                                    dec.global_offset + l));
+                            tprm.set_floating_point(
+                              l, Meta::y_src,
                               2000.
                                 - exseis::utils::Floating_point(
-                                    dec.global_offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_xRcv,
+                                    dec.global_offset + l));
+                            tprm.set_floating_point(
+                              l, Meta::x_rcv,
                               2000.
                                 + exseis::utils::Floating_point(
-                                    dec.global_offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_yRcv,
+                                    dec.global_offset + l));
+                            tprm.set_floating_point(
+                              l, Meta::y_rcv,
                               2000.
                                 + exseis::utils::Floating_point(
-                                    dec.global_offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_xCmp,
+                                    dec.global_offset + l));
+                            tprm.set_floating_point(
+                              l, Meta::xCmp,
                               2000.
                                 - exseis::utils::Floating_point(
-                                    dec.global_offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_yCmp,
+                                    dec.global_offset + l));
+                            tprm.set_floating_point(
+                              l, Meta::yCmp,
                               2000.
                                 - exseis::utils::Floating_point(
-                                    dec.global_offset + l),
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_il, 2000U + dec.global_offset + l,
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_xl, 2000U + dec.global_offset + l,
-                              tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_tn, l + dec.global_offset, tprm);
+                                    dec.global_offset + l));
+                            tprm.set_integer(
+                              l, Meta::il, 2000U + dec.global_offset + l);
+                            tprm.set_integer(
+                              l, Meta::xl, 2000U + dec.global_offset + l);
+                            tprm.set_integer(
+                              l, Meta::tn, l + dec.global_offset);
 
-                            auto xS = 2000.
-                                      - exseis::utils::Floating_point(
-                                          (dec.global_offset + l) % (nt / 10U));
-                            auto yR = 2000.
-                                      + exseis::utils::Floating_point(
-                                          (dec.global_offset + l) / (nt / 10U));
-                            param_utils::setPrm(
-                              l, PIOL_META_Offset,
-                              (xS - 2000.) * (xS - 2000.)
-                                + (2000. - yR) * (2000. - yR),
-                              tprm);
+                            auto x_s =
+                              2000.
+                              - exseis::utils::Floating_point(
+                                  (dec.global_offset + l) % (nt / 10U));
+                            auto y_r =
+                              2000.
+                              + exseis::utils::Floating_point(
+                                  (dec.global_offset + l) / (nt / 10U));
+                            tprm.set_integer(
+                              l, Meta::Offset,
+                              (x_s - 2000.) * (x_s - 2000.)
+                                + (2000. - y_r) * (2000. - y_r));
                         }
                     }
                     else {
                         for (size_t l = 0; l < dec.local_size; l++) {
-                            auto xS =
+                            auto x_s =
                               2000U - (dec.global_offset + l) % (nt / 10U);
-                            auto yR =
+                            auto y_r =
                               2000U + (dec.global_offset + l) / (nt / 10U);
-                            param_utils::setPrm(l, PIOL_META_xSrc, xS, tprm);
-                            param_utils::setPrm(l, PIOL_META_ySrc, 2000., tprm);
-                            param_utils::setPrm(l, PIOL_META_xRcv, 2000., tprm);
-                            param_utils::setPrm(l, PIOL_META_yRcv, yR, tprm);
-                            param_utils::setPrm(l, PIOL_META_xCmp, xS, tprm);
-                            param_utils::setPrm(l, PIOL_META_yCmp, yR, tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_il, 4000U - xS, tprm);
-                            param_utils::setPrm(l, PIOL_META_xl, yR, tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_tn, l + dec.global_offset, tprm);
-                            param_utils::setPrm(
-                              l, PIOL_META_Offset,
-                              (xS - 2000.) * (xS - 2000.)
-                                + (2000. - yR) * (2000. - yR),
-                              tprm);
+                            tprm.set_floating_point(l, Meta::x_src, x_s);
+                            tprm.set_floating_point(l, Meta::y_src, 2000.);
+                            tprm.set_floating_point(l, Meta::x_rcv, 2000.);
+                            tprm.set_floating_point(l, Meta::y_rcv, y_r);
+                            tprm.set_floating_point(l, Meta::xCmp, x_s);
+                            tprm.set_floating_point(l, Meta::yCmp, y_r);
+                            tprm.set_integer(l, Meta::il, 4000U - x_s);
+                            tprm.set_integer(l, Meta::xl, y_r);
+                            tprm.set_integer(
+                              l, Meta::tn, l + dec.global_offset);
+                            tprm.set_integer(
+                              l, Meta::Offset,
+                              (x_s - 2000.) * (x_s - 2000.)
+                                + (2000. - y_r) * (2000. - y_r));
                         }
                     }
                     EXPECT_CALL(
-                      *mock, readTraceNonContiguous(
-                               dec.local_size, An<const size_t*>(), _, _, 0))
+                      *mock, read_param_non_contiguous(
+                               dec.local_size, An<const size_t*>(), _, 0))
                       .Times(Exactly(1U))
                       .WillRepeatedly(cpyprm(&prm.back()));
 
@@ -237,15 +216,16 @@ struct SetTest : public Test {
         }
     }
 
-    void init(size_t numFile, size_t nt, size_t)
+    void init(size_t num_file, size_t nt, size_t)
     {
         srand(1337);
         set.reset(new Set_public(piol));
-        for (size_t i = 0; i < numFile; i++) {
+        for (size_t i = 0; i < num_file; i++) {
             auto mock = std::make_unique<MockFile>();
-            EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
-            EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(1000U));
-            EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(1000.));
+            EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
+            EXPECT_CALL(*mock, read_ns()).WillRepeatedly(Return(1000U));
+            EXPECT_CALL(*mock, read_sample_interval())
+              .WillRepeatedly(Return(1000.));
 
             set->add(std::move(mock));
 
@@ -260,67 +240,80 @@ struct SetTest : public Test {
         }
     }
 
-    void taperTest(
+    void taper_test(
       size_t nt,
       size_t ns,
       size_t mute,
       Taper_function correct_trace_function,
       Taper_function test_trace_function,
-      size_t nTailLft,
-      size_t nTailRt)
+      size_t n_tail_lft,
+      size_t n_tail_rt)
     {
         set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
 
         std::vector<exseis::utils::Trace_value> trc(nt * ns);
-        std::vector<exseis::utils::Trace_value> trcMan(nt * ns);
-        Param prm(nt);
+        std::vector<exseis::utils::Trace_value> trc_man(nt * ns);
         std::fill(trc.begin(), trc.end(), 1.0f);
         if (mute != 0) {
             muting(nt, ns, trc.data(), mute);
         }
-        trcMan = trc;
+        trc_man = trc;
 
-        std::vector<size_t> offsets(nt);
-        std::iota(offsets.begin(), offsets.end(), 0U);
-
-        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
-        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
-        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
+        EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, read_ns()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, read_sample_interval())
+          .WillRepeatedly(Return(0.004));
 
         EXPECT_CALL(
-          *mock, readTraceNonContiguous(
-                   nt, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
-                   A<Param*>(), 0U))
+          *mock, read_trace_non_contiguous(
+                   _, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
+                   A<Trace_metadata*>(), 0U))
           .Times(Exactly(1U))
-          .WillRepeatedly(DoAll(
-            check1(offsets.data(), offsets.size()),
-            SetArrayArgument<2>(trc.begin(), trc.end())));
+          .WillRepeatedly(WithArgs<0, 1, 2>(
+            Invoke([trc = trc, ns = ns](
+                     size_t nt, const size_t* offsets,
+                     exseis::utils::Trace_value* trace_buffer) {
+                int rank = -1;
+                MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                for (size_t i = 0; i < nt; i++) {
+                    for (size_t j = 0; j < ns; j++) {
+                        trace_buffer[i * ns + j] = trc[offsets[i] * ns + j];
+                    }
+                }
+            })));
         set->add(std::move(mock));
 
-        set->taper(test_trace_function, nTailLft, nTailRt);
-        set->outfix = "tmp/temp";
+        auto filename      = temp_file_segy();
+        auto base_filename = filename.substr(0, filename.find_last_of("."));
+
+        set->taper(test_trace_function, n_tail_lft, n_tail_rt);
+        set->m_outfix = base_filename;
         set.reset();
 
-        std::string name = "tmp/temp.segy";
-        auto in          = makeTest<ReadSEGY>(piol, name);
-        in->readTrace(0U, in->readNt(), trc.data());
+        piol->barrier();
 
-        taperMan(
-          nt, ns, trcMan.data(), correct_trace_function, nTailLft, nTailRt);
+        std::string name = filename;
+        auto in          = make_test<ReadSEGY>(piol, name);
+        ASSERT_EQ(nt, in->read_nt());
+        in->read_trace(0U, in->read_nt(), trc.data());
+
+        taper_man(
+          nt, ns, trc_man.data(), correct_trace_function, n_tail_lft,
+          n_tail_rt);
         for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
-                EXPECT_FLOAT_EQ(trc[i * ns + j], trcMan[i * ns + j]);
+                EXPECT_FLOAT_EQ(trc[i * ns + j], trc_man[i * ns + j]);
             }
         }
     }
 
-    void agcTest(
+    void agc_test(
       size_t nt,
       size_t ns,
       Gain_function type,
       std::function<exseis::utils::Trace_value(
-        size_t, exseis::utils::Trace_value*, size_t)> agcFunc,
+        size_t, exseis::utils::Trace_value*, size_t)> agc_func,
       size_t window,
       exseis::utils::Trace_value target_amplitude)
     {
@@ -328,7 +321,7 @@ struct SetTest : public Test {
         auto mock = std::make_unique<MockFile>();
 
         std::vector<exseis::utils::Trace_value> trc(nt * ns);
-        std::vector<exseis::utils::Trace_value> trcMan(nt * ns);
+        std::vector<exseis::utils::Trace_value> trc_man(nt * ns);
 
         for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
@@ -336,93 +329,101 @@ struct SetTest : public Test {
             }
         }
 
-        trcMan = trc;
+        trc_man = trc;
 
-        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
-        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
-        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
-
-        std::vector<size_t> offsets(nt);
-        std::iota(offsets.begin(), offsets.end(), 0U);
+        EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, read_ns()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, read_sample_interval())
+          .WillRepeatedly(Return(0.004));
 
         EXPECT_CALL(
-          *mock, readTraceNonContiguous(
-                   nt, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
-                   A<Param*>(), 0U))
-          .Times(Exactly(1U))
-          .WillRepeatedly(DoAll(
-            check1(offsets.data(), offsets.size()),
-            SetArrayArgument<2>(trc.begin(), trc.end())));
+          *mock, read_trace_non_contiguous(
+                   _, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
+                   A<Trace_metadata*>(), 0U))
+          .WillRepeatedly(WithArgs<0, 1, 2>(
+            Invoke([trc = trc, ns = ns](
+                     size_t nt, const size_t* offsets,
+                     exseis::utils::Trace_value* trace_buffer) {
+                for (size_t i = 0; i < nt; i++) {
+                    for (size_t j = 0; j < ns; j++) {
+                        trace_buffer[i * ns + j] = trc[offsets[i] * ns + j];
+                    }
+                }
+            })));
         set->add(std::move(mock));
 
-        set->AGC(type, window, target_amplitude);
-        set->outfix = "tmp/temp";
+        set->agc(type, window, target_amplitude);
+
+        auto filename      = temp_file_segy();
+        auto base_filename = filename.substr(0, filename.find_last_of("."));
+
+        set->m_outfix = base_filename;
         set.reset();
 
-        std::string name = "tmp/temp.segy";
+        std::string name = filename;
 
-        auto in = makeTest<ReadSEGY>(piol, name);
-        in->readTrace(0U, in->readNt(), trc.data());
+        auto in = make_test<ReadSEGY>(piol, name);
+        in->read_trace(0U, in->read_nt(), trc.data());
 
         size_t win;
-        size_t winStr;
-        size_t winCntr;
+        size_t win_str;
+        size_t win_cntr;
         for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
                 if (j < (window / 2U) + 1) {
-                    win     = j + 1 + (window / 2U);
-                    winStr  = i * ns;
-                    winCntr = j;
+                    win      = j + 1 + (window / 2U);
+                    win_str  = i * ns;
+                    win_cntr = j;
                 }
                 else if ((ns - j) < (window / 2U) + 1) {
-                    win     = ns - j + (window / 2U);
-                    winStr  = i * ns + j - window / 2U;
-                    winCntr = window / 2U;
+                    win      = ns - j + (window / 2U);
+                    win_str  = i * ns + j - window / 2U;
+                    win_cntr = window / 2U;
                 }
                 else {
-                    win     = window;
-                    winStr  = i * ns + j - window / 2U;
-                    winCntr = window / 2U;
+                    win      = window;
+                    win_str  = i * ns + j - window / 2U;
+                    win_cntr = window / 2U;
                 }
-                std::vector<exseis::utils::Trace_value> trcWin(
-                  trcMan.begin() + winStr, trcMan.begin() + winStr + win);
+                std::vector<exseis::utils::Trace_value> trc_win(
+                  trc_man.begin() + win_str, trc_man.begin() + win_str + win);
                 ASSERT_FLOAT_EQ(
-                  trc[i * ns + j], trcMan[i * ns + j] * target_amplitude
-                                     / agcFunc(win, trcWin.data(), winCntr))
+                  trc[i * ns + j], trc_man[i * ns + j] * target_amplitude
+                                     / agc_func(win, trc_win.data(), win_cntr))
                   << i << " " << j << std::endl;
             }
         }
     }
 
-    void filterTest(
+    void filter_test(
       FltrType type,
       FltrDmn domain,
       std::vector<exseis::utils::Trace_value> corners,
-      const std::vector<exseis::utils::Trace_value>& trcRef,
+      const std::vector<exseis::utils::Trace_value>& trc_ref,
       size_t nt = 1LU)
     {
-        ASSERT_EQ(trcRef.size(), static_cast<size_t>(59));
-        exseis::utils::Trace_value PI = std::acos(-1);
-        size_t N                      = 3;
-        size_t ns                     = trcRef.size() / nt;
+        ASSERT_EQ(trc_ref.size(), static_cast<size_t>(59));
+        exseis::utils::Trace_value pi = std::acos(-1);
+        size_t n                      = 3;
+        size_t ns                     = trc_ref.size() / nt;
         set.reset(new Set_public(piol));
 
-        std::vector<exseis::utils::Trace_value> trc(trcRef.size());
+        std::vector<exseis::utils::Trace_value> trc(trc_ref.size());
 
         for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
                 trc[i * ns + j] =
                   std::sin(
-                    exseis::utils::Trace_value(4.8) * PI
+                    exseis::utils::Trace_value(4.8) * pi
                     * (exseis::utils::Trace_value(j))
                     / exseis::utils::Trace_value(ns))
                   + exseis::utils::Trace_value(1.5)
                       * std::cos(
-                          36 * PI * (exseis::utils::Trace_value(j))
+                          36 * pi * (exseis::utils::Trace_value(j))
                           / exseis::utils::Trace_value(ns))
                   + exseis::utils::Trace_value(0.5)
                       * std::sin(
-                          48 * PI * (exseis::utils::Trace_value(j))
+                          48 * pi * (exseis::utils::Trace_value(j))
                           / exseis::utils::Trace_value(ns));
             }
         }
@@ -431,38 +432,48 @@ struct SetTest : public Test {
         set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
 
-        EXPECT_CALL(*mock, readNt()).WillRepeatedly(Return(nt));
-        EXPECT_CALL(*mock, readNs()).WillRepeatedly(Return(ns));
-        EXPECT_CALL(*mock, readInc()).WillRepeatedly(Return(0.004));
-
-        std::vector<size_t> offsets(nt);
-        std::iota(offsets.begin(), offsets.end(), 0U);
+        EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, read_ns()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, read_sample_interval())
+          .WillRepeatedly(Return(0.004));
 
         EXPECT_CALL(
-          *mock, readTraceNonContiguous(
-                   nt, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
-                   A<Param*>(), 0U))
-          .Times(Exactly(1U))
-          .WillRepeatedly(DoAll(
-            check1(offsets.data(), offsets.size()),
-            SetArrayArgument<2>(trc.begin(), trc.end())));
+          *mock, read_trace_non_contiguous(
+                   _, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
+                   A<Trace_metadata*>(), 0U))
+          .WillRepeatedly(WithArgs<0, 1, 2>(
+            Invoke([trc = trc, ns = ns](
+                     size_t nt, const size_t* offsets,
+                     exseis::utils::Trace_value* trace_buffer) {
+                for (size_t i = 0; i < nt; i++) {
+                    for (size_t j = 0; j < ns; j++) {
+                        trace_buffer[i * ns + j] = trc[offsets[i] * ns + j];
+                    }
+                }
+            })));
         set->add(std::move(mock));
 
-        set->temporalFilter(type, domain, PadType::Zero, 30, N, corners);
-        set->outfix = "tmp/temp";
+        set->temporal_filter(type, domain, PadType::Zero, 30, n, corners);
+
+        auto filename      = temp_file_segy();
+        auto base_filename = filename.substr(0, filename.find_last_of("."));
+
+        set->m_outfix = base_filename;
         set.reset();
 
-        std::string name = "tmp/temp.segy";
+        std::string name = filename;
 
-        auto in = makeTest<ReadSEGY>(piol, name);
+        auto in = make_test<ReadSEGY>(piol, name);
 
-        in->readTrace(0U, in->readNt(), trc.data());
+        in->read_trace(0U, in->read_nt(), trc.data());
 
         for (size_t i = 0; i < nt * ns; i++) {
             ASSERT_NEAR(
-              trc[i], trcRef[i],
+              trc[i], trc_ref[i],
               (__GNUC__ ? exseis::utils::Trace_value(0.00011) :
                           exseis::utils::Trace_value(.00001)));
         }
     }
 };
+
+#endif  // EXSEISDAT_TEST_SPECTESTS_SETTEST_HH

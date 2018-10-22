@@ -1,27 +1,24 @@
-// POSIX includes
-#define _POSIX_C_SOURCE 200809L
-
-#include "ExSeisDat/Flow/Set.hh"
-#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "exseisdat/flow/Set.hh"
+#include "exseisdat/piol/ExSeis.hh"
 
 #include <assert.h>
 #include <iostream>
 #include <unistd.h>
 
-using namespace exseis::PIOL;
-using namespace exseis::Flow;
+using namespace exseis::piol;
+using namespace exseis::flow;
 
 int main(int argc, char** argv)
 {
-    auto piol       = ExSeis::New();
+    auto piol       = ExSeis::make();
     std::string opt = "i:o:v:b:a:";  // TODO: uses a GNU extension
 
     std::string radon;
     std::string angle;
     std::string velocity;
 
-    auto vBin = 20LU;
-    auto oInc = 60LU;
+    auto v_bin                  = 20LU;
+    auto output_sample_interval = 60LU;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -38,11 +35,11 @@ int main(int argc, char** argv)
                 break;
 
             case 'b':
-                vBin = std::stoul(optarg);
+                v_bin = std::stoul(optarg);
                 break;
 
             case 'a':
-                oInc = std::stoul(optarg);
+                output_sample_interval = std::stoul(optarg);
                 break;
 
             default:
@@ -53,20 +50,20 @@ int main(int argc, char** argv)
 
     assert(!radon.empty() && !angle.empty() && !velocity.empty());
 
-    if (piol->getRank() == 0) {
+    if (piol->get_rank() == 0) {
         std::cout << "Radon to Angle Transformation"
                   << "\n-\tInput radon file:\t" << radon
                   << "\n-\tVelocity model file:\t" << velocity
                   << "\n-\tOutput angle file:\t" << angle
-                  << "\n-\tIncrement:\t\t" << oInc << "\n-\tvBin:\t\t\t" << vBin
-                  << std::endl;
+                  << "\n-\tIncrement:\t\t" << output_sample_interval
+                  << "\n-\tv_bin:\t\t\t" << v_bin << std::endl;
     }
     Set set(piol, radon, angle);
-    piol->isErr();
-    set.toAngle(velocity, vBin, oInc);
+    piol->assert_ok();
+    set.to_angle(velocity, v_bin, output_sample_interval);
 
-    piol->isErr();
-    if (piol->getRank() == 0) {
+    piol->assert_ok();
+    if (piol->get_rank() == 0) {
         std::cout << "Begin output\n";
     }
 

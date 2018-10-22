@@ -1,12 +1,12 @@
-#ifndef PIOLWRAPTESTSGETMINMAX_INCLUDE_GUARD
-#define PIOLWRAPTESTSGETMINMAX_INCLUDE_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_GETMINMAXWRAPTESTS_HH
+#define EXSEISDAT_TEST_WRAPTESTS_GETMINMAXWRAPTESTS_HH
 
 #include "mockexseis.hh"
 #include "mockparam.hh"
 #include <memory>
 
-void test_PIOL_File_getMinMax(
-  std::shared_ptr<exseis::PIOL::ExSeis*> piol,
-  std::shared_ptr<exseis::PIOL::Param*> param);
+void test_piol_file_get_min_max(
+  std::shared_ptr<exseis::piol::ExSeis*> piol,
+  std::shared_ptr<exseis::piol::Trace_metadata*> param);
 
-#endif  // PIOLWRAPTESTSGETMINMAX_INCLUDE_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_GETMINMAXWRAPTESTS_HH

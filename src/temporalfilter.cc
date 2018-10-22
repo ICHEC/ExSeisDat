@@ -7,8 +7,8 @@
 ///          or applies the same scalar to all traces at the same height.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/piol/operations/temporalfilter.hh"
+#include "exseisdat/utils/typedefs.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -20,12 +20,12 @@
 using namespace exseis::utils;
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 // TODO: Use complex literals when newer compilers are available
 //       (Current is gcc (GCC) 5.3.0)
-/// The imaginary number, i = sqrt(-1).
-const Complex_trace_value I = Complex_trace_value(0, 1);
+/// The imaginary number, one_i = sqrt(-1).
+const Complex_trace_value one_i = Complex_trace_value(0, 1);
 
 /// The circle constant, pi.
 const exseis::utils::Trace_value pi = 3.14159265358979323846264338327950288;
@@ -35,9 +35,9 @@ const exseis::utils::Trace_value pi = 3.14159265358979323846264338327950288;
 /************************************ Core ************************************/
 
 /********************************** Non-Core **********************************/
-size_t filterOrder(
-  const exseis::utils::Trace_value cornerP,
-  const exseis::utils::Trace_value cornerS)
+size_t filter_order(
+  const exseis::utils::Trace_value corner_p,
+  const exseis::utils::Trace_value corner_s)
 {
     // unfortunately the standard doesnt require math functions to provide
     // constexpr functions
@@ -45,165 +45,166 @@ size_t filterOrder(
       0.5 * std::log(99.0 / (std::pow(10.0, 0.3) - 1.0)));
 
     return std::ceil(
-      val / std::log(std::tan(pi * cornerS) / std::tan(pi * cornerP)));
+      val / std::log(std::tan(pi * corner_s) / std::tan(pi * corner_p)));
 }
 
-void expandPoly(
+void expand_poly(
   const Complex_trace_value* coef,
   const size_t nvx,
   exseis::utils::Trace_value* poly)
 {
-    std::vector<Complex_trace_value> vecXpnd(nvx + 1LU);
+    std::vector<Complex_trace_value> vec_xpnd(nvx + 1LU);
 
-    vecXpnd[0LU] = -coef[0LU];
-    vecXpnd[1LU] = 1;
+    vec_xpnd[0LU] = -coef[0LU];
+    vec_xpnd[1LU] = 1;
 
     for (size_t i = 1LU; i < nvx; i++) {
-        vecXpnd[i + 1LU] = 1;
+        vec_xpnd[i + 1LU] = 1;
         for (size_t j = 0LU; j < i; j++) {
-            vecXpnd[i - j] = vecXpnd[i - j] * -coef[i] + vecXpnd[i - j - 1LU];
+            vec_xpnd[i - j] =
+              vec_xpnd[i - j] * -coef[i] + vec_xpnd[i - j - 1LU];
         }
-        vecXpnd[0] = vecXpnd[0] * -coef[i];
+        vec_xpnd[0] = vec_xpnd[0] * -coef[i];
     }
 
     for (size_t i = 0LU; i < nvx + 1LU; i++) {
-        poly[i] = vecXpnd[i].real();
+        poly[i] = vec_xpnd[i].real();
     }
 }
 
 /// Common filter division: (4 + x)/(4 - x)
 /// @param[in] x The \c x value
 /// @return (4+x)/(4-x)
-inline Complex_trace_value filDiv(Complex_trace_value x)
+inline Complex_trace_value fil_div(Complex_trace_value x)
 {
     return (exseis::utils::Trace_value(4) + x)
            / (exseis::utils::Trace_value(4) - x);
 }
 
 exseis::utils::Trace_value lowpass(
-  size_t N,
+  size_t n,
   Complex_trace_value* z,
   Complex_trace_value* p,
   exseis::utils::Trace_value cf1)
 {
-    Complex_trace_value pprodBL(1.0, 0.0);
-    for (size_t i = 0LU; i < N; i++) {
-        pprodBL *= exseis::utils::Trace_value(4) - p[i] * cf1;
-        p[i] = filDiv(p[i] * cf1);
+    Complex_trace_value pprod_bl(1.0, 0.0);
+    for (size_t i = 0LU; i < n; i++) {
+        pprod_bl *= exseis::utils::Trace_value(4) - p[i] * cf1;
+        p[i] = fil_div(p[i] * cf1);
         z[i] = -1;
     }
 
-    return std::pow(cf1, N) / pprodBL.real();
+    return std::pow(cf1, n) / pprod_bl.real();
 }
 
 exseis::utils::Trace_value highpass(
-  size_t N,
+  size_t n,
   Complex_trace_value* z,
   Complex_trace_value* p,
   exseis::utils::Trace_value cf1)
 {
     Complex_trace_value pprod(1, 0);
-    Complex_trace_value pprodBL(1, 0);
-    for (size_t i = 0LU; i < N; i++) {
+    Complex_trace_value pprod_bl(1, 0);
+    for (size_t i = 0LU; i < n; i++) {
         pprod *= -p[i];
-        pprodBL *= exseis::utils::Trace_value(4) - cf1 / p[i];
-        p[i] = filDiv(cf1 / p[i]);
+        pprod_bl *= exseis::utils::Trace_value(4) - cf1 / p[i];
+        p[i] = fil_div(cf1 / p[i]);
         z[i] = 1;
     }
     return (1 / pprod.real())
            * (std::pow(
-                exseis::utils::Trace_value(4), exseis::utils::Trace_value(N))
-              / pprodBL.real());
+                exseis::utils::Trace_value(4), exseis::utils::Trace_value(n))
+              / pprod_bl.real());
 }
 
 exseis::utils::Trace_value bandpass(
-  size_t N,
+  size_t n,
   Complex_trace_value* z,
   Complex_trace_value* p,
   exseis::utils::Trace_value cf1,
   exseis::utils::Trace_value cf2)
 {
-    exseis::utils::Trace_value bndCntr = cf2 - cf1;
-    exseis::utils::Trace_value bndLen  = cf1 * cf2;
+    exseis::utils::Trace_value bnd_cntr = cf2 - cf1;
+    exseis::utils::Trace_value bnd_len  = cf1 * cf2;
 
-    Complex_trace_value pprodBL(1, 0);
+    Complex_trace_value pprod_bl(1, 0);
 
-    for (size_t i = 0LU; i < N; i++) {
-        p[i] *= bndCntr / 2;
-        p[N + i] = p[i] - std::sqrt(p[i] * p[i] - bndLen);
-        p[i] += std::sqrt(p[i] * p[i] - bndLen);
+    for (size_t i = 0LU; i < n; i++) {
+        p[i] *= bnd_cntr / 2;
+        p[n + i] = p[i] - std::sqrt(p[i] * p[i] - bnd_len);
+        p[i] += std::sqrt(p[i] * p[i] - bnd_len);
         z[i]     = 1;
-        z[N + i] = -1;
+        z[n + i] = -1;
     }
 
-    for (size_t i = 0LU; i < 2LU * N; i++) {
-        pprodBL *= exseis::utils::Trace_value(4) - p[i];
-        p[i] = filDiv(p[i]);
+    for (size_t i = 0LU; i < 2LU * n; i++) {
+        pprod_bl *= exseis::utils::Trace_value(4) - p[i];
+        p[i] = fil_div(p[i]);
     }
 
-    return std::pow(bndCntr, N)
+    return std::pow(bnd_cntr, n)
            * std::pow(
-               exseis::utils::Trace_value(4), exseis::utils::Trace_value(N))
-           * pprodBL.real() / std::norm(pprodBL);
+               exseis::utils::Trace_value(4), exseis::utils::Trace_value(n))
+           * pprod_bl.real() / std::norm(pprod_bl);
 }
 
 exseis::utils::Trace_value bandstop(
-  size_t N,
+  size_t n,
   Complex_trace_value* z,
   Complex_trace_value* p,
   exseis::utils::Trace_value cf1,
   exseis::utils::Trace_value cf2)
 {
-    exseis::utils::Trace_value bndCntr = cf2 - cf1;
-    exseis::utils::Trace_value bndLen  = std::sqrt(cf1 * cf2);
-    exseis::utils::Trace_value bndLen2 = cf1 * cf2;
+    exseis::utils::Trace_value bnd_cntr = cf2 - cf1;
+    exseis::utils::Trace_value bnd_len  = std::sqrt(cf1 * cf2);
+    exseis::utils::Trace_value bnd_len2 = cf1 * cf2;
 
-    for (size_t i = 0LU; i < N; i++) {
-        p[i]     = (bndCntr / 2) / p[i];
-        p[N + i] = p[i] - std::sqrt(p[i] * p[i] - bndLen2);
-        p[i] += std::sqrt(p[i] * p[i] - bndLen2);
-        z[i]     = I * bndLen;
-        z[N + i] = -z[i];
+    for (size_t i = 0LU; i < n; i++) {
+        p[i]     = (bnd_cntr / 2) / p[i];
+        p[n + i] = p[i] - std::sqrt(p[i] * p[i] - bnd_len2);
+        p[i] += std::sqrt(p[i] * p[i] - bnd_len2);
+        z[i]     = one_i * bnd_len;
+        z[n + i] = -z[i];
     }
 
-    Complex_trace_value zPrdct(1, 0);
-    Complex_trace_value pPrdct(1, 0);
+    Complex_trace_value z_prdct(1, 0);
+    Complex_trace_value p_prdct(1, 0);
 
-    for (size_t i = 0LU; i < N * 2LU; i++) {
-        zPrdct *= exseis::utils::Trace_value(4) - z[i];
-        z[i] = filDiv(z[i]);
-        pPrdct *= exseis::utils::Trace_value(4) - p[i];
-        p[i] = filDiv(p[i]);
+    for (size_t i = 0LU; i < n * 2LU; i++) {
+        z_prdct *= exseis::utils::Trace_value(4) - z[i];
+        z[i] = fil_div(z[i]);
+        p_prdct *= exseis::utils::Trace_value(4) - p[i];
+        p[i] = fil_div(p[i]);
     }
 
-    return (zPrdct.real() * pPrdct.real() + zPrdct.imag() * pPrdct.imag())
-           / std::norm(pPrdct);
+    return (z_prdct.real() * p_prdct.real() + z_prdct.imag() * p_prdct.imag())
+           / std::norm(p_prdct);
 }
 
-void makeFilter(
+void make_filter(
   FltrType type,
   exseis::utils::Trace_value* numer,
   exseis::utils::Trace_value* denom,
-  exseis::utils::Integer N,
+  exseis::utils::Integer n,
   exseis::utils::Trace_value fs,
   exseis::utils::Trace_value cf1,
   exseis::utils::Trace_value cf2)
 {
-    size_t tN = (cf2 == 0) ? N : N * 2LU;
-    exseis::utils::Trace_value Wn =
+    size_t t_n = (cf2 == 0) ? n : n * 2LU;
+    exseis::utils::Trace_value wn =
       4 * std::tan(pi * (cf1 / (fs * exseis::utils::Trace_value(0.5))) / 2);
-    exseis::utils::Trace_value W2 =
+    exseis::utils::Trace_value w2 =
       4 * std::tan(pi * (cf2 / (fs * exseis::utils::Trace_value(0.5))) / 2);
 
-    std::vector<Complex_trace_value> z(tN);
-    std::vector<Complex_trace_value> p(tN);
+    std::vector<Complex_trace_value> z(t_n);
+    std::vector<Complex_trace_value> p(t_n);
 
     // Determines the analogue zero-pole-gain representation of filter for given
     // number of poles
-    for (exseis::utils::Integer i = 0; i < N; i++) {
+    for (exseis::utils::Integer i = 0; i < n; i++) {
         p[i] = -exp(
-          I * pi * exseis::utils::Trace_value(1LL + 2LL * i - N)
-          / exseis::utils::Trace_value(2LL * N));
+          one_i * pi * exseis::utils::Trace_value(1LL + 2LL * i - n)
+          / exseis::utils::Trace_value(2LL * n));
     }
 
     // Determines the analogue zero-pole-gain for given filter type at specific
@@ -212,35 +213,35 @@ void makeFilter(
     switch (type) {
         default:
         case FltrType::Lowpass:
-            k = lowpass(N, z.data(), p.data(), Wn);
+            k = lowpass(n, z.data(), p.data(), wn);
             break;
 
         case FltrType::Highpass:
-            k = highpass(N, z.data(), p.data(), Wn);
+            k = highpass(n, z.data(), p.data(), wn);
             break;
 
         case FltrType::Bandpass:
-            k = bandpass(N, z.data(), p.data(), Wn, W2);
+            k = bandpass(n, z.data(), p.data(), wn, w2);
             break;
 
         case FltrType::Bandstop:
-            k = bandstop(N, z.data(), p.data(), Wn, W2);
+            k = bandstop(n, z.data(), p.data(), wn, w2);
             break;
     }
 
-    expandPoly(z.data(), tN, numer);
-    expandPoly(p.data(), tN, denom);
+    expand_poly(z.data(), t_n, numer);
+    expand_poly(p.data(), t_n, denom);
 
-    for (size_t i = 0LU; i < tN + 1LU; i++) {
+    for (size_t i = 0LU; i < t_n + 1LU; i++) {
         numer[i] *= k;
     }
 
-    for (size_t i = 0LU; i < (tN + 1LU) / 2LU; i++) {
-        std::swap(denom[i], denom[tN - i]);
+    for (size_t i = 0LU; i < (t_n + 1LU) / 2LU; i++) {
+        std::swap(denom[i], denom[t_n - i]);
     }
 }
 
-void temporalFilter(
+void temporal_filter(
   size_t nt,
   size_t ns,
   exseis::utils::Trace_value* trc,
@@ -249,7 +250,7 @@ void temporalFilter(
   FltrDmn domain,
   PadType pad,
   size_t nw,
-  size_t winCntr,
+  size_t win_cntr,
   std::vector<exseis::utils::Trace_value> corner)
 {
     std::sort(corner.begin(), corner.end());
@@ -257,41 +258,41 @@ void temporalFilter(
         default:
         case FltrType::Lowpass: {
             std::vector<exseis::utils::Trace_value> c = {corner[0LU], 0LU};
-            size_t N = filterOrder(corner[0LU], corner[1LU]);
-            temporalFilter(
-              nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
+            size_t n = filter_order(corner[0LU], corner[1LU]);
+            temporal_filter(
+              nt, ns, trc, fs, type, domain, pad, nw, win_cntr, c, n);
         } break;
 
         case FltrType::Highpass: {
             std::vector<exseis::utils::Trace_value> c = {corner[1LU], 0LU};
-            size_t N = filterOrder(corner[1LU], corner[0LU]);
-            temporalFilter(
-              nt, ns, trc, fs, type, domain, pad, nw, winCntr, c, N);
+            size_t n = filter_order(corner[1LU], corner[0LU]);
+            temporal_filter(
+              nt, ns, trc, fs, type, domain, pad, nw, win_cntr, c, n);
         } break;
 
         case FltrType::Bandpass: {
             std::vector<exseis::utils::Trace_value> c = {corner[1LU],
                                                          corner[2LU]};
-            temporalFilter(
-              nt, ns, trc, fs, type, domain, pad, nw, winCntr, c,
+            temporal_filter(
+              nt, ns, trc, fs, type, domain, pad, nw, win_cntr, c,
               std::max(
-                filterOrder(corner[1], corner[0]),
-                filterOrder(corner[2], corner[3])));
+                filter_order(corner[1], corner[0]),
+                filter_order(corner[2], corner[3])));
         } break;
 
         case FltrType::Bandstop: {
             std::vector<exseis::utils::Trace_value> c = {corner[0LU],
                                                          corner[3LU]};
-            temporalFilter(
-              nt, ns, trc, fs, type, domain, pad, nw, winCntr, c,
+            temporal_filter(
+              nt, ns, trc, fs, type, domain, pad, nw, win_cntr, c,
               std::max(
-                filterOrder(corner[0], corner[1]),
-                filterOrder(corner[3], corner[2])));
+                filter_order(corner[0], corner[1]),
+                filter_order(corner[3], corner[2])));
         } break;
     }
 }
 
-FltrPad getPad(PadType type)
+FltrPad get_pad(PadType type)
 {
     switch (type) {
         default:
@@ -303,9 +304,9 @@ FltrPad getPad(PadType type)
 
         case PadType::Symmetric:
             return [](
-                     exseis::utils::Trace_value* trc, size_t N, size_t nw,
+                     exseis::utils::Trace_value* trc, size_t n, size_t nw,
                      size_t j) {
-                return (j <= nw ? trc[N - j] : trc[2 * (nw + N) - j]);
+                return (j <= nw ? trc[n - j] : trc[2 * (nw + n) - j]);
             };
             break;
 
@@ -318,19 +319,19 @@ FltrPad getPad(PadType type)
 
         case PadType::Cyclic:
             return [](
-                     exseis::utils::Trace_value* trc, size_t N, size_t nw,
+                     exseis::utils::Trace_value* trc, size_t n, size_t nw,
                      size_t j) {
-                return (j <= nw ? trc[nw - (N - j)] : trc[j - nw - N]);
+                return (j <= nw ? trc[nw - (n - j)] : trc[j - nw - n]);
             };
             break;
     }
 }
 
-void filterFreq(
+void filter_freq(
   size_t nss,
-  exseis::utils::Trace_value* trcX,
+  exseis::utils::Trace_value* trc_x,
   exseis::utils::Trace_value fs,
-  size_t N,
+  size_t n,
   exseis::utils::Trace_value* numer,
   exseis::utils::Trace_value* denom,
   FltrPad)
@@ -340,52 +341,52 @@ void filterFreq(
     //       plans
     std::vector<Complex_trace_value> frequency(nss);
     std::vector<Complex_trace_value> frequency1(nss);
-    fftwf_plan planFFT = fftwf_plan_dft_r2c_1d(
-      nss, trcX, reinterpret_cast<fftwf_complex*>(frequency.data()),
+    fftwf_plan plan_fft = fftwf_plan_dft_r2c_1d(
+      nss, trc_x, reinterpret_cast<fftwf_complex*>(frequency.data()),
       FFTW_MEASURE);
-    fftwf_execute(planFFT);
-    fftwf_destroy_plan(planFFT);
+    fftwf_execute(plan_fft);
+    fftwf_destroy_plan(plan_fft);
 
     for (size_t i = 0; i < nss / 2LU + 1LU; i++) {
         Complex_trace_value a = 0, b = 0;
-        for (size_t j = 0; j < N + 1LU; j++) {
+        for (size_t j = 0; j < n + 1LU; j++) {
             Complex_trace_value val = std::exp(
-              -I
+              -one_i
               * Complex_trace_value(
                   fs * exseis::utils::Trace_value(j * i)
                   / exseis::utils::Trace_value(nss)));
             b += numer[j] * val;
             a += denom[j] * val;
         }
-        Complex_trace_value H = b / a;
+        Complex_trace_value h = b / a;
         frequency[i] *=
-          Complex_trace_value(std::fabs(H.real()), std::fabs(H.imag()));
+          Complex_trace_value(std::fabs(h.real()), std::fabs(h.imag()));
     }
 
-    fftwf_plan planIFFT = fftwf_plan_dft_c2r_1d(
-      nss, reinterpret_cast<fftwf_complex*>(frequency.data()), trcX,
+    fftwf_plan plan_ifft = fftwf_plan_dft_c2r_1d(
+      nss, reinterpret_cast<fftwf_complex*>(frequency.data()), trc_x,
       FFTW_MEASURE);
-    fftwf_execute(planIFFT);
-    fftwf_destroy_plan(planIFFT);
+    fftwf_execute(plan_ifft);
+    fftwf_destroy_plan(plan_ifft);
 
     for (size_t i = 0; i < nss; i++) {
-        trcX[i] /= nss;
+        trc_x[i] /= nss;
     }
 }
 
 /// Infinite Impulse Response
-/// @param[in] N  Feedforwrd / Feedback filter order
+/// @param[in] n  Feedforward / Feedback filter order
 /// @param[in] ns Number of samples
 /// @param[in] b  Feedforward filter coefficients
-///               (pointer to array of size \c N)
+///               (pointer to array of size \c n)
 /// @param[in] a  Feedback filter coefficients
-///               (pointer to array of size \c N)
+///               (pointer to array of size \c n)
 /// @param[in] x  The input signal  (pointer to array of size \c ns)
 /// @param[in] y  The output signal (pointer to array of size \c ns)
 /// @param[in] zi Z-transform coefficients
 /// @todo Document Z-transform coefficients
-void IIR(
-  size_t N,
+static void iir(
+  size_t n,
   size_t ns,
   exseis::utils::Trace_value* b,
   exseis::utils::Trace_value* a,
@@ -394,90 +395,90 @@ void IIR(
   exseis::utils::Trace_value* zi)
 {
     y[0] = b[0] * x[0] + zi[0];
-    for (size_t i = 1LU; i < N; i++) {
+    for (size_t i = 1LU; i < n; i++) {
         y[i] = b[0] * x[i] + zi[i];
         for (size_t j = 1LU; j < i + 1LU; j++) {
             y[i] += b[j] * x[i - j] - a[j] * y[i - j];
         }
     }
 
-    for (size_t i = N; i < ns; i++) {
+    for (size_t i = n; i < ns; i++) {
         y[i] = b[0] * x[i];
-        for (size_t j = 1; j < N + 1LU; j++) {
+        for (size_t j = 1; j < n + 1LU; j++) {
             y[i] += b[j] * x[i - j] - a[j] * y[i - j];
         }
     }
 }
 
-void filterTime(
+void filter_time(
   size_t nw,
-  exseis::utils::Trace_value* trcOrgnl,
-  size_t numTail,
+  exseis::utils::Trace_value* trc_orgnl,
+  size_t num_tail,
   exseis::utils::Trace_value* numer,
   exseis::utils::Trace_value* denom,
   FltrPad padding)
 {
-    std::vector<exseis::utils::Trace_value> trcX(nw + 6LU * (numTail + 1LU));
+    std::vector<exseis::utils::Trace_value> trc_x(nw + 6LU * (num_tail + 1LU));
 
-    for (size_t i = 0LU; i < 3LU * (numTail + 1LU); i++) {
-        trcX[i] = padding(trcOrgnl, 3LU * (numTail + 1LU), nw, i);
-        trcX[i + 3LU * numTail + nw] = padding(
-          trcOrgnl, 3LU * (numTail + 1LU), nw - 1LU, i + 3LU * numTail + nw);
+    for (size_t i = 0LU; i < 3LU * (num_tail + 1LU); i++) {
+        trc_x[i] = padding(trc_orgnl, 3LU * (num_tail + 1LU), nw, i);
+        trc_x[i + 3LU * num_tail + nw] = padding(
+          trc_orgnl, 3LU * (num_tail + 1LU), nw - 1LU, i + 3LU * num_tail + nw);
     }
 
     for (size_t i = 0; i < nw; i++) {
-        trcX[i + 3LU * (numTail + 1LU)] = trcOrgnl[i];
+        trc_x[i + 3LU * (num_tail + 1LU)] = trc_orgnl[i];
     }
 
-    std::vector<exseis::utils::Trace_value> zi(numTail);
-    std::vector<exseis::utils::Trace_value> ziF(numTail);
-    std::vector<exseis::utils::Trace_value> trcY(nw + 6LU * (numTail + 1LU));
+    std::vector<exseis::utils::Trace_value> zi(num_tail);
+    std::vector<exseis::utils::Trace_value> zi_f(num_tail);
+    std::vector<exseis::utils::Trace_value> trc_y(nw + 6LU * (num_tail + 1LU));
 
-    exseis::utils::Trace_value B    = 0;
-    exseis::utils::Trace_value Imin = 1;
-    for (size_t i = 1LU; i < numTail + 1LU; i++) {
-        B += numer[i] - denom[i] * numer[0];
-        Imin += denom[i];
+    exseis::utils::Trace_value b    = 0;
+    exseis::utils::Trace_value imin = 1;
+    for (size_t i = 1LU; i < num_tail + 1LU; i++) {
+        b += numer[i] - denom[i] * numer[0];
+        imin += denom[i];
     }
 
     // Applies a bilinear transform to convert analgue filter to digital filter
-    // numer and denom generated by makeFilter.
-    zi[0]                        = B / Imin;
+    // numer and denom generated by make_filter.
+    zi[0]                        = b / imin;
     exseis::utils::Trace_value a = 1;
     exseis::utils::Trace_value c = 0;
-    for (size_t i = 1; i < numTail; i++) {
+    for (size_t i = 1; i < num_tail; i++) {
         a += denom[i];
         c += numer[i] - denom[i] * numer[0];
         zi[i] = a * zi[0] - c;
     }
 
-    for (size_t i = 0; i < numTail; i++) {
-        ziF[i] = zi[i] * trcX[0];
+    for (size_t i = 0; i < num_tail; i++) {
+        zi_f[i] = zi[i] * trc_x[0];
     }
 
-    IIR(
-      numTail, nw + 6LU * (numTail + 1LU), numer, denom, trcX.data(),
-      trcY.data(), ziF.data());
+    iir(
+      num_tail, nw + 6LU * (num_tail + 1LU), numer, denom, trc_x.data(),
+      trc_y.data(), zi_f.data());
 
-    for (size_t i = 0; i < nw + 6 * (numTail + 1); i++) {
-        trcX[i] = trcY[nw + 6LU * (1LU + numTail) - i - 1LU];
-        trcY[nw + 6 * (numTail + 1) - 1 - i] = 0;
+    for (size_t i = 0; i < nw + 6 * (num_tail + 1); i++) {
+        trc_x[i] = trc_y[nw + 6LU * (1LU + num_tail) - i - 1LU];
+        trc_y[nw + 6 * (num_tail + 1) - 1 - i] = 0;
     }
 
-    for (size_t i = 0; i < numTail; i++) {
-        zi[i] *= trcX[0];
+    for (size_t i = 0; i < num_tail; i++) {
+        zi[i] *= trc_x[0];
     }
 
-    IIR(
-      numTail, nw + 6LU * (numTail + 1LU), numer, denom, trcX.data(),
-      trcY.data(), zi.data());
+    iir(
+      num_tail, nw + 6LU * (num_tail + 1LU), numer, denom, trc_x.data(),
+      trc_y.data(), zi.data());
 
     for (size_t i = 0; i < nw; i++) {
-        trcOrgnl[i] = trcY[nw + 3LU * (numTail + 1LU) - i - 1LU];
+        trc_orgnl[i] = trc_y[nw + 3LU * (num_tail + 1LU) - i - 1LU];
     }
 }
 
-void temporalFilter(
+void temporal_filter(
   size_t nt,
   size_t ns,
   exseis::utils::Trace_value* trc,
@@ -486,47 +487,48 @@ void temporalFilter(
   FltrDmn domain,
   PadType pad,
   size_t nw,
-  size_t winCntr,
+  size_t win_cntr,
   std::vector<exseis::utils::Trace_value> corners,
-  size_t N)
+  size_t n)
 {
-    nw      = ((nw == 0 || nw > ns) ? ns : nw);
-    nw      = ((nw % 2) != 0 ? nw : nw - 1);
-    winCntr = ((winCntr == 0) ? ns / 2LU : winCntr);
+    nw       = ((nw == 0 || nw > ns) ? ns : nw);
+    nw       = ((nw % 2) != 0 ? nw : nw - 1);
+    win_cntr = ((win_cntr == 0) ? ns / 2LU : win_cntr);
 
-    assert(winCntr < ns && "Window Center is larger than trace length");
-    size_t tail    = ((corners[1] == 0) ? 1LU : 2LU);
-    size_t numTail = N * tail;
-    std::vector<exseis::utils::Trace_value> numer(numTail + 1);
-    std::vector<exseis::utils::Trace_value> denom(numTail + 1);
-    makeFilter(type, numer.data(), denom.data(), N, fs, corners[0], corners[1]);
+    assert(win_cntr < ns && "Window Center is larger than trace length");
+    size_t tail     = ((corners[1] == 0) ? 1LU : 2LU);
+    size_t num_tail = n * tail;
+    std::vector<exseis::utils::Trace_value> numer(num_tail + 1);
+    std::vector<exseis::utils::Trace_value> denom(num_tail + 1);
+    make_filter(
+      type, numer.data(), denom.data(), n, fs, corners[0], corners[1]);
 
     for (size_t i = 0; i < nt; i++) {
 
-        std::vector<exseis::utils::Trace_value> trcOrgnl(nw);
+        std::vector<exseis::utils::Trace_value> trc_orgnl(nw);
 
         for (size_t j = 0; j < nw; j++) {
-            trcOrgnl[j] = trc[i * ns + (winCntr - nw / 2) + j];
+            trc_orgnl[j] = trc[i * ns + (win_cntr - nw / 2) + j];
         }
         switch (domain) {
             case FltrDmn::Time:
-                filterTime(
-                  nw, trcOrgnl.data(), numTail, numer.data(), denom.data(),
-                  getPad(pad));
+                filter_time(
+                  nw, trc_orgnl.data(), num_tail, numer.data(), denom.data(),
+                  get_pad(pad));
                 break;
 
             case FltrDmn::Freq:
-                filterFreq(
-                  nw, trcOrgnl.data(), fs, numTail, numer.data(), denom.data(),
-                  getPad(pad));
+                filter_freq(
+                  nw, trc_orgnl.data(), fs, num_tail, numer.data(),
+                  denom.data(), get_pad(pad));
                 break;
         }
 
         for (size_t j = 0; j < nw; j++) {
-            trc[i * ns + (winCntr - nw / 2LL) + j] = trcOrgnl[j];
+            trc[i * ns + (win_cntr - nw / 2LL) + j] = trc_orgnl[j];
         }
     }
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

@@ -7,14 +7,14 @@
 ///          the SEGY matches and provides details about what is in the files.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
 
 #include <glob.h>
 #include <iostream>
 #include <regex>
 
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 /*! Main function for assess.
  *  @param[in] argc The number of arguments. Should be at least 2.
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
         std::cout << "Too few arguments\n";
         return -1;
     }
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     glob_t globs;
     std::cout << "Pattern: " << argv[1] << "\n";
@@ -47,12 +47,12 @@ int main(int argc, char** argv)
         if (std::regex_match(globs.gl_pathv[i], reg)) {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
 
-            ReadDirect file(piol, globs.gl_pathv[i]);
-            piol->isErr();
-            std::cout << "-\tNs: " << file.readNs() << "\n";
-            std::cout << "-\tNt: " << file.readNt() << "\n";
-            std::cout << "-\tInc: " << file.readInc() << "\n";
-            std::cerr << "-\tText: " << file.readText() << "\n";
+            ReadSEGY file(piol, globs.gl_pathv[i]);
+            piol->assert_ok();
+            std::cout << "-\tNs: " << file.read_ns() << "\n";
+            std::cout << "-\tNt: " << file.read_nt() << "\n";
+            std::cout << "-\tInc: " << file.read_sample_interval() << "\n";
+            std::cerr << "-\tText: " << file.read_text() << "\n";
         }
     }
 

@@ -2,107 +2,107 @@
 
 TEST_F(ObjSpecTest, SEGYHORead1)
 {
-    readHOPatternTest(7, 107);
+    read_ho_pattern_test(7, 107);
 }
 
 TEST_F(ObjSpecTest, SEGYHORead2)
 {
-    readHOPatternTest(10, 46);
+    read_ho_pattern_test(10, 46);
 }
 
 TEST_F(ObjSpecTest, SEGYHORead3)
 {
-    readHOPatternTest(0, 0);
+    read_ho_pattern_test(0, 0);
 }
 
 TEST_F(ObjSpecTest, SEGYReadSingle1)
 {
-    readTest<Block::DOMD>(10U, 1U, 200, 13, 117);
-    readTest<Block::DODF>(10U, 1U, 200, 13, 117);
-    readTest<Block::DO>(10U, 1U, 200, 13, 117);
+    read_test<Block::TRACE_METADATA>(10U, 1U, 200, 13, 117);
+    read_test<Block::TRACE_DATA>(10U, 1U, 200, 13, 117);
+    read_test<Block::TRACE>(10U, 1U, 200, 13, 117);
 }
 
 TEST_F(ObjSpecTest, SEGYReadSingle2)
 {
-    readTest<Block::DOMD>(10U, 1U, 200, 13, 13);
-    readTest<Block::DODF>(10U, 1U, 200, 13, 13);
-    readTest<Block::DO>(10U, 1U, 200, 13, 13);
+    read_test<Block::TRACE_METADATA>(10U, 1U, 200, 13, 13);
+    read_test<Block::TRACE_DATA>(10U, 1U, 200, 13, 13);
+    read_test<Block::TRACE>(10U, 1U, 200, 13, 13);
 }
 
 TEST_F(ObjSpecTest, SEGYReadZeroNt)
 {
-    readTest<Block::DOMD>(10U, 0U, 2000);
-    readTest<Block::DODF>(10U, 0U, 2000);
-    readTest<Block::DO>(10U, 0U, 2000);
+    read_test<Block::TRACE_METADATA>(10U, 0U, 2000);
+    read_test<Block::TRACE_DATA>(10U, 0U, 2000);
+    read_test<Block::TRACE>(10U, 0U, 2000);
 }
 
 TEST_F(ObjSpecTest, SEGYReadZeroNs)
 {
-    readTest<Block::DOMD>(10U, 100U, 0U);
-    readTest<Block::DODF>(10U, 100U, 0U);
-    readTest<Block::DO>(10U, 100U, 0U);
+    read_test<Block::TRACE_METADATA>(10U, 100U, 0U);
+    read_test<Block::TRACE_DATA>(10U, 100U, 0U);
+    read_test<Block::TRACE>(10U, 100U, 0U);
 }
 
 TEST_F(ObjSpecTest, SEGYRead)
 {
-    readTest<Block::DOMD>(10U, 100U, 2000);
-    readTest<Block::DODF>(10U, 100U, 2000);
-    readTest<Block::DO>(10U, 100U, 2000);
+    read_test<Block::TRACE_METADATA>(10U, 100U, 2000);
+    read_test<Block::TRACE_DATA>(10U, 100U, 2000);
+    read_test<Block::TRACE>(10U, 100U, 2000);
 }
 
 TEST_F(ObjSpecTest, FarmSEGYBigRead)
 {
-    readTest<Block::DOMD>(10U, 300000, 5000);
-    readTest<Block::DODF>(10U, 300000, 5000);
-    readTest<Block::DO>(10U, 300000, 5000);
+    read_test<Block::TRACE_METADATA>(10U, 300000, 5000);
+    read_test<Block::TRACE_DATA>(10U, 300000, 5000);
+    read_test<Block::TRACE>(10U, 300000, 5000);
 }
 
 // random read
 
 TEST_F(ObjSpecTest, SEGYRandomReadSingle1)
 {
-    auto vec = getRandomVec(1U, 1337);
-    readRandomTest<Block::DOMD>(200, vec, 117);
-    readRandomTest<Block::DODF>(200, vec, 117);
-    readRandomTest<Block::DO>(200, vec, 117);
+    auto vec = get_random_vec(1U, 1337);
+    read_random_test<Block::TRACE_METADATA>(200, vec, 117);
+    read_random_test<Block::TRACE_DATA>(200, vec, 117);
+    read_random_test<Block::TRACE>(200, vec, 117);
 }
 
 TEST_F(ObjSpecTest, SEGYRandomReadSingle2)
 {
-    auto vec = getRandomVec(1U, 1337);
-    readRandomTest<Block::DOMD>(200, vec, 13);
-    readRandomTest<Block::DODF>(200, vec, 13);
-    readRandomTest<Block::DO>(200, vec, 13);
+    auto vec = get_random_vec(1U, 1337);
+    read_random_test<Block::TRACE_METADATA>(200, vec, 13);
+    read_random_test<Block::TRACE_DATA>(200, vec, 13);
+    read_random_test<Block::TRACE>(200, vec, 13);
 }
 
 TEST_F(ObjSpecTest, SEGYRandomReadZeroNt)
 {
-    auto vec = getRandomVec(0U, 1337);
-    readRandomTest<Block::DOMD>(2000, vec);
-    readRandomTest<Block::DODF>(2000, vec);
-    readRandomTest<Block::DO>(2000, vec);
+    auto vec = get_random_vec(0U, 1337);
+    read_random_test<Block::TRACE_METADATA>(2000, vec);
+    read_random_test<Block::TRACE_DATA>(2000, vec);
+    read_random_test<Block::TRACE>(2000, vec);
 }
 
 TEST_F(ObjSpecTest, SEGYRandomReadZeroNs)
 {
-    auto vec = getRandomVec(100U, 1337);
-    readRandomTest<Block::DOMD>(0U, vec);
-    readRandomTest<Block::DODF>(0U, vec);
-    readRandomTest<Block::DO>(0U, vec);
+    auto vec = get_random_vec(100U, 1337);
+    read_random_test<Block::TRACE_METADATA>(0U, vec);
+    read_random_test<Block::TRACE_DATA>(0U, vec);
+    read_random_test<Block::TRACE>(0U, vec);
 }
 
 TEST_F(ObjSpecTest, SEGYRandomRead)
 {
-    auto vec = getRandomVec(100U, 1337);
-    readRandomTest<Block::DOMD>(2000, vec);
-    readRandomTest<Block::DODF>(2000, vec);
-    readRandomTest<Block::DO>(2000, vec);
+    auto vec = get_random_vec(100U, 1337);
+    read_random_test<Block::TRACE_METADATA>(2000, vec);
+    read_random_test<Block::TRACE_DATA>(2000, vec);
+    read_random_test<Block::TRACE>(2000, vec);
 }
 
 TEST_F(ObjSpecTest, FarmSEGYRandomBigRead)
 {
-    auto vec = getRandomVec(300000U, 1337);
-    readRandomTest<Block::DOMD>(5000, vec);
-    readRandomTest<Block::DODF>(5000, vec);
-    readRandomTest<Block::DO>(5000, vec);
+    auto vec = get_random_vec(300000U, 1337);
+    read_random_test<Block::TRACE_METADATA>(5000, vec);
+    read_random_test<Block::TRACE_DATA>(5000, vec);
+    read_random_test<Block::TRACE>(5000, vec);
 }

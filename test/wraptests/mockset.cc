@@ -1,13 +1,13 @@
 #include "mockset.hh"
 
 namespace exseis {
-namespace Flow {
+namespace flow {
 
-::testing::StrictMock<MockSet>& mockSet()
+::testing::StrictMock<MockSet>& mock_set()
 {
-    static ::testing::StrictMock<MockSet> mockSet;
-    return mockSet;
+    static ::testing::StrictMock<MockSet> mock_set;
+    return mock_set;
 }
 
-}  // namespace Flow
+}  // namespace flow
 }  // namespace exseis

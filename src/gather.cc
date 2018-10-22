@@ -6,13 +6,12 @@
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/operations/gather.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/decomposition/block_decomposition.h"
-#include "ExSeisDat/utils/mpi/MPI_Distributed_vector.hh"
+#include "exseisdat/piol/operations/gather.hh"
+#include "exseisdat/utils/decomposition/block_decomposition.hh"
+#include "exseisdat/utils/mpi/MPI_Distributed_vector.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 /*! Find the inline/crossline for each il/xl gather and the number of traces per
  *  gather based on the parameters provided and assuming this is collectively
@@ -24,24 +23,20 @@ namespace PIOL {
  *         crossline.
  * @todo TODO: This can be generalised
  */
-static utils::Distributed_vector<Gather_info> getGathers(
-  ExSeisPIOL* piol, Param* prm)
+static utils::Distributed_vector<Gather_info> get_gathers(
+  ExSeisPIOL* piol, Trace_metadata* prm)
 {
-    size_t rank    = piol->comm->getRank();
-    size_t numRank = piol->comm->getNumRank();
+    size_t rank     = piol->comm->get_rank();
+    size_t num_rank = piol->comm->get_num_rank();
     std::vector<Gather_info> lline;
 
-    exseis::utils::Integer ill =
-      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_il, prm);
-    exseis::utils::Integer xll =
-      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_xl, prm);
+    exseis::utils::Integer ill = prm->get_integer(0LU, Meta::il);
+    exseis::utils::Integer xll = prm->get_integer(0LU, Meta::xl);
     lline.push_back({1LU, ill, xll});
 
     for (size_t i = 1; i < prm->size(); i++) {
-        exseis::utils::Integer il =
-          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_il, prm);
-        exseis::utils::Integer xl =
-          param_utils::getPrm<exseis::utils::Integer>(i, PIOL_META_xl, prm);
+        exseis::utils::Integer il = prm->get_integer(i, Meta::il);
+        exseis::utils::Integer xl = prm->get_integer(i, Meta::xl);
 
         if (il != ill || xl != xll) {
             lline.push_back({0LU, il, xl});
@@ -51,11 +46,11 @@ static utils::Distributed_vector<Gather_info> getGathers(
         lline.back().num_traces += 1;
     }
 
-    auto trcnum = piol->comm->gather<size_t>(lline.front().num_traces);
-    auto ilb    = piol->comm->gather<size_t>(lline.back().inline_);
-    auto xlb    = piol->comm->gather<size_t>(lline.back().crossline);
-    auto ilf    = piol->comm->gather<size_t>(lline.front().inline_);
-    auto xlf    = piol->comm->gather<size_t>(lline.front().crossline);
+    auto trcnum = piol->comm->gather(lline.front().num_traces);
+    auto ilb    = piol->comm->gather(lline.back().in_line);
+    auto xlb    = piol->comm->gather(lline.back().crossline);
+    auto ilf    = piol->comm->gather(lline.front().in_line);
+    auto xlf    = piol->comm->gather(lline.front().crossline);
 
     size_t start = 0;
     if (
@@ -67,7 +62,7 @@ static utils::Distributed_vector<Gather_info> getGathers(
 
     if (start < lline.size()) {
         if (ilf[rank + 1LU] == ilb[rank] && xlf[rank + 1LU] == xlb[rank]) {
-            for (size_t i = rank + 1LU; i < numRank; i++) {
+            for (size_t i = rank + 1LU; i < num_rank; i++) {
                 if (ilb[rank] == ilf[i] && xlb[rank] == xlf[i]) {
                     lline.back().num_traces += trcnum[i];
                 }
@@ -82,7 +77,7 @@ static utils::Distributed_vector<Gather_info> getGathers(
     size_t offset = piol->comm->offset(sz);
 
     utils::MPI_Distributed_vector<Gather_info> line(
-      piol->comm->sum(sz), piol->comm->getComm());
+      piol->comm->sum(sz), piol->comm->get_comm());
 
     for (size_t i = 0; i < sz; i++) {
         line.set(i + offset, lline[i + start]);
@@ -91,21 +86,20 @@ static utils::Distributed_vector<Gather_info> getGathers(
     return std::move(line);
 }
 
-utils::Distributed_vector<Gather_info> getIlXlGathers(
+utils::Distributed_vector<Gather_info> get_il_xl_gathers(
   ExSeisPIOL* piol, ReadInterface* file)
 {
     auto dec = utils::block_decomposition(
-      file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+      file->read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
-    auto rule = std::make_shared<Rule>(
-      std::initializer_list<Meta>{PIOL_META_il, PIOL_META_xl});
+    const auto rule = Rule(std::initializer_list<Meta>{Meta::il, Meta::xl});
 
-    Param prm(rule, dec.local_size);
+    Trace_metadata prm(std::move(rule), dec.local_size);
 
-    file->readParam(dec.global_offset, dec.local_size, &prm);
+    file->read_param(dec.global_offset, dec.local_size, &prm);
 
-    return getGathers(piol, &prm);
+    return get_gathers(piol, &prm);
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

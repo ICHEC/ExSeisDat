@@ -1,10 +1,12 @@
-#ifndef PIOLWRAPTESTSSETWRAPTESTS_INCLUDE_GUARD
-#define PIOLWRAPTESTSSETWRAPTESTS_INCLUDE_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_SETWRAPTESTS_HH
+#define EXSEISDAT_TEST_WRAPTESTS_SETWRAPTESTS_HH
 
 #include "mockexseis.hh"
 
 #include <memory>
 
-void test_PIOL_Set(std::shared_ptr<exseis::PIOL::ExSeis*> piol);
+void test_piol_set(
+  std::shared_ptr<exseis::piol::ExSeis*> piol,
+  std::shared_ptr<exseis::piol::Trace_metadata*> trace_metadata);
 
-#endif  // PIOLWRAPTESTSSETWRAPTESTS_INCLUDE_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_SETWRAPTESTS_HH

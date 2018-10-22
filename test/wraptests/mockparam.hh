@@ -1,8 +1,7 @@
-#ifndef PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
-#define PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_MOCKPARAM_HH
+#define EXSEISDAT_TEST_WRAPTESTS_MOCKPARAM_HH
 
-#include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/param_utils.hh"
+#include "exseisdat/piol/Trace_metadata.hh"
 
 #include "printers.hh"
 
@@ -10,85 +9,55 @@
 #include "gmock/gmock.h"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 using namespace exseis::utils::typedefs;
 
-namespace param_utils {
-// Specify extern templates for templated functions so we can capture them
-template<>
-int16_t getPrm<int16_t>(size_t i, Meta entry, const Param* prm);
 
-template<>
-exseis::utils::Integer getPrm<exseis::utils::Integer>(
-  size_t i, Meta entry, const Param* prm);
+class Mock_Trace_metadata;
+::testing::StrictMock<Mock_Trace_metadata>& mock_trace_metadata();
 
-template<>
-exseis::utils::Floating_point getPrm<exseis::utils::Floating_point>(
-  size_t i, Meta entry, const Param* prm);
-
-
-template<>
-void setPrm<int16_t>(size_t i, Meta entry, int16_t ret, Param* prm);
-
-template<>
-void setPrm<exseis::utils::Integer>(
-  size_t i, Meta entry, exseis::utils::Integer ret, Param* prm);
-
-template<>
-void setPrm<exseis::utils::Floating_point>(
-  size_t i, Meta entry, exseis::utils::Floating_point ret, Param* prm);
-
-}  // namespace param_utils
-
-
-class MockParam;
-::testing::StrictMock<MockParam>& mockParam();
-
-class MockParamFreeFunctions;
-::testing::StrictMock<MockParamFreeFunctions>& mockParamFreeFunctions();
-
-class MockParam {
+class Mock_Trace_metadata {
   public:
-    MOCK_METHOD3(ctor, void(Param*, std::shared_ptr<Rule> r_, size_t sz));
-    MOCK_METHOD2(ctor, void(Param*, size_t sz));
-    MOCK_METHOD1(dtor, void(Param*));
+    MOCK_METHOD3(ctor, void(Trace_metadata*, Rule& rules_, size_t num_traces));
+    MOCK_METHOD2(ctor, void(Trace_metadata*, size_t num_traces));
+    MOCK_METHOD1(dtor, void(Trace_metadata*));
 
-    MOCK_CONST_METHOD1(size, size_t(const Param*));
-
-    MOCK_CONST_METHOD1(memUsage, size_t(const Param*));
-};
-
-class MockParamFreeFunctions {
-  public:
+    MOCK_CONST_METHOD3(
+      get_floating_point,
+      Floating_point(const Trace_metadata*, size_t trace_index, Meta entry));
     MOCK_METHOD4(
-      cpyPrm, void(size_t j, const Param* src, size_t k, Param* dst));
-
-    MOCK_METHOD3(
-      getPrm_int16_t, int16_t(size_t i, Meta entry, const Param* prm));
-
-    MOCK_METHOD3(
-      getPrm_Integer,
-      exseis::utils::Integer(size_t i, Meta entry, const Param* prm));
-
-    MOCK_METHOD3(
-      getPrm_Floating_point,
-      exseis::utils::Floating_point(size_t i, Meta entry, const Param* prm));
-
-    MOCK_METHOD4(
-      setPrm_int16_t, void(size_t i, Meta entry, int16_t ret, Param* prm));
-
-    MOCK_METHOD4(
-      setPrm_Integer,
-      void(size_t i, Meta entry, exseis::utils::Integer ret, Param* prm));
-
-    MOCK_METHOD4(
-      setPrm_Floating_point,
+      set_floating_point,
       void(
-        size_t i, Meta entry, exseis::utils::Floating_point ret, Param* prm));
+        Trace_metadata*, size_t trace_index, Meta entry, Floating_point value));
+
+    MOCK_CONST_METHOD3(
+      get_integer,
+      Integer(const Trace_metadata*, size_t trace_index, Meta entry));
+    MOCK_METHOD4(
+      set_integer,
+      void(Trace_metadata*, size_t trace_index, Meta entry, Integer value));
+
+    MOCK_CONST_METHOD3(
+      get_index, size_t(const Trace_metadata*, size_t trace_index, Meta entry));
+    MOCK_METHOD4(
+      set_index,
+      void(Trace_metadata*, size_t trace_index, Meta entry, size_t value));
+
+    MOCK_METHOD4(
+      copy_entries,
+      void(
+        Trace_metadata*,
+        size_t trace_index,
+        const Trace_metadata& source_trace_metadata,
+        size_t source_trace_index));
+
+    MOCK_CONST_METHOD1(size, size_t(const Trace_metadata*));
+
+    MOCK_CONST_METHOD1(memory_usage, size_t(const Trace_metadata*));
 };
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
-#endif  // PIOLWRAPTESTMOCKPARAM_HEADER_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_MOCKPARAM_HH

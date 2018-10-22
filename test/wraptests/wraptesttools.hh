@@ -1,5 +1,5 @@
-#ifndef PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
-#define PIOLWRAPTESTSWRAPTESTTOOLS_HEADER_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_WRAPTESTTOOLS_HH
+#define EXSEISDAT_TEST_WRAPTESTS_WRAPTESTTOOLS_HH
 
 #include "checkreturnlistener.hh"
 #include "printers.hh"
@@ -9,17 +9,17 @@
 
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 // A global instance of CheckReturnListener.
 // This should be set to the pointer passed into the gtest listeners.
-CheckReturnListener*& checkReturnListener();
+CheckReturnListener*& check_return_listener();
 
 // Returns a mocked function which, when called, will call
-// checkReturnListener->got_expected_return_value();
-::testing::StrictMock<::testing::MockFunction<void()>>& returnChecker();
+// check_return_listener->got_expected_return_value();
+::testing::StrictMock<::testing::MockFunction<void()>>& return_checker();
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
 
@@ -27,6 +27,12 @@ CheckReturnListener*& checkReturnListener();
 MATCHER_P(EqDeref, p, "EqDeref")
 {
     return *p == arg;
+}
+
+// EqDerefDeref(p): **p == arg
+MATCHER_P(EqDerefDeref, p, "EqDerefDeref")
+{
+    return **p == arg;
 }
 
 // GetEqDeref(p) *p == arg.get()
@@ -44,21 +50,21 @@ MATCHER_P(AddressEqDeref, p, "AddressEqDeref")
 
 ACTION_P(CheckReturn, v)
 {
-    exseis::PIOL::checkReturnListener()->expect_return_value(
+    exseis::piol::check_return_listener()->expect_return_value(
       testing::PrintToString(v));
     return v;
 }
 
 ACTION_P(CheckInOutParam, v)
 {
-    exseis::PIOL::checkReturnListener()->expect_return_value(
+    exseis::piol::check_return_listener()->expect_return_value(
       testing::PrintToString(v));
 }
 
 ACTION(ClearCheckReturn)
 {
-    exseis::PIOL::checkReturnListener()->got_expected_return_value();
+    exseis::piol::check_return_listener()->got_expected_return_value();
 }
 
 
-#endif
+#endif  // EXSEISDAT_TEST_WRAPTESTS_WRAPTESTTOOLS_HH

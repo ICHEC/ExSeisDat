@@ -1,87 +1,87 @@
 #include "mockrule.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 Rule::Rule(bool full, bool defaults, bool extras)
 {
-    mockRule().ctor(this, full, defaults, extras);
+    mock_rule().Rule_ctor(this, full, defaults, extras);
 }
 
 Rule::Rule(const std::vector<Meta>& m, bool full, bool defaults, bool extras)
 {
-    mockRule().ctor(this, m, full, defaults, extras);
+    mock_rule().Rule_ctor(this, m, full, defaults, extras);
 }
 
-Rule::Rule(RuleMap translate_, bool full)
+Rule::Rule(const Rule_entry_map& rule_entry_map, bool full)
 {
-    mockRule().ctor(this, translate_, full);
+    mock_rule().Rule_ctor(this, rule_entry_map, full);
 }
 
 Rule::~Rule()
 {
-    mockRule().dtor(this);
+    mock_rule().Rule_dtor(this);
 }
 
-bool Rule::addRule(Meta m)
+bool Rule::add_rule(Meta m)
 {
-    return mockRule().addRule(this, m);
+    return mock_rule().add_rule(this, m);
 }
 
-bool Rule::addRule(const Rule& r)
+bool Rule::add_rule(const Rule& r)
 {
-    return mockRule().addRule(this, r);
+    return mock_rule().add_rule(this, r);
 }
 
-void Rule::addLong(Meta m, Tr loc)
+void Rule::add_long(Meta m, Tr loc)
 {
-    mockRule().addLong(this, m, loc);
+    mock_rule().add_long(this, m, loc);
 }
 
-void Rule::addSEGYFloat(Meta m, Tr loc, Tr scalLoc)
+void Rule::add_segy_float(Meta m, Tr loc, Tr scalar_location)
 {
-    mockRule().addSEGYFloat(this, m, loc, scalLoc);
+    mock_rule().add_segy_float(this, m, loc, scalar_location);
 }
 
-void Rule::addShort(Meta m, Tr loc)
+void Rule::add_short(Meta m, Tr loc)
 {
-    mockRule().addShort(this, m, loc);
+    mock_rule().add_short(this, m, loc);
 }
 
-void Rule::addIndex(Meta m)
+void Rule::add_index(Meta m)
 {
-    mockRule().addIndex(this, m);
+    mock_rule().add_index(this, m);
 }
 
-void Rule::addCopy()
+void Rule::add_copy()
 {
-    mockRule().addCopy(this);
+    mock_rule().add_copy(this);
 }
 
-void Rule::rmRule(Meta m)
+void Rule::rm_rule(Meta m)
 {
-    mockRule().rmRule(this, m);
+    mock_rule().rm_rule(this, m);
 }
 
 size_t Rule::extent()
 {
-    return mockRule().extent(this);
+    return mock_rule().extent(this);
 }
 
-size_t Rule::memUsage() const
+size_t Rule::memory_usage() const
 {
-    return mockRule().memUsage(this);
+    return mock_rule().memory_usage(this);
 }
 
-size_t Rule::paramMem() const
+size_t Rule::memory_usage_per_header() const
 {
-    return mockRule().paramMem(this);
+    return mock_rule().memory_usage_per_header(this);
 }
 
-RuleEntry* Rule::getEntry(Meta entry)
+const RuleEntry* Rule::get_entry(Meta entry) const
 {
-    return mockRule().getEntry(this, entry);
+    return mock_rule().get_entry(this, entry);
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

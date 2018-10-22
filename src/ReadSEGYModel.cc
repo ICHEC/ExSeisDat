@@ -3,52 +3,42 @@
 /// @brief Implementation of \c ReadSEGYModel
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/ReadSEGYModel.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
+#include "exseisdat/piol/ReadSEGYModel.hh"
+#include "exseisdat/piol/Trace_metadata.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 ReadSEGYModel::ReadSEGYModel(
-  std::shared_ptr<ExSeisPIOL> piol_,
-  const std::string name_,
-  std::shared_ptr<ObjectInterface> obj_) :
-    ReadSEGYModel(piol_, name_, ReadSEGYModel::Opt(), obj_)
+  std::shared_ptr<ExSeisPIOL> piol,
+  const std::string name,
+  const ReadSEGYModel::Options& opt) :
+    ReadSEGY(piol, name, opt)
 {
-}
+    std::vector<size_t> vlist = {0LU, 1LU, ReadSEGY::read_nt() - 1LU};
+    Trace_metadata prm(vlist.size());
+    read_param_non_contiguous(vlist.size(), vlist.data(), &prm);
 
-ReadSEGYModel::ReadSEGYModel(
-  std::shared_ptr<ExSeisPIOL> piol_,
-  const std::string name_,
-  const ReadSEGYModel::Opt& opt,
-  std::shared_ptr<ObjectInterface> obj_) :
-    ReadSEGY(piol_, name_, opt, obj_)
-{
-    std::vector<size_t> vlist = {0LU, 1LU, ReadSEGY::readNt() - 1LU};
-    Param prm(vlist.size());
-    readParamNonContiguous(vlist.size(), vlist.data(), &prm);
+    exseis::utils::Integer il_start = prm.get_integer(0LU, Meta::il);
+    exseis::utils::Integer xl_start = prm.get_integer(0LU, Meta::xl);
 
-    exseis::utils::Integer il_start =
-      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_il, &prm);
-    exseis::utils::Integer xl_start =
-      param_utils::getPrm<exseis::utils::Integer>(0LU, PIOL_META_xl, &prm);
 
     exseis::utils::Integer il_increment =
-      param_utils::getPrm<exseis::utils::Integer>(1LU, PIOL_META_il, &prm)
-      - il_start;
+      prm.get_integer(1LU, Meta::il) - il_start;
+
     exseis::utils::Integer il_count =
       (il_increment != 0 ?
-         (param_utils::getPrm<exseis::utils::Integer>(2LU, PIOL_META_il, &prm)
-          - il_start)
-           / il_increment :
-         0LU);
+         (prm.get_integer(2LU, Meta::il) - il_start) / il_increment :
+         0);
+
+    assert(
+      ReadSEGY::read_nt() < std::numeric_limits<exseis::utils::Integer>::max());
     exseis::utils::Integer xl_count =
-      (ReadSEGY::readNt() / (il_count != 0 ? il_count : 1LU));
+      (static_cast<exseis::utils::Integer>(ReadSEGY::read_nt())
+       / (il_count != 0 ? il_count : 1));
+
     exseis::utils::Integer xl_increment =
-      (param_utils::getPrm<exseis::utils::Integer>(2LU, PIOL_META_xl, &prm)
-       - xl_start)
-      / xl_count;
+      (prm.get_integer(2LU, Meta::xl) - xl_start) / xl_count;
 
     il_increment = (il_increment != 0 ? il_increment : 1LU);
     xl_increment = (xl_increment != 0 ? xl_increment : 1LU);
@@ -57,47 +47,54 @@ ReadSEGYModel::ReadSEGYModel(
     xl = CoordinateParameters(xl_start, xl_count, xl_increment);
 }
 
-std::vector<exseis::utils::Trace_value> ReadSEGYModel::readModel(
+std::vector<exseis::utils::Trace_value> ReadSEGYModel::read_model(
   const size_t offset,
   const size_t sz,
   const utils::Distributed_vector<Gather_info>& gather)
 {
-    std::vector<exseis::utils::Trace_value> trc(sz * readNs());
+    std::vector<exseis::utils::Trace_value> trc(sz * read_ns());
     std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++) {
         auto val = gather[offset + i];
-        /* The below can be translated to:
-         * trace number = ilNumber * xlInc + xlNumber
-         * much like indexing in a 2d array.
-         */
-        offsets[i] = ((val.inline_ - il.start) / il.increment) * xl.count
-                     + ((val.crossline - xl.start) / xl.increment);
+
+        // Check numeric conversions are ok
+        assert(il.start <= std::numeric_limits<exseis::utils::Integer>::max());
+        assert(xl.start <= std::numeric_limits<exseis::utils::Integer>::max());
+
+        // The below can be translated to:
+        //     trace number = il_number * xlInc + xl_number
+        // much like indexing in a 2d array.
+        //
+        offsets[i] = static_cast<size_t>(
+          ((val.in_line - il.start) / il.increment) * xl.count
+          + ((val.crossline - xl.start) / xl.increment));
     }
 
-    readTraceNonContiguous(
-      offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
+    read_trace_non_contiguous(
+      offsets.size(), offsets.data(), trc.data(), nullptr, 0LU);
 
     return trc;
 }
 
-std::vector<exseis::utils::Trace_value> ReadSEGYModel::readModel(
+std::vector<exseis::utils::Trace_value> ReadSEGYModel::read_model(
   const size_t sz,
   const size_t* offset,
   const utils::Distributed_vector<Gather_info>& gather)
 {
-    std::vector<exseis::utils::Trace_value> trc(sz * readNs());
+    std::vector<exseis::utils::Trace_value> trc(sz * read_ns());
     std::vector<size_t> offsets(sz);
     for (size_t i = 0; i < sz; i++) {
         auto val   = gather[offset[i]];
-        offsets[i] = ((val.inline_ - il.start) / il.increment) * xl.count
-                     + ((val.crossline - xl.start) / xl.increment);
+        offsets[i] = static_cast<size_t>(
+          ((val.in_line - il.start) / il.increment) * xl.count
+          + ((val.crossline - xl.start) / xl.increment));
     }
 
-    readTraceNonContiguous(
-      offsets.size(), offsets.data(), trc.data(), PIOL_PARAM_NULL, 0LU);
+    read_trace_non_contiguous(
+      offsets.size(), offsets.data(), trc.data(), nullptr, 0LU);
 
     return trc;
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

@@ -9,7 +9,7 @@
 /// produce an identical copy.
 ///
 
-#include "ExSeisDat/PIOL.h"
+#include "exseisdat/piol.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -19,7 +19,7 @@
 #include <unistd.h>
 
 typedef void (*ModTrc)(size_t, size_t, float*);
-typedef void (*ModPrm)(size_t, size_t, PIOL_File_Param*);
+typedef void (*ModPrm)(size_t, size_t, piol_file_trace_metadata*);
 
 size_t max(size_t a, size_t b)
 {
@@ -29,23 +29,23 @@ size_t max(size_t a, size_t b)
     return b;
 }
 
-void readWriteFullTrace(
-  PIOL_ExSeis* piol,
-  PIOL_File_ReadDirect* ifh,
-  PIOL_File_WriteDirect* ofh,
+void read_write_full_trace(
+  piol_exseis* piol,
+  piol_file_read_interface* ifh,
+  piol_file_write_interface* ofh,
   size_t off,
   size_t tcnt,
   ModTrc ftrc,
   ModPrm fprm)
 {
-    PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, tcnt);
-    size_t ns              = PIOL_File_ReadDirect_readNs(ifh);
+    piol_file_trace_metadata* trhdr = piol_file_trace_metadata_new(NULL, tcnt);
+    size_t ns                       = piol_file_read_interface_read_ns(ifh);
 
-    assert(tcnt * PIOL_SEGY_utils_getDFSz(ns) > 0);
-    float* trace = malloc(tcnt * PIOL_SEGY_utils_getDFSz(ns));
+    assert(tcnt * piol_segy_segy_trace_data_size(ns) > 0);
+    float* trace = malloc(tcnt * piol_segy_segy_trace_data_size(ns));
     assert(trace);
 
-    PIOL_File_ReadDirect_readTrace(ifh, off, tcnt, trace, trhdr);
+    piol_file_read_interface_read_trace(ifh, off, tcnt, trace, trhdr);
     if (ftrc != NULL) {
         for (size_t i = 0; i < tcnt; i++) {
             ftrc(off, ns, &trace[i]);
@@ -58,17 +58,17 @@ void readWriteFullTrace(
         }
     }
 
-    PIOL_File_WriteDirect_writeTrace(ofh, off, tcnt, trace, trhdr);
-    PIOL_ExSeis_isErr(piol, NULL);
+    piol_file_write_interface_write_trace(ofh, off, tcnt, trace, trhdr);
+    piol_exseis_assert_ok(piol, NULL);
 
     free(trace);
-    PIOL_File_Param_delete(trhdr);
+    piol_file_trace_metadata_delete(trhdr);
 }
 
-void writePayload(
-  PIOL_ExSeis* piol,
-  PIOL_File_ReadDirect* ifh,
-  PIOL_File_WriteDirect* ofh,
+void write_payload(
+  piol_exseis* piol,
+  piol_file_read_interface* ifh,
+  piol_file_write_interface* ofh,
   size_t goff,
   size_t lnt,
   size_t tcnt,
@@ -82,60 +82,66 @@ void writePayload(
       biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
     for (size_t i = 0U; i < lnt; i += tcnt) {
-        readWriteFullTrace(
+        read_write_full_trace(
           piol, ifh, ofh, goff + i, (i + tcnt < lnt ? tcnt : lnt - i), ftrc,
           fprm);
     }
 
     for (size_t i = 0U; i < extra; i++) {
-        readWriteFullTrace(piol, ifh, ofh, goff, 0, ftrc, fprm);
+        read_write_full_trace(piol, ifh, ofh, goff, 0, ftrc, fprm);
     }
 }
 
-int ReadWriteFile(
-  PIOL_ExSeis* piol,
+int read_write_file(
+  piol_exseis* piol,
   const char* iname,
   const char* oname,
   size_t memmax,
   ModPrm fprm,
   ModTrc ftrc)
 {
-    PIOL_File_ReadDirect* ifh = PIOL_File_ReadDirect_new(piol, iname);
-    PIOL_ExSeis_isErr(piol, NULL);
+    piol_file_read_interface* ifh = piol_file_read_segy_new(piol, iname);
+    piol_exseis_assert_ok(piol, NULL);
 
-    size_t ns = PIOL_File_ReadDirect_readNs(ifh);
-    size_t nt = PIOL_File_ReadDirect_readNt(ifh);
+    size_t ns = piol_file_read_interface_read_ns(ifh);
+    size_t nt = piol_file_read_interface_read_nt(ifh);
     // Write all header metadata
-    PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
-    PIOL_ExSeis_isErr(piol, NULL);
+    piol_file_write_interface* ofh = piol_file_write_segy_new(piol, oname);
+    piol_exseis_assert_ok(piol, NULL);
 
-    PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
-    PIOL_File_WriteDirect_writeNs(ofh, PIOL_File_ReadDirect_readNs(ifh));
-    PIOL_File_WriteDirect_writeNt(ofh, PIOL_File_ReadDirect_readNt(ifh));
-    PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
-    PIOL_ExSeis_isErr(piol, NULL);
+    piol_file_write_interface_write_text(
+      ofh, piol_file_read_interface_read_text(ifh));
+    piol_file_write_interface_write_ns(
+      ofh, piol_file_read_interface_read_ns(ifh));
+    piol_file_write_interface_write_nt(
+      ofh, piol_file_read_interface_read_nt(ifh));
+    piol_file_write_interface_write_sample_interval(
+      ofh, piol_file_read_interface_read_sample_interval(ifh));
+    piol_exseis_assert_ok(piol, NULL);
 
     struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
-      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt =
-      memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
+      nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
+    size_t tcnt = memmax
+                  / max(
+                      piol_segy_segy_trace_data_size(ns),
+                      piol_segy_segy_trace_header_size());
 
-    writePayload(
+    write_payload(
       piol, ifh, ofh, dec.global_offset, dec.local_size, tcnt, fprm, ftrc);
 
-    PIOL_ExSeis_isErr(piol, NULL);
-    PIOL_File_WriteDirect_delete(ofh);
-    PIOL_File_ReadDirect_delete(ifh);
+    piol_exseis_assert_ok(piol, NULL);
+    piol_file_write_interface_delete(ofh);
+    piol_file_read_interface_delete(ifh);
     return 0;
 }
 
-void SourceX1600Y2400(size_t offset, size_t i, PIOL_File_Param* prm)
+void source_x1600_y2400(size_t offset, size_t i, piol_file_trace_metadata* prm)
 {
-    PIOL_File_setPrm_double(i, PIOL_META_xSrc, offset + 1600.0, prm);
-    PIOL_File_setPrm_double(i, PIOL_META_ySrc, offset + 2400.0, prm);
+    piol_file_set_prm_double(i, exseis_meta_x_src, offset + 1600.0, prm);
+    piol_file_set_prm_double(i, exseis_meta_y_src, offset + 2400.0, prm);
 }
 
-void TraceLinearInc(size_t offset, size_t ns, float* trc)
+void trace_linear_interval(size_t offset, size_t ns, float* trc)
 {
     for (size_t i = 0; i < ns; i++) {
         trc[i] = 2.0 * i + offset;
@@ -158,8 +164,8 @@ int main(int argc, char** argv)
 
     size_t memmax = 2U * 1024U * 1024U * 1024U;  // bytes
 
-    ModPrm modPrm = NULL;
-    ModTrc modTrc = false;
+    ModPrm mod_prm = NULL;
+    ModTrc mod_trc = false;
 
     for (int c = getopt(argc, argv, opt); c != -1;
          c     = getopt(argc, argv, opt)) {
@@ -199,13 +205,13 @@ int main(int argc, char** argv)
 
             case 'p':
                 printf("The trace parameters will be modified\n");
-                modPrm = SourceX1600Y2400;
+                mod_prm = source_x1600_y2400;
 
                 break;
 
             case 't':
                 printf("The traces will be modified\n");
-                modTrc = TraceLinearInc;
+                mod_trc = trace_linear_interval;
 
                 break;
 
@@ -218,12 +224,12 @@ int main(int argc, char** argv)
     }
     assert(iname && oname);
 
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    PIOL_ExSeis_isErr(piol, NULL);
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
+    piol_exseis_assert_ok(piol, NULL);
 
-    ReadWriteFile(piol, iname, oname, memmax, modPrm, modTrc);
+    read_write_file(piol, iname, oname, memmax, mod_prm, mod_trc);
 
-    PIOL_ExSeis_delete(piol);
+    piol_exseis_delete(piol);
 
     free(iname);
     free(oname);

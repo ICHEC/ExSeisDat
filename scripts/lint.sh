@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-if [[ $# -ne 2 ]]
+set -e
+
+if [[ $# -lt 2 ]]
 then
     echo "usage: $(basename "$0") BUILD_DIRECTORY TARGET_FILE"
 
@@ -9,6 +11,7 @@ fi
 
 build_dir="$1"
 target_file="$2"
+shift 2
 
 
 # Add clang-tidy and clang-apply-replacements to $PATH
@@ -33,5 +36,6 @@ pushd ${source_dir} >/dev/null
 clang-tidy "${target_file}" \
     -p "${build_dir}" \
     --header-filter="${source_dir}" \
-    --quiet
+    --quiet \
+    "$@"
 popd > /dev/null

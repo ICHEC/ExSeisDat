@@ -5,19 +5,21 @@
 /// @brief
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
+#ifndef EXSEISDAT_UTIL_4DCORE_HH
+#define EXSEISDAT_UTIL_4DCORE_HH
 
 #include "4dio.hh"
 
 #include <cassert>
 
 namespace exseis {
-namespace PIOL {
-namespace FOURD {
+namespace piol {
+namespace four_d {
 
 /*! Error check the mpi error value.
  *  @param[in] err The mpi error value.
  */
-inline void MPIErr(int err)
+inline void mpi_err(int err)
 {
     assert(err == MPI_SUCCESS);
 }
@@ -40,7 +42,7 @@ inline void MPIErr(int err)
  *                  dsrmax away.
  *  @param[out] minrs The dsr value associated with the trace match in min.
  */
-void calc4DBin(
+void calc_4d_bin(
   ExSeisPIOL* piol,
   fourd_t dsrmax,
   const Coords* coords1,
@@ -49,6 +51,8 @@ void calc4DBin(
   std::vector<size_t>& min,
   std::vector<fourd_t>& minrs);
 
-}  // namespace FOURD
-}  // namespace PIOL
+}  // namespace four_d
+}  // namespace piol
 }  // namespace exseis
+
+#endif  // EXSEISDAT_UTIL_4DCORE_HH

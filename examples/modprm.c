@@ -7,7 +7,7 @@
 
 //#include "ctest.h"
 
-#include "ExSeisDat/PIOL.h"
+#include "exseisdat/piol.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -33,27 +33,27 @@ size_t max(size_t a, size_t b)
  *  @param[in] ifh The input file handle
  *  @param[out] ofh The output file handle
  */
-void readwriteParam(
-  PIOL_ExSeis* piol,
+void readwrite_param(
+  piol_exseis* piol,
   size_t off,
   size_t tcnt,
-  PIOL_File_ReadDirect* ifh,
-  PIOL_File_WriteDirect* ofh)
+  piol_file_read_interface* ifh,
+  piol_file_write_interface* ofh)
 {
-    PIOL_File_Param* prm = PIOL_File_Param_new(NULL, tcnt);
-    PIOL_File_ReadDirect_readParam(ifh, off, tcnt, prm);
+    piol_file_trace_metadata* prm = piol_file_trace_metadata_new(NULL, tcnt);
+    piol_file_read_interface_read_param(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++) {
         exseis_Floating_point xval =
-          PIOL_File_getPrm_double(i, PIOL_META_xSrc, prm);
+          piol_file_get_prm_double(i, exseis_meta_x_src, prm);
         exseis_Floating_point yval =
-          PIOL_File_getPrm_double(i, PIOL_META_ySrc, prm);
-        PIOL_File_setPrm_double(i, PIOL_META_xSrc, yval, prm);
-        PIOL_File_setPrm_double(i, PIOL_META_ySrc, xval, prm);
+          piol_file_get_prm_double(i, exseis_meta_y_src, prm);
+        piol_file_set_prm_double(i, exseis_meta_x_src, yval, prm);
+        piol_file_set_prm_double(i, exseis_meta_y_src, xval, prm);
     }
 
-    PIOL_File_WriteDirect_writeParam(ofh, off, tcnt, prm);
-    PIOL_ExSeis_isErr(piol, "");
-    PIOL_File_Param_delete(prm);
+    piol_file_write_interface_write_param(ofh, off, tcnt, prm);
+    piol_exseis_assert_ok(piol, "");
+    piol_file_trace_metadata_delete(prm);
 }
 
 /*! Write the output header details.
@@ -61,14 +61,20 @@ void readwriteParam(
  *  @param[in] ifh The input file handle
  *  @param[out] ofh The output file handle
  */
-void writeHeader(
-  PIOL_ExSeis* piol, PIOL_File_ReadDirect* ifh, PIOL_File_WriteDirect* ofh)
+void write_header(
+  piol_exseis* piol,
+  piol_file_read_interface* ifh,
+  piol_file_write_interface* ofh)
 {
-    PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
-    PIOL_File_WriteDirect_writeNs(ofh, PIOL_File_ReadDirect_readNs(ifh));
-    PIOL_File_WriteDirect_writeNt(ofh, PIOL_File_ReadDirect_readNt(ifh));
-    PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
-    PIOL_ExSeis_isErr(piol, "");
+    piol_file_write_interface_write_text(
+      ofh, piol_file_read_interface_read_text(ifh));
+    piol_file_write_interface_write_ns(
+      ofh, piol_file_read_interface_read_ns(ifh));
+    piol_file_write_interface_write_nt(
+      ofh, piol_file_read_interface_read_nt(ifh));
+    piol_file_write_interface_write_sample_interval(
+      ofh, piol_file_read_interface_read_sample_interval(ifh));
+    piol_exseis_assert_ok(piol, "");
 }
 
 /*! Write the data from the input file to the output file
@@ -79,13 +85,13 @@ void writeHeader(
  *  @param[in] ifh The input file handle
  *  @param[out] ofh The output file handle
  */
-void writePayload(
-  PIOL_ExSeis* piol,
+void write_payload(
+  piol_exseis* piol,
   size_t goff,
   size_t lnt,
   size_t tcnt,
-  PIOL_File_ReadDirect* ifh,
-  PIOL_File_WriteDirect* ofh)
+  piol_file_read_interface* ifh,
+  piol_file_write_interface* ofh)
 {
     size_t biggest = lnt;
     MPI_Allreduce(
@@ -95,11 +101,11 @@ void writePayload(
 
     for (size_t i = 0U; i < lnt; i += tcnt) {
         size_t rblock = (i + tcnt < lnt ? tcnt : lnt - i);
-        readwriteParam(piol, goff + i, rblock, ifh, ofh);
+        readwrite_param(piol, goff + i, rblock, ifh, ofh);
     }
 
     for (size_t i = 0U; i < extra; i++) {
-        readwriteParam(piol, goff, 0, ifh, ofh);
+        readwrite_param(piol, goff, 0, ifh, ofh);
     }
 }
 
@@ -146,31 +152,33 @@ int main(int argc, char** argv)
     }
     assert(iname && oname);
 
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    PIOL_ExSeis_isErr(piol, "");
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
+    piol_exseis_assert_ok(piol, "");
 
-    PIOL_File_ReadDirect* ifh = PIOL_File_ReadDirect_new(piol, iname);
-    PIOL_ExSeis_isErr(piol, "");
+    piol_file_read_interface* ifh = piol_file_read_segy_new(piol, iname);
+    piol_exseis_assert_ok(piol, "");
 
-    size_t ns = PIOL_File_ReadDirect_readNs(ifh);
-    size_t nt = PIOL_File_ReadDirect_readNt(ifh);
+    size_t ns = piol_file_read_interface_read_ns(ifh);
+    size_t nt = piol_file_read_interface_read_nt(ifh);
     // Write all header metadata
-    PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
-    PIOL_ExSeis_isErr(piol, "");
+    piol_file_write_interface* ofh = piol_file_write_segy_new(piol, oname);
+    piol_exseis_assert_ok(piol, "");
 
-    writeHeader(piol, ifh, ofh);
+    write_header(piol, ifh, ofh);
 
     struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
-      nt, PIOL_ExSeis_getNumRank(piol), PIOL_ExSeis_getRank(piol));
-    size_t tcnt =
-      memmax / max(PIOL_SEGY_utils_getDFSz(ns), PIOL_SEGY_utils_getMDSz());
+      nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
+    size_t tcnt = memmax
+                  / max(
+                      piol_segy_segy_trace_data_size(ns),
+                      piol_segy_segy_trace_header_size());
 
-    writePayload(piol, dec.global_offset, dec.local_size, tcnt, ifh, ofh);
+    write_payload(piol, dec.global_offset, dec.local_size, tcnt, ifh, ofh);
 
-    PIOL_ExSeis_isErr(piol, "");
-    PIOL_File_WriteDirect_delete(ofh);
-    PIOL_File_ReadDirect_delete(ifh);
-    PIOL_ExSeis_delete(piol);
+    piol_exseis_assert_ok(piol, "");
+    piol_file_write_interface_delete(ofh);
+    piol_file_read_interface_delete(ifh);
+    piol_exseis_delete(piol);
 
     free(iname);
     free(oname);

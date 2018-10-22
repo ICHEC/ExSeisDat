@@ -5,27 +5,26 @@
 
 #include "segymdextra.hh"
 
-#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/operations/minmax.h"
-#include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/operations/temporalfilter.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/signal_processing/AGC.h"
-#include "ExSeisDat/utils/signal_processing/taper.h"
+#include "exseisdat/piol/CommunicatorMPI.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/operations/minmax.hh"
+#include "exseisdat/piol/operations/sort.hh"
+#include "exseisdat/piol/operations/temporalfilter.hh"
+#include "exseisdat/utils/signal_processing/AGC.h"
+#include "exseisdat/utils/signal_processing/taper.h"
 
 
 using namespace testing;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 struct OpsTest : public Test {
-    std::shared_ptr<ExSeis> piol = ExSeis::New();
+    std::shared_ptr<ExSeis> piol = ExSeis::make();
 };
 
 /*! Get the min and the max of a set of parameters passed. This is a parallel
  *  operation. It is the collective min and max across all processes (which also
  *  must all call this file).
- *  @param[in, out] piol The PIOL object
+ *  @param[in,out] piol The PIOL object
  *  @param[in] offset The starting trace number (local).
  *  @param[in] lnt The local number of traces to process.
  *  @param[in] coord
@@ -33,7 +32,7 @@ struct OpsTest : public Test {
  *                     maximum item.x, minimum item.y, maximum item.y and their
  *                     respective trace numbers.
  */
-void getMinMax(
+void get_min_max(
   ExSeisPIOL* piol,
   size_t offset,
   size_t lnt,
@@ -46,10 +45,10 @@ void getMinMax(
     auto ylam = [](const coord_t& a) -> exseis::utils::Floating_point {
         return a.y;
     };
-    getMinMax<coord_t>(piol, offset, lnt, coord, xlam, ylam, minmax);
+    get_min_max<coord_t>(piol, offset, lnt, coord, xlam, ylam, minmax);
 }
 
-TEST_F(OpsTest, getMinMaxSimple)
+TEST_F(OpsTest, get_min_maxSimple)
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++) {
@@ -58,9 +57,9 @@ TEST_F(OpsTest, getMinMaxSimple)
 
     std::vector<CoordElem> minmax(4);
     for (size_t offset = 0; offset < 300000; offset += 1 + offset * 10) {
-        getMinMax(
+        get_min_max(
           piol.get(), offset, coord.size(), coord.data(), minmax.data());
-        piol->isErr();
+        piol->assert_ok();
         ASSERT_EQ(offset, minmax[0].num);
         ASSERT_EQ(offset + 999, minmax[1].num);
         ASSERT_EQ(offset + 999, minmax[2].num);
@@ -83,7 +82,7 @@ TEST_F(OpsTest, getMinMaxSimple)
 
 TEST_F(
   OpsTest,
-  getMinMaxFail1)  // These fails won't surive a multi-processor example
+  get_min_maxFail1)  // These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++) {
@@ -91,22 +90,22 @@ TEST_F(
     }
 
     std::vector<CoordElem> minmax(4);
-    getMinMax(piol.get(), 10, coord.size(), coord.data(), NULL);
-    piol->isErr();
+    get_min_max(piol.get(), 10, coord.size(), coord.data(), NULL);
+    piol->assert_ok();
 }
 
 TEST_F(
   OpsTest,
-  getMinMaxFail2)  // These fails won't surive a multi-processor example
+  get_min_maxFail2)  // These fails won't surive a multi-processor example
 {
     std::vector<CoordElem> minmax(4);
-    getMinMax(piol.get(), 10, 0, NULL, minmax.data());
-    piol->isErr();
+    get_min_max(piol.get(), 10, 0, NULL, minmax.data());
+    piol->assert_ok();
 }
 
 TEST_F(
   OpsTest,
-  getMinMaxFail3)  // These fails won't surive a multi-processor example
+  get_min_maxFail3)  // These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++) {
@@ -114,12 +113,12 @@ TEST_F(
     }
 
     std::vector<CoordElem> minmax(4);
-    getMinMax(piol.get(), 10, 0, coord.data(), minmax.data());
-    piol->isErr();
+    get_min_max(piol.get(), 10, 0, coord.data(), minmax.data());
+    piol->assert_ok();
 }
 
 template<bool Y, bool Min>
-void testMinMax(
+void test_min_max(
   const std::vector<coord_t>& coord, const std::vector<CoordElem>& minmax)
 {
     exseis::utils::Floating_point val =
@@ -143,7 +142,7 @@ void testMinMax(
     ASSERT_EQ(tn, minmax[2U * size_t(Y) + size_t(!Min)].num);
 }
 
-TEST_F(OpsTest, getMinMaxRand)
+TEST_F(OpsTest, get_min_maxRand)
 {
     srand(31337);
     std::vector<CoordElem> minmax(4);
@@ -154,162 +153,168 @@ TEST_F(OpsTest, getMinMaxRand)
             coord[i] = {1.0 * rand(), 1.0 * rand()};
         }
 
-        getMinMax(piol.get(), 0, coord.size(), coord.data(), minmax.data());
-        piol->isErr();
-        testMinMax<false, false>(coord, minmax);
-        testMinMax<false, true>(coord, minmax);
-        testMinMax<true, false>(coord, minmax);
-        testMinMax<true, true>(coord, minmax);
+        get_min_max(piol.get(), 0, coord.size(), coord.data(), minmax.data());
+        piol->assert_ok();
+        test_min_max<false, false>(coord, minmax);
+        test_min_max<false, true>(coord, minmax);
+        test_min_max<true, false>(coord, minmax);
+        test_min_max<true, true>(coord, minmax);
     }
 }
 
 TEST_F(OpsTest, SortSrcRcvBackwards)
 {
-    Param prm(200);
+    Trace_metadata prm(200);
     for (size_t i = 0; i < prm.size(); i++) {
-        param_utils::setPrm(
-          i, PIOL_META_xSrc, 1000.0 - exseis::utils::Floating_point(i / 20),
-          &prm);
-        param_utils::setPrm(
-          i, PIOL_META_ySrc, 1000.0 - exseis::utils::Floating_point(i % 20),
-          &prm);
-        param_utils::setPrm(
-          i, PIOL_META_xRcv, 1000.0 - exseis::utils::Floating_point(i / 10),
-          &prm);
-        param_utils::setPrm(
-          i, PIOL_META_yRcv, 1000.0 - exseis::utils::Floating_point(i % 10),
-          &prm);
-        param_utils::setPrm(i, PIOL_META_gtn, i, &prm);
+        prm.set_floating_point(
+          i, Meta::x_src, 1000.0 - (prm.size() * piol->get_rank() + i) / 20);
+        prm.set_floating_point(
+          i, Meta::y_src, 1000.0 - (prm.size() * piol->get_rank() + i) % 20);
+        prm.set_floating_point(
+          i, Meta::x_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) / 10);
+        prm.set_floating_point(
+          i, Meta::y_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) % 10);
+        prm.set_index(i, Meta::gtn, prm.size() * piol->get_rank() + i);
     }
-    auto list = sort(piol.get(), PIOL_SORTTYPE_SrcRcv, &prm);
+    auto list               = sort(piol.get(), SortType::SrcRcv, prm);
+    size_t global_list_size = piol->comm->sum(list.size());
     for (size_t i = 0; i < list.size(); i++) {
-        ASSERT_EQ(list.size() - i - 1, list[i])
-          << " i " << i << " list.size()-i-1 " << list.size() - i - 1
-          << " list[i] " << list[i];
+        ASSERT_EQ(
+          global_list_size - (prm.size() * piol->get_rank() + i) - 1, list[i]);
     }
 }
 
 TEST_F(OpsTest, SortSrcRcvForwards)
 {
-    Param prm(200);
+    Trace_metadata prm(200);
     for (size_t i = 0; i < prm.size(); i++) {
-        param_utils::setPrm(i, PIOL_META_xSrc, 1000.0 + i / 20, &prm);
-        param_utils::setPrm(i, PIOL_META_ySrc, 1000.0 + i % 20, &prm);
-        param_utils::setPrm(i, PIOL_META_xRcv, 1000.0 + i / 10, &prm);
-        param_utils::setPrm(i, PIOL_META_yRcv, 1000.0 + i % 10, &prm);
-        param_utils::setPrm(i, PIOL_META_gtn, i, &prm);
+        prm.set_floating_point(
+          i, Meta::x_src, 1000.0 + (prm.size() * piol->get_rank() + i) / 20);
+        prm.set_floating_point(
+          i, Meta::y_src, 1000.0 + (prm.size() * piol->get_rank() + i) % 20);
+        prm.set_floating_point(
+          i, Meta::x_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) / 10);
+        prm.set_floating_point(
+          i, Meta::y_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) % 10);
+        prm.set_index(i, Meta::gtn, prm.size() * piol->get_rank() + i);
     }
-    auto list = sort(piol.get(), PIOL_SORTTYPE_SrcRcv, &prm);
+    auto list = sort(piol.get(), SortType::SrcRcv, prm);
 
     for (size_t i = 0; i < list.size(); i++) {
-        ASSERT_EQ(i, list[i]);
+        ASSERT_EQ(prm.size() * piol->get_rank() + i, list[i]);
     }
 }
 
 TEST_F(OpsTest, SortSrcRcvRand)
 {
-    Param prm(10);
+    Trace_metadata prm(10);
     for (size_t i = 0; i < prm.size(); i++) {
-        param_utils::setPrm(i, PIOL_META_ySrc, 1000.0, &prm);
-        param_utils::setPrm(i, PIOL_META_xRcv, 1000.0, &prm);
-        param_utils::setPrm(i, PIOL_META_yRcv, 1000.0, &prm);
-        param_utils::setPrm(i, PIOL_META_gtn, i, &prm);
+        prm.set_floating_point(i, Meta::y_src, 1000.0);
+        prm.set_floating_point(i, Meta::x_rcv, 1000.0);
+        prm.set_floating_point(i, Meta::y_rcv, 1000.0);
+        prm.set_index(i, Meta::gtn, 10 * piol->get_rank() + i);
     }
-    param_utils::setPrm(0, PIOL_META_xSrc, 5.0, &prm);
-    param_utils::setPrm(1, PIOL_META_xSrc, 3.0, &prm);
-    param_utils::setPrm(2, PIOL_META_xSrc, 1.0, &prm);
-    param_utils::setPrm(3, PIOL_META_xSrc, 4.0, &prm);
-    param_utils::setPrm(4, PIOL_META_xSrc, 2.0, &prm);
-    param_utils::setPrm(5, PIOL_META_xSrc, 9.0, &prm);
-    param_utils::setPrm(6, PIOL_META_xSrc, 6.0, &prm);
-    param_utils::setPrm(7, PIOL_META_xSrc, 8.0, &prm);
-    param_utils::setPrm(8, PIOL_META_xSrc, 7.0, &prm);
-    param_utils::setPrm(9, PIOL_META_xSrc, 0.0, &prm);
-    auto list = sort(piol.get(), PIOL_SORTTYPE_SrcRcv, &prm);
-    ASSERT_EQ(static_cast<size_t>(5), list[0]);
-    ASSERT_EQ(static_cast<size_t>(3), list[1]);
-    ASSERT_EQ(static_cast<size_t>(1), list[2]);
-    ASSERT_EQ(static_cast<size_t>(4), list[3]);
-    ASSERT_EQ(static_cast<size_t>(2), list[4]);
-    ASSERT_EQ(static_cast<size_t>(9), list[5]);
-    ASSERT_EQ(static_cast<size_t>(6), list[6]);
-    ASSERT_EQ(static_cast<size_t>(8), list[7]);
-    ASSERT_EQ(static_cast<size_t>(7), list[8]);
-    ASSERT_EQ(static_cast<size_t>(0), list[9]);
+    prm.set_floating_point(0, Meta::x_src, 10.0 * piol->get_rank() + 5.0);
+    prm.set_floating_point(1, Meta::x_src, 10.0 * piol->get_rank() + 3.0);
+    prm.set_floating_point(2, Meta::x_src, 10.0 * piol->get_rank() + 1.0);
+    prm.set_floating_point(3, Meta::x_src, 10.0 * piol->get_rank() + 4.0);
+    prm.set_floating_point(4, Meta::x_src, 10.0 * piol->get_rank() + 2.0);
+    prm.set_floating_point(5, Meta::x_src, 10.0 * piol->get_rank() + 9.0);
+    prm.set_floating_point(6, Meta::x_src, 10.0 * piol->get_rank() + 6.0);
+    prm.set_floating_point(7, Meta::x_src, 10.0 * piol->get_rank() + 8.0);
+    prm.set_floating_point(8, Meta::x_src, 10.0 * piol->get_rank() + 7.0);
+    prm.set_floating_point(9, Meta::x_src, 10.0 * piol->get_rank() + 0.0);
+
+    auto list = sort(piol.get(), SortType::SrcRcv, prm);
+
+    ASSERT_EQ(10 * piol->get_rank() + 5U, list[0]);
+    ASSERT_EQ(10 * piol->get_rank() + 3U, list[1]);
+    ASSERT_EQ(10 * piol->get_rank() + 1U, list[2]);
+    ASSERT_EQ(10 * piol->get_rank() + 4U, list[3]);
+    ASSERT_EQ(10 * piol->get_rank() + 2U, list[4]);
+    ASSERT_EQ(10 * piol->get_rank() + 9U, list[5]);
+    ASSERT_EQ(10 * piol->get_rank() + 6U, list[6]);
+    ASSERT_EQ(10 * piol->get_rank() + 8U, list[7]);
+    ASSERT_EQ(10 * piol->get_rank() + 7U, list[8]);
+    ASSERT_EQ(10 * piol->get_rank() + 0U, list[9]);
 }
 
 TEST_F(OpsTest, FilterCheckLowpass)
 {
-    size_t N = 4;
-    std::vector<exseis::utils::Trace_value> denomCalc(N + 1);
-    std::vector<exseis::utils::Trace_value> numerCalc(N + 1);
-    makeFilter(
-      FltrType::Lowpass, numerCalc.data(), denomCalc.data(), N, 30.0, 1.2, 0.0);
+    size_t n = 4;
+    std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
+    std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
+    make_filter(
+      FltrType::Lowpass, numer_calc.data(), denom_calc.data(), n, 30.0, 1.2,
+      0.0);
 
-    std::vector<exseis::utils::Trace_value> denomRef = {
+    std::vector<exseis::utils::Trace_value> denom_ref = {
       1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
-    std::vector<exseis::utils::Trace_value> numerRef = {
+
+    std::vector<exseis::utils::Trace_value> numer_ref = {
       0.00018321611, 0.00073286443, 0.0010992966, 0.00073286443, 0.00018321611};
-    for (size_t i = 0; i < N + 1; i++) {
-        EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
-        EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
+
+    for (size_t i = 0; i < n + 1; i++) {
+        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
+        EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
     }
 }
 
 TEST_F(OpsTest, FilterCheckHighpass)
 {
-    size_t N = 4;
-    std::vector<exseis::utils::Trace_value> denomCalc(N + 1);
-    std::vector<exseis::utils::Trace_value> numerCalc(N + 1);
-    makeFilter(
-      FltrType::Highpass, numerCalc.data(), denomCalc.data(), N, 30, 1.2, 0);
+    size_t n = 4;
+    std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
+    std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
+    make_filter(
+      FltrType::Highpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2, 0);
 
-    std::vector<exseis::utils::Trace_value> denomRef = {
+    std::vector<exseis::utils::Trace_value> denom_ref = {
       1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
-    std::vector<exseis::utils::Trace_value> numerRef = {
+    std::vector<exseis::utils::Trace_value> numer_ref = {
       0.71935955, -2.87743821, 4.31615732, -2.87743821, 0.71935955};
-    for (size_t i = 0; i < N + 1; i++) {
-        EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
-        EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
+    for (size_t i = 0; i < n + 1; i++) {
+        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
+        EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
     }
 }
 
 TEST_F(OpsTest, FilterCheckBandpass)
 {
-    size_t N = 4;
-    std::vector<exseis::utils::Trace_value> denomCalc(2 * N + 1);
-    std::vector<exseis::utils::Trace_value> numerCalc(2 * N + 1);
-    makeFilter(
-      FltrType::Bandpass, numerCalc.data(), denomCalc.data(), N, 30, 1.2, 6.5);
-    std::vector<exseis::utils::Trace_value> denomRef = {
+    size_t n = 4;
+    std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
+    std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
+    make_filter(
+      FltrType::Bandpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2,
+      6.5);
+    std::vector<exseis::utils::Trace_value> denom_ref = {
       1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
       -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
-    std::vector<exseis::utils::Trace_value> numerRef = {
+    std::vector<exseis::utils::Trace_value> numer_ref = {
       0.03142168, 0.0,        -0.1256867, 0.0,       0.18853005,
       0.0,        -0.1256867, 0.0,        0.03142168};
-    for (size_t i = 0; i < 2 * N + 1; i++) {
-        EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
-        EXPECT_FLOAT_EQ(numerRef[i], numerCalc[i]);
+    for (size_t i = 0; i < 2 * n + 1; i++) {
+        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
+        EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
     }
 }
 
 TEST_F(OpsTest, FilterCheckBandstop)
 {
-    size_t N = 4;
-    std::vector<exseis::utils::Trace_value> denomCalc(2 * N + 1);
-    std::vector<exseis::utils::Trace_value> numerCalc(2 * N + 1);
-    makeFilter(
-      FltrType::Bandstop, numerCalc.data(), denomCalc.data(), N,
+    size_t n = 4;
+    std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
+    std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
+    make_filter(
+      FltrType::Bandstop, numer_calc.data(), denom_calc.data(), n,
       exseis::utils::Trace_value(30), exseis::utils::Trace_value(1.2),
       exseis::utils::Trace_value(6.5));
-    std::vector<exseis::utils::Trace_value> denomRef = {
+    std::vector<exseis::utils::Trace_value> denom_ref = {
       1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
       -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
-    std::vector<exseis::utils::Trace_value> numerRef = {
+    std::vector<exseis::utils::Trace_value> numer_ref = {
       0.21261259,  -1.38519468, 4.23471188,  -7.83039071, 9.54055945,
       -7.83039071, 4.23471188,  -1.38519468, 0.21261259};
-    for (size_t i = 0; i < 2 * N + 1; i++) {
-        EXPECT_FLOAT_EQ(denomRef[i], denomCalc[i]);
-        EXPECT_NEAR(numerRef[i], numerCalc[i], 5e-6);
+    for (size_t i = 0; i < 2 * n + 1; i++) {
+        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
+        EXPECT_NEAR(numer_ref[i], numer_calc[i], 5e-6);
     }
 }

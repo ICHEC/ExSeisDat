@@ -1,3 +1,6 @@
+#ifndef EXSEISDAT_TEST_SPECTESTS_FILESEGYTEST_HH
+#define EXSEISDAT_TEST_SPECTESTS_FILESEGYTEST_HH
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -5,18 +8,17 @@
 
 #include "segymdextra.hh"
 
-#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
-#include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/ReadSEGY.hh"
-#include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/WriteSEGY.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/utils/encoding/character_encoding.hh"
-#include "ExSeisDat/utils/encoding/number_encoding.hh"
+#include "exseisdat/piol/CommunicatorMPI.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ObjectSEGY.hh"
+#include "exseisdat/piol/ReadInterface.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/WriteInterface.hh"
+#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/segy/utils.hh"
+#include "exseisdat/utils/encoding/character_encoding.hh"
+#include "exseisdat/utils/encoding/number_encoding.hh"
 
 #include <algorithm>
 #include <memory>
@@ -27,19 +29,27 @@
 
 using namespace testing;
 using namespace exseis::utils;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 struct ReadSEGY_public : public ReadSEGY {
     using ReadSEGY::ReadSEGY;
 
-    using ReadSEGY::name;
-    using ReadSEGY::obj;
-    using ReadSEGY::piol;
+    using ReadSEGY::m_name;
+    using ReadSEGY::m_obj;
+    using ReadSEGY::m_piol;
 
-    using ReadSEGY::inc;
-    using ReadSEGY::ns;
-    using ReadSEGY::nt;
-    using ReadSEGY::text;
+    using ReadSEGY::m_ns;
+    using ReadSEGY::m_nt;
+    using ReadSEGY::m_sample_interval;
+    using ReadSEGY::m_text;
+
+    ReadSEGY_public(
+      std::shared_ptr<ExSeisPIOL> piol,
+      std::string name,
+      std::shared_ptr<ObjectInterface> obj) :
+        ReadSEGY(piol, name, {}, obj)
+    {
+    }
 
     static ReadSEGY_public* get(ReadInterface* read_interface)
     {
@@ -54,14 +64,22 @@ struct ReadSEGY_public : public ReadSEGY {
 struct WriteSEGY_public : public WriteSEGY {
     using WriteSEGY::WriteSEGY;
 
-    using WriteSEGY::name;
-    using WriteSEGY::obj;
-    using WriteSEGY::piol;
+    using WriteSEGY::m_name;
+    using WriteSEGY::m_obj;
+    using WriteSEGY::m_piol;
 
-    using WriteSEGY::inc;
-    using WriteSEGY::ns;
-    using WriteSEGY::nt;
-    using WriteSEGY::text;
+    using WriteSEGY::m_ns;
+    using WriteSEGY::m_nt;
+    using WriteSEGY::m_sample_interval;
+    using WriteSEGY::m_text;
+
+    WriteSEGY_public(
+      std::shared_ptr<ExSeisPIOL> piol,
+      std::string name,
+      std::shared_ptr<ObjectInterface> obj) :
+        WriteSEGY(piol, name, {}, obj)
+    {
+    }
 
     static WriteSEGY_public* get(WriteInterface* write_interface)
     {
@@ -76,14 +94,14 @@ struct WriteSEGY_public : public WriteSEGY {
 
 
 enum Hdr : size_t {
-    Increment  = 3216U,
-    NumSample  = 3220U,
-    Type       = 3224U,
-    Sort       = 3228U,
-    Units      = 3254U,
-    SEGYFormat = 3500U,
-    FixedTrace = 3502U,
-    Extensions = 3504U,
+    sample_interval = 3216U,
+    NumSample       = 3220U,
+    Type            = 3224U,
+    Sort            = 3228U,
+    Units           = 3254U,
+    SEGYFormat      = 3500U,
+    FixedTrace      = 3502U,
+    Extensions      = 3504U,
 };
 
 enum TrHdr : size_t {
@@ -100,77 +118,128 @@ enum TrHdr : size_t {
     WtrDepRcv   = 64U,
     ScaleElev   = 68U,
     ScaleCoord  = 70U,
-    xSrc        = 72U,
-    ySrc        = 76U,
-    xRcv        = 80U,
-    yRcv        = 84U,
+    x_src       = 72U,
+    y_src       = 76U,
+    x_rcv       = 80U,
+    y_rcv       = 84U,
     xCMP        = 180U,
     yCMP        = 184U,
     il          = 188U,
     xl          = 192U
 };
 
-class MockObj : public ObjectInterface {
+class Mock_Binary_file : public Binary_file {
+    MOCK_CONST_METHOD0(is_open, bool());
+    MOCK_CONST_METHOD0(get_file_size, size_t());
+    MOCK_CONST_METHOD1(set_file_size, void(size_t size));
+    MOCK_CONST_METHOD3(
+      read, void(size_t offset, size_t size, unsigned char* buffer));
+    MOCK_CONST_METHOD3(
+      write, void(size_t offset, size_t size, const unsigned char* buffer));
+    MOCK_CONST_METHOD5(
+      read_noncontiguous,
+      void(
+        size_t offset,
+        size_t block_size,
+        size_t stride_size,
+        size_t number_of_blocks,
+        unsigned char* buffer));
+    MOCK_CONST_METHOD5(
+      write_noncontiguous,
+      void(
+        size_t offset,
+        size_t block_size,
+        size_t stride_size,
+        size_t number_of_blocks,
+        const unsigned char* buffer));
+    MOCK_CONST_METHOD4(
+      read_noncontiguous_irregular,
+      void(
+        size_t block_size,
+        size_t number_of_blocks,
+        const size_t* offsets,
+        unsigned char* buffer));
+    MOCK_CONST_METHOD4(
+      write_noncontiguous_irregular,
+      void(
+        size_t block_size,
+        size_t number_of_blocks,
+        const size_t* offsets,
+        const unsigned char* buffer));
+};
+
+class Mock_Object : public ObjectInterface {
+  private:
+    std::shared_ptr<ExSeisPIOL> m_piol;
+    std::string m_name;
+
   public:
-    MockObj(
-      std::shared_ptr<ExSeisPIOL> piol_,
-      const std::string name_,
-      std::shared_ptr<DataInterface> data_) :
-        ObjectInterface(piol_, name_, data_)
+    Mock_Object(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
+        m_piol(piol),
+        m_name(name)
     {
     }
 
-    MOCK_CONST_METHOD0(getFileSz, size_t(void));
-    MOCK_CONST_METHOD1(readHO, void(unsigned char*));
-    MOCK_CONST_METHOD1(setFileSz, void(const size_t));
-    MOCK_CONST_METHOD1(writeHO, void(const unsigned char*));
+    MOCK_CONST_METHOD0(piol, std::shared_ptr<ExSeisPIOL>());
+    MOCK_CONST_METHOD0(name, std::string());
+    MOCK_CONST_METHOD0(data, std::shared_ptr<Binary_file>());
+
+
+    MOCK_CONST_METHOD0(get_file_size, size_t(void));
+    MOCK_CONST_METHOD1(read_ho, void(unsigned char*));
+    MOCK_CONST_METHOD1(set_file_size, void(const size_t));
+    MOCK_CONST_METHOD1(should_write_file_header, void(const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDOMD, void(const size_t, const size_t, const size_t, unsigned char*));
+      read_trace_metadata,
+      void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDOMD,
+      write_trace_metadata,
       void(const size_t, const size_t, const size_t, const unsigned char*));
 
     MOCK_CONST_METHOD4(
-      readDODF, void(const size_t, const size_t, const size_t, unsigned char*));
+      read_trace_data,
+      void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDODF,
+      write_trace_data,
       void(const size_t, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDO, void(const size_t, const size_t, const size_t, unsigned char*));
+      read_trace,
+      void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDO,
+      write_trace,
       void(const size_t, const size_t, const size_t, const unsigned char*));
 
     MOCK_CONST_METHOD4(
-      readDO, void(const size_t*, const size_t, const size_t, unsigned char*));
-    MOCK_CONST_METHOD4(
-      writeDO,
-      void(const size_t*, const size_t, const size_t, const unsigned char*));
-    MOCK_CONST_METHOD4(
-      readDODF,
+      read_trace,
       void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDODF,
+      write_trace,
       void(const size_t*, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      readDOMD,
+      read_trace_data,
       void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      writeDOMD,
+      write_trace_data,
+      void(const size_t*, const size_t, const size_t, const unsigned char*));
+    MOCK_CONST_METHOD4(
+      read_trace_metadata,
+      void(const size_t*, const size_t, const size_t, unsigned char*));
+    MOCK_CONST_METHOD4(
+      write_trace_metadata,
       void(const size_t*, const size_t, const size_t, const unsigned char*));
 };
 
 struct FileReadSEGYTest : public Test {
-    std::shared_ptr<ExSeis> piol = ExSeis::New();
+    std::shared_ptr<ExSeis> piol = ExSeis::make();
 
-    bool testEBCDIC = false;
+    bool test_ebcdic = false;
 
-    std::string testString = {
+    std::string test_string = {
       "This is a string for testing EBCDIC conversion etc.\n"
       "The quick brown fox jumps over the lazy dog."};
 
-    // The testString in EBCDIC encoding.
-    std::string ebcdicTestString = {
+    // The test_string in EBCDIC encoding.
+    std::string ebcdic_test_string = {
       // This is a string for testing EBCDIC conversion etc.\n
       "\xE3\x88\x89\xA2\x40\x89\xA2\x40\x81\x40\xA2\xA3\x99\x89\x95\x87\x40"
       "\x86\x96\x99\x40\xA3\x85\xA2\xA3\x89\x95\x87\x40\xC5\xC2\xC3\xC4\xC9"
@@ -182,76 +251,76 @@ struct FileReadSEGYTest : public Test {
       "\x96\xA7\x40\x91\xA4\x94\x97\xA2\x40\x96\xA5\x85\x99\x40\xA3\x88\x85"
       "\x40\x93\x81\xA9\xA8\x40\x84\x96\x87\x4B"};
 
-    std::unique_ptr<ReadDirect> file = nullptr;
+    std::unique_ptr<ReadInterface> file = nullptr;
 
     std::vector<unsigned char> tr;
 
     size_t nt           = 40U;
     size_t ns           = 200U;
-    int inc             = 10;
+    int sample_interval = 10;
     const size_t format = 5;
 
     std::vector<unsigned char> ho =
-      std::vector<unsigned char>(SEGY_utils::getHOSz());
+      std::vector<unsigned char>(segy::segy_binary_file_header_size());
 
-    std::shared_ptr<MockObj> mock;
+    std::shared_ptr<Mock_Object> mock_object;
 
-    ~FileReadSEGYTest() { Mock::VerifyAndClearExpectations(&mock); }
+    ~FileReadSEGYTest() { Mock::VerifyAndClearExpectations(&mock_object); }
 
-    // Make a ReadDirect with SEGY object layer.
+    // Make a ReadInterface with SEGY object layer.
     template<bool OPTS = false>
-    void makeSEGY(std::string name)
+    void make_segy(std::string name)
     {
         if (file.get() != nullptr) {
             file.reset();
         }
 
-        // Make a ReadDirect reader with options if OPTS = true.
+        // Make a ReadInterface reader with options if OPTS = true.
         if (OPTS) {
-            DataMPIIO::Opt dopt;
-            ObjectSEGY::Opt oopt;
-            ReadSEGY::Opt fopt;
-            file = std::make_unique<ReadDirect>(piol, name, dopt, oopt, fopt);
+            ReadSEGY::Options opt;
+            file = std::make_unique<ReadSEGY>(piol, name, opt);
         }
         else {
-            file = std::make_unique<ReadDirect>(piol, name);
+            file = std::make_unique<ReadSEGY>(piol, name);
         }
 
-        piol->isErr();
+        piol->assert_ok();
     }
 
-    // Make a ReadDirect with mock Object layer instance. Set this.file to it.
-    void makeMockSEGY()
+    // Make a ReadInterface with mock Object layer instance. Set this.file to
+    // it.
+    std::string make_mock_segy()
     {
         if (file.get() != nullptr) {
             file.reset();
         }
-        if (mock != nullptr) {
-            mock.reset();
+        if (mock_object != nullptr) {
+            mock_object.reset();
         }
 
-        mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-        piol->isErr();
-        Mock::AllowLeak(mock.get());
+        auto filename = nonexistant_filename();
+        mock_object   = std::make_shared<Mock_Object>(piol, filename);
+        piol->assert_ok();
+        Mock::AllowLeak(mock_object.get());
 
         // Add EBCIDIC or ASCII string to start of header.
-        if (testEBCDIC) {
+        if (test_ebcdic) {
             // Create an EBCDID string to convert back to ASCII in the test
             std::copy(
-              std::begin(ebcdicTestString), std::end(ebcdicTestString),
+              std::begin(ebcdic_test_string), std::end(ebcdic_test_string),
               std::begin(ho));
         }
         else {
-            for (size_t i = 0; i < testString.size(); i++) {
-                ho[i] = testString[i];
+            for (size_t i = 0; i < test_string.size(); i++) {
+                ho[i] = test_string[i];
             }
         }
 
-        // Fill the header to SEGY_utils::getTextSz().
-        if (!testString.empty()) {
-            for (size_t i = testString.size(); i < SEGY_utils::getTextSz();
-                 i++) {
-                ho[i] = ho[i % testString.size()];
+        // Fill the header to segy::segy_text_header_size().
+        if (!test_string.empty()) {
+            for (size_t i = test_string.size();
+                 i < segy::segy_text_header_size(); i++) {
+                ho[i] = ho[i % test_string.size()];
             }
         }
 
@@ -259,51 +328,53 @@ struct FileReadSEGYTest : public Test {
         ho[NumSample]     = ns >> 8 & 0xFF;
         ho[NumSample + 1] = ns & 0xFF;
 
-        // Set the increment (in Big Endian)
-        ho[Increment]     = inc >> 8 & 0xFF;
-        ho[Increment + 1] = inc & 0xFF;
+        // Set the sample increment (in Big Endian)
+        ho[Hdr::sample_interval]     = sample_interval >> 8 & 0xFF;
+        ho[Hdr::sample_interval + 1] = sample_interval & 0xFF;
 
         // Set the number type
-        ho[Type + 1] = format;
+        ho[Hdr::Type + 1] = format;
 
-        EXPECT_CALL(*mock, getFileSz())
+        EXPECT_CALL(*mock_object, get_file_size())
           .Times(Exactly(1))
-          .WillOnce(
-            Return(SEGY_utils::getHOSz() + nt * SEGY_utils::getDOSz(ns)));
+          .WillOnce(Return(
+            segy::segy_binary_file_header_size()
+            + nt * segy::segy_trace_size(ns)));
 
-        EXPECT_CALL(*mock, readHO(_))
+        EXPECT_CALL(*mock_object, read_ho(_))
           .Times(Exactly(1))
           .WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 
         // Use ReadSEGY_public so test functions can access the ReadSEGY
         // internals.
-        auto sfile = std::make_shared<ReadSEGY_public>(piol, notFile, mock);
-        file       = std::make_unique<ReadDirect>(std::move(sfile));
+        file = std::make_unique<ReadSEGY_public>(piol, filename, mock_object);
+
+        return filename;
     }
 
     // Initialize the trace data array and the trace headers in that array.
-    void initTrBlock()
+    void init_tr_block()
     {
         // Set the right size
-        tr.resize(nt * SEGY_utils::getMDSz());
+        tr.resize(nt * segy::segy_trace_header_size());
 
         // Loop over the traces
         for (size_t i = 0; i < nt; i++) {
             // Set md to the start of the current trace
-            unsigned char* md = &tr[i * SEGY_utils::getMDSz()];
+            unsigned char* md = &tr[i * segy::segy_trace_header_size()];
 
             // Set the inline, crossline values for the current trace
-            const auto be_ilNum = to_big_endian(ilNum(i));
-            const auto be_xlNum = to_big_endian(xlNum(i));
+            const auto be_il_num = to_big_endian(il_num(i));
+            const auto be_xl_num = to_big_endian(xl_num(i));
 
-            std::copy(std::begin(be_ilNum), std::end(be_ilNum), &md[il]);
-            std::copy(std::begin(be_xlNum), std::end(be_xlNum), &md[xl]);
+            std::copy(std::begin(be_il_num), std::end(be_il_num), &md[il]);
+            std::copy(std::begin(be_xl_num), std::end(be_xl_num), &md[xl]);
 
 
             // Set the scale for the current trace
             int16_t scale;
-            int16_t scal1 = SEGY_utils::find_scalar(xNum(i));
-            int16_t scal2 = SEGY_utils::find_scalar(yNum(i));
+            int16_t scal1 = segy::find_scalar(x_num(i));
+            int16_t scal2 = segy::find_scalar(y_num(i));
 
             if (scal1 > 1 || scal2 > 1) {
                 scale = std::max(scal1, scal2);
@@ -318,98 +389,83 @@ struct FileReadSEGYTest : public Test {
 
 
             // Set the x and y source header.
-            const auto be_xNum =
-              to_big_endian(int32_t(std::lround(xNum(i) / scale)));
-            const auto be_yNum =
-              to_big_endian(int32_t(std::lround(yNum(i) / scale)));
+            const auto be_x_num =
+              to_big_endian(int32_t(std::lround(x_num(i) / scale)));
+            const auto be_y_num =
+              to_big_endian(int32_t(std::lround(y_num(i) / scale)));
 
-            std::copy(std::begin(be_xNum), std::end(be_xNum), &md[xSrc]);
-            std::copy(std::begin(be_yNum), std::end(be_yNum), &md[ySrc]);
+            std::copy(std::begin(be_x_num), std::end(be_x_num), &md[x_src]);
+            std::copy(std::begin(be_y_num), std::end(be_y_num), &md[y_src]);
         }
     }
 
-    void initReadTrMock(size_t ns, size_t offset)
+    void init_read_tr_mock(size_t expected_ns, size_t offset)
     {
         std::vector<unsigned char>::iterator iter =
-          tr.begin() + offset * SEGY_utils::getMDSz();
+          tr.begin() + offset * segy::segy_trace_header_size();
 
-        EXPECT_CALL(*mock.get(), readDOMD(offset, ns, 1U, _))
+        EXPECT_CALL(
+          *mock_object.get(), read_trace_metadata(offset, expected_ns, 1U, _))
           .Times(Exactly(1))
           .WillRepeatedly(
-            SetArrayArgument<3>(iter, iter + SEGY_utils::getMDSz()));
+            SetArrayArgument<3>(iter, iter + segy::segy_trace_header_size()));
 
-        Param prm(1U);
-        file->readParam(offset, 1U, &prm);
-        ASSERT_EQ(
-          ilNum(offset),
-          param_utils::getPrm<exseis::utils::Integer>(0U, PIOL_META_il, &prm));
-        ASSERT_EQ(
-          xlNum(offset),
-          param_utils::getPrm<exseis::utils::Integer>(0U, PIOL_META_xl, &prm));
+        Trace_metadata prm(1U);
+        file->read_param(offset, 1U, &prm);
+        ASSERT_EQ(il_num(offset), prm.get_integer(0U, Meta::il));
+        ASSERT_EQ(xl_num(offset), prm.get_integer(0U, Meta::xl));
 
         if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              xNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
-                              0U, PIOL_META_xSrc, &prm));
+              x_num(offset), prm.get_floating_point(0U, Meta::x_src));
             ASSERT_DOUBLE_EQ(
-              yNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
-                              0U, PIOL_META_ySrc, &prm));
+              y_num(offset), prm.get_floating_point(0U, Meta::y_src));
         }
         else {
             ASSERT_FLOAT_EQ(
-              xNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
-                              0U, PIOL_META_xSrc, &prm));
+              x_num(offset), prm.get_floating_point(0U, Meta::x_src));
             ASSERT_FLOAT_EQ(
-              yNum(offset), param_utils::getPrm<exseis::utils::Floating_point>(
-                              0U, PIOL_META_ySrc, &prm));
+              y_num(offset), prm.get_floating_point(0U, Meta::y_src));
         }
     }
 
-    void initReadTrHdrsMock(size_t ns, size_t tn)
+    void init_read_tr_hdrs_mock(size_t expected_ns, size_t tn)
     {
         size_t zero = 0U;
-        EXPECT_CALL(*mock.get(), readDOMD(zero, ns, tn, _))
+        EXPECT_CALL(
+          *mock_object.get(), read_trace_metadata(zero, expected_ns, tn, _))
           .Times(Exactly(1))
           .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        auto rule = std::make_shared<Rule>(std::initializer_list<Meta>{
-          PIOL_META_il, PIOL_META_xl, PIOL_META_COPY, PIOL_META_xSrc,
-          PIOL_META_ySrc});
-        Param prm(rule, tn);
-        file->readParam(0, tn, &prm);
+        const auto rule = Rule(std::initializer_list<Meta>{
+          Meta::il, Meta::xl, Meta::Copy, Meta::x_src, Meta::y_src});
+        Trace_metadata prm(std::move(rule), tn);
+        file->read_param(0, tn, &prm);
 
         for (size_t i = 0; i < tn; i++) {
-            ASSERT_EQ(
-              ilNum(i), param_utils::getPrm<exseis::utils::Integer>(
-                          i, PIOL_META_il, &prm));
-            ASSERT_EQ(
-              xlNum(i), param_utils::getPrm<exseis::utils::Integer>(
-                          i, PIOL_META_xl, &prm));
+            ASSERT_EQ(il_num(i), prm.get_integer(i, Meta::il));
+            ASSERT_EQ(xl_num(i), prm.get_integer(i, Meta::xl));
 
             if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  xNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
-                             i, PIOL_META_xSrc, &prm));
+                  x_num(i), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_DOUBLE_EQ(
-                  yNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
-                             i, PIOL_META_ySrc, &prm));
+                  y_num(i), prm.get_floating_point(i, Meta::y_src));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  xNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
-                             i, PIOL_META_xSrc, &prm));
+                  x_num(i), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_FLOAT_EQ(
-                  yNum(i), param_utils::getPrm<exseis::utils::Floating_point>(
-                             i, PIOL_META_ySrc, &prm));
+                  y_num(i), prm.get_floating_point(i, Meta::y_src));
             }
         }
         ASSERT_TRUE(tr.size());
-        ASSERT_THAT(prm.c, ContainerEq(tr));
+        ASSERT_THAT(prm.raw_metadata, ContainerEq(tr));
     }
 
-    void initRandReadTrHdrsMock(size_t ns, size_t tn)
+    void init_rand_read_tr_hdrs_mock(size_t expected_ns, size_t tn)
     {
-        Param prm(tn);
+        Trace_metadata prm(tn);
         std::vector<size_t> offset(tn);
         std::iota(offset.begin(), offset.end(), 0);
 
@@ -417,41 +473,29 @@ struct FileReadSEGYTest : public Test {
         std::mt19937 mt(rand());
         std::shuffle(offset.begin(), offset.end(), mt);
 
-        EXPECT_CALL(*mock.get(), readDOMD(A<const size_t*>(), ns, tn, _))
+        EXPECT_CALL(
+          *mock_object.get(),
+          read_trace_metadata(A<const size_t*>(), expected_ns, tn, _))
           .Times(Exactly(1))
           .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        file->readTraceNonMonotonic(
-          tn, offset.data(),
-          const_cast<exseis::utils::Trace_value*>(TRACE_NULL), &prm);
+        file->read_trace_non_monotonic(tn, offset.data(), nullptr, &prm);
 
         for (size_t i = 0; i < tn; i++) {
-            ASSERT_EQ(
-              ilNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
-                                  i, PIOL_META_il, &prm));
-            ASSERT_EQ(
-              xlNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
-                                  i, PIOL_META_xl, &prm));
+            ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il));
+            ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl));
 
             if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  xNum(offset[i]),
-                  param_utils::getPrm<exseis::utils::Floating_point>(
-                    i, PIOL_META_xSrc, &prm));
+                  x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_DOUBLE_EQ(
-                  yNum(offset[i]),
-                  param_utils::getPrm<exseis::utils::Floating_point>(
-                    i, PIOL_META_ySrc, &prm));
+                  y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  xNum(offset[i]),
-                  param_utils::getPrm<exseis::utils::Floating_point>(
-                    i, PIOL_META_xSrc, &prm));
+                  x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_FLOAT_EQ(
-                  yNum(offset[i]),
-                  param_utils::getPrm<exseis::utils::Floating_point>(
-                    i, PIOL_META_ySrc, &prm));
+                  y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
             }
         }
     }
@@ -460,120 +504,127 @@ struct FileReadSEGYTest : public Test {
     /// previously defined.
     /// @param[in] offset The trace to start reading from
     /// @param[in] tn     The number of traces to read
-    template<bool readPrm = false, bool MOCK = true, bool RmRule = false>
-    void readTraceTest(const size_t offset, size_t tn)
+    template<bool ReadPrm = false, bool UseMock = true, bool RmRule = false>
+    void read_trace_test(const size_t offset, size_t tn)
     {
-        size_t tnRead = tn;
+        size_t tn_read = tn;
         if (nt > offset) {
-            tnRead = std::min(nt - offset, tn);
+            tn_read = std::min(nt - offset, tn);
         }
 
         std::vector<unsigned char> buf;
-        if (MOCK) {
-            if (mock == nullptr) {
+
+        bool mock_read_trace_called = true;
+        if (UseMock) {
+            mock_read_trace_called = false;
+
+            if (mock_object == nullptr) {
                 std::cerr << "Using Mock when not initialised: LOC: "
                           << __LINE__ << std::endl;
                 return;
             }
-            if (readPrm) {
-                // Reading Params, need to read whole data obect
-                buf.resize(tnRead * SEGY_utils::getDOSz(ns));
+            if (ReadPrm) {
+                // Reading Trace_metadatas, need to read whole data obect
+                buf.resize(tn_read * segy::segy_trace_size(ns));
             }
             else {
                 // Not reading params, only need to read the trace data
-                buf.resize(tnRead * SEGY_utils::getDFSz(ns));
+                buf.resize(tn_read * segy::segy_trace_data_size(ns));
             }
 
-            for (size_t i = 0U; i < tnRead; i++) {
-                if (readPrm) {
+            for (size_t i = 0U; i < tn_read; i++) {
+                if (ReadPrm) {
                     std::copy(
-                      tr.begin() + (offset + i) * SEGY_utils::getMDSz(),
-                      tr.begin() + (offset + i + 1) * SEGY_utils::getMDSz(),
-                      buf.begin() + i * SEGY_utils::getDOSz(ns));
+                      tr.begin()
+                        + (offset + i) * segy::segy_trace_header_size(),
+                      tr.begin()
+                        + (offset + i + 1) * segy::segy_trace_header_size(),
+                      buf.begin() + i * segy::segy_trace_size(ns));
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
                     const float val = offset + i + j;
 
-                    size_t addr =
-                      readPrm ? (i * SEGY_utils::getDOSz(ns)
-                                 + SEGY_utils::getMDSz() + j * sizeof(float)) :
-                                (i * ns + j) * sizeof(float);
+                    size_t addr = ReadPrm ? (i * segy::segy_trace_size(ns)
+                                             + segy::segy_trace_header_size()
+                                             + j * sizeof(float)) :
+                                            (i * ns + j) * sizeof(float);
 
                     const auto be_val = to_big_endian<float>(val);
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
                 }
             }
 
-            if (readPrm) {
-                EXPECT_CALL(*mock, readDO(offset, ns, tnRead, _))
-                  .Times(Exactly(1))
-                  .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-            }
-            else {
-                EXPECT_CALL(*mock, readDODF(offset, ns, tnRead, _))
-                  .Times(Exactly(1))
-                  .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-            }
+
+            // Set up the mock functions to return the test data
+
+            EXPECT_CALL(*mock_object, read_trace(offset, ns, tn_read, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                SetArrayArgument<3>(buf.begin(), buf.end()),
+                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+
+            EXPECT_CALL(
+              *mock_object, read_trace_metadata(offset, ns, tn_read, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                SetArrayArgument<3>(buf.begin(), buf.end()),
+                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+
+            EXPECT_CALL(*mock_object, read_trace_data(offset, ns, tn_read, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                SetArrayArgument<3>(buf.begin(), buf.end()),
+                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
         }
 
         std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
-        auto rule = std::make_shared<Rule>(true, true);
+        auto rule = Rule(true, true);
         if (RmRule) {
-            rule->rmRule(PIOL_META_xSrc);
-            rule->addSEGYFloat(PIOL_META_ShotNum, PIOL_TR_UpSrc, PIOL_TR_UpRcv);
-            rule->addLong(PIOL_META_Misc1, PIOL_TR_TORF);
-            rule->addShort(PIOL_META_Misc2, PIOL_TR_ShotNum);
-            rule->addShort(PIOL_META_Misc3, PIOL_TR_ShotScal);
-            rule->rmRule(PIOL_META_ShotNum);
-            rule->rmRule(PIOL_META_Misc1);
-            rule->rmRule(PIOL_META_Misc2);
-            rule->rmRule(PIOL_META_Misc3);
-            rule->rmRule(PIOL_META_ySrc);
-            rule->addSEGYFloat(
-              PIOL_META_xSrc, PIOL_TR_xSrc, PIOL_TR_ScaleCoord);
-            rule->addSEGYFloat(
-              PIOL_META_ySrc, PIOL_TR_ySrc, PIOL_TR_ScaleCoord);
+            rule.rm_rule(Meta::x_src);
+            rule.add_segy_float(Meta::ShotNum, Tr::UpSrc, Tr::UpRcv);
+            rule.add_long(Meta::Misc1, Tr::TORF);
+            rule.add_short(Meta::Misc2, Tr::ShotNum);
+            rule.add_short(Meta::Misc3, Tr::ShotScal);
+            rule.rm_rule(Meta::ShotNum);
+            rule.rm_rule(Meta::Misc1);
+            rule.rm_rule(Meta::Misc2);
+            rule.rm_rule(Meta::Misc3);
+            rule.rm_rule(Meta::y_src);
+            rule.add_segy_float(Meta::x_src, Tr::x_src, Tr::ScaleCoord);
+            rule.add_segy_float(Meta::y_src, Tr::y_src, Tr::ScaleCoord);
         }
 
-        Param prm(rule, tn);
-        file->readTrace(
-          offset, tn, bufnew.data(), (readPrm ? &prm : PIOL_PARAM_NULL));
+        Trace_metadata prm(std::move(rule), tn);
+        file->read_trace(offset, tn, bufnew.data(), (ReadPrm ? &prm : nullptr));
 
-        for (size_t i = 0U; i < tnRead; i++) {
-            if (readPrm && tnRead && ns) {
-                using NumType = decltype(ilNum(i + offset));
+        ASSERT_TRUE(mock_read_trace_called);
 
-                ASSERT_EQ(
-                  ilNum(i + offset),
-                  param_utils::getPrm<NumType>(i, PIOL_META_il, &prm))
+        for (size_t i = 0U; i < tn_read; i++) {
+            if (ReadPrm && tn_read && ns) {
+
+                ASSERT_EQ(il_num(i + offset), prm.get_integer(i, Meta::il))
                   << "Trace Number " << i << " offset " << offset;
-                ASSERT_EQ(
-                  xlNum(i + offset),
-                  param_utils::getPrm<NumType>(i, PIOL_META_xl, &prm))
+                ASSERT_EQ(xl_num(i + offset), prm.get_integer(i, Meta::xl))
                   << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      xNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(i + offset),
+                      prm.get_floating_point(i, Meta::x_src));
 
                     ASSERT_DOUBLE_EQ(
-                      yNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(i + offset),
+                      prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      xNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(i + offset),
+                      prm.get_floating_point(i, Meta::x_src));
 
                     ASSERT_FLOAT_EQ(
-                      yNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(i + offset),
+                      prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
@@ -584,38 +635,43 @@ struct FileReadSEGYTest : public Test {
         }
     }
 
-    template<bool readPrm = false, bool MOCK = true>
-    void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
+    template<bool ReadPrm = false, bool UseMock = true>
+    void read_random_trace_test(size_t tn, const std::vector<size_t> offset)
     {
         ASSERT_EQ(tn, offset.size());
         std::vector<unsigned char> buf;
-        if (MOCK) {
-            if (mock == nullptr) {
+
+        bool mock_read_trace_called = true;
+        if (UseMock) {
+            mock_read_trace_called = false;
+
+            if (mock_object == nullptr) {
                 std::cerr << "Using Mock when not initialised: LOC: "
                           << __LINE__ << std::endl;
                 return;
             }
 
-            if (readPrm) {
-                buf.resize(tn * SEGY_utils::getDOSz(ns));
+            if (ReadPrm) {
+                buf.resize(tn * segy::segy_trace_size(ns));
             }
             else {
-                buf.resize(tn * SEGY_utils::getDFSz(ns));
+                buf.resize(tn * segy::segy_trace_data_size(ns));
             }
 
             for (size_t i = 0U; i < tn; i++) {
-                if (readPrm && ns && tn) {
+                if (ReadPrm && ns && tn) {
                     std::copy(
-                      tr.begin() + offset[i] * SEGY_utils::getMDSz(),
-                      tr.begin() + (offset[i] + 1) * SEGY_utils::getMDSz(),
-                      buf.begin() + i * SEGY_utils::getDOSz(ns));
+                      tr.begin() + offset[i] * segy::segy_trace_header_size(),
+                      tr.begin()
+                        + (offset[i] + 1) * segy::segy_trace_header_size(),
+                      buf.begin() + i * segy::segy_trace_size(ns));
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr =
-                      readPrm ? (i * SEGY_utils::getDOSz(ns)
-                                 + SEGY_utils::getMDSz() + j * sizeof(float)) :
-                                (i * ns + j) * sizeof(float);
+                    size_t addr = ReadPrm ? (i * segy::segy_trace_size(ns)
+                                             + segy::segy_trace_header_size()
+                                             + j * sizeof(float)) :
+                                            (i * ns + j) * sizeof(float);
 
                     const float val = offset[i] + j;
 
@@ -624,58 +680,59 @@ struct FileReadSEGYTest : public Test {
                 }
             }
 
-            if (readPrm) {
-                EXPECT_CALL(*mock, readDO(offset.data(), ns, tn, _))
-                  .Times(Exactly(1))
-                  .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-            }
-            else {
-                EXPECT_CALL(*mock, readDODF(offset.data(), ns, tn, _))
-                  .Times(Exactly(1))
-                  .WillOnce(SetArrayArgument<3>(buf.begin(), buf.end()));
-            }
+
+            // Setup mock calls to return the test data
+
+            EXPECT_CALL(*mock_object, read_trace(offset.data(), ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                SetArrayArgument<3>(buf.begin(), buf.end()),
+                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+
+            EXPECT_CALL(
+              *mock_object, read_trace_metadata(offset.data(), ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                SetArrayArgument<3>(buf.begin(), buf.end()),
+                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+
+            EXPECT_CALL(*mock_object, read_trace_data(offset.data(), ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                SetArrayArgument<3>(buf.begin(), buf.end()),
+                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
         }
 
         std::vector<float> bufnew(tn * ns);
-        Param prm(tn);
-        if (readPrm) {
-            file->readTraceNonContiguous(
+        Trace_metadata prm(tn);
+        if (ReadPrm) {
+            file->read_trace_non_contiguous(
               tn, offset.data(), bufnew.data(), &prm);
         }
         else {
-            file->readTraceNonContiguous(tn, offset.data(), bufnew.data());
+            file->read_trace_non_contiguous(tn, offset.data(), bufnew.data());
         }
 
+        ASSERT_TRUE(mock_read_trace_called);
+
         for (size_t i = 0U; i < tn; i++) {
-            if (readPrm && tn && ns) {
-                ASSERT_EQ(
-                  ilNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
-                                      i, PIOL_META_il, &prm))
+            if (ReadPrm && tn && ns) {
+                ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il))
                   << "Trace Number " << i << " offset " << offset[i];
-                ASSERT_EQ(
-                  xlNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
-                                      i, PIOL_META_xl, &prm))
+                ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl))
                   << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      xNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                     ASSERT_DOUBLE_EQ(
-                      yNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      xNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                     ASSERT_FLOAT_EQ(
-                      yNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
@@ -688,99 +745,94 @@ struct FileReadSEGYTest : public Test {
 };
 
 struct FileWriteSEGYTest : public Test {
-    std::shared_ptr<MockObj> mock;
+    std::shared_ptr<Mock_Object> mock_object;
 
-    std::shared_ptr<ExSeis> piol = ExSeis::New();
-    bool testEBCDIC              = false;
-    std::string testString       = {
+    std::shared_ptr<ExSeis> piol = ExSeis::make();
+    bool test_ebcdic             = false;
+    std::string test_string      = {
       "This is a string for testing EBCDIC conversion etc."};
-    std::string name_;
+    std::string file_name;
     std::vector<unsigned char> tr;
     size_t nt           = 40U;
     size_t ns           = 200U;
-    int inc             = 10;
+    int sample_interval = 10;
     const size_t format = 5;
     std::vector<unsigned char> ho =
-      std::vector<unsigned char>(SEGY_utils::getHOSz());
-    std::unique_ptr<WriteDirect> file = nullptr;
-    std::unique_ptr<ReadDirect> readfile;
+      std::vector<unsigned char>(segy::segy_binary_file_header_size());
+    std::unique_ptr<WriteInterface> file = nullptr;
+    std::shared_ptr<MPI_Binary_file> output_binary_file;
+    std::unique_ptr<ReadInterface> readfile;
 
-    ~FileWriteSEGYTest() { Mock::VerifyAndClearExpectations(&mock); }
+    ~FileWriteSEGYTest() { Mock::VerifyAndClearExpectations(&mock_object); }
 
-    void makeSEGY(std::string name)
+    void make_segy()
     {
-        name_ = name;
+        file_name = temp_file();
         if (file.get() != nullptr) {
             file.reset();
         }
-        piol->isErr();
+        piol->assert_ok();
 
-        WriteSEGY::Opt f;
-        ReadSEGY::Opt rf;
-        ObjectSEGY::Opt o;
-        DataMPIIO::Opt d;
-        auto data = std::make_shared<DataMPIIO>(piol, name, d, FileMode::Test);
-        auto obj =
-          std::make_shared<ObjectSEGY>(piol, name, o, data, FileMode::Test);
+        file = std::make_unique<WriteSEGY_public>(piol, file_name);
 
-        auto fi = std::make_shared<WriteSEGY>(piol, name, f, obj);
-        file    = std::make_unique<WriteDirect>(std::move(fi));
-        // file->file = std::move(fi);
+        should_write_file_header<false>();
 
-        writeHO<false>();
 
-        auto rfi  = std::make_shared<ReadSEGY_public>(piol, name, rf, obj);
-        rfi->nt   = nt;
-        rfi->ns   = ns;
-        rfi->inc  = inc;
-        rfi->text = testString;
+        readfile = std::make_unique<ReadSEGY_public>(piol, file_name);
 
-        readfile = std::make_unique<ReadDirect>(rfi);
+        ReadSEGY_public::get(readfile.get())->m_nt = nt;
+        ReadSEGY_public::get(readfile.get())->m_ns = ns;
+        ReadSEGY_public::get(readfile.get())->m_sample_interval =
+          sample_interval;
+        ReadSEGY_public::get(readfile.get())->m_text = test_string;
     }
 
-    template<bool callHO = true>
-    void makeMockSEGY()
+    template<bool CallHo = true>
+    void make_mock_segy()
     {
         if (file.get() != nullptr) {
             file.reset();
         }
-        if (mock != nullptr) {
-            mock.reset();
+        if (mock_object != nullptr) {
+            mock_object.reset();
         }
-        mock = std::make_shared<MockObj>(piol, notFile, nullptr);
-        piol->isErr();
-        Mock::AllowLeak(mock.get());
+        auto filename = nonexistant_filename();
+        mock_object   = std::make_shared<Mock_Object>(piol, filename);
+        piol->assert_ok();
+        Mock::AllowLeak(mock_object.get());
 
-        auto sfile = std::make_shared<WriteSEGY_public>(piol, notFile, mock);
-        if (!callHO) {
-            sfile->nt = nt;
-            sfile->writeNs(ns);
+        auto sfile =
+          std::make_unique<WriteSEGY_public>(piol, filename, mock_object);
+        if (!CallHo) {
+            sfile->m_nt = nt;
+            sfile->write_ns(ns);
         }
 
-        file = std::make_unique<WriteDirect>(std::move(sfile));
+        file               = std::move(sfile);
+        output_binary_file = nullptr;
 
-        if (callHO) {
-            piol->isErr();
-            writeHO<true>();
+        if (CallHo) {
+            piol->assert_ok();
+            should_write_file_header<true>();
         }
     }
 
-    void initTrBlock()
+    void init_tr_block()
     {
-        tr.resize(nt * SEGY_utils::getMDSz());
+        tr.resize(nt * segy::segy_trace_header_size());
         for (size_t i = 0; i < nt; i++) {
-            unsigned char* md = &tr[i * SEGY_utils::getMDSz()];
+            unsigned char* md = &tr[i * segy::segy_trace_header_size()];
 
-            const auto be_ilNum = to_big_endian(ilNum(i));
-            const auto be_xlNum = to_big_endian(xlNum(i));
+            const auto be_il_num = to_big_endian(il_num(i));
+            const auto be_xl_num = to_big_endian(xl_num(i));
 
-            std::copy(std::begin(be_ilNum), std::end(be_ilNum), &md[il]);
-            std::copy(std::begin(be_xlNum), std::end(be_xlNum), &md[xl]);
+            std::copy(std::begin(be_il_num), std::end(be_il_num), &md[il]);
+            std::copy(std::begin(be_xl_num), std::end(be_xl_num), &md[xl]);
 
 
             int16_t scale;
-            int16_t scal1 = SEGY_utils::find_scalar(xNum(i));
-            int16_t scal2 = SEGY_utils::find_scalar(yNum(i));
+            int16_t scal1 = segy::find_scalar(x_num(i));
+            int16_t scal2 = segy::find_scalar(y_num(i));
 
             if (scal1 > 1 || scal2 > 1) {
                 scale = std::max(scal1, scal2);
@@ -794,170 +846,211 @@ struct FileWriteSEGYTest : public Test {
               std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
 
 
-            const auto be_xNum =
-              to_big_endian(int32_t(std::lround(xNum(i) / scale)));
-            const auto be_yNum =
-              to_big_endian(int32_t(std::lround(yNum(i) / scale)));
+            const auto be_x_num =
+              to_big_endian(int32_t(std::lround(x_num(i) / scale)));
+            const auto be_y_num =
+              to_big_endian(int32_t(std::lround(y_num(i) / scale)));
 
-            std::copy(std::begin(be_xNum), std::end(be_xNum), &md[xSrc]);
-            std::copy(std::begin(be_yNum), std::end(be_yNum), &md[ySrc]);
+            std::copy(std::begin(be_x_num), std::end(be_x_num), &md[x_src]);
+            std::copy(std::begin(be_y_num), std::end(be_y_num), &md[y_src]);
         }
     }
 
-    template<bool MOCK = true>
-    void writeHO()
+    template<bool UseMock = true>
+    void should_write_file_header()
     {
-        if (MOCK) {
-            size_t fsz = SEGY_utils::getHOSz() + nt * SEGY_utils::getDOSz(ns);
-            EXPECT_CALL(*mock, setFileSz(fsz)).Times(Exactly(1));
+        if (UseMock) {
+            size_t fsz = segy::segy_binary_file_header_size()
+                         + nt * segy::segy_trace_size(ns);
+            EXPECT_CALL(*mock_object, set_file_size(fsz)).Times(Exactly(1));
 
             for (size_t i = 0U;
-                 i < std::min(testString.size(), SEGY_utils::getTextSz());
+                 i
+                 < std::min(test_string.size(), segy::segy_text_header_size());
                  i++) {
-                ho[i] = testString[i];
+                ho[i] = test_string[i];
             }
 
-            ho[NumSample + 1] = ns & 0xFF;
-            ho[NumSample]     = ns >> 8 & 0xFF;
-            ho[Increment + 1] = inc & 0xFF;
-            ho[Increment]     = inc >> 8 & 0xFF;
-            ho[Type + 1]      = format;
-            ho[3255U]         = 1;
-            ho[3500U]         = 1;
-            ho[3503U]         = 1;
-            ho[3505U]         = 0;
+            ho[Hdr::NumSample + 1]       = ns & 0xFF;
+            ho[Hdr::NumSample]           = ns >> 8 & 0xFF;
+            ho[Hdr::sample_interval + 1] = sample_interval & 0xFF;
+            ho[Hdr::sample_interval]     = sample_interval >> 8 & 0xFF;
+            ho[Hdr::Type + 1]            = format;
+            ho[3255U]                    = 1;
+            ho[3500U]                    = 1;
+            ho[3503U]                    = 1;
+            ho[3505U]                    = 0;
 
-            EXPECT_CALL(*mock, writeHO(_))
+            EXPECT_CALL(*mock_object, should_write_file_header(_))
               .Times(Exactly(1))
-              .WillOnce(check0(ho.data(), SEGY_utils::getHOSz()));
+              .WillOnce(DoAll(
+                Invoke([=](const unsigned char* ho_to_test) {
+                    // Make sure only one process calls this with a
+                    // buffer to write
+                    int is_not_null    = (ho_to_test != nullptr) ? 1 : 0;
+                    int total_not_null = piol->comm->sum(is_not_null);
+                    ASSERT_TRUE(total_not_null == 1);
+                }),
+                Invoke([ho = ho](const unsigned char* ho_to_test) {
+                    if (ho_to_test != nullptr) {
+
+                        for (size_t i = 0;
+                             i < segy::segy_binary_file_header_size(); i++) {
+                            ASSERT_EQ(ho[i], ho_to_test[i])
+                              << "Error with byte: " << i << "\n";
+                        }
+                    }
+                })));
         }
 
-        file->writeNt(nt);
-        piol->isErr();
+        file->write_nt(nt);
+        piol->assert_ok();
 
-        file->writeNs(ns);
-        piol->isErr();
+        file->write_ns(ns);
+        piol->assert_ok();
 
         const double microsecond = 1e-6;
-        file->writeInc(inc * microsecond);
-        piol->isErr();
+        file->write_sample_interval(sample_interval * microsecond);
+        piol->assert_ok();
 
-        file->writeText(testString);
-        piol->isErr();
+        file->write_text(test_string);
+        piol->assert_ok();
     }
 
-    void writeTrHdrGridTest(size_t offset)
+    void write_tr_hdr_grid_test(size_t offset)
     {
-        std::vector<unsigned char> tr(SEGY_utils::getMDSz());
+        std::vector<unsigned char> test_trace_metadata(
+          segy::segy_trace_header_size());
 
-        const auto be_ilNum = to_big_endian(ilNum(offset));
-        const auto be_xlNum = to_big_endian(xlNum(offset));
+        const auto be_il_num = to_big_endian(il_num(offset));
+        const auto be_xl_num = to_big_endian(xl_num(offset));
 
-        std::copy(std::begin(be_ilNum), std::end(be_ilNum), tr.data() + il);
-        std::copy(std::begin(be_xlNum), std::end(be_xlNum), tr.data() + xl);
+        std::copy(
+          std::begin(be_il_num), std::end(be_il_num),
+          test_trace_metadata.data() + il);
+        std::copy(
+          std::begin(be_xl_num), std::end(be_xl_num),
+          test_trace_metadata.data() + xl);
 
 
         const auto be_scale_coord = to_big_endian<int16_t>(1);
         std::copy(
           std::begin(be_scale_coord), std::end(be_scale_coord),
-          &tr[ScaleCoord]);
+          &test_trace_metadata[ScaleCoord]);
 
         const auto be_seqfnum = to_big_endian(int32_t(offset));
-        std::copy(std::begin(be_seqfnum), std::end(be_seqfnum), &tr[SeqFNum]);
+        std::copy(
+          std::begin(be_seqfnum), std::end(be_seqfnum),
+          &test_trace_metadata[SeqFNum]);
 
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _))
+        EXPECT_CALL(*mock_object, write_trace_metadata(offset, ns, 1U, _))
           .Times(Exactly(1))
-          .WillOnce(check3(tr.data(), SEGY_utils::getMDSz()));
+          .WillOnce(
+            check3(test_trace_metadata.data(), segy::segy_trace_header_size()));
 
-        Param prm(1U);
-        param_utils::setPrm(0, PIOL_META_il, ilNum(offset), &prm);
-        param_utils::setPrm(0, PIOL_META_xl, xlNum(offset), &prm);
-        param_utils::setPrm(0, PIOL_META_tn, offset, &prm);
-        file->writeParam(offset, 1U, &prm);
+        Trace_metadata prm(1U);
+        prm.set_integer(0, Meta::il, il_num(offset));
+        prm.set_integer(0, Meta::xl, xl_num(offset));
+        prm.set_integer(0, Meta::tn, offset);
+        file->write_param(offset, 1U, &prm);
     }
 
-    void initWriteTrHdrCoord(
+    void init_write_tr_hdr_coord(
       std::pair<size_t, size_t> item,
       std::pair<int32_t, int32_t> val,
       int16_t scal,
       size_t offset,
-      std::vector<unsigned char>* tr)
+      std::vector<unsigned char>* trace_metadata_buffer)
     {
         const auto be_scal = to_big_endian(scal);
-        std::copy(std::begin(be_scal), std::end(be_scal), &tr->at(ScaleCoord));
+        std::copy(
+          std::begin(be_scal), std::end(be_scal),
+          &trace_metadata_buffer->at(ScaleCoord));
 
         const auto be_val_first = to_big_endian(val.first);
         std::copy(
           std::begin(be_val_first), std::end(be_val_first),
-          &tr->at(item.first));
+          &trace_metadata_buffer->at(item.first));
 
         const auto be_val_second = to_big_endian(val.second);
         std::copy(
           std::begin(be_val_second), std::end(be_val_second),
-          &tr->at(item.second));
+          &trace_metadata_buffer->at(item.second));
 
         const auto be_offset = to_big_endian(int32_t(offset));
-        std::copy(std::begin(be_offset), std::end(be_offset), &tr->at(SeqFNum));
+        std::copy(
+          std::begin(be_offset), std::end(be_offset),
+          &trace_metadata_buffer->at(SeqFNum));
 
-        EXPECT_CALL(*mock, writeDOMD(offset, ns, 1U, _))
+        EXPECT_CALL(*mock_object, write_trace_metadata(offset, ns, 1U, _))
           .Times(Exactly(1))
-          .WillOnce(check3(tr->data(), SEGY_utils::getMDSz()));
+          .WillOnce(check3(
+            trace_metadata_buffer->data(), segy::segy_trace_header_size()));
     }
 
-    void initWriteHeaders(size_t filePos, unsigned char* md)
+    void init_write_headers(size_t file_pos, unsigned char* md)
     {
-        coord_t src = coord_t(xNum(filePos), yNum(filePos));
-        coord_t rcv = coord_t(xNum(filePos), yNum(filePos));
-        coord_t cmp = coord_t(xNum(filePos), yNum(filePos));
-        grid_t line = grid_t(ilNum(filePos), xlNum(filePos));
+        coord_t src = coord_t(x_num(file_pos), y_num(file_pos));
+        coord_t rcv = coord_t(x_num(file_pos), y_num(file_pos));
+        coord_t cmp = coord_t(x_num(file_pos), y_num(file_pos));
+        grid_t line = grid_t(il_num(file_pos), xl_num(file_pos));
 
         int16_t scale = 1;
 
-        scale = scalComp(1, calcScale(src));
-        scale = scalComp(scale, calcScale(rcv));
-        scale = scalComp(scale, calcScale(cmp));
+        scale = scal_comp(1, calc_scale(src));
+        scale = scal_comp(scale, calc_scale(rcv));
+        scale = scal_comp(scale, calc_scale(cmp));
 
         const auto be_scale = to_big_endian(scale);
         std::copy(std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
 
-        setCoord(Coord::Src, src, scale, md);
-        setCoord(Coord::Rcv, rcv, scale, md);
-        setCoord(Coord::CMP, cmp, scale, md);
+        set_coord(Coord::Src, src, scale, md);
+        set_coord(Coord::Rcv, rcv, scale, md);
+        set_coord(Coord::CMP, cmp, scale, md);
 
-        setGrid(Grid::Line, line, md);
+        set_grid(Grid::Line, line, md);
 
-        const auto be_file_pos = to_big_endian(int32_t(filePos));
+        const auto be_file_pos = to_big_endian(int32_t(file_pos));
         std::copy(std::begin(be_file_pos), std::end(be_file_pos), &md[SeqFNum]);
     }
 
-    template<bool writePrm = false, bool MOCK = true>
-    void writeTraceTest(const size_t offset, const size_t tn)
+    template<bool WritePrm = false, bool UseMock = true>
+    void write_trace_test(const size_t offset, const size_t tn)
     {
         std::vector<unsigned char> buf;
-        if (MOCK) {
-            EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
-            EXPECT_CALL(*mock, setFileSz(_)).Times(Exactly(1));
-            if (mock == nullptr) {
+
+        bool mock_write_trace_called = true;
+        if (UseMock) {
+            mock_write_trace_called = false;
+
+            if (mock_object == nullptr) {
                 std::cerr << "Using Mock when not initialised: LOC: "
                           << __LINE__ << std::endl;
                 return;
             }
 
+            EXPECT_CALL(*mock_object, should_write_file_header(_))
+              .Times(Exactly(1));
+            EXPECT_CALL(*mock_object, set_file_size(_)).Times(Exactly(1));
+
+
             buf.resize(
               tn
-              * (writePrm ? SEGY_utils::getDOSz(ns) : SEGY_utils::getDFSz(ns)));
+              * (WritePrm ? segy::segy_trace_size(ns) :
+                            segy::segy_trace_data_size(ns)));
 
             for (size_t i = 0U; i < tn; i++) {
-                if (writePrm) {
-                    initWriteHeaders(
-                      offset + i, &buf[i * SEGY_utils::getDOSz(ns)]);
+                if (WritePrm) {
+                    init_write_headers(
+                      offset + i, &buf[i * segy::segy_trace_size(ns)]);
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
                     const size_t addr =
-                      writePrm ? (i * SEGY_utils::getDOSz(ns)
-                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
-                                 (i * ns + j) * sizeof(float);
+                      WritePrm ?
+                        (i * segy::segy_trace_size(ns)
+                         + segy::segy_trace_header_size() + j * sizeof(float)) :
+                        (i * ns + j) * sizeof(float);
 
                     const float val = offset + i + j;
 
@@ -966,37 +1059,44 @@ struct FileWriteSEGYTest : public Test {
                 }
             }
 
-            if (writePrm) {
-                EXPECT_CALL(*mock, writeDO(offset, ns, tn, _))
-                  .Times(Exactly(1))
-                  .WillOnce(check3(buf.data(), buf.size()));
-            }
-            else {
-                EXPECT_CALL(*mock, writeDODF(offset, ns, tn, _))
-                  .Times(Exactly(1))
-                  .WillOnce(check3(buf.data(), buf.size()));
-            }
+            EXPECT_CALL(*mock_object, write_trace(offset, ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                check3(buf.data(), buf.size()),
+                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+
+            EXPECT_CALL(*mock_object, write_trace_metadata(offset, ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                check3(buf.data(), buf.size()),
+                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+
+            EXPECT_CALL(*mock_object, write_trace_data(offset, ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                check3(buf.data(), buf.size()),
+                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
         }
         std::vector<float> bufnew(tn * ns);
-        if (writePrm) {
-            Param prm(tn);
+        if (WritePrm) {
+            Trace_metadata prm(tn);
             for (size_t i = 0U; i < tn; i++) {
-                param_utils::setPrm(i, PIOL_META_xSrc, xNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_xRcv, xNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_xCmp, xNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_ySrc, yNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_yRcv, yNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_yCmp, yNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_il, ilNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_xl, xlNum(offset + i), &prm);
-                param_utils::setPrm(i, PIOL_META_tn, offset + i, &prm);
+                prm.set_floating_point(i, Meta::x_src, x_num(offset + i));
+                prm.set_floating_point(i, Meta::x_rcv, x_num(offset + i));
+                prm.set_floating_point(i, Meta::xCmp, x_num(offset + i));
+                prm.set_floating_point(i, Meta::y_src, y_num(offset + i));
+                prm.set_floating_point(i, Meta::y_rcv, y_num(offset + i));
+                prm.set_floating_point(i, Meta::yCmp, y_num(offset + i));
+                prm.set_integer(i, Meta::il, il_num(offset + i));
+                prm.set_integer(i, Meta::xl, xl_num(offset + i));
+                prm.set_integer(i, Meta::tn, offset + i);
 
                 for (size_t j = 0U; j < ns; j++) {
                     bufnew[i * ns + j] = float(offset + i + j);
                 }
             }
 
-            file->writeTrace(offset, tn, bufnew.data(), &prm);
+            file->write_trace(offset, tn, bufnew.data(), &prm);
         }
         else {
             for (size_t i = 0U; i < tn; i++) {
@@ -1005,61 +1105,53 @@ struct FileWriteSEGYTest : public Test {
                 }
             }
 
-            file->writeTrace(offset, tn, bufnew.data());
+            file->write_trace(offset, tn, bufnew.data());
         }
 
-        if (MOCK == false) {
-            ReadSEGY_public::get(*readfile)->nt =
-              std::max(offset + tn, ReadSEGY_public::get(*readfile)->nt);
-            readTraceTest<writePrm>(offset, tn);
+        ASSERT_TRUE(mock_write_trace_called);
+
+        if (UseMock == false) {
+            ReadSEGY_public::get(readfile.get())->m_nt =
+              std::max(offset + tn, ReadSEGY_public::get(readfile.get())->m_nt);
+            read_trace_test<WritePrm>(offset, tn);
         }
     }
 
-    template<bool readPrm = false>
-    void readTraceTest(const size_t offset, const size_t tn)
+    template<bool ReadPrm = false>
+    void read_trace_test(const size_t offset, const size_t tn)
     {
-        size_t tnRead = (offset + tn > nt && nt > offset ? nt - offset : tn);
+        size_t tn_read = (offset + tn > nt && nt > offset ? nt - offset : tn);
         std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
-        Param prm(tn);
-        if (readPrm) {
-            readfile->readTrace(offset, tn, bufnew.data(), &prm);
+        Trace_metadata prm(tn);
+        if (ReadPrm) {
+            readfile->read_trace(offset, tn, bufnew.data(), &prm);
         }
         else {
-            readfile->readTrace(offset, tn, bufnew.data());
+            readfile->read_trace(offset, tn, bufnew.data());
         }
 
-        for (size_t i = 0U; i < tnRead; i++) {
-            if (readPrm && tnRead && ns) {
-                ASSERT_EQ(
-                  ilNum(i + offset),
-                  param_utils::getPrm<exseis::utils::Integer>(
-                    i, PIOL_META_il, &prm))
+        for (size_t i = 0U; i < tn_read; i++) {
+            if (ReadPrm && tn_read && ns) {
+                ASSERT_EQ(il_num(i + offset), prm.get_integer(i, Meta::il))
                   << "Trace Number " << i << " offset " << offset;
-                ASSERT_EQ(
-                  xlNum(i + offset),
-                  param_utils::getPrm<exseis::utils::Integer>(
-                    i, PIOL_META_xl, &prm))
+                ASSERT_EQ(xl_num(i + offset), prm.get_integer(i, Meta::xl))
                   << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      xNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(i + offset),
+                      prm.get_floating_point(i, Meta::x_src));
                     ASSERT_DOUBLE_EQ(
-                      yNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(i + offset),
+                      prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      xNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(i + offset),
+                      prm.get_floating_point(i, Meta::x_src));
                     ASSERT_FLOAT_EQ(
-                      yNum(i + offset),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(i + offset),
+                      prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
@@ -1072,38 +1164,46 @@ struct FileWriteSEGYTest : public Test {
         }
     }
 
-    template<bool writePrm = false, bool MOCK = true>
-    void writeRandomTraceTest(size_t tn, const std::vector<size_t> offset)
+    template<bool WritePrm = false, bool UseMock = true>
+    void write_random_trace_test(size_t tn, const std::vector<size_t> offset)
     {
         ASSERT_EQ(tn, offset.size());
         std::vector<unsigned char> buf;
-        if (MOCK) {
-            EXPECT_CALL(*mock, writeHO(_)).Times(Exactly(1));
-            EXPECT_CALL(*mock, setFileSz(_)).Times(Exactly(1));
-            if (mock == nullptr) {
+
+        bool mock_write_trace_called = true;
+        if (UseMock) {
+            mock_write_trace_called = false;
+
+            if (mock_object == nullptr) {
                 std::cerr << "Using Mock when not initialised: LOC: "
                           << __LINE__ << std::endl;
                 return;
             }
 
-            if (writePrm) {
-                buf.resize(tn * SEGY_utils::getDOSz(ns));
+            EXPECT_CALL(*mock_object, should_write_file_header(_))
+              .Times(Exactly(1));
+            EXPECT_CALL(*mock_object, set_file_size(_)).Times(Exactly(1));
+
+
+            if (WritePrm) {
+                buf.resize(tn * segy::segy_trace_size(ns));
             }
             else {
-                buf.resize(tn * SEGY_utils::getDFSz(ns));
+                buf.resize(tn * segy::segy_trace_data_size(ns));
             }
 
             for (size_t i = 0U; i < tn; i++) {
-                if (writePrm) {
-                    initWriteHeaders(
-                      offset[i], &buf[i * SEGY_utils::getDOSz(ns)]);
+                if (WritePrm) {
+                    init_write_headers(
+                      offset[i], &buf[i * segy::segy_trace_size(ns)]);
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
                     const size_t addr =
-                      writePrm ? (i * SEGY_utils::getDOSz(ns)
-                                  + SEGY_utils::getMDSz() + j * sizeof(float)) :
-                                 (i * ns + j) * sizeof(float);
+                      WritePrm ?
+                        (i * segy::segy_trace_size(ns)
+                         + segy::segy_trace_header_size() + j * sizeof(float)) :
+                        (i * ns + j) * sizeof(float);
 
                     const float val = offset[i] + j;
 
@@ -1112,30 +1212,40 @@ struct FileWriteSEGYTest : public Test {
                 }
             }
 
-            if (writePrm) {
-                EXPECT_CALL(*mock, writeDO(offset.data(), ns, tn, _))
-                  .Times(Exactly(1))
-                  .WillOnce(check3(buf.data(), buf.size()));
-            }
-            else {
-                EXPECT_CALL(*mock, writeDODF(offset.data(), ns, tn, _))
-                  .Times(Exactly(1))
-                  .WillOnce(check3(buf.data(), buf.size()));
-            }
+            EXPECT_CALL(*mock_object, write_trace(offset.data(), ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                check3(buf.data(), buf.size()),
+                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+
+            EXPECT_CALL(
+              *mock_object, write_trace_metadata(offset.data(), ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                check3(buf.data(), buf.size()),
+                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+
+            EXPECT_CALL(
+              *mock_object, write_trace_data(offset.data(), ns, tn, _))
+              .Times(AnyNumber())
+              .WillOnce(DoAll(
+                check3(buf.data(), buf.size()),
+                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
         }
-        Param prm(tn);
+
+        Trace_metadata prm(tn);
         std::vector<float> bufnew(tn * ns);
         for (size_t i = 0U; i < tn; i++) {
-            if (writePrm) {
-                param_utils::setPrm(i, PIOL_META_xSrc, xNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_xRcv, xNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_xCmp, xNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_ySrc, yNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_yRcv, yNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_yCmp, yNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_il, ilNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_xl, xlNum(offset[i]), &prm);
-                param_utils::setPrm(i, PIOL_META_tn, offset[i], &prm);
+            if (WritePrm) {
+                prm.set_floating_point(i, Meta::x_src, x_num(offset[i]));
+                prm.set_floating_point(i, Meta::x_rcv, x_num(offset[i]));
+                prm.set_floating_point(i, Meta::xCmp, x_num(offset[i]));
+                prm.set_floating_point(i, Meta::y_src, y_num(offset[i]));
+                prm.set_floating_point(i, Meta::y_rcv, y_num(offset[i]));
+                prm.set_floating_point(i, Meta::yCmp, y_num(offset[i]));
+                prm.set_integer(i, Meta::il, il_num(offset[i]));
+                prm.set_integer(i, Meta::xl, xl_num(offset[i]));
+                prm.set_integer(i, Meta::tn, offset[i]);
             }
 
             for (size_t j = 0U; j < ns; j++) {
@@ -1143,68 +1253,59 @@ struct FileWriteSEGYTest : public Test {
             }
         }
 
-        if (writePrm) {
-            file->writeTraceNonContiguous(
+        if (WritePrm) {
+            file->write_trace_non_contiguous(
               tn, offset.data(), bufnew.data(), &prm);
         }
         else {
-            file->writeTraceNonContiguous(tn, offset.data(), bufnew.data());
+            file->write_trace_non_contiguous(tn, offset.data(), bufnew.data());
         }
 
-        if (MOCK == false) {
+        ASSERT_TRUE(mock_write_trace_called);
+
+        if (UseMock == false) {
             for (size_t i = 0U; i < tn; i++) {
-                ReadSEGY_public::get(*readfile)->nt =
-                  std::max(offset[i], ReadSEGY_public::get(*readfile)->nt);
+                ReadSEGY_public::get(readfile.get())->m_nt = std::max(
+                  offset[i], ReadSEGY_public::get(readfile.get())->m_nt);
             }
-            readRandomTraceTest<writePrm>(tn, offset);
+            read_random_trace_test<WritePrm>(tn, offset);
         }
     }
 
-    template<bool readPrm = false>
-    void readRandomTraceTest(size_t tn, const std::vector<size_t> offset)
+    template<bool ReadPrm = false>
+    void read_random_trace_test(size_t tn, const std::vector<size_t> offset)
     {
         ASSERT_EQ(tn, offset.size());
         std::vector<unsigned char> buf;
         std::vector<float> bufnew(tn * ns);
-        Param prm(tn);
-        if (readPrm) {
-            readfile->readTraceNonContiguous(
+        Trace_metadata prm(tn);
+        if (ReadPrm) {
+            readfile->read_trace_non_contiguous(
               tn, offset.data(), bufnew.data(), &prm);
         }
         else {
-            readfile->readTraceNonContiguous(tn, offset.data(), bufnew.data());
+            readfile->read_trace_non_contiguous(
+              tn, offset.data(), bufnew.data());
         }
 
         for (size_t i = 0U; i < tn; i++) {
-            if (readPrm && tn && ns) {
-                ASSERT_EQ(
-                  ilNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
-                                      i, PIOL_META_il, &prm))
+            if (ReadPrm && tn && ns) {
+                ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il))
                   << "Trace Number " << i << " offset " << offset[i];
-                ASSERT_EQ(
-                  xlNum(offset[i]), param_utils::getPrm<exseis::utils::Integer>(
-                                      i, PIOL_META_xl, &prm))
+                ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl))
                   << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      xNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                     ASSERT_DOUBLE_EQ(
-                      yNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      xNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_xSrc, &prm));
+                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                     ASSERT_FLOAT_EQ(
-                      yNum(offset[i]),
-                      param_utils::getPrm<exseis::utils::Floating_point>(
-                        i, PIOL_META_ySrc, &prm));
+                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
@@ -1216,65 +1317,65 @@ struct FileWriteSEGYTest : public Test {
     }
 
     template<bool Copy>
-    void writeTraceHeaderTest(const size_t offset, const size_t tn)
+    void write_trace_header_test(const size_t offset, const size_t tn)
     {
-        const bool MOCK = true;
+        const bool mock = true;
         std::vector<unsigned char> buf;
-        if (MOCK) {
-            buf.resize(tn * SEGY_utils::getMDSz());
+        if (mock) {
+            buf.resize(tn * segy::segy_trace_header_size());
             for (size_t i = 0; i < tn; i++) {
-                coord_t src = coord_t(ilNum(i + 1), xlNum(i + 5));
-                coord_t rcv = coord_t(ilNum(i + 2), xlNum(i + 6));
-                coord_t cmp = coord_t(ilNum(i + 3), xlNum(i + 7));
-                grid_t line = grid_t(ilNum(i + 4), xlNum(i + 8));
+                coord_t src = coord_t(il_num(i + 1), xl_num(i + 5));
+                coord_t rcv = coord_t(il_num(i + 2), xl_num(i + 6));
+                coord_t cmp = coord_t(il_num(i + 3), xl_num(i + 7));
+                grid_t line = grid_t(il_num(i + 4), xl_num(i + 8));
 
-                int16_t scale = scalComp(1, calcScale(src));
-                scale         = scalComp(scale, calcScale(rcv));
-                scale         = scalComp(scale, calcScale(cmp));
+                int16_t scale = scal_comp(1, calc_scale(src));
+                scale         = scal_comp(scale, calc_scale(rcv));
+                scale         = scal_comp(scale, calc_scale(cmp));
 
-                unsigned char* md = &buf[i * SEGY_utils::getMDSz()];
+                unsigned char* md = &buf[i * segy::segy_trace_header_size()];
 
                 const auto be_scale = to_big_endian(scale);
                 std::copy(
                   std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
 
-                setCoord(Coord::Src, src, scale, md);
-                setCoord(Coord::Rcv, rcv, scale, md);
-                setCoord(Coord::CMP, cmp, scale, md);
+                set_coord(Coord::Src, src, scale, md);
+                set_coord(Coord::Rcv, rcv, scale, md);
+                set_coord(Coord::CMP, cmp, scale, md);
 
-                setGrid(Grid::Line, line, md);
+                set_grid(Grid::Line, line, md);
 
                 const auto be_seqfnum = to_big_endian(int32_t(offset + i));
                 std::copy(
                   std::begin(be_seqfnum), std::end(be_seqfnum), &md[SeqFNum]);
             }
-            EXPECT_CALL(*mock.get(), writeDOMD(offset, ns, tn, _))
+            EXPECT_CALL(
+              *mock_object.get(), write_trace_metadata(offset, ns, tn, _))
               .Times(Exactly(1))
               .WillOnce(check3(buf.data(), buf.size()));
         }
 
         if (Copy) {
-            auto rule = std::make_shared<Rule>(
-              std::initializer_list<Meta>{PIOL_META_COPY});
-            Param prm(rule, tn);
+            const auto rule = Rule(std::initializer_list<Meta>{Meta::Copy});
+            Trace_metadata prm(std::move(rule), tn);
             ASSERT_TRUE(prm.size());
-            prm.c = buf;
-            file->writeParam(offset, prm.size(), &prm);
+            prm.raw_metadata = buf;
+            file->write_param(offset, prm.size(), &prm);
         }
         else {
-            Param prm(tn);
+            Trace_metadata prm(tn);
             for (size_t i = 0; i < tn; i++) {
-                param_utils::setPrm(i, PIOL_META_xSrc, ilNum(i + 1), &prm);
-                param_utils::setPrm(i, PIOL_META_xRcv, ilNum(i + 2), &prm);
-                param_utils::setPrm(i, PIOL_META_xCmp, ilNum(i + 3), &prm);
-                param_utils::setPrm(i, PIOL_META_il, ilNum(i + 4), &prm);
-                param_utils::setPrm(i, PIOL_META_ySrc, xlNum(i + 5), &prm);
-                param_utils::setPrm(i, PIOL_META_yRcv, xlNum(i + 6), &prm);
-                param_utils::setPrm(i, PIOL_META_yCmp, xlNum(i + 7), &prm);
-                param_utils::setPrm(i, PIOL_META_xl, xlNum(i + 8), &prm);
-                param_utils::setPrm(i, PIOL_META_tn, offset + i, &prm);
+                prm.set_floating_point(i, Meta::x_src, il_num(i + 1));
+                prm.set_floating_point(i, Meta::x_rcv, il_num(i + 2));
+                prm.set_floating_point(i, Meta::xCmp, il_num(i + 3));
+                prm.set_integer(i, Meta::il, il_num(i + 4));
+                prm.set_floating_point(i, Meta::y_src, xl_num(i + 5));
+                prm.set_floating_point(i, Meta::y_rcv, xl_num(i + 6));
+                prm.set_floating_point(i, Meta::yCmp, xl_num(i + 7));
+                prm.set_integer(i, Meta::xl, xl_num(i + 8));
+                prm.set_integer(i, Meta::tn, offset + i);
             }
-            file->writeParam(offset, prm.size(), &prm);
+            file->write_param(offset, prm.size(), &prm);
         }
     }
 };
@@ -1283,3 +1384,5 @@ typedef FileWriteSEGYTest FileSEGYWrite;
 typedef FileReadSEGYTest FileSEGYRead;
 typedef FileReadSEGYTest FileSEGYIntegRead;
 typedef FileWriteSEGYTest FileSEGYIntegWrite;
+
+#endif  // EXSEISDAT_TEST_SPECTESTS_FILESEGYTEST_HH

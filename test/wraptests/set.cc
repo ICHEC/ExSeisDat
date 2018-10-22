@@ -1,132 +1,137 @@
 #include "mockset.hh"
 
 using namespace exseis::utils;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 namespace exseis {
-namespace Flow {
+namespace flow {
 
 Set::Set(
-  std::shared_ptr<ExSeisPIOL> piol_,
+  std::shared_ptr<ExSeisPIOL> piol,
   std::string pattern,
-  std::string outfix_,
-  std::shared_ptr<Rule> rule_) :
-    rule(rule_),
-    cache(piol_)
+  std::string outfix,
+  std::shared_ptr<Rule> rule) :
+    m_rule(rule),
+    m_cache(piol)
 {
-    mockSet().ctor(this, piol_, pattern, outfix_, rule_);
+    mock_set().ctor(this, piol, pattern, outfix, rule);
 }
 
-Set::Set(std::shared_ptr<ExSeisPIOL> piol_, std::shared_ptr<Rule> rule_) :
-    rule(rule_),
-    cache(piol_)
+Set::Set(std::shared_ptr<ExSeisPIOL> piol, std::shared_ptr<Rule> rule) :
+    m_rule(rule),
+    m_cache(piol)
 {
-    mockSet().ctor(this, piol_, rule_);
+    mock_set().ctor(this, piol, rule);
 }
 
 Set::~Set()
 {
-    mockSet().dtor(this);
+    mock_set().dtor(this);
 }
 
-void Set::sort(CompareP sortFunc)
+void Set::sort(CompareP sort_func)
 {
-    mockSet().sort(this, sortFunc);
+    mock_set().sort(this, sort_func);
 }
 
-void Set::sort(std::shared_ptr<Rule> r, CompareP sortFunc)
+void Set::sort(std::shared_ptr<Rule> r, CompareP sort_func)
 {
-    mockSet().sort(this, r, sortFunc);
+    mock_set().sort(this, r, sort_func);
 }
 
 std::vector<std::string> Set::output(std::string oname)
 {
-    return mockSet().output(this, oname);
+    return mock_set().output(this, oname);
 }
 
-void Set::getMinMax(
-  MinMaxFunc<Param> xlam, MinMaxFunc<Param> ylam, CoordElem* minmax)
+void Set::get_min_max(
+  MinMaxFunc<Trace_metadata> xlam,
+  MinMaxFunc<Trace_metadata> ylam,
+  CoordElem* minmax)
 {
-    mockSet().getMinMax(this, xlam, ylam, minmax);
+    mock_set().get_min_max(this, xlam, ylam, minmax);
 }
 
-void Set::taper(Taper_function taper_function, size_t nTailLft, size_t nTailRt)
+void Set::taper(
+  Taper_function taper_function, size_t n_tail_lft, size_t n_tail_rt)
 {
-    mockSet().taper(this, taper_function, nTailLft, nTailRt);
+    mock_set().taper(this, taper_function, n_tail_lft, n_tail_rt);
 }
 
-void Set::AGC(
-  Gain_function agcFunc,
+void Set::agc(
+  Gain_function agc_func,
   size_t window,
   exseis::utils::Trace_value target_amplitude)
 {
-    mockSet().AGC(this, agcFunc, window, target_amplitude);
+    mock_set().agc(this, agc_func, window, target_amplitude);
 }
 
-void Set::text(std::string outmsg_)
+void Set::text(std::string outmsg)
 {
-    mockSet().text(this, outmsg_);
+    mock_set().text(this, outmsg);
 }
 
 void Set::summary() const
 {
-    mockSet().summary(this);
+    mock_set().summary(this);
 }
 
 void Set::add(std::unique_ptr<ReadInterface> in)
 {
-    mockSet().add(this, std::move(in));
+    mock_set().add(this, std::move(in));
 }
 
 void Set::add(std::string name)
 {
-    mockSet().add(this, name);
+    mock_set().add(this, name);
 }
 
-void Set::toAngle(
-  std::string vmName,
-  const size_t vBin,
-  const size_t oGSz,
-  exseis::utils::Floating_point oInc)
+void Set::to_angle(
+  std::string vm_name,
+  const size_t v_bin,
+  const size_t output_traces_per_gather,
+  exseis::utils::Floating_point output_sample_interval)
 {
-    mockSet().toAngle(this, vmName, vBin, oGSz, oInc);
+    mock_set().toAngle(
+      this, vm_name, v_bin, output_traces_per_gather, output_sample_interval);
 }
 
 void Set::sort(SortType type)
 {
-    mockSet().sort(this, type);
+    mock_set().sort(this, type);
 }
 
-void Set::getMinMax(Meta m1, Meta m2, CoordElem* minmax)
+void Set::get_min_max(Meta m1, Meta m2, CoordElem* minmax)
 {
-    mockSet().getMinMax(this, m1, m2, minmax);
+    mock_set().get_min_max(this, m1, m2, minmax);
 }
 
-void Set::temporalFilter(
+void Set::temporal_filter(
   FltrType type,
   FltrDmn domain,
   PadType pad,
   exseis::utils::Trace_value fs,
   std::vector<exseis::utils::Trace_value> corners,
   size_t nw,
-  size_t winCntr)
+  size_t win_cntr)
 {
-    mockSet().temporalFilter(this, type, domain, pad, fs, corners, nw, winCntr);
+    mock_set().temporal_filter(
+      this, type, domain, pad, fs, corners, nw, win_cntr);
 }
 
-void Set::temporalFilter(
+void Set::temporal_filter(
   FltrType type,
   FltrDmn domain,
   PadType pad,
   exseis::utils::Trace_value fs,
-  size_t N,
+  size_t n,
   std::vector<exseis::utils::Trace_value> corners,
   size_t nw,
-  size_t winCntr)
+  size_t win_cntr)
 {
-    mockSet().temporalFilter(
-      this, type, domain, pad, fs, N, corners, nw, winCntr);
+    mock_set().temporal_filter(
+      this, type, domain, pad, fs, n, corners, nw, win_cntr);
 }
 
-}  // namespace Flow
+}  // namespace flow
 }  // namespace exseis

@@ -5,7 +5,7 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "ExSeisDat/PIOL.h"
+#include "exseisdat/piol.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -50,52 +50,56 @@ int main(int argc, char** argv)
     }
     assert(iname && oname);
 
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    size_t rank       = PIOL_ExSeis_getRank(piol);
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
+    size_t rank       = piol_exseis_get_rank(piol);
 
     // Create a SEGY file object for input
-    PIOL_File_ReadDirect* ifh = PIOL_File_ReadDirect_new(piol, iname);
-    PIOL_ExSeis_isErr(piol, "Unable to create a SEGY file object for input.");
+    piol_file_read_interface* ifh = piol_file_read_segy_new(piol, iname);
+    piol_exseis_assert_ok(
+      piol, "Unable to create a SEGY file object for input.");
 
     // Create some local variables based on the input file
-    size_t nt = PIOL_File_ReadDirect_readNt(ifh);
-    size_t ns = PIOL_File_ReadDirect_readNs(ifh);
+    size_t nt = piol_file_read_interface_read_nt(ifh);
+    size_t ns = piol_file_read_interface_read_ns(ifh);
 
     struct exseis_Contiguous_decomposition dec =
-      exseis_block_decomposition(nt, PIOL_ExSeis_getNumRank(piol), rank);
+      exseis_block_decomposition(nt, piol_exseis_get_num_rank(piol), rank);
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
     // Alloc the required memory for the data we want.
-    float* trace           = malloc(lnt * PIOL_SEGY_utils_getDFSz(ns));
-    PIOL_File_Param* trhdr = PIOL_File_Param_new(NULL, lnt);
+    float* trace = malloc(lnt * piol_segy_segy_trace_data_size(ns));
+    piol_file_trace_metadata* trhdr = piol_file_trace_metadata_new(NULL, lnt);
 
     // Create a SEGY file object for output
-    PIOL_File_WriteDirect* ofh = PIOL_File_WriteDirect_new(piol, oname);
-    PIOL_ExSeis_isErr(piol, "Unable to create a SEGY file object for output.");
+    piol_file_write_interface* ofh = piol_file_write_segy_new(piol, oname);
+    piol_exseis_assert_ok(
+      piol, "Unable to create a SEGY file object for output.");
 
     // Write the headers based on the input file.
-    PIOL_File_WriteDirect_writeNs(ofh, nt);
-    PIOL_File_WriteDirect_writeNt(ofh, ns);
-    PIOL_File_WriteDirect_writeText(ofh, PIOL_File_ReadDirect_readText(ifh));
-    PIOL_File_WriteDirect_writeInc(ofh, PIOL_File_ReadDirect_readInc(ifh));
+    piol_file_write_interface_write_ns(ofh, nt);
+    piol_file_write_interface_write_nt(ofh, ns);
+    piol_file_write_interface_write_text(
+      ofh, piol_file_read_interface_read_text(ifh));
+    piol_file_write_interface_write_sample_interval(
+      ofh, piol_file_read_interface_read_sample_interval(ifh));
 
     // Read the traces from the input file and to the output
-    PIOL_File_ReadDirect_readTrace(ifh, offset, lnt, trace, trhdr);
-    PIOL_File_WriteDirect_writeTrace(ofh, offset, lnt, trace, trhdr);
+    piol_file_read_interface_read_trace(ifh, offset, lnt, trace, trhdr);
+    piol_file_write_interface_write_trace(ofh, offset, lnt, trace, trhdr);
 
     // Cleanup
     //
     // We want to clean everything up, because some operations are only run,
     // e.g. file writing when the classes go out of scope, i.e. are deleted.
     //
-    PIOL_File_Param_delete(trhdr);
+    piol_file_trace_metadata_delete(trhdr);
     free(trace);
 
-    PIOL_File_ReadDirect_delete(ifh);
-    PIOL_File_WriteDirect_delete(ofh);
+    piol_file_read_interface_delete(ifh);
+    piol_file_write_interface_delete(ofh);
 
-    PIOL_ExSeis_delete(piol);
+    piol_exseis_delete(piol);
 
     free(iname);
     free(oname);

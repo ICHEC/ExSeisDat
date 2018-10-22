@@ -1,5 +1,5 @@
 /// @todo Move this to spectests
-#include "ExSeisDat/PIOL.h"
+#include "exseisdat/piol.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -10,11 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void CTest_quit(const char* msg, size_t line);
+void c_test_quit(const char* msg, size_t line);
 
 #define MIN(x, y) (x < y ? x : y)
-#define MAX(x, y) (x > y ? x : y)
-#define CMP(X, Y)                                                              \
+#define EXSEISDAT_MAX(x, y) (x > y ? x : y)
+#define EXSEISDAT_CMP(X, Y)                                                    \
     {                                                                          \
         size_t line = __LINE__;                                                \
         if (X != Y) {                                                          \
@@ -22,7 +22,7 @@ void CTest_quit(const char* msg, size_t line);
         }                                                                      \
     }
 
-#define CMP_STR(X, Y)                                                          \
+#define EXSEISDAT_CMP_STR(X, Y)                                                \
     {                                                                          \
         size_t line = __LINE__;                                                \
         size_t len1 = strlen(X), len2 = strlen(Y);                             \
@@ -42,39 +42,42 @@ void CTest_quit(const char* msg, size_t line)
     exit(-1);
 }
 
-int testManyFiles(PIOL_ExSeis* piol, const char* name)
+int test_many_files(piol_exseis* piol, const char* name)
 {
     // Don't go too crazy or systems won't like you.
-    const size_t rnum            = 10;
-    const size_t fnum            = 1000;
-    PIOL_File_ReadDirect** files = calloc(fnum, sizeof(PIOL_File_ReadDirect*));
-    PIOL_File_ReadDirect* ffile  = PIOL_File_ReadDirect_new(piol, name);
+    const size_t rnum = 10;
+    const size_t fnum = 1000;
+    piol_file_read_interface** files =
+      calloc(fnum, sizeof(piol_file_read_interface*));
+    piol_file_read_interface* ffile = piol_file_read_segy_new(piol, name);
 
-    const char* msg = PIOL_File_ReadDirect_readText(ffile);
+    const char* msg = piol_file_read_interface_read_text(ffile);
     size_t ln       = strlen(msg);
-    size_t ns       = PIOL_File_ReadDirect_readNs(ffile);
-    size_t nt       = PIOL_File_ReadDirect_readNt(ffile);
-    double inc      = PIOL_File_ReadDirect_readInc(ffile);
+    size_t ns       = piol_file_read_interface_read_ns(ffile);
+    size_t nt       = piol_file_read_interface_read_nt(ffile);
+    double inc      = piol_file_read_interface_read_sample_interval(ffile);
 
     for (size_t i = 0; i < rnum; i++) {
         for (size_t j = 0; j < fnum; j++) {
-            files[j] = PIOL_File_ReadDirect_new(piol, name);
+            files[j] = piol_file_read_segy_new(piol, name);
         }
 
         for (size_t j = 0; j < fnum; j++) {
-            CMP_STR(msg, PIOL_File_ReadDirect_readText(files[i]));
-            CMP(ln, strlen(msg));
-            CMP(ns, PIOL_File_ReadDirect_readNs(files[i]));
-            CMP(nt, PIOL_File_ReadDirect_readNt(files[i]));
-            CMP(inc, PIOL_File_ReadDirect_readInc(files[i]));
+            EXSEISDAT_CMP_STR(
+              msg, piol_file_read_interface_read_text(files[i]));
+            EXSEISDAT_CMP(ln, strlen(msg));
+            EXSEISDAT_CMP(ns, piol_file_read_interface_read_ns(files[i]));
+            EXSEISDAT_CMP(nt, piol_file_read_interface_read_nt(files[i]));
+            EXSEISDAT_CMP(
+              inc, piol_file_read_interface_read_sample_interval(files[i]));
         }
 
         for (size_t j = 0; j < fnum; j++) {
-            PIOL_File_ReadDirect_delete(files[j]);
+            piol_file_read_interface_delete(files[j]);
         }
     }
 
-    PIOL_File_ReadDirect_delete(ffile);
+    piol_file_read_interface_delete(ffile);
     free(files);
 
     return 0;
@@ -105,10 +108,10 @@ int main(int argc, char** argv)
     }
     assert(name);
 
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    PIOL_ExSeis_isErr(piol, "");
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
+    piol_exseis_assert_ok(piol, "");
 
-    testManyFiles(piol, name);
+    test_many_files(piol, name);
 
     free(name);
 

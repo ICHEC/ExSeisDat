@@ -11,6 +11,7 @@ set(EXSEISDAT_EXAMPLE_EXES)
 macro(examples_add_executable)
     add_executable(${ARGV})
     list(APPEND EXSEISDAT_EXAMPLE_EXES ${ARGV0})
+    set_target_properties(${ARGV0} PROPERTIES LINKER_LANGUAGE CXX)
 endmacro(examples_add_executable)
 
 examples_add_executable(hello_world hello_world.c)
@@ -34,9 +35,6 @@ examples_add_executable(exampleCreateFile  exampleCreateFile.cc)
 examples_add_executable(cexampleCreateFile exampleCreateFile.c)
 
 examples_add_executable(exampleFilterTaper exampleFilterTaper.cc)
-
-examples_add_executable(cexampleSort exampleSort.c)
-examples_add_executable(exampleSort exampleSort.cc)
 
 
 #

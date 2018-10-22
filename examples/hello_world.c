@@ -17,7 +17,7 @@
 /// We also define a `main()` function.
 ///
 
-#include "ExSeisDat/PIOL.h"
+#include "exseisdat/piol.h"
 
 #include <stdio.h>
 
@@ -28,7 +28,7 @@ int main()
     /// as the PIOL object.
 
     // Initialize the PIOL
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
 
     /// Here, we've initialized the PIOL with the lowest verbosity setting.
     /// By default, this will initialize using MPI over MPI_COMM_WORLD.
@@ -39,9 +39,9 @@ int main()
     /// process 0 to print the number of processes available.
 
     // Run on rank 0.
-    if (!PIOL_ExSeis_getRank(piol)) {
+    if (!piol_exseis_get_rank(piol)) {
         // Get num ranks for the PIOL and print to stdout.
-        size_t num = PIOL_ExSeis_getNumRank(piol);
+        size_t num = piol_exseis_get_num_rank(piol);
         if (num == 1) {
             printf("Hello, World! There is 1 process\n");
         }
@@ -59,7 +59,7 @@ int main()
     /// properly when the program closes.
 
     // Cleanup the PIOL.
-    PIOL_ExSeis_delete(piol);
+    piol_exseis_delete(piol);
 
     /// And finally, return 0 to indicate success.
 

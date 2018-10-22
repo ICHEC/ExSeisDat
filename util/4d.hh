@@ -4,12 +4,12 @@
 #ifndef EXSEISDAT_UTIL_4D_HH
 #define EXSEISDAT_UTIL_4D_HH
 
-#include "ExSeisDat/PIOL/ExSeisPIOL.hh"
+#include "exseisdat/piol/ExSeisPIOL.hh"
 
 #include <iostream>
 
 /// Constant for alignment reasons.
-#define ALIGN 32U
+#define EXSEISDAT_ALIGN 32U
 
 /// A typedef for the precision used for coordinates during the 4dbin
 typedef float fourd_t;
@@ -21,14 +21,14 @@ struct FourDOpt {
     bool verbose = false;
 
     /// print the dsr value to the SEG-Y output files
-    bool printDsr = true;
+    bool print_dsr = true;
 
     /// Constrain by inline and crossline
     bool ixline = false;
 };
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 /*! Every process will call this function and process 0 will print the string.
  *  @param[in] piol The piol object.
@@ -36,7 +36,7 @@ namespace PIOL {
  */
 void cmsg(ExSeisPIOL* piol, std::string msg);
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
 #endif  // EXSEISDAT_UTIL_4D_HH

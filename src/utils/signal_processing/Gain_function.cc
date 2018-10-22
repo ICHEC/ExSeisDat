@@ -3,8 +3,8 @@
 /// @brief Implementation for the build in `Gain_function`s.
 ///
 
-#include "ExSeisDat/utils/signal_processing/Gain_function.h"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/utils/signal_processing/Gain_function.h"
+#include "exseisdat/utils/typedefs.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -17,7 +17,24 @@ namespace exseis {
 namespace utils {
 inline namespace signal_processing {
 
-Trace_value rectangular_RMS_gain(
+
+namespace {
+
+/// @brief Safely return whether a value is non-zero
+///
+/// @param[in] v The value to test for non-zeroness
+///
+/// @return `v != 0`
+///
+bool non_zero(Trace_value v)
+{
+    return std::abs(v) > 0;
+}
+
+}  // namespace
+
+
+Trace_value rectangular_rms_gain(
   const Trace_value* signal,
   size_t window_size,
   Trace_value target_amplitude,
@@ -27,25 +44,24 @@ Trace_value rectangular_RMS_gain(
     for (size_t j = 0; j < window_size; j++) {
         amp += signal[j] * signal[j];
     }
-    assert(amp != 0);
+    assert(non_zero(amp));
 
-    const auto non_zero = [](Trace_value i) { return i != 0; };
-    const size_t num    = std::count_if(signal, &signal[window_size], non_zero);
+    const auto num = std::count_if(signal, &signal[window_size], non_zero);
 
-    return target_amplitude / std::sqrt(amp / std::max<size_t>(1, num));
+    return target_amplitude / std::sqrt(amp / std::max<decltype(num)>(1, num));
 }
 
-extern "C" Trace_value exseis_rectangular_RMS_gain(
+extern "C" Trace_value exseis_rectangular_rms_gain(
   const exseis_Trace_value* signal,
   size_t window_size,
   exseis_Trace_value target_amplitude,
   size_t)
 {
-    return rectangular_RMS_gain(signal, window_size, target_amplitude, 0);
+    return rectangular_rms_gain(signal, window_size, target_amplitude, 0);
 }
 
 
-Trace_value triangular_RMS_gain(
+Trace_value triangular_rms_gain(
   const Trace_value* signal,
   size_t window_size,
   Trace_value target_amplitude,
@@ -59,32 +75,32 @@ Trace_value triangular_RMS_gain(
     //
     // Say we have the following setup:
     //
-    // signals:          [****************]
-    // window:        [-------]
-    // window center:     *
-    // scaling:           ^
-    //                   / \
-    //                  /   \
-    //                 /     \
+    // signals:          [****************]      .
+    // window:        [-------]                  .
+    // window center:     *                      .
+    // scaling:           ^                      .
+    //                   / \                     .
+    //                  /   \                    .
+    //                 /     \                   .
     //
     // We treat the array of signals as though it's padded with zeros:
     //
-    // signals:        [00****************]
-    // window:        [-------]
-    // window center:     X
-    // scaling:           ^
-    //                   / \
-    //                  /   \
-    //                 /     \
+    // signals:        [00****************]      .
+    // window:        [-------]                  .
+    // window center:     X                      .
+    // scaling:           ^                      .
+    //                   / \                     .
+    //                  /   \                    .
+    //                 /     \                   .
     //
     // But the view we pass into this function is:
     //
-    // signals:          [****************]
-    // window:          [-----]
-    // window center:     ^
-    // scaling:          / \
-    //                      \
-    //                       \
+    // signals:          [****************]      .
+    // window:          [-----]                  .
+    // window center:     ^                      .
+    // scaling:          / \                     .
+    //                      \                    .
+    //                       \                   .
     //
     // That is, the signals are passed in from as low a value as possible,
     // the window size is set to the number of addressable elements in the
@@ -118,21 +134,20 @@ Trace_value triangular_RMS_gain(
 
         amp += scaled_signal * scaled_signal;
     }
-    assert(amp != 0);
+    assert(non_zero(amp));
 
-    const auto non_zero = [](Trace_value i) { return i != 0; };
-    const size_t num    = std::count_if(signal, &signal[window_size], non_zero);
+    const auto num = std::count_if(signal, &signal[window_size], non_zero);
 
-    return target_amplitude / std::sqrt(amp / std::max<size_t>(1, num));
+    return target_amplitude / std::sqrt(amp / std::max<decltype(num)>(1, num));
 }
 
-extern "C" Trace_value exseis_triangular_RMS_gain(
+extern "C" Trace_value exseis_triangular_rms_gain(
   const exseis_Trace_value* signal,
   size_t window_size,
   exseis_Trace_value target_amplitude,
   size_t window_center)
 {
-    return triangular_RMS_gain(
+    return triangular_rms_gain(
       signal, window_size, target_amplitude, window_center);
 }
 
@@ -147,12 +162,11 @@ Trace_value mean_abs_gain(
 
     const Trace_value amp =
       std::accumulate(signal, signal + window_size, Trace_value(0));
-    assert(amp != 0);
+    assert(non_zero(amp));
 
-    const auto non_zero = [](Trace_value i) { return i != Trace_value(0); };
-    const size_t num    = std::count_if(signal, &signal[window_size], non_zero);
+    const auto num = std::count_if(signal, &signal[window_size], non_zero);
 
-    return target_amplitude / (std::abs(amp) / std::max<size_t>(1, num));
+    return target_amplitude / (std::abs(amp) / std::max<decltype(num)>(1, num));
 }
 
 extern "C" Trace_value exseis_mean_abs_gain(
@@ -172,19 +186,19 @@ Trace_value median_gain(
   size_t)
 {
     // This could be optimised with std::nth_element if required.
-    std::vector<Trace_value> signalTmp(signal, &signal[window_size]);
-    std::sort(signalTmp.begin(), signalTmp.end());
+    std::vector<Trace_value> signal_tmp(signal, &signal[window_size]);
+    std::sort(signal_tmp.begin(), signal_tmp.end());
 
     if (window_size % 2 == 0) {
         const auto amp =
-          ((signalTmp[window_size / 2] + signalTmp[window_size / 2 + 1]) / 2);
-        assert(amp != 0);
+          ((signal_tmp[window_size / 2] + signal_tmp[window_size / 2 + 1]) / 2);
+        assert(non_zero(amp));
 
         return target_amplitude / amp;
     }
     else {
-        const auto amp = signalTmp[window_size / 2];
-        assert(amp != 0);
+        const auto amp = signal_tmp[window_size / 2];
+        assert(non_zero(amp));
 
         return target_amplitude / amp;
     }

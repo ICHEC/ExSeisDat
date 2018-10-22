@@ -1,9 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @brief Implementation of MPI_error_to_string.
+/// @brief Implementation of mpi_error_to_string.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
+#include "exseisdat/utils/mpi/MPI_error_to_string.hh"
+
+#include <cstring>
+#include <limits>
 
 
 namespace exseis {
@@ -25,7 +28,7 @@ static std::string get_error_string(int mpi_error)
     int err = MPI_Error_string(mpi_error, buffer, &buffer_size);
 
     // Make sure the buffer is terminated.
-    buffer[buffer_size - 1] = '\0';
+    buffer[MPI_MAX_ERROR_STRING - 1] = '\0';
 
     // On failure, or if the buffer is zero length, assume there is no
     // message string.
@@ -36,7 +39,7 @@ static std::string get_error_string(int mpi_error)
     return buffer;
 }
 
-std::string MPI_error_to_string(int mpi_error, const MPI_Status* mpi_status)
+std::string mpi_error_to_string(int mpi_error, const MPI_Status* mpi_status)
 {
     using namespace std::string_literals;
 
@@ -50,7 +53,7 @@ std::string MPI_error_to_string(int mpi_error, const MPI_Status* mpi_status)
 
     // MPI_Error_class shouldn't fail!!
     if (err != MPI_SUCCESS) {
-        return "*** MPI_error_to_string: MPI_Error_class: "s
+        return "*** mpi_error_to_string: MPI_Error_class: "s
                + get_error_string(err) + " ***"s;
     }
 
@@ -67,7 +70,7 @@ std::string MPI_error_to_string(int mpi_error, const MPI_Status* mpi_status)
             return "MPI_Error: MPI_ERR_IN_STATUS, but status was OMITTED!"s;
         }
         else {
-            return MPI_error_to_string(mpi_status->MPI_ERROR);
+            return mpi_error_to_string(mpi_status->MPI_ERROR);
         }
     }
 

@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "ExSeisDat/utils/encoding/number_encoding.hh"
+#include "exseisdat/utils/encoding/number_encoding.hh"
 
 #include <bitset>
 #include <cmath>
@@ -31,7 +31,7 @@ TEST(Datatype, from_big_endian32Bit3)
     EXPECT_EQ(ans, h);
 }
 
-std::string printBinary(uint32_t val)
+std::string print_binary(uint32_t val)
 {
     std::stringstream s;
     for (int i = 31; i >= 0; i--) {
@@ -56,7 +56,7 @@ struct IBM_native_pair {
     }
 };
 
-IBM_native_pair make_IBM_native_pair(
+IBM_native_pair make_ibm_native_pair(
   int sign, int8_t exponent, uint32_t significand)
 {
     // Make sure the input values are in the right range
@@ -160,13 +160,13 @@ TEST(Datatype, IBMToIEEE)
 
                 // Build an equivalent pair of IBM and native floating point
                 // values
-                auto pair = make_IBM_native_pair(sign, exponent, significand);
+                auto pair = make_ibm_native_pair(sign, exponent, significand);
 
                 // Integer representations for the IBM and native float
                 const uint32_t built_ibm   = pair.ibm.to_ulong();
                 const uint32_t built_float = pair.native.to_ulong();
 
-                // Built an ieee float with from_IBM_to_float using the IBM
+                // Built an ieee float with from_ibm_to_float using the IBM
                 // float we just made.
                 const unsigned char* built_ibm_bytes =
                   reinterpret_cast<const unsigned char*>(&built_ibm);
@@ -175,7 +175,7 @@ TEST(Datatype, IBMToIEEE)
                   {built_ibm_bytes[0], built_ibm_bytes[1], built_ibm_bytes[2],
                    built_ibm_bytes[3]}};
                 const float ieee =
-                  from_IBM_to_float(built_ibm_bytes_array, false);
+                  from_ibm_to_float(built_ibm_bytes_array, false);
 
                 // Integer representation for the IEEE constructed float.
                 uint32_t built_ieee = 0;
@@ -194,22 +194,22 @@ TEST(Datatype, IBMToIEEE)
                   << std::endl
                   << "sign: " << sign << std::endl
                   << "exponent: " << static_cast<int>(exponent) << std::endl
-                  << "significand: " << printBinary(significand) << " , "
+                  << "significand: " << print_binary(significand) << " , "
                   << std::hex << significand << std::endl
                   << std::endl
                   << "IBM: " << std::endl
                   << "SCCC CCCC QQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
-                  << printBinary(built_ibm) << std::endl
+                  << print_binary(built_ibm) << std::endl
                   << std::endl
                   << "Native: " << std::hexfloat << to_float(built_float)
                   << std::endl
                   << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
-                  << printBinary(built_float) << std::endl
+                  << print_binary(built_float) << std::endl
                   << std::endl
                   << "IEEE:   " << std::hexfloat << to_float(built_ieee)
                   << std::endl
                   << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
-                  << printBinary(built_ieee) << std::endl;
+                  << print_binary(built_ieee) << std::endl;
             }
         }
     }

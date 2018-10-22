@@ -7,9 +7,8 @@
 ///          or applies the same scalar to all signals at the same height.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/signal_processing/AGC.h"
-#include "ExSeisDat/utils/signal_processing/Gain_function.h"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/utils/signal_processing/AGC.h"
+#include "exseisdat/utils/signal_processing/AGC.hh"
 
 #include <assert.h>
 #include <cstddef>
@@ -19,7 +18,7 @@ namespace exseis {
 namespace utils {
 inline namespace signal_processing {
 
-void AGC(
+void agc(
   size_t signal_size,
   Trace_value* signal,
   Gain_function gain_function,
@@ -85,15 +84,14 @@ void AGC(
     }
 }
 
-EXSEISDAT_CXX_ONLY(extern "C")
-void exseis_AGC(
+extern "C" void exseis_agc(
   size_t signal_size,
   exseis_Trace_value* signal,
   exseis_Gain_function gain_function,
   size_t window_size,
   exseis_Trace_value target_amplitude)
 {
-    AGC(signal_size, signal, gain_function, window_size, target_amplitude);
+    agc(signal_size, signal, gain_function, window_size, target_amplitude);
 }
 
 }  // namespace signal_processing

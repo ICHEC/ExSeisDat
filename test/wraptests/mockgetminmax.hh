@@ -1,32 +1,32 @@
-#ifndef PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
-#define PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_MOCKGETMINMAX_HH
+#define EXSEISDAT_TEST_WRAPTESTS_MOCKGETMINMAX_HH
 
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "ExSeisDat/PIOL/operations/minmax.h"
+#include "exseisdat/piol/operations/minmax.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 class MockGetMinMax;
-::testing::StrictMock<MockGetMinMax>& mockGetMinMax();
+::testing::StrictMock<MockGetMinMax>& mock_get_min_max();
 
 class MockGetMinMax {
   public:
     MOCK_METHOD7(
-      getMinMax,
+      get_min_max,
       void(
         ExSeisPIOL* piol,
         size_t offset,
         size_t sz,
         Meta m1,
         Meta m2,
-        const Param* prm,
+        const Trace_metadata& prm,
         CoordElem* minmax));
 };
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
-#endif  // PIOLWRAPTESTSMOCKMINMAX_HEADER_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_MOCKGETMINMAX_HH

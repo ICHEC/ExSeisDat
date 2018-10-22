@@ -7,19 +7,19 @@
 /// This is an example of using minmax through the Set API is complete.
 ///
 
-#include "ExSeisDat/Flow.hh"
+#include "exseisdat/flow.hh"
 
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <unistd.h>
 
-using namespace exseis::PIOL;
-using namespace exseis::Flow;
+using namespace exseis::piol;
+using namespace exseis::flow;
 
 int main(int argc, char** argv)
 {
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     std::string opt = "i:";  // TODO: uses a GNU extension
     std::string iname;
@@ -37,11 +37,11 @@ int main(int argc, char** argv)
     Set set(piol, iname);
 
     CoordElem minmax[12];
-    set.getMinMax(PIOL_META_xSrc, PIOL_META_ySrc, &minmax[0]);
-    set.getMinMax(PIOL_META_xRcv, PIOL_META_yRcv, &minmax[4]);
-    set.getMinMax(PIOL_META_xCmp, PIOL_META_yCmp, &minmax[8]);
+    set.get_min_max(Meta::x_src, Meta::y_src, &minmax[0]);
+    set.get_min_max(Meta::x_rcv, Meta::y_rcv, &minmax[4]);
+    set.get_min_max(Meta::xCmp, Meta::yCmp, &minmax[8]);
 
-    if (piol->getRank() == 0) {
+    if (piol->get_rank() == 0) {
         std::cout << "x Src " << minmax[0].val << " (" << minmax[0].num
                   << ") -> " << minmax[1].val << " (" << minmax[1].num << ")\n";
         std::cout << "y Src " << minmax[2].val << " (" << minmax[2].num

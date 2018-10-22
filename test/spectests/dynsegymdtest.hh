@@ -1,35 +1,36 @@
+#ifndef EXSEISDAT_TEST_SPECTESTS_DYNSEGYMDTEST_HH
+#define EXSEISDAT_TEST_SPECTESTS_DYNSEGYMDTEST_HH
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tglobal.hh"
 
-#include "ExSeisDat/PIOL/Param.h"
-#include "ExSeisDat/PIOL/SEGYRuleEntry.hh"
+#include "exseisdat/piol/SEGYRuleEntry.hh"
+#include "exseisdat/piol/Trace_metadata.hh"
 
 #include <memory>
 
 using namespace testing;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 struct RuleFix : public Test {
     std::shared_ptr<Rule> rule;
-    RuleFix(void) { rule = NULL; }
-    ~RuleFix(void) {}
 };
 
 struct RuleFixList : public RuleFix {
     std::vector<Meta> meta;
-    std::vector<size_t> locs;
+    std::vector<Tr> locs;
     RuleFixList(void)
     {
-        locs = {PIOL_TR_xSrc, PIOL_TR_ySrc, PIOL_TR_xRcv, PIOL_TR_yRcv};
-        meta = {PIOL_META_xSrc, PIOL_META_ySrc, PIOL_META_xRcv, PIOL_META_yRcv};
+        locs = {Tr::x_src, Tr::y_src, Tr::x_rcv, Tr::y_rcv};
+        meta = {Meta::x_src, Meta::y_src, Meta::x_rcv, Meta::y_rcv};
         rule = std::make_shared<Rule>(
-          std::initializer_list<Meta>{PIOL_META_xSrc, PIOL_META_ySrc,
-                                      PIOL_META_xRcv, PIOL_META_yRcv},
+          std::initializer_list<Meta>{Meta::x_src, Meta::y_src, Meta::x_rcv,
+                                      Meta::y_rcv},
           false);
-        rule->rmRule(PIOL_META_ltn);
-        rule->rmRule(PIOL_META_gtn);
+        rule->rm_rule(Meta::ltn);
+        rule->rm_rule(Meta::gtn);
     }
 };
 
@@ -41,3 +42,5 @@ struct RuleFixEmpty : public RuleFix {
 struct RuleFixDefault : public RuleFix {
     RuleFixDefault(void) { rule = std::make_shared<Rule>(true, true); }
 };
+
+#endif  // EXSEISDAT_TEST_SPECTESTS_DYNSEGYMDTEST_HH

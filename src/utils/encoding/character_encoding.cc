@@ -7,7 +7,7 @@
 ///          We then provide functions for these map lookups.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/encoding/character_encoding.hh"
+#include "exseisdat/utils/encoding/character_encoding.hh"
 
 #include <algorithm>
 #include <array>
@@ -24,8 +24,8 @@ inline namespace character_encoding {
 /// use to statically initialize the EBCDIC -> ASCII and ASCII -> EBCDIC maps.
 /// The maps are defined as lists sorted by the key value (i.e. by ASCII value
 /// or by EBCDIC value), and lookup is done using a sorted list lookup.
-/// This is used for the implementation of to_ASCII_from_EBCDIC and
-/// to_EBCDIC_from_ASCII.
+/// This is used for the implementation of to_ascii_from_ebcdic and
+/// to_ebcdic_from_ascii.
 ///
 namespace {
 
@@ -33,8 +33,8 @@ namespace {
 struct Character_encoding {
 
     /// Construct an ASCII / EBCDIC equivalent character
-    /// @param ascii  The ASCII char code
-    /// @param ebcdic The EBCDIC char code
+    /// @param[in] ascii  The ASCII char code
+    /// @param[in] ebcdic The EBCDIC char code
     explicit Character_encoding(unsigned char ascii, unsigned char ebcdic) :
         ascii(ascii),
         ebcdic(ebcdic)
@@ -132,15 +132,15 @@ static const Character_encodings character_encoding_array = {
 ///
 static Character_encodings build_ebcdic_sorted_array()
 {
-    Character_encodings a = character_encoding_array;
+    Character_encodings cea = character_encoding_array;
 
     const auto less_ebcdic = [](Character_encoding a, Character_encoding b) {
         return a.ebcdic < b.ebcdic;
     };
 
-    std::sort(std::begin(a), std::end(a), less_ebcdic);
+    std::sort(std::begin(cea), std::end(cea), less_ebcdic);
 
-    return a;
+    return cea;
 }
 
 /// @brief Build the ASCII -> EBCDIC map
@@ -149,15 +149,15 @@ static Character_encodings build_ebcdic_sorted_array()
 ///
 static Character_encodings build_ascii_sorted_array()
 {
-    Character_encodings a = character_encoding_array;
+    Character_encodings cea = character_encoding_array;
 
     const auto less_ascii = [](Character_encoding a, Character_encoding b) {
         return a.ascii < b.ascii;
     };
 
-    std::sort(std::begin(a), std::end(a), less_ascii);
+    std::sort(std::begin(cea), std::end(cea), less_ascii);
 
-    return a;
+    return cea;
 }
 
 // We use static const variables to build the maps only once at startup.
@@ -173,7 +173,7 @@ static const auto ascii_sorted_array = build_ascii_sorted_array();
 }  // namespace
 
 
-unsigned char to_ASCII_from_EBCDIC(unsigned char ebcdic_char)
+unsigned char to_ascii_from_ebcdic(unsigned char ebcdic_char)
 {
     const auto compare_ebcdic = [](Character_encoding a, unsigned char b) {
         // Search by EBCDIC
@@ -191,7 +191,7 @@ unsigned char to_ASCII_from_EBCDIC(unsigned char ebcdic_char)
     return ebcdic_char_it->ascii;
 }
 
-unsigned char to_EBCDIC_from_ASCII(unsigned char ascii_char)
+unsigned char to_ebcdic_from_ascii(unsigned char ascii_char)
 {
     const auto compare_ascii = [](Character_encoding a, unsigned char b) {
         // Search by ASCII
@@ -209,15 +209,15 @@ unsigned char to_EBCDIC_from_ASCII(unsigned char ascii_char)
     return ascii_char_it->ebcdic;
 }
 
-bool is_printable_ASCII(unsigned char ascii_char)
+bool is_printable_ascii(unsigned char ascii_char)
 {
     // Printable ASCII chars are in the range [0x20, 0x7E].
     return (ascii_char >= 0x20 && ascii_char <= 0x7E);
 }
 
-bool is_printable_EBCDIC(unsigned char ebcdic_char)
+bool is_printable_ebcdic(unsigned char ebcdic_char)
 {
-    return is_printable_ASCII(to_ASCII_from_EBCDIC(ebcdic_char));
+    return is_printable_ascii(to_ascii_from_ebcdic(ebcdic_char));
 }
 
 }  // namespace character_encoding

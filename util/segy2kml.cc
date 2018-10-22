@@ -1,17 +1,18 @@
 #include "sglobal.hh"
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/operations/minmax.h"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/operations/minmax.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <sys/stat.h>
 #include <unistd.h>
 
 using namespace exseis::utils;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
 /*! Create the initial KML file settings to order to describe the output in
  *  general
@@ -19,7 +20,7 @@ using namespace exseis::PIOL;
  *  @param[in] oname name of the file to open
  *  @param[in] folder KML folder name containing all trace lines
  */
-void initKML(std::ofstream& file, std::string oname, std::string folder)
+void init_kml(std::ofstream& file, std::string oname, std::string folder)
 {
     file.open(oname);
     file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -42,7 +43,7 @@ void initKML(std::ofstream& file, std::string oname, std::string folder)
  *  @param[in] coord lat/long coords to change to string
  *  @return the coordinates as a string
  */
-std::string highPrecStr(exseis::utils::Floating_point coord)
+std::string high_prec_str(exseis::utils::Floating_point coord)
 {
     return std::to_string(static_cast<long long>(std::floor(coord))) + "."
            + std::to_string(static_cast<long long>(
@@ -54,7 +55,7 @@ std::string highPrecStr(exseis::utils::Floating_point coord)
  *  @param[in] name name to be given to this set of coordinates
  *  @param[in] coords the lat/long coords to print to the file
  */
-void addLine(
+void add_line(
   std::ofstream& file, std::string name, std::vector<CoordElem> coords)
 {
     file
@@ -66,16 +67,17 @@ void addLine(
       << "<SimpleData name=\"Name\">" + name
            + "</SimpleData>\n\t\t\t</SchemaData>\n\t\t</ExtendedData>\n\t\t\t";
     file << "<tessellate>1</tessellate>\n\t\t<coordinates>\n\t\t\t"
-              + highPrecStr(coords[2].val) + "," + highPrecStr(coords[0].val);
-    file << +",0\n\t\t\t" + highPrecStr(coords[3].val) + ","
-              + highPrecStr(coords[1].val) + ",0\n\t\t </coordinates>\n\t";
+              + high_prec_str(coords[2].val) + ","
+              + high_prec_str(coords[0].val);
+    file << +",0\n\t\t\t" + high_prec_str(coords[3].val) + ","
+              + high_prec_str(coords[1].val) + ",0\n\t\t </coordinates>\n\t";
     file << "</LineString>\n</Placemark>\n";
 }
 
 /*! close the kml outpuut file
  *  @param[in,out] file file handle to close
  */
-void closeKML(std::ofstream& file)
+void close_kml(std::ofstream& file)
 {
     file << "</Folder>\n</Document>\n</kml>";
     file.close();
@@ -84,7 +86,7 @@ void closeKML(std::ofstream& file)
 /*! Compute a lat long value from a UTM input
  *  @param[in] easting UTM easting coordinate
  *  @param[in] northing UTM northing coordinate
- *  @param[in] utmZone the UTM zone the coordinates lie in
+ *  @param[in] utm_zone the UTM zone the coordinates lie in
  *  @param[out] lat latitude coordinate
  *  @param[out] lng longitude coordinate
  *
@@ -92,30 +94,30 @@ void closeKML(std::ofstream& file)
  *          https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM
  *          (Excel Spreadsheet is clearer than formula)
  */
-void utm2LatLong(
+void utm_to_lat_long(
   exseis::utils::Floating_point easting,
   exseis::utils::Floating_point northing,
-  std::string utmZone,
+  std::string utm_zone,
   exseis::utils::Floating_point& lat,
   exseis::utils::Floating_point& lng)
 {
     exseis::utils::Floating_point hemi =
-      (std::toupper(utmZone.back()) == 'N' ? 1 : -1);
-    exseis::utils::Floating_point numZone = std::stof(utmZone);
+      (std::toupper(utm_zone.back()) == 'N' ? 1 : -1);
+    exseis::utils::Floating_point num_zone = std::stof(utm_zone);
 
-    exseis::utils::Floating_point const eqRad  = 6378137;
-    exseis::utils::Floating_point const polRad = 6356752;
-    exseis::utils::Floating_point const k0     = 0.9996;
-    exseis::utils::Floating_point E =
-      std::sqrt(1 - (polRad * polRad) / (eqRad * eqRad));
+    exseis::utils::Floating_point const eq_rad  = 6378137;
+    exseis::utils::Floating_point const pol_rad = 6356752;
+    exseis::utils::Floating_point const k0      = 0.9996;
+    exseis::utils::Floating_point e =
+      std::sqrt(1 - (pol_rad * pol_rad) / (eq_rad * eq_rad));
     exseis::utils::Floating_point ei =
-      (1 - std::sqrt(1 - E * E)) / (1 + std::sqrt(1 - E * E));
+      (1 - std::sqrt(1 - e * e)) / (1 + std::sqrt(1 - e * e));
     exseis::utils::Floating_point x = 500000 - easting;
     exseis::utils::Floating_point mu =
       (northing / k0)
-      / (eqRad
-         * (1 - std::pow(E, 2U) / 4 - 3 * std::pow(E, 4U) / 64
-            - 5 * std::pow(E, 6U) / 256));
+      / (eq_rad
+         * (1 - std::pow(e, 2U) / 4 - 3 * std::pow(e, 4U) / 64
+            - 5 * std::pow(e, 6U) / 256));
     exseis::utils::Floating_point phi =
       mu + (3 * ei / 2 - 27 * std::pow(ei, 3) / 32) * std::sin(2 * mu)
       + (21 / 16 * std::pow(ei, 2U) - 55 / 32 * std::pow(ei, 4U))
@@ -124,58 +126,57 @@ void utm2LatLong(
           * std::sin(6 * mu)
       + (1097 / 512 * std::pow(ei, 4U)) * std::sin(8 * mu);
     exseis::utils::Floating_point c =
-      (E * E / (1 - E * E)) * std::pow(std::cos(phi), 2);
+      (e * e / (1 - e * e)) * std::pow(std::cos(phi), 2);
     exseis::utils::Floating_point d =
-      x / (k0 * eqRad / std::sqrt(1 - std::pow(E * std::sin(phi), 2)));
+      x / (k0 * eq_rad / std::sqrt(1 - std::pow(e * std::sin(phi), 2)));
     lat =
       (180 * hemi / std::acos(-1))
       * (phi
-         - ((1 - std::pow(E * std::sin(phi), 2)) * std::tan(phi) / (1 - E * E))
+         - ((1 - std::pow(e * std::sin(phi), 2)) * std::tan(phi) / (1 - e * e))
              * ((d * d / 2)
                 + ((5 + 3 * std::pow(std::tan(phi), 2) + 10 * c - 4 * c * c
-                    - 9 * (E * E / (1 - E * E)))
+                    - 9 * (e * e / (1 - e * e)))
                    * std::pow(d, 4) / 24)
                 + ((61 + 90 * std::pow(std::tan(phi), 2)
                     + 298 * std::pow(std::tan(phi), 4)
-                    - 252 * (E * E / (1 - E * E)) - 3 * c * c)
+                    - 252 * (e * e / (1 - e * e)) - 3 * c * c)
                    * std::pow(d, 6) / 720)));
     lng =
-      (6 * numZone - 183)
+      (6 * num_zone - 183)
       - (180
          * (d + ((1 + 2 * std::pow(std::tan(phi), 2) + c) * std::pow(d, 3) / 6)
             + ((5 - 2 * c + 28 * std::pow(std::tan(phi), 2) - 3 * c * c
-                + 24 * std::pow(std::tan(phi), 4) + 8 * (E * E / (1 - E * E)))
+                + 24 * std::pow(std::tan(phi), 4) + 8 * (e * e / (1 - e * e)))
                * std::pow(d, 5) / 120))
          / (std::cos(phi) * std::acos(-1)));
 }
 
-/*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
+/*! Read from the input file. Find the min/max  x_src, y_src, x_rcv, y_rcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
  *  @param[in] piol Piol constructor
  *  @param[in] iname Input file
  *  @param[in] minmax Minimum and maximum coordinates
  */
-void calcMin(
+void calc_min(
   std::shared_ptr<ExSeis> piol,
   std::string iname,
   std::vector<CoordElem>& minmax)
 {
-    ReadDirect in(piol, iname);
+    ReadSEGY in(piol, iname);
 
     auto dec = block_decomposition(
-      in.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+      in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
-    Param prm(lnt);
-    in.readParam(offset, lnt, &prm);
+    Trace_metadata prm(lnt);
+    in.read_param(offset, lnt, &prm);
 
-    getMinMax(
-      piol.get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm,
-      minmax.data());
-    getMinMax(
-      piol.get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm,
+    get_min_max(
+      piol.get(), offset, lnt, Meta::x_src, Meta::y_src, prm, minmax.data());
+    get_min_max(
+      piol.get(), offset, lnt, Meta::x_rcv, Meta::y_rcv, prm,
       minmax.data() + 4U);
 }
 
@@ -195,7 +196,7 @@ int main(int argc, char** argv)
 {
     std::vector<std::string> iname;
     std::string oname;
-    std::string utmZone;
+    std::string utm_zone;
     std::string folder = "SEG-Y";
     bool help          = false;
 
@@ -216,7 +217,7 @@ int main(int argc, char** argv)
                 break;
 
             case 'z':
-                utmZone = optarg;
+                utm_zone = optarg;
                 break;
 
             case 'h':
@@ -246,54 +247,54 @@ int main(int argc, char** argv)
     // Expect UTM zone to have the form xS or xN where x is an integer between 1
     // and 60
     if (
-      !utmZone.empty()
-      && ((std::toupper(utmZone.back()) != 'N'
-           && std::toupper(utmZone.back()) != 'S')
-          || (std::stof(utmZone) < 1 || std::stof(utmZone) > 60)
-          || std::stof(utmZone) != std::floor(std::stof(utmZone)))) {
+      !utm_zone.empty()
+      && ((std::toupper(utm_zone.back()) != 'N'
+           && std::toupper(utm_zone.back()) != 'S')
+          || (std::stof(utm_zone) < 1 || std::stof(utm_zone) > 60)
+          || std::stof(utm_zone) != std::floor(std::stof(utm_zone)))) {
         std::cerr << "Invalid UTM Zone (WGS-84). \n";
         std::cerr
           << "Zones must an integer between 1 and 60 in hemisphere N or S\n";
         return -1;
     }
-    else if (utmZone.empty()) {
+    else if (utm_zone.empty()) {
         std::cout
           << "No UTM zone specified. Assuming Lat/Long coordinates in input files.\n";
     }
 
     if (std::toupper(iname[0].back()) != 'Y') {
-        std::ifstream fileLst(iname[0]);
+        std::ifstream file_lst(iname[0]);
         iname.clear();
         std::string sgynm;
-        while (std::getline(fileLst, sgynm)) {
+        while (std::getline(file_lst, sgynm)) {
             iname.push_back(sgynm);
         }
     }
     std::vector<CoordElem> minmax(8U);
 
     std::ofstream ofile;
-    initKML(ofile, oname, folder);
-    auto piol = ExSeis::New();
+    init_kml(ofile, oname, folder);
+    auto piol = ExSeis::make();
     for (size_t i = 0; i < iname.size(); i++) {
-        calcMin(piol, iname[i], minmax);
+        calc_min(piol, iname[i], minmax);
         // If Longitude/Easting is greater than 180, coordinate is in UTM format
         // and must be converted to latitude/longitude (mimimum UTM Easting is
         // 100,000)
-        if (minmax[0].val > 180 && !utmZone.empty()) {
-            utm2LatLong(
-              minmax[0].val, minmax[2].val, utmZone, minmax[0].val,
+        if (minmax[0].val > 180 && !utm_zone.empty()) {
+            utm_to_lat_long(
+              minmax[0].val, minmax[2].val, utm_zone, minmax[0].val,
               minmax[2].val);
-            utm2LatLong(
-              minmax[1].val, minmax[3].val, utmZone, minmax[1].val,
+            utm_to_lat_long(
+              minmax[1].val, minmax[3].val, utm_zone, minmax[1].val,
               minmax[3].val);
         }
-        else if (utmZone.empty()) {
+        else if (utm_zone.empty()) {
             std::cerr << "\nError: Invalid coordinates found in file.\n";
             std::cerr << "       Expected lat/long but values must be UTM.\n";
             std::cerr << "       Use the -z option to specify the UTM zone.\n";
         }
-        addLine(ofile, iname[i], minmax);
+        add_line(ofile, iname[i], minmax);
     }
-    closeKML(ofile);
+    close_kml(ofile);
     return 0;
 }

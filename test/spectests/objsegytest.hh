@@ -1,35 +1,34 @@
+#ifndef EXSEISDAT_TEST_SPECTESTS_OBJSEGYTEST_HH
+#define EXSEISDAT_TEST_SPECTESTS_OBJSEGYTEST_HH
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tglobal.hh"
 
-#include "ExSeisDat/PIOL/CommunicatorMPI.hh"
-#include "ExSeisDat/PIOL/DataMPIIO.hh"
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/ObjectSEGY.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/piol/CommunicatorMPI.hh"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ObjectInterface.hh"
+#include "exseisdat/piol/ObjectSEGY.hh"
+#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/segy/utils.hh"
+#include "exseisdat/utils/typedefs.hh"
 
-#include "ExSeisDat/utils/encoding/number_encoding.hh"
+#include "exseisdat/utils/encoding/number_encoding.hh"
 
 #include <memory>
 #include <string>
 
 using namespace testing;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
-class MockData : public DataInterface {
+class MockData : public Binary_file {
   public:
-    MockData(std::shared_ptr<ExSeisPIOL> piol_, const std::string name_) :
-        DataInterface(piol_, name_)
-    {
-    }
+    MOCK_CONST_METHOD0(get_file_size, size_t(void));
 
-    MOCK_CONST_METHOD0(getFileSz, size_t(void));
     MOCK_CONST_METHOD3(read, void(const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD5(
-      read,
+      read_noncontiguous,
       void(
         const size_t,
         const size_t,
@@ -37,11 +36,13 @@ class MockData : public DataInterface {
         const size_t,
         unsigned char*));
     MOCK_CONST_METHOD4(
-      read, void(const size_t, const size_t, const size_t*, unsigned char*));
+      read_noncontiguous_irregular,
+      void(const size_t, const size_t, const size_t*, unsigned char*));
+
     MOCK_CONST_METHOD3(
       write, void(const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD5(
-      write,
+      write_noncontiguous,
       void(
         const size_t,
         const size_t,
@@ -49,85 +50,90 @@ class MockData : public DataInterface {
         const size_t,
         const unsigned char*));
     MOCK_CONST_METHOD4(
-      write,
+      write_noncontiguous_irregular,
       void(const size_t, const size_t, const size_t*, const unsigned char*));
+
     // TODO: This method is not tested
-    MOCK_CONST_METHOD1(setFileSz, void(const size_t));
+    MOCK_CONST_METHOD1(set_file_size, void(const size_t));
+    MOCK_CONST_METHOD0(is_open, bool());
 };
 
-enum class Block { DOMD, DODF, DO };
+enum class Block { TRACE_METADATA, TRACE_DATA, TRACE };
 
 class ObjTest : public Test {
   protected:
-    std::shared_ptr<ExSeis> piol   = ExSeis::New();
-    std::shared_ptr<MockData> mock = nullptr;
-    ObjectInterface* obj           = nullptr;
+    std::shared_ptr<ExSeis> m_piol   = ExSeis::make();
+    std::shared_ptr<MockData> m_mock = nullptr;
+    ObjectInterface* m_obj           = nullptr;
 
     template<bool WRITE>
-    void makeRealSEGY(std::string name)
+    void make_real_segy(std::string name)
     {
-        if (obj != nullptr) {
-            delete obj;
+        if (m_obj != nullptr) {
+            delete m_obj;
         }
 
-        auto data = std::make_shared<DataMPIIO>(
-          piol, name, (WRITE ? FileMode::Test : FileMode::Read));
-        piol->isErr();
-        obj = new ObjectSEGY(
-          piol, name, data, (WRITE ? FileMode::Test : FileMode::Read));
-        piol->isErr();
+        auto data = std::make_shared<MPI_Binary_file>(
+          m_piol, name, (WRITE ? FileMode::ReadWrite : FileMode::Read));
+        m_piol->assert_ok();
+        m_obj = new ObjectSEGY(m_piol, name, data);
+        m_piol->assert_ok();
     }
 
-    void makeSEGY(std::string name = notFile)
+    std::string make_segy(std::string name = nonexistant_filename())
     {
-        if (obj != nullptr) {
-            delete obj;
+        if (m_obj != nullptr) {
+            delete m_obj;
         }
-        mock = std::make_shared<MockData>(piol, notFile);
-        piol->isErr();
-        obj = new ObjectSEGY(piol, name, mock);
-        piol->isErr();
+        m_mock = std::make_shared<MockData>();
+        m_piol->assert_ok();
+        m_obj = new ObjectSEGY(m_piol, name, m_mock);
+        m_piol->assert_ok();
+
+        return name;
     }
 
     ~ObjTest()
     {
-        if (obj != nullptr) {
-            delete obj;
+        if (m_obj != nullptr) {
+            delete m_obj;
         }
     }
 
-    void SEGYFileSizeTest(size_t sz)
+    void segy_file_size_test(size_t sz)
     {
-        EXPECT_CALL(*mock, getFileSz()).WillOnce(Return(sz));
-        piol->isErr();
-        EXPECT_EQ(sz, obj->getFileSz());
+        EXPECT_CALL(*m_mock, get_file_size()).WillOnce(Return(sz));
+        m_piol->assert_ok();
+        EXPECT_EQ(sz, m_obj->get_file_size());
     }
 
-    template<bool MOCK = true>
-    void readHOPatternTest(size_t off, unsigned char magic)
+    template<bool UseMock = true>
+    void read_ho_pattern_test(size_t off, unsigned char magic)
     {
         const size_t extra = 20U;
-        std::vector<unsigned char> cHo;
-        if (MOCK) {
-            cHo.resize(SEGY_utils::getHOSz());
-            for (size_t i = 0U; i < SEGY_utils::getHOSz(); i++) {
-                cHo[i] = getPattern(off + i);
+        std::vector<unsigned char> c_ho;
+        if (UseMock) {
+            c_ho.resize(segy::segy_binary_file_header_size());
+            for (size_t i = 0U; i < segy::segy_binary_file_header_size(); i++) {
+                c_ho[i] = get_pattern(off + i);
             }
-            EXPECT_CALL(*mock, read(0U, SEGY_utils::getHOSz(), _))
-              .WillOnce(SetArrayArgument<2>(cHo.begin(), cHo.end()));
+            EXPECT_CALL(
+              *m_mock, read(0U, segy::segy_binary_file_header_size(), _))
+              .WillOnce(SetArrayArgument<2>(c_ho.begin(), c_ho.end()));
         }
 
-        std::vector<unsigned char> ho(SEGY_utils::getHOSz() + 2 * extra);
+        std::vector<unsigned char> ho(
+          segy::segy_binary_file_header_size() + 2 * extra);
         for (auto i = 0U; i < extra; i++) {
             ho[i] = ho[ho.size() - extra + i] = magic;
         }
 
-        obj->readHO(&ho[extra]);
+        m_obj->read_ho(&ho[extra]);
 
-        piol->isErr();
+        m_piol->assert_ok();
 
-        for (auto i = 0U; i < SEGY_utils::getHOSz(); i++) {
-            ASSERT_EQ(getPattern(off + i), ho[extra + i]) << "Pattern " << i;
+        for (auto i = 0U; i < segy::segy_binary_file_header_size(); i++) {
+            ASSERT_EQ(get_pattern(off + i), ho[extra + i]) << "Pattern " << i;
         }
         for (auto i = 0U; i < extra; i++) {
             ASSERT_EQ(magic, ho[ho.size() - extra + i])
@@ -135,85 +141,88 @@ class ObjTest : public Test {
         }
     }
 
-    template<bool MOCK = true>
-    void writeHOPattern(size_t off, unsigned char magic)
+    template<bool UseMock = true>
+    void should_write_file_header_pattern(size_t off, unsigned char magic)
     {
-        if (MOCK && mock == nullptr) {
-            std::cerr << "Using Mock when not initialised: LOC: " << __LINE__
+        if (UseMock && m_mock == nullptr) {
+            std::cerr << "Using UseMock when not initialised: LOC: " << __LINE__
                       << std::endl;
             return;
         }
         const size_t extra = 20U;
-        std::vector<unsigned char> cHo(SEGY_utils::getHOSz());
-        for (size_t i = 0U; i < SEGY_utils::getHOSz(); i++) {
-            cHo[i] = getPattern(off + i);
+        std::vector<unsigned char> c_ho(segy::segy_binary_file_header_size());
+        for (size_t i = 0U; i < segy::segy_binary_file_header_size(); i++) {
+            c_ho[i] = get_pattern(off + i);
         }
 
-        if (MOCK) {
-            EXPECT_CALL(*mock, write(0U, SEGY_utils::getHOSz(), _))
-              .WillOnce(check2(cHo.data(), SEGY_utils::getHOSz()));
+        if (UseMock) {
+            EXPECT_CALL(
+              *m_mock, write(0U, segy::segy_binary_file_header_size(), _))
+              .WillOnce(
+                check2(c_ho.data(), segy::segy_binary_file_header_size()));
         }
 
-        std::vector<unsigned char> ho(SEGY_utils::getHOSz() + 2 * extra);
+        std::vector<unsigned char> ho(
+          segy::segy_binary_file_header_size() + 2 * extra);
         for (auto i = 0U; i < extra; i++) {
             ho[i] = ho[ho.size() - extra + i] = magic;
         }
 
-        for (auto i = 0U; i < SEGY_utils::getHOSz(); i++) {
-            ho[i + extra] = cHo[i];
+        for (auto i = 0U; i < segy::segy_binary_file_header_size(); i++) {
+            ho[i + extra] = c_ho[i];
         }
 
-        obj->writeHO(&ho[extra]);
-        piol->isErr();
-        if (MOCK) {
-            readHOPatternTest<MOCK>(off, magic);
+        m_obj->should_write_file_header(&ho[extra]);
+        m_piol->assert_ok();
+        if (UseMock) {
+            read_ho_pattern_test<UseMock>(off, magic);
         }
     }
 
-    template<Block Type, bool MOCK = true>
-    void readTest(
+    template<Block Type, bool UseMock = true>
+    void read_test(
       const size_t offset,
       const size_t nt,
       const size_t ns,
       const size_t poff   = 0,
       unsigned char magic = 0)
     {
-        SCOPED_TRACE("readTest " + std::to_string(size_t(Type)));
-        if (MOCK && mock == nullptr) {
-            std::cerr << "Using Mock when not initialised: LOC: " << __LINE__
+        SCOPED_TRACE("read_test " + std::to_string(size_t(Type)));
+        if (UseMock && m_mock == nullptr) {
+            std::cerr << "Using UseMock when not initialised: LOC: " << __LINE__
                       << std::endl;
             return;
         }
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::DOMD ?
-             SEGY_utils::getMDSz() :
-             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
-                                    SEGY_utils::getDOSz(ns)));
-        auto locFunc =
-          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
-                                 SEGY_utils::getDODFLoc<float>);
+          (Type == Block::TRACE_METADATA ?
+             segy::segy_trace_header_size() :
+             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                          segy::segy_trace_size(ns)));
+        auto loc_func =
+          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                       segy::segy_trace_data_location<float>);
         size_t step = nt * bsz;
         std::vector<unsigned char> trnew(step + 2U * extra);
 
         std::vector<unsigned char> tr;
-        if (MOCK) {
+        if (UseMock) {
             tr.resize(step);
             for (size_t i = 0U; i < nt; i++) {
                 for (size_t j = 0U; j < bsz; j++) {
-                    size_t pos      = poff + locFunc(offset + i, ns) + j;
-                    tr[i * bsz + j] = getPattern(pos % 0x100);
+                    size_t pos      = poff + loc_func(offset + i, ns) + j;
+                    tr[i * bsz + j] = get_pattern(pos % 0x100);
                 }
             }
-            if (Type == Block::DO) {
-                EXPECT_CALL(*mock, read(locFunc(offset, ns), nt * bsz, _))
+            if (Type == Block::TRACE) {
+                EXPECT_CALL(*m_mock, read(loc_func(offset, ns), nt * bsz, _))
                   .WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
             }
             else {
                 EXPECT_CALL(
-                  *mock,
-                  read(
-                    locFunc(offset, ns), bsz, SEGY_utils::getDOSz(ns), nt, _))
+                  *m_mock, read_noncontiguous(
+                             loc_func(offset, ns), bsz,
+                             segy::segy_trace_size(ns), nt, _))
                   .WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
             }
         }
@@ -223,26 +232,26 @@ class ObjTest : public Test {
         }
 
         switch (Type) {
-            case Block::DODF:
-                obj->readDODF(offset, ns, nt, &trnew[extra]);
+            case Block::TRACE_DATA:
+                m_obj->read_trace_data(offset, ns, nt, &trnew[extra]);
                 break;
 
-            case Block::DOMD:
-                obj->readDOMD(offset, ns, nt, &trnew[extra]);
+            case Block::TRACE_METADATA:
+                m_obj->read_trace_metadata(offset, ns, nt, &trnew[extra]);
                 break;
 
             default:
-            case Block::DO:
-                obj->readDO(offset, ns, nt, &trnew[extra]);
+            case Block::TRACE:
+                m_obj->read_trace(offset, ns, nt, &trnew[extra]);
                 break;
         }
-        piol->isErr();
+        m_piol->assert_ok();
 
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++) {
             for (size_t j = 0U; j < bsz; j++, tcnt++) {
-                size_t pos = poff + locFunc(offset + i, ns) + j;
-                ASSERT_EQ(trnew[extra + i * bsz + j], getPattern(pos % 0x100))
+                size_t pos = poff + loc_func(offset + i, ns) + j;
+                ASSERT_EQ(trnew[extra + i * bsz + j], get_pattern(pos % 0x100))
                   << i << " " << j;
             }
         }
@@ -253,54 +262,54 @@ class ObjTest : public Test {
         ASSERT_EQ(tcnt, step + 2U * extra);
     }
 
-    template<Block Type, bool MOCK = true>
-    void writeTest(
+    template<Block Type, bool UseMock = true>
+    void write_test(
       const size_t offset,
       const size_t nt,
       const size_t ns,
       const size_t poff   = 0,
       unsigned char magic = 0)
     {
-        SCOPED_TRACE("writeTest " + std::to_string(size_t(Type)));
+        SCOPED_TRACE("write_test " + std::to_string(size_t(Type)));
 
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::DOMD ?
-             SEGY_utils::getMDSz() :
-             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
-                                    SEGY_utils::getDOSz(ns)));
-        auto locFunc =
-          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
-                                 SEGY_utils::getDODFLoc<float>);
+          (Type == Block::TRACE_METADATA ?
+             segy::segy_trace_header_size() :
+             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                          segy::segy_trace_size(ns)));
+        auto loc_func =
+          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                       segy::segy_trace_data_location<float>);
 
         size_t step = nt * bsz;
         std::vector<unsigned char> tr;
         std::vector<unsigned char> trnew(step + 2U * extra);
 
-        if (MOCK) {
+        if (UseMock) {
             tr.resize(step);
             for (size_t i = 0U; i < nt; i++) {
                 for (size_t j = 0U; j < bsz; j++) {
-                    size_t pos      = poff + locFunc(offset + i, ns) + j;
-                    tr[i * bsz + j] = getPattern(pos % 0x100);
+                    size_t pos      = poff + loc_func(offset + i, ns) + j;
+                    tr[i * bsz + j] = get_pattern(pos % 0x100);
                 }
             }
-            if (Type == Block::DO) {
-                EXPECT_CALL(*mock, write(locFunc(offset, ns), nt * bsz, _))
+            if (Type == Block::TRACE) {
+                EXPECT_CALL(*m_mock, write(loc_func(offset, ns), nt * bsz, _))
                   .WillOnce(check2(tr, tr.size()));
             }
             else {
                 EXPECT_CALL(
-                  *mock,
-                  write(
-                    locFunc(offset, ns), bsz, SEGY_utils::getDOSz(ns), nt, _))
+                  *m_mock, write_noncontiguous(
+                             loc_func(offset, ns), bsz,
+                             segy::segy_trace_size(ns), nt, _))
                   .WillOnce(check4(tr, tr.size()));
             }
         }
         for (size_t i = 0U; i < nt; i++) {
             for (size_t j = 0U; j < bsz; j++) {
-                size_t pos                 = poff + locFunc(offset + i, ns) + j;
-                trnew[extra + i * bsz + j] = getPattern(pos % 0x100);
+                size_t pos = poff + loc_func(offset + i, ns) + j;
+                trnew[extra + i * bsz + j] = get_pattern(pos % 0x100);
             }
         }
 
@@ -309,62 +318,63 @@ class ObjTest : public Test {
         }
 
         switch (Type) {
-            case Block::DODF:
-                obj->writeDODF(offset, ns, nt, &trnew[extra]);
+            case Block::TRACE_DATA:
+                m_obj->write_trace_data(offset, ns, nt, &trnew[extra]);
                 break;
 
-            case Block::DOMD:
-                obj->writeDOMD(offset, ns, nt, &trnew[extra]);
+            case Block::TRACE_METADATA:
+                m_obj->write_trace_metadata(offset, ns, nt, &trnew[extra]);
                 break;
 
             default:
-            case Block::DO:
-                obj->writeDO(offset, ns, nt, &trnew[extra]);
+            case Block::TRACE:
+                m_obj->write_trace(offset, ns, nt, &trnew[extra]);
                 break;
         }
 
-        if (!MOCK) {
-            readTest<Type, MOCK>(offset, nt, ns, poff, magic);
+        if (!UseMock) {
+            read_test<Type, UseMock>(offset, nt, ns, poff, magic);
         }
     }
 
-    template<Block Type, bool MOCK = true>
-    void readRandomTest(
+    template<Block Type, bool UseMock = true>
+    void read_random_test(
       const size_t ns,
       const std::vector<size_t>& offset,
       unsigned char magic = 0)
     {
-        SCOPED_TRACE("readRandomTest " + std::to_string(size_t(Type)));
+        SCOPED_TRACE("read_random_test " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
-        if (MOCK && mock == nullptr) {
-            std::cerr << "Using Mock when not initialised: LOC: " << __LINE__
+        if (UseMock && m_mock == nullptr) {
+            std::cerr << "Using UseMock when not initialised: LOC: " << __LINE__
                       << std::endl;
             return;
         }
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::DOMD ?
-             SEGY_utils::getMDSz() :
-             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
-                                    SEGY_utils::getDOSz(ns)));
-        auto locFunc =
-          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
-                                 SEGY_utils::getDODFLoc<float>);
+          (Type == Block::TRACE_METADATA ?
+             segy::segy_trace_header_size() :
+             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                          segy::segy_trace_size(ns)));
+        auto loc_func =
+          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                       segy::segy_trace_data_location<float>);
 
         size_t step = nt * bsz;
         std::vector<unsigned char> trnew(step + 2U * extra);
         std::vector<unsigned char> tr;
-        if (MOCK) {
+        if (UseMock) {
             tr.resize(step);
             for (size_t i = 0U; i < nt; i++) {
                 for (size_t j = 0U; j < bsz; j++) {
-                    size_t pos      = locFunc(offset[i], ns) + j;
-                    tr[i * bsz + j] = getPattern(pos % 0x100);
+                    size_t pos      = loc_func(offset[i], ns) + j;
+                    tr[i * bsz + j] = get_pattern(pos % 0x100);
                 }
             }
 
-            if (Type != Block::DODF || bsz > 0) {
-                EXPECT_CALL(*mock, read(bsz, nt, _, _))
+            if (Type != Block::TRACE_DATA || bsz > 0) {
+                EXPECT_CALL(
+                  *m_mock, read_noncontiguous_irregular(bsz, nt, _, _))
                   .WillOnce(SetArrayArgument<3>(tr.begin(), tr.end()))
                   .RetiresOnSaturation();
             }
@@ -375,25 +385,26 @@ class ObjTest : public Test {
         }
 
         switch (Type) {
-            case Block::DODF:
-                obj->readDODF(offset.data(), ns, nt, &trnew[extra]);
+            case Block::TRACE_DATA:
+                m_obj->read_trace_data(offset.data(), ns, nt, &trnew[extra]);
                 break;
 
-            case Block::DOMD:
-                obj->readDOMD(offset.data(), ns, nt, &trnew[extra]);
+            case Block::TRACE_METADATA:
+                m_obj->read_trace_metadata(
+                  offset.data(), ns, nt, &trnew[extra]);
                 break;
 
             default:
-            case Block::DO:
-                obj->readDO(offset.data(), ns, nt, &trnew[extra]);
+            case Block::TRACE:
+                m_obj->read_trace(offset.data(), ns, nt, &trnew[extra]);
                 break;
         }
 
         size_t tcnt = 0;
         for (size_t i = 0U; i < nt; i++) {
             for (size_t j = 0U; j < bsz; j++, tcnt++) {
-                size_t pos = locFunc(offset[i], ns) + j;
-                ASSERT_EQ(trnew[extra + i * bsz + j], getPattern(pos % 0x100))
+                size_t pos = loc_func(offset[i], ns) + j;
+                ASSERT_EQ(trnew[extra + i * bsz + j], get_pattern(pos % 0x100))
                   << i << " " << j;
             }
         }
@@ -404,37 +415,38 @@ class ObjTest : public Test {
         ASSERT_EQ(tcnt, step + 2U * extra);
     }
 
-    template<Block Type, bool MOCK = true>
-    void writeRandomTest(
+    template<Block Type, bool UseMock = true>
+    void write_random_test(
       const size_t ns,
       const std::vector<size_t>& offset,
       unsigned char magic = 0)
     {
-        SCOPED_TRACE("writeRandomTest " + std::to_string(size_t(Type)));
+        SCOPED_TRACE("write_random_test " + std::to_string(size_t(Type)));
         size_t nt          = offset.size();
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::DOMD ?
-             SEGY_utils::getMDSz() :
-             (Type == Block::DODF ? SEGY_utils::getDFSz(ns) :
-                                    SEGY_utils::getDOSz(ns)));
-        auto locFunc =
-          (Type != Block::DODF ? SEGY_utils::getDOLoc<float> :
-                                 SEGY_utils::getDODFLoc<float>);
+          (Type == Block::TRACE_METADATA ?
+             segy::segy_trace_header_size() :
+             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                          segy::segy_trace_size(ns)));
+        auto loc_func =
+          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                       segy::segy_trace_data_location<float>);
         size_t step = nt * bsz;
         std::vector<unsigned char> tr;
         std::vector<unsigned char> trnew(step + 2U * extra);
 
-        if (MOCK) {
+        if (UseMock) {
             tr.resize(step);
             for (size_t i = 0U; i < nt; i++) {
                 for (size_t j = 0U; j < bsz; j++) {
-                    size_t pos      = locFunc(offset[i], ns) + j;
-                    tr[i * bsz + j] = getPattern(pos % 0x100);
+                    size_t pos      = loc_func(offset[i], ns) + j;
+                    tr[i * bsz + j] = get_pattern(pos % 0x100);
                 }
             }
-            if (Type != Block::DODF || bsz > 0) {
-                EXPECT_CALL(*mock, write(bsz, nt, _, _))
+            if (Type != Block::TRACE_DATA || bsz > 0) {
+                EXPECT_CALL(
+                  *m_mock, write_noncontiguous_irregular(bsz, nt, _, _))
                   .WillOnce(check3(tr.data(), step))
                   .RetiresOnSaturation();
             }
@@ -442,8 +454,8 @@ class ObjTest : public Test {
 
         for (size_t i = 0U; i < nt; i++) {
             for (size_t j = 0U; j < bsz; j++) {
-                size_t pos                 = locFunc(offset[i], ns) + j;
-                trnew[extra + i * bsz + j] = getPattern(pos % 0x100);
+                size_t pos                 = loc_func(offset[i], ns) + j;
+                trnew[extra + i * bsz + j] = get_pattern(pos % 0x100);
             }
         }
         for (size_t i = 0U; i < extra; i++) {
@@ -451,28 +463,31 @@ class ObjTest : public Test {
         }
 
         switch (Type) {
-            case Block::DODF:
-                obj->writeDODF(offset.data(), ns, nt, &trnew[extra]);
+            case Block::TRACE_DATA:
+                m_obj->write_trace_data(offset.data(), ns, nt, &trnew[extra]);
                 break;
 
-            case Block::DOMD:
-                obj->writeDOMD(offset.data(), ns, nt, &trnew[extra]);
+            case Block::TRACE_METADATA:
+                m_obj->write_trace_metadata(
+                  offset.data(), ns, nt, &trnew[extra]);
                 break;
 
             default:
-            case Block::DO:
-                obj->writeDO(offset.data(), ns, nt, &trnew[extra]);
+            case Block::TRACE:
+                m_obj->write_trace(offset.data(), ns, nt, &trnew[extra]);
                 break;
         }
-        if (!MOCK) {
-            readRandomTest<Type, MOCK>(ns, offset, magic);
+        if (!UseMock) {
+            read_random_test<Type, UseMock>(ns, offset, magic);
         }
     }
 };
 
 class ObjSpecTest : public ObjTest {
   public:
-    ObjSpecTest() : ObjTest() { makeSEGY(); }
+    ObjSpecTest() : ObjTest() { make_segy(); }
 };
 
 typedef ObjTest ObjIntegTest;
+
+#endif  // EXSEISDAT_TEST_SPECTESTS_OBJSEGYTEST_HH

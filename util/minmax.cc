@@ -1,50 +1,47 @@
 #include "sglobal.hh"
 
-#include "ExSeisDat/PIOL/ExSeis.hh"
-#include "ExSeisDat/PIOL/ReadDirect.hh"
-#include "ExSeisDat/PIOL/WriteDirect.hh"
-#include "ExSeisDat/PIOL/operations/minmax.h"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/utils/decomposition/block_decomposition.h"
+#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/operations/minmax.hh"
+#include "exseisdat/utils/decomposition/block_decomposition.hh"
 
 #include <algorithm>
 #include <iostream>
 #include <unistd.h>
 
 using namespace exseis::utils;
-using namespace exseis::PIOL;
+using namespace exseis::piol;
 
-/*! Read from the input file. Find the min/max  xSrc, ySrc, xRcv, yRcv, xCmp
+/*! Read from the input file. Find the min/max  x_src, y_src, x_rcv, y_rcv, xCmp
  *  and yCMP. Write the matching traces to the output file in that order.
  *  @param[in] iname Input file
  *  @param[in] oname Output file
  */
-void calcMin(std::string iname, std::string oname)
+void calc_min(std::string iname, std::string oname)
 {
-    auto piol = ExSeis::New();
-    ReadDirect in(piol, iname);
+    auto piol = ExSeis::make();
+    ReadSEGY in(piol, iname);
 
     auto dec = block_decomposition(
-      in.readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+      in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
-    Param prm(lnt);
+    Trace_metadata prm(lnt);
     std::vector<CoordElem> minmax(12U);
-    in.readParam(offset, lnt, &prm);
+    in.read_param(offset, lnt, &prm);
 
-    getMinMax(
-      piol.get(), offset, lnt, PIOL_META_xSrc, PIOL_META_ySrc, &prm,
-      minmax.data());
-    getMinMax(
-      piol.get(), offset, lnt, PIOL_META_xRcv, PIOL_META_yRcv, &prm,
+    get_min_max(
+      piol.get(), offset, lnt, Meta::x_src, Meta::y_src, prm, minmax.data());
+    get_min_max(
+      piol.get(), offset, lnt, Meta::x_rcv, Meta::y_rcv, prm,
       minmax.data() + 4U);
-    getMinMax(
-      piol.get(), offset, lnt, PIOL_META_xCmp, PIOL_META_yCmp, &prm,
-      minmax.data() + 8U);
+    get_min_max(
+      piol.get(), offset, lnt, Meta::xCmp, Meta::yCmp, prm, minmax.data() + 8U);
 
-    size_t sz  = (piol->getRank() == 0 ? minmax.size() : 0U);
+    size_t sz  = (piol->get_rank() == 0 ? minmax.size() : 0U);
     size_t usz = 0;
     std::vector<size_t> list(sz);
     std::vector<size_t> uniqlist(sz);
@@ -61,27 +58,27 @@ void calcMin(std::string iname, std::string oname)
         usz = uniqlist.size();
     }
 
-    Param tprm(usz);
-    in.readParamNonContiguous(usz, uniqlist.data(), &tprm);
+    Trace_metadata tprm(usz);
+    in.read_param_non_contiguous(usz, uniqlist.data(), &tprm);
 
-    Param oprm(sz);
+    Trace_metadata oprm(sz);
     std::vector<exseis::utils::Trace_value> trace(sz);
     for (size_t i = 0U; i < sz; i++) {
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
-                param_utils::cpyPrm(j, &tprm, i, &oprm);
-                param_utils::setPrm(i, PIOL_META_tn, minmax[i].num, &oprm);
+                oprm.copy_entries(i, tprm, j);
+                oprm.set_integer(i, Meta::tn, minmax[i].num);
                 trace[i] = exseis::utils::Trace_value(1);
                 j        = usz;
             }
         }
     }
 
-    WriteDirect out(piol, oname);
-    out.writeNt(sz);
-    out.writeNs(1U);
-    out.writeInc(in.readInc());
-    out.writeTrace(0, sz, trace.data(), &oprm);
+    WriteSEGY out(piol, oname);
+    out.write_nt(sz);
+    out.write_ns(1U);
+    out.write_sample_interval(in.read_sample_interval());
+    out.write_trace(0, sz, trace.data(), &oprm);
 }
 
 /* Main function for minmax.
@@ -121,7 +118,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    calcMin(iname, oname);
+    calc_min(iname, oname);
 
     return 0;
 }

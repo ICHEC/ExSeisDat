@@ -10,24 +10,24 @@
 
 #include "sglobal.hh"
 
-#include "ExSeisDat/Flow/Set.hh"
-#include "ExSeisDat/PIOL/ExSeis.hh"
+#include "exseisdat/flow/Set.hh"
+#include "exseisdat/piol/ExSeis.hh"
 
 #include <assert.h>
 #include <iostream>
 #include <unistd.h>
 
-using namespace exseis::PIOL;
-using namespace exseis::Flow;
+using namespace exseis::piol;
+using namespace exseis::flow;
 
 /*! Prompt the user asking them if they want to continue with concatenation.
  *  Multi-process safe.
  *  @param[in] piol The piol object.
  */
-void doPrompt(ExSeisPIOL* piol)
+void do_prompt(ExSeisPIOL* piol)
 {
     char cont   = '0';
-    size_t rank = piol->comm->getRank();
+    size_t rank = piol->comm->get_rank();
     if (rank == 0) {
         std::cout << "Continue concatenation? (y/n)\n";
         std::cin >> cont;
@@ -59,7 +59,7 @@ void doPrompt(ExSeisPIOL* piol)
  */
 int main(int argc, char** argv)
 {
-    auto piol = ExSeis::New();
+    auto piol = ExSeis::make();
 
     std::string pattern;
     std::string outprefix;
@@ -71,14 +71,14 @@ int main(int argc, char** argv)
         switch (c) {
             case 'i':
                 pattern = optarg;
-                if (piol->getRank() == 0) {
+                if (piol->get_rank() == 0) {
                     std::cout << "Pattern: " << pattern << "\n";
                 }
                 break;
 
             case 'o':
                 outprefix = optarg;
-                if (piol->getRank() == 0) {
+                if (piol->get_rank() == 0) {
                     std::cout << "output prefix: " << outprefix << "\n";
                 }
                 break;
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     set.text(msg);
     if (prompt) {
         set.summary();
-        doPrompt(piol.get());
+        do_prompt(piol.get());
     }
     set.output(outprefix);
 

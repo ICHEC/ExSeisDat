@@ -2,17 +2,33 @@
 # Setup googletest dependencies
 #
 set(GOOGLETEST_DIR     ${CMAKE_CURRENT_BINARY_DIR}/googletest-release-1.8.0)
-set(GOOGLETEST_ARCHIVE ${CMAKE_CURRENT_SOURCE_DIR}/googletest-release-1.8.0.zip)
+set(GOOGLETEST_ARCHIVE ${CMAKE_CURRENT_SOURCE_DIR}/googletest-release-1.8.0-patched.zip)
+
+# Googletests requires pthreads on Linux
+find_package(Threads REQUIRED)
 
 # Unzip googletest
 add_custom_command(
     OUTPUT
         ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
+        ${GOOGLETEST_DIR}/googletest/include/gtest/gtest.h
+
         ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
+        ${GOOGLETEST_DIR}/googlemock/include/gmock/gmock.h
     COMMAND
         ${CMAKE_COMMAND} -E tar xf ${GOOGLETEST_ARCHIVE}
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_target(
+    unpack_googletest
+    DEPENDS
+        ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
+        ${GOOGLETEST_DIR}/googletest/include/gtest/gtest.h
+
+        ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
+        ${GOOGLETEST_DIR}/googlemock/include/gmock/gmock.h
 )
 
 include_directories(
@@ -36,23 +52,27 @@ include_directories(
 # Setup the test executables
 #
 
-add_executable(extract extract.c)
-target_link_libraries(extract exseisdat)
-
 add_executable(genfiles genfiles.c)
-target_link_libraries(genfiles exseisdat)
 
 add_executable(
     spectests
 
     spectests/tglobal.cc
 
-    spectests/data.cc
+    spectests/utils/logging/Verbosity.test.cc
+    spectests/utils/signal_processing/Gain_function.test.cc
+    spectests/utils/signal_processing/Taper_function.test.cc
+    spectests/utils/typedefs.test.cc
+    spectests/utils/Type.test.cc
+
+    spectests/piol/Meta.test.cc
+    spectests/piol/Tr.test.cc
+    spectests/piol/operations/SortType.test.cc
+
     spectests/datampiioread.cc
     spectests/datampiiowrite.cc
     spectests/datatype.cc
     spectests/dynsegymd.cc
-    spectests/file.cc
     spectests/filesegyintegread.cc
     spectests/filesegyintegwrite.cc
     spectests/filesegyread.cc
@@ -73,7 +93,7 @@ add_executable(
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
-target_link_libraries(spectests exseisdat)
+target_link_libraries(spectests exseisdat Threads::Threads)
 
 
 add_library(
@@ -91,31 +111,36 @@ add_library(
     wraptests/mockexseis.cc
     wraptests/mockgetminmax.cc
     wraptests/mockparam.cc
-    wraptests/mockreaddirect.cc
+    wraptests/mockreadinterface.cc
     wraptests/mockrule.cc
     wraptests/mockset.cc
-    wraptests/mockwritedirect.cc
+    wraptests/mockwriteinterface.cc
     wraptests/param.cc
     wraptests/paramwraptests.cc
     wraptests/printers.cc
-    wraptests/readdirect.cc
-    wraptests/readdirectwraptests.cc
+    wraptests/readinterface.cc
+    wraptests/readinterfacewraptests.cc
     wraptests/rule.cc
     wraptests/rulewraptests.cc
     wraptests/set.cc
     wraptests/setwraptests.cc
     wraptests/wraptests.cc
     wraptests/wraptesttools.cc
-    wraptests/writedirect.cc
-    wraptests/writedirectwraptests.cc
+    wraptests/writeinterface.cc
+    wraptests/writeinterfacewraptests.cc
 
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
-target_link_libraries(wraptests exseisdat)
+target_link_libraries(wraptests exseisdat Threads::Threads)
+set_target_properties(
+    wraptests
+    PROPERTIES DEFINE_SYMBOL "EXSEISDAT_WRAPTESTS_EXPORTS"
+)
 
 add_executable(c_wraptest cwraptests/main.c)
 target_link_libraries(c_wraptest wraptests)
+set_target_properties(c_wraptest PROPERTIES LINKER_LANGUAGE CXX)
 
 
 
@@ -123,46 +148,103 @@ target_link_libraries(c_wraptest wraptests)
 # Create dependencies on test data created by genfile.
 #
 
+set(
+    EXSEISDAT_TEST_DATA_DIR "tmp"
+    CACHE PATH
+    "The directory to read/write test data to/from."
+)
+
 # Create the tmp directory
 add_custom_target(make_tmp_directory)
 add_custom_command(
     TARGET make_tmp_directory PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/tmp
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXSEISDAT_TEST_DATA_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 function(add_genfile filename)
+    set(_absolute_filename)
+    get_filename_component(
+        _absolute_filename "${EXSEISDAT_TEST_DATA_DIR}/${filename}"
+        REALPATH
+        BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}"
+    )
+
     # Define how to create the test file using gentest
     add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tmp/${filename}
-        COMMAND $<TARGET_FILE:genfiles> ${filename}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tmp
-        DEPENDS make_tmp_directory
+        OUTPUT "${_absolute_filename}"
+        COMMAND $<TARGET_FILE:genfiles> "${_absolute_filename}"
+        DEPENDS make_tmp_directory genfiles
     )
+
     # Define a target depending on the file
     add_custom_target(
-        ${filename} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/tmp/${filename}
+        ${filename} DEPENDS "${_absolute_filename}"
     )
     # Add the target as a dependency of spectests
     add_dependencies(spectests ${filename})
 endfunction(add_genfile)
 
 # Define all the test files
-add_genfile(smallFilePattern.tmp)
-add_genfile(largeFilePattern.tmp)
-add_genfile(smallsegy.tmp)
-add_genfile(bigtracesegy.tmp)
-add_genfile(largesegy.tmp)
+add_genfile(small_file_pattern.tmp)
+add_genfile(large_file_pattern.tmp)
+add_genfile(small_segy.tmp)
+add_genfile(big_trace_segy.tmp)
+add_genfile(large_segy.tmp)
 
 
 #
 # Add the test targets
 #
 
-# Define spectests here with the *Farm* tests disabled
+# Run the spectests in serial
+
+# Run spectests with the *Death* and *Farm* tests disabled
 add_test(
     NAME spectests_test
-    #COMMAND spectests --gtest_filter=-*Farm* --gtest_filter=*IBM*
-    COMMAND spectests --gtest_filter=-*Farm*
+    COMMAND
+        spectests
+            "${EXSEISDAT_TEST_DATA_DIR}"
+            --gtest_filter=-*Death*:*Farm*
+)
+
+# Run just the *Death* tests
+add_test(
+    NAME spectests_death_test
+    COMMAND
+        spectests
+        "${EXSEISDAT_TEST_DATA_DIR}"
+        --gtest_filter=*Death*
+)
+
+
+# Run the spectests in parallel
+
+# Run spectests on EXSEISDAT_TEST_NPROCS cores.
+set(EXSEISDAT_TEST_NPROCS 4)
+
+# We might need the --oversubscribe flag on e.g. OpenMPI on macOS
+execute_process(
+    COMMAND
+        ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+            ${MPIEXEC_PREFLAGS} --oversubscribe
+                ${CMAKE_COMMAND} -E echo "testing --oversubscribe"
+    RESULT_VARIABLE _EXSEISDAT_OVERSUBSCRIBE_RESULT
+    OUTPUT_QUIET
+    ERROR_QUIET
+)
+if(_EXSEISDAT_OVERSUBSCRIBE_RESULT EQUAL 0)
+    set(MPIEXEC_PREFLAGS "${MPIEXEC_PREFLAGS};--oversubscribe")
+endif(_EXSEISDAT_OVERSUBSCRIBE_RESULT EQUAL 0)
+
+
+add_test(
+    NAME spectests_mpi_test
+    COMMAND
+        ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${EXSEISDAT_TEST_NPROCS}
+            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:spectests> ${MPIEXEC_POSTFLAGS}
+                "${EXSEISDAT_TEST_DATA_DIR}"
+                --gtest_filter=-*Death*:*Farm*
 )
 
 add_test(

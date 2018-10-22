@@ -1,42 +1,42 @@
 #include "mockexseis.hh"
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
-ExSeis::ExSeis(const PIOL::Verbosity maxLevel, MPI_Comm comm)
+ExSeis::ExSeis(const exseis::utils::Verbosity max_level, MPI_Comm comm)
 {
-    mockExSeis().ctor(this, maxLevel, comm);
+    mock_exseis().ctor(this, max_level, comm);
 }
 
 ExSeis::~ExSeis()
 {
-    mockExSeis().dtor(this);
+    mock_exseis().dtor(this);
 }
 
-size_t ExSeis::getRank() const
+size_t ExSeis::get_rank() const
 {
-    return mockExSeis().getRank(this);
+    return mock_exseis().get_rank(this);
 }
 
-size_t ExSeis::getNumRank() const
+size_t ExSeis::get_num_rank() const
 {
-    return mockExSeis().getNumRank(this);
+    return mock_exseis().get_num_rank(this);
 }
 
 void ExSeis::barrier() const
 {
-    mockExSeis().barrier(this);
+    mock_exseis().barrier(this);
 }
 
 size_t ExSeis::max(size_t n) const
 {
-    return mockExSeis().max(this, n);
+    return mock_exseis().max(this, n);
 }
 
-void ExSeis::isErr(const std::string& msg) const
+void ExSeis::assert_ok(const std::string& msg) const
 {
-    mockExSeis().isErr(this, msg);
+    mock_exseis().assert_ok(this, msg);
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

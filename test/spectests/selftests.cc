@@ -17,11 +17,11 @@ TEST(Prefix, SizeCheck)
 
 TEST(Files, SelfTest)
 {
-    EXPECT_NE(static_cast<size_t>(0), magicNum1);
-    EXPECT_EQ(static_cast<size_t>(0), magicNum1 / 0xFF);
+    EXPECT_NE(static_cast<size_t>(0), magic_num1);
+    EXPECT_EQ(static_cast<size_t>(0), magic_num1 / 0xFF);
     struct stat stats;
-    EXPECT_EQ(0, stat(zeroFile.c_str(), &stats));
-    EXPECT_EQ(0, stat(smallFile.c_str(), &stats));
-    EXPECT_EQ(0, stat(largeFile.c_str(), &stats));
-    EXPECT_EQ(0, stat(plargeFile.c_str(), &stats));
+    EXPECT_EQ(0, stat(zero_file().c_str(), &stats));
+    EXPECT_EQ(0, stat(small_file().c_str(), &stats));
+    EXPECT_EQ(0, stat(large_file().c_str(), &stats));
+    EXPECT_EQ(0, stat(plarge_file().c_str(), &stats));
 }

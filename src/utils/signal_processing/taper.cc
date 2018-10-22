@@ -3,10 +3,12 @@
 /// @brief Implementation of the taper function.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/signal_processing/taper.h"
+#include "exseisdat/utils/signal_processing/taper.h"
+#include "exseisdat/utils/signal_processing/taper.hh"
 
 #include <algorithm>
 #include <assert.h>
+#include <cmath>
 
 namespace exseis {
 namespace utils {
@@ -20,23 +22,40 @@ void taper(
   size_t left_taper_size,
   size_t right_taper_size)
 {
+    if (signal_size == 0) {
+        return;
+    }
+
     assert(signal_size > left_taper_size && signal_size > right_taper_size);
 
+    // Safely determine of a floating point value is not zero.
+    const auto non_zero = [](Trace_value v) { return std::abs(v) > 0; };
+
+    // If the signal begins with zero, we assume the beginning has been muted.
+    //
     // Drop muted trace region at the start, if it's there, and call this
     // function again for the truncated region.
-    if (signal[0] == 0) {
+    //
+    if (!non_zero(signal[0])) {
 
         // Find the first non-zero entry
-        const auto non_zero = [](auto v) { return v != 0; };
-
         auto* truncated_signal =
           std::find_if(signal, signal + signal_size, non_zero);
-        assert(truncated_signal[0] != 0);
 
+        // If there is no non-zero entry, return.
+        if (truncated_signal == signal + signal_size) {
+            return;
+        }
+        assert(non_zero(truncated_signal[0]));
+
+
+        // Check conversion ok
+        assert(std::distance(signal, truncated_signal) >= 0);
 
         // Find the new sizes
         const auto truncated_signal_size =
-          signal_size - std::distance(signal, truncated_signal);
+          signal_size
+          - static_cast<size_t>(std::distance(signal, truncated_signal));
 
         const auto truncated_left =
           std::min(left_taper_size, truncated_signal_size);

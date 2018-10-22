@@ -2,7 +2,7 @@
 /// @file
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/utils/decomposition/block_decomposition.h"
+#include "exseisdat/utils/decomposition/block_decomposition.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -89,7 +89,7 @@ Contiguous_decomposition block_decomposition(
 // file)
 // {
 //     return block_decompose(
-//       file->readNt(), piol->comm->getNumRank(), piol->comm->getRank());
+//       file->read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 // }
 
 Decomposition_index_location block_decomposition_location(

@@ -5,16 +5,16 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "ExSeisDat/Flow.h"
+#include "exseisdat/flow.h"
 
 int main(void)
 {
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
-    PIOL_Set* set     = PIOL_Set_new(piol, "/ichec/work/exseisdat/*dat/10*/b*");
-    PIOL_Set_output(set, "presort");
-    PIOL_Set_sort(set, PIOL_SORTTYPE_OffLine);
-    PIOL_Set_output(set, "postsort");
-    PIOL_Set_delete(set);
-    PIOL_ExSeis_delete(piol);
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
+    PIOL_Set* set     = piol_set_new(piol, "/ichec/work/exseisdat/*dat/10*/b*");
+    piol_set_output(set, "presort");
+    piol_set_sort(set, exseis_sorttype_OffLine);
+    piol_set_output(set, "postsort");
+    piol_set_delete(set);
+    piol_exseis_delete(piol);
     return 0;
 }

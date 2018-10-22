@@ -6,13 +6,13 @@
 /// @brief
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PIOLFILETESTSEGYMD_INCLUDE_GUARD
-#define PIOLFILETESTSEGYMD_INCLUDE_GUARD
+#ifndef EXSEISDAT_TEST_SPECTESTS_SEGYMDEXTRA_HH
+#define EXSEISDAT_TEST_SPECTESTS_SEGYMDEXTRA_HH
 
-#include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/utils/encoding/character_encoding.hh"
-#include "ExSeisDat/utils/encoding/number_encoding.hh"
-#include "ExSeisDat/utils/typedefs.h"
+#include "exseisdat/piol/ObjectInterface.hh"
+#include "exseisdat/utils/encoding/character_encoding.hh"
+#include "exseisdat/utils/encoding/number_encoding.hh"
+#include "exseisdat/utils/typedefs.hh"
 
 #include <cmath>
 #include <cstring>
@@ -21,7 +21,7 @@
 #include <vector>
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 using namespace exseis::utils::typedefs;
 
@@ -70,13 +70,13 @@ enum class TrScal : size_t {
  */
 enum class TrCrd : size_t {
     /// int32_t. The X coordinate for the source
-    xSrc = 73U,
+    x_src = 73U,
     /// int32_t. The Y coordinate for the source
-    ySrc = 77U,
+    y_src = 77U,
     /// int32_t. The X coordinate for the receive group
-    xRcv = 81U,
+    x_rcv = 81U,
     /// int32_t. The Y coordinate for the receive group
-    yRcv = 85U,
+    y_rcv = 85U,
     /// int32_t  The X coordinate for the CMP
     xCMP = 181U,
     /// int32_t. The Y coordinate for the CMP
@@ -102,10 +102,9 @@ struct coord_t {
      *  @param[in] x_ intialisation value for x
      *  @param[in] y_ intialisation value for x
      */
-    coord_t(
-      exseis::utils::Floating_point x_, exseis::utils::Floating_point y_) :
-        x(x_),
-        y(y_)
+    coord_t(exseis::utils::Floating_point x, exseis::utils::Floating_point y) :
+        x(x),
+        y(y)
     {
     }
 
@@ -130,9 +129,9 @@ struct grid_t {
      *  @param[in] i_ intialisation value for il
      *  @param[in] x_ intialisation value for xl
      */
-    grid_t(exseis::utils::Floating_point i_, exseis::utils::Floating_point x_) :
-        il(i_),
-        xl(x_)
+    grid_t(exseis::utils::Floating_point i, exseis::utils::Floating_point x) :
+        il(i),
+        xl(x)
     {
     }
 
@@ -169,13 +168,13 @@ constexpr
 inline
 #endif
   std::pair<TrCrd, TrCrd>
-  getPair(Coord pair)
+  get_pair(Coord pair)
 {
     switch (pair) {
         case Coord::Src:
-            return std::make_pair(TrCrd::xSrc, TrCrd::ySrc);
+            return std::make_pair(TrCrd::x_src, TrCrd::y_src);
         case Coord::Rcv:
-            return std::make_pair(TrCrd::xRcv, TrCrd::yRcv);
+            return std::make_pair(TrCrd::x_rcv, TrCrd::y_rcv);
         default:
         case Coord::CMP:
             return std::make_pair(TrCrd::xCMP, TrCrd::yCMP);
@@ -192,7 +191,7 @@ constexpr
 inline
 #endif
   std::pair<TrGrd, TrGrd>
-  getPair(Grid pair)
+  get_pair(Grid pair)
 {
     switch (pair) {
         // Note: When a new set of grid points are required:
@@ -204,29 +203,30 @@ inline
     }
 }
 
-exseis::utils::Floating_point getMd(TrScal scal, unsigned char* src);
+exseis::utils::Floating_point get_md(TrScal scal, unsigned char* src);
 
-exseis::utils::Floating_point getMd(
+exseis::utils::Floating_point get_md(
   TrCrd item, exseis::utils::Floating_point scale, const unsigned char* src);
 
-int32_t getMd(TrGrd item, const unsigned char* src);
+int32_t get_md(TrGrd item, const unsigned char* src);
 
-void setCoord(Coord item, coord_t coord, int16_t scale, unsigned char* buf);
+void set_coord(Coord item, coord_t coord, int16_t scale, unsigned char* buf);
 
-coord_t getCoord(
+coord_t get_coord(
   Coord item, exseis::utils::Floating_point scale, const unsigned char* buf);
 
-grid_t getGrid(Grid item, const unsigned char* buf);
+grid_t get_grid(Grid item, const unsigned char* buf);
 
-void setGrid(Grid item, grid_t grid, unsigned char* buf);
+void set_grid(Grid item, grid_t grid, unsigned char* buf);
 
-int16_t scalComp(int16_t scal1, int16_t scal2);
+int16_t scal_comp(int16_t scal1, int16_t scal2);
 
-int16_t calcScale(coord_t coord);
+int16_t calc_scale(coord_t coord);
 
-void setScale(TrScal item, int16_t scale, unsigned char* buf, size_t start = 0);
+void set_scale(
+  TrScal item, int16_t scale, unsigned char* buf, size_t start = 0);
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis
 
-#endif
+#endif  // EXSEISDAT_TEST_SPECTESTS_SEGYMDEXTRA_HH

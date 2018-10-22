@@ -5,7 +5,7 @@
 /// @todo DOCUMENT ME - Finish documenting example.
 ///
 
-#include "ExSeisDat/Flow.h"
+#include "exseisdat/flow.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -16,7 +16,7 @@
 int main(int argc, char** argv)
 {
     // Initialise the PIOL by creating an ExSeisPIOL object
-    PIOL_ExSeis* piol = PIOL_ExSeis_new(PIOL_VERBOSITY_NONE);
+    piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
 
     char* opt  = "i:";  // TODO: uses a GNU extension
     char* name = NULL;
@@ -37,14 +37,14 @@ int main(int argc, char** argv)
     }
     assert(name);
 
-    PIOL_Set* set = PIOL_Set_new(piol, name);
+    PIOL_Set* set = piol_set_new(piol, name);
 
     struct PIOL_CoordElem minmax[12];
-    PIOL_Set_getMinMax(set, PIOL_META_xSrc, PIOL_META_ySrc, &minmax[0]);
-    PIOL_Set_getMinMax(set, PIOL_META_xRcv, PIOL_META_yRcv, &minmax[4]);
-    PIOL_Set_getMinMax(set, PIOL_META_xCmp, PIOL_META_yCmp, &minmax[8]);
+    piol_set_get_min_max(set, exseis_meta_x_src, exseis_meta_y_src, &minmax[0]);
+    piol_set_get_min_max(set, exseis_meta_x_rcv, exseis_meta_y_rcv, &minmax[4]);
+    piol_set_get_min_max(set, exseis_meta_xCmp, exseis_meta_yCmp, &minmax[8]);
 
-    if (!PIOL_ExSeis_getRank(piol)) {
+    if (!piol_exseis_get_rank(piol)) {
         printf(
           "x Src %e (%zu) -> %e (%zu)\n", minmax[0].val, minmax[0].num,
           minmax[1].val, minmax[1].num);
@@ -65,9 +65,9 @@ int main(int argc, char** argv)
           minmax[11].val, minmax[11].num);
     }
 
-    PIOL_Set_delete(set);
+    piol_set_delete(set);
     free(name);
-    PIOL_ExSeis_delete(piol);
+    piol_exseis_delete(piol);
 
     return 0;
 }

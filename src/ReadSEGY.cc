@@ -7,14 +7,15 @@
 /// @details ReadSEGY functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ExSeisDat/PIOL/ReadSEGY.hh"
+#include "exseisdat/piol/ReadSEGY.hh"
 
-#include "ExSeisDat/PIOL/ObjectInterface.hh"
-#include "ExSeisDat/PIOL/operations/sort.hh"
-#include "ExSeisDat/PIOL/param_utils.hh"
-#include "ExSeisDat/PIOL/segy_utils.hh"
-#include "ExSeisDat/utils/encoding/character_encoding.hh"
-#include "ExSeisDat/utils/encoding/number_encoding.hh"
+#include "exseisdat/piol/ObjectSEGY.hh"
+#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+
+#include "exseisdat/piol/operations/sort.hh"
+#include "exseisdat/piol/segy/utils.hh"
+#include "exseisdat/utils/encoding/character_encoding.hh"
+#include "exseisdat/utils/encoding/number_encoding.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -22,99 +23,150 @@
 using namespace exseis::utils;
 
 namespace exseis {
-namespace PIOL {
+namespace piol {
 
 //////////////////////      Constructor & Destructor      //////////////////////
-ReadSEGY::Opt::Opt(void)
+
+ReadSEGY::ReadSEGY(
+  std::shared_ptr<ExSeisPIOL> piol,
+  const std::string name,
+  const ReadSEGY::Options& options) :
+    ReadSEGY(
+      piol,
+      name,
+      options,
+      std::make_shared<ObjectSEGY>(
+        piol,
+        name,
+        std::make_shared<MPI_Binary_file>(piol, name, FileMode::Read)))
 {
-    const double microsecond = 1e-6;
-    incFactor                = 1 * microsecond;
 }
 
 ReadSEGY::ReadSEGY(
-  std::shared_ptr<ExSeisPIOL> piol_,
-  const std::string name_,
-  const ReadSEGY::Opt& opt,
-  std::shared_ptr<ObjectInterface> obj_) :
-    ReadInterface(piol_, name_, obj_),
-    incFactor(opt.incFactor)
+  std::shared_ptr<ExSeisPIOL> piol,
+  std::string name,
+  const ReadSEGY::Options& options,
+  std::shared_ptr<ObjectInterface> object) :
+    m_piol(piol),
+    m_name(name),
+    m_obj(object),
+    m_sample_interval_factor(options.sample_interval_factor)
 {
-    using namespace SEGY_utils;
+    ReadSEGY::read_file_headers();
+}
 
-    size_t hoSz = SEGY_utils::getHOSz();
-    size_t fsz  = obj->getFileSz();
+const std::string& ReadSEGY::file_name() const
+{
+    return m_name;
+}
+
+void ReadSEGY::read_file_headers()
+{
+    using namespace segy;
+
+    size_t ho_sz = segy::segy_binary_file_header_size();
+    size_t fsz   = m_obj->get_file_size();
 
     // Read the global header data, if there is any.
-    if (fsz >= hoSz) {
+    if (fsz >= ho_sz) {
 
         // Read the header into header_buffer
-        auto header_buffer = std::vector<unsigned char>(hoSz);
-        obj->readHO(header_buffer.data());
+        auto header_buffer = std::vector<unsigned char>(ho_sz);
+        m_obj->read_ho(header_buffer.data());
 
         // Parse the number of samples, traces, the increment and the format
         // from header_buffer.
-        ns = from_big_endian<int16_t>(
-          header_buffer[SEGYFileHeaderByte::NumSample + 0],
-          header_buffer[SEGYFileHeaderByte::NumSample + 1]);
+        m_ns = static_cast<size_t>(from_big_endian<int16_t>(
+          header_buffer[SEGYFileHeaderByte::num_sample + 0],
+          header_buffer[SEGYFileHeaderByte::num_sample + 1]));
 
-        nt = SEGY_utils::getNt(fsz, ns);
+        m_nt = segy::get_nt(fsz, m_ns);
 
-        inc = incFactor
-              * exseis::utils::Floating_point(from_big_endian<int16_t>(
-                  header_buffer[SEGYFileHeaderByte::Interval + 0],
-                  header_buffer[SEGYFileHeaderByte::Interval + 1]));
+        m_sample_interval =
+          m_sample_interval_factor
+          * exseis::utils::Floating_point(from_big_endian<int16_t>(
+              header_buffer[SEGYFileHeaderByte::interval + 0],
+              header_buffer[SEGYFileHeaderByte::interval + 1]));
 
-        number_format = static_cast<SEGYNumberFormat>(from_big_endian<int16_t>(
-          header_buffer[SEGYFileHeaderByte::Type + 0],
-          header_buffer[SEGYFileHeaderByte::Type + 1]));
+        m_number_format =
+          static_cast<SEGYNumberFormat>(from_big_endian<int16_t>(
+            header_buffer[SEGYFileHeaderByte::type + 0],
+            header_buffer[SEGYFileHeaderByte::type + 1]));
 
-        // Set this->text to the ASCII encoding of the text header data read
+        // Set this->m_text to the ASCII encoding of the text header data read
         // into header_buffer.
         // Determine if the current encoding is ASCII or EBCDIC from number of
         // printable ASCII or EBCDIC characters in the string.
 
         // Text header buffer bounds
-        assert(header_buffer.size() >= SEGY_utils::getTextSz());
+        assert(header_buffer.size() >= segy::segy_text_header_size());
         const auto text_header_begin = std::begin(header_buffer);
         const auto text_header_end =
-          text_header_begin + SEGY_utils::getTextSz();
+          text_header_begin + segy::segy_text_header_size();
 
         // Count printable ASCII
         const auto n_printable_ascii =
-          std::count_if(text_header_begin, text_header_end, is_printable_ASCII);
+          std::count_if(text_header_begin, text_header_end, is_printable_ascii);
 
         // Count printable EBCDIC
         const auto n_printable_ebcdic = std::count_if(
-          text_header_begin, text_header_end, is_printable_EBCDIC);
+          text_header_begin, text_header_end, is_printable_ebcdic);
 
         // Set text object to correct size in preparation for setting
-        text.resize(SEGY_utils::getTextSz());
+        m_text.resize(segy::segy_text_header_size());
 
         if (n_printable_ascii > n_printable_ebcdic) {
             // The string is in ASCII, copy it.
-            std::copy(text_header_begin, text_header_end, std::begin(text));
+            std::copy(text_header_begin, text_header_end, std::begin(m_text));
         }
         else {
             // The string is in EBCDIC, transform and copy it.
             std::transform(
-              text_header_begin, text_header_end, std::begin(text),
-              to_ASCII_from_EBCDIC);
+              text_header_begin, text_header_end, std::begin(m_text),
+              to_ascii_from_ebcdic);
         }
     }
 }
 
-ReadSEGY::ReadSEGY(
-  std::shared_ptr<ExSeisPIOL> piol_,
-  const std::string name_,
-  std::shared_ptr<ObjectInterface> obj_) :
-    ReadSEGY(piol_, name_, ReadSEGY::Opt(), obj_)
+size_t ReadSEGY::read_nt(void) const
 {
+    return m_nt;
 }
 
-size_t ReadSEGY::readNt(void) const
+// TODO: Unit test
+void ReadSEGY::read_param(
+  const size_t offset,
+  const size_t sz,
+  Trace_metadata* prm,
+  const size_t skip) const
 {
-    return nt;
+    read_trace(offset, sz, nullptr, prm, skip);
 }
+
+void ReadSEGY::read_param_non_contiguous(
+  const size_t sz,
+  const size_t* offsets,
+  Trace_metadata* prm,
+  const size_t skip) const
+{
+    read_trace_non_contiguous(sz, offsets, nullptr, prm, skip);
+}
+
+const std::string& ReadSEGY::read_text(void) const
+{
+    return m_text;
+}
+
+size_t ReadSEGY::read_ns(void) const
+{
+    return m_ns;
+}
+
+exseis::utils::Floating_point ReadSEGY::read_sample_interval(void) const
+{
+    return m_sample_interval;
+}
+
 
 /*! Template function for reading SEG-Y traces and parameters, random and
  *  contiguous.
@@ -132,60 +184,66 @@ size_t ReadSEGY::readNt(void) const
  *  @param[in] skip          Skip \c skip entries in the parameter structure
  */
 template<typename T>
-void readTraceT(
+void read_trace_t(
   ObjectInterface* obj,
-  const SEGY_utils::SEGYNumberFormat number_format,
+  const segy::SEGYNumberFormat number_format,
   const size_t ns,
   const T offset,
   std::function<size_t(size_t)> offunc,
   const size_t sz,
   exseis::utils::Trace_value* trc,
-  Param* prm,
+  Trace_metadata* prm,
   const size_t skip)
 {
-    using namespace SEGY_utils;
+    using namespace segy;
 
     unsigned char* tbuf = reinterpret_cast<unsigned char*>(trc);
 
-    if (prm == PIOL_PARAM_NULL) {
-        obj->readDODF(offset, ns, sz, tbuf);
+    if (prm == nullptr) {
+        obj->read_trace_data(offset, ns, sz, tbuf);
     }
     else {
-        const size_t blockSz =
-          (trc == TRACE_NULL ? SEGY_utils::getMDSz() : SEGY_utils::getDOSz(ns));
+        const size_t block_sz =
+          (trc == nullptr ? segy::segy_trace_header_size() :
+                            segy::segy_trace_size(ns));
 
-        std::vector<unsigned char> alloc(blockSz * sz);
+        std::vector<unsigned char> alloc(block_sz * sz);
         unsigned char* buf = (sz ? alloc.data() : nullptr);
 
-        if (trc == TRACE_NULL) {
-            obj->readDOMD(offset, ns, sz, buf);
+        if (trc == nullptr) {
+            obj->read_trace_metadata(offset, ns, sz, buf);
         }
         else {
-            obj->readDO(offset, ns, sz, buf);
+            obj->read_trace(offset, ns, sz, buf);
 
             for (size_t i = 0; i < sz; i++) {
                 std::copy(
-                  &buf[i * SEGY_utils::getDOSz(ns) + SEGY_utils::getMDSz()],
-                  &buf[(i + 1) * SEGY_utils::getDOSz(ns)],
-                  &tbuf[i * SEGY_utils::getDFSz(ns)]);
+                  &buf
+                    [i * segy::segy_trace_size(ns)
+                     + segy::segy_trace_header_size()],
+                  &buf[(i + 1) * segy::segy_trace_size(ns)],
+                  &tbuf[i * segy::segy_trace_data_size(ns)]);
             }
         }
 
-        extractParam(
-          sz, buf, prm, (trc != TRACE_NULL ? SEGY_utils::getDFSz(ns) : 0LU),
-          skip);
+        extract_trace_metadata(
+          sz, buf, *prm,
+          (trc != nullptr ? segy::segy_trace_data_size(ns) : 0LU), skip);
 
         for (size_t i = 0; i < sz; i++) {
-            param_utils::setPrm(i + skip, PIOL_META_ltn, offunc(i), prm);
+            prm->set_index(i + skip, Meta::ltn, offunc(i));
         }
     }
 
-    if (trc != TRACE_NULL && trc != nullptr) {
+    if (trc != nullptr) {
 
         // Convert trace values from SEGY floating point format to host format
         if (number_format == SEGYNumberFormat::IBM) {
             for (size_t i = 0; i < ns * sz; i++) {
-                const exseis::utils::Floating_point be_trc_i = trc[i];
+                const exseis::utils::Trace_value be_trc_i = trc[i];
+
+                static_assert(
+                  sizeof(be_trc_i) == 4, "Expect be_trc_i is of size 4.");
 
                 const unsigned char* be_trc_i_bytes =
                   reinterpret_cast<const unsigned char*>(&be_trc_i);
@@ -194,7 +252,7 @@ void readTraceT(
                   {be_trc_i_bytes[0], be_trc_i_bytes[1], be_trc_i_bytes[2],
                    be_trc_i_bytes[3]}};
 
-                trc[i] = from_IBM_to_float(be_bytes_array, true);
+                trc[i] = from_ibm_to_float(be_bytes_array, true);
             }
         }
         else {
@@ -209,46 +267,47 @@ void readTraceT(
     }
 }
 
-void ReadSEGY::readTrace(
+void ReadSEGY::read_trace(
   const size_t offset,
   const size_t sz,
   exseis::utils::Trace_value* trc,
-  Param* prm,
+  Trace_metadata* prm,
   const size_t skip) const
 {
-    size_t ntz = ((sz == 0) ? sz : (offset + sz > nt ? nt - offset : sz));
-    if (offset >= nt && sz != 0) {
+    size_t ntz = ((sz == 0) ? sz : (offset + sz > m_nt ? m_nt - offset : sz));
+    if (offset >= m_nt && sz != 0) {
         // Nothing to be read.
-        piol->log->record(
-          name, Logger::Layer::File, Logger::Status::Warning,
-          "readParam() was called for a zero byte read", PIOL_VERBOSITY_NONE);
+        m_piol->log->add_entry(exseis::utils::Log_entry{
+          exseis::utils::Status::Warning, "Zero byte read requested",
+          exseis::utils::Verbosity::none,
+          EXSEISDAT_SOURCE_POSITION("exseis::piol::ReadSEGY::read_trace")});
     }
-    readTraceT(
-      obj.get(), number_format, ns, offset,
+    read_trace_t(
+      m_obj.get(), m_number_format, m_ns, offset,
       [offset](size_t i) -> size_t { return offset + i; }, ntz, trc, prm, skip);
 }
 
-void ReadSEGY::readTraceNonContiguous(
+void ReadSEGY::read_trace_non_contiguous(
   const size_t sz,
   const size_t* offset,
   exseis::utils::Trace_value* trc,
-  Param* prm,
+  Trace_metadata* prm,
   const size_t skip) const
 {
-    readTraceT(
-      obj.get(), number_format, ns, offset,
+    read_trace_t(
+      m_obj.get(), m_number_format, m_ns, offset,
       [offset](size_t i) -> size_t { return offset[i]; }, sz, trc, prm, skip);
 }
 
-void ReadSEGY::readTraceNonMonotonic(
+void ReadSEGY::read_trace_non_monotonic(
   const size_t sz,
   const size_t* offset,
   exseis::utils::Trace_value* trc,
-  Param* prm,
+  Trace_metadata* prm,
   const size_t skip) const
 {
     // Sort the initial offset and make a new offset without duplicates
-    auto idx = getSortIndex(sz, offset);
+    auto idx = get_sort_index(sz, offset);
     std::vector<size_t> nodups;
     nodups.push_back(offset[idx[0]]);
     for (size_t j = 1; j < sz; j++) {
@@ -257,36 +316,36 @@ void ReadSEGY::readTraceNonMonotonic(
         }
     }
 
-    Param sprm(prm->r, (prm != PIOL_PARAM_NULL ? nodups.size() : 0LU));
+    Trace_metadata sprm(prm->rules, (prm != nullptr ? nodups.size() : 0LU));
     std::vector<exseis::utils::Trace_value> strc(
-      ns * (trc != TRACE_NULL ? nodups.size() : 0LU));
+      m_ns * (trc != nullptr ? nodups.size() : 0LU));
 
-    readTraceNonContiguous(
-      nodups.size(), nodups.data(), (trc != TRACE_NULL ? strc.data() : trc),
-      (prm != PIOL_PARAM_NULL ? &sprm : prm), 0LU);
+    read_trace_non_contiguous(
+      nodups.size(), nodups.data(), (trc != nullptr ? strc.data() : trc),
+      (prm != nullptr ? &sprm : prm), 0LU);
 
-    if (prm != PIOL_PARAM_NULL) {
+    if (prm != nullptr) {
         for (size_t n = 0, j = 0; j < sz; ++j) {
             if (j != 0 && offset[idx[j - 1]] != offset[idx[j]]) {
                 n++;
             }
 
-            param_utils::cpyPrm(n, &sprm, skip + idx[j], prm);
+            prm->copy_entries(skip + idx[j], sprm, n);
         }
     }
 
-    if (trc != TRACE_NULL) {
+    if (trc != nullptr) {
         for (size_t n = 0, j = 0; j < sz; ++j) {
             if (j != 0 && offset[idx[j - 1]] != offset[idx[j]]) {
                 n++;
             }
 
-            for (size_t k = 0; k < ns; k++) {
-                trc[idx[j] * ns + k] = strc[n * ns + k];
+            for (size_t k = 0; k < m_ns; k++) {
+                trc[idx[j] * m_ns + k] = strc[n * m_ns + k];
             }
         }
     }
 }
 
-}  // namespace PIOL
+}  // namespace piol
 }  // namespace exseis

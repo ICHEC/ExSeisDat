@@ -8,28 +8,28 @@
 
 #include "4dcore.hh"
 
-#include "ExSeisDat/utils/mpi/MPI_type.hh"
+#include "exseisdat/utils/mpi/MPI_type.hh"
 
 #include <algorithm>
 #include <assert.h>
 #include <math.h>
 
 namespace exseis {
-namespace PIOL {
-namespace FOURD {
+namespace piol {
+namespace four_d {
 
 // This function prints to stdio
-/*! Process 0 will print the xSrc min and max values for each process
+/*! Process 0 will print the x_src min and max values for each process
  *  @param[in] piol The piol object.
- *  @param[in] xsmin A vector of the min xSrc for each process.
- *  @param[in] xsmax A vector of the max xSrc for each process.
+ *  @param[in] xsmin A vector of the min x_src for each process.
+ *  @param[in] xsmax A vector of the max x_src for each process.
  */
-void printxSrcMinMax(
+void printx_src_min_max(
   ExSeisPIOL* piol, std::vector<fourd_t>& xsmin, std::vector<fourd_t>& xsmax)
 {
     piol->comm->barrier();
     assert(xsmin.size() == xsmax.size());
-    if (piol->comm->getRank() == 0) {
+    if (piol->comm->get_rank() == 0) {
         for (size_t i = 0; i < xsmin.size(); i++) {
             std::cout << "minmax " << i << " " << xsmin[i] << " " << xsmax[i]
                       << std::endl;
@@ -38,18 +38,18 @@ void printxSrcMinMax(
     piol->comm->barrier();
 }
 
-/*! Each process will print their xSrc min/max and active ranks to an output
+/*! Each process will print their x_src min/max and active ranks to an output
  *  file.
- *  xSrc min/max will also be printed to the terminal.
+ *  x_src min/max will also be printed to the terminal.
  * @param[in] piol The piol object.
- * @param[in] xslmin The minimum local value for xSrc from file 1.
- * @param[in] xslmax The maximum local value for xSrc from file 1.
- * @param[in] xsrmin The minimum local value for xSrc from file 2.
- * @param[in] xsrmax The maximum local value for xSrc from file 2.
+ * @param[in] xslmin The minimum local value for x_src from file 1.
+ * @param[in] xslmax The maximum local value for x_src from file 1.
+ * @param[in] xsrmin The minimum local value for x_src from file 2.
+ * @param[in] xsrmax The maximum local value for x_src from file 2.
  * @param[in] active An array of active ranks for the local process. That is,
  *                   processes the local process will do a one-sided MPI_Get on.
  */
-void printxSMinMax(
+void print_x_src_min_max(
   ExSeisPIOL* piol,
   fourd_t xslmin,
   fourd_t xslmax,
@@ -57,19 +57,19 @@ void printxSMinMax(
   fourd_t xsrmax,
   std::vector<size_t>& active)
 {
-    size_t rank      = piol->comm->getRank();
+    size_t rank      = piol->comm->get_rank();
     std::string name = "tmp/temp" + std::to_string(rank);
-    FILE* fOut       = fopen(name.c_str(), "w+");
-    fprintf(fOut, "1-xsmin/max %f %f\n", xslmin, xslmax);
-    fprintf(fOut, "2-xsmin/max %f %f\n", xsrmin, xsrmax);
+    FILE* f_out      = fopen(name.c_str(), "w+");
+    fprintf(f_out, "1-xsmin/max %f %f\n", xslmin, xslmax);
+    fprintf(f_out, "2-xsmin/max %f %f\n", xsrmin, xsrmax);
     for (size_t i = 0; i < active.size(); i++) {
-        fprintf(fOut, "%zu\n", active[i]);
+        fprintf(f_out, "%zu\n", active[i]);
     }
-    fclose(fOut);
+    fclose(f_out);
 
     auto lxsmin = piol->comm->gather(std::vector<fourd_t>{xslmin});
     auto lxsmax = piol->comm->gather(std::vector<fourd_t>{xslmax});
-    printxSrcMinMax(piol, lxsmin, lxsmax);
+    printx_src_min_max(piol, lxsmin, lxsmax);
     if (rank == 0) {
         std::cout << "file2 min/max\n";
     }
@@ -93,7 +93,7 @@ fourd_t hypot(const fourd_t x, const fourd_t y)
  *  @param[in] ixline The inline/crossline are included
  *  @return Return a vector of all the window values.
  */
-std::vector<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
+std::vector<MPI_Win> create_coords_win(const Coords* crd, const bool ixline)
 {
     std::vector<MPI_Win> win(5);
     MPI_Info info;
@@ -102,23 +102,23 @@ std::vector<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
     MPI_Info_set(info, "accumulate_ops", "same_op");
 
     // Look at MPI_Info
-    MPIErr(MPI_Win_create(
-      crd->xSrc, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[0]));
-    MPIErr(MPI_Win_create(
-      crd->ySrc, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[1]));
-    MPIErr(MPI_Win_create(
-      crd->xRcv, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[2]));
-    MPIErr(MPI_Win_create(
-      crd->yRcv, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[3]));
-    MPIErr(MPI_Win_create(
+    mpi_err(MPI_Win_create(
+      crd->x_src, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[0]));
+    mpi_err(MPI_Win_create(
+      crd->y_src, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[1]));
+    mpi_err(MPI_Win_create(
+      crd->x_rcv, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[2]));
+    mpi_err(MPI_Win_create(
+      crd->y_rcv, crd->sz, sizeof(fourd_t), info, MPI_COMM_WORLD, &win[3]));
+    mpi_err(MPI_Win_create(
       crd->tn, crd->sz, sizeof(size_t), info, MPI_COMM_WORLD, &win[4]));
 
     if (ixline) {
         win.resize(7);
-        MPIErr(MPI_Win_create(
+        mpi_err(MPI_Win_create(
           crd->il, crd->sz, sizeof(exseis::utils::Integer), info,
           MPI_COMM_WORLD, &win[5]));
-        MPIErr(MPI_Win_create(
+        mpi_err(MPI_Win_create(
           crd->xl, crd->sz, sizeof(exseis::utils::Integer), info,
           MPI_COMM_WORLD, &win[6]));
     }
@@ -135,43 +135,43 @@ std::vector<MPI_Win> createCoordsWin(const Coords* crd, const bool ixline)
  *  @param[in] ixline The inline/crossline are included
  *  @return Return the associated Coords structure
  */
-std::unique_ptr<Coords> getCoordsWin(
+std::unique_ptr<Coords> get_coords_win(
   size_t lrank, size_t sz, std::vector<MPI_Win>& win, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz, ixline);
     for (size_t i = 0; i < win.size(); i++) {
-        MPIErr(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
+        mpi_err(MPI_Win_lock(MPI_LOCK_SHARED, lrank, MPI_MODE_NOCHECK, win[i]));
     }
 
-    MPIErr(MPI_Get(
-      crd->xSrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0, sz,
-      exseis::utils::MPI_type<fourd_t>(), win[0]));
-    MPIErr(MPI_Get(
-      crd->ySrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0, sz,
-      exseis::utils::MPI_type<fourd_t>(), win[1]));
-    MPIErr(MPI_Get(
-      crd->xRcv, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0, sz,
-      exseis::utils::MPI_type<fourd_t>(), win[2]));
-    MPIErr(MPI_Get(
-      crd->yRcv, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0, sz,
-      exseis::utils::MPI_type<fourd_t>(), win[3]));
-    MPIErr(MPI_Get(
-      crd->tn, crd->sz, exseis::utils::MPI_type<size_t>(), lrank, 0, sz,
-      exseis::utils::MPI_type<size_t>(), win[4]));
+    mpi_err(MPI_Get(
+      crd->x_src, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 0, sz,
+      exseis::utils::mpi_type<fourd_t>(), win[0]));
+    mpi_err(MPI_Get(
+      crd->y_src, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 0, sz,
+      exseis::utils::mpi_type<fourd_t>(), win[1]));
+    mpi_err(MPI_Get(
+      crd->x_rcv, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 0, sz,
+      exseis::utils::mpi_type<fourd_t>(), win[2]));
+    mpi_err(MPI_Get(
+      crd->y_rcv, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 0, sz,
+      exseis::utils::mpi_type<fourd_t>(), win[3]));
+    mpi_err(MPI_Get(
+      crd->tn, crd->sz, exseis::utils::mpi_type<size_t>(), lrank, 0, sz,
+      exseis::utils::mpi_type<size_t>(), win[4]));
 
     if (ixline) {
-        MPIErr(MPI_Get(
-          crd->il, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
-          lrank, 0, sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+        mpi_err(MPI_Get(
+          crd->il, crd->sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
+          lrank, 0, sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
           win[5]));
-        MPIErr(MPI_Get(
-          crd->xl, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
-          lrank, 0, sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+        mpi_err(MPI_Get(
+          crd->xl, crd->sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
+          lrank, 0, sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
           win[6]));
     }
 
     for (size_t i = 0; i < win.size(); i++) {
-        MPIErr(MPI_Win_unlock(lrank, win[i]));
+        mpi_err(MPI_Win_unlock(lrank, win[i]));
     }
 
     return crd;
@@ -179,14 +179,14 @@ std::unique_ptr<Coords> getCoordsWin(
 
 /*! Calcuate the difference criteria between source/receiver pairs between
  *  traces.
- *  @param[in] xs1 xSrc from pair 1
- *  @param[in] ys1 ySrc from pair 1
- *  @param[in] xr1 xRcv from pair 1
- *  @param[in] yr1 yRcv from pair 1
- *  @param[in] xs2 xSrc from pair 2
- *  @param[in] ys2 ySrc from pair 2
- *  @param[in] xr2 xRcv from pair 2
- *  @param[in] yr2 yRcv from pair 2
+ *  @param[in] xs1 x_src from pair 1
+ *  @param[in] ys1 y_src from pair 1
+ *  @param[in] xr1 x_rcv from pair 1
+ *  @param[in] yr1 y_rcv from pair 1
+ *  @param[in] xs2 x_src from pair 2
+ *  @param[in] ys2 y_src from pair 2
+ *  @param[in] xr2 x_rcv from pair 2
+ *  @param[in] yr2 y_rcv from pair 2
  *  @return Return the dsr value
  *
  * @details The definitions of ds and dr are:
@@ -232,8 +232,8 @@ fourd_t dsr(
  *                    minimises the dsdr criteria.  This vector is updated by
  *                    the loop.
  */
-template<const bool ixline>
-void initUpdate(
+template<const bool Ixline>
+void init_update(
   const Coords* crd1,
   const Coords* crd2,
   std::vector<size_t>& min,
@@ -241,11 +241,11 @@ void initUpdate(
 {
     for (size_t i = 0; i < crd1->sz; i++) {
         minrs[i] =
-          (!ixline
+          (!Ixline
                || (crd1->il[i] == crd2->il[0] && crd1->xl[i] == crd2->xl[0]) ?
              dsr(
-               crd1->xSrc[i], crd1->ySrc[i], crd1->xRcv[i], crd1->yRcv[i],
-               crd2->xSrc[0], crd2->ySrc[0], crd2->xRcv[0], crd2->yRcv[0]) :
+               crd1->x_src[i], crd1->y_src[i], crd1->x_rcv[i], crd1->y_rcv[i],
+               crd2->x_src[0], crd2->y_src[0], crd2->x_rcv[0], crd2->y_rcv[0]) :
              std::numeric_limits<fourd_t>::max());
         min[i] = crd2->tn[0];
     }
@@ -266,7 +266,7 @@ void initUpdate(
  *  @param[in] dsrmax The maximum distance a pair from crd2 can be from crd1.
  *  @return Return the number of dsr calculations performed.
  */
-template<const bool ixline>
+template<const bool Ixline>
 size_t update(
   const Coords* crd1,
   const Coords* crd2,
@@ -283,60 +283,63 @@ size_t update(
     // Ignore all file2 traces that can not possibly match our criteria within
     // the min/max
     // of src x.
-    for (; rstart < rend && crd2->xSrc[rstart] < crd1->xSrc[lstart] - dsrmax;
+    for (; rstart < rend && crd2->x_src[rstart] < crd1->x_src[lstart] - dsrmax;
          rstart++) {
     }
-    for (; rend >= rstart && crd2->xSrc[rend] > crd1->xSrc[lend - 1] + dsrmax;
+    for (; rend >= rstart && crd2->x_src[rend] > crd1->x_src[lend - 1] + dsrmax;
          rend--) {
     }
-    for (; lstart < lend && crd1->xSrc[lstart] < crd2->xSrc[rstart] - dsrmax;
+    for (; lstart < lend && crd1->x_src[lstart] < crd2->x_src[rstart] - dsrmax;
          lstart++) {
     }
-    for (; lend >= lstart && crd1->xSrc[lend] > crd2->xSrc[rend - 1] + dsrmax;
+    for (; lend >= lstart && crd1->x_src[lend] > crd2->x_src[rend - 1] + dsrmax;
          lend--) {
     }
 
     // TODO: Check if theoretical speedup is realisable for this alignment
-    lstart     = size_t(lstart / ALIGN) * ALIGN;
+    lstart     = size_t(lstart / EXSEISDAT_ALIGN) * EXSEISDAT_ALIGN;
     size_t lsz = lend - lstart;
     size_t rsz = rend - rstart;
 
     // Copy min and minrs to aligned memory
     fourd_t* lminrs;
     size_t* lmin;
-    posix_memalign(
-      reinterpret_cast<void**>(&lminrs), ALIGN, crd1->sz * sizeof(fourd_t));
-    posix_memalign(
-      reinterpret_cast<void**>(&lmin), ALIGN, crd1->sz * sizeof(size_t));
+    checked_posix_memalign(
+      reinterpret_cast<void**>(&lminrs), EXSEISDAT_ALIGN,
+      crd1->sz * sizeof(fourd_t));
+    checked_posix_memalign(
+      reinterpret_cast<void**>(&lmin), EXSEISDAT_ALIGN,
+      crd1->sz * sizeof(size_t));
     std::copy(min.begin(), min.begin() + crd1->sz, lmin);
     std::copy(minrs.begin(), minrs.begin() + crd1->sz, lminrs);
 
     // These declarations are so that the compiler handles the pragma correctly
-    const fourd_t* xS1 = crd1->xSrc;
-    const fourd_t* xR1 = crd1->xRcv;
-    const fourd_t* yS1 = crd1->ySrc;
-    const fourd_t* yR1 = crd1->yRcv;
-    const fourd_t* xS2 = crd2->xSrc;
-    const fourd_t* xR2 = crd2->xRcv;
-    const fourd_t* yS2 = crd2->ySrc;
-    const fourd_t* yR2 = crd2->yRcv;
-    const size_t* tn   = crd2->tn;
+    const fourd_t* x_s1 = crd1->x_src;
+    const fourd_t* x_r1 = crd1->x_rcv;
+    const fourd_t* y_s1 = crd1->y_src;
+    const fourd_t* y_r1 = crd1->y_rcv;
+    const fourd_t* x_s2 = crd2->x_src;
+    const fourd_t* x_r2 = crd2->x_rcv;
+    const fourd_t* y_s2 = crd2->y_src;
+    const fourd_t* y_r2 = crd2->y_rcv;
+    const size_t* tn    = crd2->tn;
 
     // Loop through every file1 trace
-    #pragma omp simd aligned(xS2:ALIGN) aligned(yS2:ALIGN) aligned(xR2:ALIGN) \
-                     aligned(yR2:ALIGN) aligned(xS1:ALIGN) aligned(yS1:ALIGN) \
-                     aligned(xR1:ALIGN) aligned(yR1:ALIGN) aligned(tn:ALIGN)  \
-                     aligned(lminrs:ALIGN) aligned(lmin:ALIGN)
+    #pragma omp simd aligned(xS2:EXSEISDAT_ALIGN) aligned(yS2:EXSEISDAT_ALIGN) aligned(xR2:EXSEISDAT_ALIGN) \
+                     aligned(yR2:EXSEISDAT_ALIGN) aligned(xS1:EXSEISDAT_ALIGN) aligned(yS1:EXSEISDAT_ALIGN) \
+                     aligned(xR1:EXSEISDAT_ALIGN) aligned(yR1:EXSEISDAT_ALIGN) aligned(tn:EXSEISDAT_ALIGN)  \
+                     aligned(lminrs:EXSEISDAT_ALIGN) aligned(lmin:EXSEISDAT_ALIGN)
     for (size_t i = lstart; i < lend; i++) {
-        const fourd_t xs1 = xS1[i], ys1 = yS1[i], xr1 = xR1[i], yr1 = yR1[i];
-        size_t lm    = lmin[i];
-        fourd_t lmrs = lminrs[i];
+        const fourd_t xs1 = x_s1[i], ys1 = y_s1[i], xr1 = x_r1[i],
+                      yr1 = y_r1[i];
+        size_t lm         = lmin[i];
+        fourd_t lmrs      = lminrs[i];
         // loop through a multiple of the alignment
         for (size_t j = rstart; j < rend; j++) {
-            const fourd_t xs2 = xS2[j], ys2 = yS2[j], xr2 = xR2[j],
-                          yr2 = yR2[j];
+            const fourd_t xs2 = x_s2[j], ys2 = y_s2[j], xr2 = x_r2[j],
+                          yr2 = y_r2[j];
             fourd_t dval =
-              (!ixline
+              (!Ixline
                    || (crd1->il[i] == crd2->il[j]
                        && crd1->xl[i] == crd2->xl[j]) ?
                  dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2) :
@@ -364,32 +367,32 @@ size_t update(
  *  @param[in] ixline Whether line numbers are also being sent
  *  @return A vector of MPI_Request objects for performing a MPI_Waitall
  */
-std::vector<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
+std::vector<MPI_Request> send_crd(size_t lrank, const Coords* crd, bool ixline)
 {
     std::vector<MPI_Request> request(5);
-    MPIErr(MPI_Isend(
-      crd->xSrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0,
+    mpi_err(MPI_Isend(
+      crd->x_src, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 0,
       MPI_COMM_WORLD, &request[0]));
-    MPIErr(MPI_Isend(
-      crd->ySrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 1,
+    mpi_err(MPI_Isend(
+      crd->y_src, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 1,
       MPI_COMM_WORLD, &request[1]));
-    MPIErr(MPI_Isend(
-      crd->xRcv, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 2,
+    mpi_err(MPI_Isend(
+      crd->x_rcv, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 2,
       MPI_COMM_WORLD, &request[2]));
-    MPIErr(MPI_Isend(
-      crd->yRcv, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 3,
+    mpi_err(MPI_Isend(
+      crd->y_rcv, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 3,
       MPI_COMM_WORLD, &request[3]));
-    MPIErr(MPI_Isend(
-      crd->tn, crd->sz, exseis::utils::MPI_type<size_t>(), lrank, 4,
+    mpi_err(MPI_Isend(
+      crd->tn, crd->sz, exseis::utils::mpi_type<size_t>(), lrank, 4,
       MPI_COMM_WORLD, &request[4]));
 
     if (ixline) {
         request.resize(7);
-        MPIErr(MPI_Isend(
-          crd->il, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+        mpi_err(MPI_Isend(
+          crd->il, crd->sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
           lrank, 5, MPI_COMM_WORLD, &request[5]));
-        MPIErr(MPI_Isend(
-          crd->xl, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+        mpi_err(MPI_Isend(
+          crd->xl, crd->sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
           lrank, 6, MPI_COMM_WORLD, &request[6]));
     }
     return request;
@@ -402,42 +405,42 @@ std::vector<MPI_Request> sendCrd(size_t lrank, const Coords* crd, bool ixline)
  *  @param[in] ixline Whether line numbers are also being received
  *  @return The coordinate data
  */
-std::unique_ptr<Coords> recvCrd(size_t lrank, size_t sz, bool ixline)
+std::unique_ptr<Coords> recv_crd(size_t lrank, size_t sz, bool ixline)
 {
     auto crd = std::make_unique<Coords>(sz, ixline);
     std::vector<MPI_Request> request(5);
-    MPIErr(MPI_Irecv(
-      crd->xSrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 0,
+    mpi_err(MPI_Irecv(
+      crd->x_src, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 0,
       MPI_COMM_WORLD, &request[0]));
-    MPIErr(MPI_Irecv(
-      crd->ySrc, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 1,
+    mpi_err(MPI_Irecv(
+      crd->y_src, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 1,
       MPI_COMM_WORLD, &request[1]));
-    MPIErr(MPI_Irecv(
-      crd->xRcv, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 2,
+    mpi_err(MPI_Irecv(
+      crd->x_rcv, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 2,
       MPI_COMM_WORLD, &request[2]));
-    MPIErr(MPI_Irecv(
-      crd->yRcv, crd->sz, exseis::utils::MPI_type<fourd_t>(), lrank, 3,
+    mpi_err(MPI_Irecv(
+      crd->y_rcv, crd->sz, exseis::utils::mpi_type<fourd_t>(), lrank, 3,
       MPI_COMM_WORLD, &request[3]));
-    MPIErr(MPI_Irecv(
-      crd->tn, crd->sz, exseis::utils::MPI_type<size_t>(), lrank, 4,
+    mpi_err(MPI_Irecv(
+      crd->tn, crd->sz, exseis::utils::mpi_type<size_t>(), lrank, 4,
       MPI_COMM_WORLD, &request[4]));
 
     if (ixline) {
         request.resize(7);
-        MPIErr(MPI_Irecv(
-          crd->il, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+        mpi_err(MPI_Irecv(
+          crd->il, crd->sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
           lrank, 5, MPI_COMM_WORLD, &request[5]));
-        MPIErr(MPI_Irecv(
-          crd->xl, crd->sz, exseis::utils::MPI_type<exseis::utils::Integer>(),
+        mpi_err(MPI_Irecv(
+          crd->xl, crd->sz, exseis::utils::mpi_type<exseis::utils::Integer>(),
           lrank, 6, MPI_COMM_WORLD, &request[6]));
     }
     std::vector<MPI_Status> stat(request.size());
-    MPIErr(MPI_Waitall(request.size(), request.data(), stat.data()));
+    mpi_err(MPI_Waitall(request.size(), request.data(), stat.data()));
 
     return crd;
 }
 
-void calc4DBin(
+void calc_4d_bin(
   ExSeisPIOL* piol,
   const fourd_t dsrmax,
   const Coords* crd1,
@@ -447,52 +450,53 @@ void calc4DBin(
   std::vector<fourd_t>& minrs)
 {
     cmsg(piol, "Compute phase");
-    size_t rank    = piol->comm->getRank();
-    size_t numRank = piol->comm->getNumRank();
-    auto szall     = piol->comm->gather(std::vector<size_t>{crd2->sz});
+    size_t rank     = piol->comm->get_rank();
+    size_t num_rank = piol->comm->get_num_rank();
+    auto szall      = piol->comm->gather(std::vector<size_t>{crd2->sz});
 
     // The File2 min/max from every process
-    auto xsmin = piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[0LU]});
+    auto xsmin = piol->comm->gather(std::vector<fourd_t>{crd2->x_src[0LU]});
     auto xsmax =
-      piol->comm->gather(std::vector<fourd_t>{crd2->xSrc[crd2->sz - 1LU]});
+      piol->comm->gather(std::vector<fourd_t>{crd2->x_src[crd2->sz - 1LU]});
 
     // The File1 local min and local maximum for the particular process
-    auto xslmin = crd1->xSrc[0LU];
-    auto xslmax = crd1->xSrc[crd1->sz - 1LU];
+    auto xslmin = crd1->x_src[0LU];
+    auto xslmax = crd1->x_src[crd1->sz - 1LU];
 
     // Perform a local initialisation update of min and minrs
     if (opt.ixline) {
-        initUpdate<true>(crd1, crd2, min, minrs);
+        init_update<true>(crd1, crd2, min, minrs);
     }
     else {
-        initUpdate<false>(crd1, crd2, min, minrs);
+        init_update<false>(crd1, crd2, min, minrs);
     }
 
     // This for loop determines the processes the local process will need to be
     // communicating with.
     std::vector<size_t> active;
-    for (size_t i = 0LU; i < numRank; i++) {
+    for (size_t i = 0LU; i < num_rank; i++) {
         if ((xsmin[i] - dsrmax <= xslmax) && (xsmax[i] + dsrmax >= xslmin)) {
             active.push_back(i);
         }
     }
 
     if (opt.verbose) {
-        printxSMinMax(piol, xslmin, xslmax, xsmin[rank], xsmax[rank], active);
-        printxSrcMinMax(piol, xsmin, xsmax);
+        print_x_src_min_max(
+          piol, xslmin, xslmax, xsmin[rank], xsmax[rank], active);
+        printx_src_min_max(piol, xsmin, xsmax);
     }
 
     auto time = MPI_Wtime();
-#define ONE_WAY_COMM
-#ifdef ONE_WAY_COMM
-    auto win = createCoordsWin(crd2, opt.ixline);
+#define EXSEISDAT_ONE_WAY_COMM
+#ifdef EXSEISDAT_ONE_WAY_COMM
+    auto win = create_coords_win(crd2, opt.ixline);
 #else
     std::vector<MPI_Request> reqs;
     {
         auto xsfmin = piol->comm->gather<fourd_t>(xslmin);
         auto xsfmax = piol->comm->gather<fourd_t>(xslmax);
 
-        for (size_t i = 0LU; i < numRank; i++)
+        for (size_t i = 0LU; i < num_rank; i++)
             if (
               (xsmin[rank] - dsrmax <= xsfmax[i])
               && (xsmax[rank] + dsrmax >= xsfmin[i])) {
@@ -511,8 +515,8 @@ void calc4DBin(
     for (size_t i = 0; i < active.size(); i++) {
         double ltime = MPI_Wtime();
         size_t lrank = active[i];
-#ifdef ONE_WAY_COMM
-        auto proc = getCoordsWin(lrank, szall[lrank], win, opt.ixline);
+#ifdef EXSEISDAT_ONE_WAY_COMM
+        auto proc = get_coords_win(lrank, szall[lrank], win, opt.ixline);
 #else
         auto proc = recvCrd(lrank, szall[lrank], opt.ixline);
 #endif
@@ -537,14 +541,14 @@ void calc4DBin(
               << "Total rounds: " << active.size()
               << " Time: " << MPI_Wtime() - time << " seconds" << std::endl;
 
-#ifdef ONE_WAY_COMM
+#ifdef EXSEISDAT_ONE_WAY_COMM
     for (size_t i = 0; i < win.size(); i++) {
-        MPIErr(MPI_Win_free(&win[i]));
+        mpi_err(MPI_Win_free(&win[i]));
     }
 #else
 
     std::vector<MPI_Status> stat(reqs.size());
-    MPIErr(MPI_Waitall(reqs.size(), reqs.data(), stat.data()));
+    mpi_err(MPI_Waitall(reqs.size(), reqs.data(), stat.data()));
 
 #endif
     piol->comm->barrier();
@@ -552,6 +556,6 @@ void calc4DBin(
       piol, "Compute phase completed in " + std::to_string(MPI_Wtime() - time)
               + " seconds");
 }
-}  // namespace FOURD
-}  // namespace PIOL
+}  // namespace four_d
+}  // namespace piol
 }  // namespace exseis

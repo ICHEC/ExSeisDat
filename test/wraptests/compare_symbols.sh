@@ -16,7 +16,7 @@ cd "$(dirname " $
 ")"
 
 
-#Parse PIOL::*symbols from bin / cwraptests executable
+#Parse piol::*symbols from bin / cwraptests executable
 #Pipeline:
 #nm - get all symbols
 #| grep PIOL - get symbols defined by PIOL
@@ -76,11 +76,11 @@ function test_symbols()
 #Prm.*(for the param_utils::cpyPrm etc.free functions.
 for
 ns in "::ExSeis::"
-      "::ReadDirect::"
-      "::WriteDirect::"
-      "::Param::"
+      "::ReadInterface::"
+      "::WriteInterface::"
+      "::Trace_metadata::"
       "Prm.*("
       "::ReadModel::"
       "::Set::" do echo echo echo "=" echo "= ${ns}" echo "=" echo test_symbols
                                   "${ns}"
-  | sed 's/^\([[:alnum:]]*:\).*[^,] PIOL::/\1 PIOL::/' done
+  | sed 's/^\([[:alnum:]]*:\).*[^,] piol::/\1 piol::/' done

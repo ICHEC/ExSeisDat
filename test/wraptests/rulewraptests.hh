@@ -1,10 +1,10 @@
-#ifndef PIOLWRAPTESTSRULEWRAPTEST_HEADER_GUARD
-#define PIOLWRAPTESTSRULEWRAPTEST_HEADER_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_RULEWRAPTESTS_HH
+#define EXSEISDAT_TEST_WRAPTESTS_RULEWRAPTESTS_HH
 
 #include "mockrule.hh"
 
 #include <memory>
 
-std::shared_ptr<exseis::PIOL::Rule*> test_PIOL_File_Rule();
+std::shared_ptr<exseis::piol::Rule*> test_piol_file_rule();
 
-#endif
+#endif  // EXSEISDAT_TEST_WRAPTESTS_RULEWRAPTESTS_HH

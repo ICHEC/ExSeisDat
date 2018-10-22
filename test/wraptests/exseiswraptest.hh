@@ -1,9 +1,9 @@
-#ifndef PIOLWRAPTESTSEXSEISWRAPTEST_HEADER_GUARD
-#define PIOLWRAPTESTSEXSEISWRAPTEST_HEADER_GUARD
+#ifndef EXSEISDAT_TEST_WRAPTESTS_EXSEISWRAPTEST_HH
+#define EXSEISDAT_TEST_WRAPTESTS_EXSEISWRAPTEST_HH
 
 #include "mockexseis.hh"
 #include <memory>
 
-std::shared_ptr<exseis::PIOL::ExSeis*> test_PIOL_ExSeis();
+std::shared_ptr<exseis::piol::ExSeis*> test_piol_exseis();
 
-#endif  // PIOLWRAPTESTSEXSEISWRAPTEST_HEADER_GUARD
+#endif  // EXSEISDAT_TEST_WRAPTESTS_EXSEISWRAPTEST_HH
