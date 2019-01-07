@@ -707,14 +707,14 @@ void Set::to_angle(
 
 
 void Set::taper(
-  Taper_function taper_function, size_t n_tail_lft, size_t n_tail_rt)
+  Taper_function taper_function,
+  size_t taper_size_at_begin,
+  size_t taper_size_at_end)
 {
     OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
                  FuncOpt::SingleTrace};
     m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
-      opt, m_rule, nullptr,
-      [taper_function, n_tail_lft,
-       n_tail_rt](TraceBlock* in) -> std::vector<size_t> {
+      opt, m_rule, nullptr, [=](TraceBlock* in) -> std::vector<size_t> {
           // Loop over traces and apply the taper to each one
           for (size_t i = 0; i < in->prm->size(); i++) {
 
@@ -723,7 +723,35 @@ void Set::taper(
               auto* trace_i = &(in->trc[i * trace_length]);
 
               exseis::utils::taper(
-                trace_length, trace_i, taper_function, n_tail_lft, n_tail_rt);
+                trace_length, trace_i, taper_function, taper_size_at_begin,
+                taper_size_at_end);
+          }
+
+          return std::vector<size_t>{};
+      }));
+}
+
+void Set::mute(
+  Taper_function taper_function,
+  size_t mute_size_at_begin,
+  size_t taper_size_at_begin,
+  size_t taper_size_at_end,
+  size_t mute_size_at_end)
+{
+    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
+                 FuncOpt::SingleTrace};
+    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
+      opt, m_rule, nullptr, [=](TraceBlock* in) -> std::vector<size_t> {
+          // Loop over traces and apply the taper to each one
+          for (size_t i = 0; i < in->prm->size(); i++) {
+
+              const auto trace_length = in->ns;
+
+              auto* trace_i = &(in->trc[i * trace_length]);
+
+              exseis::utils::mute(
+                trace_length, trace_i, taper_function, mute_size_at_begin,
+                taper_size_at_begin, taper_size_at_end, mute_size_at_end);
           }
 
           return std::vector<size_t>{};

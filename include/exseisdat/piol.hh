@@ -40,6 +40,7 @@
 #include "exseisdat/utils/logging/Verbosity.hh"
 #include "exseisdat/utils/mpi/MPI_error_to_string.hh"
 #include "exseisdat/utils/signal_processing/AGC.hh"
+#include "exseisdat/utils/signal_processing/mute.hh"
 #include "exseisdat/utils/signal_processing/taper.hh"
 #include "exseisdat/utils/typedefs.hh"
 

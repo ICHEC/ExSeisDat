@@ -1,14 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @brief C API for \ref exseisdat/utils/signal_processing/taper.hh
+/// @brief Application of mutes to either end of the singal, then applies a
+/// @      taper function to a signal.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_UTILS_SIGNAL_PROCESSING_TAPER_H
-#define EXSEISDAT_UTILS_SIGNAL_PROCESSING_TAPER_H
+
+#ifndef EXSEISDAT_UTILS_SIGNAL_PROCESSING_MUTE_H
+#define EXSEISDAT_UTILS_SIGNAL_PROCESSING_MUTE_H
 
 #include "exseisdat/utils/signal_processing/Taper_function.h"
 #include "exseisdat/utils/typedefs.h"
 
-#include "stddef.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,20 +19,21 @@ extern "C" {
 /// @name C API
 /// @{
 
-/// @brief C API for exseis::utils::signal_processing::taper
-/// @copydoc exseis::utils::signal_processing::taper
-void exseis_taper(
+/// @brief C API for exseis::utils::signal_processing::mute
+/// @copydoc exseis::utils::signal_processing::mute
+void exseis_mute(
   size_t signal_size,
   exseis_Trace_value* signal,
   exseis_Taper_function taper_function,
+  size_t mute_size_at_begin,
   size_t taper_size_at_begin,
-  size_t taper_size_at_end);
+  size_t taper_size_at_end,
+  size_t mute_size_at_end);
 
 /// @} C API
-
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus
 
-#endif  // EXSEISDAT_UTILS_SIGNAL_PROCESSING_TAPER_H
+#endif  // EXSEISDAT_UTILS_SIGNAL_PROCESSING_MUTE_H

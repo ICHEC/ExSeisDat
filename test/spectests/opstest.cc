@@ -11,8 +11,8 @@
 #include "exseisdat/piol/operations/sort.hh"
 #include "exseisdat/piol/operations/temporalfilter.hh"
 #include "exseisdat/utils/signal_processing/AGC.h"
+#include "exseisdat/utils/signal_processing/mute.h"
 #include "exseisdat/utils/signal_processing/taper.h"
-
 
 using namespace testing;
 using namespace exseis::piol;

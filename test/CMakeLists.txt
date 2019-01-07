@@ -89,6 +89,7 @@ add_executable(
     spectests/segymdextra.cc
     spectests/selftests.cc
     spectests/set.cc
+    spectests/utils/signal_processing/mute.test.cc
 
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc

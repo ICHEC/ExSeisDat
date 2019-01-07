@@ -75,13 +75,23 @@ ACTION_P(cpyprm, src)
 
 void muting(size_t nt, size_t ns, exseis::utils::Trace_value* trc, size_t mute);
 
+void mute_man(
+  size_t nt,
+  size_t ns,
+  exseis::utils::Trace_value* trc,
+  Taper_function func,
+  size_t mute_size_at_begin,
+  size_t taper_size_at_begin,
+  size_t taper_size_at_end,
+  size_t mute_size_at_end);
+
 void taper_man(
   size_t nt,
   size_t ns,
   exseis::utils::Trace_value* trc,
   Taper_function func,
-  size_t n_tail_lft,
-  size_t n_tail_rt);
+  size_t taper_size_at_begin,
+  size_t taper_size_at_end);
 
 
 template<class T>
@@ -240,14 +250,91 @@ struct SetTest : public Test {
         }
     }
 
+    void mute_test(
+      size_t nt,
+      size_t ns,
+      Taper_function trace_function,
+      size_t mute_size_at_begin,
+      size_t taper_size_at_begin,
+      size_t taper_size_at_end,
+      size_t mute_size_at_end)
+    {
+
+        set.reset(new Set_public(piol));
+
+        auto mock = std::make_unique<MockFile>();
+        std::vector<exseis::utils::Trace_value> trc(nt * ns);
+        std::vector<exseis::utils::Trace_value> trc_man(nt * ns);
+
+        Trace_metadata trace_metadata(nt);
+
+        std::fill(trc.begin(), trc.end(), 1.0f);
+
+        trc_man = trc;
+        std::vector<size_t> offsets(nt);
+        std::iota(offsets.begin(), offsets.end(), 0U);
+
+
+        EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
+        EXPECT_CALL(*mock, read_ns()).WillRepeatedly(Return(ns));
+        EXPECT_CALL(*mock, read_sample_interval())
+          .WillRepeatedly(Return(0.004));
+
+        EXPECT_CALL(
+          *mock, read_trace_non_contiguous(
+                   _, A<const size_t*>(), A<exseis::utils::Trace_value*>(),
+                   A<Trace_metadata*>(), 0U))
+          .Times(Exactly(1U))
+          .WillRepeatedly(WithArgs<0, 1, 2>(
+            Invoke([trc = trc, ns = ns](
+                     size_t nt, const size_t* offsets,
+                     exseis::utils::Trace_value* trace_buffer) {
+                int rank = -1;
+                MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                for (size_t i = 0; i < nt; i++) {
+                    for (size_t j = 0; j < ns; j++) {
+                        trace_buffer[i * ns + j] = trc[offsets[i] * ns + j];
+                    }
+                }
+            })));
+        set->add(std::move(mock));
+
+        set->mute(
+          trace_function, mute_size_at_begin, taper_size_at_begin,
+          taper_size_at_end, mute_size_at_end);
+
+        auto filename      = temp_file_segy();
+        auto base_filename = filename.substr(0, filename.find_last_of("."));
+
+        set->m_outfix = base_filename;
+        set.reset();
+
+        piol->barrier();
+
+        std::string name = filename;
+        auto in          = make_test<ReadSEGY>(piol, name);
+        in->read_trace(0U, in->read_nt(), trc.data());
+
+        mute_man(
+          nt, ns, trc_man.data(), trace_function, mute_size_at_begin,
+          taper_size_at_begin, taper_size_at_end, mute_size_at_end);
+
+
+        for (size_t i = 0; i < nt; i++) {
+            for (size_t j = 0; j < ns; j++) {
+                EXPECT_FLOAT_EQ(trc[i * ns + j], trc_man[i * ns + j]);
+            }
+        }
+    }
+
+
     void taper_test(
       size_t nt,
       size_t ns,
-      size_t mute,
       Taper_function correct_trace_function,
       Taper_function test_trace_function,
-      size_t n_tail_lft,
-      size_t n_tail_rt)
+      size_t taper_size_at_begin,
+      size_t taper_size_at_end)
     {
         set.reset(new Set_public(piol));
         auto mock = std::make_unique<MockFile>();
@@ -255,9 +342,6 @@ struct SetTest : public Test {
         std::vector<exseis::utils::Trace_value> trc(nt * ns);
         std::vector<exseis::utils::Trace_value> trc_man(nt * ns);
         std::fill(trc.begin(), trc.end(), 1.0f);
-        if (mute != 0) {
-            muting(nt, ns, trc.data(), mute);
-        }
         trc_man = trc;
 
         EXPECT_CALL(*mock, read_nt()).WillRepeatedly(Return(nt));
@@ -284,10 +368,11 @@ struct SetTest : public Test {
             })));
         set->add(std::move(mock));
 
+        set->taper(test_trace_function, taper_size_at_begin, taper_size_at_end);
+
         auto filename      = temp_file_segy();
         auto base_filename = filename.substr(0, filename.find_last_of("."));
 
-        set->taper(test_trace_function, n_tail_lft, n_tail_rt);
         set->m_outfix = base_filename;
         set.reset();
 
@@ -299,8 +384,9 @@ struct SetTest : public Test {
         in->read_trace(0U, in->read_nt(), trc.data());
 
         taper_man(
-          nt, ns, trc_man.data(), correct_trace_function, n_tail_lft,
-          n_tail_rt);
+          nt, ns, trc_man.data(), correct_trace_function, taper_size_at_begin,
+          taper_size_at_end);
+
         for (size_t i = 0; i < nt; i++) {
             for (size_t j = 0; j < ns; j++) {
                 EXPECT_FLOAT_EQ(trc[i * ns + j], trc_man[i * ns + j]);

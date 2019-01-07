@@ -233,6 +233,7 @@ add_library(
     src/utils/signal_processing/AGC.cc
     src/utils/signal_processing/Gain_function.cc
     src/utils/signal_processing/Taper_function.cc
+    src/utils/signal_processing/mute.cc
     src/utils/signal_processing/taper.cc
 )
 

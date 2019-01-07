@@ -13,6 +13,7 @@
 #include "exseisdat/piol/operations/sort.hh"
 #include "exseisdat/piol/operations/temporalfilter.hh"
 #include "exseisdat/utils/signal_processing/Gain_function.hh"
+#include "exseisdat/utils/signal_processing/mute.hh"
 #include "exseisdat/utils/signal_processing/taper.hh"
 
 #include <deque>
@@ -84,54 +85,55 @@ class Set {
 
     /*! Start unwinding the function list for subset-only operations based on
      *  the given iterators.
-     *  @param[in] f_curr The iterator for the current function to process.
-     *  @param[in] f_end The iterator which indicates the end of the list has
-     *             been reached.
-     *  @return Return the final iterator reached by the last deque.
+     *  @param[in] f_curr  The iterator for the current function to process.
+     *  @param[in] f_end   The iterator which indicates the end of the list has
+     *                     been reached.
+     *  @return            Return the final iterator reached by the last deque.
      */
     FuncLst::iterator start_subset(
       FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! Start unwinding the function list for gather operations on the given
      *  iterators.
-     *  @param[in] f_curr The iterator for the current function to process.
-     *  @param[in] f_end The iterator which indicates the end of the list has
-     *             been reached.
-     *  @return Return a file name if f_end is reached. Otherwise return "".
+     *  @param[in] f_curr  The iterator for the current function to process.
+     *  @param[in] f_end   The iterator which indicates the end of the list has
+     *                     been reached.
+     *  @return            Return a file name if f_end is reached. Otherwise
+     *                     return "".
      */
     std::string start_gather(FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! Start unwinding the function list for single-trace operations on the
      *  given iterators.
-     *  @param[in] f_curr The iterator for the current function to process.
-     *  @param[in] f_end The iterator which indicates the end of the list has
-     *             been reached.
-     *  @return Return a list of all file names. Files are currently always
-     *          created.
+     *  @param[in] f_curr  The iterator for the current function to process.
+     *  @param[in] f_end   The iterator which indicates the end of the list has
+     *                     been reached.
+     *  @return            Return a list of all file names. Files are currently
+     *                     always created.
      */
     std::vector<std::string> start_single(
       FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! The entry point for unwinding the function list for all use-cases.
-     *  @param[in] f_curr The iterator for the current function to process.
-     *  @param[in] f_end The iterator which indicates the end of the list has
-     *             been reached.
-     *  @return Return a list of all file names.
+     *  @param[in] f_curr  The iterator for the current function to process.
+     *  @param[in] f_end   The iterator which indicates the end of the list has
+     *                     been reached.
+     *  @return            Return a list of all file names.
      */
     std::vector<std::string> calc_func(
       FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! The entry point for unwinding the function list for single-traces and
      *  gathers only.
-     *  @param[in] f_curr The iterator for the current function to process.
-     *  @param[in] f_end The iterator which indicates the end of the list has
-     *             been reached.
-     *  @param[in] type The type of function currently being processed. Either
-     *             single trace or gather.
-     *  @param[in] b_in The input trace block which can contain traces and trace
-     *             parameters.
-     *  @return Return a traceblock which contains the output from the
-     *          operation.
+     *  @param[in] f_curr  The iterator for the current function to process.
+     *  @param[in] f_end   The iterator which indicates the end of the list has
+     *                     been reached.
+     *  @param[in] type    The type of function currently being processed.
+     *                     Either single trace or gather.
+     *  @param[in] b_in    The input trace block which can contain traces and
+     *                     trace parameters.
+     *  @return            Return a traceblock which contains the output from
+     *                     the operation.
      *
      *  Transitions from gather to single trace are allowed but not the inverse.
      */
@@ -142,22 +144,22 @@ class Set {
       std::unique_ptr<TraceBlock> b_in);
 
     /*! The entry point for unwinding the function list for subsets.
-     *  @param[in] f_curr The iterator for the current function to process.
-     *  @param[in] f_end The iterator which indicates the end of the list has
-     *             been reached.
-     *  @param[in] f_que A deque of unique pointers to file descriptors.
-     *  @return Return the final iterator reached.
+     *  @param[in] f_curr  The iterator for the current function to process.
+     *  @param[in] f_end   The iterator which indicates the end of the list has
+     *                     been reached.
+     *  @param[in] f_que   A deque of unique pointers to file descriptors.
+     *  @return            Return the final iterator reached.
      */
     FuncLst::iterator calc_func_s(
       FuncLst::iterator f_curr, FuncLst::iterator f_end, FileDeque& f_que);
 
   public:
     /*! Constructor
-     *  @param[in] piol The PIOL object.
-     *  @param[in] pattern The file-matching pattern
-     *  @param[in] outfix The output file-name prefix
-     *  @param[in] rule Contains a pointer to the rules to use for trace
-     *             parameters.
+     *  @param[in] piol     The PIOL object.
+     *  @param[in] pattern  The file-matching pattern
+     *  @param[in] outfix   The output file-name prefix
+     *  @param[in] rule     Contains a pointer to the rules to use for trace
+     *                      parameters.
      */
     Set(
       std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
@@ -168,10 +170,10 @@ class Set {
           std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy}));
 
     /*! Constructor
-     *  @param[in] piol The PIOL object.
-     *  @param[in] pattern The file-matching pattern
-     *  @param[in] rule Contains a pointer to the rules to use for trace
-     *             parameters.
+     *  @param[in] piol     The PIOL object.
+     *  @param[in] pattern  The file-matching pattern
+     *  @param[in] rule     Contains a pointer to the rules to use for trace
+     *                      parameters.
      */
     Set(
       std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
@@ -184,9 +186,9 @@ class Set {
     }
 
     /*! Constructor overload
-     *  @param[in] piol The PIOL object.
-     *  @param[in] rule Contains a pointer to the rules to use for trace
-     *             parameters.
+     *  @param[in] piol  The PIOL object.
+     *  @param[in] rule  Contains a pointer to the rules to use for trace
+     *                   parameters.
      */
     Set(
       std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
@@ -199,29 +201,29 @@ class Set {
     ~Set(void);
 
     /*! Sort the set using the given comparison function
-     *  @param[in] sort_func The comparison function
+     *  @param[in] sort_func  The comparison function
      */
     void sort(exseis::piol::CompareP sort_func);
 
     /*! Sort the set using the given comparison function
-     *  @param[in] r The rules necessary for the sort.
-     *  @param[in] sort_func The comparison function.
+     *  @param[in] r          The rules necessary for the sort.
+     *  @param[in] sort_func  The comparison function.
      */
     void sort(
       std::shared_ptr<exseis::piol::Rule> r, exseis::piol::CompareP sort_func);
 
     /*! Output using the given output prefix
-     *  @param[in] oname The output prefix
-     *  @return Return a vector of the actual output names.
+     *  @param[in] oname  The output prefix
+     *  @return           Return a vector of the actual output names.
      */
     std::vector<std::string> output(std::string oname);
 
     /*! Find the min and max of two given parameters (e.g x and y source
      *  coordinates) and return the associated values and trace numbers in the
      *  given structure
-     *  @param[in] xlam The function for returning the first parameter
-     *  @param[in] ylam The function for returning the second parameter
-     *  @param[out] minmax The array of structures to hold the ouput
+     *  @param[in] xlam     The function for returning the first parameter
+     *  @param[in] ylam     The function for returning the second parameter
+     *  @param[out] minmax  The array of structures to hold the ouput
      */
     void get_min_max(
       exseis::piol::MinMaxFunc<exseis::piol::Trace_metadata> xlam,
@@ -230,20 +232,36 @@ class Set {
 
     /*! Function to add to modify function that applies a 2 tailed taper to a
      *  set of traces
-     *  @param[in] taper_function Weight function for the taper ramp
-     *  @param[in] n_tail_lft Length of left tail of taper
-     *  @param[in] n_tail_rt Length of right tail of taper
+     *  @param[in] taper_function       Weight function for the taper ramp
+     *  @param[in] taper_size_at_begin  Length of taper at beginning of trace
+     *  @param[in] taper_size_at_end    Length of taper at end of trace
      */
     void taper(
       exseis::utils::Taper_function taper_function,
-      size_t n_tail_lft,
-      size_t n_tail_rt = 0);
+      size_t taper_size_at_begin,
+      size_t taper_size_at_end = 0);
+
+    /*! Function to modify function that applies both a mute region at the
+     *  start and end of a series of traces and a 2 tailed taper
+     *  @param[in] taper_function       Weight function for the taper ramp
+     *  @param[in] taper_size_at_begin  Length of taper at beginning of trace
+     *  @param[in] taper_size_at_end    Length of taper at end of trace
+     *  @param[in] mute_size_at_begin   Length of mute before taper at
+     *                                  beginning of trace
+     *  @param[in] mute_size_at_end     Length of the mute at end of trace
+     */
+    void mute(
+      exseis::utils::Taper_function taper_function,
+      size_t mute_size_at_begin,
+      size_t taper_size_at_begin,
+      size_t taper_size_at_end,
+      size_t mute_size_at_end);
 
     /*! Function to add to modify function that applies automatic gain control
      *  to a set of traces
-     *  @param[in] agc_func Staistical function used to scale traces
-     *  @param[in] window Length of the agc window
-     *  @param[in] target_amplitude Value to which traces are normalized
+     *  @param[in] agc_func          Staistical function used to scale traces
+     *  @param[in] window            Length of the agc window
+     *  @param[in] target_amplitude  Value to which traces are normalized
      */
     void agc(
       exseis::utils::Gain_function agc_func,
@@ -251,7 +269,7 @@ class Set {
       exseis::utils::Trace_value target_amplitude);
 
     /*! Set the text-header of the output
-     *  @param[in] outmsg The output message
+     *  @param[in] outmsg  The output message
      */
     void text(std::string outmsg);
 
@@ -261,23 +279,26 @@ class Set {
     void summary() const;
 
     /*! Add a file to the set based on the ReadInterface
-     *  @param[in] in The file interface
+     *  @param[in] in  The file interface
      */
     void add(std::unique_ptr<exseis::piol::ReadInterface> in);
 
     /*! Add a file to the set based on the pattern/name given
-     *  @param[in] name The input name or pattern
+     *  @param[in] name  The input name or pattern
      */
     void add(std::string name);
 
     /*! Perform the radon to angle conversion. This assumes the input set is a
      *  radon transform file.
-     *  @param[in] vm_name The name of the velocity model file.
-     *  @param[in] v_bin The velocity model bin value.
-     *  @param[in] output_traces_per_gather The number of traces in the output gather.
-     *  @param[in] output_sample_interval The samples per trace for the output in radians
-     *                  (i.e the angle increment between samples.)
-     *                  (default = 1 degree).
+     *  @param[in] vm_name                   The name of the velocity model file.
+     *  @param[in] v_bin                     The velocity model bin value.
+     *  @param[in] output_traces_per_gather  The number of traces in the output
+     *                                       gather.
+     *  @param[in] output_sample_interval    The samples per trace for the
+     *                                       output in radians
+     *                                       (i.e the angle increment between
+     *                                       samples.)
+     *                                       (default = 1 degree).
      */
     void to_angle(
       std::string vm_name,
@@ -295,11 +316,11 @@ class Set {
     /*! Get the min and the max of a set of parameters passed. This is a
      *  parallel operation. It is the collective min and max across all
      *  processes (which also must all call this file).
-     *  @param[in] m1 The first parameter type
-     *  @param[in] m2 The second parameter type
-     *  @param[out] minmax An array of structures containing the minimum item.x,
-     *              maximum item.x, minimum item.y, maximum item.y and their
-     *              respective trace numbers.
+     *  @param[in] m1       The first parameter type
+     *  @param[in] m2       The second parameter type
+     *  @param[out] minmax  An array of structures containing the minimum
+     *                      item.x, maximum item.x, minimum item.y, maximum
+     *                      item.y and their respective trace numbers.
      */
     void get_min_max(
       exseis::piol::Meta m1,
@@ -308,13 +329,13 @@ class Set {
 
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
-     * @param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * @param[in] domain Filtering domaini
-     * @param[in] pad Padding pattern
-     * @param[in] fs Sampling frequency
-     * @param[in] corners Passband and stopband frequency in Hz
-     * @param[in] nw Size of trace filtering window
-     * @param[in] win_cntr Center of trace filtering window
+     * @param[in] type      Type of filter (i.e. lowpass, highpass, bandpass)
+     * @param[in] domain    Filtering domaini
+     * @param[in] pad       Padding pattern
+     * @param[in] fs        Sampling frequency
+     * @param[in] corners   Passband and stopband frequency in Hz
+     * @param[in] nw        Size of trace filtering window
+     * @param[in] win_cntr  Center of trace filtering window
      */
     void temporal_filter(
       exseis::piol::FltrType type,
@@ -326,14 +347,14 @@ class Set {
       size_t win_cntr = 0U);
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
-     * @param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * @param[in] domain Filtering domain
-     * @param[in] pad Padding pattern
-     * @param[in] fs Sampling frequency
-     * @param[in] corners Passband frequency in Hz
-     * @param[in] n Filter order
-     * @param[in] nw Size of trace filtering window
-     * @param[in] win_cntr Center of trace filtering window
+     * @param[in] type      Type of filter (i.e. lowpass, highpass, bandpass)
+     * @param[in] domain    Filtering domain
+     * @param[in] pad       Padding pattern
+     * @param[in] fs        Sampling frequency
+     * @param[in] corners   Passband frequency in Hz
+     * @param[in] n         Filter order
+     * @param[in] nw        Size of trace filtering window
+     * @param[in] win_cntr  Center of trace filtering window
      */
     void temporal_filter(
       exseis::piol::FltrType type,
@@ -346,14 +367,14 @@ class Set {
       size_t win_cntr = 0U);
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
-     * @param[in] type Type of filter (i.e. lowpass, highpass, bandpass)
-     * @param[in] domain Filtering domain
-     * @param[in] pad Padding pattern
-     * @param[in] fs Sampling frequency
-     * @param[in] corners Passband frequency in Hz
-     * @param[in] n Filter order
-     * @param[in] nw Size of trace filtering window
-     * @param[in] win_cntr Center of trace filtering window
+     * @param[in] type      Type of filter (i.e. lowpass, highpass, bandpass)
+     * @param[in] domain    Filtering domain
+     * @param[in] pad       Padding pattern
+     * @param[in] fs        Sampling frequency
+     * @param[in] corners   Passband frequency in Hz
+     * @param[in] n         Filter order
+     * @param[in] nw        Size of trace filtering window
+     * @param[in] win_cntr  Center of trace filtering window
      */
     void temporal_filter(
       exseis::piol::FltrType type,
