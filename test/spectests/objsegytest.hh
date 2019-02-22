@@ -26,32 +26,22 @@ class MockData : public Binary_file {
   public:
     MOCK_CONST_METHOD0(get_file_size, size_t(void));
 
-    MOCK_CONST_METHOD3(read, void(const size_t, const size_t, unsigned char*));
+    MOCK_CONST_METHOD3(read, void(const size_t, const size_t, void*));
     MOCK_CONST_METHOD5(
       read_noncontiguous,
-      void(
-        const size_t,
-        const size_t,
-        const size_t,
-        const size_t,
-        unsigned char*));
+      void(const size_t, const size_t, const size_t, const size_t, void*));
     MOCK_CONST_METHOD4(
       read_noncontiguous_irregular,
-      void(const size_t, const size_t, const size_t*, unsigned char*));
+      void(const size_t, const size_t, const size_t*, void*));
 
-    MOCK_CONST_METHOD3(
-      write, void(const size_t, const size_t, const unsigned char*));
+    MOCK_CONST_METHOD3(write, void(const size_t, const size_t, const void*));
     MOCK_CONST_METHOD5(
       write_noncontiguous,
       void(
-        const size_t,
-        const size_t,
-        const size_t,
-        const size_t,
-        const unsigned char*));
+        const size_t, const size_t, const size_t, const size_t, const void*));
     MOCK_CONST_METHOD4(
       write_noncontiguous_irregular,
-      void(const size_t, const size_t, const size_t*, const unsigned char*));
+      void(const size_t, const size_t, const size_t*, const void*));
 
     // TODO: This method is not tested
     MOCK_CONST_METHOD1(set_file_size, void(const size_t));
@@ -119,7 +109,11 @@ class ObjTest : public Test {
             }
             EXPECT_CALL(
               *m_mock, read(0U, segy::segy_binary_file_header_size(), _))
-              .WillOnce(SetArrayArgument<2>(c_ho.begin(), c_ho.end()));
+              .WillOnce(WithArg<2>(Invoke([&](void* buffer) {
+                  std::copy(
+                    std::begin(c_ho), std::end(c_ho),
+                    static_cast<unsigned char*>(buffer));
+              })));
         }
 
         std::vector<unsigned char> ho(
@@ -216,14 +210,22 @@ class ObjTest : public Test {
             }
             if (Type == Block::TRACE) {
                 EXPECT_CALL(*m_mock, read(loc_func(offset, ns), nt * bsz, _))
-                  .WillOnce(SetArrayArgument<2>(tr.begin(), tr.end()));
+                  .WillOnce(WithArg<2>(Invoke([&](void* buffer) {
+                      std::copy(
+                        std::begin(tr), std::end(tr),
+                        static_cast<unsigned char*>(buffer));
+                  })));
             }
             else {
                 EXPECT_CALL(
                   *m_mock, read_noncontiguous(
                              loc_func(offset, ns), bsz,
                              segy::segy_trace_size(ns), nt, _))
-                  .WillOnce(SetArrayArgument<4>(tr.begin(), tr.end()));
+                  .WillOnce(WithArg<4>(Invoke([&](void* buffer) {
+                      std::copy(
+                        std::begin(tr), std::end(tr),
+                        static_cast<unsigned char*>(buffer));
+                  })));
             }
         }
 
@@ -296,14 +298,14 @@ class ObjTest : public Test {
             }
             if (Type == Block::TRACE) {
                 EXPECT_CALL(*m_mock, write(loc_func(offset, ns), nt * bsz, _))
-                  .WillOnce(check2(tr, tr.size()));
+                  .WillOnce(check2(tr.data(), tr.size()));
             }
             else {
                 EXPECT_CALL(
                   *m_mock, write_noncontiguous(
                              loc_func(offset, ns), bsz,
                              segy::segy_trace_size(ns), nt, _))
-                  .WillOnce(check4(tr, tr.size()));
+                  .WillOnce(check4(tr.data(), tr.size()));
             }
         }
         for (size_t i = 0U; i < nt; i++) {
@@ -375,7 +377,11 @@ class ObjTest : public Test {
             if (Type != Block::TRACE_DATA || bsz > 0) {
                 EXPECT_CALL(
                   *m_mock, read_noncontiguous_irregular(bsz, nt, _, _))
-                  .WillOnce(SetArrayArgument<3>(tr.begin(), tr.end()))
+                  .WillOnce(WithArg<3>(Invoke([&](void* buffer) {
+                      std::copy(
+                        std::begin(tr), std::end(tr),
+                        static_cast<unsigned char*>(buffer));
+                  })))
                   .RetiresOnSaturation();
             }
         }

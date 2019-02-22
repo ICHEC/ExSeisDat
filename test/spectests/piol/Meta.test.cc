@@ -183,6 +183,12 @@ TEST(Meta, C_API)
               "exseis::piol::Meta::yCmp and exseis_meta_yCmp should have the same value!");
             break;
 
+        case Meta::coordinate_scalar:
+            static_assert(
+              Meta::coordinate_scalar == exseis_meta_coordinate_scalar,
+              "exseis::piol::Meta::coordinate_scalar and exseis_meta_coordinate_scalar should have the same value!");
+            break;
+
         case Meta::il:
             static_assert(
               Meta::il == exseis_meta_il,

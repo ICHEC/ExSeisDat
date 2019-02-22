@@ -21,115 +21,118 @@ typedef size_t exseis_Meta;
 /// @copydoc exseis::piol::Meta
 enum {
     /// Copy all headers. Don't interpret them.
-    exseis_meta_Copy = 0,
+    exseis_meta_Copy,
 
     /// Local trace number.
-    exseis_meta_ltn = 1,
+    exseis_meta_ltn,
 
     /// Global trace number.
-    exseis_meta_gtn = 2,
+    exseis_meta_gtn,
 
     /// The trace number (line)
-    exseis_meta_tnl = 3,
+    exseis_meta_tnl,
 
     /// The Trace number (record)
-    exseis_meta_tnr = 4,
+    exseis_meta_tnr,
 
     /// The trace number (file)
-    exseis_meta_tn = 5,
+    exseis_meta_tn,
 
     /// The trace number (ensemble)
-    exseis_meta_tne = 6,
+    exseis_meta_tne,
 
     /// Number of samples in this trace
-    exseis_meta_ns = 7,
+    exseis_meta_ns,
 
     /// The increment of this trace.
-    exseis_meta_sample_interval = 8,
+    exseis_meta_sample_interval,
 
     /// Trace identification code
-    exseis_meta_Tic = 9,
+    exseis_meta_Tic,
 
     /// Source Number
-    exseis_meta_SrcNum = 10,
+    exseis_meta_SrcNum,
 
     /// Shot number
-    exseis_meta_ShotNum = 11,
+    exseis_meta_ShotNum,
 
     /// Number of traces stacked for this trace (vertical)
-    exseis_meta_VStack = 12,
+    exseis_meta_VStack,
 
     /// Number of traces stacked for this trace (horizontal)
-    exseis_meta_HStack = 13,
+    exseis_meta_HStack,
 
     /// Distance from source to receiver
-    exseis_meta_Offset = 14,
+    exseis_meta_Offset,
 
     /// Receiver group elevation
-    exseis_meta_RGElev = 15,
+    exseis_meta_RGElev,
 
     /// Source surface elevation
-    exseis_meta_SSElev = 16,
+    exseis_meta_SSElev,
 
     /// Source depth
-    exseis_meta_SDElev = 17,
+    exseis_meta_SDElev,
 
     /// The Water depth at source
-    exseis_meta_WtrDepSrc = 18,
+    exseis_meta_WtrDepSrc,
 
     /// The Water depth at receiver
-    exseis_meta_WtrDepRcv = 19,
+    exseis_meta_WtrDepRcv,
 
     /// The source x coordinate
-    exseis_meta_x_src = 20,
+    exseis_meta_x_src,
 
     /// The source y coordinate
-    exseis_meta_y_src = 21,
+    exseis_meta_y_src,
 
     /// The receiver x coordinate
-    exseis_meta_x_rcv = 22,
+    exseis_meta_x_rcv,
 
     /// The receiver y coordinate
-    exseis_meta_y_rcv = 23,
+    exseis_meta_y_rcv,
 
     /// The CMP x coordinate
-    exseis_meta_xCmp = 24,
+    exseis_meta_xCmp,
 
     /// The CMP y coordinate
-    exseis_meta_yCmp = 25,
+    exseis_meta_yCmp,
+
+    /// The coordinate scalar value in a SEGY file
+    exseis_meta_coordinate_scalar,
 
     /// The inline number
-    exseis_meta_il = 26,
+    exseis_meta_il,
 
     /// The crossline number
-    exseis_meta_xl = 27,
+    exseis_meta_xl,
 
     /// Unit system for transduction constant
-    exseis_meta_TransUnit = 28,
+    exseis_meta_TransUnit,
 
     /// Unit system for traces
-    exseis_meta_TraceUnit = 29,
+    exseis_meta_TraceUnit,
 
     // Non-standard
 
     /// The sum of the differences between sources and receivers of this trace
     /// and another
-    exseis_meta_dsdr = 30,
+    exseis_meta_dsdr,
 
     // TODO: Don't add more of these, find out what they do and replace them
     // with real names
 
     /// Miscellaneous
-    exseis_meta_Misc1 = 31,
+    exseis_meta_Misc1,
 
     /// Miscellaneous
-    exseis_meta_Misc2 = 32,
+    exseis_meta_Misc2,
 
     /// Miscellaneous
-    exseis_meta_Misc3 = 33,
+    exseis_meta_Misc3,
 
     /// Miscellaneous
-    exseis_meta_Misc4 = 34
+    exseis_meta_Misc4
 };
 
 #ifdef __cplusplus

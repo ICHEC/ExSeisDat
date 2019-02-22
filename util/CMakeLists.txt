@@ -45,6 +45,9 @@ util_add_executable(exseis-minmax   minmax.cc sglobal.cc)
 
 util_add_executable(exseis-segy2kml segy2kml.cc sglobal.cc)
 
+util_add_executable(exseis-extract-metadata extract-metadata.main.cc)
+target_link_libraries(exseis-extract-metadata CLI11::CLI11)
+
 
 #
 # Install the utility executables

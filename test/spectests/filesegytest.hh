@@ -132,10 +132,9 @@ class Mock_Binary_file : public Binary_file {
     MOCK_CONST_METHOD0(is_open, bool());
     MOCK_CONST_METHOD0(get_file_size, size_t());
     MOCK_CONST_METHOD1(set_file_size, void(size_t size));
+    MOCK_CONST_METHOD3(read, void(size_t offset, size_t size, void* buffer));
     MOCK_CONST_METHOD3(
-      read, void(size_t offset, size_t size, unsigned char* buffer));
-    MOCK_CONST_METHOD3(
-      write, void(size_t offset, size_t size, const unsigned char* buffer));
+      write, void(size_t offset, size_t size, const void* buffer));
     MOCK_CONST_METHOD5(
       read_noncontiguous,
       void(
@@ -143,7 +142,7 @@ class Mock_Binary_file : public Binary_file {
         size_t block_size,
         size_t stride_size,
         size_t number_of_blocks,
-        unsigned char* buffer));
+        void* buffer));
     MOCK_CONST_METHOD5(
       write_noncontiguous,
       void(
@@ -151,21 +150,21 @@ class Mock_Binary_file : public Binary_file {
         size_t block_size,
         size_t stride_size,
         size_t number_of_blocks,
-        const unsigned char* buffer));
+        const void* buffer));
     MOCK_CONST_METHOD4(
       read_noncontiguous_irregular,
       void(
         size_t block_size,
         size_t number_of_blocks,
         const size_t* offsets,
-        unsigned char* buffer));
+        void* buffer));
     MOCK_CONST_METHOD4(
       write_noncontiguous_irregular,
       void(
         size_t block_size,
         size_t number_of_blocks,
         const size_t* offsets,
-        const unsigned char* buffer));
+        const void* buffer));
 };
 
 class Mock_Object : public ObjectInterface {

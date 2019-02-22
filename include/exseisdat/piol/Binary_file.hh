@@ -62,8 +62,7 @@ class Binary_file {
     /// @param[out] buffer The buffer to read into
     ///                    (pointer to array of size \c size)
     ///
-    virtual void read(
-      size_t offset, size_t size, unsigned char* buffer) const = 0;
+    virtual void read(size_t offset, size_t size, void* buffer) const = 0;
 
 
     /// @brief Write a contiguous chunk of size \c size beginning a position \c
@@ -75,7 +74,7 @@ class Binary_file {
     ///                    (pointer to array of size \c size)
     ///
     virtual void write(
-      size_t offset, size_t size, const unsigned char* buffer) const = 0;
+      size_t offset, size_t size, const void* buffer) const = 0;
 
 
     /// @brief Read a file in regularly spaced, non-contiguous blocks.
@@ -96,7 +95,7 @@ class Binary_file {
       size_t block_size,
       size_t stride_size,
       size_t number_of_blocks,
-      unsigned char* buffer) const = 0;
+      void* buffer) const = 0;
 
 
     /// @brief Write to a file in regularly spaced, non-contiguous blocks.
@@ -115,7 +114,7 @@ class Binary_file {
       size_t block_size,
       size_t stride_size,
       size_t number_of_blocks,
-      const unsigned char* buffer) const = 0;
+      const void* buffer) const = 0;
 
 
     /// @brief Read a file in irregularly spaced, non-contiguous chunks.
@@ -132,7 +131,7 @@ class Binary_file {
       size_t block_size,
       size_t number_of_blocks,
       const size_t* offsets,
-      unsigned char* buffer) const = 0;
+      void* buffer) const = 0;
 
 
     /// @brief Write to a file in irregularly spaced, non-contiguous chunks.
@@ -149,7 +148,7 @@ class Binary_file {
       size_t block_size,
       size_t number_of_blocks,
       const size_t* offsets,
-      const unsigned char* buffer) const = 0;
+      const void* buffer) const = 0;
 };
 
 }  // namespace piol

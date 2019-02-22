@@ -430,8 +430,7 @@ void read_write_impl(
 }  // namespace
 
 
-void MPI_Binary_file::read(
-  size_t offset, size_t size, unsigned char* buffer) const
+void MPI_Binary_file::read(size_t offset, size_t size, void* buffer) const
 {
     static const char* function_name =
       "exseis::piol::mpi::MPI_Binary_file::read";
@@ -440,12 +439,12 @@ void MPI_Binary_file::read(
       m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
 
     read_write_impl(
-      offset, size, buffer, mpi_read, m_max_size, m_file_communicator, m_file,
-      m_log, m_file_name, function_name);
+      offset, size, static_cast<unsigned char*>(buffer), mpi_read, m_max_size,
+      m_file_communicator, m_file, m_log, m_file_name, function_name);
 }
 
 void MPI_Binary_file::write(
-  size_t offset, size_t size, const unsigned char* buffer) const
+  size_t offset, size_t size, const void* buffer) const
 {
     static const char* function_name =
       "exseis::piol::mpi::MPI_Binary_file::write";
@@ -454,8 +453,9 @@ void MPI_Binary_file::write(
       m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
 
     read_write_impl(
-      offset, size, buffer, mpi_write, m_max_size, m_file_communicator, m_file,
-      m_log, m_file_name, function_name);
+      offset, size, static_cast<const unsigned char*>(buffer), mpi_write,
+      m_max_size, m_file_communicator, m_file, m_log, m_file_name,
+      function_name);
 }
 
 
@@ -608,7 +608,7 @@ void MPI_Binary_file::read_noncontiguous(
   size_t block_size,
   size_t stride_size,
   size_t number_of_blocks,
-  unsigned char* buffer) const
+  void* buffer) const
 {
     static const char* function_name =
       "exseis::piol::mpi::MPI_Binary_file::read_noncontiguous";
@@ -627,7 +627,7 @@ void MPI_Binary_file::write_noncontiguous(
   size_t block_size,
   size_t stride_size,
   size_t number_of_blocks,
-  const unsigned char* buffer) const
+  const void* buffer) const
 {
     static const char* function_name =
       "exseis::piol::mpi::MPI_Binary_file::write_noncontiguous";
@@ -823,7 +823,7 @@ void MPI_Binary_file::read_noncontiguous_irregular(
   size_t block_size,
   size_t number_of_blocks,
   const size_t* offsets,
-  unsigned char* buffer) const
+  void* buffer) const
 {
     static const char* function_name =
       "exseis::piol::mpi::MPI_Binary_file::read_noncontiguous_irregular";
@@ -840,7 +840,7 @@ void MPI_Binary_file::write_noncontiguous_irregular(
   size_t block_size,
   size_t number_of_blocks,
   const size_t* offsets,
-  const unsigned char* buffer) const
+  const void* buffer) const
 {
     static const char* function_name =
       "exseis::piol::mpi::MPI_Binary_file::write_noncontiguous_irregular";

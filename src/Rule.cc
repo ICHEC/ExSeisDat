@@ -169,6 +169,10 @@ bool Rule::add_rule(Meta m)
             add_segy_float(m, Tr::yCmp, Tr::ScaleCoord);
             return true;
 
+        case Meta::coordinate_scalar:
+            add_short(m, Tr::ScaleCoord);
+            return true;
+
         case Meta::il:
             add_long(m, Tr::il);
             return true;

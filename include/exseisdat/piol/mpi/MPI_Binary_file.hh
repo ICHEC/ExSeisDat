@@ -170,7 +170,7 @@ class MPI_Binary_file : public Binary_file {
     /// @param[out] buffer The buffer to read into
     ///                    (pointer to array of size \c size)
     ///
-    void read(size_t offset, size_t size, unsigned char* buffer) const override;
+    void read(size_t offset, size_t size, void* buffer) const override;
 
 
     /// @brief Write a contiguous chunk of size \c size beginning a position \c
@@ -181,8 +181,7 @@ class MPI_Binary_file : public Binary_file {
     /// @param[out] buffer The buffer to write from
     ///                    (pointer to array of size \c size)
     ///
-    void write(
-      size_t offset, size_t size, const unsigned char* buffer) const override;
+    void write(size_t offset, size_t size, const void* buffer) const override;
 
 
     /// @brief Read a file in regularly spaced, non-contiguous blocks.
@@ -203,7 +202,7 @@ class MPI_Binary_file : public Binary_file {
       size_t block_size,
       size_t stride_size,
       size_t number_of_blocks,
-      unsigned char* buffer) const override;
+      void* buffer) const override;
 
 
     /// @brief Write to a file in regularly spaced, non-contiguous blocks.
@@ -222,7 +221,7 @@ class MPI_Binary_file : public Binary_file {
       size_t block_size,
       size_t stride_size,
       size_t number_of_blocks,
-      const unsigned char* buffer) const override;
+      const void* buffer) const override;
 
 
     /// @brief Read a file in irregularly spaced, non-contiguous chunks.
@@ -239,7 +238,7 @@ class MPI_Binary_file : public Binary_file {
       size_t block_size,
       size_t number_of_blocks,
       const size_t* offsets,
-      unsigned char* buffer) const override;
+      void* buffer) const override;
 
 
     /// @brief Write to a file in irregularly spaced, non-contiguous chunks.
@@ -256,7 +255,7 @@ class MPI_Binary_file : public Binary_file {
       size_t block_size,
       size_t number_of_blocks,
       const size_t* offsets,
-      const unsigned char* buffer) const override;
+      const void* buffer) const override;
 };
 
 }  // namespace mpi

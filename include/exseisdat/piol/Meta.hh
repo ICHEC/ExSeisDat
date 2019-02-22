@@ -14,115 +14,118 @@ namespace piol {
 ///
 enum class Meta : size_t {
     /// Copy all headers. Don't interpret them.
-    Copy = 0,
+    Copy,
 
     /// Local trace number.
-    ltn = 1,
+    ltn,
 
     /// Global trace number.
-    gtn = 2,
+    gtn,
 
     /// The trace number (line)
-    tnl = 3,
+    tnl,
 
     /// The Trace number (record)
-    tnr = 4,
+    tnr,
 
     /// The trace number (file)
-    tn = 5,
+    tn,
 
     /// The trace number (ensemble)
-    tne = 6,
+    tne,
 
     /// Number of samples in this trace
-    ns = 7,
+    ns,
 
     /// The increment of this trace.
-    sample_interval = 8,
+    sample_interval,
 
     /// Trace identification code
-    Tic = 9,
+    Tic,
 
     /// Source Number
-    SrcNum = 10,
+    SrcNum,
 
     /// Shot number
-    ShotNum = 11,
+    ShotNum,
 
     /// Number of traces stacked for this trace (vertical)
-    VStack = 12,
+    VStack,
 
     /// Number of traces stacked for this trace (horizontal)
-    HStack = 13,
+    HStack,
 
     /// Distance from source to receiver
-    Offset = 14,
+    Offset,
 
     /// Receiver group elevation
-    RGElev = 15,
+    RGElev,
 
     /// Source surface elevation
-    SSElev = 16,
+    SSElev,
 
     /// Source depth
-    SDElev = 17,
+    SDElev,
 
     /// The Water depth at source
-    WtrDepSrc = 18,
+    WtrDepSrc,
 
     /// The Water depth at receiver
-    WtrDepRcv = 19,
+    WtrDepRcv,
 
     /// The source x coordinate
-    x_src = 20,
+    x_src,
 
     /// The source y coordinate
-    y_src = 21,
+    y_src,
 
     /// The receiver x coordinate
-    x_rcv = 22,
+    x_rcv,
 
     /// The receiver y coordinate
-    y_rcv = 23,
+    y_rcv,
 
     /// The CMP x coordinate
-    xCmp = 24,
+    xCmp,
 
     /// The CMP y coordinate
-    yCmp = 25,
+    yCmp,
+
+    /// The coordinate scalar in a SEGY file
+    coordinate_scalar,
 
     /// The inline number
-    il = 26,
+    il,
 
     /// The crossline number
-    xl = 27,
+    xl,
 
     /// Unit system for transduction constant
-    TransUnit = 28,
+    TransUnit,
 
     /// Unit system for traces
-    TraceUnit = 29,
+    TraceUnit,
 
     // Non-standard
 
     /// The sum of the differences between sources and receivers of this trace
     /// and another
-    dsdr = 30,
+    dsdr,
 
     // TODO: Don't add more of these, find out what they do and replace them
     // with real names
 
     /// Miscellaneous
-    Misc1 = 31,
+    Misc1,
 
     /// Miscellaneous
-    Misc2 = 32,
+    Misc2,
 
     /// Miscellaneous
-    Misc3 = 33,
+    Misc3,
 
     /// Miscellaneous
-    Misc4 = 34
+    Misc4
 };
 
 

@@ -8,6 +8,12 @@ configure_file(
     @ONLY
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man
+    @ONLY
+)
+
 # Get list of examples (files ending in .c or .cc)
 file(
     GLOB EXSEISDAT_EXAMPLES
@@ -59,9 +65,23 @@ add_custom_command(
     COMMENT "Building the documentation..."
 )
 
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/man/exseis-extract-metadata.1
+    COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man"
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
+    DEPENDS 
+        ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
+        ${EXSEISDAT_DOCUMENTED_EXAMPLES}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Building the documentation..."
+)
+
 # Target to wire up building the documentation to the ALL target.
 add_custom_target(
-    doc ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
+    doc ALL
+    DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
+        ${CMAKE_CURRENT_BINARY_DIR}/man/exseis-extract-metadata.1
 )
 
 # Set install target

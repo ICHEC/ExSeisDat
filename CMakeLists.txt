@@ -276,12 +276,13 @@ message(STATUS "    EXSEISDAT_BUILD_DOCUMENTATION = ${EXSEISDAT_BUILD_DOCUMENTAT
 
 # Build utilities
 if(EXSEISDAT_BUILD_UTILITIES)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/util)
+    add_subdirectory(third_party)
+    add_subdirectory(util)
 endif(EXSEISDAT_BUILD_UTILITIES)
 
 # Build examples
 if(EXSEISDAT_BUILD_EXAMPLES)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples)
+    add_subdirectory(examples)
 endif(EXSEISDAT_BUILD_EXAMPLES)
 
 # Build tests
