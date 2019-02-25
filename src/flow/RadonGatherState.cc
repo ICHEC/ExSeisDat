@@ -12,8 +12,8 @@ namespace exseis {
 namespace flow {
 
 void RadonGatherState::make_state(
-  const std::vector<size_t>& offset,
-  const utils::Distributed_vector<Gather_info>& gather)
+    const std::vector<size_t>& offset,
+    const utils::Distributed_vector<Gather_info>& gather)
 {
     // TODO: DON'T USE MAGIC NAME
     ReadSEGYModel vm(piol, vmname);

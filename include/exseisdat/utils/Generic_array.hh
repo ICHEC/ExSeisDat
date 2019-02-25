@@ -40,8 +40,8 @@ template<typename InterfaceType>
 class Generic_array {
 
     static_assert(
-      std::is_arithmetic<InterfaceType>::value,
-      "Generic_array is only defined for arithmetic types!");
+        std::is_arithmetic<InterfaceType>::value,
+        "Generic_array is only defined for arithmetic types!");
 
   public:
     /// The value type accepted and returned by get/set interfaces.
@@ -101,14 +101,14 @@ class Generic_array {
         m_concept(std::make_unique<Model<StoredArray>>(std::move(stored_array)))
     {
         static_assert(
-          std::numeric_limits<InterfaceType>::min()
-            <= std::numeric_limits<typename StoredArray::value_type>::min(),
-          "StoredArray must satisfy min(StoredArray::value_type) >= min(InterfaceType)");
+            std::numeric_limits<InterfaceType>::min()
+                <= std::numeric_limits<typename StoredArray::value_type>::min(),
+            "StoredArray must satisfy min(StoredArray::value_type) >= min(InterfaceType)");
 
         static_assert(
-          std::numeric_limits<InterfaceType>::max()
-            >= std::numeric_limits<typename StoredArray::value_type>::max(),
-          "StoredArray must satisfy max(StoredArray::value_type) <= max(InterfaceType)");
+            std::numeric_limits<InterfaceType>::max()
+                >= std::numeric_limits<typename StoredArray::value_type>::max(),
+            "StoredArray must satisfy max(StoredArray::value_type) <= max(InterfaceType)");
     }
 
 
@@ -243,8 +243,8 @@ class Generic_array<InterfaceType>::Concept {
 ///        using the InterfaceType.
 template<typename InterfaceType>
 template<typename StoredArray>
-class Generic_array<InterfaceType>::Model final
-    : public Generic_array<InterfaceType>::Concept {
+class Generic_array<InterfaceType>::Model final :
+    public Generic_array<InterfaceType>::Concept {
   public:
     /// The value type used by the underlying storage
     using stored_type = typename StoredArray::value_type;

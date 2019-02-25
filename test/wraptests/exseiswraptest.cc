@@ -16,12 +16,12 @@ std::shared_ptr<ExSeis*> test_piol_exseis()
 {
     auto exseis_ptr = std::make_shared<ExSeis*>();
     EXPECT_CALL(mock_exseis(), ctor(_, exseis::utils::Verbosity::none, _))
-      .WillOnce(SaveArg<0>(exseis_ptr));
+        .WillOnce(SaveArg<0>(exseis_ptr));
 
     const Verbosity verbosities[] = {
-      exseis::utils::Verbosity::none, exseis::utils::Verbosity::minimal,
-      exseis::utils::Verbosity::extended, exseis::utils::Verbosity::verbose,
-      exseis::utils::Verbosity::max};
+        exseis::utils::Verbosity::none, exseis::utils::Verbosity::minimal,
+        exseis::utils::Verbosity::extended, exseis::utils::Verbosity::verbose,
+        exseis::utils::Verbosity::max};
 
     for (auto verbosity : verbosities) {
         EXPECT_CALL(mock_exseis(), ctor(_, verbosity, _));

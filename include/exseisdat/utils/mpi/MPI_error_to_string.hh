@@ -20,7 +20,7 @@ namespace utils {
 /// @return A human readable string detailing the error code and the status.
 ///
 std::string mpi_error_to_string(
-  int mpi_error, const MPI_Status* mpi_status = MPI_STATUS_IGNORE);
+    int mpi_error, const MPI_Status* mpi_status = MPI_STATUS_IGNORE);
 
 }  // namespace utils
 }  // namespace exseis

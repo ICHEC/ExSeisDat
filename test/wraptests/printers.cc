@@ -33,7 +33,7 @@ namespace piol {
 namespace std {
 
 ::std::ostream& operator<<(
-  ::std::ostream& os, const std::shared_ptr<exseis::piol::Rule>& value)
+    ::std::ostream& os, const std::shared_ptr<exseis::piol::Rule>& value)
 {
     os << "std::shared_ptr<exseis::piol::Rule> "
        << static_cast<void*>(value.get());

@@ -13,13 +13,13 @@ namespace utils {
 inline namespace decomposition {
 
 extern "C" exseis_Contiguous_decomposition exseis_block_decomposition(
-  size_t range_size, size_t num_ranks, size_t rank)
+    size_t range_size, size_t num_ranks, size_t rank)
 {
     return block_decomposition(range_size, num_ranks, rank);
 }
 
 Contiguous_decomposition block_decomposition(
-  size_t range_size, size_t num_ranks, size_t rank)
+    size_t range_size, size_t num_ranks, size_t rank)
 {
     assert(num_ranks > 0);
 
@@ -93,7 +93,7 @@ Contiguous_decomposition block_decomposition(
 // }
 
 Decomposition_index_location block_decomposition_location(
-  size_t range_size, size_t num_ranks, size_t global_index)
+    size_t range_size, size_t num_ranks, size_t global_index)
 {
     assert(global_index < range_size);
     assert(num_ranks > 0);
@@ -115,7 +115,7 @@ Decomposition_index_location block_decomposition_location(
         // We remove the offset for the processes with `chunk_size+1` items
         // so we can deal directly with `chunk_size`.
         const size_t offset_global_index =
-          global_index - (chunk_size + 1) * remainder;
+            global_index - (chunk_size + 1) * remainder;
 
         // Find the rank from the offset index
         const size_t offset_rank = offset_global_index / chunk_size;

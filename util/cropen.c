@@ -48,7 +48,7 @@ int test_many_files(piol_exseis* piol, const char* name)
     const size_t rnum = 10;
     const size_t fnum = 1000;
     piol_file_read_interface** files =
-      calloc(fnum, sizeof(piol_file_read_interface*));
+        calloc(fnum, sizeof(piol_file_read_interface*));
     piol_file_read_interface* ffile = piol_file_read_segy_new(piol, name);
 
     const char* msg = piol_file_read_interface_read_text(ffile);
@@ -64,12 +64,12 @@ int test_many_files(piol_exseis* piol, const char* name)
 
         for (size_t j = 0; j < fnum; j++) {
             EXSEISDAT_CMP_STR(
-              msg, piol_file_read_interface_read_text(files[i]));
+                msg, piol_file_read_interface_read_text(files[i]));
             EXSEISDAT_CMP(ln, strlen(msg));
             EXSEISDAT_CMP(ns, piol_file_read_interface_read_ns(files[i]));
             EXSEISDAT_CMP(nt, piol_file_read_interface_read_nt(files[i]));
             EXSEISDAT_CMP(
-              inc, piol_file_read_interface_read_sample_interval(files[i]));
+                inc, piol_file_read_interface_read_sample_interval(files[i]));
         }
 
         for (size_t j = 0; j < fnum; j++) {

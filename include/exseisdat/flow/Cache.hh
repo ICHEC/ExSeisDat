@@ -44,10 +44,10 @@ class Cache {
      *  @return Return a block with the traces and/or parameters.
      */
     std::shared_ptr<TraceBlock> get_cache(
-      std::shared_ptr<exseis::piol::Rule> rule,
-      FileDeque& desc,
-      bool c_prm,
-      bool c_trc);
+        std::shared_ptr<exseis::piol::Rule> rule,
+        FileDeque& desc,
+        bool c_prm,
+        bool c_trc);
 
     /*! Get a given cache of parameters. Perform I/O and cache the result if not
      *  already done so.
@@ -56,7 +56,7 @@ class Cache {
      *  @return Return a block with the parameters.
      */
     std::shared_ptr<TraceBlock> cache_prm(
-      std::shared_ptr<exseis::piol::Rule> rule, FileDeque& desc)
+        std::shared_ptr<exseis::piol::Rule> rule, FileDeque& desc)
     {
         return get_cache(rule, desc, true, false);
     }
@@ -78,10 +78,10 @@ class Cache {
     bool check_prm(FileDeque& desc)
     {
         auto it = std::find_if(
-          m_cache.begin(), m_cache.end(),
-          [desc](const CacheElem& elem) -> bool {
-              return elem.check_prm(desc);
-          });
+            m_cache.begin(), m_cache.end(),
+            [desc](const CacheElem& elem) -> bool {
+                return elem.check_prm(desc);
+            });
         return it != m_cache.end();
     }
 
@@ -92,10 +92,10 @@ class Cache {
     bool check_trc(FileDeque& desc)
     {
         auto it = std::find_if(
-          m_cache.begin(), m_cache.end(),
-          [desc](const CacheElem& elem) -> bool {
-              return elem.check_trc(desc);
-          });
+            m_cache.begin(), m_cache.end(),
+            [desc](const CacheElem& elem) -> bool {
+                return elem.check_trc(desc);
+            });
         return it != m_cache.end();
     }
 
@@ -105,8 +105,10 @@ class Cache {
     void flush(FileDeque& desc)
     {
         auto it = std::find_if(
-          m_cache.begin(), m_cache.end(),
-          [desc](const CacheElem& elem) -> bool { return elem.desc == desc; });
+            m_cache.begin(), m_cache.end(),
+            [desc](const CacheElem& elem) -> bool {
+                return elem.desc == desc;
+            });
         m_cache.erase(it);
     }
 
@@ -118,10 +120,10 @@ class Cache {
      *  @return Return the output trace locations
      */
     std::vector<size_t> get_output_trace(
-      FileDeque& desc,
-      size_t offset,
-      size_t sz,
-      exseis::piol::Trace_metadata& prm);
+        FileDeque& desc,
+        size_t offset,
+        size_t sz,
+        exseis::piol::Trace_metadata& prm);
 };
 
 }  // namespace flow

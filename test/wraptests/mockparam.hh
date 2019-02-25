@@ -24,33 +24,37 @@ class Mock_Trace_metadata {
     MOCK_METHOD1(dtor, void(Trace_metadata*));
 
     MOCK_CONST_METHOD3(
-      get_floating_point,
-      Floating_point(const Trace_metadata*, size_t trace_index, Meta entry));
+        get_floating_point,
+        Floating_point(const Trace_metadata*, size_t trace_index, Meta entry));
     MOCK_METHOD4(
-      set_floating_point,
-      void(
-        Trace_metadata*, size_t trace_index, Meta entry, Floating_point value));
+        set_floating_point,
+        void(
+            Trace_metadata*,
+            size_t trace_index,
+            Meta entry,
+            Floating_point value));
 
     MOCK_CONST_METHOD3(
-      get_integer,
-      Integer(const Trace_metadata*, size_t trace_index, Meta entry));
+        get_integer,
+        Integer(const Trace_metadata*, size_t trace_index, Meta entry));
     MOCK_METHOD4(
-      set_integer,
-      void(Trace_metadata*, size_t trace_index, Meta entry, Integer value));
+        set_integer,
+        void(Trace_metadata*, size_t trace_index, Meta entry, Integer value));
 
     MOCK_CONST_METHOD3(
-      get_index, size_t(const Trace_metadata*, size_t trace_index, Meta entry));
+        get_index,
+        size_t(const Trace_metadata*, size_t trace_index, Meta entry));
     MOCK_METHOD4(
-      set_index,
-      void(Trace_metadata*, size_t trace_index, Meta entry, size_t value));
+        set_index,
+        void(Trace_metadata*, size_t trace_index, Meta entry, size_t value));
 
     MOCK_METHOD4(
-      copy_entries,
-      void(
-        Trace_metadata*,
-        size_t trace_index,
-        const Trace_metadata& source_trace_metadata,
-        size_t source_trace_index));
+        copy_entries,
+        void(
+            Trace_metadata*,
+            size_t trace_index,
+            const Trace_metadata& source_trace_metadata,
+            size_t source_trace_index));
 
     MOCK_CONST_METHOD1(size, size_t(const Trace_metadata*));
 

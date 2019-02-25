@@ -188,7 +188,7 @@ struct SEGYFloatRuleEntry : public RuleEntry {
     std::unique_ptr<RuleEntry> clone() const override
     {
         return std::make_unique<SEGYFloatRuleEntry>(
-          static_cast<Tr>(loc), static_cast<Tr>(scalar_location));
+            static_cast<Tr>(loc), static_cast<Tr>(scalar_location));
     }
 
     /// @copydoc RuleEntry::memory_usage()

@@ -32,44 +32,44 @@ Trace_metadata::Trace_metadata(Rule rules, size_t num_traces) :
         switch (value->type()) {
             case RuleEntry::MdType::Float:
                 m_floating_point_entries.insert(
-                  {key, Generic_array<Floating_point>(
-                          std::vector<Floating_point>(num_traces))});
+                    {key, Generic_array<Floating_point>(
+                              std::vector<Floating_point>(num_traces))});
 
                 assert(
-                  m_floating_point_entries.at(key).size() == num_traces
-                  && "Expected m_floating_point_entries[key].size() == num_traces!");
+                    m_floating_point_entries.at(key).size() == num_traces
+                    && "Expected m_floating_point_entries[key].size() == num_traces!");
                 break;
 
             case RuleEntry::MdType::Long:
                 m_integer_entries.insert(
-                  {key,
-                   Generic_array<Integer>(std::vector<Integer>(num_traces))});
+                    {key,
+                     Generic_array<Integer>(std::vector<Integer>(num_traces))});
 
                 assert(
-                  m_integer_entries.at(key).size() == num_traces
-                  && "Expected m_integer_entries[key].size() == num_traces!");
+                    m_integer_entries.at(key).size() == num_traces
+                    && "Expected m_integer_entries[key].size() == num_traces!");
 
                 break;
 
             case RuleEntry::MdType::Short:
                 m_integer_entries.insert(
-                  {key,
-                   Generic_array<Integer>(std::vector<int16_t>(num_traces))});
+                    {key,
+                     Generic_array<Integer>(std::vector<int16_t>(num_traces))});
 
                 assert(
-                  m_integer_entries.at(key).size() == num_traces
-                  && "Expected m_integer_entries[key].size() == num_traces!");
+                    m_integer_entries.at(key).size() == num_traces
+                    && "Expected m_integer_entries[key].size() == num_traces!");
 
                 break;
 
             case RuleEntry::MdType::Index:
                 m_index_entries.insert(
-                  {key,
-                   Generic_array<uint64_t>(std::vector<uint64_t>(num_traces))});
+                    {key, Generic_array<uint64_t>(
+                              std::vector<uint64_t>(num_traces))});
 
                 assert(
-                  m_index_entries.at(key).size() == num_traces
-                  && "Expected m_index_entries[key].size() == num_traces!");
+                    m_index_entries.at(key).size() == num_traces
+                    && "Expected m_index_entries[key].size() == num_traces!");
 
                 break;
 
@@ -96,60 +96,60 @@ Trace_metadata::~Trace_metadata() = default;
 
 
 exseis::utils::Floating_point Trace_metadata::get_floating_point(
-  size_t trace_index, Key entry) const
+    size_t trace_index, Key entry) const
 {
     const auto it = m_floating_point_entries.find(entry);
 
     if (it == m_floating_point_entries.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::get_floating_point : Floating point entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::get_floating_point : Floating point entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     return it->second.get(trace_index);
 }
 
 void Trace_metadata::set_floating_point(
-  size_t trace_index, Key entry, exseis::utils::Floating_point value)
+    size_t trace_index, Key entry, exseis::utils::Floating_point value)
 {
     auto it = m_floating_point_entries.find(entry);
 
     if (it == m_floating_point_entries.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::set_floating_point : Floating point entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::set_floating_point : Floating point entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     it->second.set(trace_index, value);
 }
 
 exseis::utils::Integer Trace_metadata::get_integer(
-  size_t trace_index, Key entry) const
+    size_t trace_index, Key entry) const
 {
     const auto it = m_integer_entries.find(entry);
 
     if (it == m_integer_entries.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::get_integer : Integer entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::get_integer : Integer entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     return it->second.get(trace_index);
 }
 
 void Trace_metadata::set_integer(
-  size_t trace_index, Key entry, exseis::utils::Integer value)
+    size_t trace_index, Key entry, exseis::utils::Integer value)
 {
     auto it = m_integer_entries.find(entry);
 
     if (it == m_integer_entries.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::set_integer : Integer entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::set_integer : Integer entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     return it->second.set(trace_index, value);
@@ -161,9 +161,9 @@ size_t Trace_metadata::get_index(size_t trace_index, Key entry) const
 
     if (it == m_index_entries.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::get_index : Index entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::get_index : Index entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     return it->second.get(trace_index);
@@ -175,9 +175,9 @@ void Trace_metadata::set_index(size_t trace_index, Key entry, size_t value)
 
     if (it == m_index_entries.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::set_index : Index entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::set_index : Index entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     it->second.set(trace_index, value);
@@ -185,20 +185,20 @@ void Trace_metadata::set_index(size_t trace_index, Key entry, size_t value)
 
 
 void Trace_metadata::copy_entries(
-  size_t trace_index,
-  const Trace_metadata& source_metadata,
-  size_t source_trace_index)
+    size_t trace_index,
+    const Trace_metadata& source_metadata,
+    size_t source_trace_index)
 {
     if (source_metadata.raw_metadata_block_size > 0) {
-        if (
-          source_metadata.raw_metadata_block_size == raw_metadata_block_size) {
+        if (source_metadata.raw_metadata_block_size
+            == raw_metadata_block_size) {
             const unsigned char* source_start =
-              &(source_metadata
-                  .raw_metadata[source_trace_index * raw_metadata_block_size]);
+                &(source_metadata.raw_metadata
+                      [source_trace_index * raw_metadata_block_size]);
 
             std::copy_n(
-              source_start, raw_metadata_block_size,
-              &(raw_metadata[trace_index * raw_metadata_block_size]));
+                source_start, raw_metadata_block_size,
+                &(raw_metadata[trace_index * raw_metadata_block_size]));
         }
     }
 
@@ -210,8 +210,8 @@ void Trace_metadata::copy_entries(
             switch (type) {
                 case RuleEntry::MdType::Float: {
                     const auto source_value =
-                      source_metadata.get_floating_point(
-                        source_trace_index, key);
+                        source_metadata.get_floating_point(
+                            source_trace_index, key);
 
                     set_floating_point(trace_index, key, source_value);
                 } break;
@@ -219,14 +219,14 @@ void Trace_metadata::copy_entries(
                 case RuleEntry::MdType::Long:
                 case RuleEntry::MdType::Short: {
                     const auto source_value =
-                      source_metadata.get_integer(source_trace_index, key);
+                        source_metadata.get_integer(source_trace_index, key);
 
                     set_integer(trace_index, key, source_value);
                 } break;
 
                 case RuleEntry::MdType::Index: {
                     const auto source_value =
-                      source_metadata.get_index(source_trace_index, key);
+                        source_metadata.get_index(source_trace_index, key);
 
                     set_index(trace_index, key, source_value);
                 } break;
@@ -245,9 +245,9 @@ size_t Trace_metadata::entry_size(Key entry) const
 
     if (it == entry_types.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::entry_size : entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::entry_size : entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     switch (it->second) {
@@ -276,9 +276,9 @@ exseis::utils::Type Trace_metadata::entry_type(Key entry) const
 
     if (it == entry_types.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::entry_size : entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Meta>::type>(entry))));
+            "Trace_metadata::entry_size : entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Meta>::type>(entry))));
     }
 
     switch (it->second) {
@@ -323,7 +323,7 @@ size_t Trace_metadata::memory_usage(void) const
         using Value_type = typename Entries::mapped_type::value_type;
 
         const auto summed_capacity = std::accumulate(
-          entries.begin(), entries.end(), size_t(0), add_capacity);
+            entries.begin(), entries.end(), size_t(0), add_capacity);
 
         return summed_capacity * sizeof(Value_type);
     };

@@ -57,15 +57,15 @@ struct IBM_native_pair {
 };
 
 IBM_native_pair make_ibm_native_pair(
-  int sign, int8_t exponent, uint32_t significand)
+    int sign, int8_t exponent, uint32_t significand)
 {
     // Make sure the input values are in the right range
     assert((sign == -1 || sign == 1) && "Sign must be -1 or 1.");
 
     // IBM supports exponent from -64 to 63.
     assert(
-      exponent >= -64 && exponent <= 63
-      && "Exponent must be in range [-64, 63].");
+        exponent >= -64 && exponent <= 63
+        && "Exponent must be in range [-64, 63].");
 
     // The IBM significand is 24 bits long.
     assert(significand <= 0xFFFFFF && "Significand must be less than 2^25.");
@@ -94,7 +94,7 @@ IBM_native_pair make_ibm_native_pair(
     //  0b1111111 = 127 represents the exponent of +63
     assert((exponent + 64) >= 0 && "Biased exponent must be positive!");
     assert(
-      (exponent + 64) <= 127 && "Biased exponent must be in range [0, 127].");
+        (exponent + 64) <= 127 && "Biased exponent must be in range [0, 127].");
 
     // Assuming the native unsigned integer representation is standard binary,
     // we add the bias, convert the signed value to unsigned, and get the bits.
@@ -118,14 +118,14 @@ IBM_native_pair make_ibm_native_pair(
 
     // Put all the bits together.
     const std::bitset<32> ibm_bits =
-      ibm_byte_1 << 24 | ibm_byte_2 << 16 | ibm_byte_3 << 8 | ibm_byte_4 << 0;
+        ibm_byte_1 << 24 | ibm_byte_2 << 16 | ibm_byte_3 << 8 | ibm_byte_4 << 0;
 
     // Construct the equivalent value using the native floating point number.
     // In these tests, we assume this is IEEE 754 binary32 with rounding for
     // any truncated bits.
     const float native_value =
-      sign * static_cast<long double>(significand)
-      * std::pow(2.0L, static_cast<long double>(-24 + 4 * exponent));
+        sign * static_cast<long double>(significand)
+        * std::pow(2.0L, static_cast<long double>(-24 + 4 * exponent));
 
     // Convert the native rep directly into an unsigned type.
     uint32_t native_rep = 0;
@@ -156,7 +156,7 @@ TEST(Datatype, IBMToIEEE)
                 // Note, this doesn't fully explore denormalised values.
                 const uint32_t minimum_allowed_significand = 0x0FFFFF;
                 const uint32_t significand =
-                  base_significand + minimum_allowed_significand;
+                    base_significand + minimum_allowed_significand;
 
                 // Build an equivalent pair of IBM and native floating point
                 // values
@@ -169,13 +169,13 @@ TEST(Datatype, IBMToIEEE)
                 // Built an ieee float with from_ibm_to_float using the IBM
                 // float we just made.
                 const unsigned char* built_ibm_bytes =
-                  reinterpret_cast<const unsigned char*>(&built_ibm);
+                    reinterpret_cast<const unsigned char*>(&built_ibm);
 
                 const std::array<unsigned char, 4> built_ibm_bytes_array = {
-                  {built_ibm_bytes[0], built_ibm_bytes[1], built_ibm_bytes[2],
-                   built_ibm_bytes[3]}};
+                    {built_ibm_bytes[0], built_ibm_bytes[1], built_ibm_bytes[2],
+                     built_ibm_bytes[3]}};
                 const float ieee =
-                  from_ibm_to_float(built_ibm_bytes_array, false);
+                    from_ibm_to_float(built_ibm_bytes_array, false);
 
                 // Integer representation for the IEEE constructed float.
                 uint32_t built_ieee = 0;
@@ -191,25 +191,25 @@ TEST(Datatype, IBMToIEEE)
 
                 // Test exact equality for normal values
                 ASSERT_EQ(built_float, built_ieee)
-                  << std::endl
-                  << "sign: " << sign << std::endl
-                  << "exponent: " << static_cast<int>(exponent) << std::endl
-                  << "significand: " << print_binary(significand) << " , "
-                  << std::hex << significand << std::endl
-                  << std::endl
-                  << "IBM: " << std::endl
-                  << "SCCC CCCC QQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
-                  << print_binary(built_ibm) << std::endl
-                  << std::endl
-                  << "Native: " << std::hexfloat << to_float(built_float)
-                  << std::endl
-                  << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
-                  << print_binary(built_float) << std::endl
-                  << std::endl
-                  << "IEEE:   " << std::hexfloat << to_float(built_ieee)
-                  << std::endl
-                  << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
-                  << print_binary(built_ieee) << std::endl;
+                    << std::endl
+                    << "sign: " << sign << std::endl
+                    << "exponent: " << static_cast<int>(exponent) << std::endl
+                    << "significand: " << print_binary(significand) << " , "
+                    << std::hex << significand << std::endl
+                    << std::endl
+                    << "IBM: " << std::endl
+                    << "SCCC CCCC QQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
+                    << print_binary(built_ibm) << std::endl
+                    << std::endl
+                    << "Native: " << std::hexfloat << to_float(built_float)
+                    << std::endl
+                    << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
+                    << print_binary(built_float) << std::endl
+                    << std::endl
+                    << "IEEE:   " << std::hexfloat << to_float(built_ieee)
+                    << std::endl
+                    << "SCCC CCCC CQQQ QQQQ QQQQ QQQQ QQQQ QQQQ" << std::endl
+                    << print_binary(built_ieee) << std::endl;
             }
         }
     }

@@ -36,7 +36,7 @@ struct exseis_Contiguous_decomposition {
 /// C API for \ref block_decomposition()
 /// @copydoc exseis::utils::decomposition::block_decomposition
 struct exseis_Contiguous_decomposition exseis_block_decomposition(
-  size_t range_size, size_t num_ranks, size_t rank);
+    size_t range_size, size_t num_ranks, size_t rank);
 
 /// @} C API
 

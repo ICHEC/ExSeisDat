@@ -28,8 +28,8 @@ void init_wraptests()
     // const char* needed for string literal, non-const char* needed for
     // google test.
     const char* program_name = "cwraptests";
-    auto program_name_v =
-      std::vector<char>{program_name, program_name + strlen(program_name) + 1};
+    auto program_name_v      = std::vector<char>{
+        program_name, program_name + strlen(program_name) + 1};
     char* program_name_ptr = program_name_v.data();
 
     // Throw so TestBuilder has something to catch and report.
@@ -39,12 +39,12 @@ void init_wraptests()
 
     // Disable GoogleTest printing exceptions.
     testing::TestEventListeners& listeners =
-      testing::UnitTest::GetInstance()->listeners();
+        testing::UnitTest::GetInstance()->listeners();
     listeners.Release(listeners.default_result_printer());
 
     // Setup and add the CheckReturnListener
     exseis::piol::check_return_listener() =
-      new exseis::piol::CheckReturnListener;
+        new exseis::piol::CheckReturnListener;
     listeners.Append(exseis::piol::check_return_listener());
 
     //::testing::FLAGS_gmock_verbose = "info";

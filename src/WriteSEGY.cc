@@ -28,25 +28,25 @@ namespace piol {
 //////////////////////      Constructor & Destructor      //////////////////////
 
 WriteSEGY::WriteSEGY(
-  std::shared_ptr<ExSeisPIOL> piol,
-  const std::string name,
-  const WriteSEGY::Options& options) :
+    std::shared_ptr<ExSeisPIOL> piol,
+    const std::string name,
+    const WriteSEGY::Options& options) :
     WriteSEGY(
-      piol,
-      name,
-      options,
-      std::make_shared<ObjectSEGY>(
         piol,
         name,
-        std::make_shared<MPI_Binary_file>(piol, name, FileMode::Write)))
+        options,
+        std::make_shared<ObjectSEGY>(
+            piol,
+            name,
+            std::make_shared<MPI_Binary_file>(piol, name, FileMode::Write)))
 {
 }
 
 WriteSEGY::WriteSEGY(
-  std::shared_ptr<ExSeisPIOL> piol,
-  std::string name,
-  const WriteSEGY::Options& options,
-  std::shared_ptr<ObjectInterface> obj) :
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string name,
+    const WriteSEGY::Options& options,
+    std::shared_ptr<ObjectInterface> obj) :
     m_piol(piol),
     m_name(name),
     m_obj(obj),
@@ -69,60 +69,60 @@ WriteSEGY::~WriteSEGY(void)
             if (m_piol->comm->get_rank() == 0) {
                 // The buffer to build the header in
                 std::vector<unsigned char> header_buffer(
-                  segy::segy_binary_file_header_size());
+                    segy::segy_binary_file_header_size());
 
                 // Write the text header into the start of the buffer.
                 std::copy(
-                  std::begin(m_text), std::end(m_text),
-                  std::begin(header_buffer));
+                    std::begin(m_text), std::end(m_text),
+                    std::begin(header_buffer));
 
                 // Write ns, the number format, and the interval
                 const std::array<unsigned char, 2> be_ns =
-                  to_big_endian(static_cast<int16_t>(m_ns));
+                    to_big_endian(static_cast<int16_t>(m_ns));
                 std::copy(
-                  std::begin(be_ns), std::end(be_ns),
-                  &header_buffer[SEGYFileHeaderByte::num_sample]);
+                    std::begin(be_ns), std::end(be_ns),
+                    &header_buffer[SEGYFileHeaderByte::num_sample]);
 
                 const std::array<unsigned char, 2> be_format =
-                  to_big_endian(static_cast<int16_t>(SEGYNumberFormat::IEEE));
+                    to_big_endian(static_cast<int16_t>(SEGYNumberFormat::IEEE));
                 std::copy(
-                  std::begin(be_format), std::end(be_format),
-                  &header_buffer[SEGYFileHeaderByte::type]);
+                    std::begin(be_format), std::end(be_format),
+                    &header_buffer[SEGYFileHeaderByte::type]);
 
                 const std::array<unsigned char, 2> be_interval =
-                  to_big_endian(static_cast<int16_t>(
-                    std::lround(m_sample_interval / m_sample_interval_factor)));
+                    to_big_endian(static_cast<int16_t>(std::lround(
+                        m_sample_interval / m_sample_interval_factor)));
                 std::copy(
-                  std::begin(be_interval), std::end(be_interval),
-                  &header_buffer[SEGYFileHeaderByte::interval]);
+                    std::begin(be_interval), std::end(be_interval),
+                    &header_buffer[SEGYFileHeaderByte::interval]);
 
                 // Currently these are hard-coded entries:
                 // The unit system.
                 const std::array<unsigned char, 2> be_units =
-                  to_big_endian<int16_t>(0x0001);
+                    to_big_endian<int16_t>(0x0001);
                 std::copy(
-                  std::begin(be_units), std::end(be_units),
-                  &header_buffer[SEGYFileHeaderByte::units]);
+                    std::begin(be_units), std::end(be_units),
+                    &header_buffer[SEGYFileHeaderByte::units]);
 
                 // The version of the SEGY format.
                 const std::array<unsigned char, 2> be_segy_format =
-                  to_big_endian<int16_t>(0x0100);
+                    to_big_endian<int16_t>(0x0100);
                 std::copy(
-                  std::begin(be_segy_format), std::end(be_segy_format),
-                  &header_buffer[SEGYFileHeaderByte::segy_format]);
+                    std::begin(be_segy_format), std::end(be_segy_format),
+                    &header_buffer[SEGYFileHeaderByte::segy_format]);
 
                 // We always deal with fixed traces at present.
                 const std::array<unsigned char, 2> be_fixed_trace =
-                  to_big_endian<int16_t>(0x0001);
+                    to_big_endian<int16_t>(0x0001);
                 std::copy(
-                  std::begin(be_fixed_trace), std::end(be_fixed_trace),
-                  &header_buffer[SEGYFileHeaderByte::fixed_trace]);
+                    std::begin(be_fixed_trace), std::end(be_fixed_trace),
+                    &header_buffer[SEGYFileHeaderByte::fixed_trace]);
 
                 // We do not support text extensions at present.
                 const auto be_extensions = to_big_endian<int16_t>(0x0000);
                 std::copy(
-                  std::begin(be_extensions), std::end(be_extensions),
-                  &header_buffer[SEGYFileHeaderByte::extensions]);
+                    std::begin(be_extensions), std::end(be_extensions),
+                    &header_buffer[SEGYFileHeaderByte::extensions]);
 
                 // Write the header from the buffer
                 m_obj->should_write_file_header(header_buffer.data());
@@ -164,9 +164,9 @@ void WriteSEGY::write_ns(const size_t ns)
 {
     if (ns > std::numeric_limits<int16_t>::max()) {
         m_piol->log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error, "Ns value is too large for SEG-Y",
-          exseis::utils::Verbosity::none,
-          EXSEISDAT_SOURCE_POSITION("exseis::piol::WriteSEGY::write_ns")});
+            exseis::utils::Status::Error, "Ns value is too large for SEG-Y",
+            exseis::utils::Verbosity::none,
+            EXSEISDAT_SOURCE_POSITION("exseis::piol::WriteSEGY::write_ns")});
 
         return;
     }
@@ -189,23 +189,22 @@ void WriteSEGY::write_nt(const size_t nt)
 }
 
 void WriteSEGY::write_sample_interval(
-  const exseis::utils::Floating_point sample_interval)
+    const exseis::utils::Floating_point sample_interval)
 {
     if (std::isnormal(sample_interval) == false) {
         m_piol->log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error,
-          "The SEG-Y Interval " + std::to_string(sample_interval)
-            + " is not normal.",
-          exseis::utils::Verbosity::none,
-          EXSEISDAT_SOURCE_POSITION(
-            "exseis::piol::WriteSEGY::write_sample_interval")});
+            exseis::utils::Status::Error,
+            "The SEG-Y Interval " + std::to_string(sample_interval)
+                + " is not normal.",
+            exseis::utils::Verbosity::none,
+            EXSEISDAT_SOURCE_POSITION(
+                "exseis::piol::WriteSEGY::write_sample_interval")});
 
         return;
     }
 
-    if (
-      m_sample_interval < sample_interval
-      || m_sample_interval > sample_interval) {
+    if (m_sample_interval < sample_interval
+        || m_sample_interval > sample_interval) {
         m_sample_interval                = sample_interval;
         m_state.should_write_file_header = true;
     }
@@ -225,13 +224,13 @@ void WriteSEGY::write_sample_interval(
  */
 template<typename T>
 void write_trace_t(
-  ObjectInterface* obj,
-  const size_t ns,
-  T offset,
-  const size_t number_of_traces,
-  exseis::utils::Trace_value* trc,
-  const Trace_metadata* prm,
-  const size_t skip)
+    ObjectInterface* obj,
+    const size_t ns,
+    T offset,
+    const size_t number_of_traces,
+    exseis::utils::Trace_value* trc,
+    const Trace_metadata* prm,
+    const size_t skip)
 {
     unsigned char* tbuf = reinterpret_cast<unsigned char*>(trc);
 
@@ -241,14 +240,14 @@ void write_trace_t(
     if (trc != nullptr) {
         for (size_t i = 0; i < ns * number_of_traces; i++) {
             const auto be_trc_i_bytes =
-              to_big_endian<exseis::utils::Trace_value>(trc[i]);
+                to_big_endian<exseis::utils::Trace_value>(trc[i]);
 
             unsigned char* trc_i_bytes =
-              reinterpret_cast<unsigned char*>(&trc[i]);
+                reinterpret_cast<unsigned char*>(&trc[i]);
 
             std::copy(
-              std::begin(be_trc_i_bytes), std::end(be_trc_i_bytes),
-              trc_i_bytes);
+                std::begin(be_trc_i_bytes), std::end(be_trc_i_bytes),
+                trc_i_bytes);
         }
     }
 
@@ -258,26 +257,26 @@ void write_trace_t(
     }
     else {
         const size_t block_sz =
-          (trc == nullptr ? segy::segy_trace_header_size() :
-                            segy::segy_trace_size(ns));
+            (trc == nullptr ? segy::segy_trace_header_size() :
+                              segy::segy_trace_size(ns));
 
         std::vector<unsigned char> alloc(block_sz * number_of_traces);
         unsigned char* buf = (number_of_traces ? alloc.data() : nullptr);
 
         segy::insert_trace_metadata(
-          number_of_traces, *prm, buf,
-          block_sz - segy::segy_trace_header_size(), skip);
+            number_of_traces, *prm, buf,
+            block_sz - segy::segy_trace_header_size(), skip);
         if (trc == nullptr) {
             obj->write_trace_metadata(offset, ns, number_of_traces, buf);
         }
         else {
             for (size_t i = 0; i < number_of_traces; i++) {
                 std::copy(
-                  &tbuf[i * segy::segy_trace_data_size(ns)],
-                  &tbuf[(i + 1) * segy::segy_trace_data_size(ns)],
-                  &buf
-                    [i * segy::segy_trace_size(ns)
-                     + segy::segy_trace_header_size()]);
+                    &tbuf[i * segy::segy_trace_data_size(ns)],
+                    &tbuf[(i + 1) * segy::segy_trace_data_size(ns)],
+                    &buf
+                        [i * segy::segy_trace_size(ns)
+                         + segy::segy_trace_header_size()]);
             }
 
             obj->write_trace(offset, ns, number_of_traces, buf);
@@ -293,29 +292,29 @@ void write_trace_t(
             const exseis::utils::Trace_value be_trc_i = trc[i];
 
             const unsigned char* be_trc_i_bytes =
-              reinterpret_cast<const unsigned char*>(&be_trc_i);
+                reinterpret_cast<const unsigned char*>(&be_trc_i);
 
             trc[i] = from_big_endian<exseis::utils::Trace_value>(
-              be_trc_i_bytes[0], be_trc_i_bytes[1], be_trc_i_bytes[2],
-              be_trc_i_bytes[3]);
+                be_trc_i_bytes[0], be_trc_i_bytes[1], be_trc_i_bytes[2],
+                be_trc_i_bytes[3]);
         }
     }
 }
 
 
 void WriteSEGY::write_trace(
-  const size_t offset,
-  const size_t number_of_traces,
-  exseis::utils::Trace_value* trc,
-  const Trace_metadata* prm,
-  const size_t skip)
+    const size_t offset,
+    const size_t number_of_traces,
+    exseis::utils::Trace_value* trc,
+    const Trace_metadata* prm,
+    const size_t skip)
 {
     if (!m_is_ns_set) {
         m_piol->log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error,
-          "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
-          exseis::utils::Verbosity::none,
-          EXSEISDAT_SOURCE_POSITION("exseis::piol::WriteSEGY::write_trace")});
+            exseis::utils::Status::Error,
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
+            exseis::utils::Verbosity::none,
+            EXSEISDAT_SOURCE_POSITION("exseis::piol::WriteSEGY::write_trace")});
     }
 
     write_trace_t(m_obj.get(), m_ns, offset, number_of_traces, trc, prm, skip);
@@ -324,19 +323,19 @@ void WriteSEGY::write_trace(
 }
 
 void WriteSEGY::write_trace_non_contiguous(
-  const size_t number_of_traces,
-  const size_t* offset,
-  exseis::utils::Trace_value* trc,
-  const Trace_metadata* prm,
-  const size_t skip)
+    const size_t number_of_traces,
+    const size_t* offset,
+    exseis::utils::Trace_value* trc,
+    const Trace_metadata* prm,
+    const size_t skip)
 {
     if (!m_is_ns_set) {
         m_piol->log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error,
-          "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
-          exseis::utils::Verbosity::none,
-          EXSEISDAT_SOURCE_POSITION(
-            "exseis::piol::WriteSEGY::write_trace_non_contiguous")});
+            exseis::utils::Status::Error,
+            "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
+            exseis::utils::Verbosity::none,
+            EXSEISDAT_SOURCE_POSITION(
+                "exseis::piol::WriteSEGY::write_trace_non_contiguous")});
     }
 
     write_trace_t(m_obj.get(), m_ns, offset, number_of_traces, trc, prm, skip);
@@ -347,19 +346,19 @@ void WriteSEGY::write_trace_non_contiguous(
 }
 
 void WriteSEGY::write_param(
-  const size_t offset,
-  const size_t sz,
-  const Trace_metadata* prm,
-  const size_t skip)
+    const size_t offset,
+    const size_t sz,
+    const Trace_metadata* prm,
+    const size_t skip)
 {
     write_trace(offset, sz, nullptr, prm, skip);
 }
 
 void WriteSEGY::write_param_non_contiguous(
-  const size_t sz,
-  const size_t* offset,
-  const Trace_metadata* prm,
-  const size_t skip)
+    const size_t sz,
+    const size_t* offset,
+    const Trace_metadata* prm,
+    const size_t skip)
 {
     write_trace_non_contiguous(sz, offset, nullptr, prm, skip);
 }

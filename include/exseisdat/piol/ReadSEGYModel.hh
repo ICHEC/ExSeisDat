@@ -30,19 +30,19 @@ class ReadSEGYModel : public Model3dInterface, public ReadSEGY {
      * @param[in] options The ReadSEGYModel options.
      */
     ReadSEGYModel(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      const ReadSEGYModel::Options& options = ReadSEGYModel::Options());
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const ReadSEGYModel::Options& options = ReadSEGYModel::Options());
 
     std::vector<exseis::utils::Trace_value> read_model(
-      size_t offset,
-      size_t sz,
-      const exseis::utils::Distributed_vector<Gather_info>& gather) override;
+        size_t offset,
+        size_t sz,
+        const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 
     std::vector<exseis::utils::Trace_value> read_model(
-      size_t sz,
-      const size_t* offset,
-      const exseis::utils::Distributed_vector<Gather_info>& gather) override;
+        size_t sz,
+        const size_t* offset,
+        const exseis::utils::Distributed_vector<Gather_info>& gather) override;
 };
 
 }  // namespace piol

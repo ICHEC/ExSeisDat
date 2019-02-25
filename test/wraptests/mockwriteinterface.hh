@@ -15,11 +15,11 @@ class MockWriteInterface;
 class MockWriteInterface {
   public:
     MOCK_METHOD3(
-      ctor,
-      void(
-        WriteInterface*,
-        std::shared_ptr<ExSeisPIOL> piol,
-        const std::string name));
+        ctor,
+        void(
+            WriteInterface*,
+            std::shared_ptr<ExSeisPIOL> piol,
+            const std::string name));
 
     MOCK_METHOD1(dtor, void(WriteInterface*));
 
@@ -31,47 +31,48 @@ class MockWriteInterface {
     MOCK_METHOD2(write_nt, void(WriteInterface*, const size_t nt_));
 
     MOCK_METHOD2(
-      write_sample_interval,
-      void(
-        WriteInterface*, const exseis::utils::Floating_point sample_interval_));
+        write_sample_interval,
+        void(
+            WriteInterface*,
+            const exseis::utils::Floating_point sample_interval_));
 
     MOCK_METHOD6(
-      write_trace,
-      void(
-        WriteInterface*,
-        const size_t offset,
-        const size_t sz,
-        exseis::utils::Trace_value* trace,
-        const Trace_metadata* prm,
-        size_t skip));
+        write_trace,
+        void(
+            WriteInterface*,
+            const size_t offset,
+            const size_t sz,
+            exseis::utils::Trace_value* trace,
+            const Trace_metadata* prm,
+            size_t skip));
 
     MOCK_METHOD5(
-      write_param,
-      void(
-        WriteInterface*,
-        const size_t offset,
-        const size_t sz,
-        const Trace_metadata* prm,
-        size_t skip));
+        write_param,
+        void(
+            WriteInterface*,
+            const size_t offset,
+            const size_t sz,
+            const Trace_metadata* prm,
+            size_t skip));
 
     MOCK_METHOD6(
-      write_trace_non_contiguous,
-      void(
-        WriteInterface*,
-        const size_t sz,
-        const size_t* offset,
-        exseis::utils::Trace_value* trace,
-        const Trace_metadata* prm,
-        size_t skip));
+        write_trace_non_contiguous,
+        void(
+            WriteInterface*,
+            const size_t sz,
+            const size_t* offset,
+            exseis::utils::Trace_value* trace,
+            const Trace_metadata* prm,
+            size_t skip));
 
     MOCK_METHOD5(
-      write_param_non_contiguous,
-      void(
-        WriteInterface*,
-        const size_t sz,
-        const size_t* offset,
-        const Trace_metadata* prm,
-        size_t skip));
+        write_param_non_contiguous,
+        void(
+            WriteInterface*,
+            const size_t sz,
+            const size_t* offset,
+            const Trace_metadata* prm,
+            size_t skip));
 };
 
 }  // namespace piol

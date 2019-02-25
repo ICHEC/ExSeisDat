@@ -44,9 +44,9 @@ struct ReadSEGY_public : public ReadSEGY {
     using ReadSEGY::m_text;
 
     ReadSEGY_public(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      std::shared_ptr<ObjectInterface> obj) :
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        std::shared_ptr<ObjectInterface> obj) :
         ReadSEGY(piol, name, {}, obj)
     {
     }
@@ -74,9 +74,9 @@ struct WriteSEGY_public : public WriteSEGY {
     using WriteSEGY::m_text;
 
     WriteSEGY_public(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      std::shared_ptr<ObjectInterface> obj) :
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        std::shared_ptr<ObjectInterface> obj) :
         WriteSEGY(piol, name, {}, obj)
     {
     }
@@ -84,7 +84,7 @@ struct WriteSEGY_public : public WriteSEGY {
     static WriteSEGY_public* get(WriteInterface* write_interface)
     {
         auto* write_segy_public =
-          dynamic_cast<WriteSEGY_public*>(write_interface);
+            dynamic_cast<WriteSEGY_public*>(write_interface);
 
         assert(write_segy_public != nullptr);
 
@@ -134,37 +134,37 @@ class Mock_Binary_file : public Binary_file {
     MOCK_CONST_METHOD1(set_file_size, void(size_t size));
     MOCK_CONST_METHOD3(read, void(size_t offset, size_t size, void* buffer));
     MOCK_CONST_METHOD3(
-      write, void(size_t offset, size_t size, const void* buffer));
+        write, void(size_t offset, size_t size, const void* buffer));
     MOCK_CONST_METHOD5(
-      read_noncontiguous,
-      void(
-        size_t offset,
-        size_t block_size,
-        size_t stride_size,
-        size_t number_of_blocks,
-        void* buffer));
+        read_noncontiguous,
+        void(
+            size_t offset,
+            size_t block_size,
+            size_t stride_size,
+            size_t number_of_blocks,
+            void* buffer));
     MOCK_CONST_METHOD5(
-      write_noncontiguous,
-      void(
-        size_t offset,
-        size_t block_size,
-        size_t stride_size,
-        size_t number_of_blocks,
-        const void* buffer));
+        write_noncontiguous,
+        void(
+            size_t offset,
+            size_t block_size,
+            size_t stride_size,
+            size_t number_of_blocks,
+            const void* buffer));
     MOCK_CONST_METHOD4(
-      read_noncontiguous_irregular,
-      void(
-        size_t block_size,
-        size_t number_of_blocks,
-        const size_t* offsets,
-        void* buffer));
+        read_noncontiguous_irregular,
+        void(
+            size_t block_size,
+            size_t number_of_blocks,
+            const size_t* offsets,
+            void* buffer));
     MOCK_CONST_METHOD4(
-      write_noncontiguous_irregular,
-      void(
-        size_t block_size,
-        size_t number_of_blocks,
-        const size_t* offsets,
-        const void* buffer));
+        write_noncontiguous_irregular,
+        void(
+            size_t block_size,
+            size_t number_of_blocks,
+            const size_t* offsets,
+            const void* buffer));
 };
 
 class Mock_Object : public ObjectInterface {
@@ -189,43 +189,43 @@ class Mock_Object : public ObjectInterface {
     MOCK_CONST_METHOD1(set_file_size, void(const size_t));
     MOCK_CONST_METHOD1(should_write_file_header, void(const unsigned char*));
     MOCK_CONST_METHOD4(
-      read_trace_metadata,
-      void(const size_t, const size_t, const size_t, unsigned char*));
+        read_trace_metadata,
+        void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      write_trace_metadata,
-      void(const size_t, const size_t, const size_t, const unsigned char*));
+        write_trace_metadata,
+        void(const size_t, const size_t, const size_t, const unsigned char*));
 
     MOCK_CONST_METHOD4(
-      read_trace_data,
-      void(const size_t, const size_t, const size_t, unsigned char*));
+        read_trace_data,
+        void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      write_trace_data,
-      void(const size_t, const size_t, const size_t, const unsigned char*));
+        write_trace_data,
+        void(const size_t, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      read_trace,
-      void(const size_t, const size_t, const size_t, unsigned char*));
+        read_trace,
+        void(const size_t, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      write_trace,
-      void(const size_t, const size_t, const size_t, const unsigned char*));
+        write_trace,
+        void(const size_t, const size_t, const size_t, const unsigned char*));
 
     MOCK_CONST_METHOD4(
-      read_trace,
-      void(const size_t*, const size_t, const size_t, unsigned char*));
+        read_trace,
+        void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      write_trace,
-      void(const size_t*, const size_t, const size_t, const unsigned char*));
+        write_trace,
+        void(const size_t*, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      read_trace_data,
-      void(const size_t*, const size_t, const size_t, unsigned char*));
+        read_trace_data,
+        void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      write_trace_data,
-      void(const size_t*, const size_t, const size_t, const unsigned char*));
+        write_trace_data,
+        void(const size_t*, const size_t, const size_t, const unsigned char*));
     MOCK_CONST_METHOD4(
-      read_trace_metadata,
-      void(const size_t*, const size_t, const size_t, unsigned char*));
+        read_trace_metadata,
+        void(const size_t*, const size_t, const size_t, unsigned char*));
     MOCK_CONST_METHOD4(
-      write_trace_metadata,
-      void(const size_t*, const size_t, const size_t, const unsigned char*));
+        write_trace_metadata,
+        void(const size_t*, const size_t, const size_t, const unsigned char*));
 };
 
 struct FileReadSEGYTest : public Test {
@@ -234,21 +234,21 @@ struct FileReadSEGYTest : public Test {
     bool test_ebcdic = false;
 
     std::string test_string = {
-      "This is a string for testing EBCDIC conversion etc.\n"
-      "The quick brown fox jumps over the lazy dog."};
+        "This is a string for testing EBCDIC conversion etc.\n"
+        "The quick brown fox jumps over the lazy dog."};
 
     // The test_string in EBCDIC encoding.
     std::string ebcdic_test_string = {
-      // This is a string for testing EBCDIC conversion etc.\n
-      "\xE3\x88\x89\xA2\x40\x89\xA2\x40\x81\x40\xA2\xA3\x99\x89\x95\x87\x40"
-      "\x86\x96\x99\x40\xA3\x85\xA2\xA3\x89\x95\x87\x40\xC5\xC2\xC3\xC4\xC9"
-      "\xC3\x40\x83\x96\x95\xA5\x85\x99\xA2\x89\x96\x95\x40\x85\xA3\x83\x4B"
-      "\x25"
+        // This is a string for testing EBCDIC conversion etc.\n
+        "\xE3\x88\x89\xA2\x40\x89\xA2\x40\x81\x40\xA2\xA3\x99\x89\x95\x87\x40"
+        "\x86\x96\x99\x40\xA3\x85\xA2\xA3\x89\x95\x87\x40\xC5\xC2\xC3\xC4\xC9"
+        "\xC3\x40\x83\x96\x95\xA5\x85\x99\xA2\x89\x96\x95\x40\x85\xA3\x83\x4B"
+        "\x25"
 
-      // The quick brown fox jumps over the lazy dog.
-      "\xE3\x88\x85\x40\x98\xA4\x89\x83\x92\x40\x82\x99\x96\xA6\x95\x40\x86"
-      "\x96\xA7\x40\x91\xA4\x94\x97\xA2\x40\x96\xA5\x85\x99\x40\xA3\x88\x85"
-      "\x40\x93\x81\xA9\xA8\x40\x84\x96\x87\x4B"};
+        // The quick brown fox jumps over the lazy dog.
+        "\xE3\x88\x85\x40\x98\xA4\x89\x83\x92\x40\x82\x99\x96\xA6\x95\x40\x86"
+        "\x96\xA7\x40\x91\xA4\x94\x97\xA2\x40\x96\xA5\x85\x99\x40\xA3\x88\x85"
+        "\x40\x93\x81\xA9\xA8\x40\x84\x96\x87\x4B"};
 
     std::unique_ptr<ReadInterface> file = nullptr;
 
@@ -260,7 +260,7 @@ struct FileReadSEGYTest : public Test {
     const size_t format = 5;
 
     std::vector<unsigned char> ho =
-      std::vector<unsigned char>(segy::segy_binary_file_header_size());
+        std::vector<unsigned char>(segy::segy_binary_file_header_size());
 
     std::shared_ptr<Mock_Object> mock_object;
 
@@ -306,8 +306,8 @@ struct FileReadSEGYTest : public Test {
         if (test_ebcdic) {
             // Create an EBCDID string to convert back to ASCII in the test
             std::copy(
-              std::begin(ebcdic_test_string), std::end(ebcdic_test_string),
-              std::begin(ho));
+                std::begin(ebcdic_test_string), std::end(ebcdic_test_string),
+                std::begin(ho));
         }
         else {
             for (size_t i = 0; i < test_string.size(); i++) {
@@ -335,14 +335,14 @@ struct FileReadSEGYTest : public Test {
         ho[Hdr::Type + 1] = format;
 
         EXPECT_CALL(*mock_object, get_file_size())
-          .Times(Exactly(1))
-          .WillOnce(Return(
-            segy::segy_binary_file_header_size()
-            + nt * segy::segy_trace_size(ns)));
+            .Times(Exactly(1))
+            .WillOnce(Return(
+                segy::segy_binary_file_header_size()
+                + nt * segy::segy_trace_size(ns)));
 
         EXPECT_CALL(*mock_object, read_ho(_))
-          .Times(Exactly(1))
-          .WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
+            .Times(Exactly(1))
+            .WillOnce(SetArrayArgument<0>(ho.begin(), ho.end()));
 
         // Use ReadSEGY_public so test functions can access the ReadSEGY
         // internals.
@@ -384,14 +384,14 @@ struct FileReadSEGYTest : public Test {
 
             const auto be_scale = to_big_endian(scale);
             std::copy(
-              std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+                std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
 
 
             // Set the x and y source header.
             const auto be_x_num =
-              to_big_endian(int32_t(std::lround(x_num(i) / scale)));
+                to_big_endian(int32_t(std::lround(x_num(i) / scale)));
             const auto be_y_num =
-              to_big_endian(int32_t(std::lround(y_num(i) / scale)));
+                to_big_endian(int32_t(std::lround(y_num(i) / scale)));
 
             std::copy(std::begin(be_x_num), std::end(be_x_num), &md[x_src]);
             std::copy(std::begin(be_y_num), std::end(be_y_num), &md[y_src]);
@@ -401,13 +401,13 @@ struct FileReadSEGYTest : public Test {
     void init_read_tr_mock(size_t expected_ns, size_t offset)
     {
         std::vector<unsigned char>::iterator iter =
-          tr.begin() + offset * segy::segy_trace_header_size();
+            tr.begin() + offset * segy::segy_trace_header_size();
 
         EXPECT_CALL(
-          *mock_object.get(), read_trace_metadata(offset, expected_ns, 1U, _))
-          .Times(Exactly(1))
-          .WillRepeatedly(
-            SetArrayArgument<3>(iter, iter + segy::segy_trace_header_size()));
+            *mock_object.get(), read_trace_metadata(offset, expected_ns, 1U, _))
+            .Times(Exactly(1))
+            .WillRepeatedly(SetArrayArgument<3>(
+                iter, iter + segy::segy_trace_header_size()));
 
         Trace_metadata prm(1U);
         file->read_param(offset, 1U, &prm);
@@ -416,15 +416,15 @@ struct FileReadSEGYTest : public Test {
 
         if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              x_num(offset), prm.get_floating_point(0U, Meta::x_src));
+                x_num(offset), prm.get_floating_point(0U, Meta::x_src));
             ASSERT_DOUBLE_EQ(
-              y_num(offset), prm.get_floating_point(0U, Meta::y_src));
+                y_num(offset), prm.get_floating_point(0U, Meta::y_src));
         }
         else {
             ASSERT_FLOAT_EQ(
-              x_num(offset), prm.get_floating_point(0U, Meta::x_src));
+                x_num(offset), prm.get_floating_point(0U, Meta::x_src));
             ASSERT_FLOAT_EQ(
-              y_num(offset), prm.get_floating_point(0U, Meta::y_src));
+                y_num(offset), prm.get_floating_point(0U, Meta::y_src));
         }
     }
 
@@ -432,12 +432,12 @@ struct FileReadSEGYTest : public Test {
     {
         size_t zero = 0U;
         EXPECT_CALL(
-          *mock_object.get(), read_trace_metadata(zero, expected_ns, tn, _))
-          .Times(Exactly(1))
-          .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+            *mock_object.get(), read_trace_metadata(zero, expected_ns, tn, _))
+            .Times(Exactly(1))
+            .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
         const auto rule = Rule(std::initializer_list<Meta>{
-          Meta::il, Meta::xl, Meta::Copy, Meta::x_src, Meta::y_src});
+            Meta::il, Meta::xl, Meta::Copy, Meta::x_src, Meta::y_src});
         Trace_metadata prm(std::move(rule), tn);
         file->read_param(0, tn, &prm);
 
@@ -447,15 +447,15 @@ struct FileReadSEGYTest : public Test {
 
             if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  x_num(i), prm.get_floating_point(i, Meta::x_src));
+                    x_num(i), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_DOUBLE_EQ(
-                  y_num(i), prm.get_floating_point(i, Meta::y_src));
+                    y_num(i), prm.get_floating_point(i, Meta::y_src));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  x_num(i), prm.get_floating_point(i, Meta::x_src));
+                    x_num(i), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_FLOAT_EQ(
-                  y_num(i), prm.get_floating_point(i, Meta::y_src));
+                    y_num(i), prm.get_floating_point(i, Meta::y_src));
             }
         }
         ASSERT_TRUE(tr.size());
@@ -473,10 +473,10 @@ struct FileReadSEGYTest : public Test {
         std::shuffle(offset.begin(), offset.end(), mt);
 
         EXPECT_CALL(
-          *mock_object.get(),
-          read_trace_metadata(A<const size_t*>(), expected_ns, tn, _))
-          .Times(Exactly(1))
-          .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
+            *mock_object.get(),
+            read_trace_metadata(A<const size_t*>(), expected_ns, tn, _))
+            .Times(Exactly(1))
+            .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
         file->read_trace_non_monotonic(tn, offset.data(), nullptr, &prm);
 
@@ -486,15 +486,15 @@ struct FileReadSEGYTest : public Test {
 
             if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                  x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                    x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_DOUBLE_EQ(
-                  y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                    y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                  x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                    x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
                 ASSERT_FLOAT_EQ(
-                  y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                    y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
             }
         }
     }
@@ -534,20 +534,21 @@ struct FileReadSEGYTest : public Test {
             for (size_t i = 0U; i < tn_read; i++) {
                 if (ReadPrm) {
                     std::copy(
-                      tr.begin()
-                        + (offset + i) * segy::segy_trace_header_size(),
-                      tr.begin()
-                        + (offset + i + 1) * segy::segy_trace_header_size(),
-                      buf.begin() + i * segy::segy_trace_size(ns));
+                        tr.begin()
+                            + (offset + i) * segy::segy_trace_header_size(),
+                        tr.begin()
+                            + (offset + i + 1) * segy::segy_trace_header_size(),
+                        buf.begin() + i * segy::segy_trace_size(ns));
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
                     const float val = offset + i + j;
 
-                    size_t addr = ReadPrm ? (i * segy::segy_trace_size(ns)
-                                             + segy::segy_trace_header_size()
-                                             + j * sizeof(float)) :
-                                            (i * ns + j) * sizeof(float);
+                    size_t addr = ReadPrm ?
+                                      (i * segy::segy_trace_size(ns)
+                                       + segy::segy_trace_header_size()
+                                       + j * sizeof(float)) :
+                                      (i * ns + j) * sizeof(float);
 
                     const auto be_val = to_big_endian<float>(val);
                     std::copy(std::begin(be_val), std::end(be_val), &buf[addr]);
@@ -558,23 +559,23 @@ struct FileReadSEGYTest : public Test {
             // Set up the mock functions to return the test data
 
             EXPECT_CALL(*mock_object, read_trace(offset, ns, tn_read, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                SetArrayArgument<3>(buf.begin(), buf.end()),
-                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    SetArrayArgument<3>(buf.begin(), buf.end()),
+                    InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
 
             EXPECT_CALL(
-              *mock_object, read_trace_metadata(offset, ns, tn_read, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                SetArrayArgument<3>(buf.begin(), buf.end()),
-                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+                *mock_object, read_trace_metadata(offset, ns, tn_read, _))
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    SetArrayArgument<3>(buf.begin(), buf.end()),
+                    InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
 
             EXPECT_CALL(*mock_object, read_trace_data(offset, ns, tn_read, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                SetArrayArgument<3>(buf.begin(), buf.end()),
-                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    SetArrayArgument<3>(buf.begin(), buf.end()),
+                    InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
         }
 
         std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
@@ -603,33 +604,33 @@ struct FileReadSEGYTest : public Test {
             if (ReadPrm && tn_read && ns) {
 
                 ASSERT_EQ(il_num(i + offset), prm.get_integer(i, Meta::il))
-                  << "Trace Number " << i << " offset " << offset;
+                    << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xl_num(i + offset), prm.get_integer(i, Meta::xl))
-                  << "Trace Number " << i << " offset " << offset;
+                    << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      x_num(i + offset),
-                      prm.get_floating_point(i, Meta::x_src));
+                        x_num(i + offset),
+                        prm.get_floating_point(i, Meta::x_src));
 
                     ASSERT_DOUBLE_EQ(
-                      y_num(i + offset),
-                      prm.get_floating_point(i, Meta::y_src));
+                        y_num(i + offset),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      x_num(i + offset),
-                      prm.get_floating_point(i, Meta::x_src));
+                        x_num(i + offset),
+                        prm.get_floating_point(i, Meta::x_src));
 
                     ASSERT_FLOAT_EQ(
-                      y_num(i + offset),
-                      prm.get_floating_point(i, Meta::y_src));
+                        y_num(i + offset),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
             for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(bufnew[i * ns + j], float(offset + i + j))
-                  << "Trace Number: " << i << " " << j;
+                    << "Trace Number: " << i << " " << j;
             }
         }
     }
@@ -660,17 +661,18 @@ struct FileReadSEGYTest : public Test {
             for (size_t i = 0U; i < tn; i++) {
                 if (ReadPrm && ns && tn) {
                     std::copy(
-                      tr.begin() + offset[i] * segy::segy_trace_header_size(),
-                      tr.begin()
-                        + (offset[i] + 1) * segy::segy_trace_header_size(),
-                      buf.begin() + i * segy::segy_trace_size(ns));
+                        tr.begin() + offset[i] * segy::segy_trace_header_size(),
+                        tr.begin()
+                            + (offset[i] + 1) * segy::segy_trace_header_size(),
+                        buf.begin() + i * segy::segy_trace_size(ns));
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
-                    size_t addr = ReadPrm ? (i * segy::segy_trace_size(ns)
-                                             + segy::segy_trace_header_size()
-                                             + j * sizeof(float)) :
-                                            (i * ns + j) * sizeof(float);
+                    size_t addr = ReadPrm ?
+                                      (i * segy::segy_trace_size(ns)
+                                       + segy::segy_trace_header_size()
+                                       + j * sizeof(float)) :
+                                      (i * ns + j) * sizeof(float);
 
                     const float val = offset[i] + j;
 
@@ -683,30 +685,30 @@ struct FileReadSEGYTest : public Test {
             // Setup mock calls to return the test data
 
             EXPECT_CALL(*mock_object, read_trace(offset.data(), ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                SetArrayArgument<3>(buf.begin(), buf.end()),
-                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    SetArrayArgument<3>(buf.begin(), buf.end()),
+                    InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
 
             EXPECT_CALL(
-              *mock_object, read_trace_metadata(offset.data(), ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                SetArrayArgument<3>(buf.begin(), buf.end()),
-                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+                *mock_object, read_trace_metadata(offset.data(), ns, tn, _))
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    SetArrayArgument<3>(buf.begin(), buf.end()),
+                    InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
 
             EXPECT_CALL(*mock_object, read_trace_data(offset.data(), ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                SetArrayArgument<3>(buf.begin(), buf.end()),
-                InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    SetArrayArgument<3>(buf.begin(), buf.end()),
+                    InvokeWithoutArgs([&] { mock_read_trace_called = true; })));
         }
 
         std::vector<float> bufnew(tn * ns);
         Trace_metadata prm(tn);
         if (ReadPrm) {
             file->read_trace_non_contiguous(
-              tn, offset.data(), bufnew.data(), &prm);
+                tn, offset.data(), bufnew.data(), &prm);
         }
         else {
             file->read_trace_non_contiguous(tn, offset.data(), bufnew.data());
@@ -717,27 +719,31 @@ struct FileReadSEGYTest : public Test {
         for (size_t i = 0U; i < tn; i++) {
             if (ReadPrm && tn && ns) {
                 ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il))
-                  << "Trace Number " << i << " offset " << offset[i];
+                    << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl))
-                  << "Trace Number " << i << " offset " << offset[i];
+                    << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                        x_num(offset[i]),
+                        prm.get_floating_point(i, Meta::x_src));
                     ASSERT_DOUBLE_EQ(
-                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                        y_num(offset[i]),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                        x_num(offset[i]),
+                        prm.get_floating_point(i, Meta::x_src));
                     ASSERT_FLOAT_EQ(
-                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                        y_num(offset[i]),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
             for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(bufnew[i * ns + j], float(offset[i] + j))
-                  << "Trace Number: " << offset[i] << " " << j;
+                    << "Trace Number: " << offset[i] << " " << j;
             }
         }
     }
@@ -749,7 +755,7 @@ struct FileWriteSEGYTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::make();
     bool test_ebcdic             = false;
     std::string test_string      = {
-      "This is a string for testing EBCDIC conversion etc."};
+        "This is a string for testing EBCDIC conversion etc."};
     std::string file_name;
     std::vector<unsigned char> tr;
     size_t nt           = 40U;
@@ -757,7 +763,7 @@ struct FileWriteSEGYTest : public Test {
     int sample_interval = 10;
     const size_t format = 5;
     std::vector<unsigned char> ho =
-      std::vector<unsigned char>(segy::segy_binary_file_header_size());
+        std::vector<unsigned char>(segy::segy_binary_file_header_size());
     std::unique_ptr<WriteInterface> file = nullptr;
     std::shared_ptr<MPI_Binary_file> output_binary_file;
     std::unique_ptr<ReadInterface> readfile;
@@ -782,7 +788,7 @@ struct FileWriteSEGYTest : public Test {
         ReadSEGY_public::get(readfile.get())->m_nt = nt;
         ReadSEGY_public::get(readfile.get())->m_ns = ns;
         ReadSEGY_public::get(readfile.get())->m_sample_interval =
-          sample_interval;
+            sample_interval;
         ReadSEGY_public::get(readfile.get())->m_text = test_string;
     }
 
@@ -801,7 +807,7 @@ struct FileWriteSEGYTest : public Test {
         Mock::AllowLeak(mock_object.get());
 
         auto sfile =
-          std::make_unique<WriteSEGY_public>(piol, filename, mock_object);
+            std::make_unique<WriteSEGY_public>(piol, filename, mock_object);
         if (!CallHo) {
             sfile->m_nt = nt;
             sfile->write_ns(ns);
@@ -842,13 +848,13 @@ struct FileWriteSEGYTest : public Test {
 
             const auto be_scale = to_big_endian(scale);
             std::copy(
-              std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+                std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
 
 
             const auto be_x_num =
-              to_big_endian(int32_t(std::lround(x_num(i) / scale)));
+                to_big_endian(int32_t(std::lround(x_num(i) / scale)));
             const auto be_y_num =
-              to_big_endian(int32_t(std::lround(y_num(i) / scale)));
+                to_big_endian(int32_t(std::lround(y_num(i) / scale)));
 
             std::copy(std::begin(be_x_num), std::end(be_x_num), &md[x_src]);
             std::copy(std::begin(be_y_num), std::end(be_y_num), &md[y_src]);
@@ -881,25 +887,26 @@ struct FileWriteSEGYTest : public Test {
             ho[3505U]                    = 0;
 
             EXPECT_CALL(*mock_object, should_write_file_header(_))
-              .Times(Exactly(1))
-              .WillOnce(DoAll(
-                Invoke([=](const unsigned char* ho_to_test) {
-                    // Make sure only one process calls this with a
-                    // buffer to write
-                    int is_not_null    = (ho_to_test != nullptr) ? 1 : 0;
-                    int total_not_null = piol->comm->sum(is_not_null);
-                    ASSERT_TRUE(total_not_null == 1);
-                }),
-                Invoke([ho = ho](const unsigned char* ho_to_test) {
-                    if (ho_to_test != nullptr) {
+                .Times(Exactly(1))
+                .WillOnce(DoAll(
+                    Invoke([=](const unsigned char* ho_to_test) {
+                        // Make sure only one process calls this with a
+                        // buffer to write
+                        int is_not_null    = (ho_to_test != nullptr) ? 1 : 0;
+                        int total_not_null = piol->comm->sum(is_not_null);
+                        ASSERT_TRUE(total_not_null == 1);
+                    }),
+                    Invoke([ho = ho](const unsigned char* ho_to_test) {
+                        if (ho_to_test != nullptr) {
 
-                        for (size_t i = 0;
-                             i < segy::segy_binary_file_header_size(); i++) {
-                            ASSERT_EQ(ho[i], ho_to_test[i])
-                              << "Error with byte: " << i << "\n";
+                            for (size_t i = 0;
+                                 i < segy::segy_binary_file_header_size();
+                                 i++) {
+                                ASSERT_EQ(ho[i], ho_to_test[i])
+                                    << "Error with byte: " << i << "\n";
+                            }
                         }
-                    }
-                })));
+                    })));
         }
 
         file->write_nt(nt);
@@ -919,33 +926,33 @@ struct FileWriteSEGYTest : public Test {
     void write_tr_hdr_grid_test(size_t offset)
     {
         std::vector<unsigned char> test_trace_metadata(
-          segy::segy_trace_header_size());
+            segy::segy_trace_header_size());
 
         const auto be_il_num = to_big_endian(il_num(offset));
         const auto be_xl_num = to_big_endian(xl_num(offset));
 
         std::copy(
-          std::begin(be_il_num), std::end(be_il_num),
-          test_trace_metadata.data() + il);
+            std::begin(be_il_num), std::end(be_il_num),
+            test_trace_metadata.data() + il);
         std::copy(
-          std::begin(be_xl_num), std::end(be_xl_num),
-          test_trace_metadata.data() + xl);
+            std::begin(be_xl_num), std::end(be_xl_num),
+            test_trace_metadata.data() + xl);
 
 
         const auto be_scale_coord = to_big_endian<int16_t>(1);
         std::copy(
-          std::begin(be_scale_coord), std::end(be_scale_coord),
-          &test_trace_metadata[ScaleCoord]);
+            std::begin(be_scale_coord), std::end(be_scale_coord),
+            &test_trace_metadata[ScaleCoord]);
 
         const auto be_seqfnum = to_big_endian(int32_t(offset));
         std::copy(
-          std::begin(be_seqfnum), std::end(be_seqfnum),
-          &test_trace_metadata[SeqFNum]);
+            std::begin(be_seqfnum), std::end(be_seqfnum),
+            &test_trace_metadata[SeqFNum]);
 
         EXPECT_CALL(*mock_object, write_trace_metadata(offset, ns, 1U, _))
-          .Times(Exactly(1))
-          .WillOnce(
-            check3(test_trace_metadata.data(), segy::segy_trace_header_size()));
+            .Times(Exactly(1))
+            .WillOnce(check3(
+                test_trace_metadata.data(), segy::segy_trace_header_size()));
 
         Trace_metadata prm(1U);
         prm.set_integer(0, Meta::il, il_num(offset));
@@ -955,36 +962,36 @@ struct FileWriteSEGYTest : public Test {
     }
 
     void init_write_tr_hdr_coord(
-      std::pair<size_t, size_t> item,
-      std::pair<int32_t, int32_t> val,
-      int16_t scal,
-      size_t offset,
-      std::vector<unsigned char>* trace_metadata_buffer)
+        std::pair<size_t, size_t> item,
+        std::pair<int32_t, int32_t> val,
+        int16_t scal,
+        size_t offset,
+        std::vector<unsigned char>* trace_metadata_buffer)
     {
         const auto be_scal = to_big_endian(scal);
         std::copy(
-          std::begin(be_scal), std::end(be_scal),
-          &trace_metadata_buffer->at(ScaleCoord));
+            std::begin(be_scal), std::end(be_scal),
+            &trace_metadata_buffer->at(ScaleCoord));
 
         const auto be_val_first = to_big_endian(val.first);
         std::copy(
-          std::begin(be_val_first), std::end(be_val_first),
-          &trace_metadata_buffer->at(item.first));
+            std::begin(be_val_first), std::end(be_val_first),
+            &trace_metadata_buffer->at(item.first));
 
         const auto be_val_second = to_big_endian(val.second);
         std::copy(
-          std::begin(be_val_second), std::end(be_val_second),
-          &trace_metadata_buffer->at(item.second));
+            std::begin(be_val_second), std::end(be_val_second),
+            &trace_metadata_buffer->at(item.second));
 
         const auto be_offset = to_big_endian(int32_t(offset));
         std::copy(
-          std::begin(be_offset), std::end(be_offset),
-          &trace_metadata_buffer->at(SeqFNum));
+            std::begin(be_offset), std::end(be_offset),
+            &trace_metadata_buffer->at(SeqFNum));
 
         EXPECT_CALL(*mock_object, write_trace_metadata(offset, ns, 1U, _))
-          .Times(Exactly(1))
-          .WillOnce(check3(
-            trace_metadata_buffer->data(), segy::segy_trace_header_size()));
+            .Times(Exactly(1))
+            .WillOnce(check3(
+                trace_metadata_buffer->data(), segy::segy_trace_header_size()));
     }
 
     void init_write_headers(size_t file_pos, unsigned char* md)
@@ -1029,27 +1036,27 @@ struct FileWriteSEGYTest : public Test {
             }
 
             EXPECT_CALL(*mock_object, should_write_file_header(_))
-              .Times(Exactly(1));
+                .Times(Exactly(1));
             EXPECT_CALL(*mock_object, set_file_size(_)).Times(Exactly(1));
 
 
             buf.resize(
-              tn
-              * (WritePrm ? segy::segy_trace_size(ns) :
-                            segy::segy_trace_data_size(ns)));
+                tn
+                * (WritePrm ? segy::segy_trace_size(ns) :
+                              segy::segy_trace_data_size(ns)));
 
             for (size_t i = 0U; i < tn; i++) {
                 if (WritePrm) {
                     init_write_headers(
-                      offset + i, &buf[i * segy::segy_trace_size(ns)]);
+                        offset + i, &buf[i * segy::segy_trace_size(ns)]);
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
-                    const size_t addr =
-                      WritePrm ?
-                        (i * segy::segy_trace_size(ns)
-                         + segy::segy_trace_header_size() + j * sizeof(float)) :
-                        (i * ns + j) * sizeof(float);
+                    const size_t addr = WritePrm ?
+                                            (i * segy::segy_trace_size(ns)
+                                             + segy::segy_trace_header_size()
+                                             + j * sizeof(float)) :
+                                            (i * ns + j) * sizeof(float);
 
                     const float val = offset + i + j;
 
@@ -1059,22 +1066,25 @@ struct FileWriteSEGYTest : public Test {
             }
 
             EXPECT_CALL(*mock_object, write_trace(offset, ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                check3(buf.data(), buf.size()),
-                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    check3(buf.data(), buf.size()), InvokeWithoutArgs([&] {
+                        mock_write_trace_called = true;
+                    })));
 
             EXPECT_CALL(*mock_object, write_trace_metadata(offset, ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                check3(buf.data(), buf.size()),
-                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    check3(buf.data(), buf.size()), InvokeWithoutArgs([&] {
+                        mock_write_trace_called = true;
+                    })));
 
             EXPECT_CALL(*mock_object, write_trace_data(offset, ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                check3(buf.data(), buf.size()),
-                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    check3(buf.data(), buf.size()), InvokeWithoutArgs([&] {
+                        mock_write_trace_called = true;
+                    })));
         }
         std::vector<float> bufnew(tn * ns);
         if (WritePrm) {
@@ -1110,8 +1120,8 @@ struct FileWriteSEGYTest : public Test {
         ASSERT_TRUE(mock_write_trace_called);
 
         if (UseMock == false) {
-            ReadSEGY_public::get(readfile.get())->m_nt =
-              std::max(offset + tn, ReadSEGY_public::get(readfile.get())->m_nt);
+            ReadSEGY_public::get(readfile.get())->m_nt = std::max(
+                offset + tn, ReadSEGY_public::get(readfile.get())->m_nt);
             read_trace_test<WritePrm>(offset, tn);
         }
     }
@@ -1132,33 +1142,33 @@ struct FileWriteSEGYTest : public Test {
         for (size_t i = 0U; i < tn_read; i++) {
             if (ReadPrm && tn_read && ns) {
                 ASSERT_EQ(il_num(i + offset), prm.get_integer(i, Meta::il))
-                  << "Trace Number " << i << " offset " << offset;
+                    << "Trace Number " << i << " offset " << offset;
                 ASSERT_EQ(xl_num(i + offset), prm.get_integer(i, Meta::xl))
-                  << "Trace Number " << i << " offset " << offset;
+                    << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      x_num(i + offset),
-                      prm.get_floating_point(i, Meta::x_src));
+                        x_num(i + offset),
+                        prm.get_floating_point(i, Meta::x_src));
                     ASSERT_DOUBLE_EQ(
-                      y_num(i + offset),
-                      prm.get_floating_point(i, Meta::y_src));
+                        y_num(i + offset),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      x_num(i + offset),
-                      prm.get_floating_point(i, Meta::x_src));
+                        x_num(i + offset),
+                        prm.get_floating_point(i, Meta::x_src));
                     ASSERT_FLOAT_EQ(
-                      y_num(i + offset),
-                      prm.get_floating_point(i, Meta::y_src));
+                        y_num(i + offset),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
             for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(
-                  bufnew[i * ns + j],
-                  exseis::utils::Trace_value(offset + i + j))
-                  << "Trace Number: " << i << " " << j;
+                    bufnew[i * ns + j],
+                    exseis::utils::Trace_value(offset + i + j))
+                    << "Trace Number: " << i << " " << j;
             }
         }
     }
@@ -1180,7 +1190,7 @@ struct FileWriteSEGYTest : public Test {
             }
 
             EXPECT_CALL(*mock_object, should_write_file_header(_))
-              .Times(Exactly(1));
+                .Times(Exactly(1));
             EXPECT_CALL(*mock_object, set_file_size(_)).Times(Exactly(1));
 
 
@@ -1194,15 +1204,15 @@ struct FileWriteSEGYTest : public Test {
             for (size_t i = 0U; i < tn; i++) {
                 if (WritePrm) {
                     init_write_headers(
-                      offset[i], &buf[i * segy::segy_trace_size(ns)]);
+                        offset[i], &buf[i * segy::segy_trace_size(ns)]);
                 }
 
                 for (size_t j = 0U; j < ns; j++) {
-                    const size_t addr =
-                      WritePrm ?
-                        (i * segy::segy_trace_size(ns)
-                         + segy::segy_trace_header_size() + j * sizeof(float)) :
-                        (i * ns + j) * sizeof(float);
+                    const size_t addr = WritePrm ?
+                                            (i * segy::segy_trace_size(ns)
+                                             + segy::segy_trace_header_size()
+                                             + j * sizeof(float)) :
+                                            (i * ns + j) * sizeof(float);
 
                     const float val = offset[i] + j;
 
@@ -1212,24 +1222,27 @@ struct FileWriteSEGYTest : public Test {
             }
 
             EXPECT_CALL(*mock_object, write_trace(offset.data(), ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                check3(buf.data(), buf.size()),
-                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    check3(buf.data(), buf.size()), InvokeWithoutArgs([&] {
+                        mock_write_trace_called = true;
+                    })));
 
             EXPECT_CALL(
-              *mock_object, write_trace_metadata(offset.data(), ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                check3(buf.data(), buf.size()),
-                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+                *mock_object, write_trace_metadata(offset.data(), ns, tn, _))
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    check3(buf.data(), buf.size()), InvokeWithoutArgs([&] {
+                        mock_write_trace_called = true;
+                    })));
 
             EXPECT_CALL(
-              *mock_object, write_trace_data(offset.data(), ns, tn, _))
-              .Times(AnyNumber())
-              .WillOnce(DoAll(
-                check3(buf.data(), buf.size()),
-                InvokeWithoutArgs([&] { mock_write_trace_called = true; })));
+                *mock_object, write_trace_data(offset.data(), ns, tn, _))
+                .Times(AnyNumber())
+                .WillOnce(DoAll(
+                    check3(buf.data(), buf.size()), InvokeWithoutArgs([&] {
+                        mock_write_trace_called = true;
+                    })));
         }
 
         Trace_metadata prm(tn);
@@ -1254,7 +1267,7 @@ struct FileWriteSEGYTest : public Test {
 
         if (WritePrm) {
             file->write_trace_non_contiguous(
-              tn, offset.data(), bufnew.data(), &prm);
+                tn, offset.data(), bufnew.data(), &prm);
         }
         else {
             file->write_trace_non_contiguous(tn, offset.data(), bufnew.data());
@@ -1265,7 +1278,7 @@ struct FileWriteSEGYTest : public Test {
         if (UseMock == false) {
             for (size_t i = 0U; i < tn; i++) {
                 ReadSEGY_public::get(readfile.get())->m_nt = std::max(
-                  offset[i], ReadSEGY_public::get(readfile.get())->m_nt);
+                    offset[i], ReadSEGY_public::get(readfile.get())->m_nt);
             }
             read_random_trace_test<WritePrm>(tn, offset);
         }
@@ -1280,37 +1293,41 @@ struct FileWriteSEGYTest : public Test {
         Trace_metadata prm(tn);
         if (ReadPrm) {
             readfile->read_trace_non_contiguous(
-              tn, offset.data(), bufnew.data(), &prm);
+                tn, offset.data(), bufnew.data(), &prm);
         }
         else {
             readfile->read_trace_non_contiguous(
-              tn, offset.data(), bufnew.data());
+                tn, offset.data(), bufnew.data());
         }
 
         for (size_t i = 0U; i < tn; i++) {
             if (ReadPrm && tn && ns) {
                 ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il))
-                  << "Trace Number " << i << " offset " << offset[i];
+                    << "Trace Number " << i << " offset " << offset[i];
                 ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl))
-                  << "Trace Number " << i << " offset " << offset[i];
+                    << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
-                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                        x_num(offset[i]),
+                        prm.get_floating_point(i, Meta::x_src));
                     ASSERT_DOUBLE_EQ(
-                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                        y_num(offset[i]),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
-                      x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                        x_num(offset[i]),
+                        prm.get_floating_point(i, Meta::x_src));
                     ASSERT_FLOAT_EQ(
-                      y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                        y_num(offset[i]),
+                        prm.get_floating_point(i, Meta::y_src));
                 }
             }
 
             for (size_t j = 0U; j < ns; j++) {
                 ASSERT_EQ(bufnew[i * ns + j], float(offset[i] + j))
-                  << "Trace Number: " << offset[i] << " " << j;
+                    << "Trace Number: " << offset[i] << " " << j;
             }
         }
     }
@@ -1336,7 +1353,7 @@ struct FileWriteSEGYTest : public Test {
 
                 const auto be_scale = to_big_endian(scale);
                 std::copy(
-                  std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
+                    std::begin(be_scale), std::end(be_scale), &md[ScaleCoord]);
 
                 set_coord(Coord::Src, src, scale, md);
                 set_coord(Coord::Rcv, rcv, scale, md);
@@ -1346,12 +1363,12 @@ struct FileWriteSEGYTest : public Test {
 
                 const auto be_seqfnum = to_big_endian(int32_t(offset + i));
                 std::copy(
-                  std::begin(be_seqfnum), std::end(be_seqfnum), &md[SeqFNum]);
+                    std::begin(be_seqfnum), std::end(be_seqfnum), &md[SeqFNum]);
             }
             EXPECT_CALL(
-              *mock_object.get(), write_trace_metadata(offset, ns, tn, _))
-              .Times(Exactly(1))
-              .WillOnce(check3(buf.data(), buf.size()));
+                *mock_object.get(), write_trace_metadata(offset, ns, tn, _))
+                .Times(Exactly(1))
+                .WillOnce(check3(buf.data(), buf.size()));
         }
 
         if (Copy) {

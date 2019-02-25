@@ -53,12 +53,12 @@ template<typename T>
 constexpr Type type_from_native_impl()
 {
     static_assert(
-      std::is_floating_point<T>() || std::is_integral<T>(),
-      "Type_from_native is only defined for built-in floating point and integral types!");
+        std::is_floating_point<T>() || std::is_integral<T>(),
+        "Type_from_native is only defined for built-in floating point and integral types!");
 
     static_assert(
-      sizeof(T) == 8 || sizeof(T) == 4 || sizeof(T) == 2 || sizeof(T) == 1,
-      "Type_from_native is only supported for 64, 32, 16, or 8 bit types!");
+        sizeof(T) == 8 || sizeof(T) == 4 || sizeof(T) == 2 || sizeof(T) == 1,
+        "Type_from_native is only supported for 64, 32, 16, or 8 bit types!");
 
     if (std::is_floating_point<T>::value) {
         switch (sizeof(T)) {

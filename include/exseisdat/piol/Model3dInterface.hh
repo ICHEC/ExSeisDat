@@ -38,9 +38,9 @@ class Model3dInterface {
         /// @param[in] count     The number of coordinate values
         /// @param[in] increment The increment between coordinate values
         CoordinateParameters(
-          exseis::utils::Integer start     = 0,
-          exseis::utils::Integer count     = 0,
-          exseis::utils::Integer increment = 0) :
+            exseis::utils::Integer start     = 0,
+            exseis::utils::Integer count     = 0,
+            exseis::utils::Integer increment = 0) :
             start(start),
             count(count),
             increment(increment)
@@ -66,9 +66,9 @@ class Model3dInterface {
      *  @return return a vector of traces containing the trace values requested
      */
     virtual std::vector<exseis::utils::Trace_value> read_model(
-      size_t offset,
-      size_t sz,
-      const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
+        size_t offset,
+        size_t sz,
+        const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
 
     /*! Read the 3d file based on il and xl that match those in the given
      *  \c gather array.
@@ -79,9 +79,9 @@ class Model3dInterface {
      *  @return Return a vector of traces containing the trace values requested
      */
     virtual std::vector<exseis::utils::Trace_value> read_model(
-      size_t sz,
-      const size_t* offset,
-      const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
+        size_t sz,
+        const size_t* offset,
+        const exseis::utils::Distributed_vector<Gather_info>& gather) = 0;
 };
 
 }  // namespace piol

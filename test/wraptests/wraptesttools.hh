@@ -51,14 +51,14 @@ MATCHER_P(AddressEqDeref, p, "AddressEqDeref")
 ACTION_P(CheckReturn, v)
 {
     exseis::piol::check_return_listener()->expect_return_value(
-      testing::PrintToString(v));
+        testing::PrintToString(v));
     return v;
 }
 
 ACTION_P(CheckInOutParam, v)
 {
     exseis::piol::check_return_listener()->expect_return_value(
-      testing::PrintToString(v));
+        testing::PrintToString(v));
 }
 
 ACTION(ClearCheckReturn)

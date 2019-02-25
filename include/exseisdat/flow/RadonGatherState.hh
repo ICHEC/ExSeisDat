@@ -62,11 +62,11 @@ struct RadonGatherState : public GatherState {
      * @param[in] output_sample_interval The number of increments.
      */
     RadonGatherState(
-      std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
-      std::string vmname,
-      const size_t v_bin,
-      const size_t output_traces_per_gather,
-      const exseis::utils::Floating_point output_sample_interval) :
+        std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
+        std::string vmname,
+        const size_t v_bin,
+        const size_t output_traces_per_gather,
+        const exseis::utils::Floating_point output_sample_interval) :
         piol(piol),
         vmname(vmname),
         v_ns(0),
@@ -78,9 +78,9 @@ struct RadonGatherState : public GatherState {
     }
 
     void make_state(
-      const std::vector<size_t>& offset,
-      const exseis::utils::Distributed_vector<exseis::piol::Gather_info>&
-        gather) override;
+        const std::vector<size_t>& offset,
+        const exseis::utils::Distributed_vector<exseis::piol::Gather_info>&
+            gather) override;
 };
 
 }  // namespace flow

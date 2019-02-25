@@ -19,11 +19,11 @@ namespace utils {
 inline namespace signal_processing {
 
 void agc(
-  size_t signal_size,
-  Trace_value* signal,
-  Gain_function gain_function,
-  size_t window_size,
-  Trace_value target_amplitude)
+    size_t signal_size,
+    Trace_value* signal,
+    Gain_function gain_function,
+    size_t window_size,
+    Trace_value target_amplitude)
 {
     // If window_size is divisible by 2, round up to nearset odd number.
     window_size = (window_size % 2 == 0 ? window_size + 1 : window_size);
@@ -52,15 +52,15 @@ void agc(
         const size_t chopped_window_center = j;
 
         gain[j] = gain_function(
-          &signal[0], chopped_window_size, target_amplitude,
-          chopped_window_center);
+            &signal[0], chopped_window_size, target_amplitude,
+            chopped_window_center);
     }
 
     // Find the gain normalization for the middle of the signal, where the
     // window remains unchopped.
     for (size_t j = win2; j < signal_size - win2; j++) {
-        gain[j] =
-          gain_function(&signal[j - win2], window_size, target_amplitude, win2);
+        gain[j] = gain_function(
+            &signal[j - win2], window_size, target_amplitude, win2);
     }
 
     // Find the gain normalization for the end of the signal.
@@ -75,7 +75,7 @@ void agc(
         const size_t chopped_window_size = win2 + dist_from_end + 1;
 
         gain[j] = gain_function(
-          &signal[j - win2], chopped_window_size, target_amplitude, win2);
+            &signal[j - win2], chopped_window_size, target_amplitude, win2);
     }
 
     // Apply the gain to the signals.
@@ -85,11 +85,11 @@ void agc(
 }
 
 extern "C" void exseis_agc(
-  size_t signal_size,
-  exseis_Trace_value* signal,
-  exseis_Gain_function gain_function,
-  size_t window_size,
-  exseis_Trace_value target_amplitude)
+    size_t signal_size,
+    exseis_Trace_value* signal,
+    exseis_Gain_function gain_function,
+    size_t window_size,
+    exseis_Trace_value target_amplitude)
 {
     agc(signal_size, signal, gain_function, window_size, target_amplitude);
 }

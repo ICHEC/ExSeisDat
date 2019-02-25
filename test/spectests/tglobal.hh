@@ -55,7 +55,7 @@ struct FileReadSEGYTest;
 extern template bool testing::internal::TypeIdHelper<FileReadSEGYTest>::dummy_;
 
 extern template typename testing::DefaultValue<unsigned long>::ValueProducer*
-  testing::DefaultValue<unsigned long>::producer_;
+    testing::DefaultValue<unsigned long>::producer_;
 
 struct FileWriteSEGYTest;
 extern template bool testing::internal::TypeIdHelper<FileWriteSEGYTest>::dummy_;
@@ -64,7 +64,7 @@ struct SetTest;
 extern template bool testing::internal::TypeIdHelper<SetTest>::dummy_;
 
 extern template typename testing::DefaultValue<double>::ValueProducer*
-  testing::DefaultValue<double>::producer_;
+    testing::DefaultValue<double>::producer_;
 
 
 constexpr size_t prefix(const size_t pow)
@@ -76,9 +76,9 @@ ACTION_P2(check0, buf, sz)
 {
     for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(
-          static_cast<const unsigned char*>(buf)[i],
-          static_cast<const unsigned char*>(arg0)[i])
-          << "Error with byte: " << i << "\n";
+            static_cast<const unsigned char*>(buf)[i],
+            static_cast<const unsigned char*>(arg0)[i])
+            << "Error with byte: " << i << "\n";
     }
 }
 
@@ -86,9 +86,9 @@ ACTION_P2(check1, buf, sz)
 {
     for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(
-          static_cast<const unsigned char*>(buf)[i],
-          static_cast<const unsigned char*>(arg1)[i])
-          << "Error with byte: " << i << "\n";
+            static_cast<const unsigned char*>(buf)[i],
+            static_cast<const unsigned char*>(arg1)[i])
+            << "Error with byte: " << i << "\n";
     }
 }
 
@@ -96,9 +96,9 @@ ACTION_P2(check2, buf, sz)
 {
     for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(
-          static_cast<const unsigned char*>(buf)[i],
-          static_cast<const unsigned char*>(arg2)[i])
-          << "Error with byte: " << i << "\n";
+            static_cast<const unsigned char*>(buf)[i],
+            static_cast<const unsigned char*>(arg2)[i])
+            << "Error with byte: " << i << "\n";
     }
 }
 
@@ -106,9 +106,9 @@ ACTION_P2(check3, buf, sz)
 {
     for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(
-          static_cast<const unsigned char*>(buf)[i],
-          static_cast<const unsigned char*>(arg3)[i])
-          << "Error with byte: " << i << "\n";
+            static_cast<const unsigned char*>(buf)[i],
+            static_cast<const unsigned char*>(arg3)[i])
+            << "Error with byte: " << i << "\n";
     }
 }
 
@@ -116,9 +116,9 @@ ACTION_P2(check4, buf, sz)
 {
     for (size_t i = 0; i < sz; i++) {
         ASSERT_EQ(
-          static_cast<const unsigned char*>(buf)[i],
-          static_cast<const unsigned char*>(arg4)[i])
-          << "Error with byte: " << i << "\n";
+            static_cast<const unsigned char*>(buf)[i],
+            static_cast<const unsigned char*>(arg4)[i])
+            << "Error with byte: " << i << "\n";
     }
 }
 

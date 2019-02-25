@@ -19,7 +19,7 @@ Trace_value linear_taper(Trace_value weight, Trace_value ramp)
 }
 
 extern "C" exseis_Trace_value exseis_linear_taper(
-  exseis_Trace_value weight, exseis_Trace_value ramp)
+    exseis_Trace_value weight, exseis_Trace_value ramp)
 {
     return linear_taper(weight, ramp);
 }
@@ -32,7 +32,7 @@ Trace_value cosine_taper(Trace_value weight, Trace_value ramp)
 }
 
 extern "C" exseis_Trace_value exseis_cosine_taper(
-  exseis_Trace_value weight, exseis_Trace_value ramp)
+    exseis_Trace_value weight, exseis_Trace_value ramp)
 {
     return cosine_taper(weight, ramp);
 }
@@ -44,7 +44,7 @@ Trace_value cosine_square_taper(Trace_value weight, Trace_value ramp)
 }
 
 extern "C" exseis_Trace_value exseis_cosine_square_taper(
-  exseis_Trace_value weight, exseis_Trace_value ramp)
+    exseis_Trace_value weight, exseis_Trace_value ramp)
 {
     return cosine_square_taper(weight, ramp);
 }

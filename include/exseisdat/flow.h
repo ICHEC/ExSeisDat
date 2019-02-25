@@ -54,7 +54,10 @@ void piol_set_delete(PIOL_Set* set);
  *                        their respective trace numbers.
  */
 void piol_set_get_min_max(
-  PIOL_Set* set, exseis_Meta m1, exseis_Meta m2, struct PIOL_CoordElem* minmax);
+    PIOL_Set* set,
+    exseis_Meta m1,
+    exseis_Meta m2,
+    struct PIOL_CoordElem* minmax);
 
 /*! Sort the set by the specified sort type.
  *  @param[in,out] set  The set handle
@@ -67,8 +70,8 @@ void piol_set_sort(PIOL_Set* set, exseis_SortType type);
  *  @param[in]     func The custom comparison function to sort set
  */
 void piol_set_sort_fn(
-  PIOL_Set* set,
-  bool (*func)(const piol_file_trace_metadata* param, size_t i, size_t j));
+    PIOL_Set* set,
+    bool (*func)(const piol_file_trace_metadata* param, size_t i, size_t j));
 
 /*! Perform tailed taper on a set of traces
  *  @param[in,out] set    A handle for the set
@@ -78,10 +81,10 @@ void piol_set_sort_fn(
  *                        (pass 0 for no ramp).
  */
 void piol_set_taper(
-  PIOL_Set* set,
-  exseis_Taper_function taper_function,
-  size_t ntpstr,
-  size_t ntpend);
+    PIOL_Set* set,
+    exseis_Taper_function taper_function,
+    size_t ntpstr,
+    size_t ntpend);
 
 /*! Output using the given output prefix
  *  @param[in,out] set   The set handle
@@ -114,10 +117,10 @@ void piol_set_add(PIOL_Set* set, const char* name);
  *  @param[in] target_amplitude Normalization value
  */
 void piol_set_agc(
-  PIOL_Set* set,
-  exseis_Gain_function type,
-  size_t window,
-  exseis_Trace_value target_amplitude);
+    PIOL_Set* set,
+    exseis_Gain_function type,
+    size_t window,
+    exseis_Trace_value target_amplitude);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -36,9 +36,9 @@ class ObjectSEGY : public ObjectInterface {
      *  @param[in] data Pointer to the Data layer object (polymorphic).
      */
     ObjectSEGY(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      std::shared_ptr<Binary_file> data);
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        std::shared_ptr<Binary_file> data);
 
     std::shared_ptr<ExSeisPIOL> piol() const override;
 
@@ -55,67 +55,67 @@ class ObjectSEGY : public ObjectInterface {
     void should_write_file_header(const unsigned char* ho) const override;
 
     void read_trace_metadata(
-      size_t offset, size_t ns, size_t sz, unsigned char* md) const override;
+        size_t offset, size_t ns, size_t sz, unsigned char* md) const override;
 
     void write_trace_metadata(
-      size_t offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* md) const override;
+        size_t offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* md) const override;
 
     void read_trace_data(
-      size_t offset, size_t ns, size_t sz, unsigned char* df) const override;
+        size_t offset, size_t ns, size_t sz, unsigned char* df) const override;
 
     void write_trace_data(
-      size_t offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* df) const override;
+        size_t offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* df) const override;
 
     void read_trace(
-      size_t offset, size_t ns, size_t sz, unsigned char* d) const override;
+        size_t offset, size_t ns, size_t sz, unsigned char* d) const override;
 
     void write_trace(
-      size_t offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* d) const override;
+        size_t offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* d) const override;
 
     void read_trace(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      unsigned char* d) const override;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        unsigned char* d) const override;
 
     void write_trace(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* d) const override;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* d) const override;
 
     void read_trace_metadata(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      unsigned char* md) const override;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        unsigned char* md) const override;
 
     void write_trace_metadata(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* md) const override;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* md) const override;
 
     void read_trace_data(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      unsigned char* df) const override;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        unsigned char* df) const override;
 
     void write_trace_data(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* df) const override;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* df) const override;
 };
 
 }  // namespace piol

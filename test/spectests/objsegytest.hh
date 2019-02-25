@@ -28,20 +28,24 @@ class MockData : public Binary_file {
 
     MOCK_CONST_METHOD3(read, void(const size_t, const size_t, void*));
     MOCK_CONST_METHOD5(
-      read_noncontiguous,
-      void(const size_t, const size_t, const size_t, const size_t, void*));
+        read_noncontiguous,
+        void(const size_t, const size_t, const size_t, const size_t, void*));
     MOCK_CONST_METHOD4(
-      read_noncontiguous_irregular,
-      void(const size_t, const size_t, const size_t*, void*));
+        read_noncontiguous_irregular,
+        void(const size_t, const size_t, const size_t*, void*));
 
     MOCK_CONST_METHOD3(write, void(const size_t, const size_t, const void*));
     MOCK_CONST_METHOD5(
-      write_noncontiguous,
-      void(
-        const size_t, const size_t, const size_t, const size_t, const void*));
+        write_noncontiguous,
+        void(
+            const size_t,
+            const size_t,
+            const size_t,
+            const size_t,
+            const void*));
     MOCK_CONST_METHOD4(
-      write_noncontiguous_irregular,
-      void(const size_t, const size_t, const size_t*, const void*));
+        write_noncontiguous_irregular,
+        void(const size_t, const size_t, const size_t*, const void*));
 
     // TODO: This method is not tested
     MOCK_CONST_METHOD1(set_file_size, void(const size_t));
@@ -64,7 +68,7 @@ class ObjTest : public Test {
         }
 
         auto data = std::make_shared<MPI_Binary_file>(
-          m_piol, name, (WRITE ? FileMode::ReadWrite : FileMode::Read));
+            m_piol, name, (WRITE ? FileMode::ReadWrite : FileMode::Read));
         m_piol->assert_ok();
         m_obj = new ObjectSEGY(m_piol, name, data);
         m_piol->assert_ok();
@@ -108,16 +112,16 @@ class ObjTest : public Test {
                 c_ho[i] = get_pattern(off + i);
             }
             EXPECT_CALL(
-              *m_mock, read(0U, segy::segy_binary_file_header_size(), _))
-              .WillOnce(WithArg<2>(Invoke([&](void* buffer) {
-                  std::copy(
-                    std::begin(c_ho), std::end(c_ho),
-                    static_cast<unsigned char*>(buffer));
-              })));
+                *m_mock, read(0U, segy::segy_binary_file_header_size(), _))
+                .WillOnce(WithArg<2>(Invoke([&](void* buffer) {
+                    std::copy(
+                        std::begin(c_ho), std::end(c_ho),
+                        static_cast<unsigned char*>(buffer));
+                })));
         }
 
         std::vector<unsigned char> ho(
-          segy::segy_binary_file_header_size() + 2 * extra);
+            segy::segy_binary_file_header_size() + 2 * extra);
         for (auto i = 0U; i < extra; i++) {
             ho[i] = ho[ho.size() - extra + i] = magic;
         }
@@ -131,7 +135,7 @@ class ObjTest : public Test {
         }
         for (auto i = 0U; i < extra; i++) {
             ASSERT_EQ(magic, ho[ho.size() - extra + i])
-              << "Pattern Extra " << i;
+                << "Pattern Extra " << i;
         }
     }
 
@@ -151,13 +155,13 @@ class ObjTest : public Test {
 
         if (UseMock) {
             EXPECT_CALL(
-              *m_mock, write(0U, segy::segy_binary_file_header_size(), _))
-              .WillOnce(
-                check2(c_ho.data(), segy::segy_binary_file_header_size()));
+                *m_mock, write(0U, segy::segy_binary_file_header_size(), _))
+                .WillOnce(
+                    check2(c_ho.data(), segy::segy_binary_file_header_size()));
         }
 
         std::vector<unsigned char> ho(
-          segy::segy_binary_file_header_size() + 2 * extra);
+            segy::segy_binary_file_header_size() + 2 * extra);
         for (auto i = 0U; i < extra; i++) {
             ho[i] = ho[ho.size() - extra + i] = magic;
         }
@@ -175,11 +179,11 @@ class ObjTest : public Test {
 
     template<Block Type, bool UseMock = true>
     void read_test(
-      const size_t offset,
-      const size_t nt,
-      const size_t ns,
-      const size_t poff   = 0,
-      unsigned char magic = 0)
+        const size_t offset,
+        const size_t nt,
+        const size_t ns,
+        const size_t poff   = 0,
+        unsigned char magic = 0)
     {
         SCOPED_TRACE("read_test " + std::to_string(size_t(Type)));
         if (UseMock && m_mock == nullptr) {
@@ -189,13 +193,13 @@ class ObjTest : public Test {
         }
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::TRACE_METADATA ?
-             segy::segy_trace_header_size() :
-             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
-                                          segy::segy_trace_size(ns)));
+            (Type == Block::TRACE_METADATA ?
+                 segy::segy_trace_header_size() :
+                 (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                              segy::segy_trace_size(ns)));
         auto loc_func =
-          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
-                                       segy::segy_trace_data_location<float>);
+            (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                         segy::segy_trace_data_location<float>);
         size_t step = nt * bsz;
         std::vector<unsigned char> trnew(step + 2U * extra);
 
@@ -210,22 +214,22 @@ class ObjTest : public Test {
             }
             if (Type == Block::TRACE) {
                 EXPECT_CALL(*m_mock, read(loc_func(offset, ns), nt * bsz, _))
-                  .WillOnce(WithArg<2>(Invoke([&](void* buffer) {
-                      std::copy(
-                        std::begin(tr), std::end(tr),
-                        static_cast<unsigned char*>(buffer));
-                  })));
+                    .WillOnce(WithArg<2>(Invoke([&](void* buffer) {
+                        std::copy(
+                            std::begin(tr), std::end(tr),
+                            static_cast<unsigned char*>(buffer));
+                    })));
             }
             else {
                 EXPECT_CALL(
-                  *m_mock, read_noncontiguous(
-                             loc_func(offset, ns), bsz,
-                             segy::segy_trace_size(ns), nt, _))
-                  .WillOnce(WithArg<4>(Invoke([&](void* buffer) {
-                      std::copy(
-                        std::begin(tr), std::end(tr),
-                        static_cast<unsigned char*>(buffer));
-                  })));
+                    *m_mock, read_noncontiguous(
+                                 loc_func(offset, ns), bsz,
+                                 segy::segy_trace_size(ns), nt, _))
+                    .WillOnce(WithArg<4>(Invoke([&](void* buffer) {
+                        std::copy(
+                            std::begin(tr), std::end(tr),
+                            static_cast<unsigned char*>(buffer));
+                    })));
             }
         }
 
@@ -254,7 +258,7 @@ class ObjTest : public Test {
             for (size_t j = 0U; j < bsz; j++, tcnt++) {
                 size_t pos = poff + loc_func(offset + i, ns) + j;
                 ASSERT_EQ(trnew[extra + i * bsz + j], get_pattern(pos % 0x100))
-                  << i << " " << j;
+                    << i << " " << j;
             }
         }
         for (size_t i = 0U; i < extra; i++, tcnt += 2U) {
@@ -266,23 +270,23 @@ class ObjTest : public Test {
 
     template<Block Type, bool UseMock = true>
     void write_test(
-      const size_t offset,
-      const size_t nt,
-      const size_t ns,
-      const size_t poff   = 0,
-      unsigned char magic = 0)
+        const size_t offset,
+        const size_t nt,
+        const size_t ns,
+        const size_t poff   = 0,
+        unsigned char magic = 0)
     {
         SCOPED_TRACE("write_test " + std::to_string(size_t(Type)));
 
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::TRACE_METADATA ?
-             segy::segy_trace_header_size() :
-             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
-                                          segy::segy_trace_size(ns)));
+            (Type == Block::TRACE_METADATA ?
+                 segy::segy_trace_header_size() :
+                 (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                              segy::segy_trace_size(ns)));
         auto loc_func =
-          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
-                                       segy::segy_trace_data_location<float>);
+            (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                         segy::segy_trace_data_location<float>);
 
         size_t step = nt * bsz;
         std::vector<unsigned char> tr;
@@ -298,14 +302,14 @@ class ObjTest : public Test {
             }
             if (Type == Block::TRACE) {
                 EXPECT_CALL(*m_mock, write(loc_func(offset, ns), nt * bsz, _))
-                  .WillOnce(check2(tr.data(), tr.size()));
+                    .WillOnce(check2(tr.data(), tr.size()));
             }
             else {
                 EXPECT_CALL(
-                  *m_mock, write_noncontiguous(
-                             loc_func(offset, ns), bsz,
-                             segy::segy_trace_size(ns), nt, _))
-                  .WillOnce(check4(tr.data(), tr.size()));
+                    *m_mock, write_noncontiguous(
+                                 loc_func(offset, ns), bsz,
+                                 segy::segy_trace_size(ns), nt, _))
+                    .WillOnce(check4(tr.data(), tr.size()));
             }
         }
         for (size_t i = 0U; i < nt; i++) {
@@ -341,9 +345,9 @@ class ObjTest : public Test {
 
     template<Block Type, bool UseMock = true>
     void read_random_test(
-      const size_t ns,
-      const std::vector<size_t>& offset,
-      unsigned char magic = 0)
+        const size_t ns,
+        const std::vector<size_t>& offset,
+        unsigned char magic = 0)
     {
         SCOPED_TRACE("read_random_test " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
@@ -354,13 +358,13 @@ class ObjTest : public Test {
         }
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::TRACE_METADATA ?
-             segy::segy_trace_header_size() :
-             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
-                                          segy::segy_trace_size(ns)));
+            (Type == Block::TRACE_METADATA ?
+                 segy::segy_trace_header_size() :
+                 (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                              segy::segy_trace_size(ns)));
         auto loc_func =
-          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
-                                       segy::segy_trace_data_location<float>);
+            (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                         segy::segy_trace_data_location<float>);
 
         size_t step = nt * bsz;
         std::vector<unsigned char> trnew(step + 2U * extra);
@@ -376,13 +380,13 @@ class ObjTest : public Test {
 
             if (Type != Block::TRACE_DATA || bsz > 0) {
                 EXPECT_CALL(
-                  *m_mock, read_noncontiguous_irregular(bsz, nt, _, _))
-                  .WillOnce(WithArg<3>(Invoke([&](void* buffer) {
-                      std::copy(
-                        std::begin(tr), std::end(tr),
-                        static_cast<unsigned char*>(buffer));
-                  })))
-                  .RetiresOnSaturation();
+                    *m_mock, read_noncontiguous_irregular(bsz, nt, _, _))
+                    .WillOnce(WithArg<3>(Invoke([&](void* buffer) {
+                        std::copy(
+                            std::begin(tr), std::end(tr),
+                            static_cast<unsigned char*>(buffer));
+                    })))
+                    .RetiresOnSaturation();
             }
         }
 
@@ -397,7 +401,7 @@ class ObjTest : public Test {
 
             case Block::TRACE_METADATA:
                 m_obj->read_trace_metadata(
-                  offset.data(), ns, nt, &trnew[extra]);
+                    offset.data(), ns, nt, &trnew[extra]);
                 break;
 
             default:
@@ -411,7 +415,7 @@ class ObjTest : public Test {
             for (size_t j = 0U; j < bsz; j++, tcnt++) {
                 size_t pos = loc_func(offset[i], ns) + j;
                 ASSERT_EQ(trnew[extra + i * bsz + j], get_pattern(pos % 0x100))
-                  << i << " " << j;
+                    << i << " " << j;
             }
         }
         for (size_t i = 0U; i < extra; i++, tcnt += 2U) {
@@ -423,21 +427,21 @@ class ObjTest : public Test {
 
     template<Block Type, bool UseMock = true>
     void write_random_test(
-      const size_t ns,
-      const std::vector<size_t>& offset,
-      unsigned char magic = 0)
+        const size_t ns,
+        const std::vector<size_t>& offset,
+        unsigned char magic = 0)
     {
         SCOPED_TRACE("write_random_test " + std::to_string(size_t(Type)));
         size_t nt          = offset.size();
         const size_t extra = 20U;
         size_t bsz =
-          (Type == Block::TRACE_METADATA ?
-             segy::segy_trace_header_size() :
-             (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
-                                          segy::segy_trace_size(ns)));
+            (Type == Block::TRACE_METADATA ?
+                 segy::segy_trace_header_size() :
+                 (Type == Block::TRACE_DATA ? segy::segy_trace_data_size(ns) :
+                                              segy::segy_trace_size(ns)));
         auto loc_func =
-          (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
-                                       segy::segy_trace_data_location<float>);
+            (Type != Block::TRACE_DATA ? segy::segy_trace_location<float> :
+                                         segy::segy_trace_data_location<float>);
         size_t step = nt * bsz;
         std::vector<unsigned char> tr;
         std::vector<unsigned char> trnew(step + 2U * extra);
@@ -452,9 +456,9 @@ class ObjTest : public Test {
             }
             if (Type != Block::TRACE_DATA || bsz > 0) {
                 EXPECT_CALL(
-                  *m_mock, write_noncontiguous_irregular(bsz, nt, _, _))
-                  .WillOnce(check3(tr.data(), step))
-                  .RetiresOnSaturation();
+                    *m_mock, write_noncontiguous_irregular(bsz, nt, _, _))
+                    .WillOnce(check3(tr.data(), step))
+                    .RetiresOnSaturation();
             }
         }
 
@@ -475,7 +479,7 @@ class ObjTest : public Test {
 
             case Block::TRACE_METADATA:
                 m_obj->write_trace_metadata(
-                  offset.data(), ns, nt, &trnew[extra]);
+                    offset.data(), ns, nt, &trnew[extra]);
                 break;
 
             default:

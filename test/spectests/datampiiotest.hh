@@ -31,8 +31,8 @@ class MPIIOTest : public Test {
 
     template<bool WRITE = false>
     void make_mpiio(
-      std::string name,
-      const MPI_Binary_file::Opt& ioopt = MPI_Binary_file::Opt())
+        std::string name,
+        const MPI_Binary_file::Opt& ioopt = MPI_Binary_file::Opt())
     {
         if (m_data != nullptr) {
             m_data.reset();
@@ -56,7 +56,8 @@ class MPIIOTest : public Test {
     void write_small_blocks(size_t nt, size_t ns, size_t offset = 0)
     {
         size_t step =
-          (Block ? segy::segy_trace_header_size() : segy::segy_trace_size(ns));
+            (Block ? segy::segy_trace_header_size() :
+                     segy::segy_trace_size(ns));
         std::vector<unsigned char> tr(step * nt);
 
         for (size_t i = 0; i < nt; i++) {
@@ -71,16 +72,16 @@ class MPIIOTest : public Test {
 
         if (Block) {
             m_data->write_noncontiguous(
-              segy::segy_binary_file_header_size()
-                + offset * segy::segy_trace_size(ns),
-              segy::segy_trace_header_size(), segy::segy_trace_size(ns), nt,
-              tr.data());
+                segy::segy_binary_file_header_size()
+                    + offset * segy::segy_trace_size(ns),
+                segy::segy_trace_header_size(), segy::segy_trace_size(ns), nt,
+                tr.data());
         }
         else {
             m_data->write(
-              segy::segy_binary_file_header_size()
-                + offset * segy::segy_trace_size(ns),
-              segy::segy_trace_size(ns) * nt, tr.data());
+                segy::segy_binary_file_header_size()
+                    + offset * segy::segy_trace_size(ns),
+                segy::segy_trace_size(ns) * nt, tr.data());
         }
 
         read_small_blocks<Block>(nt, ns, offset);
@@ -90,7 +91,8 @@ class MPIIOTest : public Test {
     void write_big_blocks(size_t nt, size_t ns, size_t offset = 0)
     {
         size_t step =
-          (Block ? segy::segy_trace_data_size(ns) : segy::segy_trace_size(ns));
+            (Block ? segy::segy_trace_data_size(ns) :
+                     segy::segy_trace_size(ns));
         std::vector<unsigned char> tr(step * nt);
 
         for (size_t i = 0; i < nt; i++) {
@@ -110,14 +112,14 @@ class MPIIOTest : public Test {
 
         if (Block) {
             m_data->write_noncontiguous(
-              segy::segy_trace_data_location<float>(offset, ns),
-              segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), nt,
-              tr.data());
+                segy::segy_trace_data_location<float>(offset, ns),
+                segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), nt,
+                tr.data());
         }
         else {
             m_data->write(
-              segy::segy_trace_data_location<float>(offset, ns),
-              segy::segy_trace_size(ns) * nt, tr.data());
+                segy::segy_trace_data_location<float>(offset, ns),
+                segy::segy_trace_size(ns) * nt, tr.data());
         }
 
         read_big_blocks<Block>(nt, ns, offset);
@@ -127,22 +129,23 @@ class MPIIOTest : public Test {
     void read_small_blocks(size_t nt, size_t ns, size_t offset = 0)
     {
         size_t step =
-          (Block ? segy::segy_trace_header_size() : segy::segy_trace_size(ns));
+            (Block ? segy::segy_trace_header_size() :
+                     segy::segy_trace_size(ns));
         std::vector<unsigned char> tr;
         tr.resize(step * nt);
 
         if (Block) {
             m_data->read_noncontiguous(
-              segy::segy_binary_file_header_size()
-                + offset * segy::segy_trace_size(ns),
-              segy::segy_trace_header_size(), segy::segy_trace_size(ns), nt,
-              tr.data());
+                segy::segy_binary_file_header_size()
+                    + offset * segy::segy_trace_size(ns),
+                segy::segy_trace_header_size(), segy::segy_trace_size(ns), nt,
+                tr.data());
         }
         else {
             m_data->read(
-              segy::segy_binary_file_header_size()
-                + offset * segy::segy_trace_size(ns),
-              segy::segy_trace_size(ns) * nt, tr.data());
+                segy::segy_binary_file_header_size()
+                    + offset * segy::segy_trace_size(ns),
+                segy::segy_trace_size(ns) * nt, tr.data());
         }
 
         nt = modify_nt(m_data->get_file_size(), offset, nt, ns);
@@ -151,15 +154,15 @@ class MPIIOTest : public Test {
             unsigned char* md = &tr[step * i];
 
             ASSERT_EQ(
-              il_num(i + offset),
-              from_big_endian<int32_t>(
-                md[188 + 0], md[188 + 1], md[188 + 2], md[188 + 3]))
-              << i;
+                il_num(i + offset),
+                from_big_endian<int32_t>(
+                    md[188 + 0], md[188 + 1], md[188 + 2], md[188 + 3]))
+                << i;
             ASSERT_EQ(
-              xl_num(i + offset),
-              from_big_endian<int32_t>(
-                md[192 + 0], md[192 + 1], md[192 + 2], md[192 + 3]))
-              << i;
+                xl_num(i + offset),
+                from_big_endian<int32_t>(
+                    md[192 + 0], md[192 + 1], md[192 + 2], md[192 + 3]))
+                << i;
         }
     }
 
@@ -167,19 +170,20 @@ class MPIIOTest : public Test {
     void read_big_blocks(size_t nt, size_t ns, const size_t offset = 0)
     {
         size_t step =
-          (Block ? segy::segy_trace_data_size(ns) : segy::segy_trace_size(ns));
+            (Block ? segy::segy_trace_data_size(ns) :
+                     segy::segy_trace_size(ns));
         std::vector<unsigned char> tr(step * nt);
 
         if (Block) {
             m_data->read_noncontiguous(
-              segy::segy_trace_data_location<float>(offset, ns),
-              segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), nt,
-              tr.data());
+                segy::segy_trace_data_location<float>(offset, ns),
+                segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), nt,
+                tr.data());
         }
         else {
             m_data->read(
-              segy::segy_trace_data_location<float>(offset, ns),
-              segy::segy_trace_size(ns) * nt, tr.data());
+                segy::segy_trace_data_location<float>(offset, ns),
+                segy::segy_trace_size(ns) * nt, tr.data());
         }
 
         nt = modify_nt(m_data->get_file_size(), offset, nt, ns);
@@ -224,7 +228,7 @@ class MPIIOTest : public Test {
             boffset[i] = segy::segy_trace_data_location<float>(offset[i], ns);
         }
         m_data->write_noncontiguous_irregular(
-          bsz, sz, boffset.data(), d.data());
+            bsz, sz, boffset.data(), d.data());
         m_piol->assert_ok();
 
         read_list(sz, ns, offset.data());

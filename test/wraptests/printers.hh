@@ -23,7 +23,7 @@ class Trace_metadata;
 namespace std {
 
 ::std::ostream& operator<<(
-  ::std::ostream& os, const std::shared_ptr<exseis::piol::Rule>& value);
+    ::std::ostream& os, const std::shared_ptr<exseis::piol::Rule>& value);
 
 }  // namespace std
 

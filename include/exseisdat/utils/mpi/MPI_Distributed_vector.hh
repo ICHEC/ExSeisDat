@@ -20,8 +20,8 @@ class MPI_Distributed_vector : public Distributed_vector<T> {
     // Ensure T is trivially copyable, because we'll be passing it around
     // bitwise over MPI.
     static_assert(
-      std::is_trivially_copyable<T>::value == true,
-      "Template parameter, T, is not trivially copyable!");
+        std::is_trivially_copyable<T>::value == true,
+        "Template parameter, T, is not trivially copyable!");
 
   protected:
     /// The internal implementation of MPI_Distributed_vector.
@@ -68,7 +68,7 @@ class MPI_Distributed_vector : public Distributed_vector<T> {
 
 template<typename T>
 MPI_Distributed_vector<T>::MPI_Distributed_vector(
-  size_t global_size, MPI_Comm comm) :
+    size_t global_size, MPI_Comm comm) :
     Distributed_vector<T>(std::make_unique<Model>(global_size, comm))
 {
 }
@@ -80,8 +80,8 @@ MPI_Distributed_vector<T>::Model::Model(MPI_Aint global_size, MPI_Comm comm) :
     global_size(static_cast<size_t>(global_size))
 {
     assert(
-      global_size >= 0
-      && "MPI_Distributed_vector::Model::Model global_size_ should be >= 0.");
+        global_size >= 0
+        && "MPI_Distributed_vector::Model::Model global_size_ should be >= 0.");
 
     int rank      = 0;
     int num_ranks = 0;
@@ -93,7 +93,7 @@ MPI_Distributed_vector<T>::Model::Model(MPI_Aint global_size, MPI_Comm comm) :
     assert(num_ranks >= 0);
 
     const auto decomposition = block_decomposition(
-      global_size, static_cast<size_t>(num_ranks), static_cast<size_t>(rank));
+        global_size, static_cast<size_t>(num_ranks), static_cast<size_t>(rank));
 
     // Check conversions ok
     assert(decomposition.local_size >= 0);
@@ -129,7 +129,7 @@ void MPI_Distributed_vector<T>::Model::set(size_t i, const T& val)
 
     // Get the rank and local index of the global index `i`.
     const auto location = block_decomposition_location(
-      global_size, static_cast<size_t>(num_ranks), i);
+        global_size, static_cast<size_t>(num_ranks), i);
 
     // Set the value locally or remotely.
     assert(rank >= 0);
@@ -143,13 +143,13 @@ void MPI_Distributed_vector<T>::Model::set(size_t i, const T& val)
 
         // Lock the window, set the remote data, and unlock.
         MPI_Win_lock(
-          MPI_LOCK_EXCLUSIVE, static_cast<int>(location.rank), MPI_MODE_NOCHECK,
-          win);
+            MPI_LOCK_EXCLUSIVE, static_cast<int>(location.rank),
+            MPI_MODE_NOCHECK, win);
 
         const size_t t_size = sizeof(T);
         MPI_Put(
-          &val, t_size, MPI_BYTE, static_cast<int>(location.rank),
-          static_cast<MPI_Aint>(location.local_index), t_size, MPI_BYTE, win);
+            &val, t_size, MPI_BYTE, static_cast<int>(location.rank),
+            static_cast<MPI_Aint>(location.local_index), t_size, MPI_BYTE, win);
 
         MPI_Win_unlock(static_cast<int>(location.rank), win);
     }
@@ -173,7 +173,7 @@ T MPI_Distributed_vector<T>::Model::get(size_t i) const
 
     // Get the rank and local index of the global index `i`.
     auto location = block_decomposition_location(
-      global_size, static_cast<size_t>(num_ranks), i);
+        global_size, static_cast<size_t>(num_ranks), i);
 
     // Get the value locally or remotely.
     if (location.rank == static_cast<size_t>(rank)) {
@@ -187,13 +187,13 @@ T MPI_Distributed_vector<T>::Model::get(size_t i) const
         T val;
 
         MPI_Win_lock(
-          MPI_LOCK_SHARED, static_cast<int>(location.rank), MPI_MODE_NOCHECK,
-          win);
+            MPI_LOCK_SHARED, static_cast<int>(location.rank), MPI_MODE_NOCHECK,
+            win);
 
         const size_t t_size = sizeof(T);
         MPI_Get(
-          &val, t_size, MPI_BYTE, static_cast<int>(location.rank),
-          static_cast<MPI_Aint>(location.local_index), t_size, MPI_BYTE, win);
+            &val, t_size, MPI_BYTE, static_cast<int>(location.rank),
+            static_cast<MPI_Aint>(location.local_index), t_size, MPI_BYTE, win);
 
         MPI_Win_unlock(static_cast<int>(location.rank), win);
 

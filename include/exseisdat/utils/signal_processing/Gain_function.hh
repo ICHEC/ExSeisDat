@@ -41,10 +41,10 @@ inline namespace signal_processing {
 /// @remark C API: \ref exseis_Gain_function
 ///
 using Gain_function = Trace_value (*)(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t window_center);
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @name Gain Functions
@@ -63,10 +63,10 @@ using Gain_function = Trace_value (*)(
 /// @remark C API: exseis_rectangular_rms_gain()
 ///
 Trace_value rectangular_rms_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t window_center);
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief Find the normalised root mean square (RMS) of a signal in a
@@ -82,10 +82,10 @@ Trace_value rectangular_rms_gain(
 /// @remark C API: \ref exseis_triangular_rms_gain()
 ///
 Trace_value triangular_rms_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t window_center);
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief Find the normalised mean absolute value (MAV) of a signal in a
@@ -101,10 +101,10 @@ Trace_value triangular_rms_gain(
 /// @remark C API: \ref exseis_mean_abs_gain()
 ///
 Trace_value mean_abs_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t window_center);
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief Find the normalised median value inside a signal amplitude window.
@@ -119,10 +119,10 @@ Trace_value mean_abs_gain(
 /// @remark C API: \ref exseis_median_gain()
 ///
 Trace_value median_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t window_center);
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t window_center);
 
 /// @} Gain Functions
 

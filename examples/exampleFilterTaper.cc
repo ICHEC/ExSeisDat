@@ -20,6 +20,6 @@ int main(void)
     Set set(piol, "Line_*", "LowpassTime");
     std::vector<float> c = {3.5, 0};
     set.temporal_filter(
-      FltrType::Lowpass, FltrDmn::Time, PadType::Symmetric, 30.f, 4LU, c);
+        FltrType::Lowpass, FltrDmn::Time, PadType::Symmetric, 30.f, 4LU, c);
     return 0;
 }

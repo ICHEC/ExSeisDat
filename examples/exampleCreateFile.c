@@ -20,7 +20,7 @@ void create_file(const char* name, size_t nt, size_t ns, size_t sample_interval)
 
     // Perform some decomposition (user decides how they will decompose)
     struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
-      nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
+        nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
 
     // The offset for the local process
     size_t offset = dec.global_offset;

@@ -59,7 +59,7 @@ void piol_file_rule_add_long(piol_file_rule* rule, exseis_Meta m, exseis_Tr loc)
 }
 
 void piol_file_rule_add_short(
-  piol_file_rule* rule, exseis_Meta m, exseis_Tr loc)
+    piol_file_rule* rule, exseis_Meta m, exseis_Tr loc)
 {
     assert(not_null(rule));
 
@@ -67,13 +67,16 @@ void piol_file_rule_add_short(
 }
 
 void piol_file_rule_add_segy_float(
-  piol_file_rule* rule, exseis_Meta m, exseis_Tr loc, exseis_Tr scalar_location)
+    piol_file_rule* rule,
+    exseis_Meta m,
+    exseis_Tr loc,
+    exseis_Tr scalar_location)
 {
     assert(not_null(rule));
 
     (*rule).add_segy_float(
-      static_cast<Meta>(m), static_cast<Tr>(loc),
-      static_cast<Tr>(scalar_location));
+        static_cast<Meta>(m), static_cast<Tr>(loc),
+        static_cast<Tr>(scalar_location));
 }
 
 void piol_file_rule_add_index(piol_file_rule* rule, exseis_Meta m)
@@ -119,7 +122,7 @@ size_t piol_file_rule_memory_usage_per_header(const piol_file_rule* rule)
 }
 
 piol_file_trace_metadata* piol_file_trace_metadata_new(
-  piol_file_rule* rule, size_t sz)
+    piol_file_rule* rule, size_t sz)
 {
     if (not_null(rule)) {
         return new Trace_metadata(*rule, sz);
@@ -142,7 +145,7 @@ size_t piol_file_trace_metadata_size(const piol_file_trace_metadata* param)
 }
 
 size_t piol_file_trace_metadata_memory_usage(
-  const piol_file_trace_metadata* param)
+    const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -157,7 +160,7 @@ bool piol_file_rule_add_rule_meta(piol_file_rule* rule, exseis_Meta m)
 }
 
 bool piol_file_rule_add_rule_rule(
-  piol_file_rule* rule, const piol_file_rule* rule_to_copy)
+    piol_file_rule* rule, const piol_file_rule* rule_to_copy)
 {
     assert(not_null(rule));
     assert(not_null(rule_to_copy));
@@ -166,7 +169,7 @@ bool piol_file_rule_add_rule_rule(
 }
 
 size_t piol_file_get_prm_index(
-  size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
+    size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -174,7 +177,7 @@ size_t piol_file_get_prm_index(
 }
 
 exseis_Integer piol_file_get_prm_integer(
-  size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
+    size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -182,7 +185,7 @@ exseis_Integer piol_file_get_prm_integer(
 }
 
 exseis_Floating_point piol_file_get_prm_double(
-  size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
+    size_t i, exseis_Meta entry, const piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -190,7 +193,7 @@ exseis_Floating_point piol_file_get_prm_double(
 }
 
 void piol_file_set_prm_index(
-  size_t i, exseis_Meta entry, size_t ret, piol_file_trace_metadata* param)
+    size_t i, exseis_Meta entry, size_t ret, piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -198,10 +201,10 @@ void piol_file_set_prm_index(
 }
 
 void piol_file_set_prm_integer(
-  size_t i,
-  exseis_Meta entry,
-  exseis_Integer ret,
-  piol_file_trace_metadata* param)
+    size_t i,
+    exseis_Meta entry,
+    exseis_Integer ret,
+    piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -209,10 +212,10 @@ void piol_file_set_prm_integer(
 }
 
 void piol_file_set_prm_double(
-  size_t i,
-  exseis_Meta entry,
-  exseis_Floating_point ret,
-  piol_file_trace_metadata* param)
+    size_t i,
+    exseis_Meta entry,
+    exseis_Floating_point ret,
+    piol_file_trace_metadata* param)
 {
     assert(not_null(param));
 
@@ -220,10 +223,10 @@ void piol_file_set_prm_double(
 }
 
 void piol_file_cpy_prm(
-  size_t i,
-  const piol_file_trace_metadata* src,
-  size_t j,
-  piol_file_trace_metadata* dst)
+    size_t i,
+    const piol_file_trace_metadata* src,
+    size_t j,
+    piol_file_trace_metadata* dst)
 {
     assert(not_null(src));
     assert(not_null(dst));
@@ -235,7 +238,7 @@ void piol_file_cpy_prm(
 piol_exseis* piol_exseis_new(exseis_Verbosity verbosity)
 {
     return new std::shared_ptr<ExSeis>(
-      ExSeis::make(static_cast<exseis::utils::Verbosity>(verbosity)));
+        ExSeis::make(static_cast<exseis::utils::Verbosity>(verbosity)));
 }
 
 void piol_exseis_delete(piol_exseis* piol)
@@ -286,7 +289,7 @@ size_t piol_exseis_max(const piol_exseis* piol, size_t n)
 ////////////////// File Layer ////////////////////////////
 
 piol_file_write_interface* piol_file_write_segy_new(
-  const piol_exseis* piol, const char* name)
+    const piol_exseis* piol, const char* name)
 {
     assert(not_null(piol));
     assert(not_null(name));
@@ -295,7 +298,7 @@ piol_file_write_interface* piol_file_write_segy_new(
 }
 
 piol_file_read_interface* piol_file_read_segy_new(
-  const piol_exseis* piol, const char* name)
+    const piol_exseis* piol, const char* name)
 {
     assert(not_null(piol));
     assert(not_null(name));
@@ -314,7 +317,7 @@ void piol_file_write_interface_delete(piol_file_write_interface* write_direct)
 }
 
 const char* piol_file_read_interface_read_text(
-  const piol_file_read_interface* read_direct)
+    const piol_file_read_interface* read_direct)
 {
     assert(not_null(read_direct));
 
@@ -322,7 +325,7 @@ const char* piol_file_read_interface_read_text(
 }
 
 size_t piol_file_read_interface_read_ns(
-  const piol_file_read_interface* read_direct)
+    const piol_file_read_interface* read_direct)
 {
     assert(not_null(read_direct));
 
@@ -330,7 +333,7 @@ size_t piol_file_read_interface_read_ns(
 }
 
 size_t piol_file_read_interface_read_nt(
-  const piol_file_read_interface* read_direct)
+    const piol_file_read_interface* read_direct)
 {
     assert(not_null(read_direct));
 
@@ -338,7 +341,7 @@ size_t piol_file_read_interface_read_nt(
 }
 
 double piol_file_read_interface_read_sample_interval(
-  const piol_file_read_interface* read_direct)
+    const piol_file_read_interface* read_direct)
 {
     assert(not_null(read_direct));
 
@@ -346,7 +349,7 @@ double piol_file_read_interface_read_sample_interval(
 }
 
 void piol_file_write_interface_write_text(
-  piol_file_write_interface* write_direct, const char* text)
+    piol_file_write_interface* write_direct, const char* text)
 {
     assert(not_null(write_direct));
     assert(not_null(text));
@@ -355,7 +358,7 @@ void piol_file_write_interface_write_text(
 }
 
 void piol_file_write_interface_write_ns(
-  piol_file_write_interface* write_direct, size_t ns)
+    piol_file_write_interface* write_direct, size_t ns)
 {
     assert(not_null(write_direct));
 
@@ -363,7 +366,7 @@ void piol_file_write_interface_write_ns(
 }
 
 void piol_file_write_interface_write_nt(
-  piol_file_write_interface* write_direct, size_t nt)
+    piol_file_write_interface* write_direct, size_t nt)
 {
     assert(not_null(write_direct));
 
@@ -371,8 +374,8 @@ void piol_file_write_interface_write_nt(
 }
 
 void piol_file_write_interface_write_sample_interval(
-  piol_file_write_interface* write_direct,
-  const exseis_Floating_point sample_interval)
+    piol_file_write_interface* write_direct,
+    const exseis_Floating_point sample_interval)
 {
     assert(not_null(write_direct));
 
@@ -381,11 +384,11 @@ void piol_file_write_interface_write_sample_interval(
 
 // Contiguous traces
 void piol_file_read_interface_read_trace(
-  const piol_file_read_interface* read_direct,
-  size_t offset,
-  size_t sz,
-  exseis_Trace_value* trace,
-  piol_file_trace_metadata* param)
+    const piol_file_read_interface* read_direct,
+    size_t offset,
+    size_t sz,
+    exseis_Trace_value* trace,
+    piol_file_trace_metadata* param)
 {
     assert(not_null(read_direct));
     assert(not_null(trace));
@@ -399,11 +402,11 @@ void piol_file_read_interface_read_trace(
 }
 
 void piol_file_write_interface_write_trace(
-  piol_file_write_interface* write_direct,
-  size_t offset,
-  size_t sz,
-  exseis_Trace_value* trace,
-  const piol_file_trace_metadata* param)
+    piol_file_write_interface* write_direct,
+    size_t offset,
+    size_t sz,
+    exseis_Trace_value* trace,
+    const piol_file_trace_metadata* param)
 {
     assert(not_null(write_direct));
     assert(not_null(trace));
@@ -417,10 +420,10 @@ void piol_file_write_interface_write_trace(
 }
 
 void piol_file_write_interface_write_param(
-  piol_file_write_interface* write_direct,
-  size_t offset,
-  size_t sz,
-  const piol_file_trace_metadata* param)
+    piol_file_write_interface* write_direct,
+    size_t offset,
+    size_t sz,
+    const piol_file_trace_metadata* param)
 {
     assert(not_null(write_direct));
     assert(not_null(param));
@@ -429,10 +432,10 @@ void piol_file_write_interface_write_param(
 }
 
 void piol_file_read_interface_read_param(
-  const piol_file_read_interface* read_direct,
-  size_t offset,
-  size_t sz,
-  piol_file_trace_metadata* param)
+    const piol_file_read_interface* read_direct,
+    size_t offset,
+    size_t sz,
+    piol_file_trace_metadata* param)
 {
     assert(not_null(read_direct));
     assert(not_null(param));
@@ -442,11 +445,11 @@ void piol_file_read_interface_read_param(
 
 // List traces
 void piol_file_read_interface_read_trace_non_contiguous(
-  piol_file_read_interface* read_direct,
-  size_t sz,
-  const size_t* offset,
-  exseis_Trace_value* trace,
-  piol_file_trace_metadata* param)
+    piol_file_read_interface* read_direct,
+    size_t sz,
+    const size_t* offset,
+    exseis_Trace_value* trace,
+    piol_file_trace_metadata* param)
 {
     if (param == nullptr) {
         read_direct->read_trace_non_contiguous(sz, offset, trace);
@@ -457,11 +460,11 @@ void piol_file_read_interface_read_trace_non_contiguous(
 }
 
 void piol_file_read_interface_read_trace_non_monotonic(
-  piol_file_read_interface* read_direct,
-  size_t sz,
-  const size_t* offset,
-  exseis_Trace_value* trace,
-  piol_file_trace_metadata* param)
+    piol_file_read_interface* read_direct,
+    size_t sz,
+    const size_t* offset,
+    exseis_Trace_value* trace,
+    piol_file_trace_metadata* param)
 {
     if (param == nullptr) {
         read_direct->read_trace_non_monotonic(sz, offset, trace);
@@ -472,11 +475,11 @@ void piol_file_read_interface_read_trace_non_monotonic(
 }
 
 void piol_file_write_interface_write_trace_non_contiguous(
-  piol_file_write_interface* write_direct,
-  size_t sz,
-  const size_t* offset,
-  exseis_Trace_value* trace,
-  piol_file_trace_metadata* param)
+    piol_file_write_interface* write_direct,
+    size_t sz,
+    const size_t* offset,
+    exseis_Trace_value* trace,
+    piol_file_trace_metadata* param)
 {
     if (param == nullptr) {
         write_direct->write_trace_non_contiguous(sz, offset, trace);
@@ -487,19 +490,19 @@ void piol_file_write_interface_write_trace_non_contiguous(
 }
 
 void piol_file_write_interface_write_param_non_contiguous(
-  piol_file_write_interface* write_direct,
-  size_t sz,
-  const size_t* offset,
-  piol_file_trace_metadata* param)
+    piol_file_write_interface* write_direct,
+    size_t sz,
+    const size_t* offset,
+    piol_file_trace_metadata* param)
 {
     write_direct->write_param_non_contiguous(sz, offset, param);
 }
 
 void piol_file_read_interface_read_param_non_contiguous(
-  piol_file_read_interface* read_direct,
-  size_t sz,
-  const size_t* offset,
-  piol_file_trace_metadata* param)
+    piol_file_read_interface* read_direct,
+    size_t sz,
+    const size_t* offset,
+    piol_file_trace_metadata* param)
 {
     read_direct->read_param_non_contiguous(sz, offset, param);
 }
@@ -507,21 +510,21 @@ void piol_file_read_interface_read_param_non_contiguous(
 /////////////////////////////////////Operations///////////////////////////////
 
 void piol_file_get_min_max(
-  const piol_exseis* piol,
-  size_t offset,
-  size_t sz,
-  exseis_Meta m1,
-  exseis_Meta m2,
-  const piol_file_trace_metadata* param,
-  struct PIOL_CoordElem* minmax)
+    const piol_exseis* piol,
+    size_t offset,
+    size_t sz,
+    exseis_Meta m1,
+    exseis_Meta m2,
+    const piol_file_trace_metadata* param,
+    struct PIOL_CoordElem* minmax)
 {
     assert(not_null(piol));
     assert(not_null(param));
     assert(not_null(minmax));
 
     get_min_max(
-      (*piol).get(), offset, sz, static_cast<Meta>(m1), static_cast<Meta>(m2),
-      *param, minmax);
+        (*piol).get(), offset, sz, static_cast<Meta>(m1), static_cast<Meta>(m2),
+        *param, minmax);
 }
 
 //////////////////////////////////////SEGSZ///////////////////////////////////

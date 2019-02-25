@@ -18,17 +18,17 @@ class MockRule {
     MOCK_METHOD4(Rule_ctor, void(Rule*, bool full, bool defaults, bool extras));
 
     MOCK_METHOD5(
-      Rule_ctor,
-      void(
-        Rule*,
-        const std::vector<Meta>& m,
-        bool full,
-        bool defaults,
-        bool extras));
+        Rule_ctor,
+        void(
+            Rule*,
+            const std::vector<Meta>& m,
+            bool full,
+            bool defaults,
+            bool extras));
 
     MOCK_METHOD3(
-      Rule_ctor,
-      void(Rule*, const Rule::Rule_entry_map& rule_entry_map_, bool full));
+        Rule_ctor,
+        void(Rule*, const Rule::Rule_entry_map& rule_entry_map_, bool full));
 
     MOCK_METHOD1(Rule_dtor, void(Rule*));
 
@@ -39,7 +39,7 @@ class MockRule {
     MOCK_METHOD3(add_long, void(Rule*, Meta m, Tr loc));
 
     MOCK_METHOD4(
-      add_segy_float, void(Rule*, Meta m, Tr loc, Tr scalar_location));
+        add_segy_float, void(Rule*, Meta m, Tr loc, Tr scalar_location));
 
     MOCK_METHOD3(add_short, void(Rule*, Meta m, Tr loc));
 

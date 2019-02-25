@@ -22,13 +22,13 @@ extern "C" {
 /// @brief C API for exseis::utils::signal_processing::mute
 /// @copydoc exseis::utils::signal_processing::mute
 void exseis_mute(
-  size_t signal_size,
-  exseis_Trace_value* signal,
-  exseis_Taper_function taper_function,
-  size_t mute_size_at_begin,
-  size_t taper_size_at_begin,
-  size_t taper_size_at_end,
-  size_t mute_size_at_end);
+    size_t signal_size,
+    exseis_Trace_value* signal,
+    exseis_Taper_function taper_function,
+    size_t mute_size_at_begin,
+    size_t taper_size_at_begin,
+    size_t taper_size_at_end,
+    size_t mute_size_at_end);
 
 /// @} C API
 

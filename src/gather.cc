@@ -24,7 +24,7 @@ namespace piol {
  * @todo TODO: This can be generalised
  */
 static utils::Distributed_vector<Gather_info> get_gathers(
-  ExSeisPIOL* piol, Trace_metadata* prm)
+    ExSeisPIOL* piol, Trace_metadata* prm)
 {
     size_t rank     = piol->comm->get_rank();
     size_t num_rank = piol->comm->get_num_rank();
@@ -53,9 +53,8 @@ static utils::Distributed_vector<Gather_info> get_gathers(
     auto xlf    = piol->comm->gather(lline.front().crossline);
 
     size_t start = 0;
-    if (
-      rank != 0 && ilb[rank - 1LU] == ilf[rank]
-      && xlb[rank - 1LU] == xlf[rank]) {
+    if (rank != 0 && ilb[rank - 1LU] == ilf[rank]
+        && xlb[rank - 1LU] == xlf[rank]) {
 
         start = 1;
     }
@@ -77,7 +76,7 @@ static utils::Distributed_vector<Gather_info> get_gathers(
     size_t offset = piol->comm->offset(sz);
 
     utils::MPI_Distributed_vector<Gather_info> line(
-      piol->comm->sum(sz), piol->comm->get_comm());
+        piol->comm->sum(sz), piol->comm->get_comm());
 
     for (size_t i = 0; i < sz; i++) {
         line.set(i + offset, lline[i + start]);
@@ -87,10 +86,10 @@ static utils::Distributed_vector<Gather_info> get_gathers(
 }
 
 utils::Distributed_vector<Gather_info> get_il_xl_gathers(
-  ExSeisPIOL* piol, ReadInterface* file)
+    ExSeisPIOL* piol, ReadInterface* file)
 {
     auto dec = utils::block_decomposition(
-      file->read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        file->read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
     const auto rule = Rule(std::initializer_list<Meta>{Meta::il, Meta::xl});
 

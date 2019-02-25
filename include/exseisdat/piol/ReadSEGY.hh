@@ -70,9 +70,9 @@ class ReadSEGY : public ReadInterface {
      *  @param[in] options The SEGY-File options
      */
     ReadSEGY(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      const ReadSEGY::Options& options = ReadSEGY::Options());
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const ReadSEGY::Options& options = ReadSEGY::Options());
 
   protected:
     /*! @brief The SEGY-Object class constructor.
@@ -84,10 +84,10 @@ class ReadSEGY : public ReadInterface {
      *  @param[in] object  A shared pointer to the object layer
      */
     ReadSEGY(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      const ReadSEGY::Options& options,
-      std::shared_ptr<ObjectInterface> object);
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const ReadSEGY::Options& options,
+        std::shared_ptr<ObjectInterface> object);
 
   public:
     const std::string& file_name() const override;
@@ -103,37 +103,37 @@ class ReadSEGY : public ReadInterface {
     exseis::utils::Floating_point read_sample_interval(void) const override;
 
     void read_param(
-      size_t offset,
-      size_t sz,
-      Trace_metadata* prm,
-      size_t skip = 0) const override;
+        size_t offset,
+        size_t sz,
+        Trace_metadata* prm,
+        size_t skip = 0) const override;
 
     void read_param_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      Trace_metadata* prm,
-      size_t skip = 0) const override;
+        size_t sz,
+        const size_t* offset,
+        Trace_metadata* prm,
+        size_t skip = 0) const override;
 
     void read_trace(
-      size_t offset,
-      size_t sz,
-      exseis::utils::Trace_value* trace,
-      Trace_metadata* prm = nullptr,
-      size_t skip         = 0) const override;
+        size_t offset,
+        size_t sz,
+        exseis::utils::Trace_value* trace,
+        Trace_metadata* prm = nullptr,
+        size_t skip         = 0) const override;
 
     void read_trace_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      exseis::utils::Trace_value* trace,
-      Trace_metadata* prm = nullptr,
-      size_t skip         = 0) const override;
+        size_t sz,
+        const size_t* offset,
+        exseis::utils::Trace_value* trace,
+        Trace_metadata* prm = nullptr,
+        size_t skip         = 0) const override;
 
     void read_trace_non_monotonic(
-      size_t sz,
-      const size_t* offset,
-      exseis::utils::Trace_value* trace,
-      Trace_metadata* prm = nullptr,
-      size_t skip         = 0) const override;
+        size_t sz,
+        const size_t* offset,
+        exseis::utils::Trace_value* trace,
+        Trace_metadata* prm = nullptr,
+        size_t skip         = 0) const override;
 };
 
 }  // namespace piol

@@ -21,48 +21,48 @@ extern "C" {
 /// @brief C API for \ref exseis::utils::signal_processing::Gain_function
 /// @copydoc exseis::utils::signal_processing::Gain_function
 typedef exseis_Trace_value (*exseis_Gain_function)(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t window_center);
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief C API for
 ///        \ref exseis::utils::signal_processing::rectangular_rms_gain.
 /// @copydoc exseis::utils::signal_processing::rectangular_rms_gain
 exseis_Trace_value exseis_rectangular_rms_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t window_center);
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief C API for
 ///        \ref exseis::utils::signal_processing::triangular_rms_gain()
 /// @copydoc exseis::utils::signal_processing::triangular_rms_gain()
 exseis_Trace_value exseis_triangular_rms_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t window_center);
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief C API for \ref exseis::utils::signal_processing::mean_abs_gain()
 /// @copydoc exseis::utils::signal_processing::mean_abs_gain()
 exseis_Trace_value exseis_mean_abs_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t window_center);
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t window_center);
 
 
 /// @brief C API for \ref exseis::utils::signal_processing::median_gain()
 /// @copydoc exseis::utils::signal_processing::median_gain()
 exseis_Trace_value exseis_median_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t window_center);
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t window_center);
 
 /// @} C API
 

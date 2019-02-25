@@ -24,8 +24,8 @@ class ExSeis : public ExSeisPIOL {
      *  @return A shared pointer to a PIOL object.
      */
     static std::shared_ptr<ExSeis> make(
-      exseis::utils::Verbosity max_level = exseis::utils::Verbosity::none,
-      MPI_Comm comm                      = MPI_COMM_WORLD)
+        exseis::utils::Verbosity max_level = exseis::utils::Verbosity::none,
+        MPI_Comm comm                      = MPI_COMM_WORLD)
     {
         return std::shared_ptr<ExSeis>(new ExSeis(max_level, comm));
     }
@@ -65,8 +65,8 @@ class ExSeis : public ExSeisPIOL {
     /// The constructor is private! Use the ExSeis::make(...) function.
     /// @copydetails ExSeis::make
     ExSeis(
-      exseis::utils::Verbosity max_level = exseis::utils::Verbosity::none,
-      MPI_Comm comm                      = MPI_COMM_WORLD);
+        exseis::utils::Verbosity max_level = exseis::utils::Verbosity::none,
+        MPI_Comm comm                      = MPI_COMM_WORLD);
 };
 
 }  // namespace piol

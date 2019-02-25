@@ -18,13 +18,13 @@ namespace utils {
 inline namespace signal_processing {
 
 void mute(
-  size_t signal_size,
-  Trace_value* signal,
-  Taper_function taper_function,
-  size_t mute_size_at_begin,
-  size_t taper_size_at_begin,
-  size_t taper_size_at_end,
-  size_t mute_size_at_end)
+    size_t signal_size,
+    Trace_value* signal,
+    Taper_function taper_function,
+    size_t mute_size_at_begin,
+    size_t taper_size_at_begin,
+    size_t taper_size_at_end,
+    size_t mute_size_at_end)
 
 {
     assert(signal_size > mute_size_at_begin + taper_size_at_begin);
@@ -42,7 +42,7 @@ void mute(
     for (size_t j = mute_size_at_begin;
          j < taper_size_at_begin + mute_size_at_begin; j++) {
         signal[j] *=
-          taper_function(j - mute_size_at_begin, taper_size_at_begin);
+            taper_function(j - mute_size_at_begin, taper_size_at_begin);
     }
 
     // Apply the taper at the end of the trace, keeping the muted section
@@ -51,7 +51,7 @@ void mute(
     for (size_t j = signal_size - taper_size_at_end - mute_size_at_end;
          j < signal_size - mute_size_at_end; j++) {
         signal[j] *= taper_function(
-          signal_size - (j + 1) - mute_size_at_end, taper_size_at_end);
+            signal_size - (j + 1) - mute_size_at_end, taper_size_at_end);
     }
 
     // Apply the mute at the end of the trace
@@ -61,17 +61,17 @@ void mute(
 }
 
 extern "C" void exseis_mute(
-  size_t signal_size,
-  exseis_Trace_value* signal,
-  exseis_Taper_function taper_function,
-  size_t mute_size_at_begin,
-  size_t taper_size_at_begin,
-  size_t taper_size_at_end,
-  size_t mute_size_at_end)
+    size_t signal_size,
+    exseis_Trace_value* signal,
+    exseis_Taper_function taper_function,
+    size_t mute_size_at_begin,
+    size_t taper_size_at_begin,
+    size_t taper_size_at_end,
+    size_t mute_size_at_end)
 {
     mute(
-      signal_size, signal, taper_function, mute_size_at_begin,
-      taper_size_at_begin, taper_size_at_end, mute_size_at_end);
+        signal_size, signal, taper_function, mute_size_at_begin,
+        taper_size_at_begin, taper_size_at_end, mute_size_at_end);
 }
 
 

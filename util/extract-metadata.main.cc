@@ -65,11 +65,11 @@ using namespace exseis::piol;
 
 /// A map from metadata key names to matadata keys.
 const auto meta_name_to_meta_map =
-  std::map<std::string, Meta>{{"x_src", Meta::x_src},
-                              {"y_src", Meta::y_src},
-                              {"x_rcv", Meta::x_rcv},
-                              {"y_rcv", Meta::y_rcv},
-                              {"coordinate_scalar", Meta::coordinate_scalar}};
+    std::map<std::string, Meta>{{"x_src", Meta::x_src},
+                                {"y_src", Meta::y_src},
+                                {"x_rcv", Meta::x_rcv},
+                                {"y_rcv", Meta::y_rcv},
+                                {"coordinate_scalar", Meta::coordinate_scalar}};
 
 
 /// @brief Return a fixed-width string representing the given Meta key at the
@@ -85,7 +85,7 @@ const auto meta_name_to_meta_map =
 /// @endcode
 ///
 std::string formatted_meta_value(
-  const Trace_metadata& trace_metadata, size_t local_trace_index, Meta meta);
+    const Trace_metadata& trace_metadata, size_t local_trace_index, Meta meta);
 
 int main(int argc, char* argv[])
 {
@@ -98,44 +98,39 @@ int main(int argc, char* argv[])
     size_t max_number_of_traces_in_memory = std::numeric_limits<size_t>::max();
 
     CLI::App app(
-      "Extract SEG-Y metadata, and output it to CSV.",
-      "exseis-extract-metadata");
+        "Extract SEG-Y metadata, and output it to CSV.",
+        "exseis-extract-metadata");
 
     // Input and output filenames
-    app
-      .add_option(
-        "-i,--input", input_filename,
-        "The SEG-Y file to read the metadata from.")
-      ->required()
-      ->check(CLI::ExistingFile)
-      ->type_name("FILENAME");
+    app.add_option(
+           "-i,--input", input_filename,
+           "The SEG-Y file to read the metadata from.")
+        ->required()
+        ->check(CLI::ExistingFile)
+        ->type_name("FILENAME");
 
-    app
-      .add_option(
-        "-o,--output", output_filename,
-        "The CSV file to write the metadata to.")
-      ->required()
-      ->check(CLI::NonexistentPath)
-      ->type_name("FILENAME");
+    app.add_option(
+           "-o,--output", output_filename,
+           "The CSV file to write the metadata to.")
+        ->required()
+        ->check(CLI::NonexistentPath)
+        ->type_name("FILENAME");
 
     // Trace stride and chunking options
-    app
-      .add_option(
-        "-n,--nth-trace", trace_stride_size, "Read every n'th trace.", true)
-      ->type_name("N");
-    app
-      .add_option(
-        "-m,--max-traces-in-memory", max_number_of_traces_in_memory,
-        "The maximum number of traces to keep in memory on any process.")
-      ->type_name("N_MAX");
+    app.add_option(
+           "-n,--nth-trace", trace_stride_size, "Read every n'th trace.", true)
+        ->type_name("N");
+    app.add_option(
+           "-m,--max-traces-in-memory", max_number_of_traces_in_memory,
+           "The maximum number of traces to keep in memory on any process.")
+        ->type_name("N_MAX");
 
     // Metadata names
-    app
-      .add_option(
-        "metadata_names,--meta", meta_names,
-        "A space-separated list of metadata names to extract.")
-      ->type_name("")
-      ->required();
+    app.add_option(
+           "metadata_names,--meta", meta_names,
+           "A space-separated list of metadata names to extract.")
+        ->type_name("")
+        ->required();
 
     // Print supported metadata names and exit.
     app.add_flag_function("--list-supported-metadata", [](size_t) {
@@ -155,8 +150,8 @@ int main(int argc, char* argv[])
 
             if (meta_key_it == meta_name_to_meta_map.end()) {
                 throw CLI::ParseError(
-                  "Unknown metadata name: \"" + meta_name + "\"!",
-                  EXIT_FAILURE);
+                    "Unknown metadata name: \"" + meta_name + "\"!",
+                    EXIT_FAILURE);
             }
 
             metas.push_back(meta_key_it->second);
@@ -209,7 +204,7 @@ int main(int argc, char* argv[])
 
     // Get a block decomposition of the traces in the file
     const auto decomposition = block_decomposition(
-      global_number_of_traces, piol->get_num_rank(), piol->get_rank());
+        global_number_of_traces, piol->get_num_rank(), piol->get_rank());
 
     const size_t global_block_trace_start     = decomposition.global_offset;
     const size_t local_block_number_of_traces = decomposition.local_size;
@@ -231,21 +226,21 @@ int main(int argc, char* argv[])
 
     // Round up from block start to an aligned trace
     const size_t global_trace_start =
-      round_up_to_alignment(global_block_trace_start);
+        round_up_to_alignment(global_block_trace_start);
 
     // Get a first-aligned-past-the-end index.
     // The alignment is needed because we'll be dividing by `trace_stride_size`
     // later. An un-aligned index would give us an off-by-1 error.
     const size_t aligned_trace_end = round_up_to_alignment(
-      global_block_trace_start
-      + round_up_to_alignment(local_block_number_of_traces));
+        global_block_trace_start
+        + round_up_to_alignment(local_block_number_of_traces));
 
     // Find the total number of aligned traces in the local block
     const size_t local_number_of_traces = ([=] {
         // If the first aligned trace is outside the local block, the local
         // number of aligned traces is 0.
         const auto global_block_trace_end =
-          global_block_trace_start + local_block_number_of_traces;
+            global_block_trace_start + local_block_number_of_traces;
 
         if (global_trace_start >= global_block_trace_end) {
             return size_t(0);
@@ -259,7 +254,7 @@ int main(int argc, char* argv[])
     // size max_number_of_traces_in_memory.
 
     size_t max_chunk_size =
-      std::min(local_number_of_traces, max_number_of_traces_in_memory);
+        std::min(local_number_of_traces, max_number_of_traces_in_memory);
 
     const size_t local_number_of_chunks = ([=] {
         if (max_chunk_size == 0) {
@@ -299,23 +294,23 @@ int main(int argc, char* argv[])
         // without actually writing anything.
 
         const size_t local_chunk_start =
-          std::min(chunk_index * max_chunk_size, local_number_of_traces);
+            std::min(chunk_index * max_chunk_size, local_number_of_traces);
 
-        const size_t local_chunk_end =
-          std::min((chunk_index + 1) * max_chunk_size, local_number_of_traces);
+        const size_t local_chunk_end = std::min(
+            (chunk_index + 1) * max_chunk_size, local_number_of_traces);
 
         const size_t current_chunk_size = local_chunk_end - local_chunk_start;
 
 
         // Generate the trace indices for this chunk
         for (size_t i = 0; i < current_chunk_size; i++) {
-            trace_indices[i] =
-              global_trace_start + (local_chunk_start + i) * trace_stride_size;
+            trace_indices[i] = global_trace_start
+                               + (local_chunk_start + i) * trace_stride_size;
         }
 
         // Read the trace metadata into memory
         input_file.read_param_non_contiguous(
-          current_chunk_size, trace_indices.data(), &trace_metadata);
+            current_chunk_size, trace_indices.data(), &trace_metadata);
 
 
         // Generate the local chunk of the CSV on each process
@@ -327,7 +322,7 @@ int main(int argc, char* argv[])
             for (size_t meta_index = 0; meta_index < metas.size();
                  meta_index++) {
                 csv_body += formatted_meta_value(
-                  trace_metadata, stored_trace_index, metas[meta_index]);
+                    trace_metadata, stored_trace_index, metas[meta_index]);
 
                 // Add ", " after the entry if it's not the last on the line.
                 // Otherwise, add \n.
@@ -340,7 +335,7 @@ int main(int argc, char* argv[])
         // If local_number_of_traces == 0 then csv_body.size() == 0, so we
         // can avoid division by zero by taking the max with 1.
         const size_t csv_line_size =
-          csv_body.size() / std::max<size_t>(current_chunk_size, 1);
+            csv_body.size() / std::max<size_t>(current_chunk_size, 1);
         assert(csv_body.size() % std::max<size_t>(current_chunk_size, 1) == 0);
 
         // Find the offset in the file to the trace of index global_trace_start.
@@ -361,7 +356,7 @@ int main(int argc, char* argv[])
 // can write it in parallel. To do this, we need a way to turn a meta
 // entry into a well formatted string.
 std::string formatted_meta_value(
-  const Trace_metadata& trace_metadata, size_t local_trace_index, Meta meta)
+    const Trace_metadata& trace_metadata, size_t local_trace_index, Meta meta)
 {
     // Float and integer output should be 16 characters long
     const char* float_format   = "%16.5f";
@@ -372,8 +367,8 @@ std::string formatted_meta_value(
         case Type::Double:
         case Type::Float: {
             auto size = std::snprintf(
-              char_array.data(), char_array.size(), float_format,
-              trace_metadata.get_floating_point(local_trace_index, meta));
+                char_array.data(), char_array.size(), float_format,
+                trace_metadata.get_floating_point(local_trace_index, meta));
 
             assert(size == char_array.size() - 1);
         } break;
@@ -387,8 +382,8 @@ std::string formatted_meta_value(
         case Type::Int8:
         case Type::UInt8: {
             auto size = std::snprintf(
-              char_array.data(), char_array.size(), integer_format,
-              trace_metadata.get_integer(local_trace_index, meta));
+                char_array.data(), char_array.size(), integer_format,
+                trace_metadata.get_integer(local_trace_index, meta));
 
             assert(size == char_array.size() - 1);
         } break;
@@ -397,8 +392,8 @@ std::string formatted_meta_value(
         case Type::Copy:
         default:
             assert(
-              false
-              && "Error in formatted_meta: Unexpected exseis::utils::Type");
+                false
+                && "Error in formatted_meta: Unexpected exseis::utils::Type");
     }
 
     return std::string(char_array.begin(), char_array.end());

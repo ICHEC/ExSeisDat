@@ -6,7 +6,7 @@
 #include <numeric>
 
 std::vector<size_t> lobdecompose(
-  exseis::piol::ExSeisPIOL* piol, size_t sz, size_t num_rank, size_t rank)
+    exseis::piol::ExSeisPIOL* piol, size_t sz, size_t num_rank, size_t rank)
 {
     double total = (num_rank * (num_rank + 1U)) / 2U;
     rank++;
@@ -26,13 +26,13 @@ std::vector<size_t> lobdecompose(
     }
     else {
         return std::vector<size_t>{
-          std::accumulate(nts.begin(), nts.begin() + rank - 1U, 0U), lnt,
-          biggest};
+            std::accumulate(nts.begin(), nts.begin() + rank - 1U, 0U), lnt,
+            biggest};
     }
 }
 
 exseis::utils::Contiguous_decomposition block_decomp(
-  size_t sz, size_t bsz, size_t num_rank, size_t rank, size_t off)
+    size_t sz, size_t bsz, size_t num_rank, size_t rank, size_t off)
 {
     // Size of the first block
     size_t rstart = bsz - off % bsz;
@@ -65,9 +65,8 @@ exseis::utils::Contiguous_decomposition block_decomp(
     }
 
     // The last rank with work must remove the leftover of its last block
-    if (
-      newdec.local_size != 0
-      && ((newdec.global_offset + newdec.local_size) > sz)) {
+    if (newdec.local_size != 0
+        && ((newdec.global_offset + newdec.local_size) > sz)) {
         newdec.local_size -= bsz - rend;
     }
 

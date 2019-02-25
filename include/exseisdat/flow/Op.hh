@@ -28,11 +28,10 @@ struct Op : public OpParent {
      *  @param[in] state Gather state object if applicable.
      *  @param[in] func The particular std::function implementation.
      */
-    Op(
-      OpOpt& opt,
-      std::shared_ptr<exseis::piol::Rule> rule,
-      std::shared_ptr<GatherState> state,
-      T func) :
+    Op(OpOpt& opt,
+       std::shared_ptr<exseis::piol::Rule> rule,
+       std::shared_ptr<GatherState> state,
+       T func) :
         OpParent(opt, rule, state),
         func(func)
     {

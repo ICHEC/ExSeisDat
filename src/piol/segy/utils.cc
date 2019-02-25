@@ -16,11 +16,11 @@ namespace piol {
 inline namespace segy {
 
 void insert_trace_metadata(
-  size_t number_of_traces,
-  const Trace_metadata& prm,
-  unsigned char* buf,
-  size_t stride,
-  size_t skip)
+    size_t number_of_traces,
+    const Trace_metadata& prm,
+    unsigned char* buf,
+    size_t stride,
+    size_t skip)
 {
 
     const auto& r = prm.rules;
@@ -31,19 +31,21 @@ void insert_trace_metadata(
     if (r.num_copy != 0) {
         if (stride == 0) {
             std::copy(
-              prm.raw_metadata.begin() + skip * segy::segy_trace_header_size(),
-              prm.raw_metadata.begin()
-                + (skip + number_of_traces) * segy::segy_trace_header_size(),
-              buf);
+                prm.raw_metadata.begin()
+                    + skip * segy::segy_trace_header_size(),
+                prm.raw_metadata.begin()
+                    + (skip + number_of_traces)
+                          * segy::segy_trace_header_size(),
+                buf);
         }
         else {
             for (size_t i = 0; i < number_of_traces; i++) {
                 std::copy(
-                  &prm
-                     .raw_metadata[(i + skip) * segy::segy_trace_header_size()],
-                  &prm.raw_metadata
-                     [(skip + i + 1LU) * segy::segy_trace_header_size()],
-                  &buf[i * (stride + segy::segy_trace_header_size())]);
+                    &prm.raw_metadata
+                         [(i + skip) * segy::segy_trace_header_size()],
+                    &prm.raw_metadata
+                         [(skip + i + 1LU) * segy::segy_trace_header_size()],
+                    &buf[i * (stride + segy::segy_trace_header_size())]);
             }
         }
     }
@@ -59,7 +61,7 @@ void insert_trace_metadata(
         std::unordered_map<Tr, int16_t, exseis::utils::EnumHash<Tr>> scal;
 
         std::vector<std::pair<Meta, const SEGYFloatRuleEntry*>>
-          floating_point_rules;
+            floating_point_rules;
 
         for (const auto& v : r.rule_entry_map) {
 
@@ -72,42 +74,42 @@ void insert_trace_metadata(
                 case RuleEntry::MdType::Float: {
 
                     floating_point_rules.push_back(
-                      {entry, dynamic_cast<SEGYFloatRuleEntry*>(t.get())});
+                        {entry, dynamic_cast<SEGYFloatRuleEntry*>(t.get())});
 
                     auto tr = static_cast<Tr>(
-                      floating_point_rules.back().second->scalar_location);
+                        floating_point_rules.back().second->scalar_location);
 
                     const int16_t scal1 =
-                      (scal.find(tr) != scal.end() ? scal[tr] : 1);
+                        (scal.find(tr) != scal.end() ? scal[tr] : 1);
                     const int16_t scal2 =
-                      find_scalar(prm.get_floating_point(i + skip, entry));
+                        find_scalar(prm.get_floating_point(i + skip, entry));
 
                     // if the scale is bigger than 1 that means we need to use
                     // the largest to ensure conservation of the most
                     // significant  digit otherwise we choose the scale that
                     // preserves the  most digits after the decimal place.
                     scal[tr] =
-                      ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) :
-                                                  std::min(scal1, scal2));
+                        ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) :
+                                                    std::min(scal1, scal2));
 
                 } break;
 
                 case RuleEntry::MdType::Short: {
 
                     const std::array<unsigned char, 2> be_short =
-                      to_big_endian<int16_t>(
-                        int16_t(prm.get_integer(i + skip, entry)));
+                        to_big_endian<int16_t>(
+                            int16_t(prm.get_integer(i + skip, entry)));
 
                     std::copy(
-                      std::begin(be_short), std::end(be_short), &md[loc]);
+                        std::begin(be_short), std::end(be_short), &md[loc]);
 
                 } break;
 
                 case RuleEntry::MdType::Long: {
 
                     const std::array<unsigned char, 4> be_long =
-                      to_big_endian<int32_t>(
-                        int32_t(prm.get_integer(i + skip, entry)));
+                        to_big_endian<int32_t>(
+                            int32_t(prm.get_integer(i + skip, entry)));
 
                     std::copy(std::begin(be_long), std::end(be_long), &md[loc]);
 
@@ -128,31 +130,32 @@ void insert_trace_metadata(
             const auto be = to_big_endian(s.second);
 
             std::copy(
-              std::begin(be), std::end(be), &md[size_t(s.first) - start - 1LU]);
+                std::begin(be), std::end(be),
+                &md[size_t(s.first) - start - 1LU]);
         }
 
         for (size_t j = 0; j < floating_point_rules.size(); j++) {
             exseis::utils::Floating_point gscale =
-              parse_scalar(scal[static_cast<Tr>(
-                floating_point_rules[j].second->scalar_location)]);
+                parse_scalar(scal[static_cast<Tr>(
+                    floating_point_rules[j].second->scalar_location)]);
 
             const auto be = to_big_endian(int32_t(std::lround(
-              prm.get_floating_point(i + skip, floating_point_rules[j].first)
-              / gscale)));
+                prm.get_floating_point(i + skip, floating_point_rules[j].first)
+                / gscale)));
 
             std::copy(
-              std::begin(be), std::end(be),
-              &md[floating_point_rules[j].second->loc - start - 1LU]);
+                std::begin(be), std::end(be),
+                &md[floating_point_rules[j].second->loc - start - 1LU]);
         }
     }
 }
 
 void extract_trace_metadata(
-  size_t number_of_traces,
-  const unsigned char* buf,
-  Trace_metadata& prm,
-  size_t stride,
-  size_t skip)
+    size_t number_of_traces,
+    const unsigned char* buf,
+    Trace_metadata& prm,
+    size_t stride,
+    size_t skip)
 {
 
     const Rule& r = prm.rules;
@@ -161,17 +164,17 @@ void extract_trace_metadata(
     if (r.num_copy != 0) {
         if (stride == 0) {
             std::copy(
-              buf, &buf[number_of_traces * segy::segy_trace_header_size()],
-              &prm.raw_metadata[skip * segy::segy_trace_header_size()]);
+                buf, &buf[number_of_traces * segy::segy_trace_header_size()],
+                &prm.raw_metadata[skip * segy::segy_trace_header_size()]);
         }
         else {
             // The size of the trace metadata in bytes
             const size_t metadata_size = segy::segy_trace_header_size();
             for (size_t i = 0; i < number_of_traces; i++) {
                 std::copy(
-                  &buf[i * (stride + metadata_size)],
-                  &buf[i * (stride + metadata_size) + metadata_size],
-                  &prm.raw_metadata[(i + skip) * metadata_size]);
+                    &buf[i * (stride + metadata_size)],
+                    &buf[i * (stride + metadata_size) + metadata_size],
+                    &prm.raw_metadata[(i + skip) * metadata_size]);
             }
         }
     }
@@ -193,23 +196,23 @@ void extract_trace_metadata(
                 case RuleEntry::MdType::Float: {
 
                     const size_t scalar_offset =
-                      dynamic_cast<SEGYFloatRuleEntry*>(t.get())
-                        ->scalar_location
-                      - r.start - 1LU;
+                        dynamic_cast<SEGYFloatRuleEntry*>(t.get())
+                            ->scalar_location
+                        - r.start - 1LU;
 
                     const auto parsed_scalar =
-                      parse_scalar(from_big_endian<int16_t>(
-                        md[scalar_offset + 0lu], md[scalar_offset + 1lu]));
+                        parse_scalar(from_big_endian<int16_t>(
+                            md[scalar_offset + 0lu], md[scalar_offset + 1lu]));
 
                     const auto unscaled_value = from_big_endian<int32_t>(
-                      md[loc + 0lu], md[loc + 1lu], md[loc + 2lu],
-                      md[loc + 3lu]);
+                        md[loc + 0lu], md[loc + 1lu], md[loc + 2lu],
+                        md[loc + 3lu]);
 
 
                     using F_type = exseis::utils::Floating_point;
 
                     const auto value =
-                      parsed_scalar * static_cast<F_type>(unscaled_value);
+                        parsed_scalar * static_cast<F_type>(unscaled_value);
 
                     prm.set_floating_point(i + skip, entry, value);
 
@@ -218,7 +221,7 @@ void extract_trace_metadata(
                 case RuleEntry::MdType::Short: {
 
                     const auto value =
-                      from_big_endian<int16_t>(md[loc + 0lu], md[loc + 1lu]);
+                        from_big_endian<int16_t>(md[loc + 0lu], md[loc + 1lu]);
 
                     prm.set_integer(i + skip, entry, value);
 
@@ -227,8 +230,8 @@ void extract_trace_metadata(
                 case RuleEntry::MdType::Long: {
 
                     const auto value = from_big_endian<int32_t>(
-                      md[loc + 0lu], md[loc + 1lu], md[loc + 2lu],
-                      md[loc + 3lu]);
+                        md[loc + 0lu], md[loc + 1lu], md[loc + 2lu],
+                        md[loc + 3lu]);
 
                     prm.set_integer(i + skip, entry, value);
 
@@ -265,8 +268,8 @@ exseis::utils::Floating_point parse_scalar(int16_t segy_scalar)
 int16_t find_scalar(exseis::utils::Floating_point val)
 {
     static_assert(
-      std::numeric_limits<int16_t>::max() > 10000,
-      "int16_t isn't big enough to hold the value 10,000.");
+        std::numeric_limits<int16_t>::max() > 10000,
+        "int16_t isn't big enough to hold the value 10,000.");
 
     constexpr int16_t tenk = 10000;
 
@@ -294,8 +297,8 @@ int16_t find_scalar(exseis::utils::Floating_point val)
     else {
         // Get the first four digits
         exseis::utils::Integer digits =
-          std::llround(val * exseis::utils::Floating_point(tenk))
-          - integer_part * tenk;
+            std::llround(val * exseis::utils::Floating_point(tenk))
+            - integer_part * tenk;
         // if the digits are all zero we don't need any scaling
         if (digits != 0) {
             // We try the most negative scale values we can first.
@@ -306,7 +309,7 @@ int16_t find_scalar(exseis::utils::Floating_point val)
                     // Now we test that we can still store the most significant
                     // byte
                     exseis::utils::Floating_point scal =
-                      parse_scalar(scale_factor);
+                        parse_scalar(scale_factor);
 
                     // int32_t t = exseis::utils::Integer(val / scal) - digits;
                     int32_t t = static_cast<int32_t>(std::lround(val / scal));

@@ -15,15 +15,15 @@ class MockGetMinMax;
 class MockGetMinMax {
   public:
     MOCK_METHOD7(
-      get_min_max,
-      void(
-        ExSeisPIOL* piol,
-        size_t offset,
-        size_t sz,
-        Meta m1,
-        Meta m2,
-        const Trace_metadata& prm,
-        CoordElem* minmax));
+        get_min_max,
+        void(
+            ExSeisPIOL* piol,
+            size_t offset,
+            size_t sz,
+            Meta m1,
+            Meta m2,
+            const Trace_metadata& prm,
+            CoordElem* minmax));
 };
 
 }  // namespace piol

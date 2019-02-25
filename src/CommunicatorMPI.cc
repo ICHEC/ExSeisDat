@@ -136,7 +136,7 @@ void manage_mpi(bool manage)
 
 
 CommunicatorMPI::CommunicatorMPI(
-  exseis::utils::Log* log, const CommunicatorMPI::Opt& opt) :
+    exseis::utils::Log* log, const CommunicatorMPI::Opt& opt) :
     m_comm(opt.comm),
     m_log(log)
 {
@@ -180,21 +180,21 @@ namespace {
 ///
 template<typename T>
 T reduce_impl(
-  exseis::utils::Log* log,
-  const CommunicatorMPI* mpi,
-  T val,
-  MPI_Op op,
-  exseis::utils::Source_position source_position)
+    exseis::utils::Log* log,
+    const CommunicatorMPI* mpi,
+    T val,
+    MPI_Op op,
+    exseis::utils::Source_position source_position)
 {
     T result = 0;
     int err  = MPI_Allreduce(
-      &val, &result, 1, exseis::utils::mpi_type<T>(), op, mpi->get_comm());
+        &val, &result, 1, exseis::utils::mpi_type<T>(), op, mpi->get_comm());
 
     if (err != MPI_SUCCESS) {
         log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error,
-          "MPI_Allreduce error: "s + exseis::utils::mpi_error_to_string(err),
-          exseis::utils::Verbosity::none, source_position});
+            exseis::utils::Status::Error,
+            "MPI_Allreduce error: "s + exseis::utils::mpi_error_to_string(err),
+            exseis::utils::Verbosity::none, source_position});
     }
 
     return (err == MPI_SUCCESS ? result : 0LU);
@@ -204,30 +204,30 @@ T reduce_impl(
 size_t CommunicatorMPI::sum(size_t val) const
 {
     return reduce_impl(
-      m_log, this, val, MPI_SUM,
-      EXSEISDAT_SOURCE_POSITION("exseis::piol::CommunicatorMPI::sum"));
+        m_log, this, val, MPI_SUM,
+        EXSEISDAT_SOURCE_POSITION("exseis::piol::CommunicatorMPI::sum"));
 }
 
 size_t CommunicatorMPI::max(size_t val) const
 {
     return reduce_impl(
-      m_log, this, val, MPI_MAX,
-      EXSEISDAT_SOURCE_POSITION("exseis::piol::CommunicatorMPI::max"));
+        m_log, this, val, MPI_MAX,
+        EXSEISDAT_SOURCE_POSITION("exseis::piol::CommunicatorMPI::max"));
 }
 
 size_t CommunicatorMPI::min(size_t val) const
 {
     return reduce_impl(
-      m_log, this, val, MPI_MIN,
-      EXSEISDAT_SOURCE_POSITION("exseis::piol::CommunicatorMPI::min"));
+        m_log, this, val, MPI_MIN,
+        EXSEISDAT_SOURCE_POSITION("exseis::piol::CommunicatorMPI::min"));
 }
 
 size_t CommunicatorMPI::offset(size_t val) const
 {
     size_t offset = 0LU;
     MPI_Exscan(
-      &val, &offset, 1LU, exseis::utils::mpi_type<size_t>(), MPI_SUM,
-      MPI_COMM_WORLD);
+        &val, &offset, 1LU, exseis::utils::mpi_type<size_t>(), MPI_SUM,
+        MPI_COMM_WORLD);
     return (m_rank == 0 ? 0LU : offset);
 }
 
@@ -250,25 +250,25 @@ namespace {
 ///
 template<typename T>
 std::vector<T> gather_impl(
-  const CommunicatorMPI* self,
-  const std::vector<T>& in,
-  exseis::utils::Log* log,
-  exseis::utils::Source_position source_position)
+    const CommunicatorMPI* self,
+    const std::vector<T>& in,
+    exseis::utils::Log* log,
+    exseis::utils::Source_position source_position)
 {
     std::vector<T> gathered_array(self->get_num_rank() * in.size());
 
     assert(in.size() < std::numeric_limits<int>::max());
     int int_in_size = static_cast<int>(in.size());
     int err         = MPI_Allgather(
-      in.data(), int_in_size, exseis::utils::mpi_type<T>(),
-      gathered_array.data(), int_in_size, exseis::utils::mpi_type<T>(),
-      self->get_comm());
+        in.data(), int_in_size, exseis::utils::mpi_type<T>(),
+        gathered_array.data(), int_in_size, exseis::utils::mpi_type<T>(),
+        self->get_comm());
 
     if (err != MPI_SUCCESS) {
         log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error,
-          "MPI_Allgather error: "s + exseis::utils::mpi_error_to_string(err),
-          exseis::utils::Verbosity::none, source_position});
+            exseis::utils::Status::Error,
+            "MPI_Allgather error: "s + exseis::utils::mpi_error_to_string(err),
+            exseis::utils::Verbosity::none, source_position});
     }
 
     return gathered_array;
@@ -277,36 +277,36 @@ std::vector<T> gather_impl(
 }  // namespace
 
 std::vector<exseis::utils::Integer> CommunicatorMPI::gather(
-  const std::vector<exseis::utils::Integer>& in) const
+    const std::vector<exseis::utils::Integer>& in) const
 {
     return gather_impl(
-      this, in, m_log,
-      EXSEISDAT_SOURCE_POSITION(
-        "exseis::piol::CommunicatorMPI::gather<Integer>"));
+        this, in, m_log,
+        EXSEISDAT_SOURCE_POSITION(
+            "exseis::piol::CommunicatorMPI::gather<Integer>"));
 }
 
 std::vector<size_t> CommunicatorMPI::gather(const std::vector<size_t>& in) const
 {
     return gather_impl(
-      this, in, m_log,
-      EXSEISDAT_SOURCE_POSITION(
-        "exseis::piol::CommunicatorMPI::gather<size_t>"));
+        this, in, m_log,
+        EXSEISDAT_SOURCE_POSITION(
+            "exseis::piol::CommunicatorMPI::gather<size_t>"));
 }
 
 std::vector<float> CommunicatorMPI::gather(const std::vector<float>& in) const
 {
     return gather_impl(
-      this, in, m_log,
-      EXSEISDAT_SOURCE_POSITION(
-        "exseis::piol::CommunicatorMPI::gather<float>"));
+        this, in, m_log,
+        EXSEISDAT_SOURCE_POSITION(
+            "exseis::piol::CommunicatorMPI::gather<float>"));
 }
 
 std::vector<double> CommunicatorMPI::gather(const std::vector<double>& in) const
 {
     return gather_impl(
-      this, in, m_log,
-      EXSEISDAT_SOURCE_POSITION(
-        "exseis::piol::CommunicatorMPI::gather<double>"));
+        this, in, m_log,
+        EXSEISDAT_SOURCE_POSITION(
+            "exseis::piol::CommunicatorMPI::gather<double>"));
 }
 
 

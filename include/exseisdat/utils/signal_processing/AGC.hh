@@ -50,11 +50,11 @@ inline namespace signal_processing {
 /// @remark C API: \ref exseis_agc
 ///
 void agc(
-  size_t signal_size,
-  Trace_value* signal,
-  Gain_function gain_function,
-  size_t window_size,
-  Trace_value target_amplitude);
+    size_t signal_size,
+    Trace_value* signal,
+    Gain_function gain_function,
+    size_t window_size,
+    Trace_value target_amplitude);
 
 }  // namespace signal_processing
 }  // namespace utils

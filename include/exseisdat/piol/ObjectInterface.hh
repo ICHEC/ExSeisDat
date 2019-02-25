@@ -23,7 +23,7 @@ class ObjectInterface;
  * @return Return a shared_ptr to the obj layer object.
  */
 std::shared_ptr<ObjectInterface> make_default_obj(
-  std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
+    std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
 
 
 /*! @brief The Obj layer interface. Specific Obj implementations
@@ -78,7 +78,7 @@ class ObjectInterface {
      *                 (pointer to array of size `(trace metadata size) * sz`)
      */
     virtual void read_trace_metadata(
-      size_t offset, size_t ns, size_t sz, unsigned char* md) const = 0;
+        size_t offset, size_t ns, size_t sz, unsigned char* md) const = 0;
 
     /*! @brief Write the Trace Metadata.
      *  @param[in] offset The starting Trace we are interested in.
@@ -89,7 +89,7 @@ class ObjectInterface {
      *                (pointer to array of size `(trace metadata size) * sz`)
      */
     virtual void write_trace_metadata(
-      size_t offset, size_t ns, size_t sz, const unsigned char* md) const = 0;
+        size_t offset, size_t ns, size_t sz, const unsigned char* md) const = 0;
 
     /*! @brief Read a sequence of Trace Datas.
      *  @param[in] offset The starting Trace we are interested in.
@@ -100,7 +100,7 @@ class ObjectInterface {
      *                (pointer to array of size `(trace data size) * sz`)
      */
     virtual void read_trace_data(
-      size_t offset, size_t ns, size_t sz, unsigned char* df) const = 0;
+        size_t offset, size_t ns, size_t sz, unsigned char* df) const = 0;
 
     /*! @brief Write a sequence of Trace Datas.
      *  @param[in] offset The starting Trace we are interested in.
@@ -111,7 +111,7 @@ class ObjectInterface {
      *                (pointer to array of size `(trace data size) * sz`)
      */
     virtual void write_trace_data(
-      size_t offset, size_t ns, size_t sz, const unsigned char* df) const = 0;
+        size_t offset, size_t ns, size_t sz, const unsigned char* df) const = 0;
 
     /*! @brief Read a sequence of Traces.
      *  @param[in] offset The starting Trace we are interested in.
@@ -122,7 +122,7 @@ class ObjectInterface {
      *                (pointer to array of size `(trace size) * sz`)
      */
     virtual void read_trace(
-      size_t offset, size_t ns, size_t sz, unsigned char* d) const = 0;
+        size_t offset, size_t ns, size_t sz, unsigned char* d) const = 0;
 
     /*! @brief Write a sequence of Traces.
      *  @param[in] offset The starting Trace we are interested in.
@@ -133,7 +133,7 @@ class ObjectInterface {
      *               (pointer to array of size `(trace size) * sz`)
      */
     virtual void write_trace(
-      size_t offset, size_t ns, size_t sz, const unsigned char* d) const = 0;
+        size_t offset, size_t ns, size_t sz, const unsigned char* d) const = 0;
 
     /*! @brief Read a list of Traces.
      *  @param[in] offset An array of the Traces we are interested in.
@@ -144,7 +144,7 @@ class ObjectInterface {
      *               (pointer to array of size `(trace size) * sz`)
      */
     virtual void read_trace(
-      const size_t* offset, size_t ns, size_t sz, unsigned char* d) const = 0;
+        const size_t* offset, size_t ns, size_t sz, unsigned char* d) const = 0;
 
     /*! @brief Write a list of Traces.
      *  @param[in] offset An array of the Traces we are interested in.
@@ -155,10 +155,10 @@ class ObjectInterface {
      *               (pointer to array of size `(trace size) * sz`)
      */
     virtual void write_trace(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* d) const = 0;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* d) const = 0;
 
     /*! @brief read a list of Trace Metadata blocks.
      *  @param[in] offset an array of the Traces we are interested in.
@@ -169,7 +169,10 @@ class ObjectInterface {
      *                (pointer to array of size `(trace metadata size) * sz`)
      */
     virtual void read_trace_metadata(
-      const size_t* offset, size_t ns, size_t sz, unsigned char* md) const = 0;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        unsigned char* md) const = 0;
 
     /*! @brief Write a list of Trace Metadata blocks.
      *  @param[in] offset An array of the Traces we are interested in.
@@ -180,10 +183,10 @@ class ObjectInterface {
      *                (pointer to array of size `(trace metadata size) * sz`)
      */
     virtual void write_trace_metadata(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* md) const = 0;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* md) const = 0;
 
     /*! @brief Read a list of Trace Datas.
      *  @param[in] offset An array of the Traces we are interested in
@@ -194,7 +197,10 @@ class ObjectInterface {
      *                 (pointer to array of size `(trace data size) * sz`)
      */
     virtual void read_trace_data(
-      const size_t* offset, size_t ns, size_t sz, unsigned char* df) const = 0;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        unsigned char* df) const = 0;
 
     /*! @brief Write a list of Trace Datas
      *  @param[in] offset An array of the Traces we are interested in.
@@ -205,10 +211,10 @@ class ObjectInterface {
      *                (pointer to array of size `(trace data size) * sz`)
      */
     virtual void write_trace_data(
-      const size_t* offset,
-      size_t ns,
-      size_t sz,
-      const unsigned char* df) const = 0;
+        const size_t* offset,
+        size_t ns,
+        size_t sz,
+        const unsigned char* df) const = 0;
 };
 
 }  // namespace piol

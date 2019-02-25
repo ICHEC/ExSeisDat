@@ -62,9 +62,9 @@ TEST(Mute, Mute)
                             auto original_signal = signal_function();
 
                             mute(
-                              signal.size(), signal.data(), taper_function,
-                              mute_size_at_begin, taper_size_at_begin,
-                              taper_size_at_end, mute_size_at_end);
+                                signal.size(), signal.data(), taper_function,
+                                mute_size_at_begin, taper_size_at_begin,
+                                taper_size_at_end, mute_size_at_end);
 
                             for (size_t i = 0; i < signal.size(); i++) {
                                 if (i < mute_size_at_begin) {
@@ -72,46 +72,45 @@ TEST(Mute, Mute)
                                     continue;
                                 }
 
-                                if (
-                                  i >= mute_size_at_begin
-                                  && i < mute_size_at_begin
-                                           + taper_size_at_begin) {
+                                if (i >= mute_size_at_begin
+                                    && i < mute_size_at_begin
+                                               + taper_size_at_begin) {
                                     EXPECT_FLOAT_EQ(
-                                      signal[i], original_signal[i]
-                                                   * taper_function(
-                                                       i - mute_size_at_begin,
-                                                       taper_size_at_begin));
+                                        signal[i],
+                                        original_signal[i]
+                                            * taper_function(
+                                                i - mute_size_at_begin,
+                                                taper_size_at_begin));
 
                                     continue;
                                 }
 
-                                if (
-                                  i >= mute_size_at_begin + taper_size_at_begin
-                                  && i < signal.size() - taper_size_at_end
-                                           - mute_size_at_end) {
+                                if (i >= mute_size_at_begin
+                                             + taper_size_at_begin
+                                    && i < signal.size() - taper_size_at_end
+                                               - mute_size_at_end) {
                                     EXPECT_FLOAT_EQ(
-                                      signal[i], original_signal[i]);
+                                        signal[i], original_signal[i]);
 
                                     continue;
                                 }
 
-                                if (
-                                  i >= signal.size() - mute_size_at_end
-                                         - taper_size_at_end
-                                  && i < signal.size() - mute_size_at_end) {
+                                if (i >= signal.size() - mute_size_at_end
+                                             - taper_size_at_end
+                                    && i < signal.size() - mute_size_at_end) {
                                     EXPECT_FLOAT_EQ(
-                                      signal[i], original_signal[i]
-                                                   * taper_function(
-                                                       signal.size() - (i + 1)
-                                                         - mute_size_at_end,
-                                                       taper_size_at_end));
+                                        signal[i],
+                                        original_signal[i]
+                                            * taper_function(
+                                                signal.size() - (i + 1)
+                                                    - mute_size_at_end,
+                                                taper_size_at_end));
 
                                     continue;
                                 }
 
-                                if (
-                                  i >= signal.size() - mute_size_at_end
-                                  && i < signal.size()) {
+                                if (i >= signal.size() - mute_size_at_end
+                                    && i < signal.size()) {
                                     EXPECT_FLOAT_EQ(signal[i], 0);
 
                                     continue;

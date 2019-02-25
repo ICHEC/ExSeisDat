@@ -11,7 +11,7 @@ class CheckReturnListener : public ::testing::EmptyTestEventListener {
   public:
     // Called after EXPECT_CALL throws
     virtual void OnTestPartResult(
-      const ::testing::TestPartResult& test_part_result);
+        const ::testing::TestPartResult& test_part_result);
 
     // When expecting the wrapped side to check a return value,
     // call this with a pretty printed string of the return value.

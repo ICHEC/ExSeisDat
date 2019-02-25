@@ -33,7 +33,7 @@ struct CacheElem {
      *                element takes ownership.
      */
     CacheElem(
-      FileDeque& desc, std::unique_ptr<exseis::piol::Trace_metadata> prm) :
+        FileDeque& desc, std::unique_ptr<exseis::piol::Trace_metadata> prm) :
         desc(desc)
     {
         block->prm = std::move(prm);
@@ -46,9 +46,9 @@ struct CacheElem {
      *                element takes ownership if it exists.
      */
     CacheElem(
-      FileDeque& desc,
-      std::vector<exseis::utils::Trace_value>& trc,
-      std::unique_ptr<exseis::piol::Trace_metadata> prm = nullptr) :
+        FileDeque& desc,
+        std::vector<exseis::utils::Trace_value>& trc,
+        std::unique_ptr<exseis::piol::Trace_metadata> prm = nullptr) :
         desc(desc)
     {
         block->trc = std::move(trc);

@@ -29,7 +29,7 @@ TEST_F(RuleFixList, List)
     size_t i = 0;
     for (auto& m : rule->rule_entry_map) {
         const auto entry =
-          dynamic_cast<const SEGYFloatRuleEntry*>(m.second.get());
+            dynamic_cast<const SEGYFloatRuleEntry*>(m.second.get());
 
         int match = 0;
         for (auto& me : meta) {
@@ -65,7 +65,7 @@ TEST_F(RuleFixEmpty, AddRmFloatRules)
     rule->add_segy_float(Meta::dsdr, Tr::SrcMeas, Tr::SrcMeasExp);
     ASSERT_NE(nullptr, rule->get_entry(Meta::dsdr));
     const auto frule =
-      dynamic_cast<const SEGYFloatRuleEntry*>(rule->get_entry(Meta::dsdr));
+        dynamic_cast<const SEGYFloatRuleEntry*>(rule->get_entry(Meta::dsdr));
     ASSERT_NE(nullptr, frule);
     ASSERT_EQ(frule->loc, size_t(Tr::SrcMeas));
     ASSERT_EQ(frule->scalar_location, size_t(Tr::SrcMeasExp));
@@ -78,7 +78,7 @@ TEST_F(RuleFixEmpty, Extent)
 {
     rule->add_segy_float(Meta::dsdr, Tr::SrcMeas, Tr::ScaleCoord);
     ASSERT_EQ(
-      rule->extent(), size_t(Tr::SrcMeas) + 4U - size_t(Tr::ScaleCoord));
+        rule->extent(), size_t(Tr::SrcMeas) + 4U - size_t(Tr::ScaleCoord));
 }
 
 TEST_F(RuleFixList, setPrm)
@@ -89,16 +89,16 @@ TEST_F(RuleFixList, setPrm)
     Trace_metadata prm(*rule, 100);
     for (size_t i = 0; i < 100; i++) {
         prm.set_floating_point(
-          i, Meta::x_src, exseis::utils::Floating_point(i) + 1.);
+            i, Meta::x_src, exseis::utils::Floating_point(i) + 1.);
 
         prm.set_floating_point(
-          i, Meta::y_src, exseis::utils::Floating_point(i) + 2.);
+            i, Meta::y_src, exseis::utils::Floating_point(i) + 2.);
 
         prm.set_floating_point(
-          i, Meta::x_rcv, exseis::utils::Floating_point(i) + 3.);
+            i, Meta::x_rcv, exseis::utils::Floating_point(i) + 3.);
 
         prm.set_floating_point(
-          i, Meta::y_rcv, exseis::utils::Floating_point(i) + 4.);
+            i, Meta::y_rcv, exseis::utils::Floating_point(i) + 4.);
 
         prm.set_integer(i, Meta::dsdr, exseis::utils::Integer(i + 1));
 
@@ -108,41 +108,41 @@ TEST_F(RuleFixList, setPrm)
     for (size_t i = 0; i < 100; i++) {
         if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-              prm.get_floating_point(i, Meta::x_src),
-              exseis::utils::Floating_point(i + 1));
+                prm.get_floating_point(i, Meta::x_src),
+                exseis::utils::Floating_point(i + 1));
 
             ASSERT_DOUBLE_EQ(
-              prm.get_floating_point(i, Meta::y_src),
-              exseis::utils::Floating_point(i + 2));
+                prm.get_floating_point(i, Meta::y_src),
+                exseis::utils::Floating_point(i + 2));
 
             ASSERT_DOUBLE_EQ(
-              prm.get_floating_point(i, Meta::x_rcv),
-              exseis::utils::Floating_point(i + 3));
+                prm.get_floating_point(i, Meta::x_rcv),
+                exseis::utils::Floating_point(i + 3));
 
             ASSERT_DOUBLE_EQ(
-              prm.get_floating_point(i, Meta::y_rcv),
-              exseis::utils::Floating_point(i + 4));
+                prm.get_floating_point(i, Meta::y_rcv),
+                exseis::utils::Floating_point(i + 4));
         }
         else {
             ASSERT_FLOAT_EQ(
-              prm.get_floating_point(i, Meta::x_src),
-              exseis::utils::Floating_point(i + 1));
+                prm.get_floating_point(i, Meta::x_src),
+                exseis::utils::Floating_point(i + 1));
 
             ASSERT_FLOAT_EQ(
-              prm.get_floating_point(i, Meta::y_src),
-              exseis::utils::Floating_point(i + 2));
+                prm.get_floating_point(i, Meta::y_src),
+                exseis::utils::Floating_point(i + 2));
 
             ASSERT_FLOAT_EQ(
-              prm.get_floating_point(i, Meta::x_rcv),
-              exseis::utils::Floating_point(i + 3));
+                prm.get_floating_point(i, Meta::x_rcv),
+                exseis::utils::Floating_point(i + 3));
 
             ASSERT_FLOAT_EQ(
-              prm.get_floating_point(i, Meta::y_rcv),
-              exseis::utils::Floating_point(i + 4));
+                prm.get_floating_point(i, Meta::y_rcv),
+                exseis::utils::Floating_point(i + 4));
         }
 
         ASSERT_EQ(
-          prm.get_integer(i, Meta::dsdr), exseis::utils::Integer(i + 1));
+            prm.get_integer(i, Meta::dsdr), exseis::utils::Integer(i + 1));
         ASSERT_EQ(prm.get_integer(i, Meta::il), short(i + 2));
     }
 }
@@ -157,7 +157,7 @@ namespace {
 /// @return A predicate which returns true of the mapped type of a std::map
 ///         iterator has the type `type`.
 std::function<bool(const Rule::Rule_entry_map::value_type&)> eq_type(
-  RuleEntry::MdType type)
+    RuleEntry::MdType type)
 {
     return [=](const Rule::Rule_entry_map::value_type& entry_it) -> bool {
         return entry_it.second->type() == type;
@@ -174,7 +174,7 @@ std::function<bool(const Rule::Rule_entry_map::value_type&)> eq_type(
 size_t count_type(const Rule& rule, RuleEntry::MdType type)
 {
     return std::count_if(
-      rule.rule_entry_map.begin(), rule.rule_entry_map.end(), eq_type(type));
+        rule.rule_entry_map.begin(), rule.rule_entry_map.end(), eq_type(type));
 }
 }  // namespace
 
@@ -183,13 +183,13 @@ TEST_F(RuleFixDefault, Constructor)
 {
     ASSERT_EQ(rule->rule_entry_map.size(), static_cast<size_t>(12));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Float), static_cast<size_t>(6));
+        count_type(*rule, RuleEntry::MdType::Float), static_cast<size_t>(6));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Long), static_cast<size_t>(4));
+        count_type(*rule, RuleEntry::MdType::Long), static_cast<size_t>(4));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Short), static_cast<size_t>(0));
+        count_type(*rule, RuleEntry::MdType::Short), static_cast<size_t>(0));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Index), static_cast<size_t>(2));
+        count_type(*rule, RuleEntry::MdType::Index), static_cast<size_t>(2));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(240));
 }
 
@@ -198,13 +198,13 @@ TEST_F(RuleFixDefault, MakeCopy)
     auto r = new Rule(rule->rule_entry_map, false);
     ASSERT_EQ(r->rule_entry_map.size(), static_cast<size_t>(12));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Float), static_cast<size_t>(6));
+        count_type(*rule, RuleEntry::MdType::Float), static_cast<size_t>(6));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Long), static_cast<size_t>(4));
+        count_type(*rule, RuleEntry::MdType::Long), static_cast<size_t>(4));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Short), static_cast<size_t>(0));
+        count_type(*rule, RuleEntry::MdType::Short), static_cast<size_t>(0));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Index), static_cast<size_t>(2));
+        count_type(*rule, RuleEntry::MdType::Index), static_cast<size_t>(2));
     ASSERT_EQ(r->extent(), static_cast<size_t>(192));
 }
 
@@ -213,12 +213,12 @@ TEST_F(RuleFixDefault, MakeCopyFull)
     auto r = new Rule(rule->rule_entry_map, true);
     ASSERT_EQ(r->rule_entry_map.size(), static_cast<size_t>(12));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Float), static_cast<size_t>(6));
+        count_type(*rule, RuleEntry::MdType::Float), static_cast<size_t>(6));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Long), static_cast<size_t>(4));
+        count_type(*rule, RuleEntry::MdType::Long), static_cast<size_t>(4));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Short), static_cast<size_t>(0));
+        count_type(*rule, RuleEntry::MdType::Short), static_cast<size_t>(0));
     ASSERT_EQ(
-      count_type(*rule, RuleEntry::MdType::Index), static_cast<size_t>(2));
+        count_type(*rule, RuleEntry::MdType::Index), static_cast<size_t>(2));
     ASSERT_EQ(r->extent(), static_cast<size_t>(240));
 }

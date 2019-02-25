@@ -59,7 +59,7 @@ class WriteInterface {
      *  @param[in] sample_interval The new increment between trace samples.
      */
     virtual void write_sample_interval(
-      exseis::utils::Floating_point sample_interval) = 0;
+        exseis::utils::Floating_point sample_interval) = 0;
 
     /*! @brief Write the trace parameters from offset to offset+sz to the
      *         respective trace headers.
@@ -73,7 +73,10 @@ class WriteInterface {
      *           previous contents of the trace header will be overwritten.
      */
     virtual void write_param(
-      size_t offset, size_t sz, const Trace_metadata* prm, size_t skip = 0) = 0;
+        size_t offset,
+        size_t sz,
+        const Trace_metadata* prm,
+        size_t skip = 0) = 0;
 
     /*! @brief Write the parameters specified by the offsets in the passed
      *         offset array.
@@ -87,10 +90,10 @@ class WriteInterface {
      *           overwritten.
      */
     virtual void write_param_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      const Trace_metadata* prm,
-      size_t skip = 0) = 0;
+        size_t sz,
+        const size_t* offset,
+        const Trace_metadata* prm,
+        size_t skip = 0) = 0;
 
     /*! @brief Write the traces from offset to offset+sz
      *  @param[in] offset The starting trace number.
@@ -101,11 +104,11 @@ class WriteInterface {
      *  @param[in] skip When writing, skip the first "skip" entries of prm
      */
     virtual void write_trace(
-      size_t offset,
-      size_t sz,
-      exseis::utils::Trace_value* trace,
-      const Trace_metadata* prm = nullptr,
-      size_t skip               = 0) = 0;
+        size_t offset,
+        size_t sz,
+        exseis::utils::Trace_value* trace,
+        const Trace_metadata* prm = nullptr,
+        size_t skip               = 0) = 0;
 
     /*! @brief Write the traces specified by the offsets in the passed offset
      *         array.
@@ -122,11 +125,11 @@ class WriteInterface {
      *           overwritten.
      */
     virtual void write_trace_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      exseis::utils::Trace_value* trace,
-      const Trace_metadata* prm = nullptr,
-      size_t skip               = 0) = 0;
+        size_t sz,
+        const size_t* offset,
+        exseis::utils::Trace_value* trace,
+        const Trace_metadata* prm = nullptr,
+        size_t skip               = 0) = 0;
 };
 
 }  // namespace piol

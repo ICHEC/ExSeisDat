@@ -16,8 +16,8 @@ class ::testing::StrictMock<MockExSeis>& mock_exseis();
 class MockExSeis {
   public:
     MOCK_METHOD3(
-      ctor,
-      void(ExSeis*, const exseis::utils::Verbosity maxLevel, MPI_Comm comm));
+        ctor,
+        void(ExSeis*, const exseis::utils::Verbosity maxLevel, MPI_Comm comm));
 
     MOCK_METHOD1(dtor, void(ExSeis*));
 

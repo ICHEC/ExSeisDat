@@ -81,22 +81,22 @@ TEST(SEGYMd, scaleConv)
 {
     // Test every legitimate possibility
     EXPECT_DOUBLE_EQ(
-      1 / (exseis::utils::Floating_point(10000)), segy::parse_scalar(-10000));
+        1 / (exseis::utils::Floating_point(10000)), segy::parse_scalar(-10000));
     EXPECT_DOUBLE_EQ(
-      1 / (exseis::utils::Floating_point(1000)), segy::parse_scalar(-1000));
+        1 / (exseis::utils::Floating_point(1000)), segy::parse_scalar(-1000));
     EXPECT_DOUBLE_EQ(
-      1 / (exseis::utils::Floating_point(100)), segy::parse_scalar(-100));
+        1 / (exseis::utils::Floating_point(100)), segy::parse_scalar(-100));
     EXPECT_DOUBLE_EQ(
-      1 / (exseis::utils::Floating_point(10)), segy::parse_scalar(-10));
+        1 / (exseis::utils::Floating_point(10)), segy::parse_scalar(-10));
     EXPECT_DOUBLE_EQ(
-      1 / (exseis::utils::Floating_point(1)), segy::parse_scalar(-1));
+        1 / (exseis::utils::Floating_point(1)), segy::parse_scalar(-1));
     EXPECT_DOUBLE_EQ(exseis::utils::Floating_point(1), segy::parse_scalar(0));
     EXPECT_DOUBLE_EQ(exseis::utils::Floating_point(1), segy::parse_scalar(1));
     EXPECT_DOUBLE_EQ(exseis::utils::Floating_point(10), segy::parse_scalar(10));
     EXPECT_DOUBLE_EQ(
-      exseis::utils::Floating_point(100), segy::parse_scalar(100));
+        exseis::utils::Floating_point(100), segy::parse_scalar(100));
     EXPECT_DOUBLE_EQ(
-      exseis::utils::Floating_point(1000), segy::parse_scalar(1000));
+        exseis::utils::Floating_point(1000), segy::parse_scalar(1000));
     EXPECT_DOUBLE_EQ(
-      exseis::utils::Floating_point(10000), segy::parse_scalar(10000));
+        exseis::utils::Floating_point(10000), segy::parse_scalar(10000));
 }

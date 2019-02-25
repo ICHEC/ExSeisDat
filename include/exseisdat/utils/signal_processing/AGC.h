@@ -20,11 +20,11 @@ extern "C" {
 /// @brief C API interface for \ref exseis::utils::signal_processing::agc
 /// @copydoc exseis::utils::signal_processing::agc
 void exseis_agc(
-  size_t signal_size,
-  exseis_Trace_value* signal,
-  exseis_Gain_function gain_function,
-  size_t window_size,
-  exseis_Trace_value target_amplitude);
+    size_t signal_size,
+    exseis_Trace_value* signal,
+    exseis_Gain_function gain_function,
+    size_t window_size,
+    exseis_Trace_value target_amplitude);
 
 /// @} C API
 

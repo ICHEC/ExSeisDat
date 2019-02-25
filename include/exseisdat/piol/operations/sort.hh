@@ -29,7 +29,7 @@ using Compare = std::function<bool(const T&, const T&)>;
 
 /// A template for the Compare less-than function
 typedef std::function<bool(const Trace_metadata&, const size_t, const size_t)>
-  CompareP;
+    CompareP;
 
 /************************************ Core ************************************/
 
@@ -55,7 +55,10 @@ std::vector<size_t> get_sort_index(size_t sz, const size_t* list);
  *          with respect to the comp function.
  */
 std::vector<size_t> sort(
-  ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp, bool file_order = true);
+    ExSeisPIOL* piol,
+    Trace_metadata& prm,
+    CompareP comp,
+    bool file_order = true);
 
 /********************************** Non-Core **********************************/
 /*! Perform a sort on the given parameter structure.
@@ -75,9 +78,9 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Trace_metadata& prm);
  *  @return Return true if the local ordering is correct.
  */
 bool check_order(
-  const ReadInterface& src,
-  exseis::utils::Contiguous_decomposition dec,
-  SortType type);
+    const ReadInterface& src,
+    exseis::utils::Contiguous_decomposition dec,
+    SortType type);
 
 /*! Return the comparison function for the particular sort type.
  *  @param[in] type The sort type

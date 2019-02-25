@@ -44,12 +44,12 @@ template<typename T, size_t N>
 constexpr T from_big_endian(std::array<unsigned char, N> src)
 {
     static_assert(
-      std::is_integral<T>::value,
-      "from_big_endian only defined for integer types.");
+        std::is_integral<T>::value,
+        "from_big_endian only defined for integer types.");
 
     static_assert(
-      sizeof(T) == N,
-      "Array size and type size must match for from_big_endian.");
+        sizeof(T) == N,
+        "Array size and type size must match for from_big_endian.");
 
 
     T t = 0;
@@ -85,8 +85,8 @@ template<>
 inline float from_big_endian<float>(std::array<unsigned char, 4> src)
 {
     static_assert(
-      sizeof(float) == sizeof(uint32_t),
-      "from_big_endian expects float and uint32_t to have the same size!");
+        sizeof(float) == sizeof(uint32_t),
+        "from_big_endian expects float and uint32_t to have the same size!");
 
     // Put the input bytes into a host-endian integer type, then copy
     // the bytes to a float.
@@ -128,11 +128,11 @@ template<typename T, typename... Bytes>
 T from_big_endian(unsigned char byte, Bytes... bytes)
 {
     static_assert(
-      sizeof(T) == (sizeof...(Bytes) + 1),
-      "from_big_endian expects the number of bytes passed in to match the number of bytes in the requested type.");
+        sizeof(T) == (sizeof...(Bytes) + 1),
+        "from_big_endian expects the number of bytes passed in to match the number of bytes in the requested type.");
 
     return from_big_endian<T>(std::array<unsigned char, sizeof...(Bytes) + 1>{
-      {byte, static_cast<unsigned char>(bytes)...}});
+        {byte, static_cast<unsigned char>(bytes)...}});
 }
 
 
@@ -153,8 +153,8 @@ template<typename T>
 std::array<unsigned char, sizeof(T)> to_big_endian(T src)
 {
     static_assert(
-      std::is_integral<T>::value,
-      "to_big_endian only defined for integer types.");
+        std::is_integral<T>::value,
+        "to_big_endian only defined for integer types.");
 
     std::array<unsigned char, sizeof(T)> dst;
 
@@ -193,8 +193,8 @@ template<>
 inline std::array<unsigned char, sizeof(float)> to_big_endian(float src)
 {
     static_assert(
-      sizeof(float) == sizeof(uint32_t),
-      "to_big_endian<float> expects float and uint32_t to be the same size!");
+        sizeof(float) == sizeof(uint32_t),
+        "to_big_endian<float> expects float and uint32_t to be the same size!");
 
     uint32_t int_src = 0;
     std::memcpy(&int_src, &src, sizeof(float));
@@ -234,7 +234,7 @@ struct Float_components {
 ///          {sign, exponent, significand}.
 ///
 Float_components from_ibm(
-  std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
+    std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
 
 /// Build a native floating point representation from a set of Float_components
@@ -263,7 +263,7 @@ float to_float(Float_components components);
 /// @details This function assumes that the system uses IEEE754.
 ///
 float from_ibm_to_float(
-  std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
+    std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
 }  // namespace number_encoding
 }  // namespace utils

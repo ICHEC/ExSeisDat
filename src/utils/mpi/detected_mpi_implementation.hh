@@ -9,11 +9,11 @@ enum class mpi_implementation { mpich, open_mpi, intel, unknown };
 
 constexpr mpi_implementation detected_mpi_implementation =
 #if defined MPICH
-  mpi_implementation::mpich;
+    mpi_implementation::mpich;
 #elif defined OPEN_MPI
-  mpi_implementation::open_mpi;
+    mpi_implementation::open_mpi;
 #else
-  mpi_implementation::unknown;
+    mpi_implementation::unknown;
 #endif
 
 

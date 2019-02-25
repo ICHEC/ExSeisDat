@@ -29,11 +29,11 @@ inline namespace signal_processing {
 /// @remark C API: exseis_taper
 ///
 void taper(
-  size_t signal_size,
-  Trace_value* signal,
-  Taper_function taper_function,
-  size_t taper_size_at_begin,
-  size_t taper_size_at_end);
+    size_t signal_size,
+    Trace_value* signal,
+    Taper_function taper_function,
+    size_t taper_size_at_begin,
+    size_t taper_size_at_end);
 
 
 }  // namespace signal_processing

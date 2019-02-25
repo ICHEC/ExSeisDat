@@ -56,14 +56,14 @@ int main(int argc, char** argv)
     // Create a SEGY file object for input
     piol_file_read_interface* ifh = piol_file_read_segy_new(piol, iname);
     piol_exseis_assert_ok(
-      piol, "Unable to create a SEGY file object for input.");
+        piol, "Unable to create a SEGY file object for input.");
 
     // Create some local variables based on the input file
     size_t nt = piol_file_read_interface_read_nt(ifh);
     size_t ns = piol_file_read_interface_read_ns(ifh);
 
     struct exseis_Contiguous_decomposition dec =
-      exseis_block_decomposition(nt, piol_exseis_get_num_rank(piol), rank);
+        exseis_block_decomposition(nt, piol_exseis_get_num_rank(piol), rank);
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
@@ -74,15 +74,15 @@ int main(int argc, char** argv)
     // Create a SEGY file object for output
     piol_file_write_interface* ofh = piol_file_write_segy_new(piol, oname);
     piol_exseis_assert_ok(
-      piol, "Unable to create a SEGY file object for output.");
+        piol, "Unable to create a SEGY file object for output.");
 
     // Write the headers based on the input file.
     piol_file_write_interface_write_ns(ofh, nt);
     piol_file_write_interface_write_nt(ofh, ns);
     piol_file_write_interface_write_text(
-      ofh, piol_file_read_interface_read_text(ifh));
+        ofh, piol_file_read_interface_read_text(ifh));
     piol_file_write_interface_write_sample_interval(
-      ofh, piol_file_read_interface_read_sample_interval(ifh));
+        ofh, piol_file_read_interface_read_sample_interval(ifh));
 
     // Read the traces from the input file and to the output
     piol_file_read_interface_read_trace(ifh, offset, lnt, trace, trhdr);

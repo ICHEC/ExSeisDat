@@ -113,7 +113,7 @@ class Trace_metadata {
     ///          `trace_index`.
     ///
     exseis::utils::Floating_point get_floating_point(
-      size_t trace_index, Key entry) const;
+        size_t trace_index, Key entry) const;
 
 
     /// @brief Set a floating point metadata entry
@@ -124,7 +124,7 @@ class Trace_metadata {
     /// @param[in] value       The value to set the metadata entry to.
     ///
     void set_floating_point(
-      size_t trace_index, Key entry, exseis::utils::Floating_point value);
+        size_t trace_index, Key entry, exseis::utils::Floating_point value);
 
 
     /// @brief Get a integer metadata entry
@@ -147,7 +147,7 @@ class Trace_metadata {
     /// @param[in] value       The value to set the metadata entry to.
     ///
     void set_integer(
-      size_t trace_index, Key entry, exseis::utils::Integer value);
+        size_t trace_index, Key entry, exseis::utils::Integer value);
 
 
     /// @brief Get a index metadata entry
@@ -183,9 +183,9 @@ class Trace_metadata {
     /// @param[in] source_trace_index The trace index to copy the entries of
     ///                               `source_metadata` from.
     void copy_entries(
-      size_t trace_index,
-      const Trace_metadata& source_metadata,
-      size_t source_trace_index);
+        size_t trace_index,
+        const Trace_metadata& source_metadata,
+        size_t source_trace_index);
 
 
     /// @brief Get the number of elements for a given metadata entry.
@@ -265,9 +265,9 @@ T* Trace_metadata::entry_data(Key entry)
 
     if (it == entry_types.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::entry_data : entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Key>::type>(entry))));
+            "Trace_metadata::entry_data : entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Key>::type>(entry))));
     }
 
     const auto find_and_test = [&](auto& entries) -> T* {
@@ -308,9 +308,9 @@ const T* Trace_metadata::entry_data(Key entry) const
 
     if (it == entry_types.end()) {
         throw Entry_not_found(std::string(
-          "Trace_metadata::entry_data : entry not found: "
-          + std::to_string(
-              static_cast<std::underlying_type<Key>::type>(entry))));
+            "Trace_metadata::entry_data : entry not found: "
+            + std::to_string(
+                static_cast<std::underlying_type<Key>::type>(entry))));
     }
 
     const auto find_and_test = [&](const auto& entries) -> const T* {

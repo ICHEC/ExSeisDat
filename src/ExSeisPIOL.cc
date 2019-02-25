@@ -6,7 +6,7 @@ namespace exseis {
 namespace piol {
 
 ExSeisPIOL::ExSeisPIOL(
-  const Verbosity max_level, const CommunicatorMPI::Opt& copt)
+    const Verbosity max_level, const CommunicatorMPI::Opt& copt)
 {
     log  = std::make_shared<Log>(max_level);
     comm = std::make_shared<CommunicatorMPI>(log.get(), copt);
@@ -25,9 +25,9 @@ void ExSeisPIOL::assert_ok(const std::string& message) const
 
 
         log->add_entry(exseis::utils::Log_entry{
-          exseis::utils::Status::Error, formatted_message,
-          exseis::utils::Verbosity::none,
-          EXSEISDAT_SOURCE_POSITION("exseis::piol::ExSeisPIOL::assert_ok")});
+            exseis::utils::Status::Error, formatted_message,
+            exseis::utils::Verbosity::none,
+            EXSEISDAT_SOURCE_POSITION("exseis::piol::ExSeisPIOL::assert_ok")});
 
         log->~Log();
         comm->~CommunicatorMPI();

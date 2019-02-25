@@ -33,11 +33,11 @@ struct OpsTest : public Test {
  *                     respective trace numbers.
  */
 void get_min_max(
-  ExSeisPIOL* piol,
-  size_t offset,
-  size_t lnt,
-  const coord_t* coord,
-  CoordElem* minmax)
+    ExSeisPIOL* piol,
+    size_t offset,
+    size_t lnt,
+    const coord_t* coord,
+    CoordElem* minmax)
 {
     auto xlam = [](const coord_t& a) -> exseis::utils::Floating_point {
         return a.x;
@@ -58,7 +58,7 @@ TEST_F(OpsTest, get_min_maxSimple)
     std::vector<CoordElem> minmax(4);
     for (size_t offset = 0; offset < 300000; offset += 1 + offset * 10) {
         get_min_max(
-          piol.get(), offset, coord.size(), coord.data(), minmax.data());
+            piol.get(), offset, coord.size(), coord.data(), minmax.data());
         piol->assert_ok();
         ASSERT_EQ(offset, minmax[0].num);
         ASSERT_EQ(offset + 999, minmax[1].num);
@@ -81,8 +81,8 @@ TEST_F(OpsTest, get_min_maxSimple)
 }
 
 TEST_F(
-  OpsTest,
-  get_min_maxFail1)  // These fails won't surive a multi-processor example
+    OpsTest,
+    get_min_maxFail1)  // These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++) {
@@ -95,8 +95,8 @@ TEST_F(
 }
 
 TEST_F(
-  OpsTest,
-  get_min_maxFail2)  // These fails won't surive a multi-processor example
+    OpsTest,
+    get_min_maxFail2)  // These fails won't surive a multi-processor example
 {
     std::vector<CoordElem> minmax(4);
     get_min_max(piol.get(), 10, 0, NULL, minmax.data());
@@ -104,8 +104,8 @@ TEST_F(
 }
 
 TEST_F(
-  OpsTest,
-  get_min_maxFail3)  // These fails won't surive a multi-processor example
+    OpsTest,
+    get_min_maxFail3)  // These fails won't surive a multi-processor example
 {
     std::vector<coord_t> coord(1000);
     for (int i = 0; i < 1000; i++) {
@@ -119,11 +119,11 @@ TEST_F(
 
 template<bool Y, bool Min>
 void test_min_max(
-  const std::vector<coord_t>& coord, const std::vector<CoordElem>& minmax)
+    const std::vector<coord_t>& coord, const std::vector<CoordElem>& minmax)
 {
     exseis::utils::Floating_point val =
-      exseis::utils::Floating_point(Min ? 1 : -1)
-      * std::numeric_limits<exseis::utils::Floating_point>::infinity();
+        exseis::utils::Floating_point(Min ? 1 : -1)
+        * std::numeric_limits<exseis::utils::Floating_point>::infinity();
     size_t tn = 0;
     for (size_t i = 0; i < coord.size(); i++) {
         double t = (Y ? coord[i].y : coord[i].x);
@@ -167,20 +167,21 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
     Trace_metadata prm(200);
     for (size_t i = 0; i < prm.size(); i++) {
         prm.set_floating_point(
-          i, Meta::x_src, 1000.0 - (prm.size() * piol->get_rank() + i) / 20);
+            i, Meta::x_src, 1000.0 - (prm.size() * piol->get_rank() + i) / 20);
         prm.set_floating_point(
-          i, Meta::y_src, 1000.0 - (prm.size() * piol->get_rank() + i) % 20);
+            i, Meta::y_src, 1000.0 - (prm.size() * piol->get_rank() + i) % 20);
         prm.set_floating_point(
-          i, Meta::x_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) / 10);
+            i, Meta::x_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) / 10);
         prm.set_floating_point(
-          i, Meta::y_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) % 10);
+            i, Meta::y_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) % 10);
         prm.set_index(i, Meta::gtn, prm.size() * piol->get_rank() + i);
     }
     auto list               = sort(piol.get(), SortType::SrcRcv, prm);
     size_t global_list_size = piol->comm->sum(list.size());
     for (size_t i = 0; i < list.size(); i++) {
         ASSERT_EQ(
-          global_list_size - (prm.size() * piol->get_rank() + i) - 1, list[i]);
+            global_list_size - (prm.size() * piol->get_rank() + i) - 1,
+            list[i]);
     }
 }
 
@@ -189,13 +190,13 @@ TEST_F(OpsTest, SortSrcRcvForwards)
     Trace_metadata prm(200);
     for (size_t i = 0; i < prm.size(); i++) {
         prm.set_floating_point(
-          i, Meta::x_src, 1000.0 + (prm.size() * piol->get_rank() + i) / 20);
+            i, Meta::x_src, 1000.0 + (prm.size() * piol->get_rank() + i) / 20);
         prm.set_floating_point(
-          i, Meta::y_src, 1000.0 + (prm.size() * piol->get_rank() + i) % 20);
+            i, Meta::y_src, 1000.0 + (prm.size() * piol->get_rank() + i) % 20);
         prm.set_floating_point(
-          i, Meta::x_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) / 10);
+            i, Meta::x_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) / 10);
         prm.set_floating_point(
-          i, Meta::y_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) % 10);
+            i, Meta::y_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) % 10);
         prm.set_index(i, Meta::gtn, prm.size() * piol->get_rank() + i);
     }
     auto list = sort(piol.get(), SortType::SrcRcv, prm);
@@ -245,14 +246,15 @@ TEST_F(OpsTest, FilterCheckLowpass)
     std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
     make_filter(
-      FltrType::Lowpass, numer_calc.data(), denom_calc.data(), n, 30.0, 1.2,
-      0.0);
+        FltrType::Lowpass, numer_calc.data(), denom_calc.data(), n, 30.0, 1.2,
+        0.0);
 
     std::vector<exseis::utils::Trace_value> denom_ref = {
-      1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
+        1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
 
     std::vector<exseis::utils::Trace_value> numer_ref = {
-      0.00018321611, 0.00073286443, 0.0010992966, 0.00073286443, 0.00018321611};
+        0.00018321611, 0.00073286443, 0.0010992966, 0.00073286443,
+        0.00018321611};
 
     for (size_t i = 0; i < n + 1; i++) {
         EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
@@ -266,12 +268,13 @@ TEST_F(OpsTest, FilterCheckHighpass)
     std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
     make_filter(
-      FltrType::Highpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2, 0);
+        FltrType::Highpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2,
+        0);
 
     std::vector<exseis::utils::Trace_value> denom_ref = {
-      1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
+        1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
     std::vector<exseis::utils::Trace_value> numer_ref = {
-      0.71935955, -2.87743821, 4.31615732, -2.87743821, 0.71935955};
+        0.71935955, -2.87743821, 4.31615732, -2.87743821, 0.71935955};
     for (size_t i = 0; i < n + 1; i++) {
         EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
         EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
@@ -284,14 +287,14 @@ TEST_F(OpsTest, FilterCheckBandpass)
     std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
     make_filter(
-      FltrType::Bandpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2,
-      6.5);
+        FltrType::Bandpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2,
+        6.5);
     std::vector<exseis::utils::Trace_value> denom_ref = {
-      1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
-      -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
+        1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
+        -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
     std::vector<exseis::utils::Trace_value> numer_ref = {
-      0.03142168, 0.0,        -0.1256867, 0.0,       0.18853005,
-      0.0,        -0.1256867, 0.0,        0.03142168};
+        0.03142168, 0.0,        -0.1256867, 0.0,       0.18853005,
+        0.0,        -0.1256867, 0.0,        0.03142168};
     for (size_t i = 0; i < 2 * n + 1; i++) {
         EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
         EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
@@ -304,15 +307,15 @@ TEST_F(OpsTest, FilterCheckBandstop)
     std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
     make_filter(
-      FltrType::Bandstop, numer_calc.data(), denom_calc.data(), n,
-      exseis::utils::Trace_value(30), exseis::utils::Trace_value(1.2),
-      exseis::utils::Trace_value(6.5));
+        FltrType::Bandstop, numer_calc.data(), denom_calc.data(), n,
+        exseis::utils::Trace_value(30), exseis::utils::Trace_value(1.2),
+        exseis::utils::Trace_value(6.5));
     std::vector<exseis::utils::Trace_value> denom_ref = {
-      1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
-      -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
+        1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
+        -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
     std::vector<exseis::utils::Trace_value> numer_ref = {
-      0.21261259,  -1.38519468, 4.23471188,  -7.83039071, 9.54055945,
-      -7.83039071, 4.23471188,  -1.38519468, 0.21261259};
+        0.21261259,  -1.38519468, 4.23471188,  -7.83039071, 9.54055945,
+        -7.83039071, 4.23471188,  -1.38519468, 0.21261259};
     for (size_t i = 0; i < 2 * n + 1; i++) {
         EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
         EXPECT_NEAR(numer_ref[i], numer_calc[i], 5e-6);

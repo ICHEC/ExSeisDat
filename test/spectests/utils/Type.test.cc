@@ -20,25 +20,25 @@ TEST(Type, StaticTests)
 #define EXSEISDAT_TYPE_STATIC_TEST(TYPE, NATIVE)                               \
     case TYPE:                                                                 \
         static_assert(                                                         \
-          exseis::utils::Type_from_native<NATIVE>::value == TYPE,              \
-          "Type_from_native<" #NATIVE ">::value should be " #TYPE "!");        \
+            exseis::utils::Type_from_native<NATIVE>::value == TYPE,            \
+            "Type_from_native<" #NATIVE ">::value should be " #TYPE "!");      \
         static_assert(                                                         \
-          std::is_same<                                                        \
-            exseis::utils::Native_from_type<TYPE>::type, NATIVE>::value,       \
-          "Native_from_type<" #TYPE ">::type should be " #NATIVE "!");         \
+            std::is_same<                                                      \
+                exseis::utils::Native_from_type<TYPE>::type, NATIVE>::value,   \
+            "Native_from_type<" #TYPE ">::type should be " #NATIVE "!");       \
         static_assert(                                                         \
-          exseis::utils::Type_from_native<                                     \
-            exseis::utils::Native_from_type<TYPE>::type>::value                \
-            == TYPE,                                                           \
-          "Type_from_native<Native_from_type<" #TYPE ">> should return " #TYPE \
-          "!");                                                                \
+            exseis::utils::Type_from_native<                                   \
+                exseis::utils::Native_from_type<TYPE>::type>::value            \
+                == TYPE,                                                       \
+            "Type_from_native<Native_from_type<" #TYPE                         \
+            ">> should return " #TYPE "!");                                    \
         static_assert(                                                         \
-          std::is_same<                                                        \
-            exseis::utils::Native_from_type<                                   \
-              exseis::utils::Type_from_native<NATIVE>::value>::type,           \
-            NATIVE>::value,                                                    \
-          "Native_from_type<Type_from_native<" #NATIVE                         \
-          ">> should have type " #NATIVE "!");                                 \
+            std::is_same<                                                      \
+                exseis::utils::Native_from_type<                               \
+                    exseis::utils::Type_from_native<NATIVE>::value>::type,     \
+                NATIVE>::value,                                                \
+            "Native_from_type<Type_from_native<" #NATIVE                       \
+            ">> should have type " #NATIVE "!");                               \
         break;
 
 

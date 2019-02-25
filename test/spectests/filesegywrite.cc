@@ -54,7 +54,7 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
     make_mock_segy<true>();
     std::vector<unsigned char> tr(segy::segy_trace_header_size());
     init_write_tr_hdr_coord(
-      {x_src, y_src}, {1600100, 3400222}, -1000, 10U, &tr);
+        {x_src, y_src}, {1600100, 3400222}, -1000, 10U, &tr);
 
     Trace_metadata prm(1U);
     prm.set_floating_point(0, Meta::x_src, 1600.1000);
@@ -69,7 +69,7 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
     make_mock_segy<true>();
     std::vector<unsigned char> tr(segy::segy_trace_header_size());
     init_write_tr_hdr_coord(
-      {x_src, y_src}, {1623001001, 34002220}, -10000, 10U, &tr);
+        {x_src, y_src}, {1623001001, 34002220}, -10000, 10U, &tr);
 
     Trace_metadata prm(1U);
     prm.set_floating_point(0, Meta::x_src, 162300.10009);
@@ -356,8 +356,8 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadns)
     file->write_ns(ns);
     mock_object.reset();
     EXPECT_EXIT(
-      piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
-      ".*Fatal Error in PIOL\\. Dumping Log\\..*");
+        piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
+        ".*Fatal Error in PIOL\\. Dumping Log\\..*");
 }
 
 #ifdef NT_LIMITS
@@ -369,8 +369,8 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadnt)
 
     mock_object.reset();
     EXPECT_EXIT(
-      piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
-      ".*Fatal Error in PIOL\\. Dumping Log\\..*");
+        piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
+        ".*Fatal Error in PIOL\\. Dumping Log\\..*");
 }
 #endif
 
@@ -382,6 +382,6 @@ TEST_F(FileSEGYDeath, FileWriteAPIBadSampleInterval)
 
     mock_object.reset();
     EXPECT_EXIT(
-      piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
-      ".*Fatal Error in PIOL\\. Dumping Log\\..*");
+        piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
+        ".*Fatal Error in PIOL\\. Dumping Log\\..*");
 }

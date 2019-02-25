@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 
     // Get decomposition of the range [0..nt) for the current rank
     struct exseis_Contiguous_decomposition dec =
-      exseis_block_decomposition(nt, num_ranks, rank);
+        exseis_block_decomposition(nt, num_ranks, rank);
 
     // The offset for the local process
     size_t offset = dec.global_offset;
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
     // Generate parameter structure for the local traces
     piol_file_trace_metadata* prm =
-      piol_file_trace_metadata_new(NULL, local_nt);
+        piol_file_trace_metadata_new(NULL, local_nt);
 
     // Set some trace parameters
     for (size_t j = 0; j < local_nt; j++) {

@@ -16,15 +16,15 @@ namespace {
 
 /// A list of the default META values
 const Meta default_metas[] = {
-  Meta::x_src, Meta::y_src,  Meta::x_rcv, Meta::y_rcv, Meta::xCmp,
-  Meta::yCmp,  Meta::Offset, Meta::il,    Meta::xl,    Meta::tn};
+    Meta::x_src, Meta::y_src,  Meta::x_rcv, Meta::y_rcv, Meta::xCmp,
+    Meta::yCmp,  Meta::Offset, Meta::il,    Meta::xl,    Meta::tn};
 
 /// A list of the extra META values
 const Meta extra_metas[] = {
-  Meta::tnl,     Meta::tnr,       Meta::tne,      Meta::SrcNum,
-  Meta::Tic,     Meta::VStack,    Meta::HStack,   Meta::RGElev,
-  Meta::SSElev,  Meta::SDElev,    Meta::ns,       Meta::sample_interval,
-  Meta::ShotNum, Meta::TraceUnit, Meta::TransUnit};
+    Meta::tnl,     Meta::tnr,       Meta::tne,      Meta::SrcNum,
+    Meta::Tic,     Meta::VStack,    Meta::HStack,   Meta::RGElev,
+    Meta::SSElev,  Meta::SDElev,    Meta::ns,       Meta::sample_interval,
+    Meta::ShotNum, Meta::TraceUnit, Meta::TransUnit};
 
 
 /// @brief Implementation of the copy constructor and copy assignment for
@@ -80,7 +80,7 @@ Rule::Rule(const Rule_entry_map& rule_entry_map, bool full)
 }
 
 Rule::Rule(
-  const std::vector<Meta>& mlist, bool full, bool defaults, bool extras)
+    const std::vector<Meta>& mlist, bool full, bool defaults, bool extras)
 {
 
     // TODO: Change this when extents are flexible
@@ -260,7 +260,7 @@ bool Rule::add_rule(Meta m)
         case Meta::Misc3:
         case Meta::Misc4:
             assert(
-              false && "Non-standard Meta value, not handled automatically.");
+                false && "Non-standard Meta value, not handled automatically.");
 
             return false;
     }
@@ -351,7 +351,7 @@ void Rule::add_segy_float(Meta m, Tr loc, Tr scalar_location)
     }
 
     rule_entry_map.insert(
-      {m, std::make_unique<SEGYFloatRuleEntry>(loc, scalar_location)});
+        {m, std::make_unique<SEGYFloatRuleEntry>(loc, scalar_location)});
 
     flag.badextent = (!flag.fullextent);
 }
@@ -370,7 +370,7 @@ void Rule::add_copy(void)
 {
     if (num_copy == 0) {
         rule_entry_map.insert(
-          {Meta::Copy, std::make_unique<SEGYCopyRuleEntry>()});
+            {Meta::Copy, std::make_unique<SEGYCopyRuleEntry>()});
         num_copy++;
     }
 }
@@ -403,7 +403,8 @@ size_t Rule::memory_usage(void) const
     };
 
     return std::accumulate(
-             rule_entry_map.begin(), rule_entry_map.end(), 0, add_memory_usage)
+               rule_entry_map.begin(), rule_entry_map.end(), 0,
+               add_memory_usage)
            + sizeof(Rule);
 }
 
@@ -435,7 +436,7 @@ size_t Rule::memory_usage_per_header(void) const
     };
 
     return std::accumulate(
-      rule_entry_map.begin(), rule_entry_map.end(), 0, add_sizeof);
+        rule_entry_map.begin(), rule_entry_map.end(), 0, add_sizeof);
 }
 
 bool Rule::add_rule(const Rule& r)
@@ -445,10 +446,10 @@ bool Rule::add_rule(const Rule& r)
             switch (m.second->type()) {
                 case RuleEntry::MdType::Float:
                     add_segy_float(
-                      m.first, static_cast<Tr>(m.second->loc),
-                      static_cast<Tr>(
-                        static_cast<SEGYFloatRuleEntry*>(m.second.get())
-                          ->scalar_location));
+                        m.first, static_cast<Tr>(m.second->loc),
+                        static_cast<Tr>(
+                            static_cast<SEGYFloatRuleEntry*>(m.second.get())
+                                ->scalar_location));
                     break;
 
                 case RuleEntry::MdType::Long:

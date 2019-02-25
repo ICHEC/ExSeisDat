@@ -167,8 +167,8 @@ constexpr
 #else
 inline
 #endif
-  std::pair<TrCrd, TrCrd>
-  get_pair(Coord pair)
+    std::pair<TrCrd, TrCrd>
+    get_pair(Coord pair)
 {
     switch (pair) {
         case Coord::Src:
@@ -190,8 +190,8 @@ constexpr
 #else
 inline
 #endif
-  std::pair<TrGrd, TrGrd>
-  get_pair(Grid pair)
+    std::pair<TrGrd, TrGrd>
+    get_pair(Grid pair)
 {
     switch (pair) {
         // Note: When a new set of grid points are required:
@@ -206,14 +206,14 @@ inline
 exseis::utils::Floating_point get_md(TrScal scal, unsigned char* src);
 
 exseis::utils::Floating_point get_md(
-  TrCrd item, exseis::utils::Floating_point scale, const unsigned char* src);
+    TrCrd item, exseis::utils::Floating_point scale, const unsigned char* src);
 
 int32_t get_md(TrGrd item, const unsigned char* src);
 
 void set_coord(Coord item, coord_t coord, int16_t scale, unsigned char* buf);
 
 coord_t get_coord(
-  Coord item, exseis::utils::Floating_point scale, const unsigned char* buf);
+    Coord item, exseis::utils::Floating_point scale, const unsigned char* buf);
 
 grid_t get_grid(Grid item, const unsigned char* buf);
 
@@ -224,7 +224,7 @@ int16_t scal_comp(int16_t scal1, int16_t scal2);
 int16_t calc_scale(coord_t coord);
 
 void set_scale(
-  TrScal item, int16_t scale, unsigned char* buf, size_t start = 0);
+    TrScal item, int16_t scale, unsigned char* buf, size_t start = 0);
 
 }  // namespace piol
 }  // namespace exseis

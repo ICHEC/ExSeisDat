@@ -43,13 +43,13 @@ inline void mpi_err(int err)
  *  @param[out] minrs The dsr value associated with the trace match in min.
  */
 void calc_4d_bin(
-  ExSeisPIOL* piol,
-  fourd_t dsrmax,
-  const Coords* coords1,
-  const Coords* coords2,
-  FourDOpt opt,
-  std::vector<size_t>& min,
-  std::vector<fourd_t>& minrs);
+    ExSeisPIOL* piol,
+    fourd_t dsrmax,
+    const Coords* coords1,
+    const Coords* coords2,
+    FourDOpt opt,
+    std::vector<size_t>& min,
+    std::vector<fourd_t>& minrs);
 
 }  // namespace four_d
 }  // namespace piol

@@ -49,10 +49,10 @@ std::vector<size_t> get_sort_index(size_t sz, const size_t* list)
  *  @return square of the hypotenuse
  */
 inline exseis::utils::Floating_point off(
-  exseis::utils::Floating_point sx,
-  exseis::utils::Floating_point sy,
-  exseis::utils::Floating_point rx,
-  exseis::utils::Floating_point ry)
+    exseis::utils::Floating_point sx,
+    exseis::utils::Floating_point sy,
+    exseis::utils::Floating_point rx,
+    exseis::utils::Floating_point ry)
 {
     return (sx - rx) * (sx - rx) + (sy - ry) * (sy - ry);
 }
@@ -65,7 +65,7 @@ inline exseis::utils::Floating_point off(
  *          of the sort.
  */
 static bool less_src_rcv(
-  const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& prm, const size_t i, const size_t j)
 {
     auto e1sx = prm.get_floating_point(i, Meta::x_src);
     auto e2sx = prm.get_floating_point(j, Meta::x_src);
@@ -131,7 +131,7 @@ static bool less_src_rcv(
  */
 template<bool CalcOff>
 static bool less_src_off(
-  const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& prm, const size_t i, const size_t j)
 {
     auto e1sx = prm.get_floating_point(i, Meta::x_src);
     auto e2sx = prm.get_floating_point(j, Meta::x_src);
@@ -160,14 +160,14 @@ static bool less_src_off(
     auto e1rx = prm.get_floating_point(i, Meta::x_rcv);
     auto e1ry = prm.get_floating_point(i, Meta::y_rcv);
     auto off1 =
-      (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                 prm.get_integer(i, Meta::Offset));
+        (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
+                   prm.get_integer(i, Meta::Offset));
 
     auto e2rx = prm.get_floating_point(j, Meta::x_rcv);
     auto e2ry = prm.get_floating_point(j, Meta::y_rcv);
     auto off2 =
-      (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                 prm.get_integer(j, Meta::Offset));
+        (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
+                   prm.get_integer(j, Meta::Offset));
 
     if (off1 < off2) {
         return true;
@@ -197,7 +197,7 @@ static bool less_src_off(
  */
 template<bool CalcOff>
 static bool less_rcv_off(
-  const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& prm, const size_t i, const size_t j)
 {
     auto e1rx = prm.get_floating_point(i, Meta::x_rcv);
     auto e2rx = prm.get_floating_point(j, Meta::x_rcv);
@@ -226,14 +226,14 @@ static bool less_rcv_off(
     auto e1sx = prm.get_floating_point(i, Meta::x_src);
     auto e1sy = prm.get_floating_point(i, Meta::y_src);
     auto off1 =
-      (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                 prm.get_integer(i, Meta::Offset));
+        (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
+                   prm.get_integer(i, Meta::Offset));
 
     auto e2sx = prm.get_floating_point(j, Meta::x_src);
     auto e2sy = prm.get_floating_point(j, Meta::y_src);
     auto off2 =
-      (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                 prm.get_integer(j, Meta::Offset));
+        (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
+                   prm.get_integer(j, Meta::Offset));
 
     if (off1 < off2) {
         return true;
@@ -258,7 +258,7 @@ static bool less_rcv_off(
  */
 template<bool CalcOff>
 static bool less_line_off(
-  const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& prm, const size_t i, const size_t j)
 {
     auto e1il = prm.get_integer(i, Meta::il);
     auto e2il = prm.get_integer(j, Meta::il);
@@ -295,11 +295,11 @@ static bool less_line_off(
     auto e2ry = prm.get_floating_point(j, Meta::y_rcv);
 
     auto off1 =
-      (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                 prm.get_integer(i, Meta::Offset));
+        (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
+                   prm.get_integer(i, Meta::Offset));
     auto off2 =
-      (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                 prm.get_integer(j, Meta::Offset));
+        (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
+                   prm.get_integer(j, Meta::Offset));
 
     if (off1 < off2) {
         return true;
@@ -326,23 +326,23 @@ static bool less_line_off(
  */
 template<bool CalcOff>
 static bool less_off_line(
-  const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& prm, const size_t i, const size_t j)
 {
     auto e1sx = prm.get_floating_point(i, Meta::x_src);
     auto e1sy = prm.get_floating_point(i, Meta::y_src);
     auto e1rx = prm.get_floating_point(i, Meta::x_rcv);
     auto e1ry = prm.get_floating_point(i, Meta::y_rcv);
     auto off1 =
-      (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                 prm.get_integer(i, Meta::Offset));
+        (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
+                   prm.get_integer(i, Meta::Offset));
 
     auto e2sx = prm.get_floating_point(j, Meta::x_src);
     auto e2sy = prm.get_floating_point(j, Meta::y_src);
     auto e2rx = prm.get_floating_point(j, Meta::x_rcv);
     auto e2ry = prm.get_floating_point(j, Meta::y_rcv);
     auto off2 =
-      (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                 prm.get_integer(j, Meta::Offset));
+        (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
+                   prm.get_integer(j, Meta::Offset));
 
     if (off1 < off2) {
         return true;
@@ -419,9 +419,9 @@ std::vector<size_t> sort(ExSeisPIOL* piol, SortType type, Trace_metadata& prm)
 }
 
 bool check_order(
-  const ReadInterface& src,
-  exseis::utils::Contiguous_decomposition dec,
-  SortType type)
+    const ReadInterface& src,
+    exseis::utils::Contiguous_decomposition dec,
+    SortType type)
 {
     auto comp = get_comp(type);
     Trace_metadata prm(dec.local_size);
@@ -449,9 +449,9 @@ namespace {
  *  @param[in] req2 The request that all processes except rank of 0 wait on..
  */
 void wait(
-  ExSeisPIOL* piol,
-  std::vector<MPI_Request> req1,
-  std::vector<MPI_Request> req2)
+    ExSeisPIOL* piol,
+    std::vector<MPI_Request> req1,
+    std::vector<MPI_Request> req2)
 {
     MPI_Status stat;
     int err;
@@ -462,11 +462,11 @@ void wait(
 
             if (err != MPI_SUCCESS) {
                 piol->log->add_entry(exseis::utils::Log_entry{
-                  exseis::utils::Status::Error,
-                  "Sort Rcv error: "s
-                    + exseis::utils::mpi_error_to_string(err, &stat),
-                  exseis::utils::Verbosity::none,
-                  EXSEISDAT_SOURCE_POSITION("exseis::piol::wait")});
+                    exseis::utils::Status::Error,
+                    "Sort Rcv error: "s
+                        + exseis::utils::mpi_error_to_string(err, &stat),
+                    exseis::utils::Verbosity::none,
+                    EXSEISDAT_SOURCE_POSITION("exseis::piol::wait")});
             }
         }
     }
@@ -477,11 +477,11 @@ void wait(
 
             if (err != MPI_SUCCESS) {
                 piol->log->add_entry(exseis::utils::Log_entry{
-                  exseis::utils::Status::Error,
-                  "Sort Snd error: "s
-                    + exseis::utils::mpi_error_to_string(err, &stat),
-                  exseis::utils::Verbosity::none,
-                  EXSEISDAT_SOURCE_POSITION("exseis::piol::wait")});
+                    exseis::utils::Status::Error,
+                    "Sort Snd error: "s
+                        + exseis::utils::mpi_error_to_string(err, &stat),
+                    exseis::utils::Verbosity::none,
+                    EXSEISDAT_SOURCE_POSITION("exseis::piol::wait")});
             }
         }
     }
@@ -513,15 +513,15 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, std::vector<T>& dat)
     // TODO: Move to the communication layer?
     if (rank != 0) {
         int err = MPI_Irecv(
-          dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
+            dat.data(), cnt, MPI_CHAR, rank - 1, 1, MPI_COMM_WORLD, &rrcv[0]);
 
         if (err != MPI_SUCCESS) {
             piol->log->add_entry(exseis::utils::Log_entry{
-              exseis::utils::Status::Error,
-              "Sort MPI_Irecv error: "s
-                + exseis::utils::mpi_error_to_string(err),
-              exseis::utils::Verbosity::none,
-              EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
+                exseis::utils::Status::Error,
+                "Sort MPI_Irecv error: "s
+                    + exseis::utils::mpi_error_to_string(err),
+                exseis::utils::Verbosity::none,
+                EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
         }
     }
 
@@ -529,16 +529,16 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, std::vector<T>& dat)
 
     if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
         int err = MPI_Isend(
-          &dat[dat.size() - region_sz], cnt, MPI_CHAR, rank + 1, 1,
-          MPI_COMM_WORLD, &rsnd[0]);
+            &dat[dat.size() - region_sz], cnt, MPI_CHAR, rank + 1, 1,
+            MPI_COMM_WORLD, &rsnd[0]);
 
         if (err != MPI_SUCCESS) {
             piol->log->add_entry(exseis::utils::Log_entry{
-              exseis::utils::Status::Error,
-              "Sort MPI_Isend error: "s
-                + exseis::utils::mpi_error_to_string(err),
-              exseis::utils::Verbosity::none,
-              EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
+                exseis::utils::Status::Error,
+                "Sort MPI_Isend error: "s
+                    + exseis::utils::mpi_error_to_string(err),
+                exseis::utils::Verbosity::none,
+                EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
         }
     }
 
@@ -568,15 +568,15 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, std::vector<T>& dat)
 
     if (rank != 0) {
         int err = MPI_Isend(
-          dat.data(), cnt, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rsnd[0]);
+            dat.data(), cnt, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, &rsnd[0]);
 
         if (err != MPI_SUCCESS) {
             piol->log->add_entry(exseis::utils::Log_entry{
-              exseis::utils::Status::Error,
-              "Sort MPI_Isend error: "s
-                + exseis::utils::mpi_error_to_string(err),
-              exseis::utils::Verbosity::none,
-              EXSEISDAT_SOURCE_POSITION("exseis::piol::send_left")});
+                exseis::utils::Status::Error,
+                "Sort MPI_Isend error: "s
+                    + exseis::utils::mpi_error_to_string(err),
+                exseis::utils::Verbosity::none,
+                EXSEISDAT_SOURCE_POSITION("exseis::piol::send_left")});
         }
     }
 
@@ -585,16 +585,16 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, std::vector<T>& dat)
 
     if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
         int err = MPI_Irecv(
-          &dat[dat.size() - region_sz], cnt, MPI_CHAR, rank + 1, 0,
-          MPI_COMM_WORLD, &rrcv[0]);
+            &dat[dat.size() - region_sz], cnt, MPI_CHAR, rank + 1, 0,
+            MPI_COMM_WORLD, &rrcv[0]);
 
         if (err != MPI_SUCCESS) {
             piol->log->add_entry(exseis::utils::Log_entry{
-              exseis::utils::Status::Error,
-              "Sort MPI_Recv error: "s
-                + exseis::utils::mpi_error_to_string(err),
-              exseis::utils::Verbosity::none,
-              EXSEISDAT_SOURCE_POSITION("exseis::piol::send_left")});
+                exseis::utils::Status::Error,
+                "Sort MPI_Recv error: "s
+                    + exseis::utils::mpi_error_to_string(err),
+                exseis::utils::Verbosity::none,
+                EXSEISDAT_SOURCE_POSITION("exseis::piol::send_left")});
         }
     }
 
@@ -612,11 +612,11 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, std::vector<T>& dat)
  */
 template<class T>
 void sort(
-  ExSeisPIOL* piol,
-  size_t region_sz,
-  std::vector<T>& temp1,
-  std::vector<T>& dat,
-  Compare<T> comp = nullptr)
+    ExSeisPIOL* piol,
+    size_t region_sz,
+    std::vector<T>& temp1,
+    std::vector<T>& dat,
+    Compare<T> comp = nullptr)
 {
     size_t lnt      = dat.size();
     size_t num_rank = piol->comm->get_num_rank();
@@ -633,12 +633,12 @@ void sort(
 
     if (comp != nullptr) {
         std::sort(
-          dat.begin(), std::next(dat.begin(), static_cast<Difference>(lnt)),
-          [comp](auto& a, auto& b) -> bool { return comp(a, b); });
+            dat.begin(), std::next(dat.begin(), static_cast<Difference>(lnt)),
+            [comp](auto& a, auto& b) -> bool { return comp(a, b); });
     }
     else {
         std::sort(
-          dat.begin(), std::next(dat.begin(), static_cast<Difference>(lnt)));
+            dat.begin(), std::next(dat.begin(), static_cast<Difference>(lnt)));
     }
 
     std::copy(dat.begin(), dat.end(), temp1.begin());
@@ -650,29 +650,29 @@ void sort(
 
         if (comp != nullptr) {
             std::sort(
-              std::next(temp1.begin(), static_cast<Difference>(edge1)),
-              temp1.end(),
-              [comp](auto& a, auto& b) -> bool { return comp(a, b); });
+                std::next(temp1.begin(), static_cast<Difference>(edge1)),
+                temp1.end(),
+                [comp](auto& a, auto& b) -> bool { return comp(a, b); });
         }
         else {
             // default pair sorting is first then second
             std::sort(
-              std::next(temp1.begin(), static_cast<Difference>(edge1)),
-              temp1.end());
+                std::next(temp1.begin(), static_cast<Difference>(edge1)),
+                temp1.end());
         }
 
         send_right(piol, region_sz, temp1);
 
         if (comp != nullptr) {
             std::sort(
-              temp1.begin(),
-              std::prev(temp1.end(), static_cast<Difference>(edge2)),
-              [comp](auto& a, auto& b) -> bool { return comp(a, b); });
+                temp1.begin(),
+                std::prev(temp1.end(), static_cast<Difference>(edge2)),
+                [comp](auto& a, auto& b) -> bool { return comp(a, b); });
         }
         else {
             std::sort(
-              temp1.begin(),
-              std::prev(temp1.end(), static_cast<Difference>(edge2)));
+                temp1.begin(),
+                std::prev(temp1.end(), static_cast<Difference>(edge2)));
         }
 
         int reduced = 0;
@@ -682,15 +682,15 @@ void sort(
         int greduced = 1;
 
         int err = MPI_Allreduce(
-          &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+            &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
         if (err != MPI_SUCCESS) {
             piol->log->add_entry(exseis::utils::Log_entry{
-              exseis::utils::Status::Error,
-              "Sort MPI_Allreduce error: "s
-                + exseis::utils::mpi_error_to_string(err),
-              exseis::utils::Verbosity::none,
-              EXSEISDAT_SOURCE_POSITION("exseis::piol::sort")});
+                exseis::utils::Status::Error,
+                "Sort MPI_Allreduce error: "s
+                    + exseis::utils::mpi_error_to_string(err),
+                exseis::utils::Verbosity::none,
+                EXSEISDAT_SOURCE_POSITION("exseis::piol::sort")});
         }
 
         if (!greduced) {
@@ -715,7 +715,7 @@ template<exseis::utils::Type Type>
 MPI_Datatype mpi_datatype_from_type()
 {
     return exseis::utils::mpi_type<
-      typename exseis::utils::Native_from_type<Type>::type>();
+        typename exseis::utils::Native_from_type<Type>::type>();
 }
 
 /// @brief Get the MPI_Datatype from an RuleEntry::MdType.
@@ -788,8 +788,8 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
     // Check conversions ok
     assert(
-      piol->comm->get_rank() <= std::numeric_limits<int>::max()
-      && "MPI Rank is too large for an int.");
+        piol->comm->get_rank() <= std::numeric_limits<int>::max()
+        && "MPI Rank is too large for an int.");
 
     assert(piol->comm->get_num_rank() <= std::numeric_limits<int>::max());
 
@@ -804,11 +804,11 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
             if (err != MPI_SUCCESS) {
                 piol->log->add_entry(exseis::utils::Log_entry{
-                  exseis::utils::Status::Error,
-                  function_name + " error: "s
-                    + exseis::utils::mpi_error_to_string(err),
-                  exseis::utils::Verbosity::none,
-                  EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
+                    exseis::utils::Status::Error,
+                    function_name + " error: "s
+                        + exseis::utils::mpi_error_to_string(err),
+                    exseis::utils::Verbosity::none,
+                    EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
             }
         };
     };
@@ -837,10 +837,11 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
             rrcv.push_back(MPI_REQUEST_NULL);
 
             log_on_error(
-              MPI_Irecv, "Sort right exseis::utils::Floating_point MPI_Irecv")(
-              rprm.entry_data<unsigned char>(key),
-              static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank - 1, 0,
-              MPI_COMM_WORLD, &rrcv.back());
+                MPI_Irecv,
+                "Sort right exseis::utils::Floating_point MPI_Irecv")(
+                rprm.entry_data<unsigned char>(key),
+                static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank - 1,
+                0, MPI_COMM_WORLD, &rrcv.back());
         }
 
         if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
@@ -848,9 +849,9 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
             rsnd.push_back(MPI_REQUEST_NULL);
 
             log_on_error(MPI_Isend, "Sort right MPI_Isend")(
-              sprm.entry_data<unsigned char>(key),
-              static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank + 1, 0,
-              MPI_COMM_WORLD, &rsnd.back());
+                sprm.entry_data<unsigned char>(key),
+                static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank + 1,
+                0, MPI_COMM_WORLD, &rsnd.back());
         }
     }
 
@@ -877,12 +878,12 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
     // Check converstions ok
     assert(
-      piol->comm->get_rank() <= std::numeric_limits<int>::max()
-      && "PIOL rank too big for MPI");
+        piol->comm->get_rank() <= std::numeric_limits<int>::max()
+        && "PIOL rank too big for MPI");
 
     assert(
-      piol->comm->get_num_rank() <= std::numeric_limits<int>::max()
-      && "PIOL num ranks too big for MPI");
+        piol->comm->get_num_rank() <= std::numeric_limits<int>::max()
+        && "PIOL num ranks too big for MPI");
 
     int rank = static_cast<int>(piol->comm->get_rank());
     std::vector<MPI_Request> rsnd;
@@ -895,11 +896,11 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
             if (err != MPI_SUCCESS) {
                 piol->log->add_entry(exseis::utils::Log_entry{
-                  exseis::utils::Status::Error,
-                  function_name + " error: "s
-                    + exseis::utils::mpi_error_to_string(err),
-                  exseis::utils::Verbosity::none,
-                  EXSEISDAT_SOURCE_POSITION("exseis::utils::send_left")});
+                    exseis::utils::Status::Error,
+                    function_name + " error: "s
+                        + exseis::utils::mpi_error_to_string(err),
+                    exseis::utils::Verbosity::none,
+                    EXSEISDAT_SOURCE_POSITION("exseis::utils::send_left")});
             }
         };
     };
@@ -928,18 +929,18 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
             rsnd.push_back(MPI_REQUEST_NULL);
 
             log_on_error(MPI_Isend, "Sort left MPI_Isend")(
-              sprm.entry_data<unsigned char>(key),
-              static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank - 1, 1,
-              MPI_COMM_WORLD, &rsnd.back());
+                sprm.entry_data<unsigned char>(key),
+                static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank - 1,
+                1, MPI_COMM_WORLD, &rsnd.back());
         }
 
         if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
             rrcv.push_back(MPI_REQUEST_NULL);
 
             log_on_error(MPI_Irecv, "Sort left MPI_Irecv")(
-              rprm.entry_data<unsigned char>(key),
-              static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank + 1, 1,
-              MPI_COMM_WORLD, &rrcv.back());
+                rprm.entry_data<unsigned char>(key),
+                static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank + 1,
+                1, MPI_COMM_WORLD, &rrcv.back());
         }
     }
 
@@ -991,10 +992,10 @@ void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
             std::vector<size_t> t1(temp1.size() - edge1);
             std::iota(t1.begin(), t1.end(), edge1);
             std::sort(
-              t1.begin(), t1.end(),
-              [&temp1, comp](size_t& a, size_t& b) -> bool {
-                  return comp(temp1, a, b);
-              });
+                t1.begin(), t1.end(),
+                [&temp1, comp](size_t& a, size_t& b) -> bool {
+                    return comp(temp1, a, b);
+                });
 
             for (size_t i = 0; i < t1.size(); i++) {
                 temp3.copy_entries(i, temp1, t1[i]);
@@ -1011,10 +1012,10 @@ void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
             std::vector<size_t> t1(temp1.size() - edge2);
             std::iota(t1.begin(), t1.end(), 0);
             std::sort(
-              t1.begin(), t1.end(),
-              [&temp1, comp](size_t& a, size_t& b) -> bool {
-                  return comp(temp1, a, b);
-              });
+                t1.begin(), t1.end(),
+                [&temp1, comp](size_t& a, size_t& b) -> bool {
+                    return comp(temp1, a, b);
+                });
 
             for (size_t i = 0; i < t1.size(); i++) {
                 temp3.copy_entries(i, temp1, t1[i]);
@@ -1038,15 +1039,15 @@ void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
         int greduced = 1;
 
         int err = MPI_Allreduce(
-          &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+            &reduced, &greduced, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
         if (err != MPI_SUCCESS) {
             piol->log->add_entry(exseis::utils::Log_entry{
-              exseis::utils::Status::Error,
-              "Sort MPI_Allreduce error: "
-                + exseis::utils::mpi_error_to_string(err),
-              exseis::utils::Verbosity::none,
-              EXSEISDAT_SOURCE_POSITION("exseis::piol::sortP")});
+                exseis::utils::Status::Error,
+                "Sort MPI_Allreduce error: "
+                    + exseis::utils::mpi_error_to_string(err),
+                exseis::utils::Verbosity::none,
+                EXSEISDAT_SOURCE_POSITION("exseis::piol::sortP")});
         }
 
         if (greduced == 0) {
@@ -1064,7 +1065,7 @@ void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
 
 
 std::vector<size_t> sort(
-  ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp, bool file_order)
+    ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp, bool file_order)
 {
     sort_p(piol, prm, comp);
 
@@ -1082,8 +1083,8 @@ std::vector<size_t> sort(
     const size_t lnt       = list.size();
     const size_t region_sz = piol->comm->min(lnt) / 4LU;
     const size_t edge2 =
-      (piol->comm->get_rank() != piol->comm->get_num_rank() - 1 ? region_sz :
-                                                                  0LU);
+        (piol->comm->get_rank() != piol->comm->get_num_rank() - 1 ? region_sz :
+                                                                    0LU);
     const size_t offset = piol->comm->offset(lnt);
 
     std::vector<std::pair<size_t, size_t>> plist(lnt);
@@ -1099,12 +1100,11 @@ std::vector<size_t> sort(
 // std::pair less-than operator
 #if defined(__INTEL_COMPILER)
         Compare<std::pair<size_t, size_t>> check =
-          [](
-            const std::pair<size_t, size_t>& e1,
-            const std::pair<size_t, size_t>& e2) -> bool {
+            [](const std::pair<size_t, size_t>& e1,
+               const std::pair<size_t, size_t>& e2) -> bool {
             return (
-              e1.first < e2.first
-              || (e1.first == e2.first && e1.second < e2.second));
+                e1.first < e2.first
+                || (e1.first == e2.first && e1.second < e2.second));
         };
         sort(piol, region_sz, temp1, plist, check);
 #else

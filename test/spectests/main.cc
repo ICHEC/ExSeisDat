@@ -88,11 +88,13 @@ std::string nonexistant_filename()
     // Broadcast filename (via std::vector)
     auto filename_data = std::vector<char>(filename_size + 1);
     std::copy(
-      std::begin(filename), std::end(filename), std::begin(filename_data));
+        std::begin(filename), std::end(filename), std::begin(filename_data));
     MPI_Bcast(
-      filename_data.data(), filename_data.size(), MPI_CHAR, 0, MPI_COMM_WORLD);
+        filename_data.data(), filename_data.size(), MPI_CHAR, 0,
+        MPI_COMM_WORLD);
     std::copy(
-      std::begin(filename_data), std::end(filename_data), std::begin(filename));
+        std::begin(filename_data), std::end(filename_data),
+        std::begin(filename));
 
     return filename;
 }

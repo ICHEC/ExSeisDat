@@ -5,8 +5,8 @@ TEST_F(FileSEGYReadDeathTest, BadNameConstructor)
 {
     ReadSEGY file(piol, nonexistant_filename());
     EXPECT_EXIT(
-      piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
-      ".*Fatal Error in PIOL\\. Dumping Log\\..*");
+        piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
+        ".*Fatal Error in PIOL\\. Dumping Log\\..*");
 }
 
 TEST_F(FileSEGYRead, FileConstructor)
@@ -32,8 +32,8 @@ TEST_F(FileSEGYRead, FileReadHO)
 
     const double microsecond = 1e-6;
     EXPECT_EQ(
-      exseis::utils::Floating_point(sample_interval * microsecond),
-      file->read_sample_interval());
+        exseis::utils::Floating_point(sample_interval * microsecond),
+        file->read_sample_interval());
     piol->assert_ok();
 
     std::string text = file->read_text();
@@ -43,7 +43,7 @@ TEST_F(FileSEGYRead, FileReadHO)
     size_t slen = test_string.size();
     for (size_t i = 0; i < text.size(); i++) {
         ASSERT_EQ(test_string[i % slen], text[i])
-          << "Loop number " << i << std::endl;
+            << "Loop number " << i << std::endl;
     }
 }
 
@@ -58,7 +58,7 @@ TEST_F(FileSEGYRead, FileReadHOAPI)
     size_t slen = test_string.size();
     for (size_t i = 0; i < text.size(); i++) {
         ASSERT_EQ(test_string[i % slen], text[i])
-          << "Loop number " << i << std::endl;
+            << "Loop number " << i << std::endl;
     }
 }
 

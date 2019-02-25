@@ -81,37 +81,37 @@ struct Coords {
     Coords(size_t sz, bool ixline) : sz(sz)
     {
         alloc_size =
-          ((sz + EXSEISDAT_ALIGN) / EXSEISDAT_ALIGN) * EXSEISDAT_ALIGN;
+            ((sz + EXSEISDAT_ALIGN) / EXSEISDAT_ALIGN) * EXSEISDAT_ALIGN;
 
         // posix_memalign() guarantees the memory allocated is alligned
         // according  to the alignment value
         checked_posix_memalign(
-          reinterpret_cast<void**>(&x_src), EXSEISDAT_ALIGN,
-          alloc_size * sizeof(fourd_t));
+            reinterpret_cast<void**>(&x_src), EXSEISDAT_ALIGN,
+            alloc_size * sizeof(fourd_t));
         checked_posix_memalign(
-          reinterpret_cast<void**>(&y_src), EXSEISDAT_ALIGN,
-          alloc_size * sizeof(fourd_t));
+            reinterpret_cast<void**>(&y_src), EXSEISDAT_ALIGN,
+            alloc_size * sizeof(fourd_t));
         checked_posix_memalign(
-          reinterpret_cast<void**>(&x_rcv), EXSEISDAT_ALIGN,
-          alloc_size * sizeof(fourd_t));
+            reinterpret_cast<void**>(&x_rcv), EXSEISDAT_ALIGN,
+            alloc_size * sizeof(fourd_t));
         checked_posix_memalign(
-          reinterpret_cast<void**>(&y_rcv), EXSEISDAT_ALIGN,
-          alloc_size * sizeof(fourd_t));
+            reinterpret_cast<void**>(&y_rcv), EXSEISDAT_ALIGN,
+            alloc_size * sizeof(fourd_t));
         checked_posix_memalign(
-          reinterpret_cast<void**>(&tn), EXSEISDAT_ALIGN,
-          alloc_size * sizeof(size_t));
+            reinterpret_cast<void**>(&tn), EXSEISDAT_ALIGN,
+            alloc_size * sizeof(size_t));
 
         if (ixline) {
             checked_posix_memalign(
-              reinterpret_cast<void**>(&il), EXSEISDAT_ALIGN,
-              alloc_size * sizeof(exseis::utils::Integer));
+                reinterpret_cast<void**>(&il), EXSEISDAT_ALIGN,
+                alloc_size * sizeof(exseis::utils::Integer));
             checked_posix_memalign(
-              reinterpret_cast<void**>(&xl), EXSEISDAT_ALIGN,
-              alloc_size * sizeof(exseis::utils::Integer));
+                reinterpret_cast<void**>(&xl), EXSEISDAT_ALIGN,
+                alloc_size * sizeof(exseis::utils::Integer));
         }
         for (size_t i = 0; i < alloc_size; i++) {
             x_src[i] = y_src[i] = x_rcv[i] = y_rcv[i] =
-              std::numeric_limits<fourd_t>::max();
+                std::numeric_limits<fourd_t>::max();
         }
         for (size_t i = 0; ixline && i < alloc_size; i++) {
             il[i] = xl[i] = std::numeric_limits<exseis::utils::Integer>::max();
@@ -142,7 +142,7 @@ struct Coords {
  *          by the local process.
  */
 std::unique_ptr<Coords> get_coords(
-  std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
+    std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
 
 /*! Extract traces and coordinates from an input file \c sname according to what
  *  traces are listed in \c list.
@@ -156,12 +156,12 @@ std::unique_ptr<Coords> get_coords(
  *  @param[in] print_dsr Print the dsdr value if true.
  */
 void output_non_mono(
-  std::shared_ptr<ExSeisPIOL> piol,
-  std::string dname,
-  std::string sname,
-  std::vector<size_t>& list,
-  std::vector<fourd_t>& minrs,
-  bool print_dsr);
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string dname,
+    std::string sname,
+    std::vector<size_t>& list,
+    std::vector<fourd_t>& minrs,
+    bool print_dsr);
 
 }  // namespace four_d
 }  // namespace piol

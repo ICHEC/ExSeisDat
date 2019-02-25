@@ -16,11 +16,11 @@ namespace flow {
 
 // TODO: Generalise this for parameters and traces
 std::shared_ptr<TraceBlock> Cache::get_cache(
-  std::shared_ptr<Rule> rule, FileDeque& desc, bool, bool)
+    std::shared_ptr<Rule> rule, FileDeque& desc, bool, bool)
 {
     auto it = std::find_if(
-      m_cache.begin(), m_cache.end(),
-      [desc](const CacheElem& elem) -> bool { return elem.desc == desc; });
+        m_cache.begin(), m_cache.end(),
+        [desc](const CacheElem& elem) -> bool { return elem.desc == desc; });
     if (it == m_cache.end() || !it->block || !it->block->prm) {
         size_t lnt = 0LU;
         size_t nt  = 0LU;
@@ -38,11 +38,11 @@ std::shared_ptr<TraceBlock> Cache::get_cache(
         size_t c    = 0LU;
         for (auto& f : desc) {
             f->ifc->read_param_non_contiguous(
-              f->ilst.size(), f->ilst.data(), prm.get(), loff);
+                f->ilst.size(), f->ilst.data(), prm.get(), loff);
             for (size_t i = 0LU; i < f->ilst.size(); i++) {
                 prm->set_index(loff + i, Meta::gtn, off + loff + f->ilst[i]);
                 prm->set_index(
-                  loff + i, Meta::ltn, f->ilst[i] * desc.size() + c);
+                    loff + i, Meta::ltn, f->ilst[i] * desc.size() + c);
             }
             c++;
             loff += f->ilst.size();
@@ -70,13 +70,13 @@ std::shared_ptr<TraceBlock> Cache::get_cache(
 }
 
 std::vector<size_t> Cache::get_output_trace(
-  FileDeque& desc, size_t offset, size_t sz, Trace_metadata& prm)
+    FileDeque& desc, size_t offset, size_t sz, Trace_metadata& prm)
 {
     std::vector<size_t> final;
 
     auto it = std::find_if(
-      m_cache.begin(), m_cache.end(),
-      [&](const CacheElem& elem) -> bool { return elem.check_prm(desc); });
+        m_cache.begin(), m_cache.end(),
+        [&](const CacheElem& elem) -> bool { return elem.check_prm(desc); });
 
     if (it != m_cache.end()) {
 
@@ -93,17 +93,18 @@ std::vector<size_t> Cache::get_output_trace(
             if (nloc > offset) {
                 using Difference = decltype(desc[i]->olst)::difference_type;
 
-                const auto lsz =
-                  static_cast<Difference>(std::min(offset + sz, nloc) - offset);
+                const auto lsz = static_cast<Difference>(
+                    std::min(offset + sz, nloc) - offset);
                 const auto foff = static_cast<Difference>(offset - loc);
 
                 std::copy(
-                  std::next(
-                    desc[i]->olst.begin(), static_cast<Difference>(foff)),
-                  std::next(
-                    desc[i]->olst.begin(), static_cast<Difference>(foff + lsz)),
-                  std::next(
-                    final.begin(), static_cast<Difference>(loc - offset)));
+                    std::next(
+                        desc[i]->olst.begin(), static_cast<Difference>(foff)),
+                    std::next(
+                        desc[i]->olst.begin(),
+                        static_cast<Difference>(foff + lsz)),
+                    std::next(
+                        final.begin(), static_cast<Difference>(loc - offset)));
             }
 
             loc = nloc;

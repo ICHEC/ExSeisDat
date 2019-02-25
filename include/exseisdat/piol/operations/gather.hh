@@ -42,7 +42,7 @@ struct Gather_info {
 ///         crossline.
 ///
 exseis::utils::Distributed_vector<Gather_info> get_il_xl_gathers(
-  ExSeisPIOL* piol, ReadInterface* file);
+    ExSeisPIOL* piol, ReadInterface* file);
 
 }  // namespace piol
 }  // namespace exseis

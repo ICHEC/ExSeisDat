@@ -20,11 +20,11 @@ extern "C" {
 /// @brief C API for exseis::utils::signal_processing::taper
 /// @copydoc exseis::utils::signal_processing::taper
 void exseis_taper(
-  size_t signal_size,
-  exseis_Trace_value* signal,
-  exseis_Taper_function taper_function,
-  size_t taper_size_at_begin,
-  size_t taper_size_at_end);
+    size_t signal_size,
+    exseis_Trace_value* signal,
+    exseis_Taper_function taper_function,
+    size_t taper_size_at_begin,
+    size_t taper_size_at_end);
 
 /// @} C API
 

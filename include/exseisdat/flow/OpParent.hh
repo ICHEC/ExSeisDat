@@ -31,9 +31,9 @@ struct OpParent {
      *  @param[in] state Gather state object if applicable.
      */
     OpParent(
-      OpOpt& opt,
-      std::shared_ptr<exseis::piol::Rule> rule,
-      std::shared_ptr<GatherState> state) :
+        OpOpt& opt,
+        std::shared_ptr<exseis::piol::Rule> rule,
+        std::shared_ptr<GatherState> state) :
         opt(opt),
         rule(rule),
         state(state)

@@ -92,6 +92,13 @@ Clang Format:
         <<: *clang_debug_flags
         CC: clang
         CXX: clang++
+    image: ubuntu:19.04
+    before_script:
+        - apt-get update
+        - apt-get install -y git clang-format-8
+        - update-alternatives
+            --install /usr/bin/clang-format clang-format
+                      /usr/bin/clang-format-8 1
     script:
         - ./scripts/run_format.sh
             && git status

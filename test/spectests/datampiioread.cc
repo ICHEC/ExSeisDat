@@ -1,10 +1,10 @@
 #include "datampiiotest.hh"
 
 size_t modify_nt(
-  const size_t fs,
-  const size_t offset,
-  const size_t requested_nt,
-  const size_t ns)
+    const size_t fs,
+    const size_t offset,
+    const size_t requested_nt,
+    const size_t ns)
 {
     // We shouldn't have our ASSERT_EQ test beyond the actual number of traces
     // we've written to the file, because we don't know what those values
@@ -41,12 +41,12 @@ class MPI_Binary_file_Read : public Test {
     std::shared_ptr<exseis::piol::Binary_file> file = nullptr;
 
     void make_mpiio(
-      std::string filename,
-      const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt())
+        std::string filename,
+        const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt())
     {
         piol = exseis::piol::ExSeis::make();
         file = std::make_shared<MPI_Binary_file>(
-          piol, filename, FileMode::Read, opt);
+            piol, filename, FileMode::Read, opt);
     }
 };
 
@@ -56,8 +56,8 @@ TEST_F(MPI_Binary_file_Read, Death_FailedConstructor)
     make_mpiio(nonexistant_filename());
 
     EXPECT_EXIT(
-      piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
-      ".*Fatal Error in PIOL\\. Dumping Log\\..*");
+        piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
+        ".*Fatal Error in PIOL\\. Dumping Log\\..*");
 }
 
 ///////////////////////// MPI-IO getting the file size /////////////////////////
@@ -167,7 +167,10 @@ TEST_F(MPI_Binary_file_Read, BlockingOneByteReadLarge)
 /// This function implementing the ReadContiguous* tests
 ///
 std::vector<unsigned char> read_contiguous(
-  const std::shared_ptr<Binary_file>& file, size_t nt, size_t ns, size_t offset)
+    const std::shared_ptr<Binary_file>& file,
+    size_t nt,
+    size_t ns,
+    size_t offset)
 {
     const auto trace_packet_size = segy::segy_trace_size(ns);
     std::vector<unsigned char> trace_buffer(trace_packet_size * nt);
@@ -175,8 +178,8 @@ std::vector<unsigned char> read_contiguous(
     // Read a contiguous block of `nt` traces starting from the `offset`th block
     const auto trace_data_start = segy::segy_binary_file_header_size();
     file->read(
-      trace_data_start + offset * trace_packet_size, trace_packet_size * nt,
-      trace_buffer.data());
+        trace_data_start + offset * trace_packet_size, trace_packet_size * nt,
+        trace_buffer.data());
 
     return trace_buffer;
 }
@@ -184,11 +187,11 @@ std::vector<unsigned char> read_contiguous(
 /// Test the inline and crossline metadata held by trace_buffer matches the
 /// expected test values.
 void test_il_xl_metadata(
-  const std::shared_ptr<Binary_file>& file,
-  size_t nt,
-  size_t ns,
-  size_t offset,
-  const std::vector<unsigned char>& trace_buffer)
+    const std::shared_ptr<Binary_file>& file,
+    size_t nt,
+    size_t ns,
+    size_t offset,
+    const std::vector<unsigned char>& trace_buffer)
 {
     const auto trace_packet_size = segy::segy_trace_size(ns);
 
@@ -197,27 +200,27 @@ void test_il_xl_metadata(
 
         // The trace buffer starting at the `ith` read trace
         const unsigned char* trace_buffer_i =
-          &trace_buffer[trace_packet_size * i];
+            &trace_buffer[trace_packet_size * i];
 
         // The buffer position starting at the in-line and cross-line metadata
         // values.
         const unsigned char* il_bytes =
-          &trace_buffer_i[static_cast<size_t>(Tr::il) - 1];
+            &trace_buffer_i[static_cast<size_t>(Tr::il) - 1];
         const unsigned char* xl_bytes =
-          &trace_buffer_i[static_cast<size_t>(Tr::xl) - 1];
+            &trace_buffer_i[static_cast<size_t>(Tr::xl) - 1];
 
         ASSERT_EQ(
-          il_num(i + offset),
-          from_big_endian<int32_t>(
-            il_bytes[0], il_bytes[1], il_bytes[2], il_bytes[3]))
-          << "i: " << i << ", nt: " << nt << ", ns: " << ns
-          << ", offset: " << offset;
+            il_num(i + offset),
+            from_big_endian<int32_t>(
+                il_bytes[0], il_bytes[1], il_bytes[2], il_bytes[3]))
+            << "i: " << i << ", nt: " << nt << ", ns: " << ns
+            << ", offset: " << offset;
 
         ASSERT_EQ(
-          xl_num(i + offset),
-          from_big_endian<int32_t>(
-            xl_bytes[0], xl_bytes[1], xl_bytes[2], xl_bytes[3]))
-          << i;
+            xl_num(i + offset),
+            from_big_endian<int32_t>(
+                xl_bytes[0], xl_bytes[1], xl_bytes[2], xl_bytes[3]))
+            << i;
     }
 }
 
@@ -298,11 +301,11 @@ TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousSLL)
 /// Test the trace data held by the trace_buffer matches the expected test
 /// values.
 void test_trace_data(
-  const std::shared_ptr<Binary_file>& file,
-  size_t nt,
-  size_t ns,
-  size_t offset,
-  const std::vector<unsigned char>& trace_buffer)
+    const std::shared_ptr<Binary_file>& file,
+    size_t nt,
+    size_t ns,
+    size_t offset,
+    const std::vector<unsigned char>& trace_buffer)
 {
     const auto trace_packet_size = segy::segy_trace_size(ns);
 
@@ -310,7 +313,8 @@ void test_trace_data(
     for (size_t i = 0; i < nt; i++) {
 
         const unsigned char* md =
-          &trace_buffer[trace_packet_size * i + segy::segy_trace_header_size()];
+            &trace_buffer
+                [trace_packet_size * i + segy::segy_trace_header_size()];
 
         for (size_t k = 0; k < ns; k++) {
 

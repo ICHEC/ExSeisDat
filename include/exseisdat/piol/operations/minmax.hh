@@ -47,12 +47,12 @@ using MinMaxFunc = std::function<exseis::utils::Floating_point(const T&)>;
  */
 template<typename T>
 std::vector<CoordElem> get_coord_min_max(
-  ExSeisPIOL* piol,
-  size_t offset,
-  size_t sz,
-  const T* coord,
-  MinMaxFunc<T> elem1,
-  MinMaxFunc<T> elem2)
+    ExSeisPIOL* piol,
+    size_t offset,
+    size_t sz,
+    const T* coord,
+    MinMaxFunc<T> elem1,
+    MinMaxFunc<T> elem2)
 {
     auto min = [elem1, elem2](const T& a, const T& b) -> bool {
         if (elem1(a) < elem1(b)) {
@@ -82,8 +82,8 @@ std::vector<CoordElem> get_coord_min_max(
     assert(std::distance(coord, p.second) >= 0);
 
     std::vector<size_t> ltrace = {
-      offset + static_cast<size_t>(std::distance(coord, p.first)),
-      offset + static_cast<size_t>(std::distance(coord, p.second))};
+        offset + static_cast<size_t>(std::distance(coord, p.first)),
+        offset + static_cast<size_t>(std::distance(coord, p.second))};
 
     auto tminmax = piol->comm->gather(lminmax);
     auto ttrace  = piol->comm->gather(ltrace);
@@ -139,13 +139,13 @@ std::vector<CoordElem> get_coord_min_max(
  */
 template<typename T>
 void get_min_max(
-  ExSeisPIOL* piol,
-  size_t offset,
-  size_t sz,
-  const T* coord,
-  MinMaxFunc<T> xlam,
-  MinMaxFunc<T> ylam,
-  CoordElem* minmax)
+    ExSeisPIOL* piol,
+    size_t offset,
+    size_t sz,
+    const T* coord,
+    MinMaxFunc<T> xlam,
+    MinMaxFunc<T> ylam,
+    CoordElem* minmax)
 {
     auto x = get_coord_min_max<T>(piol, offset, sz, coord, xlam, ylam);
     auto y = get_coord_min_max<T>(piol, offset, sz, coord, ylam, xlam);
@@ -173,13 +173,13 @@ void get_min_max(
  *  and their respective trace numbers.
  */
 void get_min_max(
-  ExSeisPIOL* piol,
-  size_t offset,
-  size_t sz,
-  Meta m1,
-  Meta m2,
-  const Trace_metadata& prm,
-  CoordElem* minmax);
+    ExSeisPIOL* piol,
+    size_t offset,
+    size_t sz,
+    Meta m1,
+    Meta m2,
+    const Trace_metadata& prm,
+    CoordElem* minmax);
 
 }  // namespace piol
 }  // namespace exseis

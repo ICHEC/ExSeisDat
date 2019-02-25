@@ -1,27 +1,27 @@
 #include "googletest_variable_instances.hh"
 
 template testing::DefaultValue<exseis::piol::RuleEntry*>::ValueProducer*
-  testing::DefaultValue<exseis::piol::RuleEntry*>::producer_;
+    testing::DefaultValue<exseis::piol::RuleEntry*>::producer_;
 
 template testing::DefaultValue<size_t>::ValueProducer*
-  testing::DefaultValue<size_t>::producer_;
+    testing::DefaultValue<size_t>::producer_;
 
 template testing::DefaultValue<bool>::ValueProducer*
-  testing::DefaultValue<bool>::producer_;
+    testing::DefaultValue<bool>::producer_;
 
 template testing::DefaultValue<double>::ValueProducer*
-  testing::DefaultValue<double>::producer_;
+    testing::DefaultValue<double>::producer_;
 
 template testing::DefaultValue<exseis::utils::Integer>::ValueProducer*
-  testing::DefaultValue<exseis::utils::Integer>::producer_;
+    testing::DefaultValue<exseis::utils::Integer>::producer_;
 
 template testing::DefaultValue<int16_t>::ValueProducer*
-  testing::DefaultValue<int16_t>::producer_;
+    testing::DefaultValue<int16_t>::producer_;
 
 template const std::string* testing::DefaultValue<const std::string&>::address_;
 
 template testing::DefaultValue<std::string>::ValueProducer*
-  testing::DefaultValue<std::string>::producer_;
+    testing::DefaultValue<std::string>::producer_;
 
 template testing::DefaultValue<std::vector<std::string>>::ValueProducer*
-  testing::DefaultValue<std::vector<std::string>>::producer_;
+    testing::DefaultValue<std::vector<std::string>>::producer_;

@@ -28,14 +28,17 @@ void piol_set_delete(PIOL_Set* set)
 }
 
 void piol_set_get_min_max(
-  PIOL_Set* set, exseis_Meta m1, exseis_Meta m2, struct PIOL_CoordElem* minmax)
+    PIOL_Set* set,
+    exseis_Meta m1,
+    exseis_Meta m2,
+    struct PIOL_CoordElem* minmax)
 {
     assert(not_null(set));
     assert(not_null(minmax));
 
     set->get_min_max(
-      static_cast<exseis::piol::Meta>(m1), static_cast<exseis::piol::Meta>(m2),
-      minmax);
+        static_cast<exseis::piol::Meta>(m1),
+        static_cast<exseis::piol::Meta>(m2), minmax);
 }
 
 void piol_set_sort(PIOL_Set* set, exseis_SortType type)
@@ -46,25 +49,25 @@ void piol_set_sort(PIOL_Set* set, exseis_SortType type)
 }
 
 void piol_set_sort_fn(
-  PIOL_Set* set,
-  bool (*const func)(const piol_file_trace_metadata* param, size_t i, size_t j))
+    PIOL_Set* set,
+    bool (*const func)(
+        const piol_file_trace_metadata* param, size_t i, size_t j))
 {
     assert(not_null(set));
     assert(func != nullptr);
 
-    const auto wrapped_func =
-      [=](const exseis::piol::Trace_metadata& param, size_t i, size_t j) {
-          return func(&param, i, j);
-      };
+    const auto wrapped_func = [=](const exseis::piol::Trace_metadata& param,
+                                  size_t i,
+                                  size_t j) { return func(&param, i, j); };
 
     set->sort(wrapped_func);
 }
 
 void piol_set_taper(
-  PIOL_Set* set,
-  exseis_Taper_function taper_function,
-  size_t ntpstr,
-  size_t ntpend)
+    PIOL_Set* set,
+    exseis_Taper_function taper_function,
+    size_t ntpstr,
+    size_t ntpend)
 {
     assert(not_null(set));
     assert(taper_function != nullptr);
@@ -73,10 +76,10 @@ void piol_set_taper(
 }
 
 void piol_set_agc(
-  PIOL_Set* set,
-  exseis_Gain_function type,
-  size_t window,
-  exseis_Trace_value target_amplitude)
+    PIOL_Set* set,
+    exseis_Gain_function type,
+    size_t window,
+    exseis_Trace_value target_amplitude)
 {
     assert(not_null(set));
 

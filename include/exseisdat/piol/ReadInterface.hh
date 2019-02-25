@@ -71,7 +71,10 @@ class ReadInterface {
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void read_param(
-      size_t offset, size_t sz, Trace_metadata* prm, size_t skip = 0) const = 0;
+        size_t offset,
+        size_t sz,
+        Trace_metadata* prm,
+        size_t skip = 0) const = 0;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array.
@@ -81,10 +84,10 @@ class ReadInterface {
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void read_param_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      Trace_metadata* prm,
-      size_t skip = 0) const = 0;
+        size_t sz,
+        const size_t* offset,
+        Trace_metadata* prm,
+        size_t skip = 0) const = 0;
 
     /*! @brief Read the traces from offset to offset+sz
      *  @param[in] offset The starting trace number.
@@ -95,11 +98,11 @@ class ReadInterface {
      *  @param[in] skip When reading, skip the first "skip" entries of prm
      */
     virtual void read_trace(
-      size_t offset,
-      size_t sz,
-      exseis::utils::Trace_value* trace,
-      Trace_metadata* prm = nullptr,
-      size_t skip         = 0) const = 0;
+        size_t offset,
+        size_t sz,
+        exseis::utils::Trace_value* trace,
+        Trace_metadata* prm = nullptr,
+        size_t skip         = 0) const = 0;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array. Assumes Monotonic.
@@ -113,11 +116,11 @@ class ReadInterface {
      *  @details When prm==nullptr only the trace data is read.
      */
     virtual void read_trace_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      exseis::utils::Trace_value* trace,
-      Trace_metadata* prm = nullptr,
-      size_t skip         = 0) const = 0;
+        size_t sz,
+        const size_t* offset,
+        exseis::utils::Trace_value* trace,
+        Trace_metadata* prm = nullptr,
+        size_t skip         = 0) const = 0;
 
     /*! @brief Read the traces specified by the offsets in the passed offset
      *         array. Does not assume monotonic
@@ -132,11 +135,11 @@ class ReadInterface {
      *  @details When prm==nullptr only the trace data is read.
      */
     virtual void read_trace_non_monotonic(
-      size_t sz,
-      const size_t* offset,
-      exseis::utils::Trace_value* trace,
-      Trace_metadata* prm = nullptr,
-      size_t skip         = 0) const = 0;
+        size_t sz,
+        const size_t* offset,
+        exseis::utils::Trace_value* trace,
+        Trace_metadata* prm = nullptr,
+        size_t skip         = 0) const = 0;
 };
 
 }  // namespace piol

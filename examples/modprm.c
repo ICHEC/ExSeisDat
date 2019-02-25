@@ -34,19 +34,19 @@ size_t max(size_t a, size_t b)
  *  @param[out] ofh The output file handle
  */
 void readwrite_param(
-  piol_exseis* piol,
-  size_t off,
-  size_t tcnt,
-  piol_file_read_interface* ifh,
-  piol_file_write_interface* ofh)
+    piol_exseis* piol,
+    size_t off,
+    size_t tcnt,
+    piol_file_read_interface* ifh,
+    piol_file_write_interface* ofh)
 {
     piol_file_trace_metadata* prm = piol_file_trace_metadata_new(NULL, tcnt);
     piol_file_read_interface_read_param(ifh, off, tcnt, prm);
     for (size_t i = 0; i < tcnt; i++) {
         exseis_Floating_point xval =
-          piol_file_get_prm_double(i, exseis_meta_x_src, prm);
+            piol_file_get_prm_double(i, exseis_meta_x_src, prm);
         exseis_Floating_point yval =
-          piol_file_get_prm_double(i, exseis_meta_y_src, prm);
+            piol_file_get_prm_double(i, exseis_meta_y_src, prm);
         piol_file_set_prm_double(i, exseis_meta_x_src, yval, prm);
         piol_file_set_prm_double(i, exseis_meta_y_src, xval, prm);
     }
@@ -62,18 +62,18 @@ void readwrite_param(
  *  @param[out] ofh The output file handle
  */
 void write_header(
-  piol_exseis* piol,
-  piol_file_read_interface* ifh,
-  piol_file_write_interface* ofh)
+    piol_exseis* piol,
+    piol_file_read_interface* ifh,
+    piol_file_write_interface* ofh)
 {
     piol_file_write_interface_write_text(
-      ofh, piol_file_read_interface_read_text(ifh));
+        ofh, piol_file_read_interface_read_text(ifh));
     piol_file_write_interface_write_ns(
-      ofh, piol_file_read_interface_read_ns(ifh));
+        ofh, piol_file_read_interface_read_ns(ifh));
     piol_file_write_interface_write_nt(
-      ofh, piol_file_read_interface_read_nt(ifh));
+        ofh, piol_file_read_interface_read_nt(ifh));
     piol_file_write_interface_write_sample_interval(
-      ofh, piol_file_read_interface_read_sample_interval(ifh));
+        ofh, piol_file_read_interface_read_sample_interval(ifh));
     piol_exseis_assert_ok(piol, "");
 }
 
@@ -86,18 +86,18 @@ void write_header(
  *  @param[out] ofh The output file handle
  */
 void write_payload(
-  piol_exseis* piol,
-  size_t goff,
-  size_t lnt,
-  size_t tcnt,
-  piol_file_read_interface* ifh,
-  piol_file_write_interface* ofh)
+    piol_exseis* piol,
+    size_t goff,
+    size_t lnt,
+    size_t tcnt,
+    piol_file_read_interface* ifh,
+    piol_file_write_interface* ofh)
 {
     size_t biggest = lnt;
     MPI_Allreduce(
-      &lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
+        &lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
     size_t extra =
-      biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
+        biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
     for (size_t i = 0U; i < lnt; i += tcnt) {
         size_t rblock = (i + tcnt < lnt ? tcnt : lnt - i);
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 
             default:
                 fprintf(
-                  stderr, "One of the command line arguments is invalid\n");
+                    stderr, "One of the command line arguments is invalid\n");
 
                 break;
         }
@@ -167,7 +167,7 @@ int main(int argc, char** argv)
     write_header(piol, ifh, ofh);
 
     struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
-      nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
+        nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
     size_t tcnt = memmax
                   / max(
                       piol_segy_segy_trace_data_size(ns),

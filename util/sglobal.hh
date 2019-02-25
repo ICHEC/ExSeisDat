@@ -17,7 +17,7 @@
  *          the number of iterations.
  */
 exseis::utils::Contiguous_decomposition block_decomp(
-  size_t sz, size_t bsz, size_t num_rank, size_t rank, size_t off = 0);
+    size_t sz, size_t bsz, size_t num_rank, size_t rank, size_t off = 0);
 
 /*! Unequal decomposition, weights towards the lower ranks. Useful for testing
  *  purposes
@@ -29,6 +29,6 @@ exseis::utils::Contiguous_decomposition block_decomp(
  *          the number of iterations.
  */
 std::vector<size_t> lobdecompose(
-  exseis::piol::ExSeisPIOL* piol, size_t sz, size_t num_rank, size_t rank);
+    exseis::piol::ExSeisPIOL* piol, size_t sz, size_t num_rank, size_t rank);
 
 #endif  // EXSEISDAT_UTIL_SGLOBAL_HH

@@ -39,8 +39,8 @@ int main(int argc, char** argv)
     }
 
     std::regex reg(
-      ".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize
-                    | std::regex::extended);
+        ".*se?gy$", std::regex_constants::icase | std::regex_constants::optimize
+                        | std::regex::extended);
 
     std::cout << "File Count: " << globs.gl_pathc << "\n";
     for (size_t i = 0; i < globs.gl_pathc; i++) {

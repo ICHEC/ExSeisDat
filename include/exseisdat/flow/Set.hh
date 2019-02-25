@@ -54,7 +54,7 @@ class Set {
     /// A map of (ns, sample_interval) key to a deque of file descriptor
     /// pointers
     std::map<std::pair<size_t, exseis::utils::Floating_point>, FileDeque>
-      m_fmap;
+        m_fmap;
 
     /// A map of (ns, sample_interval) key to the current offset
     std::map<std::pair<size_t, exseis::utils::Floating_point>, size_t> m_offmap;
@@ -91,7 +91,7 @@ class Set {
      *  @return            Return the final iterator reached by the last deque.
      */
     FuncLst::iterator start_subset(
-      FuncLst::iterator f_curr, FuncLst::iterator f_end);
+        FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! Start unwinding the function list for gather operations on the given
      *  iterators.
@@ -112,7 +112,7 @@ class Set {
      *                     always created.
      */
     std::vector<std::string> start_single(
-      FuncLst::iterator f_curr, FuncLst::iterator f_end);
+        FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! The entry point for unwinding the function list for all use-cases.
      *  @param[in] f_curr  The iterator for the current function to process.
@@ -121,7 +121,7 @@ class Set {
      *  @return            Return a list of all file names.
      */
     std::vector<std::string> calc_func(
-      FuncLst::iterator f_curr, FuncLst::iterator f_end);
+        FuncLst::iterator f_curr, FuncLst::iterator f_end);
 
     /*! The entry point for unwinding the function list for single-traces and
      *  gathers only.
@@ -138,10 +138,10 @@ class Set {
      *  Transitions from gather to single trace are allowed but not the inverse.
      */
     std::unique_ptr<TraceBlock> calc_func(
-      FuncLst::iterator f_curr,
-      FuncLst::iterator f_end,
-      FuncOpt type,
-      std::unique_ptr<TraceBlock> b_in);
+        FuncLst::iterator f_curr,
+        FuncLst::iterator f_end,
+        FuncOpt type,
+        std::unique_ptr<TraceBlock> b_in);
 
     /*! The entry point for unwinding the function list for subsets.
      *  @param[in] f_curr  The iterator for the current function to process.
@@ -151,7 +151,7 @@ class Set {
      *  @return            Return the final iterator reached.
      */
     FuncLst::iterator calc_func_s(
-      FuncLst::iterator f_curr, FuncLst::iterator f_end, FileDeque& f_que);
+        FuncLst::iterator f_curr, FuncLst::iterator f_end, FileDeque& f_que);
 
   public:
     /*! Constructor
@@ -161,13 +161,12 @@ class Set {
      *  @param[in] rule     Contains a pointer to the rules to use for trace
      *                      parameters.
      */
-    Set(
-      std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
-      std::string pattern,
-      std::string outfix,
-      std::shared_ptr<exseis::piol::Rule> rule =
-        std::make_shared<exseis::piol::Rule>(
-          std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy}));
+    Set(std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
+        std::string pattern,
+        std::string outfix,
+        std::shared_ptr<exseis::piol::Rule> rule =
+            std::make_shared<exseis::piol::Rule>(
+                std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy}));
 
     /*! Constructor
      *  @param[in] piol     The PIOL object.
@@ -175,12 +174,11 @@ class Set {
      *  @param[in] rule     Contains a pointer to the rules to use for trace
      *                      parameters.
      */
-    Set(
-      std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
-      std::string pattern,
-      std::shared_ptr<exseis::piol::Rule> rule =
-        std::make_shared<exseis::piol::Rule>(
-          std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy})) :
+    Set(std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
+        std::string pattern,
+        std::shared_ptr<exseis::piol::Rule> rule =
+            std::make_shared<exseis::piol::Rule>(
+                std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy})) :
         Set(piol, pattern, "", rule)
     {
     }
@@ -190,11 +188,10 @@ class Set {
      *  @param[in] rule  Contains a pointer to the rules to use for trace
      *                   parameters.
      */
-    Set(
-      std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
-      std::shared_ptr<exseis::piol::Rule> rule =
-        std::make_shared<exseis::piol::Rule>(
-          std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy}));
+    Set(std::shared_ptr<exseis::piol::ExSeisPIOL> piol,
+        std::shared_ptr<exseis::piol::Rule> rule =
+            std::make_shared<exseis::piol::Rule>(
+                std::initializer_list<exseis::piol::Meta>{piol::Meta::Copy}));
 
     /*! Destructor
      */
@@ -210,7 +207,8 @@ class Set {
      *  @param[in] sort_func  The comparison function.
      */
     void sort(
-      std::shared_ptr<exseis::piol::Rule> r, exseis::piol::CompareP sort_func);
+        std::shared_ptr<exseis::piol::Rule> r,
+        exseis::piol::CompareP sort_func);
 
     /*! Output using the given output prefix
      *  @param[in] oname  The output prefix
@@ -226,9 +224,9 @@ class Set {
      *  @param[out] minmax  The array of structures to hold the ouput
      */
     void get_min_max(
-      exseis::piol::MinMaxFunc<exseis::piol::Trace_metadata> xlam,
-      exseis::piol::MinMaxFunc<exseis::piol::Trace_metadata> ylam,
-      exseis::piol::CoordElem* minmax);
+        exseis::piol::MinMaxFunc<exseis::piol::Trace_metadata> xlam,
+        exseis::piol::MinMaxFunc<exseis::piol::Trace_metadata> ylam,
+        exseis::piol::CoordElem* minmax);
 
     /*! Function to add to modify function that applies a 2 tailed taper to a
      *  set of traces
@@ -237,9 +235,9 @@ class Set {
      *  @param[in] taper_size_at_end    Length of taper at end of trace
      */
     void taper(
-      exseis::utils::Taper_function taper_function,
-      size_t taper_size_at_begin,
-      size_t taper_size_at_end = 0);
+        exseis::utils::Taper_function taper_function,
+        size_t taper_size_at_begin,
+        size_t taper_size_at_end = 0);
 
     /*! Function to modify function that applies both a mute region at the
      *  start and end of a series of traces and a 2 tailed taper
@@ -251,11 +249,11 @@ class Set {
      *  @param[in] mute_size_at_end     Length of the mute at end of trace
      */
     void mute(
-      exseis::utils::Taper_function taper_function,
-      size_t mute_size_at_begin,
-      size_t taper_size_at_begin,
-      size_t taper_size_at_end,
-      size_t mute_size_at_end);
+        exseis::utils::Taper_function taper_function,
+        size_t mute_size_at_begin,
+        size_t taper_size_at_begin,
+        size_t taper_size_at_end,
+        size_t mute_size_at_end);
 
     /*! Function to add to modify function that applies automatic gain control
      *  to a set of traces
@@ -264,9 +262,9 @@ class Set {
      *  @param[in] target_amplitude  Value to which traces are normalized
      */
     void agc(
-      exseis::utils::Gain_function agc_func,
-      size_t window,
-      exseis::utils::Trace_value target_amplitude);
+        exseis::utils::Gain_function agc_func,
+        size_t window,
+        exseis::utils::Trace_value target_amplitude);
 
     /*! Set the text-header of the output
      *  @param[in] outmsg  The output message
@@ -301,11 +299,11 @@ class Set {
      *                                       (default = 1 degree).
      */
     void to_angle(
-      std::string vm_name,
-      size_t v_bin,
-      size_t output_traces_per_gather,
-      exseis::utils::Floating_point output_sample_interval = std::atan(1) * 4.0
-                                                             / 180);
+        std::string vm_name,
+        size_t v_bin,
+        size_t output_traces_per_gather,
+        exseis::utils::Floating_point output_sample_interval = std::atan(1)
+                                                               * 4.0 / 180);
 
     /******************************** Non-Core ********************************/
     /*! Sort the set by the specified sort type.
@@ -323,9 +321,9 @@ class Set {
      *                      item.y and their respective trace numbers.
      */
     void get_min_max(
-      exseis::piol::Meta m1,
-      exseis::piol::Meta m2,
-      exseis::piol::CoordElem* minmax);
+        exseis::piol::Meta m1,
+        exseis::piol::Meta m2,
+        exseis::piol::CoordElem* minmax);
 
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
@@ -338,13 +336,13 @@ class Set {
      * @param[in] win_cntr  Center of trace filtering window
      */
     void temporal_filter(
-      exseis::piol::FltrType type,
-      exseis::piol::FltrDmn domain,
-      exseis::piol::PadType pad,
-      exseis::utils::Trace_value fs,
-      std::vector<exseis::utils::Trace_value> corners,
-      size_t nw       = 0U,
-      size_t win_cntr = 0U);
+        exseis::piol::FltrType type,
+        exseis::piol::FltrDmn domain,
+        exseis::piol::PadType pad,
+        exseis::utils::Trace_value fs,
+        std::vector<exseis::utils::Trace_value> corners,
+        size_t nw       = 0U,
+        size_t win_cntr = 0U);
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
      * @param[in] type      Type of filter (i.e. lowpass, highpass, bandpass)
@@ -357,14 +355,14 @@ class Set {
      * @param[in] win_cntr  Center of trace filtering window
      */
     void temporal_filter(
-      exseis::piol::FltrType type,
-      exseis::piol::FltrDmn domain,
-      exseis::piol::PadType pad,
-      exseis::utils::Trace_value fs,
-      size_t n,
-      std::vector<exseis::utils::Trace_value> corners,
-      size_t nw       = 0U,
-      size_t win_cntr = 0U);
+        exseis::piol::FltrType type,
+        exseis::piol::FltrDmn domain,
+        exseis::piol::PadType pad,
+        exseis::utils::Trace_value fs,
+        size_t n,
+        std::vector<exseis::utils::Trace_value> corners,
+        size_t nw       = 0U,
+        size_t win_cntr = 0U);
 
     /*! Filter traces or part of traces using a IIR Butterworth filter
      * @param[in] type      Type of filter (i.e. lowpass, highpass, bandpass)
@@ -377,18 +375,18 @@ class Set {
      * @param[in] win_cntr  Center of trace filtering window
      */
     void temporal_filter(
-      exseis::piol::FltrType type,
-      exseis::piol::FltrDmn domain,
-      exseis::piol::PadType pad,
-      exseis::utils::Trace_value fs,
-      size_t n,
-      exseis::utils::Trace_value corners,
-      size_t nw       = 0U,
-      size_t win_cntr = 0U)
+        exseis::piol::FltrType type,
+        exseis::piol::FltrDmn domain,
+        exseis::piol::PadType pad,
+        exseis::utils::Trace_value fs,
+        size_t n,
+        exseis::utils::Trace_value corners,
+        size_t nw       = 0U,
+        size_t win_cntr = 0U)
     {
         temporal_filter(
-          type, domain, pad, fs, n,
-          std::vector<exseis::utils::Trace_value>{corners, 0}, nw, win_cntr);
+            type, domain, pad, fs, n,
+            std::vector<exseis::utils::Trace_value>{corners, 0}, nw, win_cntr);
     }
 };
 

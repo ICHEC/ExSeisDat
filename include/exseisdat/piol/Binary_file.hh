@@ -74,7 +74,7 @@ class Binary_file {
     ///                    (pointer to array of size \c size)
     ///
     virtual void write(
-      size_t offset, size_t size, const void* buffer) const = 0;
+        size_t offset, size_t size, const void* buffer) const = 0;
 
 
     /// @brief Read a file in regularly spaced, non-contiguous blocks.
@@ -91,11 +91,11 @@ class Binary_file {
     ///                                  `block_size * number_of_blocks`)
     ///
     virtual void read_noncontiguous(
-      size_t offset,
-      size_t block_size,
-      size_t stride_size,
-      size_t number_of_blocks,
-      void* buffer) const = 0;
+        size_t offset,
+        size_t block_size,
+        size_t stride_size,
+        size_t number_of_blocks,
+        void* buffer) const = 0;
 
 
     /// @brief Write to a file in regularly spaced, non-contiguous blocks.
@@ -110,11 +110,11 @@ class Binary_file {
     ///                                 `block_size*number_of_blocks`)
     ///
     virtual void write_noncontiguous(
-      size_t offset,
-      size_t block_size,
-      size_t stride_size,
-      size_t number_of_blocks,
-      const void* buffer) const = 0;
+        size_t offset,
+        size_t block_size,
+        size_t stride_size,
+        size_t number_of_blocks,
+        const void* buffer) const = 0;
 
 
     /// @brief Read a file in irregularly spaced, non-contiguous chunks.
@@ -128,10 +128,10 @@ class Binary_file {
     ///                                  `block_size*number_of_blocks`)
     ///
     virtual void read_noncontiguous_irregular(
-      size_t block_size,
-      size_t number_of_blocks,
-      const size_t* offsets,
-      void* buffer) const = 0;
+        size_t block_size,
+        size_t number_of_blocks,
+        const size_t* offsets,
+        void* buffer) const = 0;
 
 
     /// @brief Write to a file in irregularly spaced, non-contiguous chunks.
@@ -145,10 +145,10 @@ class Binary_file {
     ///                                  `block_size*number_of_blocks`)
     ///
     virtual void write_noncontiguous_irregular(
-      size_t block_size,
-      size_t number_of_blocks,
-      const size_t* offsets,
-      const void* buffer) const = 0;
+        size_t block_size,
+        size_t number_of_blocks,
+        const size_t* offsets,
+        const void* buffer) const = 0;
 };
 
 }  // namespace piol

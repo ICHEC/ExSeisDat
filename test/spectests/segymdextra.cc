@@ -25,10 +25,10 @@ namespace piol {
  *  to ensure other restrictions are in place (i.e 1, 10, 1000 etc).
  */
 exseis::utils::Floating_point get_md(
-  const TrScal scal, const unsigned char* src)
+    const TrScal scal, const unsigned char* src)
 {
     auto scale = from_big_endian<int16_t>(
-      src[size_t(scal) - 1U + 0], src[size_t(scal) - 1U + 1]);
+        src[size_t(scal) - 1U + 0], src[size_t(scal) - 1U + 1]);
 
     return segy::parse_scalar(scale);
 }
@@ -40,9 +40,9 @@ exseis::utils::Floating_point get_md(
  *  @return Return the coordinate
  */
 exseis::utils::Floating_point get_md(
-  const TrCrd item,
-  const exseis::utils::Floating_point scale,
-  const unsigned char* src)
+    const TrCrd item,
+    const exseis::utils::Floating_point scale,
+    const unsigned char* src)
 {
     return scale
            * exseis::utils::Floating_point(from_big_endian<int32_t>(
@@ -58,8 +58,8 @@ exseis::utils::Floating_point get_md(
 int32_t get_md(const TrGrd item, const unsigned char* src)
 {
     return from_big_endian<int32_t>(
-      src[size_t(item) - 1U + 0], src[size_t(item) - 1U + 1],
-      src[size_t(item) - 1U + 2], src[size_t(item) - 1U + 3]);
+        src[size_t(item) - 1U + 0], src[size_t(item) - 1U + 1],
+        src[size_t(item) - 1U + 2], src[size_t(item) - 1U + 3]);
 }
 
 /*! @brief Set a trace scale in the trace header
@@ -68,13 +68,13 @@ int32_t get_md(const TrGrd item, const unsigned char* src)
  *  @param[in,out] buf The trace header as an array of unsigned char.
  */
 void set_scale(
-  const TrScal item, const int16_t scale, unsigned char* buf, size_t start)
+    const TrScal item, const int16_t scale, unsigned char* buf, size_t start)
 {
     const auto be_scale = to_big_endian(scale);
 
     std::copy(
-      std::begin(be_scale), std::end(be_scale),
-      &buf[size_t(item) - start - 1U]);
+        std::begin(be_scale), std::end(be_scale),
+        &buf[size_t(item) - start - 1U]);
 }
 
 /*! @brief Set a coordinate point in the trace header
@@ -84,27 +84,27 @@ void set_scale(
  *  @param[in,out] buf The trace header as an array of unsigned char.
  */
 void set_coord(
-  const Coord item,
-  const coord_t coord,
-  const int16_t scale,
-  unsigned char* buf)
+    const Coord item,
+    const coord_t coord,
+    const int16_t scale,
+    unsigned char* buf)
 {
     auto pair                            = get_pair(item);
     exseis::utils::Floating_point gscale = segy::parse_scalar(scale);
 
     const auto be_scaled_x =
-      to_big_endian(int32_t(std::lround(coord.x / gscale)));
+        to_big_endian(int32_t(std::lround(coord.x / gscale)));
 
     const auto be_scaled_y =
-      to_big_endian(int32_t(std::lround(coord.y / gscale)));
+        to_big_endian(int32_t(std::lround(coord.y / gscale)));
 
     std::copy(
-      std::begin(be_scaled_x), std::end(be_scaled_x),
-      &buf[size_t(pair.first) - 1U]);
+        std::begin(be_scaled_x), std::end(be_scaled_x),
+        &buf[size_t(pair.first) - 1U]);
 
     std::copy(
-      std::begin(be_scaled_y), std::end(be_scaled_y),
-      &buf[size_t(pair.second) - 1U]);
+        std::begin(be_scaled_y), std::end(be_scaled_y),
+        &buf[size_t(pair.second) - 1U]);
 }
 
 // TODO: unit test
@@ -116,9 +116,9 @@ void set_coord(
  *  @return The coordinate point associated with the coordinate item
  */
 coord_t get_coord(
-  const Coord item,
-  const exseis::utils::Floating_point scale,
-  const unsigned char* buf)
+    const Coord item,
+    const exseis::utils::Floating_point scale,
+    const unsigned char* buf)
 {
     auto p = get_pair(item);
     return coord_t(get_md(p.first, scale, buf), get_md(p.second, scale, buf));
@@ -149,9 +149,9 @@ void set_grid(const Grid item, const grid_t grid, unsigned char* buf)
     const auto be_xl = to_big_endian(int32_t(grid.xl));
 
     std::copy(
-      std::begin(be_il), std::end(be_il), &buf[size_t(pair.first) - 1U]);
+        std::begin(be_il), std::end(be_il), &buf[size_t(pair.first) - 1U]);
     std::copy(
-      std::begin(be_xl), std::end(be_xl), &buf[size_t(pair.second) - 1U]);
+        std::begin(be_xl), std::end(be_xl), &buf[size_t(pair.second) - 1U]);
 }
 
 /*! Compare two scales and return the appropriate one which maximises precision

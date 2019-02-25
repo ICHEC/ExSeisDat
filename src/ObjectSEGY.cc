@@ -15,9 +15,9 @@ namespace piol {
 
 //////////////////////      Constructor & Destructor      //////////////////////
 ObjectSEGY::ObjectSEGY(
-  std::shared_ptr<ExSeisPIOL> piol,
-  std::string name,
-  std::shared_ptr<Binary_file> data) :
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string name,
+    std::shared_ptr<Binary_file> data) :
     m_piol(piol),
     m_name(name),
     m_data(data)
@@ -65,72 +65,77 @@ void ObjectSEGY::should_write_file_header(const unsigned char* ho) const
 }
 
 void ObjectSEGY::read_trace(
-  const size_t offset, const size_t ns, const size_t sz, unsigned char* d) const
+    const size_t offset,
+    const size_t ns,
+    const size_t sz,
+    unsigned char* d) const
 {
     m_data->read(
-      segy::segy_trace_location(offset, ns), sz * segy::segy_trace_size(ns), d);
+        segy::segy_trace_location(offset, ns), sz * segy::segy_trace_size(ns),
+        d);
 }
 
 void ObjectSEGY::write_trace(
-  const size_t offset,
-  const size_t ns,
-  const size_t sz,
-  const unsigned char* d) const
+    const size_t offset,
+    const size_t ns,
+    const size_t sz,
+    const unsigned char* d) const
 {
     m_data->write(
-      segy::segy_trace_location(offset, ns), sz * segy::segy_trace_size(ns), d);
+        segy::segy_trace_location(offset, ns), sz * segy::segy_trace_size(ns),
+        d);
 }
 
 void ObjectSEGY::read_trace_metadata(
-  const size_t offset,
-  const size_t ns,
-  const size_t sz,
-  unsigned char* md) const
+    const size_t offset,
+    const size_t ns,
+    const size_t sz,
+    unsigned char* md) const
 {
     m_data->read_noncontiguous(
-      segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
-      segy::segy_trace_size(ns), sz, md);
+        segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
+        segy::segy_trace_size(ns), sz, md);
 }
 
 void ObjectSEGY::write_trace_metadata(
-  const size_t offset,
-  const size_t ns,
-  const size_t sz,
-  const unsigned char* md) const
+    const size_t offset,
+    const size_t ns,
+    const size_t sz,
+    const unsigned char* md) const
 {
     m_data->write_noncontiguous(
-      segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
-      segy::segy_trace_size(ns), sz, md);
+        segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
+        segy::segy_trace_size(ns), sz, md);
 }
 
 void ObjectSEGY::read_trace_data(
-  const size_t offset,
-  const size_t ns,
-  const size_t sz,
-  unsigned char* df) const
+    const size_t offset,
+    const size_t ns,
+    const size_t sz,
+    unsigned char* df) const
 {
     m_data->read_noncontiguous(
-      segy::segy_trace_data_location(offset, ns),
-      segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
+        segy::segy_trace_data_location(offset, ns),
+        segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
 }
 
 void ObjectSEGY::write_trace_data(
-  const size_t offset,
-  const size_t ns,
-  const size_t sz,
-  const unsigned char* df) const
+    const size_t offset,
+    const size_t ns,
+    const size_t sz,
+    const unsigned char* df) const
 {
     m_data->write_noncontiguous(
-      segy::segy_trace_data_location(offset, ns),
-      segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
+        segy::segy_trace_data_location(offset, ns),
+        segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
 }
 
 // TODO: Add optional validation in this layer?
 void ObjectSEGY::read_trace(
-  const size_t* offset,
-  const size_t ns,
-  const size_t sz,
-  unsigned char* d) const
+    const size_t* offset,
+    const size_t ns,
+    const size_t sz,
+    unsigned char* d) const
 {
     std::vector<size_t> dooff(sz);
 
@@ -139,14 +144,14 @@ void ObjectSEGY::read_trace(
     }
 
     m_data->read_noncontiguous_irregular(
-      segy::segy_trace_size(ns), sz, dooff.data(), d);
+        segy::segy_trace_size(ns), sz, dooff.data(), d);
 }
 
 void ObjectSEGY::write_trace(
-  const size_t* offset,
-  const size_t ns,
-  const size_t number_of_traces,
-  const unsigned char* buffer) const
+    const size_t* offset,
+    const size_t ns,
+    const size_t number_of_traces,
+    const unsigned char* buffer) const
 {
     std::vector<size_t> dooff(number_of_traces);
 
@@ -155,14 +160,14 @@ void ObjectSEGY::write_trace(
     }
 
     m_data->write_noncontiguous_irregular(
-      segy::segy_trace_size(ns), number_of_traces, dooff.data(), buffer);
+        segy::segy_trace_size(ns), number_of_traces, dooff.data(), buffer);
 }
 
 void ObjectSEGY::read_trace_metadata(
-  const size_t* offset,
-  const size_t ns,
-  const size_t sz,
-  unsigned char* md) const
+    const size_t* offset,
+    const size_t ns,
+    const size_t sz,
+    unsigned char* md) const
 {
     std::vector<size_t> dooff(sz);
 
@@ -171,14 +176,14 @@ void ObjectSEGY::read_trace_metadata(
     }
 
     m_data->read_noncontiguous_irregular(
-      segy::segy_trace_header_size(), sz, dooff.data(), md);
+        segy::segy_trace_header_size(), sz, dooff.data(), md);
 }
 
 void ObjectSEGY::write_trace_metadata(
-  const size_t* offset,
-  const size_t ns,
-  const size_t sz,
-  const unsigned char* md) const
+    const size_t* offset,
+    const size_t ns,
+    const size_t sz,
+    const unsigned char* md) const
 {
     std::vector<size_t> dooff(sz);
 
@@ -187,14 +192,14 @@ void ObjectSEGY::write_trace_metadata(
     }
 
     m_data->write_noncontiguous_irregular(
-      segy::segy_trace_header_size(), sz, dooff.data(), md);
+        segy::segy_trace_header_size(), sz, dooff.data(), md);
 }
 
 void ObjectSEGY::read_trace_data(
-  const size_t* offset,
-  const size_t ns,
-  const size_t sz,
-  unsigned char* df) const
+    const size_t* offset,
+    const size_t ns,
+    const size_t sz,
+    unsigned char* df) const
 {
     if (ns == 0) {
         return;
@@ -207,14 +212,14 @@ void ObjectSEGY::read_trace_data(
     }
 
     m_data->read_noncontiguous_irregular(
-      segy::segy_trace_data_size(ns), sz, dooff.data(), df);
+        segy::segy_trace_data_size(ns), sz, dooff.data(), df);
 }
 
 void ObjectSEGY::write_trace_data(
-  const size_t* offset,
-  const size_t ns,
-  const size_t sz,
-  const unsigned char* df) const
+    const size_t* offset,
+    const size_t ns,
+    const size_t sz,
+    const unsigned char* df) const
 {
     if (ns == 0) {
         return;
@@ -227,7 +232,7 @@ void ObjectSEGY::write_trace_data(
     }
 
     m_data->write_noncontiguous_irregular(
-      segy::segy_trace_data_size(ns), sz, dooff.data(), df);
+        segy::segy_trace_data_size(ns), sz, dooff.data(), df);
 }
 
 }  // namespace piol

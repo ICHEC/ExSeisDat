@@ -30,13 +30,13 @@ size_t max(size_t a, size_t b)
 }
 
 void read_write_full_trace(
-  piol_exseis* piol,
-  piol_file_read_interface* ifh,
-  piol_file_write_interface* ofh,
-  size_t off,
-  size_t tcnt,
-  ModTrc ftrc,
-  ModPrm fprm)
+    piol_exseis* piol,
+    piol_file_read_interface* ifh,
+    piol_file_write_interface* ofh,
+    size_t off,
+    size_t tcnt,
+    ModTrc ftrc,
+    ModPrm fprm)
 {
     piol_file_trace_metadata* trhdr = piol_file_trace_metadata_new(NULL, tcnt);
     size_t ns                       = piol_file_read_interface_read_ns(ifh);
@@ -66,25 +66,25 @@ void read_write_full_trace(
 }
 
 void write_payload(
-  piol_exseis* piol,
-  piol_file_read_interface* ifh,
-  piol_file_write_interface* ofh,
-  size_t goff,
-  size_t lnt,
-  size_t tcnt,
-  ModPrm fprm,
-  ModTrc ftrc)
+    piol_exseis* piol,
+    piol_file_read_interface* ifh,
+    piol_file_write_interface* ofh,
+    size_t goff,
+    size_t lnt,
+    size_t tcnt,
+    ModPrm fprm,
+    ModTrc ftrc)
 {
     size_t biggest = lnt;
     MPI_Allreduce(
-      &lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
+        &lnt, &biggest, 1, MPI_UNSIGNED_LONG, MPI_MAX, MPI_COMM_WORLD);
     size_t extra =
-      biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
+        biggest / tcnt - lnt / tcnt + (biggest % tcnt > 0) - (lnt % tcnt > 0);
 
     for (size_t i = 0U; i < lnt; i += tcnt) {
         read_write_full_trace(
-          piol, ifh, ofh, goff + i, (i + tcnt < lnt ? tcnt : lnt - i), ftrc,
-          fprm);
+            piol, ifh, ofh, goff + i, (i + tcnt < lnt ? tcnt : lnt - i), ftrc,
+            fprm);
     }
 
     for (size_t i = 0U; i < extra; i++) {
@@ -93,12 +93,12 @@ void write_payload(
 }
 
 int read_write_file(
-  piol_exseis* piol,
-  const char* iname,
-  const char* oname,
-  size_t memmax,
-  ModPrm fprm,
-  ModTrc ftrc)
+    piol_exseis* piol,
+    const char* iname,
+    const char* oname,
+    size_t memmax,
+    ModPrm fprm,
+    ModTrc ftrc)
 {
     piol_file_read_interface* ifh = piol_file_read_segy_new(piol, iname);
     piol_exseis_assert_ok(piol, NULL);
@@ -110,24 +110,24 @@ int read_write_file(
     piol_exseis_assert_ok(piol, NULL);
 
     piol_file_write_interface_write_text(
-      ofh, piol_file_read_interface_read_text(ifh));
+        ofh, piol_file_read_interface_read_text(ifh));
     piol_file_write_interface_write_ns(
-      ofh, piol_file_read_interface_read_ns(ifh));
+        ofh, piol_file_read_interface_read_ns(ifh));
     piol_file_write_interface_write_nt(
-      ofh, piol_file_read_interface_read_nt(ifh));
+        ofh, piol_file_read_interface_read_nt(ifh));
     piol_file_write_interface_write_sample_interval(
-      ofh, piol_file_read_interface_read_sample_interval(ifh));
+        ofh, piol_file_read_interface_read_sample_interval(ifh));
     piol_exseis_assert_ok(piol, NULL);
 
     struct exseis_Contiguous_decomposition dec = exseis_block_decomposition(
-      nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
+        nt, piol_exseis_get_num_rank(piol), piol_exseis_get_rank(piol));
     size_t tcnt = memmax
                   / max(
                       piol_segy_segy_trace_data_size(ns),
                       piol_segy_segy_trace_header_size());
 
     write_payload(
-      piol, ifh, ofh, dec.global_offset, dec.local_size, tcnt, fprm, ftrc);
+        piol, ifh, ofh, dec.global_offset, dec.local_size, tcnt, fprm, ftrc);
 
     piol_exseis_assert_ok(piol, NULL);
     piol_file_write_interface_delete(ofh);
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
 
             default:
                 fprintf(
-                  stderr, "One of the command line arguments is invalid\n");
+                    stderr, "One of the command line arguments is invalid\n");
 
                 break;
         }

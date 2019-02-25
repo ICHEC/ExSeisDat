@@ -12,10 +12,10 @@
 ///                         (pointer to array of size \c pattern_size)
 /// @param[in] pattern_size The size of the \c pattern array
 void make_file(
-  const char* filename,
-  size_t file_size,
-  const unsigned char* pattern,
-  size_t pattern_size)
+    const char* filename,
+    size_t file_size,
+    const unsigned char* pattern,
+    size_t pattern_size)
 {
     FILE* file = fopen(filename, "w");
 
@@ -105,7 +105,7 @@ void make_segy(const char* filename, size_t ns, size_t nt, size_t max_block)
     const size_t data_object_size  = (trace_header_size + ns * sizeof(float));
 
     const size_t file_size =
-      header_size + (trace_header_size + ns * sizeof(float)) * nt;
+        header_size + (trace_header_size + ns * sizeof(float)) * nt;
 
     FILE* file = fopen(filename, "w");
 
@@ -172,11 +172,11 @@ void make_segy(const char* filename, size_t ns, size_t nt, size_t max_block)
                     memcpy(&f_i, &f, sizeof(uint32_t));
 
                     trace_buffer[trace_header_size + 4 * k + 0] =
-                      f_i >> 24 & 0xFF;
+                        f_i >> 24 & 0xFF;
                     trace_buffer[trace_header_size + 4 * k + 1] =
-                      f_i >> 16 & 0xFF;
+                        f_i >> 16 & 0xFF;
                     trace_buffer[trace_header_size + 4 * k + 2] =
-                      f_i >> 8 & 0xFF;
+                        f_i >> 8 & 0xFF;
                     trace_buffer[trace_header_size + 4 * k + 3] = f_i & 0xFF;
                 }
 
@@ -219,7 +219,7 @@ void make_segy(const char* filename, size_t ns, size_t nt, size_t max_block)
 
             // Write the buffer to disk
             fwrite(
-              buffer, sizeof(unsigned char), chunk * data_object_size, file);
+                buffer, sizeof(unsigned char), chunk * data_object_size, file);
         }
 
         // Cleanup the buffer and file
@@ -266,7 +266,8 @@ int main(int argc, char* argv[])
         }
         if (strcmp("large_file_pattern.tmp", base_name) == 0) {
             make_file(
-              filename, 10ll * 1024ll * 1024ll * 1024ll, pattern, pattern_size);
+                filename, 10ll * 1024ll * 1024ll * 1024ll, pattern,
+                pattern_size);
             continue;
         }
         if (strcmp("small_segy.tmp", base_name) == 0) {

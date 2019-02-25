@@ -87,9 +87,9 @@ class WriteSEGY : public WriteInterface {
      *  @param[in] options The SEGY-File options
      */
     WriteSEGY(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      const WriteSEGY::Options& options = WriteSEGY::Options());
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const WriteSEGY::Options& options = WriteSEGY::Options());
 
   protected:
     /*! @brief The SEGY-Object class constructor.
@@ -101,10 +101,10 @@ class WriteSEGY : public WriteInterface {
      *  @param[in] obj     The object layer object to use.
      */
     WriteSEGY(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string name,
-      const WriteSEGY::Options& options,
-      std::shared_ptr<ObjectInterface> obj);
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const WriteSEGY::Options& options,
+        std::shared_ptr<ObjectInterface> obj);
 
   public:
     /*! @brief Destructor. Processes any remaining flags
@@ -120,33 +120,33 @@ class WriteSEGY : public WriteInterface {
     void write_nt(size_t nt) override;
 
     void write_sample_interval(
-      exseis::utils::Floating_point sample_interval) override;
+        exseis::utils::Floating_point sample_interval) override;
 
     void write_param(
-      size_t offset,
-      size_t sz,
-      const Trace_metadata* prm,
-      size_t skip = 0) override;
+        size_t offset,
+        size_t sz,
+        const Trace_metadata* prm,
+        size_t skip = 0) override;
 
     void write_param_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      const Trace_metadata* prm,
-      size_t skip = 0) override;
+        size_t sz,
+        const size_t* offset,
+        const Trace_metadata* prm,
+        size_t skip = 0) override;
 
     void write_trace(
-      size_t offset,
-      size_t sz,
-      exseis::utils::Trace_value* trace,
-      const Trace_metadata* prm = nullptr,
-      size_t skip               = 0) override;
+        size_t offset,
+        size_t sz,
+        exseis::utils::Trace_value* trace,
+        const Trace_metadata* prm = nullptr,
+        size_t skip               = 0) override;
 
     void write_trace_non_contiguous(
-      size_t sz,
-      const size_t* offset,
-      exseis::utils::Trace_value* trace,
-      const Trace_metadata* prm = nullptr,
-      size_t skip               = 0) override;
+        size_t sz,
+        const size_t* offset,
+        exseis::utils::Trace_value* trace,
+        const Trace_metadata* prm = nullptr,
+        size_t skip               = 0) override;
 };
 
 }  // namespace piol

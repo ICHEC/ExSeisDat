@@ -111,7 +111,7 @@ int main(int argc, char** argv)
         }
     }
     assert(
-      !name1.empty() && !name2.empty() && !name3.empty() && !name4.empty());
+        !name1.empty() && !name2.empty() && !name3.empty() && !name4.empty());
 
     /**************************************************************************/
 
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
     std::vector<size_t> min(coords1->sz);
     std::vector<fourd_t> minrs(coords1->sz);
     calc_4d_bin(
-      piol.get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
+        piol.get(), dsrmax, coords1.get(), coords2.get(), fopt, min, minrs);
     coords2.release();
 
     cmsg(piol.get(), "Final list pass");

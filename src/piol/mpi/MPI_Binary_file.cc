@@ -41,12 +41,12 @@ namespace {
 ///                            code to identify with the log.
 ///
 void log_error(
-  const std::shared_ptr<exseis::utils::Log>& log,
-  std::string message,
-  std::string file_name,
-  int mpi_error,
-  MPI_Status* mpi_status,
-  exseis::utils::Source_position source_position)
+    const std::shared_ptr<exseis::utils::Log>& log,
+    std::string message,
+    std::string file_name,
+    int mpi_error,
+    MPI_Status* mpi_status,
+    exseis::utils::Source_position source_position)
 {
     std::string formatted_message = std::move(message);
 
@@ -55,7 +55,7 @@ void log_error(
     }
 
     formatted_message +=
-      ": " + exseis::utils::mpi_error_to_string(mpi_error, mpi_status);
+        ": " + exseis::utils::mpi_error_to_string(mpi_error, mpi_status);
 
     using namespace exseis::utils::logging;
 
@@ -79,19 +79,19 @@ bool is_castable_to(const From& from)
 {
     // Check To and From are integer types
     static_assert(
-      std::is_integral<To>::value,
-      "is_castable_to only supports integral To types");
+        std::is_integral<To>::value,
+        "is_castable_to only supports integral To types");
     static_assert(
-      std::is_integral<From>::value,
-      "is_castable_to only supports integral From types");
+        std::is_integral<From>::value,
+        "is_castable_to only supports integral From types");
 
     // Check absolute values of To and From can be represented by size_t.
     static_assert(
-      sizeof(size_t) >= sizeof(To),
-      "is_castable_to expects absolute values of type To to be representable as size_t.");
+        sizeof(size_t) >= sizeof(To),
+        "is_castable_to expects absolute values of type To to be representable as size_t.");
     static_assert(
-      sizeof(size_t) >= sizeof(From),
-      "is_castable_to expects absolute values of type From to be representable as size_t.");
+        sizeof(size_t) >= sizeof(From),
+        "is_castable_to expects absolute values of type From to be representable as size_t.");
 
     const auto abs = [](auto value) -> size_t {
         if (value < 0) {
@@ -142,11 +142,11 @@ bool is_castable_to(const From& from)
 /// @param[in]     file_name The file name to report to the logger.
 ///
 void free_and_reset_view(
-  MPI_File file,
-  MPI_Info info,
-  MPI_Datatype& view,
-  const std::shared_ptr<exseis::utils::Log>& log,
-  const std::string& file_name)
+    MPI_File file,
+    MPI_Info info,
+    MPI_Datatype& view,
+    const std::shared_ptr<exseis::utils::Log>& log,
+    const std::string& file_name)
 {
     static const char* function_name = "exseis::piol::mpi::free_and_reset_view";
 
@@ -154,15 +154,15 @@ void free_and_reset_view(
     int err = MPI_File_set_view(file, 0, MPI_CHAR, MPI_CHAR, "native", info);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_File_set_view error", file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_File_set_view error", file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     err = MPI_Type_free(&view);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_Type_free error", file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_Type_free error", file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     view = MPI_DATATYPE_NULL;
@@ -226,19 +226,19 @@ MPI_Binary_file::Opt::~Opt(void)
 
 
 MPI_Binary_file::MPI_Binary_file(
-  std::shared_ptr<ExSeisPIOL> piol,
-  std::string file_name,
-  FileMode mode,
-  const MPI_Binary_file::Opt& opt) :
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string file_name,
+    FileMode mode,
+    const MPI_Binary_file::Opt& opt) :
     MPI_Binary_file(piol->log, file_name, mode, opt)
 {
 }
 
 MPI_Binary_file::MPI_Binary_file(
-  std::shared_ptr<exseis::utils::Log> log,
-  std::string file_name,
-  FileMode mode,
-  const MPI_Binary_file::Opt& opt) :
+    std::shared_ptr<exseis::utils::Log> log,
+    std::string file_name,
+    FileMode mode,
+    const MPI_Binary_file::Opt& opt) :
     m_log(log),
     m_file_name(file_name),
     m_use_collective_operations(opt.use_collective_operations),
@@ -246,7 +246,7 @@ MPI_Binary_file::MPI_Binary_file(
     m_max_size(opt.max_size)
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::MPI_Binary_file";
+        "exseis::piol::mpi::MPI_Binary_file::MPI_Binary_file";
 
     MPI_Aint lb  = 0;
     MPI_Aint esz = 0;
@@ -257,14 +257,14 @@ MPI_Binary_file::MPI_Binary_file(
     err = MPI_Type_get_true_extent(MPI_CHAR, &lb, &esz);
     if (err != MPI_SUCCESS) {
         log_error(
-          m_log, "Getting MPI extent error", "", err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            m_log, "Getting MPI extent error", "", err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     if (esz != 1) {
         log_error(
-          m_log, "MPI_CHAR extent is bigger than one", "", MPI_ERR_TYPE,
-          MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
+            m_log, "MPI_CHAR extent is bigger than one", "", MPI_ERR_TYPE,
+            MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     if (opt.info != MPI_INFO_NULL) {
@@ -272,24 +272,24 @@ MPI_Binary_file::MPI_Binary_file(
 
         if (err != MPI_SUCCESS) {
             log_error(
-              m_log, "MPI_Info_dup error", m_file_name, err, MPI_STATUS_IGNORE,
-              EXSEISDAT_SOURCE_POSITION(function_name));
+                m_log, "MPI_Info_dup error", m_file_name, err,
+                MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
 
     err = MPI_File_open(
-      m_file_communicator, m_file_name.c_str(), mode, m_info, &m_file);
+        m_file_communicator, m_file_name.c_str(), mode, m_info, &m_file);
     if (err != MPI_SUCCESS) {
         log_error(
-          m_log, "MPI_File_open error", m_file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            m_log, "MPI_File_open error", m_file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     err = MPI_File_set_view(m_file, 0, MPI_CHAR, MPI_CHAR, "native", m_info);
     if (err != MPI_SUCCESS) {
         log_error(
-          m_log, "MPI_File_set_view error", m_file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            m_log, "MPI_File_set_view error", m_file_name, err,
+            MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
     }
 }
 
@@ -297,14 +297,14 @@ MPI_Binary_file::MPI_Binary_file(
 MPI_Binary_file::~MPI_Binary_file(void)
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::~MPI_Binary_file";
+        "exseis::piol::mpi::MPI_Binary_file::~MPI_Binary_file";
 
     if (m_file != MPI_FILE_NULL) {
         int err = MPI_File_close(&m_file);
         if (err != MPI_SUCCESS) {
             log_error(
-              m_log, "MPI_File_close error", m_file_name, err,
-              MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
+                m_log, "MPI_File_close error", m_file_name, err,
+                MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
 
@@ -312,8 +312,8 @@ MPI_Binary_file::~MPI_Binary_file(void)
         int err = MPI_Info_free(&m_info);
         if (err != MPI_SUCCESS) {
             log_error(
-              m_log, "MPI_Info_free error", m_file_name, err, MPI_STATUS_IGNORE,
-              EXSEISDAT_SOURCE_POSITION(function_name));
+                m_log, "MPI_Info_free error", m_file_name, err,
+                MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
 }
@@ -327,21 +327,21 @@ bool MPI_Binary_file::is_open() const
 size_t MPI_Binary_file::get_file_size() const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::get_file_size";
+        "exseis::piol::mpi::MPI_Binary_file::get_file_size";
 
     MPI_Offset fsz = 0;
     int err        = MPI_File_get_size(m_file, &fsz);
 
     if (err != MPI_SUCCESS) {
         log_error(
-          m_log, "MPI_File_get_size error", m_file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            m_log, "MPI_File_get_size error", m_file_name, err,
+            MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     MPI_Offset max_fsz = 0;
     MPI_Allreduce(
-      &fsz, &max_fsz, 1, exseis::utils::mpi_type<MPI_Offset>(), MPI_MAX,
-      m_file_communicator);
+        &fsz, &max_fsz, 1, exseis::utils::mpi_type<MPI_Offset>(), MPI_MAX,
+        m_file_communicator);
 
 
     assert(is_castable_to<size_t>(max_fsz));
@@ -352,7 +352,7 @@ size_t MPI_Binary_file::get_file_size() const
 void MPI_Binary_file::set_file_size(size_t sz) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::set_file_size";
+        "exseis::piol::mpi::MPI_Binary_file::set_file_size";
 
     assert(is_castable_to<MPI_Offset>(sz));
 
@@ -360,8 +360,8 @@ void MPI_Binary_file::set_file_size(size_t sz) const
 
     if (err != MPI_SUCCESS) {
         log_error(
-          m_log, "MPI_File_set_size error", m_file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            m_log, "MPI_File_set_size error", m_file_name, err,
+            MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
     }
 }
 
@@ -392,37 +392,37 @@ namespace {
 ///                              logging.
 template<typename T, typename MPIReadWrite>
 void read_write_impl(
-  size_t offset,
-  size_t size,
-  T* buffer,
-  MPIReadWrite mpi_read_write,
-  size_t m_max_size,
-  MPI_Comm m_file_communicator,
-  MPI_File m_file,
-  const std::shared_ptr<exseis::utils::Log>& m_log,
-  const std::string& m_file_name,
-  const char* function_name)
+    size_t offset,
+    size_t size,
+    T* buffer,
+    MPIReadWrite mpi_read_write,
+    size_t m_max_size,
+    MPI_Comm m_file_communicator,
+    MPI_File m_file,
+    const std::shared_ptr<exseis::utils::Log>& m_log,
+    const std::string& m_file_name,
+    const char* function_name)
 {
 
     const size_t stride_size = 1;
     const size_t block_size  = 1;
 
     const auto block_chunks = exseis::utils::mpi::Safe_collective_block_chunks(
-      stride_size, size, m_max_size, m_file_communicator);
+        stride_size, size, m_max_size, m_file_communicator);
 
     for (const auto block_chunk : block_chunks) {
         const size_t offset_to_block_start =
-          offset + block_chunk.start * stride_size;
+            offset + block_chunk.start * stride_size;
 
         MPI_Status status;
         int err = mpi_read_write(
-          m_file, offset_to_block_start,
-          buffer + (block_chunk.start * block_size), block_chunk.size,
-          exseis::utils::mpi_type<unsigned char>(), &status);
+            m_file, offset_to_block_start,
+            buffer + (block_chunk.start * block_size), block_chunk.size,
+            exseis::utils::mpi_type<unsigned char>(), &status);
         if (err != MPI_SUCCESS) {
             log_error(
-              m_log, "MPI_File_set_size error", m_file_name, err,
-              MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
+                m_log, "MPI_File_set_size error", m_file_name, err,
+                MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
 }
@@ -433,29 +433,29 @@ void read_write_impl(
 void MPI_Binary_file::read(size_t offset, size_t size, void* buffer) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::read";
+        "exseis::piol::mpi::MPI_Binary_file::read";
 
     const auto mpi_read =
-      m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
+        m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
 
     read_write_impl(
-      offset, size, static_cast<unsigned char*>(buffer), mpi_read, m_max_size,
-      m_file_communicator, m_file, m_log, m_file_name, function_name);
+        offset, size, static_cast<unsigned char*>(buffer), mpi_read, m_max_size,
+        m_file_communicator, m_file, m_log, m_file_name, function_name);
 }
 
 void MPI_Binary_file::write(
-  size_t offset, size_t size, const void* buffer) const
+    size_t offset, size_t size, const void* buffer) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::write";
+        "exseis::piol::mpi::MPI_Binary_file::write";
 
     const auto mpi_write =
-      m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
+        m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
 
     read_write_impl(
-      offset, size, static_cast<const unsigned char*>(buffer), mpi_write,
-      m_max_size, m_file_communicator, m_file, m_log, m_file_name,
-      function_name);
+        offset, size, static_cast<const unsigned char*>(buffer), mpi_write,
+        m_max_size, m_file_communicator, m_file, m_log, m_file_name,
+        function_name);
 }
 
 
@@ -481,14 +481,14 @@ namespace {
 /// @return The datatype which was used to create a view
 ///
 MPI_Datatype create_strided_view(
-  MPI_File file,
-  MPI_Info info,
-  size_t offset,
-  size_t block_size,
-  size_t stride_size,
-  size_t number_of_blocks,
-  const std::shared_ptr<exseis::utils::Log>& log,
-  const std::string& file_name)
+    MPI_File file,
+    MPI_Info info,
+    size_t offset,
+    size_t block_size,
+    size_t stride_size,
+    size_t number_of_blocks,
+    const std::shared_ptr<exseis::utils::Log>& log,
+    const std::string& file_name)
 {
     static const char* function_name = "exseis::piol::mpi::create_strided_view";
 
@@ -503,27 +503,27 @@ MPI_Datatype create_strided_view(
     MPI_Datatype view = MPI_DATATYPE_NULL;
 
     err = MPI_Type_create_hvector(
-      static_cast<int>(number_of_blocks), static_cast<int>(block_size),
-      static_cast<MPI_Aint>(stride_size), MPI_CHAR, &view);
+        static_cast<int>(number_of_blocks), static_cast<int>(block_size),
+        static_cast<MPI_Aint>(stride_size), MPI_CHAR, &view);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_Type_create_hvector failure", file_name, err,
-          MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_Type_create_hvector failure", file_name, err,
+            MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     err = MPI_Type_commit(&view);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_Type_commit failure", file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_Type_commit failure", file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     err = MPI_File_set_view(
-      file, static_cast<MPI_Offset>(offset), MPI_CHAR, view, "native", info);
+        file, static_cast<MPI_Offset>(offset), MPI_CHAR, view, "native", info);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_File_set_view failure", file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_File_set_view failure", file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     return view;
@@ -560,22 +560,22 @@ MPI_Datatype create_strided_view(
 ///                              logging.
 template<typename T, typename MPIReadWrite>
 void read_write_noncontiguous_impl(
-  size_t offset,
-  size_t block_size,
-  size_t stride_size,
-  size_t number_of_blocks,
-  T* buffer,
-  MPIReadWrite mpi_read_write,
-  size_t m_max_size,
-  MPI_Comm m_file_communicator,
-  MPI_File m_file,
-  MPI_Info m_info,
-  const std::shared_ptr<exseis::utils::Log>& m_log,
-  const std::string& m_file_name,
-  const char* function_name)
+    size_t offset,
+    size_t block_size,
+    size_t stride_size,
+    size_t number_of_blocks,
+    T* buffer,
+    MPIReadWrite mpi_read_write,
+    size_t m_max_size,
+    MPI_Comm m_file_communicator,
+    MPI_File m_file,
+    MPI_Info m_info,
+    const std::shared_ptr<exseis::utils::Log>& m_log,
+    const std::string& m_file_name,
+    const char* function_name)
 {
     const auto block_chunks = exseis::utils::mpi::Safe_collective_block_chunks(
-      stride_size, number_of_blocks, m_max_size, m_file_communicator);
+        stride_size, number_of_blocks, m_max_size, m_file_communicator);
 
     for (const auto block_chunk : block_chunks) {
         size_t offset_to_block_start = offset + block_chunk.start * stride_size;
@@ -583,16 +583,17 @@ void read_write_noncontiguous_impl(
         // Set a view so that MPI_File_read... functions only see contiguous
         // data.
         MPI_Datatype view = create_strided_view(
-          m_file, m_info, offset_to_block_start, block_size, stride_size,
-          block_chunk.size, m_log, m_file_name);
+            m_file, m_info, offset_to_block_start, block_size, stride_size,
+            block_chunk.size, m_log, m_file_name);
 
         MPI_Status status;
         int err = mpi_read_write(
-          m_file, 0, buffer, block_chunk.size * block_size, MPI_CHAR, &status);
+            m_file, 0, buffer, block_chunk.size * block_size, MPI_CHAR,
+            &status);
         if (err != MPI_SUCCESS) {
             log_error(
-              m_log, "MPI_File_read_at* error", m_file_name, err, &status,
-              EXSEISDAT_SOURCE_POSITION(function_name));
+                m_log, "MPI_File_read_at* error", m_file_name, err, &status,
+                EXSEISDAT_SOURCE_POSITION(function_name));
         }
 
         // Reset the view.
@@ -604,41 +605,41 @@ void read_write_noncontiguous_impl(
 
 
 void MPI_Binary_file::read_noncontiguous(
-  size_t offset,
-  size_t block_size,
-  size_t stride_size,
-  size_t number_of_blocks,
-  void* buffer) const
+    size_t offset,
+    size_t block_size,
+    size_t stride_size,
+    size_t number_of_blocks,
+    void* buffer) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::read_noncontiguous";
+        "exseis::piol::mpi::MPI_Binary_file::read_noncontiguous";
 
     const auto mpi_read =
-      m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
+        m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
 
     read_write_noncontiguous_impl(
-      offset, block_size, stride_size, number_of_blocks, buffer, mpi_read,
-      m_max_size, m_file_communicator, m_file, m_info, m_log, m_file_name,
-      function_name);
+        offset, block_size, stride_size, number_of_blocks, buffer, mpi_read,
+        m_max_size, m_file_communicator, m_file, m_info, m_log, m_file_name,
+        function_name);
 }
 
 void MPI_Binary_file::write_noncontiguous(
-  size_t offset,
-  size_t block_size,
-  size_t stride_size,
-  size_t number_of_blocks,
-  const void* buffer) const
+    size_t offset,
+    size_t block_size,
+    size_t stride_size,
+    size_t number_of_blocks,
+    const void* buffer) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::write_noncontiguous";
+        "exseis::piol::mpi::MPI_Binary_file::write_noncontiguous";
 
     const auto mpi_write =
-      m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
+        m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
 
     read_write_noncontiguous_impl(
-      offset, block_size, stride_size, number_of_blocks, buffer, mpi_write,
-      m_max_size, m_file_communicator, m_file, m_info, m_log, m_file_name,
-      function_name);
+        offset, block_size, stride_size, number_of_blocks, buffer, mpi_write,
+        m_max_size, m_file_communicator, m_file, m_info, m_log, m_file_name,
+        function_name);
 }
 
 
@@ -665,13 +666,13 @@ namespace {
 /// @return The datatype which was used to create a view
 ///
 MPI_Datatype create_listed_view(
-  MPI_File file,
-  MPI_Info info,
-  size_t number_of_blocks,
-  size_t block_size,
-  const MPI_Aint* offsets,
-  const std::shared_ptr<exseis::utils::Log>& log,
-  const std::string& file_name)
+    MPI_File file,
+    MPI_Info info,
+    size_t number_of_blocks,
+    size_t block_size,
+    const MPI_Aint* offsets,
+    const std::shared_ptr<exseis::utils::Log>& log,
+    const std::string& file_name)
 {
     static const char* function_name = "exseis::piol::mpi::create_listed_view";
 
@@ -681,8 +682,8 @@ MPI_Datatype create_listed_view(
 
     // Check number_of_blocks is within the MPI view size limit
     assert(
-      number_of_blocks
-      < std::numeric_limits<int>::max() / (sizeof(int) + sizeof(MPI_Aint)));
+        number_of_blocks
+        < std::numeric_limits<int>::max() / (sizeof(int) + sizeof(MPI_Aint)));
 
     bool hindexed_block_works = ([] {
 #ifndef HINDEXED_BLOCK_WORKS
@@ -699,12 +700,12 @@ MPI_Datatype create_listed_view(
 
     if (hindexed_block_works) {
         err = MPI_Type_create_hindexed_block(
-          static_cast<int>(number_of_blocks), static_cast<int>(block_size),
-          offsets, MPI_CHAR, &view);
+            static_cast<int>(number_of_blocks), static_cast<int>(block_size),
+            offsets, MPI_CHAR, &view);
         if (err != MPI_SUCCESS) {
             log_error(
-              log, "MPI_Type_create_hindexed_block error", file_name, err,
-              MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
+                log, "MPI_Type_create_hindexed_block error", file_name, err,
+                MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
     else {
@@ -715,27 +716,27 @@ MPI_Datatype create_listed_view(
         }
 
         err = MPI_Type_create_hindexed(
-          static_cast<int>(number_of_blocks), bl.data(), offsets, MPI_CHAR,
-          &view);
+            static_cast<int>(number_of_blocks), bl.data(), offsets, MPI_CHAR,
+            &view);
         if (err != MPI_SUCCESS) {
             log_error(
-              log, "MPI_Type_create_hindexed error", file_name, err,
-              MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
+                log, "MPI_Type_create_hindexed error", file_name, err,
+                MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
 
     err = MPI_Type_commit(&view);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_Type_commit error", file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_Type_commit error", file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     err = MPI_File_set_view(file, 0, MPI_BYTE, view, "native", info);
     if (err != MPI_SUCCESS) {
         log_error(
-          log, "MPI_File_set_view error", file_name, err, MPI_STATUS_IGNORE,
-          EXSEISDAT_SOURCE_POSITION(function_name));
+            log, "MPI_File_set_view error", file_name, err, MPI_STATUS_IGNORE,
+            EXSEISDAT_SOURCE_POSITION(function_name));
     }
 
     return view;
@@ -770,45 +771,46 @@ MPI_Datatype create_listed_view(
 ///                              logging.
 template<typename T, typename MPIReadWrite>
 void read_write_noncontiguous_irregular_impl(
-  size_t block_size,
-  size_t number_of_blocks,
-  const size_t* offsets,
-  T* buffer,
-  MPIReadWrite mpi_read_write,
-  size_t m_max_size,
-  MPI_Comm m_file_communicator,
-  MPI_File m_file,
-  MPI_Info m_info,
-  const std::shared_ptr<exseis::utils::Log>& m_log,
-  const std::string& m_file_name,
-  const char* function_name)
+    size_t block_size,
+    size_t number_of_blocks,
+    const size_t* offsets,
+    T* buffer,
+    MPIReadWrite mpi_read_write,
+    size_t m_max_size,
+    MPI_Comm m_file_communicator,
+    MPI_File m_file,
+    MPI_Info m_info,
+    const std::shared_ptr<exseis::utils::Log>& m_log,
+    const std::string& m_file_name,
+    const char* function_name)
 {
     // An array for storing the offsets as an MPI_Aint.
     std::vector<MPI_Aint> mpi_offsets;
 
     const auto block_chunks = exseis::utils::mpi::Safe_collective_block_chunks(
-      (block_size != 0 ? block_size * 2LU : 1LU), number_of_blocks, m_max_size,
-      m_file_communicator);
+        (block_size != 0 ? block_size * 2LU : 1LU), number_of_blocks,
+        m_max_size, m_file_communicator);
 
     for (const auto block_chunk : block_chunks) {
         mpi_offsets.assign(
-          offsets + block_chunk.start,
-          offsets + (block_chunk.start + block_chunk.size));
+            offsets + block_chunk.start,
+            offsets + (block_chunk.start + block_chunk.size));
 
         // Set a view so that MPI_File_read... functions only see contiguous
         // data.
         MPI_Datatype view = create_listed_view(
-          m_file, m_info, block_chunk.size, block_size, mpi_offsets.data(),
-          m_log, m_file_name);
+            m_file, m_info, block_chunk.size, block_size, mpi_offsets.data(),
+            m_log, m_file_name);
 
         // read the data
         MPI_Status status;
         int err = mpi_read_write(
-          m_file, 0, buffer, block_chunk.size * block_size, MPI_CHAR, &status);
+            m_file, 0, buffer, block_chunk.size * block_size, MPI_CHAR,
+            &status);
         if (err != MPI_SUCCESS) {
             log_error(
-              m_log, "MPI_File_read_at* error", m_file_name, err, &status,
-              EXSEISDAT_SOURCE_POSITION(function_name));
+                m_log, "MPI_File_read_at* error", m_file_name, err, &status,
+                EXSEISDAT_SOURCE_POSITION(function_name));
         }
 
         // Reset the view.
@@ -820,37 +822,37 @@ void read_write_noncontiguous_irregular_impl(
 
 
 void MPI_Binary_file::read_noncontiguous_irregular(
-  size_t block_size,
-  size_t number_of_blocks,
-  const size_t* offsets,
-  void* buffer) const
+    size_t block_size,
+    size_t number_of_blocks,
+    const size_t* offsets,
+    void* buffer) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::read_noncontiguous_irregular";
+        "exseis::piol::mpi::MPI_Binary_file::read_noncontiguous_irregular";
 
     const auto mpi_read =
-      m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
+        m_use_collective_operations ? MPI_File_read_at_all : MPI_File_read_at;
 
     read_write_noncontiguous_irregular_impl(
-      block_size, number_of_blocks, offsets, buffer, mpi_read, m_max_size,
-      m_file_communicator, m_file, m_info, m_log, m_file_name, function_name);
+        block_size, number_of_blocks, offsets, buffer, mpi_read, m_max_size,
+        m_file_communicator, m_file, m_info, m_log, m_file_name, function_name);
 }
 
 void MPI_Binary_file::write_noncontiguous_irregular(
-  size_t block_size,
-  size_t number_of_blocks,
-  const size_t* offsets,
-  const void* buffer) const
+    size_t block_size,
+    size_t number_of_blocks,
+    const size_t* offsets,
+    const void* buffer) const
 {
     static const char* function_name =
-      "exseis::piol::mpi::MPI_Binary_file::write_noncontiguous_irregular";
+        "exseis::piol::mpi::MPI_Binary_file::write_noncontiguous_irregular";
 
     const auto mpi_write =
-      m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
+        m_use_collective_operations ? MPI_File_write_at_all : MPI_File_write_at;
 
     read_write_noncontiguous_irregular_impl(
-      block_size, number_of_blocks, offsets, buffer, mpi_write, m_max_size,
-      m_file_communicator, m_file, m_info, m_log, m_file_name, function_name);
+        block_size, number_of_blocks, offsets, buffer, mpi_write, m_max_size,
+        m_file_communicator, m_file, m_info, m_log, m_file_name, function_name);
 }
 
 }  // namespace mpi

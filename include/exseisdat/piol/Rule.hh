@@ -60,9 +60,9 @@ class Rule {
     /*! The type of the unordered map which stores all current rules.
      *  A map ensures there are no duplicates. */
     using Rule_entry_map = std::unordered_map<
-      Meta,
-      std::unique_ptr<RuleEntry>,
-      exseis::utils::EnumHash<Meta>>;
+        Meta,
+        std::unique_ptr<RuleEntry>,
+        exseis::utils::EnumHash<Meta>>;
 
     /// The map storing all the current rules.
     Rule_entry_map rule_entry_map;
@@ -114,10 +114,10 @@ class Rule {
      *                    when copying files through the library.
      */
     Rule(
-      const std::vector<Meta>& m,
-      bool full     = true,
-      bool defaults = false,
-      bool extras   = false);
+        const std::vector<Meta>& m,
+        bool full     = true,
+        bool defaults = false,
+        bool extras   = false);
 
     /*! The constructor for creating a Rule structure with
      *  default rules in place or no rules in place.

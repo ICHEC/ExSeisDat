@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
             default:
                 fprintf(
-                  stderr, "One of the command line arguments is invalid\n");
+                    stderr, "One of the command line arguments is invalid\n");
                 break;
         }
     }
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
     // Perform the decomposition and read coordinates of interest.
     auto dec = block_decomposition(
-      src.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        src.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
     if (check_order(src, dec, type)) {
         std::cout << "Success\n";

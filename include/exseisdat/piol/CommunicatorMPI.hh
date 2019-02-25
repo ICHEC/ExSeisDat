@@ -65,7 +65,7 @@ class CommunicatorMPI : public CommunicatorInterface {
     std::vector<float> gather(const std::vector<float>& in) const override;
     std::vector<double> gather(const std::vector<double>& in) const override;
     std::vector<exseis::utils::Integer> gather(
-      const std::vector<exseis::utils::Integer>& in) const override;
+        const std::vector<exseis::utils::Integer>& in) const override;
     std::vector<size_t> gather(const std::vector<size_t>& in) const override;
 
     /// @brief TMP

@@ -24,7 +24,7 @@ void calc_min(std::string iname, std::string oname)
     ReadSEGY in(piol, iname);
 
     auto dec = block_decomposition(
-      in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
@@ -34,12 +34,13 @@ void calc_min(std::string iname, std::string oname)
     in.read_param(offset, lnt, &prm);
 
     get_min_max(
-      piol.get(), offset, lnt, Meta::x_src, Meta::y_src, prm, minmax.data());
+        piol.get(), offset, lnt, Meta::x_src, Meta::y_src, prm, minmax.data());
     get_min_max(
-      piol.get(), offset, lnt, Meta::x_rcv, Meta::y_rcv, prm,
-      minmax.data() + 4U);
+        piol.get(), offset, lnt, Meta::x_rcv, Meta::y_rcv, prm,
+        minmax.data() + 4U);
     get_min_max(
-      piol.get(), offset, lnt, Meta::xCmp, Meta::yCmp, prm, minmax.data() + 8U);
+        piol.get(), offset, lnt, Meta::xCmp, Meta::yCmp, prm,
+        minmax.data() + 8U);
 
     size_t sz  = (piol->get_rank() == 0 ? minmax.size() : 0U);
     size_t usz = 0;

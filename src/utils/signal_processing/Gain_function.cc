@@ -35,10 +35,10 @@ bool non_zero(Trace_value v)
 
 
 Trace_value rectangular_rms_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t)
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t)
 {
     Trace_value amp = 0;
     for (size_t j = 0; j < window_size; j++) {
@@ -52,20 +52,20 @@ Trace_value rectangular_rms_gain(
 }
 
 extern "C" Trace_value exseis_rectangular_rms_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t)
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t)
 {
     return rectangular_rms_gain(signal, window_size, target_amplitude, 0);
 }
 
 
 Trace_value triangular_rms_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t window_center)
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t window_center)
 {
     assert(window_size > 0);
     assert(window_size > window_center);
@@ -123,7 +123,7 @@ Trace_value triangular_rms_gain(
     for (size_t j = 0; j < window_size; j++) {
         // A signed-sensitive std::abs(j - window_center)
         const auto distance_from_center =
-          (j > window_center) ? j - window_center : window_center - j;
+            (j > window_center) ? j - window_center : window_center - j;
 
         // Linear interpolation:
         //      0 at distance_from_center == half_width
@@ -142,26 +142,26 @@ Trace_value triangular_rms_gain(
 }
 
 extern "C" Trace_value exseis_triangular_rms_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t window_center)
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t window_center)
 {
     return triangular_rms_gain(
-      signal, window_size, target_amplitude, window_center);
+        signal, window_size, target_amplitude, window_center);
 }
 
 
 Trace_value mean_abs_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t)
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t)
 {
     assert(window_size > 0);
 
     const Trace_value amp =
-      std::accumulate(signal, signal + window_size, Trace_value(0));
+        std::accumulate(signal, signal + window_size, Trace_value(0));
     assert(non_zero(amp));
 
     const auto num = std::count_if(signal, &signal[window_size], non_zero);
@@ -170,20 +170,20 @@ Trace_value mean_abs_gain(
 }
 
 extern "C" Trace_value exseis_mean_abs_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t)
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t)
 {
     return mean_abs_gain(signal, window_size, target_amplitude, 0);
 }
 
 
 Trace_value median_gain(
-  const Trace_value* signal,
-  size_t window_size,
-  Trace_value target_amplitude,
-  size_t)
+    const Trace_value* signal,
+    size_t window_size,
+    Trace_value target_amplitude,
+    size_t)
 {
     // This could be optimised with std::nth_element if required.
     std::vector<Trace_value> signal_tmp(signal, &signal[window_size]);
@@ -191,7 +191,8 @@ Trace_value median_gain(
 
     if (window_size % 2 == 0) {
         const auto amp =
-          ((signal_tmp[window_size / 2] + signal_tmp[window_size / 2 + 1]) / 2);
+            ((signal_tmp[window_size / 2] + signal_tmp[window_size / 2 + 1])
+             / 2);
         assert(non_zero(amp));
 
         return target_amplitude / amp;
@@ -205,10 +206,10 @@ Trace_value median_gain(
 }
 
 extern "C" Trace_value exseis_median_gain(
-  const exseis_Trace_value* signal,
-  size_t window_size,
-  exseis_Trace_value target_amplitude,
-  size_t)
+    const exseis_Trace_value* signal,
+    size_t window_size,
+    exseis_Trace_value target_amplitude,
+    size_t)
 {
     return median_gain(signal, window_size, target_amplitude, 0);
 }

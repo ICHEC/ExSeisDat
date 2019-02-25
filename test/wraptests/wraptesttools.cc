@@ -12,7 +12,7 @@ CheckReturnListener*& check_return_listener()
 ::testing::StrictMock<::testing::MockFunction<void()>>& return_checker()
 {
     static ::testing::StrictMock<::testing::MockFunction<void()>>
-      return_checker;
+        return_checker;
     return return_checker;
 }
 

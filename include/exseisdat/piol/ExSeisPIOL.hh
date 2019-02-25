@@ -28,8 +28,8 @@ class ExSeisPIOL {
      *  @param[in] max_level The maximum log level to be recorded.
      */
     ExSeisPIOL(
-      exseis::utils::Verbosity max_level = exseis::utils::Verbosity::none,
-      const CommunicatorMPI::Opt& copt   = CommunicatorMPI::Opt());
+        exseis::utils::Verbosity max_level = exseis::utils::Verbosity::none,
+        const CommunicatorMPI::Opt& copt   = CommunicatorMPI::Opt());
 
   public:
     /// The ExSeisPIOL logger

@@ -4,15 +4,15 @@ namespace exseis {
 namespace piol {
 
 void CheckReturnListener::OnTestPartResult(
-  const ::testing::TestPartResult& test_part_result)
+    const ::testing::TestPartResult& test_part_result)
 {
     if (test_part_result.failed() && m_expecting_return_value) {
         std::cout
-          << std::endl
-          << "*** Failure while awaiting call to wraptest_ok() for return value: "
-          << std::endl
-          << "\t" << m_return_value << std::endl
-          << std::endl;
+            << std::endl
+            << "*** Failure while awaiting call to wraptest_ok() for return value: "
+            << std::endl
+            << "\t" << m_return_value << std::endl
+            << std::endl;
     }
 }
 

@@ -6,7 +6,7 @@
 #include <memory>
 
 void test_piol_set(
-  std::shared_ptr<exseis::piol::ExSeis*> piol,
-  std::shared_ptr<exseis::piol::Trace_metadata*> trace_metadata);
+    std::shared_ptr<exseis::piol::ExSeis*> piol,
+    std::shared_ptr<exseis::piol::Trace_metadata*> trace_metadata);
 
 #endif  // EXSEISDAT_TEST_WRAPTESTS_SETWRAPTESTS_HH

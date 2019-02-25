@@ -15,14 +15,14 @@ using namespace exseis::utils;
 using namespace exseis::piol;
 
 void write_contig(
-  ExSeis& piol,
-  WriteInterface& file,
-  size_t offset,
-  size_t nt,
-  size_t ns,
-  size_t lnt,
-  size_t extra,
-  size_t max)
+    ExSeis& piol,
+    WriteInterface& file,
+    size_t offset,
+    size_t nt,
+    size_t ns,
+    size_t lnt,
+    size_t extra,
+    size_t max)
 {
     float fhalf = float(nt * ns) / 2.0;
     float off   = float(nt * ns) / 4.0;
@@ -45,7 +45,7 @@ void write_contig(
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
-              fhalf - std::abs(-fhalf + float((offset + i) * ns + j)) - off;
+                fhalf - std::abs(-fhalf + float((offset + i) * ns + j)) - off;
         }
         file.write_trace(offset + i, rblock, trc.data(), &prm);
         piol.assert_ok();
@@ -57,13 +57,13 @@ void write_contig(
 }
 
 void write_random(
-  ExSeis& piol,
-  WriteInterface& file,
-  size_t nt,
-  size_t ns,
-  size_t lnt,
-  size_t extra,
-  size_t max)
+    ExSeis& piol,
+    WriteInterface& file,
+    size_t nt,
+    size_t ns,
+    size_t lnt,
+    size_t extra,
+    size_t max)
 {
     float fhalf = float(nt * ns) / 2.0;
     float off   = float(nt * ns) / 4.0;
@@ -113,7 +113,7 @@ void write_random(
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
-              fhalf - std::abs(-fhalf + float((offset[i]) * ns + j)) - off;
+                fhalf - std::abs(-fhalf + float((offset[i]) * ns + j)) - off;
         }
         file.write_trace_non_contiguous(rblock, &offset[i], trc.data(), &prm);
         piol.assert_ok();
@@ -126,13 +126,13 @@ void write_random(
 }
 
 void file_make(
-  bool lob,
-  bool random,
-  const std::string name,
-  size_t max,
-  size_t ns,
-  size_t nt,
-  exseis::utils::Floating_point sample_interval)
+    bool lob,
+    bool random,
+    const std::string name,
+    size_t max,
+    size_t ns,
+    size_t nt,
+    exseis::utils::Floating_point sample_interval)
 {
     auto piol = ExSeis::make();
 
@@ -150,15 +150,15 @@ void file_make(
     size_t biggest = 0;
 
     if (lob) {
-        auto dec =
-          lobdecompose(piol.get(), nt, piol->get_num_rank(), piol->get_rank());
+        auto dec = lobdecompose(
+            piol.get(), nt, piol->get_num_rank(), piol->get_rank());
         offset  = dec[0];
         lnt     = dec[1];
         biggest = dec[2];
     }
     else {
         auto dec =
-          block_decomposition(nt, piol->get_num_rank(), piol->get_rank());
+            block_decomposition(nt, piol->get_num_rank(), piol->get_rank());
 
         offset  = dec.global_offset;
         lnt     = dec.local_size;
@@ -167,8 +167,8 @@ void file_make(
 
     // TODO: Add memusage for Trace_metadata
     max /=
-      (segy::segy_trace_size(ns) + segy::segy_trace_data_size(ns)
-       + sizeof(size_t));
+        (segy::segy_trace_size(ns) + segy::segy_trace_data_size(ns)
+         + sizeof(size_t));
     size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
                    - (lnt / max + (lnt % max > 0 ? 1 : 0));
     if (random) {
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 
     if (argc <= 1) {
         std::cout
-          << "Options: filemake -o \"name.segy\" -s <ns> -t <nt> -m <mem(MiB)> -i <inc>\n";
+            << "Options: filemake -o \"name.segy\" -s <ns> -t <nt> -m <mem(MiB)> -i <inc>\n";
         return EXIT_FAILURE;
     }
 

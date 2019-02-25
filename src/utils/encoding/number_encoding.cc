@@ -15,7 +15,7 @@ inline namespace number_encoding {
 
 
 Float_components from_ibm(
-  std::array<unsigned char, 4> ibm_float_bytes, bool big_endian)
+    std::array<unsigned char, 4> ibm_float_bytes, bool big_endian)
 {
     // Get the IBM float in the native endian order
     const uint32_t ibm_bits = [=]() {
@@ -166,8 +166,8 @@ static uint32_t rshift_with_rounding(uint32_t value, uint32_t shift)
 float to_float(Float_components components)
 {
     static_assert(
-      sizeof(float) == sizeof(uint32_t),
-      "to_float expects float and uint32_t to be the same size");
+        sizeof(float) == sizeof(uint32_t),
+        "to_float expects float and uint32_t to be the same size");
 
     uint32_t sign = components.sign;
     int32_t exp   = components.exponent;
@@ -268,11 +268,11 @@ float to_float(Float_components components)
 // TODO: Haven't done anything for underflow, overflow or nans
 // TODO: Not extensively tested yet
 float from_ibm_to_float(
-  std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian)
+    std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian)
 {
     static_assert(
-      sizeof(float) == sizeof(uint32_t),
-      "from_ibm_to_float expects float and uint32_t to have the same size!");
+        sizeof(float) == sizeof(uint32_t),
+        "from_ibm_to_float expects float and uint32_t to have the same size!");
 
     const auto ibm_components = from_ibm(ibm_float_bytes, is_big_endian);
     return to_float(ibm_components);

@@ -26,9 +26,9 @@ struct GatherState {
      *  @param[in] gather The global array of gathers.
      */
     virtual void make_state(
-      const std::vector<size_t>& offset,
-      const exseis::utils::Distributed_vector<exseis::piol::Gather_info>&
-        gather) = 0;
+        const std::vector<size_t>& offset,
+        const exseis::utils::Distributed_vector<exseis::piol::Gather_info>&
+            gather) = 0;
 };
 
 }  // namespace flow

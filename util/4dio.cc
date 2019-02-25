@@ -30,14 +30,14 @@ namespace four_d {
 // TODO: Simple IME optimisation: Contig Read all headers, sort, random write
 //       all headers to order, IME shuffle, contig read all headers again
 std::unique_ptr<Coords> get_coords(
-  std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
+    std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
     auto time = MPI_Wtime();
     ReadSEGY file(piol, name);
     piol->assert_ok();
 
     auto dec = block_decomposition(
-      file.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        file.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
@@ -54,8 +54,8 @@ std::unique_ptr<Coords> get_coords(
     size_t memlim  = 2LU * 1024LU * 1024LU * 1024LU
                     - 4LU * biggest * sizeof(exseis::utils::Floating_point);
     size_t max =
-      memlim
-      / (rule.memory_usage_per_header() + segy::segy_trace_header_size());
+        memlim
+        / (rule.memory_usage_per_header() + segy::segy_trace_header_size());
 
     // Collective I/O requries an equal number of MPI-IO calls on every process
     // in exactly the same sequence as each other.
@@ -84,23 +84,23 @@ std::unique_ptr<Coords> get_coords(
     cmsg(piol.get(), "get_coords sort");
 
     auto trlist = sort(
-      piol.get(), prm,
-      [](const Trace_metadata& prm, const size_t i, const size_t j) -> bool {
-          const auto x_src_i = prm.get_floating_point(i, Meta::x_src);
-          const auto x_src_j = prm.get_floating_point(j, Meta::x_src);
+        piol.get(), prm,
+        [](const Trace_metadata& prm, const size_t i, const size_t j) -> bool {
+            const auto x_src_i = prm.get_floating_point(i, Meta::x_src);
+            const auto x_src_j = prm.get_floating_point(j, Meta::x_src);
 
-          if (x_src_i < x_src_j) {
-              return true;
-          }
-          if (x_src_i > x_src_j) {
-              return false;
-          }
+            if (x_src_i < x_src_j) {
+                return true;
+            }
+            if (x_src_i > x_src_j) {
+                return false;
+            }
 
-          // x_src_i == x_src_j
+            // x_src_i == x_src_j
 
-          return prm.get_index(i, Meta::gtn) < prm.get_index(j, Meta::gtn);
-      },
-      false);
+            return prm.get_index(i, Meta::gtn) < prm.get_index(j, Meta::gtn);
+        },
+        false);
 
     cmsg(piol.get(), "get_coords post-sort I/O");
 
@@ -136,14 +136,14 @@ std::unique_ptr<Coords> get_coords(
 
             for (size_t j = 0; j < rblock; j++) {
                 coords->x_src[i + orig[j]] =
-                  prm2.get_floating_point(j, Meta::x_src);
+                    prm2.get_floating_point(j, Meta::x_src);
                 coords->y_src[i + orig[j]] =
-                  prm2.get_floating_point(j, Meta::y_src);
+                    prm2.get_floating_point(j, Meta::y_src);
 
                 coords->x_rcv[i + orig[j]] =
-                  prm2.get_floating_point(j, Meta::x_rcv);
+                    prm2.get_floating_point(j, Meta::x_rcv);
                 coords->y_rcv[i + orig[j]] =
-                  prm2.get_floating_point(j, Meta::y_rcv);
+                    prm2.get_floating_point(j, Meta::y_rcv);
 
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
@@ -163,8 +163,8 @@ std::unique_ptr<Coords> get_coords(
     // MPI_Wtime().
     piol->comm->barrier();
     cmsg(
-      piol.get(), "Read sets of coordinates from file " + name + " in "
-                    + std::to_string(MPI_Wtime() - time) + " seconds");
+        piol.get(), "Read sets of coordinates from file " + name + " in "
+                        + std::to_string(MPI_Wtime() - time) + " seconds");
 
     return coords;
 }
@@ -173,12 +173,12 @@ std::unique_ptr<Coords> get_coords(
 // another? This is an output related function and doesn't change the core
 // algorithm.
 void output_non_mono(
-  std::shared_ptr<ExSeisPIOL> piol,
-  std::string dname,
-  std::string sname,
-  std::vector<size_t>& list,
-  std::vector<fourd_t>& minrs,
-  const bool print_dsr)
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string dname,
+    std::string sname,
+    std::vector<size_t>& list,
+    std::vector<fourd_t>& minrs,
+    const bool print_dsr)
 {
     auto time = MPI_Wtime();
     auto rule = Rule(std::initializer_list<Meta>{Meta::Copy});
@@ -212,7 +212,7 @@ void output_non_mono(
 
     size_t memlim = 1024LU * 1024LU * 1024LU;
     size_t max =
-      memlim / (4LU * segy::segy_trace_size(ns) + 4LU * rule.extent());
+        memlim / (4LU * segy::segy_trace_size(ns) + 4LU * rule.extent());
     size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
                    - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
@@ -251,8 +251,8 @@ void output_non_mono(
 
     piol->comm->barrier();
     cmsg(
-      piol.get(), "Output " + sname + " to " + dname + " in "
-                    + std::to_string(MPI_Wtime() - time) + " seconds");
+        piol.get(), "Output " + sname + " to " + dname + " in "
+                        + std::to_string(MPI_Wtime() - time) + " seconds");
 }
 
 }  // namespace four_d

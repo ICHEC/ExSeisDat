@@ -26,9 +26,9 @@ struct RuleFixList : public RuleFix {
         locs = {Tr::x_src, Tr::y_src, Tr::x_rcv, Tr::y_rcv};
         meta = {Meta::x_src, Meta::y_src, Meta::x_rcv, Meta::y_rcv};
         rule = std::make_shared<Rule>(
-          std::initializer_list<Meta>{Meta::x_src, Meta::y_src, Meta::x_rcv,
-                                      Meta::y_rcv},
-          false);
+            std::initializer_list<Meta>{Meta::x_src, Meta::y_src, Meta::x_rcv,
+                                        Meta::y_rcv},
+            false);
         rule->rm_rule(Meta::ltn);
         rule->rm_rule(Meta::gtn);
     }

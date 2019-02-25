@@ -50,7 +50,7 @@ struct Contiguous_decomposition : public exseis_Contiguous_decomposition {
 /// @pre rank < num_ranks
 ///
 Contiguous_decomposition block_decomposition(
-  size_t range_size, size_t num_ranks, size_t rank);
+    size_t range_size, size_t num_ranks, size_t rank);
 
 
 /// @brief This struct represents the location and local index of a global index
@@ -83,7 +83,7 @@ struct Decomposition_index_location {
 /// @post return.local_index <= global_index
 ///
 Decomposition_index_location block_decomposition_location(
-  size_t range_size, size_t num_ranks, size_t global_index);
+    size_t range_size, size_t num_ranks, size_t global_index);
 
 }  // namespace decomposition
 }  // namespace utils

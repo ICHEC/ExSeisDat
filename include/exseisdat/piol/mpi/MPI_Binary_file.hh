@@ -107,10 +107,10 @@ class MPI_Binary_file : public Binary_file {
     /// @param[in] opt       The MPI-IO options
     ///
     MPI_Binary_file(
-      std::shared_ptr<ExSeisPIOL> piol,
-      std::string file_name,
-      FileMode mode,
-      const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt());
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string file_name,
+        FileMode mode,
+        const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt());
 
     /// @brief The MPI-IO class constructor.
     ///
@@ -121,10 +121,10 @@ class MPI_Binary_file : public Binary_file {
     /// @param[in] opt       The MPI-IO options
     ///
     MPI_Binary_file(
-      std::shared_ptr<exseis::utils::Log> log,
-      std::string file_name,
-      FileMode mode,
-      const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt());
+        std::shared_ptr<exseis::utils::Log> log,
+        std::string file_name,
+        FileMode mode,
+        const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt());
 
     /// @brief Destructor.
     ~MPI_Binary_file();
@@ -198,11 +198,11 @@ class MPI_Binary_file : public Binary_file {
     ///                                  `block_size * number_of_blocks`)
     ///
     void read_noncontiguous(
-      size_t offset,
-      size_t block_size,
-      size_t stride_size,
-      size_t number_of_blocks,
-      void* buffer) const override;
+        size_t offset,
+        size_t block_size,
+        size_t stride_size,
+        size_t number_of_blocks,
+        void* buffer) const override;
 
 
     /// @brief Write to a file in regularly spaced, non-contiguous blocks.
@@ -217,11 +217,11 @@ class MPI_Binary_file : public Binary_file {
     ///                                 `block_size*number_of_blocks`)
     ///
     void write_noncontiguous(
-      size_t offset,
-      size_t block_size,
-      size_t stride_size,
-      size_t number_of_blocks,
-      const void* buffer) const override;
+        size_t offset,
+        size_t block_size,
+        size_t stride_size,
+        size_t number_of_blocks,
+        const void* buffer) const override;
 
 
     /// @brief Read a file in irregularly spaced, non-contiguous chunks.
@@ -235,10 +235,10 @@ class MPI_Binary_file : public Binary_file {
     ///                                  `block_size*number_of_blocks`)
     ///
     void read_noncontiguous_irregular(
-      size_t block_size,
-      size_t number_of_blocks,
-      const size_t* offsets,
-      void* buffer) const override;
+        size_t block_size,
+        size_t number_of_blocks,
+        const size_t* offsets,
+        void* buffer) const override;
 
 
     /// @brief Write to a file in irregularly spaced, non-contiguous chunks.
@@ -252,10 +252,10 @@ class MPI_Binary_file : public Binary_file {
     ///                                  `block_size*number_of_blocks`)
     ///
     void write_noncontiguous_irregular(
-      size_t block_size,
-      size_t number_of_blocks,
-      const size_t* offsets,
-      const void* buffer) const override;
+        size_t block_size,
+        size_t number_of_blocks,
+        const size_t* offsets,
+        const void* buffer) const override;
 };
 
 }  // namespace mpi

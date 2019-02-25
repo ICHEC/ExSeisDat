@@ -168,10 +168,10 @@ class Safe_collective_block_chunks {
     ///                             operation will be called over.
     ///
     Safe_collective_block_chunks(
-      size_t stride_size,
-      size_t number_of_blocks,
-      size_t max_array_size,
-      MPI_Comm communicator)
+        size_t stride_size,
+        size_t number_of_blocks,
+        size_t max_array_size,
+        MPI_Comm communicator)
     {
         m_number_of_blocks = number_of_blocks;
 
@@ -186,8 +186,8 @@ class Safe_collective_block_chunks {
 
         size_t biggest_number_of_blocks = 0;
         MPI_Allreduce(
-          &m_number_of_blocks, &biggest_number_of_blocks, 1,
-          exseis::utils::mpi_type<size_t>(), MPI_MAX, communicator);
+            &m_number_of_blocks, &biggest_number_of_blocks, 1,
+            exseis::utils::mpi_type<size_t>(), MPI_MAX, communicator);
 
         // helper function for integer division with rounding up
         const auto round_up_divide = [](size_t a, size_t b) {
@@ -197,7 +197,7 @@ class Safe_collective_block_chunks {
 
         // The total number of calls needed to `collective_io_function`
         m_calls_needed =
-          round_up_divide(biggest_number_of_blocks, m_blocks_per_call);
+            round_up_divide(biggest_number_of_blocks, m_blocks_per_call);
     }
 
 
@@ -234,7 +234,7 @@ class Safe_collective_block_chunks {
         // The block ends at the start of the next block, or at the
         // requested number of blocks. Whichever comes first.
         const size_t block_end =
-          std::min((i + 1) * m_blocks_per_call, m_number_of_blocks);
+            std::min((i + 1) * m_blocks_per_call, m_number_of_blocks);
 
         const size_t block_chunk_size = block_end - block_start;
 

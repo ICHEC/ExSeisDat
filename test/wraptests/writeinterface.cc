@@ -5,9 +5,9 @@ namespace exseis {
 namespace piol {
 
 WriteSEGY::WriteSEGY(
-  std::shared_ptr<ExSeisPIOL> piol,
-  std::string name,
-  const WriteSEGY::Options&) :
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string name,
+    const WriteSEGY::Options&) :
     m_piol(piol),
     m_name(name)
 {
@@ -35,43 +35,49 @@ void WriteSEGY::write_nt(const size_t nt)
 }
 
 void WriteSEGY::write_sample_interval(
-  const exseis::utils::Floating_point sample_interval)
+    const exseis::utils::Floating_point sample_interval)
 {
     mock_write_interface().write_sample_interval(this, sample_interval);
 }
 
 void WriteSEGY::write_trace(
-  const size_t offset,
-  const size_t sz,
-  exseis::utils::Trace_value* trace,
-  const Trace_metadata* prm,
-  size_t skip)
+    const size_t offset,
+    const size_t sz,
+    exseis::utils::Trace_value* trace,
+    const Trace_metadata* prm,
+    size_t skip)
 {
     mock_write_interface().write_trace(this, offset, sz, trace, prm, skip);
 }
 
 void WriteSEGY::write_param(
-  const size_t offset, const size_t sz, const Trace_metadata* prm, size_t skip)
+    const size_t offset,
+    const size_t sz,
+    const Trace_metadata* prm,
+    size_t skip)
 {
     mock_write_interface().write_param(this, offset, sz, prm, skip);
 }
 
 void WriteSEGY::write_trace_non_contiguous(
-  const size_t sz,
-  const size_t* offset,
-  exseis::utils::Trace_value* trace,
-  const Trace_metadata* prm,
-  size_t skip)
+    const size_t sz,
+    const size_t* offset,
+    exseis::utils::Trace_value* trace,
+    const Trace_metadata* prm,
+    size_t skip)
 {
     mock_write_interface().write_trace_non_contiguous(
-      this, sz, offset, trace, prm, skip);
+        this, sz, offset, trace, prm, skip);
 }
 
 void WriteSEGY::write_param_non_contiguous(
-  const size_t sz, const size_t* offset, const Trace_metadata* prm, size_t skip)
+    const size_t sz,
+    const size_t* offset,
+    const Trace_metadata* prm,
+    size_t skip)
 {
     mock_write_interface().write_param_non_contiguous(
-      this, sz, offset, prm, skip);
+        this, sz, offset, prm, skip);
 }
 
 WriteSEGY::~WriteSEGY(void) {}

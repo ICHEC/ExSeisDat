@@ -54,7 +54,7 @@ class CommunicatorInterface {
      *          rank.
      */
     virtual std::vector<double> gather(
-      const std::vector<double>& val) const = 0;
+        const std::vector<double>& val) const = 0;
 
     /*! @brief Pass a vector of double and return the corresponding values to
      *         each process
@@ -71,7 +71,7 @@ class CommunicatorInterface {
      *          rank.
      */
     virtual std::vector<exseis::utils::Integer> gather(
-      const std::vector<exseis::utils::Integer>& val) const = 0;
+        const std::vector<exseis::utils::Integer>& val) const = 0;
 
     /*! @brief Pass a vector of size_t and return the corresponding values to
      *         each process
@@ -80,7 +80,7 @@ class CommunicatorInterface {
      *          rank.
      */
     virtual std::vector<size_t> gather(
-      const std::vector<size_t>& val) const = 0;
+        const std::vector<size_t>& val) const = 0;
 
     /*! @brief Pass a value and return the corresponding values to each process
      *  @tparam T The type use for the gather.
