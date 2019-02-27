@@ -13,6 +13,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! A structure to store cache elements of traces and parameters corresponding
  *  to a collection of files
@@ -74,6 +75,7 @@ struct CacheElem {
     }
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

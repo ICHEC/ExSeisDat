@@ -12,6 +12,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! A parent class to allow gather operations to maintain a state.
  */
@@ -31,6 +32,7 @@ struct GatherState {
             gather) = 0;
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

@@ -12,6 +12,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! A file-descriptor structure which describes an input file and the
  *  decomposition for the set layer
@@ -27,6 +28,7 @@ struct FileDesc {
     std::vector<size_t> olst;
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

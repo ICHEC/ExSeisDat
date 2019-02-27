@@ -18,16 +18,22 @@ namespace piol {
  */
 class Binary_file {
   public:
-    /// @name Implicit members
+    /// @name @special_member_functions
     /// @{
 
-    Binary_file()              = default;
-    virtual ~Binary_file(void) = default;
+    /// @default_constructor{default}
+    Binary_file() = default;
+    /// @virtual_destructor
+    virtual ~Binary_file() = default;
 
+    /// @copy_constructor{delete}
     Binary_file(const Binary_file&) = delete;
+    /// @copy_assignment{delete}
     Binary_file& operator=(const Binary_file&) = delete;
 
+    /// @move_constructor{delete}
     Binary_file(Binary_file&&) = delete;
+    /// @move_assignment{delete}
     Binary_file& operator=(Binary_file&&) = delete;
 
     /// @}

@@ -8,6 +8,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! Enum class for the various function options.
  */
@@ -72,6 +73,7 @@ enum class FuncOpt : size_t {
     OwnIO
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

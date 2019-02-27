@@ -10,6 +10,7 @@ using namespace exseis::piol;
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 void RadonGatherState::make_state(
     const std::vector<size_t>& offset,
@@ -32,5 +33,6 @@ void RadonGatherState::make_state(
     }
 }
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis

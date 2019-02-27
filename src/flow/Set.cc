@@ -20,11 +20,13 @@ namespace flow {
 
 /// Typedef for functions that have separate input and output of
 /// traces/parameters
-typedef std::function<void(const TraceBlock* in, TraceBlock* out)> Mod;
+typedef std::function<void(
+    const detail::TraceBlock* in, detail::TraceBlock* out)>
+    Mod;
 
 /// Typedef for functions that have the same input and output of
 /// traces/parameters
-typedef std::function<std::vector<size_t>(TraceBlock* data)> InPlaceMod;
+typedef std::function<std::vector<size_t>(detail::TraceBlock* data)> InPlaceMod;
 
 
 Set::Set(
@@ -60,7 +62,7 @@ Set::~Set(void)
 
 void Set::add(std::unique_ptr<ReadInterface> in)
 {
-    m_file.emplace_back(std::make_shared<FileDesc>());
+    m_file.emplace_back(std::make_shared<detail::FileDesc>());
     auto& f = m_file.back();
     f->ifc  = std::move(in);
 
@@ -136,20 +138,20 @@ void Set::summary(void) const
 
 
 // TODO: Gather to Single is fine, Single to Gather is not
-std::unique_ptr<TraceBlock> Set::calc_func(
+std::unique_ptr<detail::TraceBlock> Set::calc_func(
     FuncLst::iterator f_curr,
     const FuncLst::iterator f_end,
-    FuncOpt type,
-    std::unique_ptr<TraceBlock> b_in)
+    detail::FuncOpt type,
+    std::unique_ptr<detail::TraceBlock> b_in)
 {
     if (f_curr == f_end || !(*f_curr)->opt.check(type)) {
         return b_in;
     }
 
-    if (type == FuncOpt::Gather) {
-        if ((*f_curr)->opt.check(FuncOpt::Gather)) {
-            auto b_out = std::make_unique<TraceBlock>();
-            dynamic_cast<Op<Mod>*>(f_curr->get())
+    if (type == detail::FuncOpt::Gather) {
+        if ((*f_curr)->opt.check(detail::FuncOpt::Gather)) {
+            auto b_out = std::make_unique<detail::TraceBlock>();
+            dynamic_cast<detail::Op<Mod>*>(f_curr->get())
                 ->func(b_in.get(), b_out.get());
             b_in = std::move(b_out);
         }
@@ -157,10 +159,12 @@ std::unique_ptr<TraceBlock> Set::calc_func(
         ++f_curr;
     }
 
-    if (type == FuncOpt::Gather || type == FuncOpt::SingleTrace) {
-        if ((*f_curr)->opt.check(FuncOpt::SingleTrace)) {
-            type = FuncOpt::SingleTrace;
-            dynamic_cast<Op<InPlaceMod>*>(f_curr->get())->func(b_in.get());
+    if (type == detail::FuncOpt::Gather
+        || type == detail::FuncOpt::SingleTrace) {
+        if ((*f_curr)->opt.check(detail::FuncOpt::SingleTrace)) {
+            type = detail::FuncOpt::SingleTrace;
+            dynamic_cast<detail::Op<InPlaceMod>*>(f_curr->get())
+                ->func(b_in.get());
         }
     }
 
@@ -230,7 +234,7 @@ std::vector<std::string> Set::start_single(
                 std::vector<size_t> sortlist =
                     get_sort_index(rblock, f->olst.data() + i);
 
-                auto b_in = std::make_unique<TraceBlock>();
+                auto b_in = std::make_unique<detail::TraceBlock>();
                 b_in->prm.reset(new Trace_metadata(*m_rule, rblock));
                 b_in->trc.resize(rblock * ns);
                 b_in->ns              = ns;
@@ -245,7 +249,8 @@ std::vector<std::string> Set::start_single(
                 }
 
                 auto b_final = calc_func(
-                    f_curr, f_end, FuncOpt::SingleTrace, std::move(b_in));
+                    f_curr, f_end, detail::FuncOpt::SingleTrace,
+                    std::move(b_in));
                 out.write_trace_non_contiguous(
                     rblock, sortlist.data(), b_final->trc.data(),
                     b_final->prm.get());
@@ -261,15 +266,15 @@ std::vector<std::string> Set::start_single(
                 Trace_metadata prm(*m_rule, 0);
                 in->read_trace_non_contiguous(0, nullptr, trc.data(), &prm);
 
-                auto b_in = std::make_unique<TraceBlock>();
+                auto b_in = std::make_unique<detail::TraceBlock>();
                 b_in->prm.reset(new Trace_metadata(*m_rule, 1LU));
                 b_in->trc.resize(1LU);
                 b_in->ns              = f->ifc->read_ns();
                 b_in->nt              = 0LU;
                 b_in->sample_interval = f->ifc->read_sample_interval();
 
-                auto b_final =
-                    calc_func(f_curr, f_end, FuncOpt::Gather, std::move(b_in));
+                auto b_final = calc_func(
+                    f_curr, f_end, detail::FuncOpt::Gather, std::move(b_in));
                 out.write_trace_non_contiguous(
                     0, nullptr, b_final->trc.data(), b_final->prm.get());
             }
@@ -282,11 +287,13 @@ std::string Set::start_gather(
     FuncLst::iterator f_curr, const FuncLst::iterator f_end)
 {
     if (m_file.size() > 1LU) {
-        OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal,
-                     FuncOpt::SingleTrace};
+        detail::OpOpt opt = {detail::FuncOpt::NeedMeta,
+                             detail::FuncOpt::NeedTrcVal,
+                             detail::FuncOpt::SingleTrace};
         FuncLst t_func;
-        t_func.push_back(std::make_shared<Op<InPlaceMod>>(
-            opt, nullptr, nullptr, [](TraceBlock*) -> std::vector<size_t> {
+        t_func.push_back(std::make_shared<detail::Op<InPlaceMod>>(
+            opt, nullptr, nullptr,
+            [](detail::TraceBlock*) -> std::vector<size_t> {
                 return std::vector<size_t>{};
             }));
 
@@ -297,7 +304,7 @@ std::string Set::start_gather(
         m_outfix = t_outfix;
         drop();
         for (std::string n : names) {
-            // TODO: Open with delete on close?
+            // TODO: detail::Open with delete on close?
             add(n);
         }
     }
@@ -312,9 +319,9 @@ std::string Set::start_gather(
 
         std::vector<size_t> gather_numbers;
         for (auto f_temp = f_curr;
-             f_temp != f_end && (*f_temp)->opt.check(FuncOpt::Gather);
+             f_temp != f_end && (*f_temp)->opt.check(detail::FuncOpt::Gather);
              f_temp++) {
-            auto* p = dynamic_cast<Op<Mod>*>(f_temp->get());
+            auto* p = dynamic_cast<detail::Op<Mod>*>(f_temp->get());
             assert(p);
             for (size_t i = 0; i < number_of_gathersather; i++) {
                 gather_numbers.push_back(i * m_num_rank + m_rank);
@@ -330,7 +337,8 @@ std::string Set::start_gather(
             Rule(std::initializer_list<Meta>{Meta::il, Meta::xl});
 
         auto f_temp = f_curr;
-        while (++f_temp != f_end && (*f_temp)->opt.check(FuncOpt::Gather)) {
+        while (++f_temp != f_end
+               && (*f_temp)->opt.check(detail::FuncOpt::Gather)) {
         }
 
         gname = (f_temp != f_end ? "gtemp.segy" : m_outfix + ".segy");
@@ -348,7 +356,7 @@ std::string Set::start_gather(
             const size_t i_g_sz = gval.num_traces;
 
             // Initialise the blocks
-            auto b_in = std::make_unique<TraceBlock>();
+            auto b_in = std::make_unique<detail::TraceBlock>();
             b_in->prm.reset(new Trace_metadata(gather_rule, i_g_sz));
             b_in->trc.resize(i_g_sz * o->ifc->read_ns());
             b_in->ns                = o->ifc->read_ns();
@@ -363,8 +371,8 @@ std::string Set::start_gather(
                 b_in->prm.get());
             i_offset += m_piol->comm->sum(i_g_sz);
 
-            auto b_out =
-                calc_func(f_curr, f_end, FuncOpt::Gather, std::move(b_in));
+            auto b_out = calc_func(
+                f_curr, f_end, detail::FuncOpt::Gather, std::move(b_in));
 
             size_t woff = m_piol->comm->offset(b_out->prm->size());
             // For simplicity, the output is now
@@ -383,15 +391,15 @@ std::string Set::start_gather(
             o->ifc->read_trace(size_t(0), size_t(0), nullptr, nullptr);
             m_piol->comm->sum(0LU);
 
-            auto b_in = std::make_unique<TraceBlock>();
+            auto b_in = std::make_unique<detail::TraceBlock>();
             b_in->prm.reset(new Trace_metadata(gather_rule, 0LU));
             b_in->trc.resize(0LU);
             b_in->ns              = o->ifc->read_ns();
             b_in->nt              = o->ifc->read_nt();
             b_in->sample_interval = o->ifc->read_sample_interval();
 
-            auto b_out =
-                calc_func(f_curr, f_end, FuncOpt::Gather, std::move(b_in));
+            auto b_out = calc_func(
+                f_curr, f_end, detail::FuncOpt::Gather, std::move(b_in));
             out.write_ns(b_out->ns);
             out.write_sample_interval(b_out->sample_interval);
 
@@ -401,7 +409,7 @@ std::string Set::start_gather(
         }
     }
 
-    while (++f_curr != f_end && (*f_curr)->opt.check(FuncOpt::Gather)) {
+    while (++f_curr != f_end && (*f_curr)->opt.check(detail::FuncOpt::Gather)) {
     }
 
     if (f_curr != f_end) {
@@ -418,10 +426,10 @@ std::string Set::start_gather(
 Set::FuncLst::iterator Set::calc_func_s(
     FuncLst::iterator f_curr, const FuncLst::iterator f_end, FileDeque& f_que)
 {
-    std::shared_ptr<TraceBlock> block;
+    std::shared_ptr<detail::TraceBlock> block;
 
-    if ((*f_curr)->opt.check(FuncOpt::NeedMeta)) {
-        if (!(*f_curr)->opt.check(FuncOpt::NeedTrcVal)) {
+    if ((*f_curr)->opt.check(detail::FuncOpt::NeedMeta)) {
+        if (!(*f_curr)->opt.check(detail::FuncOpt::NeedTrcVal)) {
             block = m_cache.cache_prm((*f_curr)->rule, f_que);
         }
         else {
@@ -432,13 +440,13 @@ Set::FuncLst::iterator Set::calc_func_s(
                 EXSEISDAT_SOURCE_POSITION("exseis::flow::Set::calc_func_s")});
         }
     }
-    else if ((*f_curr)->opt.check(FuncOpt::NeedTrcVal)) {
+    else if ((*f_curr)->opt.check(detail::FuncOpt::NeedTrcVal)) {
         block = m_cache.cache_trc(f_que);
     }
 
     // The operation call
     std::vector<size_t> trlist =
-        dynamic_cast<Op<InPlaceMod>*>(f_curr->get())->func(block.get());
+        dynamic_cast<detail::Op<InPlaceMod>*>(f_curr->get())->func(block.get());
 
     size_t j = 0;
     for (auto& f : f_que) {
@@ -447,7 +455,7 @@ Set::FuncLst::iterator Set::calc_func_s(
     }
 
     if (++f_curr != f_end) {
-        if ((*f_curr)->opt.check(FuncOpt::SubSetOnly)) {
+        if ((*f_curr)->opt.check(detail::FuncOpt::SubSetOnly)) {
             return calc_func_s(f_curr, f_end, f_que);
         }
     }
@@ -474,10 +482,10 @@ std::vector<std::string> Set::calc_func(
     FuncLst::iterator f_curr, const FuncLst::iterator f_end)
 {
     if (f_curr != f_end) {
-        if ((*f_curr)->opt.check(FuncOpt::SubSetOnly)) {
+        if ((*f_curr)->opt.check(detail::FuncOpt::SubSetOnly)) {
             f_curr = start_subset(f_curr, f_end);
         }
-        else if ((*f_curr)->opt.check(FuncOpt::Gather)) {
+        else if ((*f_curr)->opt.check(detail::FuncOpt::Gather)) {
             std::string gname = start_gather(f_curr, f_end);
 
             // If startGather returned an empty string, then fCurr == fEnd was
@@ -488,14 +496,14 @@ std::vector<std::string> Set::calc_func(
 
             /// @todo Later this will need to be changed when the gather also
             ///       continues with single trace cases
-            // Skip fCurr where check(FuncOpt::Gather) is ok
+            // Skip fCurr where check(detail::FuncOpt::Gather) is ok
             for (; f_curr != f_end; ++f_curr) {
-                if (!(*f_curr)->opt.check(FuncOpt::Gather)) {
+                if (!(*f_curr)->opt.check(detail::FuncOpt::Gather)) {
                     break;
                 }
             }
         }
-        else if ((*f_curr)->opt.check(FuncOpt::SingleTrace)) {
+        else if ((*f_curr)->opt.check(detail::FuncOpt::SingleTrace)) {
             std::vector<std::string> sname = start_single(f_curr, f_end);
 
             if (!sname.empty()) {
@@ -503,7 +511,7 @@ std::vector<std::string> Set::calc_func(
             }
 
             for (; f_curr != f_end; ++f_curr) {
-                if (!(*f_curr)->opt.check(FuncOpt::SingleTrace)) {
+                if (!(*f_curr)->opt.check(detail::FuncOpt::SingleTrace)) {
                     break;
                 }
             }
@@ -526,9 +534,10 @@ std::vector<std::string> Set::calc_func(
 
 std::vector<std::string> Set::output(std::string oname)
 {
-    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::NeedTrcVal, FuncOpt::SingleTrace};
-    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
-        opt, nullptr, nullptr, [](TraceBlock*) -> std::vector<size_t> {
+    detail::OpOpt opt = {detail::FuncOpt::NeedMeta, detail::FuncOpt::NeedTrcVal,
+                         detail::FuncOpt::SingleTrace};
+    m_func.emplace_back(std::make_shared<detail::Op<InPlaceMod>>(
+        opt, nullptr, nullptr, [](detail::TraceBlock*) -> std::vector<size_t> {
             return std::vector<size_t>{};
         }));
 
@@ -619,12 +628,13 @@ void Set::sort(CompareP sort_func)
 
 void Set::sort(std::shared_ptr<Rule> r, CompareP sort_func)
 {
-    OpOpt opt = {FuncOpt::NeedMeta, FuncOpt::ModMetaVal, FuncOpt::DepMetaVal,
-                 FuncOpt::SubSetOnly};
+    detail::OpOpt opt = {detail::FuncOpt::NeedMeta, detail::FuncOpt::ModMetaVal,
+                         detail::FuncOpt::DepMetaVal,
+                         detail::FuncOpt::SubSetOnly};
 
-    m_func.push_back(std::make_shared<Op<InPlaceMod>>(
+    m_func.push_back(std::make_shared<detail::Op<InPlaceMod>>(
         opt, r, nullptr,
-        [this, sort_func](TraceBlock* in) -> std::vector<size_t> {
+        [this, sort_func](detail::TraceBlock* in) -> std::vector<size_t> {
             // TODO: It will eventually be necessary to support this use case.
             if (m_piol->comm->min(in->prm->size()) < 3LU) {
                 m_piol->log->add_entry(exseis::utils::Log_entry{
@@ -647,14 +657,18 @@ void Set::to_angle(
     const size_t output_traces_per_gather,
     exseis::utils::Floating_point output_sample_interval)
 {
-    OpOpt opt  = {FuncOpt::NeedMeta,   FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal,
-                 FuncOpt::ModMetaVal, FuncOpt::DepTrcVal,  FuncOpt::DepTrcOrder,
-                 FuncOpt::DepTrcCnt,  FuncOpt::DepMetaVal, FuncOpt::Gather};
-    auto state = std::make_shared<RadonGatherState>(
+    detail::OpOpt opt = {
+        detail::FuncOpt::NeedMeta,  detail::FuncOpt::NeedTrcVal,
+        detail::FuncOpt::ModTrcVal, detail::FuncOpt::ModMetaVal,
+        detail::FuncOpt::DepTrcVal, detail::FuncOpt::DepTrcOrder,
+        detail::FuncOpt::DepTrcCnt, detail::FuncOpt::DepMetaVal,
+        detail::FuncOpt::Gather};
+    auto state = std::make_shared<detail::RadonGatherState>(
         m_piol, vm_name, v_bin, output_traces_per_gather,
         output_sample_interval);
-    m_func.emplace_back(std::make_shared<Op<Mod>>(
-        opt, m_rule, state, [state](const TraceBlock* in, TraceBlock* out) {
+    m_func.emplace_back(std::make_shared<detail::Op<Mod>>(
+        opt, m_rule, state,
+        [state](const detail::TraceBlock* in, detail::TraceBlock* out) {
             const size_t i_g_sz = in->prm->size();
             out->ns             = in->ns;
             out->sample_interval =
@@ -714,10 +728,12 @@ void Set::taper(
     size_t taper_size_at_begin,
     size_t taper_size_at_end)
 {
-    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
-                 FuncOpt::SingleTrace};
-    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
-        opt, m_rule, nullptr, [=](TraceBlock* in) -> std::vector<size_t> {
+    detail::OpOpt opt = {detail::FuncOpt::NeedTrcVal,
+                         detail::FuncOpt::ModTrcVal, detail::FuncOpt::DepTrcVal,
+                         detail::FuncOpt::SingleTrace};
+    m_func.emplace_back(std::make_shared<detail::Op<InPlaceMod>>(
+        opt, m_rule, nullptr,
+        [=](detail::TraceBlock* in) -> std::vector<size_t> {
             // Loop over traces and apply the taper to each one
             for (size_t i = 0; i < in->prm->size(); i++) {
 
@@ -741,10 +757,12 @@ void Set::mute(
     size_t taper_size_at_end,
     size_t mute_size_at_end)
 {
-    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
-                 FuncOpt::SingleTrace};
-    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
-        opt, m_rule, nullptr, [=](TraceBlock* in) -> std::vector<size_t> {
+    detail::OpOpt opt = {detail::FuncOpt::NeedTrcVal,
+                         detail::FuncOpt::ModTrcVal, detail::FuncOpt::DepTrcVal,
+                         detail::FuncOpt::SingleTrace};
+    m_func.emplace_back(std::make_shared<detail::Op<InPlaceMod>>(
+        opt, m_rule, nullptr,
+        [=](detail::TraceBlock* in) -> std::vector<size_t> {
             // Loop over traces and apply the taper to each one
             for (size_t i = 0; i < in->prm->size(); i++) {
 
@@ -766,13 +784,14 @@ void Set::agc(
     size_t window,
     exseis::utils::Trace_value target_amplitude)
 {
-    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
-                 FuncOpt::SingleTrace};
+    detail::OpOpt opt = {detail::FuncOpt::NeedTrcVal,
+                         detail::FuncOpt::ModTrcVal, detail::FuncOpt::DepTrcVal,
+                         detail::FuncOpt::SingleTrace};
 
-    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
+    m_func.emplace_back(std::make_shared<detail::Op<InPlaceMod>>(
         opt, m_rule, nullptr,
         [agc_func, window,
-         target_amplitude](TraceBlock* in) -> std::vector<size_t> {
+         target_amplitude](detail::TraceBlock* in) -> std::vector<size_t> {
             const auto num_traces        = in->prm->size();
             const auto samples_per_trace = in->ns;
 
@@ -833,12 +852,13 @@ void Set::temporal_filter(
     size_t win_cntr)
 {
     assert(corners.size() == 2);
-    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
-                 FuncOpt::SingleTrace};
-    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
+    detail::OpOpt opt = {detail::FuncOpt::NeedTrcVal,
+                         detail::FuncOpt::ModTrcVal, detail::FuncOpt::DepTrcVal,
+                         detail::FuncOpt::SingleTrace};
+    m_func.emplace_back(std::make_shared<detail::Op<InPlaceMod>>(
         opt, m_rule, nullptr,
         [type, domain, corners, pad, fs, nw,
-         win_cntr](TraceBlock* in) -> std::vector<size_t> {
+         win_cntr](detail::TraceBlock* in) -> std::vector<size_t> {
             piol::temporal_filter(
                 in->prm->size(), in->ns, in->trc.data(), fs, type, domain, pad,
                 nw, win_cntr, corners);
@@ -857,12 +877,13 @@ void Set::temporal_filter(
     size_t win_cntr)
 {
     assert(corners.size() == 2);
-    OpOpt opt = {FuncOpt::NeedTrcVal, FuncOpt::ModTrcVal, FuncOpt::DepTrcVal,
-                 FuncOpt::SingleTrace};
-    m_func.emplace_back(std::make_shared<Op<InPlaceMod>>(
+    detail::OpOpt opt = {detail::FuncOpt::NeedTrcVal,
+                         detail::FuncOpt::ModTrcVal, detail::FuncOpt::DepTrcVal,
+                         detail::FuncOpt::SingleTrace};
+    m_func.emplace_back(std::make_shared<detail::Op<InPlaceMod>>(
         opt, m_rule, nullptr,
         [type, domain, corners, pad, fs, nw, win_cntr,
-         n](TraceBlock* in) -> std::vector<size_t> {
+         n](detail::TraceBlock* in) -> std::vector<size_t> {
             piol::temporal_filter(
                 in->prm->size(), in->ns, in->trc.data(), fs, type, domain, pad,
                 nw, win_cntr, corners, n);

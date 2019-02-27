@@ -12,6 +12,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! Operations parents. Specific classes of operations inherit from this parent
  */
@@ -45,6 +46,7 @@ struct OpParent {
     virtual ~OpParent(void) = default;
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

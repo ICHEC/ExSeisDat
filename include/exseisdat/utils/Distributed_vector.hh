@@ -41,6 +41,7 @@ class Distributed_vector {
     ///
     class Concept {
       public:
+        /// @virtual_destructor
         virtual ~Concept() = default;
 
         /// @copydoc Distributed_vector::set
@@ -69,19 +70,23 @@ class Distributed_vector {
     }
 
   public:
-    /// @name Defaulted implicit member functions.
-    /// Move construction and assignment are enabled.
+    /// @name @special_member_functions
     /// @{
-    ~Distributed_vector()                    = default;
-    Distributed_vector(Distributed_vector&&) = default;
-    Distributed_vector& operator=(Distributed_vector&&) = default;
-    /// @}
 
-    /// @name Deleted implicit member functions.
-    /// Copy construction and assignment are disabled.
-    /// @{
-    Distributed_vector()                          = delete;
+    /// @default_constructor{delete}
+    Distributed_vector() = delete;
+
+    /// @default_destructor
+    ~Distributed_vector() = default;
+
+    /// @move_constructor{default}
+    Distributed_vector(Distributed_vector&&) = default;
+    /// @move_assignment{default}
+    Distributed_vector& operator=(Distributed_vector&&) = default;
+
+    /// @copy_constructor{delete}
     Distributed_vector(const Distributed_vector&) = delete;
+    /// @copy_assignment{delete}
     Distributed_vector& operator=(const Distributed_vector&) = delete;
     /// @}
 

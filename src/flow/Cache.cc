@@ -13,6 +13,7 @@ using namespace exseis::piol;
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 // TODO: Generalise this for parameters and traces
 std::shared_ptr<TraceBlock> Cache::get_cache(
@@ -119,5 +120,6 @@ std::vector<size_t> Cache::get_output_trace(
     return final;
 }
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis

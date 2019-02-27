@@ -13,23 +13,34 @@ namespace utils {
 
 /// An enumeration of all the arithmetic types used by ExSeisDat.
 enum class Type : uint8_t {
+    /// Represents `double`
     Double,
+    /// Represents `float`
     Float,
 
+    /// Represents `int64_t`
     Int64,
+    /// Represents `uint64_t`
     UInt64,
 
+    /// Represents `int32_t`
     Int32,
+    /// Represents `uint32_t`
     UInt32,
 
+    /// Represents `int16_t`
     Int16,
+    /// Represents `uint16_t`
     UInt16,
 
+    /// Represents `int8_t`
     Int8,
+    /// Represents `uint8_t`
     UInt8,
 
-    // Temporary!
+    /// Temporary! Should be removed.
     Index,
+    /// Temporary! Should be removed.
     Copy
 };
 
@@ -87,52 +98,67 @@ constexpr Type type_from_native_impl()
 }
 
 
-/// @brief Helper mappings from Type value to native types
-/// @{
+template<Type TypeId, typename T = void>
+struct native_from_type_impl {
+    static_assert(
+        sizeof(T) == 0, "Native_from_type called for unknown Type Id.");
+};
 
-template<Type T>
-typename std::enable_if<T == Type::Double, double>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::Double> {
+    using type = double;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::Float, float>::type native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::Float> {
+    using type = float;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::Int64, int64_t>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::Int64> {
+    using type = int64_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::UInt64, uint64_t>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::UInt64> {
+    using type = uint64_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::Int32, int32_t>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::Int32> {
+    using type = int32_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::UInt32, uint32_t>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::UInt32> {
+    using type = uint32_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::Int16, int16_t>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::Int16> {
+    using type = int16_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::UInt16, uint16_t>::type
-native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::UInt16> {
+    using type = uint16_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::Int8, int8_t>::type native_from_type_impl();
+template<>
+struct native_from_type_impl<Type::Int8> {
+    using type = int8_t;
+};
 
-template<Type T>
-typename std::enable_if<T == Type::UInt8, uint8_t>::type
-native_from_type_impl();
-
-/// @}
+template<>
+struct native_from_type_impl<Type::UInt8> {
+    using type = uint8_t;
+};
 
 }  // namespace detail
 
 
+/// @brief Transforms a built-in type to the equivalent Type enum.
+/// @tparam T The built-in type to transform.
 template<typename T>
 class Type_from_native {
   public:
@@ -140,11 +166,13 @@ class Type_from_native {
     static constexpr Type value = detail::type_from_native_impl<T>();
 };
 
+/// @brief Transforms a Type enum to an equivalent built-in type.
+/// @tparam T The Type value to transform.
 template<Type T>
 class Native_from_type {
   public:
     /// The native type
-    using type = decltype(detail::native_from_type_impl<T>());
+    using type = typename detail::native_from_type_impl<T>::type;
 };
 
 

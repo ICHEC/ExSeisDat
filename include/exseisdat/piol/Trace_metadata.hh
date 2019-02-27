@@ -88,16 +88,21 @@ class Trace_metadata {
     Trace_metadata(size_t num_traces = 1);
 
 
-    /// @name Default implicit member functions
+    /// @name @special_member_functions
     /// @{
 
-    /// @brief Destructor defined here for wraptest capture.
+    /// @default_destructor
+    /// The destructor is defined here for capture during wraptests.
     ~Trace_metadata();
 
+    /// @copy_constructor{default}
     Trace_metadata(const Trace_metadata&) = default;
+    /// @copy_assignment{default}
     Trace_metadata& operator=(const Trace_metadata&) = default;
 
+    /// @move_constructor{default}
     Trace_metadata(Trace_metadata&&) = default;
+    /// @move_assignment{default}
     Trace_metadata& operator=(Trace_metadata&&) = default;
 
     /// @}

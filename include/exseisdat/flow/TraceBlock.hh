@@ -13,6 +13,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 using namespace exseis::utils::typedefs;
 
@@ -41,6 +42,7 @@ struct TraceBlock {
     std::vector<exseis::utils::Trace_value> trc;
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

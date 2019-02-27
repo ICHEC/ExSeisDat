@@ -12,6 +12,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! A structure to hold operation options.
  */
@@ -46,6 +47,7 @@ class OpOpt {
     void add(FuncOpt opt) { m_option_list.push_back(opt); }
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

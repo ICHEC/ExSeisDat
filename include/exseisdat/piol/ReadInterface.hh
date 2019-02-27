@@ -21,18 +21,25 @@ namespace piol {
  */
 class ReadInterface {
   public:
-    /// @brief Default constructable, non-copyable, non-movable,
-    ///        virtual destructor.
+    /// @name @special_member_functions
     /// @{
+
+    /// @default_constructor{default}
     ReadInterface() = default;
 
+    /// @virtual_destructor
+    virtual ~ReadInterface();
+
+    /// @copy_constructor{delete}
     ReadInterface(const ReadInterface&) = delete;
+    /// @copy_assignment{delete}
     ReadInterface& operator=(const ReadInterface&) = delete;
 
+    /// @move_constructor{delete}
     ReadInterface(ReadInterface&&) = delete;
+    /// @move_assignment{delete}
     ReadInterface& operator=(ReadInterface&&) = delete;
 
-    virtual ~ReadInterface();
     /// @}
 
     /// @brief Get the name of the file.

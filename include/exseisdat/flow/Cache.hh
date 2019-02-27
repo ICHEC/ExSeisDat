@@ -14,6 +14,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! The class which holds all cache elements.
  */
@@ -126,6 +127,7 @@ class Cache {
         exseis::piol::Trace_metadata& prm);
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

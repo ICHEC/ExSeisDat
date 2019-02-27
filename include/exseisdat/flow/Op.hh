@@ -14,6 +14,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 /*! Template for creating a structure for a particular operation type.
  */
@@ -38,6 +39,7 @@ struct Op : public OpParent {
     }
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

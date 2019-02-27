@@ -20,6 +20,7 @@ using namespace testing;
 using namespace exseis::utils;
 using namespace exseis::piol;
 using namespace exseis::flow;
+using namespace exseis::flow::detail;
 
 class MockFile : public ReadInterface {
   public:

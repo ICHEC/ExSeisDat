@@ -8,6 +8,7 @@ configure_file(
     @ONLY
 )
 
+set(INCLUDE_DOXYFILE "@INCLUDE = Doxyfile")
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man

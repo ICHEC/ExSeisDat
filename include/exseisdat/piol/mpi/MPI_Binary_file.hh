@@ -39,6 +39,7 @@ enum FileMode : int {
 class MPI_Binary_file : public Binary_file {
   public:
     /*! @brief The MPI-IO options structure.
+     *  This class also manages the lifetime of an MPI_Info object.
      */
     struct Opt {
         /// The Type of the class this structure is nested in
@@ -59,19 +60,24 @@ class MPI_Binary_file : public Binary_file {
         MPI_Comm file_communicator = MPI_COMM_WORLD;
 
 
-        /// @brief The constructor to set default options.
-        ///        Creates an MPI_Info object in `info`.
-        Opt(void);
-
-        /// @brief The destructor. Frees `info`.
-        ~Opt(void);
-
-        /// @name Implicit Members
+        /// @name @special_member_functions
         /// @{
+
+        /// @brief Construct Opt, and create an instance of MPI_Info.
+        Opt();
+
+        /// @brief Delete Opt, and free the instance of MPI_Info.
+        ~Opt();
+
+        /// @copy_constructor{delete}
         Opt(const Opt&) = delete;
+        /// @copy_assignment{delete}
         Opt& operator=(const Opt&) = delete;
-        Opt(Opt&&)                 = delete;
+        /// @move_constructor{delete}
+        Opt(Opt&&) = delete;
+        /// @move_assignment{delete}
         Opt& operator=(Opt&&) = delete;
+
         /// @}
     };
 
@@ -130,12 +136,19 @@ class MPI_Binary_file : public Binary_file {
     ~MPI_Binary_file();
 
 
-    /// @name Implicit members
+    /// @name @special_member_functions
     /// @{
+
+    /// @copy_constructor{delete}
     MPI_Binary_file(const MPI_Binary_file&) = delete;
+    /// @copy_assignment{delete}
     MPI_Binary_file& operator=(const MPI_Binary_file&) = delete;
-    MPI_Binary_file(MPI_Binary_file&&)                 = delete;
+
+    /// @move_constructor{delete}
+    MPI_Binary_file(MPI_Binary_file&&) = delete;
+    /// @move_assignment{delete}
     MPI_Binary_file& operator=(MPI_Binary_file&&) = delete;
+
     /// @}
 
 

@@ -18,6 +18,7 @@
 
 namespace exseis {
 namespace flow {
+namespace detail {
 
 using namespace exseis::utils::typedefs;
 
@@ -83,6 +84,7 @@ struct RadonGatherState : public GatherState {
             gather) override;
 };
 
+}  // namespace detail
 }  // namespace flow
 }  // namespace exseis
 

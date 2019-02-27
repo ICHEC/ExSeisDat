@@ -1,7 +1,7 @@
 #
 # Generate man pages for util programs
 #
-@INCLUDE Doxyfile
+@INCLUDE_DOXYFILE@
 
 PROJECT_NAME  = ExSeisDat
 

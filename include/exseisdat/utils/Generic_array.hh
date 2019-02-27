@@ -112,14 +112,18 @@ class Generic_array {
     }
 
 
-    /// @name Implicit members
+    /// @name @special_member_functions
     /// @{
 
+    /// @copy_constructor{value semantics}
+    /// @param[in] other The Generic_array to copy.
     Generic_array(const Generic_array& other) :
         m_concept(other.m_concept->clone())
     {
     }
 
+    /// @copy_assignment{value semantics}
+    /// @param[in] other The Generic_array to copy.
     Generic_array& operator=(const Generic_array& other)
     {
         if (this != &other) {
@@ -129,9 +133,12 @@ class Generic_array {
         return *this;
     }
 
+    /// @move_constructor{default}
     Generic_array(Generic_array&&) = default;
+    /// @move_assignment{default}
     Generic_array& operator=(Generic_array&&) = default;
 
+    /// @default_destructor
     ~Generic_array() = default;
 
     /// @}

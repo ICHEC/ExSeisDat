@@ -22,18 +22,25 @@ namespace piol {
 class WriteInterface {
 
   public:
-    /// @brief Default constructable, non-copyable, non-movable,
-    ///        virtual destructor.
+    /// @name @special_member_functions
     /// @{
+
+    /// @default_constructor{default}
     WriteInterface() = default;
 
+    /// @copy_constructor{delete}
     WriteInterface(const WriteInterface&) = delete;
+    /// @copy_assignment{delete}
     WriteInterface& operator=(const WriteInterface&) = delete;
 
+    /// @move_constructor{delete}
     WriteInterface(WriteInterface&&) = delete;
+    /// @move_assignment{delete}
     WriteInterface& operator=(WriteInterface&&) = delete;
 
+    /// @virtual_destructor
     virtual ~WriteInterface();
+
     /// @}
 
     /// @brief Get the name of the file.

@@ -33,10 +33,10 @@ using namespace exseis::utils::typedefs;
 class Set {
   public:
     /// Typedef for passing in a list of FileDesc objects.
-    typedef std::deque<std::shared_ptr<FileDesc>> FileDeque;
+    typedef std::deque<std::shared_ptr<detail::FileDesc>> FileDeque;
 
     /// The function list type for the set layer
-    typedef std::list<std::shared_ptr<OpParent>> FuncLst;
+    typedef std::list<std::shared_ptr<detail::OpParent>> FuncLst;
 
   protected:
     /// The PIOL object.
@@ -63,7 +63,7 @@ class Set {
     std::shared_ptr<exseis::piol::Rule> m_rule;
 
     /// The cache of parameters and traces
-    Cache m_cache;
+    detail::Cache m_cache;
 
     /// The list of functions and related data
     FuncLst m_func;
@@ -137,11 +137,11 @@ class Set {
      *
      *  Transitions from gather to single trace are allowed but not the inverse.
      */
-    std::unique_ptr<TraceBlock> calc_func(
+    std::unique_ptr<detail::TraceBlock> calc_func(
         FuncLst::iterator f_curr,
         FuncLst::iterator f_end,
-        FuncOpt type,
-        std::unique_ptr<TraceBlock> b_in);
+        detail::FuncOpt type,
+        std::unique_ptr<detail::TraceBlock> b_in);
 
     /*! The entry point for unwinding the function list for subsets.
      *  @param[in] f_curr  The iterator for the current function to process.

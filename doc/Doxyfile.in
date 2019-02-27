@@ -13,11 +13,12 @@ PROJECT_NAME           = ExSeisDat
 PROJECT_NUMBER         = @ExSeisDat_VERSION@
 
 # Extraction options
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 EXTRACT_PACKAGE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_METHODS  = YES
 EXTRACT_ANON_NSPACES   = YES
+EXCLUDE_SYMBOLS        = detail
 
 # Generate case sensitive filenames
 CASE_SENSE_NAMES       = YES
@@ -34,7 +35,6 @@ WARN_AS_ERROR          = YES
 # Input directories
 INPUT                  =         \
     @CMAKE_SOURCE_DIR@/doc/namespaces.dox \
-    @CMAKE_SOURCE_DIR@/src       \
     @CMAKE_SOURCE_DIR@/include   \
     @CMAKE_SOURCE_DIR@/util      \
     @CMAKE_SOURCE_DIR@/README.md \
@@ -83,3 +83,14 @@ MACRO_EXPANSION        = YES
 PREDEFINED             = __cplusplus
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
+
+# Aliases for implicit members
+ALIASES += special_member_functions="Special Member Functions"
+ALIASES += default_constructor{1}="@brief Default constructor: \1"
+ALIASES += default_destructor="@brief Default destructor"
+ALIASES += virtual_destructor="@brief Virtual destructor"
+ALIASES += chained_return="@returns A reference to the current instance."
+ALIASES += copy_constructor{1}="@brief Copy constructor: \1"
+ALIASES += copy_assignment{1}="@brief Copy assignment: \1 @chained_return"
+ALIASES += move_constructor{1}="@brief Move constructor: \1"
+ALIASES += move_assignment{1}="@brief Move assignment: \1 @chained_return"
