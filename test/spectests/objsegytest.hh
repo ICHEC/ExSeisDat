@@ -185,7 +185,6 @@ class ObjTest : public Test {
         const size_t poff   = 0,
         unsigned char magic = 0)
     {
-        SCOPED_TRACE("read_test " + std::to_string(size_t(Type)));
         if (UseMock && m_mock == nullptr) {
             std::cerr << "Using UseMock when not initialised: LOC: " << __LINE__
                       << std::endl;
@@ -276,8 +275,6 @@ class ObjTest : public Test {
         const size_t poff   = 0,
         unsigned char magic = 0)
     {
-        SCOPED_TRACE("write_test " + std::to_string(size_t(Type)));
-
         const size_t extra = 20U;
         size_t bsz =
             (Type == Block::TRACE_METADATA ?
@@ -349,7 +346,6 @@ class ObjTest : public Test {
         const std::vector<size_t>& offset,
         unsigned char magic = 0)
     {
-        SCOPED_TRACE("read_random_test " + std::to_string(size_t(Type)));
         size_t nt = offset.size();
         if (UseMock && m_mock == nullptr) {
             std::cerr << "Using UseMock when not initialised: LOC: " << __LINE__
@@ -431,7 +427,6 @@ class ObjTest : public Test {
         const std::vector<size_t>& offset,
         unsigned char magic = 0)
     {
-        SCOPED_TRACE("write_random_test " + std::to_string(size_t(Type)));
         size_t nt          = offset.size();
         const size_t extra = 20U;
         size_t bsz =

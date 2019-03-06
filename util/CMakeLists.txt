@@ -1,6 +1,3 @@
-# Link libexseisdat to all the executables.
-link_libraries(exseisdat)
-
 #
 # Setup all the utility executables
 #
@@ -11,7 +8,11 @@ set(EXSEISDAT_UTILITIES_EXES)
 macro(util_add_executable)
     add_executable(${ARGV})
     list(APPEND EXSEISDAT_UTILITIES_EXES ${ARGV0})
-    set_target_properties(${ARGV0} PROPERTIES LINKER_LANGUAGE CXX)
+    target_link_libraries(${ARGV0} exseisdat)
+
+    if(EXSEISDAT_ENABLE_SANITIZERS)
+        set_target_properties(${ARGV0} PROPERTIES LINKER_LANGUAGE CXX)
+    endif(EXSEISDAT_ENABLE_SANITIZERS)
 endmacro(util_add_executable)
 
 
@@ -46,15 +47,16 @@ util_add_executable(exseis-minmax   minmax.cc sglobal.cc)
 util_add_executable(exseis-segy2kml segy2kml.cc sglobal.cc)
 
 util_add_executable(exseis-extract-metadata extract-metadata.main.cc)
-target_link_libraries(exseis-extract-metadata CLI11::CLI11)
+target_link_libraries(exseis-extract-metadata exseisdat::CLI11)
 
 
 #
 # Install the utility executables
 #
-set(
-    EXSEISDAT_INSTALL_UTILITIES ON CACHE BOOL
+option(
+    EXSEISDAT_INSTALL_UTILITIES
     "Set whether or not the ExSeisDat utility programs should be installed."
+    ON
 )
 if(EXSEISDAT_INSTALL_UTILITIES)
     set(

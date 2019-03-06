@@ -302,7 +302,9 @@ T* Trace_metadata::entry_data(Key entry)
         case RuleEntry::MdType::Copy:
             assert(false && "Unexpected entry type MdType::Copy");
     }
+
     assert(false && "Unknown entry type!");
+    return nullptr;
 }
 
 

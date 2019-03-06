@@ -5,6 +5,7 @@
 #ifndef EXSEISDAT_UTILS_TYPE_HH
 #define EXSEISDAT_UTILS_TYPE_HH
 
+#include <cassert>
 #include <cstdint>
 #include <type_traits>
 
@@ -64,12 +65,19 @@ template<typename T>
 constexpr Type type_from_native_impl()
 {
     static_assert(
-        std::is_floating_point<T>() || std::is_integral<T>(),
+        std::is_floating_point<T>::value || std::is_integral<T>::value,
         "Type_from_native is only defined for built-in floating point and integral types!");
 
     static_assert(
-        sizeof(T) == 8 || sizeof(T) == 4 || sizeof(T) == 2 || sizeof(T) == 1,
-        "Type_from_native is only supported for 64, 32, 16, or 8 bit types!");
+        (std::is_floating_point<T>::value && sizeof(T) == 8)
+            || (std::is_floating_point<T>::value && sizeof(T) == 4)
+            || (std::is_integral<T>::value && sizeof(T) == 8)
+            || (std::is_integral<T>::value && sizeof(T) == 4)
+            || (std::is_integral<T>::value && sizeof(T) == 2)
+            || (std::is_integral<T>::value && sizeof(T) == 1),
+        "Type_from_native only supports 64 and 32 bit floating-point types and 64, 32, 16, and 8 bit integral types.");
+
+    constexpr Type failure = static_cast<Type>(-1);
 
     if (std::is_floating_point<T>::value) {
         switch (sizeof(T)) {
@@ -78,7 +86,7 @@ constexpr Type type_from_native_impl()
             case sizeof(float):
                 return Type::Float;
             default:
-                return static_cast<Type>(-1);
+                return failure;
         }
     }
 
@@ -93,8 +101,12 @@ constexpr Type type_from_native_impl()
                 return is_signed ? Type::Int16 : Type::UInt16;
             case sizeof(int8_t):
                 return is_signed ? Type::Int8 : Type::UInt8;
+            default:
+                return failure;
         }
     }
+
+    return failure;
 }
 
 

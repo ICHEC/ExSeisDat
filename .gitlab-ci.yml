@@ -17,27 +17,21 @@ before_script:
     - &configure
         mkdir build
         && pushd build
-        && cmake
+        && (
+            set -x;
+            cmake
             -DCMAKE_VERBOSE_MAKEFILE=ON
-            -DBUILD_SHARED_LIBS=ON
-            -DCMAKE_BUILD_TYPE=${cmake_build_type}
             -DCMAKE_C_COMPILER=${CC}
-            -DCMAKE_C_FLAGS="
-                ${sanitizer_flags}
-                ${performance_flags}
-                ${warning_flags}
-                ${max_error_flag}
-                ${extra_flags}"
             -DCMAKE_CXX_COMPILER=${CXX}
-            -DCMAKE_CXX_FLAGS="
-                ${sanitizer_flags}
-                ${performance_flags}
-                ${warning_flags}
-                ${max_error_flag}
-                ${extra_flags}"
             -DCMAKE_CXX_EXTENSIONS=OFF
+            -DCMAKE_C_EXTENSIONS=OFF
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DEXSEISDAT_ENABLE_DEVELOPMENT_FLAGS=${EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS}
+            -DEXSEISDAT_TEST_ENABLE_CMAKE_TESTS=ON
             ..
+        )
         && popd
     - &build
         make -C build
@@ -58,26 +52,10 @@ before_script:
         ASAN_OPTIONS: detect_leaks=0:detect_odr_violation=1
 
 .flags:
-    default_debug_flags: &default_debug_flags
-        sanitizer_flags:
-            -fsanitize=address,undefined
-            -fno-sanitize-recover=all
-            -fno-omit-frame-pointer
-        performance_flags: -Og -g -fstrict-aliasing
-        warning_flags:
-            -Wall -Wextra -Wpedantic -pedantic
-            -Wno-error=unknown-pragmas
-            -Wswitch-enum
-            -Wimplicit-fallthrough
-            -Werror
-        extra_flags: ""
-        cmake_build_type: Debug
-    gcc_debug_flags: &gcc_debug_flags
-        <<: *default_debug_flags
-        max_error_flag: -fmax-errors=1
-    clang_debug_flags: &clang_debug_flags
-        <<: *default_debug_flags
-        max_error_flag: -ferror-limit=1
+    default_cmake_options: &default_cmake_options
+        BUILD_SHARED_LIBS: "ON"
+        CMAKE_BUILD_TYPE: Debug
+        EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS: "ON"
 
 stages:
     - static analysis
@@ -89,7 +67,7 @@ Clang Format:
     stage: static analysis
     variables:
         <<: *default_environment_variables
-        <<: *clang_debug_flags
+        <<: *default_cmake_options
         CC: clang
         CXX: clang++
     image: ubuntu:19.04
@@ -110,7 +88,7 @@ Clang Tidy:
     stage: static analysis
     variables:
         <<: *default_environment_variables
-        <<: *clang_debug_flags
+        <<: *default_cmake_options
         CC: clang
         CXX: clang++
     script:
@@ -123,7 +101,7 @@ Doxygen:
     stage: static analysis
     variables:
         <<: *default_environment_variables
-        <<: *clang_debug_flags
+        <<: *default_cmake_options
         CC: clang
         CXX: clang++
     script:
@@ -135,7 +113,7 @@ Gcc Debug Test:
     stage: gcc debug test
     variables:
         <<: *default_environment_variables
-        <<: *gcc_debug_flags
+        <<: *default_cmake_options
         CC: gcc-8
         CXX: g++-8
 
@@ -144,6 +122,6 @@ Clang Debug Test: &clang_debug_test
     stage: clang debug test
     variables:
         <<: *default_environment_variables
-        <<: *clang_debug_flags
+        <<: *default_cmake_options
         CC: clang
         CXX: clang++

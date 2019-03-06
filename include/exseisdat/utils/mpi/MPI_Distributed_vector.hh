@@ -96,7 +96,9 @@ MPI_Distributed_vector<T>::Model::Model(MPI_Aint global_size, MPI_Comm comm) :
         global_size, static_cast<size_t>(num_ranks), static_cast<size_t>(rank));
 
     // Check conversions ok
-    assert(decomposition.local_size >= 0);
+    static_assert(
+        std::is_unsigned<decltype(decomposition.local_size)>::value,
+        "Expected an unsigned integer for decomposition.local_size.");
     assert(decomposition.local_size <= std::numeric_limits<MPI_Aint>::max());
 
     const auto local_size = static_cast<MPI_Aint>(decomposition.local_size);

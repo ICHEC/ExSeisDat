@@ -326,10 +326,13 @@ size_t update(
     const size_t* tn    = crd2->tn;
 
     // Loop through every file1 trace
-    #pragma omp simd aligned(xS2:EXSEISDAT_ALIGN) aligned(yS2:EXSEISDAT_ALIGN) aligned(xR2:EXSEISDAT_ALIGN) \
-                     aligned(yR2:EXSEISDAT_ALIGN) aligned(xS1:EXSEISDAT_ALIGN) aligned(yS1:EXSEISDAT_ALIGN) \
-                     aligned(xR1:EXSEISDAT_ALIGN) aligned(yR1:EXSEISDAT_ALIGN) aligned(tn:EXSEISDAT_ALIGN)  \
-                     aligned(lminrs:EXSEISDAT_ALIGN) aligned(lmin:EXSEISDAT_ALIGN)
+    #pragma omp simd \
+        aligned(x_s1:EXSEISDAT_ALIGN) aligned(x_s2:EXSEISDAT_ALIGN) \
+        aligned(x_r1:EXSEISDAT_ALIGN) aligned(x_r2:EXSEISDAT_ALIGN) \
+        aligned(y_s1:EXSEISDAT_ALIGN) aligned(y_s2:EXSEISDAT_ALIGN) \
+        aligned(y_r1:EXSEISDAT_ALIGN) aligned(y_r2:EXSEISDAT_ALIGN) \
+        aligned(lmin:EXSEISDAT_ALIGN) aligned(lminrs:EXSEISDAT_ALIGN) \
+        aligned(tn:EXSEISDAT_ALIGN)
     for (size_t i = lstart; i < lend; i++) {
         const fourd_t xs1 = x_s1[i], ys1 = y_s1[i], xr1 = x_r1[i],
                       yr1 = y_r1[i];

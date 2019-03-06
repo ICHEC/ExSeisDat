@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.5.2)
+cmake_minimum_required(VERSION 3.10)
 
 project(
-    ExSeisDat
+    exseisdat
     VERSION 0.0.1
     LANGUAGES C CXX
 )
@@ -9,18 +9,12 @@ project(
 
 # Outline CMake options ########################################################
 
-# We need c++14 at minimum.
-# This should maybe be changed to feature options for flexibility with less
-# standards compliant compilers.
-set(
-    CMAKE_CXX_STANDARD 14 CACHE STRING
-    "The C++ standard to target for compilation."
-)
-
-# CMAKE_CXX_STANDARD not explicitly supported for Intel until CMake 3.6
+# Determine if the compiler is Intel
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-endif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    set(EXSEISDAT_COMPILER_IS_INTEL ON)
+else()
+    set(EXSEISDAT_COMPILER_IS_INTEL FALSE)
+endif()
 
 
 #
@@ -51,6 +45,12 @@ option(
     EXSEISDAT_BUILD_DOCUMENTATION
     "Build ExSeisDat documentation"
     ON
+)
+
+option(
+    EXSEISDAT_SET_DEFAULT_BUILD_TYPE
+    "Set the default CMAKE_BUILD_TYPE to Release"
+    OFF
 )
 
 
@@ -84,7 +84,12 @@ set(
 
 set(
     EXSEISDAT_INSTALL_DOCDIR ${CMAKE_INSTALL_DOCDIR} CACHE STRING
-    "The install directory for ExSeisDat libraries."
+    "The install directory for ExSeisDat documentation."
+)
+
+set(
+    EXSEISDAT_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR} CACHE STRING
+    "The install directory for data (e.g. cmake scripts)."
 )
 
 
@@ -95,7 +100,7 @@ set(
 # That is, if a user says nothing about the build type, build the release
 # version.
 #
-if(NOT CMAKE_BUILD_TYPE)
+if(EXSEISDAT_SET_DEFAULT_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE)
     get_property(
         _CMAKE_BUILD_TYPE_HELPSTRING
         CACHE CMAKE_BUILD_TYPE
@@ -107,87 +112,32 @@ if(NOT CMAKE_BUILD_TYPE)
         FORCE
     )
     unset(_CMAKE_BUILD_TYPE_HELPSTRING)
-endif(NOT CMAKE_BUILD_TYPE)
+endif(EXSEISDAT_SET_DEFAULT_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE)
 
 
 #
 # Set up configuration specifics
 #
 option(
-    EXSEISDAT_USE_MPIIO_COLLECTIVES
-    "Use collective MPI I/O operations by default"
+    EXSEISDAT_USE_MKL_FFTW3
+    "Use FFTW3 from the MKL library. (Default ON for Intel, otherwise OFF)"
+    ${EXSEISDAT_COMPILER_IS_INTEL}
+)
+
+
+#
+# Setup compiler flags for development
+#
+option(
+    EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS
+    "Enable the flags used during ExSeisDat continuous integration builds."
     OFF
 )
 
 
 # Find needed libraries ########################################################
 
-include(FindPackageHandleStandardArgs)
-
-#
-# Find MPI
-#
-find_package(MPI REQUIRED)
-
-# Set MPI C/CXX flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_C_COMPILE_FLAGS}")
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${MPI_C_COMPILE_FLAGS}")
-
-# Include the MPI directories
-include_directories(SYSTEM ${MPI_C_INCLUDE_PATH})
-
-# Set the MPI linker flags
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS} ${MPI_CXX_LINK_FLAGS}")
-
-
-#
-# Find fftw3
-#
-# Look for fftw3 under the path provided by FFTW3_DIR on the command line,
-# or in the system directories.
-#
-
-# Find the fftw3 include directory.
-# Find the include directory by looking for fftw3.h
-find_path(
-    FFTW3_INCLUDES fftw3.h
-    HINTS ${FFTW3_DIR}
-    PATH_SUFFIXES include local/include
-)
-
-# Check FFTW3_INCLUDES contains a path, and output that value once.
-# Otherwise, exit with an error message.
-find_package_handle_standard_args(FFTW3_INCLUDES DEFAULT_MSG FFTW3_INCLUDES)
-if(NOT FFTW3_INCLUDES)
-    message(FATAL_ERROR "Unable to find FFTW3 headers!")
-endif(NOT FFTW3_INCLUDES)
-
-
-# Find the fftw3 single precision library.
-# Using the Intel compiler, try the -mkl flag, otherwise look for libfftw3f.
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    set(FFTW3_LIBRARIES -mkl)
-else()
-    find_library(
-        FFTW3_LIBRARIES NAMES fftw3f
-        HINTS ${FFTW3_DIR} ${FFTW3_INCLUDES}/..
-        PATH_SUFFIXES bin lib lib64
-    )
-endif()
-
-# Check FFTW3_LIBRARIES contains a library, and output that value once.
-# Otherwise, exit with an error message.
-find_package_handle_standard_args(FFTW3_LIBRARIES DEFAULT_MSG FFTW3_LIBRARIES)
-if(NOT FFTW3_LIBRARIES)
-    message(FATAL_ERROR "Unable to find FFTW3 libraries!")
-endif(NOT FFTW3_LIBRARIES)
-
-
-# Setup header includes ########################################################
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(SYSTEM ${FFTW3_INCLUDES})
+include(third_party/third_party.cmake)
 
 
 # Setup the exseisdat library ##################################################
@@ -237,32 +187,35 @@ add_library(
     src/utils/signal_processing/taper.cc
 )
 
-target_link_libraries(
-    exseisdat
-    PUBLIC ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW3_LIBRARIES}
-)
-target_include_directories(
-    exseisdat BEFORE
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
+target_compile_features(exseisdat PUBLIC cxx_std_14)
+
+# Set DEFINE_SYMBOL to all-caps value to pass the clang-tidy check requiring
+# all macro definitions to be upper-case.
 set_target_properties(
     exseisdat
     PROPERTIES DEFINE_SYMBOL "EXSEISDAT_EXPORTS"
 )
 
-#
-# Setup extra compiler flags
-#
-set(_EXSEISDAT_DEFINITIONS)
-
-if(EXSEISDAT_USE_MPIIO_COLLECTIVES)
-    list(APPEND _EXSEISDAT_DEFINITIONS "EXSEISDAT_USE_MPIIO_COLLECTIVES")
-endif(EXSEISDAT_USE_MPIIO_COLLECTIVES)
-
-set_target_properties(
-    exseisdat
-    PROPERTIES COMPILE_DEFINITIONS "${_EXSEISDAT_DEFINITIONS}"
+target_include_directories(
+    exseisdat BEFORE
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src
 )
+
+target_include_directories(
+    exseisdat PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(exseisdat PUBLIC MPI::MPI_CXX)
+target_link_libraries(exseisdat PRIVATE FFTW3::fftw3f)
+
+if(EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS)
+    include(cmake/development_flags.cmake)
+    target_link_libraries(exseisdat PUBLIC development_flags)
+endif(EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS)
+
+add_library(exseisdat::exseisdat ALIAS exseisdat)
 
 
 # Include subdirectories #######################################################
@@ -276,7 +229,6 @@ message(STATUS "    EXSEISDAT_BUILD_DOCUMENTATION = ${EXSEISDAT_BUILD_DOCUMENTAT
 
 # Build utilities
 if(EXSEISDAT_BUILD_UTILITIES)
-    add_subdirectory(third_party)
     add_subdirectory(util)
 endif(EXSEISDAT_BUILD_UTILITIES)
 
@@ -299,17 +251,70 @@ endif(EXSEISDAT_BUILD_DOCUMENTATION)
 
 # Setup installation directories ###############################################
 
+# Optionally define the development_flags target in the exports
+set(_development_flags)
+if(EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS)
+    message("Enabling")
+    set(_development_flags development_flags)
+endif(EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS)
+
 # Install libexseisdat
 install(
-    TARGETS exseisdat
+    TARGETS exseisdat ${_development_flags}
+    EXPORT exseisdat-targets
     RUNTIME DESTINATION ${EXSEISDAT_INSTALL_BINDIR}
     LIBRARY DESTINATION ${EXSEISDAT_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${EXSEISDAT_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${EXSEISDAT_INSTALL_INCLUDEDIR}
 )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/exseisdat
+    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
     DESTINATION ${EXSEISDAT_INSTALL_INCLUDEDIR}
 )
 
-# TODO: setup install for headers
+# Install config files and targets
+install(
+    EXPORT exseisdat-targets
+    NAMESPACE exseisdat::
+    DESTINATION ${EXSEISDAT_INSTALL_DATADIR}/exseisdat/cmake
+)
+
+export(
+    EXPORT exseisdat-targets
+    NAMESPACE exseisdat::
+)
+
+# Configure exseisdat-config.cmake
+include(CMakePackageConfigHelpers)
+function(configure_find_file FIND_FILE RESULT)
+    file(READ ${FIND_FILE} FIND_FILE_0)
+    string(
+        REPLACE "find_package(" "find_dependency("
+        FIND_FILE_1 "${FIND_FILE_0}"
+    )
+    string(REPLACE "REQUIRED" "" FIND_FILE_2 "${FIND_FILE_1}")
+    set(${RESULT} "${FIND_FILE_2}" PARENT_SCOPE)
+endfunction(configure_find_file)
+configure_find_file(
+    ${CMAKE_CURRENT_LIST_DIR}/third_party/find_mpi.cmake FIND_MPI
+)
+configure_find_file(
+    ${CMAKE_CURRENT_LIST_DIR}/third_party/find_fftw3.cmake FIND_FFTW3
+)
+configure_package_config_file(
+    cmake/exseisdat-config.cmake.in exseisdat-config.cmake
+    INSTALL_DESTINATION ${EXSEISDAT_INSTALL_DATADIR}/exseisdat/cmake
+)
+
+write_basic_package_version_file(
+    exseisdat-config-version.cmake
+    COMPATIBILITY ExactVersion
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/exseisdat-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/exseisdat-config-version.cmake
+    DESTINATION ${EXSEISDAT_INSTALL_DATADIR}/exseisdat/cmake
+)

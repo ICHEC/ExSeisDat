@@ -11,7 +11,6 @@
 
 #include "exseisdat/piol/ObjectSEGY.hh"
 #include "exseisdat/piol/mpi/MPI_Binary_file.hh"
-
 #include "exseisdat/piol/segy/utils.hh"
 #include "exseisdat/utils/encoding/number_encoding.hh"
 

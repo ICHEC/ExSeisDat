@@ -1,8 +1,48 @@
+
+# Define the options
+
+set(
+    EXSEISDAT_TEST_DATA_DIR "tmp"
+    CACHE PATH
+    "The directory to read/write test data to/from."
+)
+
+option(
+    EXSEISDAT_TEST_ENABLE_SPECTESTS
+    "Run the single-core spectests"
+    ON
+)
+
+option(
+    EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS
+    "Run the multi-core spectests with MPI"
+    ON
+)
+
+set(
+    EXSEISDAT_TEST_NPROCS 4
+    CACHE STRING
+    "The number of processes to run the multi-core spec tests with"
+)
+
+option(
+    EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS
+    "Run the C wrap tests"
+    ON
+)
+
+option(
+    EXSEISDAT_TEST_ENABLE_CMAKE_TESTS
+    "Run the CMake project export tests."
+    OFF
+)
+
+
 #
 # Setup googletest dependencies
 #
 set(GOOGLETEST_DIR     ${CMAKE_CURRENT_BINARY_DIR}/googletest-release-1.8.0)
-set(GOOGLETEST_ARCHIVE ${CMAKE_CURRENT_SOURCE_DIR}/googletest-release-1.8.0-patched.zip)
+set(GOOGLETEST_ARCHIVE ${CMAKE_CURRENT_LIST_DIR}/googletest-release-1.8.0-patched.zip)
 
 # Googletests requires pthreads on Linux
 find_package(Threads REQUIRED)
@@ -41,10 +81,10 @@ include_directories(
 )
 include_directories(
     # Include test directory
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}
 
     # Include src directory
-    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/../src
 )
 
 
@@ -94,7 +134,7 @@ add_executable(
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
-target_link_libraries(spectests exseisdat Threads::Threads)
+target_link_libraries(spectests PRIVATE exseisdat Threads::Threads)
 
 
 add_library(
@@ -133,27 +173,24 @@ add_library(
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
-target_link_libraries(wraptests exseisdat Threads::Threads)
+target_link_libraries(wraptests PUBLIC exseisdat Threads::Threads)
 set_target_properties(
     wraptests
     PROPERTIES DEFINE_SYMBOL "EXSEISDAT_WRAPTESTS_EXPORTS"
 )
 
 add_executable(c_wraptest cwraptests/main.c)
-target_link_libraries(c_wraptest wraptests)
-set_target_properties(c_wraptest PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(c_wraptest PRIVATE wraptests)
+
+if(EXSEISDAT_ENABLE_SANITIZERS)
+    set_target_properties(c_wraptest PROPERTIES LINKER_LANGUAGE CXX)
+endif(EXSEISDAT_ENABLE_SANITIZERS)
 
 
 
 #
 # Create dependencies on test data created by genfile.
 #
-
-set(
-    EXSEISDAT_TEST_DATA_DIR "tmp"
-    CACHE PATH
-    "The directory to read/write test data to/from."
-)
 
 # Create the tmp directory
 add_custom_target(make_tmp_directory)
@@ -199,56 +236,93 @@ add_genfile(large_segy.tmp)
 #
 
 # Run the spectests in serial
+if(EXSEISDAT_TEST_ENABLE_SPECTESTS)
+    # Run spectests with the *Death* and *Farm* tests disabled
+    add_test(
+        NAME spectests_test
+        COMMAND
+            spectests
+                "${EXSEISDAT_TEST_DATA_DIR}"
+                --gtest_filter=-*Death*:*Farm*
+    )
 
-# Run spectests with the *Death* and *Farm* tests disabled
-add_test(
-    NAME spectests_test
-    COMMAND
-        spectests
+    # Run just the *Death* tests
+    add_test(
+        NAME spectests_death_test
+        COMMAND
+            spectests
             "${EXSEISDAT_TEST_DATA_DIR}"
-            --gtest_filter=-*Death*:*Farm*
-)
-
-# Run just the *Death* tests
-add_test(
-    NAME spectests_death_test
-    COMMAND
-        spectests
-        "${EXSEISDAT_TEST_DATA_DIR}"
-        --gtest_filter=*Death*
-)
+            --gtest_filter=*Death*
+    )
+endif(EXSEISDAT_TEST_ENABLE_SPECTESTS)
 
 
 # Run the spectests in parallel
-
-# Run spectests on EXSEISDAT_TEST_NPROCS cores.
-set(EXSEISDAT_TEST_NPROCS 4)
-
-# We might need the --oversubscribe flag on e.g. OpenMPI on macOS
-execute_process(
-    COMMAND
-        ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-            ${MPIEXEC_PREFLAGS} --oversubscribe
-                ${CMAKE_COMMAND} -E echo "testing --oversubscribe"
-    RESULT_VARIABLE _EXSEISDAT_OVERSUBSCRIBE_RESULT
-    OUTPUT_QUIET
-    ERROR_QUIET
-)
-if(_EXSEISDAT_OVERSUBSCRIBE_RESULT EQUAL 0)
-    set(MPIEXEC_PREFLAGS "${MPIEXEC_PREFLAGS};--oversubscribe")
-endif(_EXSEISDAT_OVERSUBSCRIBE_RESULT EQUAL 0)
+if(EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS)
+    # We might need the --oversubscribe flag on e.g. OpenMPI on macOS
+    execute_process(
+        COMMAND
+            ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                ${MPIEXEC_PREFLAGS} --oversubscribe
+                    ${CMAKE_COMMAND} -E echo "testing --oversubscribe"
+        RESULT_VARIABLE _EXSEISDAT_OVERSUBSCRIBE_RESULT
+        OUTPUT_QUIET
+        ERROR_QUIET
+    )
+    if(_EXSEISDAT_OVERSUBSCRIBE_RESULT EQUAL 0)
+        set(MPIEXEC_PREFLAGS "${MPIEXEC_PREFLAGS};--oversubscribe")
+    endif(_EXSEISDAT_OVERSUBSCRIBE_RESULT EQUAL 0)
 
 
-add_test(
-    NAME spectests_mpi_test
-    COMMAND
-        ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${EXSEISDAT_TEST_NPROCS}
-            ${MPIEXEC_PREFLAGS} $<TARGET_FILE:spectests> ${MPIEXEC_POSTFLAGS}
-                "${EXSEISDAT_TEST_DATA_DIR}"
-                --gtest_filter=-*Death*:*Farm*
-)
+    add_test(
+        NAME spectests_mpi_test
+        COMMAND
+            ${MPIEXEC}
+                ${MPIEXEC_NUMPROC_FLAG} ${EXSEISDAT_TEST_NPROCS}
+                ${MPIEXEC_PREFLAGS}
+                $<TARGET_FILE:spectests>
+                    ${MPIEXEC_POSTFLAGS}
+                    "${EXSEISDAT_TEST_DATA_DIR}"
+                    --gtest_filter=-*Death*:*Farm*
+    )
+endif(EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS)
 
-add_test(
-    NAME c_wraptest_test
-    COMMAND c_wraptest
-)
+if(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
+    add_test(
+        NAME c_wraptest_test
+        COMMAND c_wraptest
+    )
+endif(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
+
+#
+# Add test that ExSeisDat can be found by CMake
+#
+if(EXSEISDAT_TEST_ENABLE_CMAKE_TESTS)
+    find_package(Git REQUIRED)
+    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../.git)
+        message(FATAL_ERROR "The source directory must be a git clone for the cmake_subdirectory test!\nSet EXSEISDAT_TEST_ENABLE_CMAKE_SUBDIRECTORY_TEST=OFF to disable this message.")
+    endif()
+
+    # Test ExSeisDat can be included using add_subdirectory
+    add_test(
+        NAME cmake_add_subdirectory_test
+        COMMAND
+            ${CMAKE_COMMAND}
+                -DTEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}/cmake/add_subdirectory
+                -DEXSEISDAT_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}/..
+                -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+                -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                -P ${CMAKE_CURRENT_LIST_DIR}/cmake/add_subdirectory/test.cmake
+    )
+
+    # Test ExSeisDat can be included using find_package after installation
+    add_test(
+        NAME cmake_find_package_test
+        COMMAND
+            ${CMAKE_COMMAND}
+                -DTEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}/cmake/find_package
+                -DEXSEISDAT_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}/..
+                -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                -P ${CMAKE_CURRENT_LIST_DIR}/cmake/find_package/test.cmake
+    )
+endif(EXSEISDAT_TEST_ENABLE_CMAKE_TESTS)

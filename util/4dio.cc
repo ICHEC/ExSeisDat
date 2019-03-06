@@ -79,7 +79,7 @@ std::unique_ptr<Coords> get_coords(
 
     // Any extra read_param calls the particular process needs
     for (size_t i = 0; i < extra; i++) {
-        file.read_param(size_t(0), size_t(0), nullptr);
+        file.read_param(size_t(0), size_t(0), &prm);
     }
     cmsg(piol.get(), "get_coords sort");
 
@@ -152,11 +152,11 @@ std::unique_ptr<Coords> get_coords(
                 coords->xl[i + orig[j]] = prm2.get_integer(j, Meta::xl);
             }
         }
-    }
 
-    // Any extra read_param calls the particular process needs
-    for (size_t i = 0; i < extra; i++) {
-        file.read_param_non_contiguous(0LU, nullptr, nullptr);
+        // Any extra read_param calls the particular process needs
+        for (size_t i = 0; i < extra; i++) {
+            file.read_param_non_contiguous(0LU, nullptr, &prm2);
+        }
     }
 
     // This barrier is necessary so that cmsg doesn't store an old
@@ -245,8 +245,8 @@ void output_non_mono(
     }
 
     for (size_t i = 0; i < extra; i++) {
-        src.read_trace_non_contiguous(size_t(0), nullptr, nullptr, nullptr);
-        dst.write_trace(size_t(0), size_t(0), nullptr, nullptr);
+        src.read_trace_non_contiguous(size_t(0), nullptr, trc.data(), &prm);
+        dst.write_trace(size_t(0), size_t(0), trc.data(), &prm);
     }
 
     piol->comm->barrier();

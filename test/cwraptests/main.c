@@ -353,7 +353,7 @@ int main()
     piol_file_write_interface_write_text(
         write_direct, "Test WriteInterface Text");
 
-    const int write_direct_ns = 700;
+    const size_t write_direct_ns = 700;
     piol_file_write_interface_write_ns(write_direct, write_direct_ns);
 
     piol_file_write_interface_write_nt(write_direct, 710);

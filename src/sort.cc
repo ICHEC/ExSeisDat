@@ -798,9 +798,9 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
     std::vector<MPI_Request> rrcv;
 
     // Lambda for wrapping an MPI call with logging.
-    auto log_on_error = [&piol](auto mpi_function, std::string function_name) {
-        return [=](auto&&... args) {
-            int err = mpi_function(std::forward<decltype(args)>(args)...);
+    auto log_on_error =
+        [&piol](auto mpi_function, std::string function_name, auto&&... args) {
+            int err = mpi_function(args...);
 
             if (err != MPI_SUCCESS) {
                 piol->log->add_entry(exseis::utils::Log_entry{
@@ -811,7 +811,6 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
                     EXSEISDAT_SOURCE_POSITION("exseis::piol::send_right")});
             }
         };
-    };
 
     if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
 
@@ -837,8 +836,7 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
             rrcv.push_back(MPI_REQUEST_NULL);
 
             log_on_error(
-                MPI_Irecv,
-                "Sort right exseis::utils::Floating_point MPI_Irecv")(
+                MPI_Irecv, "Sort right exseis::utils::Floating_point MPI_Irecv",
                 rprm.entry_data<unsigned char>(key),
                 static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank - 1,
                 0, MPI_COMM_WORLD, &rrcv.back());
@@ -848,7 +846,8 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
             rsnd.push_back(MPI_REQUEST_NULL);
 
-            log_on_error(MPI_Isend, "Sort right MPI_Isend")(
+            log_on_error(
+                MPI_Isend, "Sort right MPI_Isend",
                 sprm.entry_data<unsigned char>(key),
                 static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank + 1,
                 0, MPI_COMM_WORLD, &rsnd.back());
@@ -890,9 +889,9 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
     std::vector<MPI_Request> rrcv;
 
     // Lambda for wrapping an MPI call with logging.
-    auto log_on_error = [&piol](auto mpi_function, std::string function_name) {
-        return [=](auto&&... args) {
-            int err = mpi_function(std::forward<decltype(args)>(args)...);
+    auto log_on_error =
+        [&piol](auto mpi_function, std::string function_name, auto&&... args) {
+            int err = mpi_function(args...);
 
             if (err != MPI_SUCCESS) {
                 piol->log->add_entry(exseis::utils::Log_entry{
@@ -903,7 +902,6 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
                     EXSEISDAT_SOURCE_POSITION("exseis::utils::send_left")});
             }
         };
-    };
 
     if (rank != 0) {
         for (size_t i = 0; i < region_sz; i++) {
@@ -928,7 +926,8 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
         if (rank != 0) {
             rsnd.push_back(MPI_REQUEST_NULL);
 
-            log_on_error(MPI_Isend, "Sort left MPI_Isend")(
+            log_on_error(
+                MPI_Isend, "Sort left MPI_Isend",
                 sprm.entry_data<unsigned char>(key),
                 static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank - 1,
                 1, MPI_COMM_WORLD, &rsnd.back());
@@ -937,7 +936,8 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
         if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
             rrcv.push_back(MPI_REQUEST_NULL);
 
-            log_on_error(MPI_Irecv, "Sort left MPI_Irecv")(
+            log_on_error(
+                MPI_Irecv, "Sort left MPI_Irecv",
                 rprm.entry_data<unsigned char>(key),
                 static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank + 1,
                 1, MPI_COMM_WORLD, &rrcv.back());

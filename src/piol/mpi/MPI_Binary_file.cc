@@ -94,7 +94,7 @@ bool is_castable_to(const From& from)
         "is_castable_to expects absolute values of type From to be representable as size_t.");
 
     const auto abs = [](auto value) -> size_t {
-        if (value < 0) {
+        if (std::is_signed<decltype(value)>::value && value < 0) {
             // The magnitude of the smallest negative number in 2s complement
             // is larger than the largest number.
             // i.e. INT_MAX: 2147483647
@@ -122,7 +122,7 @@ bool is_castable_to(const From& from)
         }
     }
 
-    if (from < 0) {
+    if (std::is_signed<decltype(from)>::value && from < 0) {
         if (abs(from) <= abs(std::numeric_limits<To>::min())) {
             return true;
         }

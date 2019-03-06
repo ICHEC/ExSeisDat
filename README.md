@@ -22,7 +22,7 @@ analysis, file concatenation, etc.
 ## Building Instructions
 
 To configure and build ExSeisDat, a C++14 compatible compiler is needed, and
-CMake >= 3.5.2.
+CMake >= 3.10.
 
     # Make a directory to hold the temporary build files
     mkdir -p /path/to/build/directory
