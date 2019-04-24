@@ -10,7 +10,8 @@ Checks:          clang-diagnostic-*,
                  readability-redundant-string-init,
                  readability-container-size-empty,
                  readability-implicit-bool-conversion,
-                 readability-identifier-naming
+                 readability-identifier-naming,
+                 modernize-redundant-void-arg
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

@@ -21,7 +21,7 @@ struct RuleFix : public Test {
 struct RuleFixList : public RuleFix {
     std::vector<Meta> meta;
     std::vector<Tr> locs;
-    RuleFixList(void)
+    RuleFixList()
     {
         locs = {Tr::x_src, Tr::y_src, Tr::x_rcv, Tr::y_rcv};
         meta = {Meta::x_src, Meta::y_src, Meta::x_rcv, Meta::y_rcv};
@@ -35,12 +35,12 @@ struct RuleFixList : public RuleFix {
 };
 
 struct RuleFixEmpty : public RuleFix {
-    RuleFixEmpty(void) { rule = std::make_shared<Rule>(false, false); }
+    RuleFixEmpty() { rule = std::make_shared<Rule>(false, false); }
 };
 
 
 struct RuleFixDefault : public RuleFix {
-    RuleFixDefault(void) { rule = std::make_shared<Rule>(true, true); }
+    RuleFixDefault() { rule = std::make_shared<Rule>(true, true); }
 };
 
 #endif  // EXSEISDAT_TEST_SPECTESTS_DYNSEGYMDTEST_HH

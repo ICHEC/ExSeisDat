@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
 /// @brief The \c WriteInterface class
-/// @details The \c WriteInterface is a generic interface for reading seismic
+/// @details The \c WriteInterface is a generic interface for writing seismic
 ///          data files.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_PIOL_WRITEINTERFACE_HH
@@ -16,7 +16,7 @@
 namespace exseis {
 namespace piol {
 
-/*! @brief The \c WriteInterface class is a generic interface for reading
+/*! @brief The \c WriteInterface class is a generic interface for writing
  *         seismic data files.
  */
 class WriteInterface {

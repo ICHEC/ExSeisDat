@@ -301,12 +301,12 @@ exseis::utils::Type Trace_metadata::entry_type(Key entry) const
 }
 
 
-size_t Trace_metadata::size(void) const
+size_t Trace_metadata::size() const
 {
     return num_traces;
 }
 
-size_t Trace_metadata::memory_usage(void) const
+size_t Trace_metadata::memory_usage() const
 {
     // Fix this to query the Generic_array for the size of the underlying
     // storage instead, e.g. num_bytes()

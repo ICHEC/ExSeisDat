@@ -62,7 +62,7 @@ class WriteSEGY : public WriteInterface {
     /*! Calculate the number of traces currently stored (or implied to exist).
      *  @return Return the number of traces
      */
-    size_t calc_nt(void);
+    size_t calc_nt();
 
   public:
     /*! @brief The SEG-Y options structure.
@@ -109,7 +109,11 @@ class WriteSEGY : public WriteInterface {
   public:
     /*! @brief Destructor. Processes any remaining flags
      */
-    ~WriteSEGY(void);
+    ~WriteSEGY();
+
+    /*! @brief Flush. Processes any remaining flags
+     */
+    void flush();
 
     const std::string& file_name() const override;
 

@@ -80,14 +80,14 @@ void WriteSEGY::write_param_non_contiguous(
         this, sz, offset, prm, skip);
 }
 
-WriteSEGY::~WriteSEGY(void) {}
+WriteSEGY::~WriteSEGY() {}
 
 const std::string& WriteSEGY::file_name() const
 {
     return mock_write_interface().file_name(this);
 }
 
-size_t WriteSEGY::calc_nt(void)
+size_t WriteSEGY::calc_nt()
 {
     // This is private to WriteSEGY and should never be called...
     assert(false);

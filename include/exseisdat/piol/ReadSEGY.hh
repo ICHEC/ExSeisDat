@@ -94,13 +94,13 @@ class ReadSEGY : public ReadInterface {
 
     void read_file_headers() override;
 
-    const std::string& read_text(void) const override;
+    const std::string& read_text() const override;
 
-    size_t read_ns(void) const override;
+    size_t read_ns() const override;
 
-    size_t read_nt(void) const override;
+    size_t read_nt() const override;
 
-    exseis::utils::Floating_point read_sample_interval(void) const override;
+    exseis::utils::Floating_point read_sample_interval() const override;
 
     void read_param(
         size_t offset,

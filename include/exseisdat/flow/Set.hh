@@ -76,7 +76,7 @@ class Set {
 
     /*! Drop all file descriptors without output.
      */
-    void drop(void)
+    void drop()
     {
         m_file.resize(0);
         m_fmap.clear();
@@ -195,7 +195,7 @@ class Set {
 
     /*! Destructor
      */
-    ~Set(void);
+    ~Set();
 
     /*! Sort the set using the given comparison function
      *  @param[in] sort_func  The comparison function
@@ -215,6 +215,11 @@ class Set {
      *  @return           Return a vector of the actual output names.
      */
     std::vector<std::string> output(std::string oname);
+
+    /*! Output using the output prefix stored as member variable
+     *  @return           Return a vector of the actual output names.
+     */
+    void output();
 
     /*! Find the min and max of two given parameters (e.g x and y source
      *  coordinates) and return the associated values and trace numbers in the

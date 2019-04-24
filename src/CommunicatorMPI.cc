@@ -310,7 +310,7 @@ std::vector<double> CommunicatorMPI::gather(const std::vector<double>& in) const
 }
 
 
-void CommunicatorMPI::barrier(void) const
+void CommunicatorMPI::barrier() const
 {
     MPI_Barrier(m_comm);
 }

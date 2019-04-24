@@ -39,7 +39,7 @@ std::shared_ptr<Binary_file> ObjectSEGY::data() const
     return m_data;
 }
 
-size_t ObjectSEGY::get_file_size(void) const
+size_t ObjectSEGY::get_file_size() const
 {
     return m_data->get_file_size();
 }

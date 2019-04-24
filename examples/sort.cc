@@ -12,7 +12,7 @@
 using namespace exseis::piol;
 using namespace exseis::flow;
 
-int main(void)
+int main()
 {
     auto piol = ExSeis::make();
     Set set(piol, "/ichec/work/exseisdat/*dat/10*/b*", "temp");

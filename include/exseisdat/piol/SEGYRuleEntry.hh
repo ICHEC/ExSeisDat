@@ -25,18 +25,18 @@ struct SEGYLongRuleEntry : public RuleEntry {
     /*! Return the minimum location stored, i.e loc just loc
      *  @return the minimum location
      */
-    size_t min(void) const override { return loc; }
+    size_t min() const override { return loc; }
 
     /*! Return the maximum location stored up to, including the size of the data
      *  stored
      *  @return the maximum location plus 4 bytes to store an int32_t
      */
-    size_t max(void) const override { return loc + 4U; }
+    size_t max() const override { return loc + 4U; }
 
     /*! Return the datatype associated with the entry.
      *  @return \c MdType::Long
      */
-    MdType type(void) const override { return MdType::Long; }
+    MdType type() const override { return MdType::Long; }
 
     /// @copydoc RuleEntry::clone
     std::unique_ptr<RuleEntry> clone() const override
@@ -53,22 +53,22 @@ struct SEGYLongRuleEntry : public RuleEntry {
 struct SEGYCopyRuleEntry : public RuleEntry {
     /*! The constructor (empty).
      */
-    SEGYCopyRuleEntry(void) : RuleEntry(0U) {}
+    SEGYCopyRuleEntry() : RuleEntry(0U) {}
 
     /*! Return the minimum location stored, i.e 0
      *  @return 0U
      */
-    size_t min(void) const override { return 0U; }
+    size_t min() const override { return 0U; }
 
     /*! Return the size of the trace header
      *  @return the size of the trace header
      */
-    size_t max(void) const override { return segy::segy_trace_header_size(); }
+    size_t max() const override { return segy::segy_trace_header_size(); }
 
     /*! Return the datatype associated with the entry.
      *  @return \c MdType::Copy
      */
-    MdType type(void) const override { return MdType::Copy; }
+    MdType type() const override { return MdType::Copy; }
 
     /// @copydoc RuleEntry::clone
     std::unique_ptr<RuleEntry> clone() const override
@@ -91,17 +91,17 @@ struct SEGYIndexRuleEntry : public RuleEntry {
     /*! Return 0. nothing stored
      *  @return Return 0
      */
-    size_t min(void) const override { return 0; }
+    size_t min() const override { return 0; }
 
     /*! Return 0. nothing stored
      *  @return Return 0
      */
-    size_t max(void) const override { return 0; }
+    size_t max() const override { return 0; }
 
     /*! Return the datatype associated with the entry.
      *  @return \c MdType::Index
      */
-    MdType type(void) const override { return MdType::Index; }
+    MdType type() const override { return MdType::Index; }
 
     /// @copydoc RuleEntry::clone
     std::unique_ptr<RuleEntry> clone() const override
@@ -124,18 +124,18 @@ struct SEGYShortRuleEntry : public RuleEntry {
     /*! Return the minimum location stored, i.e loc
      *  @return the minimum location
      */
-    size_t min(void) const override { return loc; }
+    size_t min() const override { return loc; }
 
     /*! Return the maximum location stored up to, including the size of the data
      *  stored
      *  @return the maximum location plus 2 bytes to store an int16_t
      */
-    size_t max(void) const override { return loc + 2U; }
+    size_t max() const override { return loc + 2U; }
 
     /*! Return the datatype associated with the entry.
      *  @return \c MdType::Short
      */
-    MdType type(void) const override { return MdType::Short; }
+    MdType type() const override { return MdType::Short; }
 
     /// @copydoc RuleEntry::clone
     std::unique_ptr<RuleEntry> clone() const override
@@ -166,7 +166,7 @@ struct SEGYFloatRuleEntry : public RuleEntry {
     /*! Return the minimum location stored
      *  @return the minimum location
      */
-    size_t min(void) const override { return std::min(scalar_location, loc); }
+    size_t min() const override { return std::min(scalar_location, loc); }
 
     /*! Return the maximum location stored up to, including the size of the data
      *  stored
@@ -174,7 +174,7 @@ struct SEGYFloatRuleEntry : public RuleEntry {
      *          the the primary data store then the location + 2U is returned,
      *          otherwise the primary location + 4U is returned.
      */
-    size_t max(void) const override
+    size_t max() const override
     {
         return std::max(scalar_location + 2U, loc + 4U);
     }
@@ -182,7 +182,7 @@ struct SEGYFloatRuleEntry : public RuleEntry {
     /*! Return the datatype associated with the entry.
      *  @return \c MdType::Float
      */
-    MdType type(void) const override { return MdType::Float; }
+    MdType type() const override { return MdType::Float; }
 
     /// @copydoc RuleEntry::clone
     std::unique_ptr<RuleEntry> clone() const override

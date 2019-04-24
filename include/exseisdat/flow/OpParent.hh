@@ -43,7 +43,7 @@ struct OpParent {
 
     /*! Virtual destructor for unique_ptr polymorphism.
      */
-    virtual ~OpParent(void) = default;
+    virtual ~OpParent() = default;
 };
 
 }  // namespace detail

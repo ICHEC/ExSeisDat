@@ -28,7 +28,7 @@ bool Log::has_error() const
     return m_error;
 }
 
-void Log::process_entries(void)
+void Log::process_entries()
 {
     for (auto& item : m_log_entries) {
         std::cerr << item.source_position.function_name << " in "

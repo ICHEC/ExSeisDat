@@ -67,6 +67,9 @@ class MPI_Binary_file : public Binary_file {
         Opt();
 
         /// @brief Delete Opt, and free the instance of MPI_Info.
+        void free();
+
+        /// @brief Delete Opt, and free the instance of MPI_Info.
         ~Opt();
 
         /// @copy_constructor{delete}
@@ -131,6 +134,9 @@ class MPI_Binary_file : public Binary_file {
         std::string file_name,
         FileMode mode,
         const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt());
+
+    /// @brief Explicit destructor, closes file and frees info
+    void close();
 
     /// @brief Destructor.
     ~MPI_Binary_file();

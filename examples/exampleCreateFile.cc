@@ -18,7 +18,7 @@
 using namespace exseis::utils;
 using namespace exseis::piol;
 
-int main(void)
+int main()
 {
     // Set output file name, number of traces, number of samples per trace, and
     // sampling rate

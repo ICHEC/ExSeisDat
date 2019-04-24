@@ -86,7 +86,7 @@ class CommunicatorMPI : public CommunicatorInterface {
 
     size_t offset(size_t val) const override;
 
-    void barrier(void) const override;
+    void barrier() const override;
 };
 
 }  // namespace piol

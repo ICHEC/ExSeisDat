@@ -14,7 +14,7 @@
 using namespace exseis::piol;
 using namespace exseis::flow;
 
-int main(void)
+int main()
 {
     auto piol = ExSeis::make();
     Set set(piol, "Line_*", "LowpassTime");

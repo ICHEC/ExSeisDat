@@ -24,7 +24,7 @@ class OpOpt {
   public:
     /*! Empty constructor.
      */
-    OpOpt(void) {}
+    OpOpt() {}
 
     /*! Initialise the options list with an initialiser list.
      *  @param[in] list An initialiser list of options.

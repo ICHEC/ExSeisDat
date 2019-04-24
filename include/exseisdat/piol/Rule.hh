@@ -130,7 +130,7 @@ class Rule {
 
     /*! The destructor. Deallocates the memory associated with the rule entries.
      */
-    ~Rule(void);
+    ~Rule();
 
     /*! Add a pre-defined rule.
      *  @param[in] m The Meta entry.
@@ -173,7 +173,7 @@ class Rule {
 
     /*! Add a rule to buffer the original trace header.
      */
-    void add_copy(void);
+    void add_copy();
 
     /*! Remove a rule based on the meta entry.
      *  @param[in] m The meta entry.
@@ -184,16 +184,16 @@ class Rule {
      *  converting to SEG-Y.
      *  @return Return the size.
      */
-    size_t extent(void);
+    size_t extent();
 
     /// @overload
     /// @copydoc Rule::extent()
-    size_t extent(void) const;
+    size_t extent() const;
 
     /*! Estimate of the total memory used
      *  @return Return estimate in bytes.
      */
-    size_t memory_usage(void) const;
+    size_t memory_usage() const;
 
     /*! How much memory will each set of parameters require?
      *  @return Amount of memory in bytes.

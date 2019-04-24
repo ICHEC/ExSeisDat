@@ -68,12 +68,12 @@ void Trace_metadata::copy_entries(
         this, trace_index, source_trace_metadata, source_trace_index);
 }
 
-size_t Trace_metadata::size(void) const
+size_t Trace_metadata::size() const
 {
     return mock_trace_metadata().size(this);
 }
 
-size_t Trace_metadata::memory_usage(void) const
+size_t Trace_metadata::memory_usage() const
 {
     return mock_trace_metadata().memory_usage(this);
 }

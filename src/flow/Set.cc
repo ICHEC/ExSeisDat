@@ -53,11 +53,9 @@ Set::Set(std::shared_ptr<ExSeisPIOL> piol, std::shared_ptr<Rule> rule) :
 {
 }
 
-Set::~Set(void)
+Set::~Set()
 {
-    if (!m_outfix.empty()) {
-        output(m_outfix);
-    }
+    output();
 }
 
 void Set::add(std::unique_ptr<ReadInterface> in)
@@ -107,7 +105,7 @@ void Set::add(std::string pattern)
     m_piol->assert_ok();
 }
 
-void Set::summary(void) const
+void Set::summary() const
 {
     for (auto& f : m_file) {
         std::string msg =
@@ -530,6 +528,13 @@ std::vector<std::string> Set::calc_func(
     }
 
     return std::vector<std::string>{};
+}
+
+void Set::output()
+{
+    if (!m_outfix.empty()) {
+        output(m_outfix);
+    }
 }
 
 std::vector<std::string> Set::output(std::string oname)

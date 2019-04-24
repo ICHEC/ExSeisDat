@@ -52,22 +52,22 @@ class ReadInterface {
     /*! @brief Read the human readable text from the file
      *  @return A string containing the text (in ASCII format)
      */
-    virtual const std::string& read_text(void) const = 0;
+    virtual const std::string& read_text() const = 0;
 
     /*! @brief Read the number of samples per trace
      *  @return The number of samples per trace
      */
-    virtual size_t read_ns(void) const = 0;
+    virtual size_t read_ns() const = 0;
 
     /*! @brief Read the number of traces in the file
      *  @return The number of traces
      */
-    virtual size_t read_nt(void) const = 0;
+    virtual size_t read_nt() const = 0;
 
     /*! @brief Read the number of increment between trace samples
      *  @return The increment between trace samples
      */
-    virtual exseis::utils::Floating_point read_sample_interval(void) const = 0;
+    virtual exseis::utils::Floating_point read_sample_interval() const = 0;
 
     /*! @brief Read the trace parameters from offset to offset+sz of the
      *         respective trace headers.

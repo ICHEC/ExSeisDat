@@ -53,7 +53,7 @@ WriteSEGY::WriteSEGY(
 {
 }
 
-WriteSEGY::~WriteSEGY(void)
+void WriteSEGY::flush()
 {
     // TODO: On error this can be a source of a deadlock
     if (!m_piol->log->has_error()) {
@@ -133,6 +133,12 @@ WriteSEGY::~WriteSEGY(void)
     }
 }
 
+
+WriteSEGY::~WriteSEGY()
+{
+    flush();
+}
+
 const std::string& WriteSEGY::file_name() const
 {
     return m_name;
@@ -140,7 +146,7 @@ const std::string& WriteSEGY::file_name() const
 
 //////////////////////////       Member functions      /////////////////////////
 
-size_t WriteSEGY::calc_nt(void)
+size_t WriteSEGY::calc_nt()
 {
     if (m_state.stalent) {
         m_nt            = m_piol->comm->max(m_nt);

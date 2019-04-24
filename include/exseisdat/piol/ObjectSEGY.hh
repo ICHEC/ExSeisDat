@@ -46,7 +46,7 @@ class ObjectSEGY : public ObjectInterface {
 
     std::shared_ptr<Binary_file> data() const override;
 
-    size_t get_file_size(void) const override;
+    size_t get_file_size() const override;
 
     void set_file_size(size_t sz) const override;
 

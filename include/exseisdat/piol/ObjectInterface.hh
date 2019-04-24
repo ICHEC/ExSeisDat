@@ -33,7 +33,7 @@ class ObjectInterface {
   public:
     /*! @brief A virtual destructor to allow deletion.
      */
-    virtual ~ObjectInterface(void) = default;
+    virtual ~ObjectInterface() = default;
 
     /// @brief  The stored PIOL object
     /// @return The stored PIOL object

@@ -270,7 +270,7 @@ bool Rule::add_rule(Meta m)
     return false;
 }
 
-size_t Rule::extent(void)
+size_t Rule::extent()
 {
     if (flag.fullextent) {
         return segy::segy_trace_header_size();
@@ -294,7 +294,7 @@ size_t Rule::extent(void)
 }
 
 
-size_t Rule::extent(void) const
+size_t Rule::extent() const
 {
     if (flag.fullextent) {
         return segy::segy_trace_header_size();
@@ -366,7 +366,7 @@ void Rule::add_index(Meta m)
     rule_entry_map.insert({m, std::make_unique<SEGYIndexRuleEntry>()});
 }
 
-void Rule::add_copy(void)
+void Rule::add_copy()
 {
     if (num_copy == 0) {
         rule_entry_map.insert(
@@ -396,7 +396,7 @@ const RuleEntry* Rule::get_entry(Meta entry) const
     return it->second.get();
 }
 
-size_t Rule::memory_usage(void) const
+size_t Rule::memory_usage() const
 {
     const auto add_memory_usage = [](auto init, const auto& rule_entry_it) {
         return init + rule_entry_it.second->memory_usage();
@@ -408,7 +408,7 @@ size_t Rule::memory_usage(void) const
            + sizeof(Rule);
 }
 
-size_t Rule::memory_usage_per_header(void) const
+size_t Rule::memory_usage_per_header() const
 {
     const auto get_sizeof = [](RuleEntry::MdType type) {
         switch (type) {

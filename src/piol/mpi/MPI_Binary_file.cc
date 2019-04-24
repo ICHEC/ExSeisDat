@@ -194,7 +194,7 @@ bool default_collectiveness()
 }  // namespace
 
 
-MPI_Binary_file::Opt::Opt(void) :
+MPI_Binary_file::Opt::Opt() :
     use_collective_operations(default_collectiveness())
 {
     MPI_Info_create(&info);
@@ -217,11 +217,16 @@ MPI_Binary_file::Opt::Opt(void) :
     //    MPI_Info_set(info, "panfs_concurrent_write", "false");
 }
 
-MPI_Binary_file::Opt::~Opt(void)
+void MPI_Binary_file::Opt::free()
 {
     if (info != MPI_INFO_NULL) {
         MPI_Info_free(&info);
     }
+}
+
+MPI_Binary_file::Opt::~Opt()
+{
+    free();
 }
 
 
@@ -293,11 +298,10 @@ MPI_Binary_file::MPI_Binary_file(
     }
 }
 
-
-MPI_Binary_file::~MPI_Binary_file(void)
+void MPI_Binary_file::close()
 {
     static const char* function_name =
-        "exseis::piol::mpi::MPI_Binary_file::~MPI_Binary_file";
+        "exseis::piol::mpi::MPI_Binary_file::close";
 
     if (m_file != MPI_FILE_NULL) {
         int err = MPI_File_close(&m_file);
@@ -316,6 +320,11 @@ MPI_Binary_file::~MPI_Binary_file(void)
                 MPI_STATUS_IGNORE, EXSEISDAT_SOURCE_POSITION(function_name));
         }
     }
+}
+
+MPI_Binary_file::~MPI_Binary_file()
+{
+    close();
 }
 
 

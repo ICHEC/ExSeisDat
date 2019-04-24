@@ -17,17 +17,17 @@ ExSeis::ExSeis(const Verbosity max_level, MPI_Comm comm) :
 
 ExSeis::~ExSeis() = default;
 
-size_t ExSeis::get_rank(void) const
+size_t ExSeis::get_rank() const
 {
     return comm->get_rank();
 }
 
-size_t ExSeis::get_num_rank(void) const
+size_t ExSeis::get_num_rank() const
 {
     return comm->get_num_rank();
 }
 
-void ExSeis::barrier(void) const
+void ExSeis::barrier() const
 {
     comm->barrier();
 }

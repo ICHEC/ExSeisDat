@@ -128,7 +128,7 @@ void ReadSEGY::read_file_headers()
     }
 }
 
-size_t ReadSEGY::read_nt(void) const
+size_t ReadSEGY::read_nt() const
 {
     return m_nt;
 }
@@ -152,17 +152,17 @@ void ReadSEGY::read_param_non_contiguous(
     read_trace_non_contiguous(sz, offsets, nullptr, prm, skip);
 }
 
-const std::string& ReadSEGY::read_text(void) const
+const std::string& ReadSEGY::read_text() const
 {
     return m_text;
 }
 
-size_t ReadSEGY::read_ns(void) const
+size_t ReadSEGY::read_ns() const
 {
     return m_ns;
 }
 
-exseis::utils::Floating_point ReadSEGY::read_sample_interval(void) const
+exseis::utils::Floating_point ReadSEGY::read_sample_interval() const
 {
     return m_sample_interval;
 }

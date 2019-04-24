@@ -36,7 +36,7 @@ class CommunicatorInterface {
   public:
     /*! @brief A virtual destructor to allow deletion.
      */
-    virtual ~CommunicatorInterface(void) = default;
+    virtual ~CommunicatorInterface() = default;
 
     /*! @brief Returns the rank of the process executing the function/
      *  @return The rank.
@@ -123,7 +123,7 @@ class CommunicatorInterface {
      *         Implementations of this pure virtual function will perform a
      *         collective wait.
      */
-    virtual void barrier(void) const = 0;
+    virtual void barrier() const = 0;
 };
 
 }  // namespace piol

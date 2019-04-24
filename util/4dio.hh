@@ -120,7 +120,7 @@ struct Coords {
 
     /*! Destructor. Deallocate all the memory.
      */
-    ~Coords(void)
+    ~Coords()
     {
         free(x_src);
         free(y_src);
