@@ -21,8 +21,7 @@ analysis, file concatenation, etc.
 
 ## Building Instructions
 
-To configure and build ExSeisDat, a C++14 compatible compiler is needed, and
-CMake >= 3.10.
+To configure and build ExSeisDat, a C++14 compatible compiler is needed, MPI, FFTW, doxygen and CMake >= 3.10.
 
     # Make a directory to hold the temporary build files
     mkdir -p /path/to/build/directory
@@ -49,7 +48,7 @@ CMake >= 3.10.
     # rm -rf /path/to/build/directory
 
 CMake should find the necessary MPI and FFTW libraries automatically. It also searches for the C and C++ compilers in the CC and CXX environmental variables.
-
+For details about building on macOS see [building on macOS](#building-on-osx).
 
 ### Specifying MPI
 
@@ -235,3 +234,12 @@ Option | Effect
 `-DCMAKE_INSTALL_PREFIX=...` | Set the root install directory for the compiled libraries and programs.
 `-DCMAKE_INSTALL_BINDIR=...` | Set the install directory for ExSeisDat executables. Use a relative path to set the path relative to `${CMAKE_INSTALL_PREFIX}`. (Default `bin`)
 `-DCMAKE_INSTALL_LIBDIR=...` | Set the install directory for ExSeisDat libraries. Use a relative path to set the path relative to `${CMAKE_INSTALL_PREFIX}`. (Default `lib`)
+
+### Building on macOS
+
+To build and install on macOS, [homebrew](https://brew.sh) can be used for quickly installing the requirements. Once homebrew installed, MPI and FFTW can be installed
+using
+
+```
+brew install open-mpi fftw doxygen
+```
