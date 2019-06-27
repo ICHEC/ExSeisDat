@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <cmath>
 
 using namespace exseis::utils;
 using namespace exseis::PIOL;

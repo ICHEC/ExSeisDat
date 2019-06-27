@@ -7,6 +7,8 @@
 #include "ExSeisDat/PIOL/segy_utils.hh"
 #include "ExSeisDat/utils/encoding/number_encoding.hh"
 
+#include <cmath>
+
 using namespace exseis::utils;
 
 namespace exseis {

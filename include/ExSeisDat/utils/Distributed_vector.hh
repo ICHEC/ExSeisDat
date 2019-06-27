@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <cassert>
 
 namespace exseis {
 namespace utils {

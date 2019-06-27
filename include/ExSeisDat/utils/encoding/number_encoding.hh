@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdint>
 #include <type_traits>
+#include <cstring>
 
 ///
 /// @namespace exseis::utils::number_encoding

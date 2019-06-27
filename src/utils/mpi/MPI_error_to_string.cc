@@ -5,6 +5,7 @@
 
 #include "ExSeisDat/utils/mpi/MPI_error_to_string.hh"
 
+#include <cstring>
 
 namespace exseis {
 namespace utils {

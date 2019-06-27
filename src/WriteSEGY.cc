@@ -15,6 +15,7 @@
 
 #include <cstring>
 #include <limits>
+#include <cmath>
 
 using namespace exseis::utils;
 using namespace exseis::PIOL::SEGY_utils;
