@@ -10,9 +10,9 @@
 
 #include "exseisdat/piol/operations/minmax.h"
 
-#include "exseisdat/piol/ExSeisPIOL.hh"
-#include "exseisdat/piol/Trace_metadata.hh"
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/piol/configuration/ExSeisPIOL.hh"
+#include "exseisdat/piol/metadata/Trace_metadata.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -22,27 +22,31 @@
 
 namespace exseis {
 namespace piol {
+inline namespace operations {
 
-/// Import PIOL_CoordElem from C API.
+/// @brief Import PIOL_CoordElem from C API.
 /// @copydoc PIOL_CoordElem
 typedef PIOL_CoordElem CoordElem;
 
-/// Return the value associated with a particular parameter
+/// @brief Return the value associated with a particular parameter
 template<typename T>
 using MinMaxFunc = std::function<exseis::utils::Floating_point(const T&)>;
 
 /************************************ Core ************************************/
-/*! Get the min and max for a parameter. Use a second parameter to decide
- *  between equal cases.
- *  @tparam T The type of the input array
- *  @param[in] piol The PIOL object
- *  @param[in] offset The offset for the local process
- *  @param[in] sz The number of sets of parameters for the local process
- *  @param[in] coord The array of parameters for the local process
- *  @param[in] elem1 The function for extracting the first parameter from
- *                   \c coord
- *  @param[in] elem2 The function for extracting the second parameter from
- *                   \c coord
+/*! @brief Get the min and max for a parameter. Use a second parameter to decide
+ *         between equal cases.
+ *
+ *  @tparam     T       The type of the input array
+ *
+ *  @param[in]  piol    The PIOL object
+ *  @param[in]  offset  The offset for the local process
+ *  @param[in]  sz      The number of sets of parameters for the local process
+ *  @param[in]  coord   The array of parameters for the local process
+ *  @param[in]  elem1   The function for extracting the first parameter from
+ *                      \c coord
+ *  @param[in]  elem2   The function for extracting the second parameter from
+ *                      \c coord
+ *
  *  @return Return a vector of length 2 with the Coordinates as elements
  */
 template<typename T>
@@ -124,18 +128,21 @@ std::vector<CoordElem> get_coord_min_max(
     return minmax;
 }
 
-/*! Get the min and max for both parameters.
- * @tparam T The type of the input array
- * @param[in] piol The PIOL object
- * @param[in] offset The offset for the local process
- * @param[in] sz The number of sets of parameters for the local process
- * @param[in] coord The array of parameters for the local process
- * @param[in] xlam The function for extracting the first parameter from \c coord
- * @param[in] ylam The function for extracting the second parameter from
- *                 \c coord
- * @param[in] minmax An array of length 4 with the CoordElem structure as
- *                   elements.  min for xlam, max for xlam, min for ylam, max
- *                   for ylam.
+/*! @brief Get the min and max for both parameters.
+ *
+ * @tparam      T The type of the input array
+ *
+ * @param[in]   piol    The PIOL object
+ * @param[in]   offset  The offset for the local process
+ * @param[in]   sz      The number of sets of parameters for the local process
+ * @param[in]   coord   The array of parameters for the local process
+ * @param[in]   xlam    The function for extracting the first parameter from
+ *                      \c coord
+ * @param[in]   ylam    The function for extracting the second parameter from
+ *                      \c coord
+ * @param[in]   minmax  An array of length 4 with the CoordElem structure as
+ *                      elements.  min for xlam, max for xlam, min for ylam, max
+ *                      for ylam.
  */
 template<typename T>
 void get_min_max(
@@ -159,28 +166,30 @@ void get_min_max(
 /********************************** Non-Core **********************************/
 
 // TODO: Write a test for this function
-/*! Get the min and the max of a set of parameters passed. This is a parallel
- *  operation. It is the collective min and max across all processes (which also
- *  must all call this file).
- *  @param[in,out] piol The PIOL object
- *  @param[in] offset The starting trace number (local).
- *  @param[in] sz The local number of traces to process.
- *  @param[in] m1 The first coordinate item of interest.
- *  @param[in] m2 The second coordinate item of interest.
- *  @param[in] prm An array of trace parameter structures
- *  @param[out] minmax An array of structures containing the minimum item.x,
- *                     maximum item.x, minimum item.y, maximum item.y
- *  and their respective trace numbers.
+/*! @brief Get the min and the max of a set of parameters passed. This is a
+ *         parallel operation. It is the collective min and max across all
+ *         processes (which also must all call this file).
+ *
+ *  @param[in,out]  piol    The PIOL object
+ *  @param[in]      offset  The starting trace number (local).
+ *  @param[in]      sz      The local number of traces to process.
+ *  @param[in]      m1      The first coordinate item of interest.
+ *  @param[in]      m2      The second coordinate item of interest.
+ *  @param[in]      prm     An array of trace parameter structures
+ *  @param[out]     minmax  An array of structures containing the minimum
+ *                          item.x, maximum item.x, minimum item.y, maximum
+ *                          item.y and their respective trace numbers.
  */
 void get_min_max(
     ExSeisPIOL* piol,
     size_t offset,
     size_t sz,
-    Meta m1,
-    Meta m2,
+    Trace_metadata_key m1,
+    Trace_metadata_key m2,
     const Trace_metadata& prm,
     CoordElem* minmax);
 
+}  // namespace operations
 }  // namespace piol
 }  // namespace exseis
 

@@ -20,8 +20,8 @@ class MockGetMinMax {
             ExSeisPIOL* piol,
             size_t offset,
             size_t sz,
-            Meta m1,
-            Meta m2,
+            Trace_metadata_key m1,
+            Trace_metadata_key m2,
             const Trace_metadata& prm,
             CoordElem* minmax));
 };

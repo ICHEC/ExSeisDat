@@ -4,6 +4,7 @@ using namespace exseis::utils;
 
 namespace exseis {
 namespace piol {
+inline namespace metadata {
 
 Trace_metadata::Trace_metadata(Rule rules, size_t num_traces) :
     rules(true, true, true)
@@ -78,5 +79,6 @@ size_t Trace_metadata::memory_usage() const
     return mock_trace_metadata().memory_usage(this);
 }
 
+}  // namespace metadata
 }  // namespace piol
 }  // namespace exseis

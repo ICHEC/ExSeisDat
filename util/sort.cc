@@ -1,5 +1,5 @@
 #include "exseisdat/flow/Set.hh"
-#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
 
 #include <assert.h>
 #include <iostream>
@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     std::string name1;
     std::string name2;
 
-    SortType type = SortType::SrcRcv;
+    Sort_type type = Sort_type::SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
                 break;
 
             case 't':
-                type = static_cast<SortType>(std::stoul(optarg));
+                type = static_cast<Sort_type>(std::stoul(optarg));
                 break;
 
             default:

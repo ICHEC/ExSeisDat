@@ -1,4 +1,4 @@
-#include "exseisdat/utils/Type.hh"
+#include "exseisdat/utils/types/Type.hh"
 
 #include "gtest/gtest.h"
 

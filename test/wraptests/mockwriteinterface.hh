@@ -4,7 +4,7 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "exseisdat/piol/WriteInterface.hh"
+#include "exseisdat/piol/file/Output_file.hh"
 
 namespace exseis {
 namespace piol {
@@ -17,29 +17,29 @@ class MockWriteInterface {
     MOCK_METHOD3(
         ctor,
         void(
-            WriteInterface*,
+            Output_file*,
             std::shared_ptr<ExSeisPIOL> piol,
             const std::string name));
 
-    MOCK_METHOD1(dtor, void(WriteInterface*));
+    MOCK_METHOD1(dtor, void(Output_file*));
 
-    MOCK_CONST_METHOD1(file_name, const std::string&(const WriteInterface*));
-    MOCK_METHOD2(write_text, void(WriteInterface*, const std::string text_));
+    MOCK_CONST_METHOD1(file_name, const std::string&(const Output_file*));
+    MOCK_METHOD2(write_text, void(Output_file*, const std::string text_));
 
-    MOCK_METHOD2(write_ns, void(WriteInterface*, const size_t ns_));
+    MOCK_METHOD2(write_ns, void(Output_file*, const size_t ns_));
 
-    MOCK_METHOD2(write_nt, void(WriteInterface*, const size_t nt_));
+    MOCK_METHOD2(write_nt, void(Output_file*, const size_t nt_));
 
     MOCK_METHOD2(
         write_sample_interval,
         void(
-            WriteInterface*,
+            Output_file*,
             const exseis::utils::Floating_point sample_interval_));
 
     MOCK_METHOD6(
         write_trace,
         void(
-            WriteInterface*,
+            Output_file*,
             const size_t offset,
             const size_t sz,
             exseis::utils::Trace_value* trace,
@@ -49,7 +49,7 @@ class MockWriteInterface {
     MOCK_METHOD5(
         write_param,
         void(
-            WriteInterface*,
+            Output_file*,
             const size_t offset,
             const size_t sz,
             const Trace_metadata* prm,
@@ -58,7 +58,7 @@ class MockWriteInterface {
     MOCK_METHOD6(
         write_trace_non_contiguous,
         void(
-            WriteInterface*,
+            Output_file*,
             const size_t sz,
             const size_t* offset,
             exseis::utils::Trace_value* trace,
@@ -68,7 +68,7 @@ class MockWriteInterface {
     MOCK_METHOD5(
         write_param_non_contiguous,
         void(
-            WriteInterface*,
+            Output_file*,
             const size_t sz,
             const size_t* offset,
             const Trace_metadata* prm,

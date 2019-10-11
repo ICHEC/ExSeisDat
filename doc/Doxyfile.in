@@ -36,7 +36,6 @@ WARN_AS_ERROR          = YES
 INPUT                  =         \
     @CMAKE_SOURCE_DIR@/doc/namespaces.dox \
     @CMAKE_SOURCE_DIR@/include   \
-    @CMAKE_SOURCE_DIR@/util      \
     @CMAKE_SOURCE_DIR@/README.md \
     @CMAKE_CURRENT_BINARY_DIR@/examples/documented \
     @CMAKE_SOURCE_DIR@/examples/README.md
@@ -82,7 +81,9 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 PREDEFINED             = __cplusplus
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = 
+
+GENERATE_XML           = YES
+XML_NS_MEMB_FILE_SCOPE = YES
 
 # Aliases for implicit members
 ALIASES += special_member_functions="Special Member Functions"

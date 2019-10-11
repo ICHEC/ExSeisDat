@@ -34,29 +34,31 @@ std::shared_ptr<Trace_metadata*> test_piol_file_trace_metadata(
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(
-        mock_trace_metadata(), get_integer(EqDeref(param_ptr), 340, Meta::Copy))
+        mock_trace_metadata(),
+        get_integer(EqDeref(param_ptr), 340, Trace_metadata_key::Copy))
         .WillOnce(CheckReturn(350));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
     EXPECT_CALL(
-        mock_trace_metadata(), get_index(EqDeref(param_ptr), 360, Meta::Copy))
+        mock_trace_metadata(),
+        get_index(EqDeref(param_ptr), 360, Trace_metadata_key::Copy))
         .WillOnce(CheckReturn(370));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
     EXPECT_CALL(
         mock_trace_metadata(),
-        get_floating_point(EqDeref(param_ptr), 380, Meta::Copy))
+        get_floating_point(EqDeref(param_ptr), 380, Trace_metadata_key::Copy))
         .WillOnce(CheckReturn(390.0));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
 
     EXPECT_CALL(
         mock_trace_metadata(),
-        set_integer(EqDeref(param_ptr), 400, Meta::Copy, 410));
+        set_integer(EqDeref(param_ptr), 400, Trace_metadata_key::Copy, 410));
     EXPECT_CALL(
         mock_trace_metadata(),
-        set_index(EqDeref(param_ptr), 420, Meta::Copy, 430));
+        set_index(EqDeref(param_ptr), 420, Trace_metadata_key::Copy, 430));
     EXPECT_CALL(
-        mock_trace_metadata(),
-        set_floating_point(
-            EqDeref(param_ptr), 440, Meta::Copy, DoubleEq(450.0)));
+        mock_trace_metadata(), set_floating_point(
+                                   EqDeref(param_ptr), 440,
+                                   Trace_metadata_key::Copy, DoubleEq(450.0)));
 
     EXPECT_CALL(
         mock_trace_metadata(),

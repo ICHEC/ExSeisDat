@@ -105,9 +105,9 @@ add_executable(
     spectests/utils/typedefs.test.cc
     spectests/utils/Type.test.cc
 
-    spectests/piol/Meta.test.cc
-    spectests/piol/Tr.test.cc
-    spectests/piol/operations/SortType.test.cc
+    spectests/piol/Trace_metadata_key.test.cc
+    spectests/piol/Trace_header_offsets.test.cc
+    spectests/piol/operations/Sort_type.test.cc
 
     spectests/datampiioread.cc
     spectests/datampiiowrite.cc

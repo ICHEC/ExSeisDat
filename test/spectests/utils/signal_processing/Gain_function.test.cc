@@ -5,5 +5,7 @@
 
 // Check C++ and C API have the same type
 static_assert(
-    std::is_same<exseis::utils::Gain_function, exseis_Gain_function>::value,
+    std::is_same<
+        exseis::utils::Gain_function,
+        exseis::utils::exseis_Gain_function>::value,
     "exseis::utils::Gain_function and exseis_Gain_function are not the same type!");

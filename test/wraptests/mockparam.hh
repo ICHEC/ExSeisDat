@@ -1,7 +1,7 @@
 #ifndef EXSEISDAT_TEST_WRAPTESTS_MOCKPARAM_HH
 #define EXSEISDAT_TEST_WRAPTESTS_MOCKPARAM_HH
 
-#include "exseisdat/piol/Trace_metadata.hh"
+#include "exseisdat/piol/metadata/Trace_metadata.hh"
 
 #include "printers.hh"
 
@@ -11,7 +11,7 @@
 namespace exseis {
 namespace piol {
 
-using namespace exseis::utils::typedefs;
+using namespace exseis::utils::types;
 
 
 class Mock_Trace_metadata;
@@ -25,28 +25,45 @@ class Mock_Trace_metadata {
 
     MOCK_CONST_METHOD3(
         get_floating_point,
-        Floating_point(const Trace_metadata*, size_t trace_index, Meta entry));
+        Floating_point(
+            const Trace_metadata*,
+            size_t trace_index,
+            Trace_metadata_key entry));
     MOCK_METHOD4(
         set_floating_point,
         void(
             Trace_metadata*,
             size_t trace_index,
-            Meta entry,
+            Trace_metadata_key entry,
             Floating_point value));
 
     MOCK_CONST_METHOD3(
         get_integer,
-        Integer(const Trace_metadata*, size_t trace_index, Meta entry));
+        Integer(
+            const Trace_metadata*,
+            size_t trace_index,
+            Trace_metadata_key entry));
     MOCK_METHOD4(
         set_integer,
-        void(Trace_metadata*, size_t trace_index, Meta entry, Integer value));
+        void(
+            Trace_metadata*,
+            size_t trace_index,
+            Trace_metadata_key entry,
+            Integer value));
 
     MOCK_CONST_METHOD3(
         get_index,
-        size_t(const Trace_metadata*, size_t trace_index, Meta entry));
+        size_t(
+            const Trace_metadata*,
+            size_t trace_index,
+            Trace_metadata_key entry));
     MOCK_METHOD4(
         set_index,
-        void(Trace_metadata*, size_t trace_index, Meta entry, size_t value));
+        void(
+            Trace_metadata*,
+            size_t trace_index,
+            Trace_metadata_key entry,
+            size_t value));
 
     MOCK_METHOD4(
         copy_entries,

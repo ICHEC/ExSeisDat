@@ -9,10 +9,10 @@
 #ifndef EXSEISDAT_TEST_SPECTESTS_SEGYMDEXTRA_HH
 #define EXSEISDAT_TEST_SPECTESTS_SEGYMDEXTRA_HH
 
-#include "exseisdat/piol/ObjectInterface.hh"
+#include "exseisdat/piol/file/detail/ObjectInterface.hh"
 #include "exseisdat/utils/encoding/character_encoding.hh"
 #include "exseisdat/utils/encoding/number_encoding.hh"
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 #include <cmath>
 #include <cstring>
@@ -23,7 +23,7 @@
 namespace exseis {
 namespace piol {
 
-using namespace exseis::utils::typedefs;
+using namespace exseis::utils::types;
 
 /*! Misc Trace Header offsets
  */

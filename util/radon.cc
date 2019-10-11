@@ -1,5 +1,5 @@
 #include "exseisdat/flow/Set.hh"
-#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
 
 #include <assert.h>
 #include <iostream>

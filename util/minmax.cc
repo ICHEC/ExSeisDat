@@ -1,8 +1,8 @@
 #include "sglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
-#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
+#include "exseisdat/piol/file/Output_file_segy.hh"
 #include "exseisdat/piol/operations/minmax.hh"
 #include "exseisdat/utils/decomposition/block_decomposition.hh"
 
@@ -21,7 +21,7 @@ using namespace exseis::piol;
 void calc_min(std::string iname, std::string oname)
 {
     auto piol = ExSeis::make();
-    ReadSEGY in(piol, iname);
+    Input_file_segy in(piol, iname);
 
     auto dec = block_decomposition(
         in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
@@ -34,13 +34,14 @@ void calc_min(std::string iname, std::string oname)
     in.read_param(offset, lnt, &prm);
 
     get_min_max(
-        piol.get(), offset, lnt, Meta::x_src, Meta::y_src, prm, minmax.data());
+        piol.get(), offset, lnt, Trace_metadata_key::x_src,
+        Trace_metadata_key::y_src, prm, minmax.data());
     get_min_max(
-        piol.get(), offset, lnt, Meta::x_rcv, Meta::y_rcv, prm,
-        minmax.data() + 4U);
+        piol.get(), offset, lnt, Trace_metadata_key::x_rcv,
+        Trace_metadata_key::y_rcv, prm, minmax.data() + 4U);
     get_min_max(
-        piol.get(), offset, lnt, Meta::xCmp, Meta::yCmp, prm,
-        minmax.data() + 8U);
+        piol.get(), offset, lnt, Trace_metadata_key::xCmp,
+        Trace_metadata_key::yCmp, prm, minmax.data() + 8U);
 
     size_t sz  = (piol->get_rank() == 0 ? minmax.size() : 0U);
     size_t usz = 0;
@@ -68,14 +69,14 @@ void calc_min(std::string iname, std::string oname)
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
                 oprm.copy_entries(i, tprm, j);
-                oprm.set_integer(i, Meta::tn, minmax[i].num);
+                oprm.set_integer(i, Trace_metadata_key::tn, minmax[i].num);
                 trace[i] = exseis::utils::Trace_value(1);
                 j        = usz;
             }
         }
     }
 
-    WriteSEGY out(piol, oname);
+    Output_file_segy out(piol, oname);
     out.write_nt(sz);
     out.write_ns(1U);
     out.write_sample_interval(in.read_sample_interval());

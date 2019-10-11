@@ -6,19 +6,24 @@
 #define EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_H
 
 #include "exseisdat/utils/signal_processing/Gain_function.h"
-#include "exseisdat/utils/typedefs.h"
+#include "exseisdat/utils/types/typedefs.h"
 
 #include <stddef.h>
 
 #ifdef __cplusplus
+
+namespace exseis {
+namespace utils {
+inline namespace signal_processing {
+
 extern "C" {
 #endif  // __cplusplus
 
 /// @name C API
 /// @{
 
-/// @brief C API interface for \ref exseis::utils::signal_processing::agc
-/// @copydoc exseis::utils::signal_processing::agc
+/// @brief C API interface for \ref agc
+/// @copydoc agc
 void exseis_agc(
     size_t signal_size,
     exseis_Trace_value* signal,
@@ -30,6 +35,10 @@ void exseis_agc(
 
 #ifdef __cplusplus
 }  // extern "C"
+
+}  // namespace signal_processing
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 #endif  // EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_H

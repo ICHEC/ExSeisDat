@@ -1,6 +1,6 @@
 #include "exseisdat/utils/signal_processing/Taper_function.hh"
 #include "exseisdat/utils/signal_processing/mute.hh"
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

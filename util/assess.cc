@@ -7,8 +7,8 @@
 ///          the SEGY matches and provides details about what is in the files.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
 
 #include <glob.h>
 #include <iostream>
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
         if (std::regex_match(globs.gl_pathv[i], reg)) {
             std::cout << "File: " << globs.gl_pathv[i] << "\n";
 
-            ReadSEGY file(piol, globs.gl_pathv[i]);
+            Input_file_segy file(piol, globs.gl_pathv[i]);
             piol->assert_ok();
             std::cout << "-\tNs: " << file.read_ns() << "\n";
             std::cout << "-\tNt: " << file.read_nt() << "\n";

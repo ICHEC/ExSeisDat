@@ -6,7 +6,7 @@
 #ifndef EXSEISDAT_UTILS_GENERIC_ARRAY_HH
 #define EXSEISDAT_UTILS_GENERIC_ARRAY_HH
 
-#include "exseisdat/utils/Type.hh"
+#include "exseisdat/utils/types/Type.hh"
 
 #include <limits>
 #include <memory>

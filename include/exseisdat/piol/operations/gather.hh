@@ -8,15 +8,16 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 #define EXSEISDAT_PIOL_OPERATIONS_GATHER_HH
 
-#include "exseisdat/piol/ExSeisPIOL.hh"
-#include "exseisdat/piol/ReadInterface.hh"
-#include "exseisdat/utils/Distributed_vector.hh"
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/piol/configuration/ExSeisPIOL.hh"
+#include "exseisdat/piol/file/Input_file.hh"
+#include "exseisdat/utils/distributed_vector/Distributed_vector.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 namespace exseis {
 namespace piol {
+inline namespace operations {
 
-using namespace exseis::utils::typedefs;
+using namespace exseis::utils::types;
 
 /// A struct containing information about a seismic gather.
 struct Gather_info {
@@ -31,8 +32,8 @@ struct Gather_info {
 };
 
 
-/// Find the inline/crossline for each il/xl gather and the number of traces per
-/// gather using the parameters from the file provided.
+/// @brief Find the inline/crossline for each il/xl gather and the number of
+///        traces per gather using the parameters from the file provided.
 ///
 /// @param[in] piol The piol object.
 /// @param[in] file The file which has il/xl gathers.
@@ -42,8 +43,9 @@ struct Gather_info {
 ///         crossline.
 ///
 exseis::utils::Distributed_vector<Gather_info> get_il_xl_gathers(
-    ExSeisPIOL* piol, ReadInterface* file);
+    ExSeisPIOL* piol, Input_file* file);
 
+}  // namespace operations
 }  // namespace piol
 }  // namespace exseis
 

@@ -5,17 +5,18 @@
 
 #include "segymdextra.hh"
 
-#include "exseisdat/piol/CommunicatorMPI.hh"
-#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
 #include "exseisdat/piol/operations/minmax.hh"
-#include "exseisdat/piol/operations/sort.hh"
-#include "exseisdat/piol/operations/temporalfilter.hh"
+#include "exseisdat/piol/operations/sort_operations/sort.hh"
+#include "exseisdat/utils/communicator/Communicator_mpi.hh"
 #include "exseisdat/utils/signal_processing/AGC.h"
 #include "exseisdat/utils/signal_processing/mute.h"
 #include "exseisdat/utils/signal_processing/taper.h"
+#include "exseisdat/utils/signal_processing/temporalfilter.hh"
 
 using namespace testing;
 using namespace exseis::piol;
+using exseis::utils::Communicator_mpi;
 
 struct OpsTest : public Test {
     std::shared_ptr<ExSeis> piol = ExSeis::make();
@@ -167,16 +168,21 @@ TEST_F(OpsTest, SortSrcRcvBackwards)
     Trace_metadata prm(200);
     for (size_t i = 0; i < prm.size(); i++) {
         prm.set_floating_point(
-            i, Meta::x_src, 1000.0 - (prm.size() * piol->get_rank() + i) / 20);
+            i, Trace_metadata_key::x_src,
+            1000.0 - (prm.size() * piol->get_rank() + i) / 20);
         prm.set_floating_point(
-            i, Meta::y_src, 1000.0 - (prm.size() * piol->get_rank() + i) % 20);
+            i, Trace_metadata_key::y_src,
+            1000.0 - (prm.size() * piol->get_rank() + i) % 20);
         prm.set_floating_point(
-            i, Meta::x_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) / 10);
+            i, Trace_metadata_key::x_rcv,
+            1000.0 - (prm.size() * piol->get_rank() + i) / 10);
         prm.set_floating_point(
-            i, Meta::y_rcv, 1000.0 - (prm.size() * piol->get_rank() + i) % 10);
-        prm.set_index(i, Meta::gtn, prm.size() * piol->get_rank() + i);
+            i, Trace_metadata_key::y_rcv,
+            1000.0 - (prm.size() * piol->get_rank() + i) % 10);
+        prm.set_index(
+            i, Trace_metadata_key::gtn, prm.size() * piol->get_rank() + i);
     }
-    auto list               = sort(piol.get(), SortType::SrcRcv, prm);
+    auto list               = sort(piol.get(), Sort_type::SrcRcv, prm);
     size_t global_list_size = piol->comm->sum(list.size());
     for (size_t i = 0; i < list.size(); i++) {
         ASSERT_EQ(
@@ -190,16 +196,21 @@ TEST_F(OpsTest, SortSrcRcvForwards)
     Trace_metadata prm(200);
     for (size_t i = 0; i < prm.size(); i++) {
         prm.set_floating_point(
-            i, Meta::x_src, 1000.0 + (prm.size() * piol->get_rank() + i) / 20);
+            i, Trace_metadata_key::x_src,
+            1000.0 + (prm.size() * piol->get_rank() + i) / 20);
         prm.set_floating_point(
-            i, Meta::y_src, 1000.0 + (prm.size() * piol->get_rank() + i) % 20);
+            i, Trace_metadata_key::y_src,
+            1000.0 + (prm.size() * piol->get_rank() + i) % 20);
         prm.set_floating_point(
-            i, Meta::x_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) / 10);
+            i, Trace_metadata_key::x_rcv,
+            1000.0 + (prm.size() * piol->get_rank() + i) / 10);
         prm.set_floating_point(
-            i, Meta::y_rcv, 1000.0 + (prm.size() * piol->get_rank() + i) % 10);
-        prm.set_index(i, Meta::gtn, prm.size() * piol->get_rank() + i);
+            i, Trace_metadata_key::y_rcv,
+            1000.0 + (prm.size() * piol->get_rank() + i) % 10);
+        prm.set_index(
+            i, Trace_metadata_key::gtn, prm.size() * piol->get_rank() + i);
     }
-    auto list = sort(piol.get(), SortType::SrcRcv, prm);
+    auto list = sort(piol.get(), Sort_type::SrcRcv, prm);
 
     for (size_t i = 0; i < list.size(); i++) {
         ASSERT_EQ(prm.size() * piol->get_rank() + i, list[i]);
@@ -210,23 +221,33 @@ TEST_F(OpsTest, SortSrcRcvRand)
 {
     Trace_metadata prm(10);
     for (size_t i = 0; i < prm.size(); i++) {
-        prm.set_floating_point(i, Meta::y_src, 1000.0);
-        prm.set_floating_point(i, Meta::x_rcv, 1000.0);
-        prm.set_floating_point(i, Meta::y_rcv, 1000.0);
-        prm.set_index(i, Meta::gtn, 10 * piol->get_rank() + i);
+        prm.set_floating_point(i, Trace_metadata_key::y_src, 1000.0);
+        prm.set_floating_point(i, Trace_metadata_key::x_rcv, 1000.0);
+        prm.set_floating_point(i, Trace_metadata_key::y_rcv, 1000.0);
+        prm.set_index(i, Trace_metadata_key::gtn, 10 * piol->get_rank() + i);
     }
-    prm.set_floating_point(0, Meta::x_src, 10.0 * piol->get_rank() + 5.0);
-    prm.set_floating_point(1, Meta::x_src, 10.0 * piol->get_rank() + 3.0);
-    prm.set_floating_point(2, Meta::x_src, 10.0 * piol->get_rank() + 1.0);
-    prm.set_floating_point(3, Meta::x_src, 10.0 * piol->get_rank() + 4.0);
-    prm.set_floating_point(4, Meta::x_src, 10.0 * piol->get_rank() + 2.0);
-    prm.set_floating_point(5, Meta::x_src, 10.0 * piol->get_rank() + 9.0);
-    prm.set_floating_point(6, Meta::x_src, 10.0 * piol->get_rank() + 6.0);
-    prm.set_floating_point(7, Meta::x_src, 10.0 * piol->get_rank() + 8.0);
-    prm.set_floating_point(8, Meta::x_src, 10.0 * piol->get_rank() + 7.0);
-    prm.set_floating_point(9, Meta::x_src, 10.0 * piol->get_rank() + 0.0);
+    prm.set_floating_point(
+        0, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 5.0);
+    prm.set_floating_point(
+        1, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 3.0);
+    prm.set_floating_point(
+        2, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 1.0);
+    prm.set_floating_point(
+        3, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 4.0);
+    prm.set_floating_point(
+        4, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 2.0);
+    prm.set_floating_point(
+        5, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 9.0);
+    prm.set_floating_point(
+        6, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 6.0);
+    prm.set_floating_point(
+        7, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 8.0);
+    prm.set_floating_point(
+        8, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 7.0);
+    prm.set_floating_point(
+        9, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 0.0);
 
-    auto list = sort(piol.get(), SortType::SrcRcv, prm);
+    auto list = sort(piol.get(), Sort_type::SrcRcv, prm);
 
     ASSERT_EQ(10 * piol->get_rank() + 5U, list[0]);
     ASSERT_EQ(10 * piol->get_rank() + 3U, list[1]);
@@ -246,8 +267,8 @@ TEST_F(OpsTest, FilterCheckLowpass)
     std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
     make_filter(
-        FltrType::Lowpass, numer_calc.data(), denom_calc.data(), n, 30.0, 1.2,
-        0.0);
+        exseis::utils::FltrType::Lowpass, numer_calc.data(), denom_calc.data(),
+        n, 30.0, 1.2, 0.0);
 
     std::vector<exseis::utils::Trace_value> denom_ref = {
         1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
@@ -268,8 +289,8 @@ TEST_F(OpsTest, FilterCheckHighpass)
     std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
     make_filter(
-        FltrType::Highpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2,
-        0);
+        exseis::utils::FltrType::Highpass, numer_calc.data(), denom_calc.data(),
+        n, 30, 1.2, 0);
 
     std::vector<exseis::utils::Trace_value> denom_ref = {
         1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
@@ -287,8 +308,8 @@ TEST_F(OpsTest, FilterCheckBandpass)
     std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
     make_filter(
-        FltrType::Bandpass, numer_calc.data(), denom_calc.data(), n, 30, 1.2,
-        6.5);
+        exseis::utils::FltrType::Bandpass, numer_calc.data(), denom_calc.data(),
+        n, 30, 1.2, 6.5);
     std::vector<exseis::utils::Trace_value> denom_ref = {
         1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
         -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
@@ -307,8 +328,8 @@ TEST_F(OpsTest, FilterCheckBandstop)
     std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
     std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
     make_filter(
-        FltrType::Bandstop, numer_calc.data(), denom_calc.data(), n,
-        exseis::utils::Trace_value(30), exseis::utils::Trace_value(1.2),
+        exseis::utils::FltrType::Bandstop, numer_calc.data(), denom_calc.data(),
+        n, exseis::utils::Trace_value(30), exseis::utils::Trace_value(1.2),
         exseis::utils::Trace_value(6.5));
     std::vector<exseis::utils::Trace_value> denom_ref = {
         1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,

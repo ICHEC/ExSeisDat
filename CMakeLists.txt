@@ -145,46 +145,43 @@ include(third_party/third_party.cmake)
 add_library(
     exseisdat
 
-    src/PIOL_C_bindings.cc
+    src/exseisdat/flow/detail/Cache.cc
+    src/exseisdat/flow/Flow_C_bindings.cc
+    src/exseisdat/flow/detail/Radon_gather_state.cc
+    src/exseisdat/flow/Set.cc
 
-    src/flow/Cache.cc
-    src/flow/Flow_C_bindings.cc
-    src/flow/RadonGatherState.cc
-    src/flow/Set.cc
+    src/exseisdat/piol/configuration/ExSeis.cc
+    src/exseisdat/piol/configuration/ExSeisPIOL.cc
+    src/exseisdat/piol/file/Input_file.cc
+    src/exseisdat/piol/file/Input_file_segy.cc
+    src/exseisdat/piol/file/detail/ObjectInterface.cc
+    src/exseisdat/piol/file/detail/ObjectSEGY.cc
+    src/exseisdat/piol/file/detail/ReadSEGYModel.cc
+    src/exseisdat/piol/file/Output_file.cc
+    src/exseisdat/piol/file/Output_file_segy.cc
+    src/exseisdat/piol/io_driver/IO_driver_mpi.cc
+    src/exseisdat/piol/metadata/rules/Rule.cc
+    src/exseisdat/piol/metadata/Trace_metadata.cc
+    src/exseisdat/piol/operations/gather.cc
+    src/exseisdat/piol/operations/minmax.cc
+    src/exseisdat/piol/operations/sort_operations/sort.cc
+    src/exseisdat/piol/PIOL_C_bindings.cc
+    src/exseisdat/piol/segy/utils.cc
 
-    src/piol/mpi/MPI_Binary_file.cc
-    src/piol/segy/utils.cc
-
-    src/CommunicatorMPI.cc
-    src/ExSeis.cc
-    src/ExSeisPIOL.cc
-    src/ObjectInterface.cc
-    src/ObjectSEGY.cc
-    src/ReadInterface.cc
-    src/ReadSEGY.cc
-    src/ReadSEGYModel.cc
-    src/Rule.cc
-    src/Trace_metadata.cc
-    src/WriteInterface.cc
-    src/WriteSEGY.cc
-
-    src/gather.cc
-    src/minmax.cc
-    src/sort.cc
-    src/temporalfilter.cc
-
-    src/utils/decomposition/block_decomposition.cc
-    src/utils/encoding/character_encoding.cc
-    src/utils/encoding/number_encoding.cc
-    src/utils/logging/Log.cc
-    src/utils/logging/Status.cc
-    src/utils/mpi/MPI_error_to_string.cc
-    src/utils/mpi/MPI_max_array_length.cc
-    src/utils/signal_processing/AGC.cc
-    src/utils/signal_processing/Gain_function.cc
-    src/utils/signal_processing/Taper_function.cc
-    src/utils/signal_processing/mute.cc
-    src/utils/signal_processing/taper.cc
+    src/exseisdat/utils/communicator/Communicator_mpi.cc
+    src/exseisdat/utils/decomposition/block_decomposition.cc
+    src/exseisdat/utils/encoding/character_encoding.cc
+    src/exseisdat/utils/encoding/number_encoding.cc
+    src/exseisdat/utils/logging/Log.cc
+    src/exseisdat/utils/logging/Status.cc
+    src/exseisdat/utils/mpi_utils/MPI_error_to_string.cc
+    src/exseisdat/utils/mpi_utils/MPI_max_array_length.cc
+    src/exseisdat/utils/signal_processing/AGC.cc
+    src/exseisdat/utils/signal_processing/Gain_function.cc
+    src/exseisdat/utils/signal_processing/Taper_function.cc
+    src/exseisdat/utils/signal_processing/mute.cc
+    src/exseisdat/utils/signal_processing/taper.cc
+    src/exseisdat/utils/signal_processing/temporalfilter.cc
 )
 
 target_compile_features(exseisdat PUBLIC cxx_std_14)

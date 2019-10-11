@@ -1,9 +1,9 @@
 #include "sglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
 #include "exseisdat/piol/segy/utils.hh"
-#include "exseisdat/utils/mpi/MPI_type.hh"
+#include "exseisdat/utils/types/MPI_type.hh"
 
 #include <assert.h>
 #include <iostream>
@@ -19,7 +19,7 @@ void printmsg(std::string msg, size_t sz, size_t rank, size_t rankn)
 }
 
 void small_copy(
-    const ExSeis& piol, Binary_file* in, Binary_file* out, size_t rep_rate)
+    const ExSeis& piol, IO_driver* in, IO_driver* out, size_t rep_rate)
 {
     const size_t rank = piol.comm->get_rank();
 
@@ -138,7 +138,7 @@ void distrib_to_distrib(
 Contiguous_decomposition write_arb(
     size_t rank,
     size_t num_rank,
-    Binary_file* out,
+    IO_driver* out,
     size_t off,
     size_t bsz,
     Contiguous_decomposition dec,
@@ -162,12 +162,12 @@ Contiguous_decomposition write_arb(
  *  existing file and writng the header object and then repeatedly writing the
  *  payload.
  *  @param[in] piol The piol object
- *  @param[in] iname The SEG-Y input file name
- *  @param[in] oname The SEG-Y output file name
- *  @param[in] repRate The repetition rate
+ *  @param[in] in The SEG-Y input file name
+ *  @param[in] out The SEG-Y output file name
+ *  @param[in] rep_rate The repetition rate
  */
 void mpi_make_segy_copy(
-    const ExSeis& piol, Binary_file* in, Binary_file* out, size_t rep_rate)
+    const ExSeis& piol, IO_driver* in, IO_driver* out, size_t rep_rate)
 {
     size_t rank     = piol.get_rank();
     size_t num_rank = piol.get_num_rank();
@@ -213,7 +213,7 @@ void mpi_make_segy_copy(
 
 template<bool Block>
 void mpi_make_segy_copy_naive(
-    const ExSeis& piol, Binary_file* in, Binary_file* out, size_t rep_rate)
+    const ExSeis& piol, IO_driver* in, IO_driver* out, size_t rep_rate)
 {
     size_t num_rank   = piol.get_num_rank();
     const size_t fsz  = in->get_file_size();
@@ -301,8 +301,8 @@ int main(int argc, char** argv)
 
     size_t num_rank = piol->get_num_rank();
 
-    MPI_Binary_file in(piol, iname, FileMode::Read);
-    MPI_Binary_file out(piol, oname, FileMode::Write);
+    IO_driver_mpi in(piol, iname, FileMode::Read);
+    IO_driver_mpi out(piol, oname, FileMode::Write);
     piol->assert_ok();
 
     const size_t fsz = in.get_file_size();

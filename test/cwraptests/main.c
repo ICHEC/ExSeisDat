@@ -9,8 +9,8 @@
 #include "wraptests/wraptests.h"
 
 
-/* List of all the exseis_Meta values */
-const exseis_Meta metas[] = {
+/* List of all the exseis_Trace_metadata_key values */
+const exseis_Trace_metadata_key metas[] = {
     exseis_meta_Copy,      exseis_meta_ltn,       exseis_meta_gtn,
     exseis_meta_tnl,       exseis_meta_tnr,       exseis_meta_tn,
     exseis_meta_tne,       exseis_meta_ns,        exseis_meta_sample_interval,

@@ -124,7 +124,8 @@ const std::vector<size_t> sort_off_line = {
     909, 919, 929, 939, 949, 959, 969, 979, 989, 999};
 
 void test_rcv_pattern(
-    std::deque<std::shared_ptr<FileDesc>>& file, std::shared_ptr<ExSeis>& piol)
+    std::deque<std::shared_ptr<File_descriptor>>& file,
+    std::shared_ptr<ExSeis>& piol)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 1;
@@ -136,7 +137,8 @@ void test_rcv_pattern(
 }
 
 void test_line_off_pattern(
-    std::deque<std::shared_ptr<FileDesc>>& file, std::shared_ptr<ExSeis>& piol)
+    std::deque<std::shared_ptr<File_descriptor>>& file,
+    std::shared_ptr<ExSeis>& piol)
 {
     for (size_t i = 0; i < file.size(); i++) {
         auto totals  = piol->comm->gather(file[i]->olst.size());
@@ -162,7 +164,8 @@ void test_line_off_pattern(
 }
 
 void test_off_line_pattern(
-    std::deque<std::shared_ptr<FileDesc>>& file, std::shared_ptr<ExSeis>& piol)
+    std::deque<std::shared_ptr<File_descriptor>>& file,
+    std::shared_ptr<ExSeis>& piol)
 {
     for (size_t i = 0; i < file.size(); i++) {
         auto totals = piol->comm->gather(file[i]->olst.size());
@@ -179,7 +182,8 @@ void test_off_line_pattern(
 }
 
 void test_src_off_pattern(
-    std::deque<std::shared_ptr<FileDesc>>& file, std::shared_ptr<ExSeis>& piol)
+    std::deque<std::shared_ptr<File_descriptor>>& file,
+    std::shared_ptr<ExSeis>& piol)
 {
     for (size_t i = 0; i < file.size(); i++) {
         size_t l = 1;
@@ -254,7 +258,7 @@ TEST_F(SetTest, SortSrcX)
 {
     init(1, 1, 1, 1, true);
 
-    set->sort(SortType::SrcRcv);
+    set->sort(Sort_type::SrcRcv);
     set->calc_func(set->m_func.begin(), set->m_func.end());
 
     for (size_t i = 0; i < set->m_file.size(); i++) {
@@ -270,7 +274,7 @@ TEST_F(SetTest, SortRcvX)
 {
     init(1, 1, 1, 1, true);
 
-    set->sort(SortType::RcvOff);
+    set->sort(Sort_type::RcvOff);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     test_rcv_pattern(set->m_file, piol);
 }
@@ -278,7 +282,7 @@ TEST_F(SetTest, SortRcvX)
 TEST_F(SetTest, SortRcvXR)
 {
     init(1, 1, 1, 1, true);
-    set->sort(SortType::RcvROff);
+    set->sort(Sort_type::RcvROff);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     test_rcv_pattern(set->m_file, piol);
 }
@@ -287,7 +291,7 @@ TEST_F(SetTest, SortLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::LineOff);
+    set->sort(Sort_type::LineOff);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     test_line_off_pattern(set->m_file, piol);
 }
@@ -296,7 +300,7 @@ TEST_F(SetTest, SortLineROff)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::LineROff);
+    set->sort(Sort_type::LineROff);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     test_line_off_pattern(set->m_file, piol);
 }
@@ -305,7 +309,7 @@ TEST_F(SetTest, SortOffLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::OffLine);
+    set->sort(Sort_type::OffLine);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     test_off_line_pattern(set->m_file, piol);
 }
@@ -314,7 +318,7 @@ TEST_F(SetTest, SortROffLine)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::ROffLine);
+    set->sort(Sort_type::ROffLine);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     test_off_line_pattern(set->m_file, piol);
 }
@@ -323,8 +327,8 @@ TEST_F(SetTest, SortSortRcv)
 {
     init(1, 1, 1, 2, true);
 
-    set->sort(SortType::SrcRcv);
-    set->sort(SortType::RcvOff);
+    set->sort(Sort_type::SrcRcv);
+    set->sort(Sort_type::RcvOff);
     set->calc_func(set->m_func.begin(), set->m_func.end());
 
     test_src_off_pattern(set->m_file, piol);
@@ -334,8 +338,8 @@ TEST_F(SetTest, SortSortRcvROff)
 {
     init(1, 1, 1, 2, true);
 
-    set->sort(SortType::SrcRcv);
-    set->sort(SortType::RcvROff);
+    set->sort(Sort_type::SrcRcv);
+    set->sort(Sort_type::RcvROff);
     set->calc_func(set->m_func.begin(), set->m_func.end());
 
     test_src_off_pattern(set->m_file, piol);
@@ -345,7 +349,7 @@ TEST_F(SetTest, SortSrcXRcvY)
 {
     init(1, 1, 1, 1, false);
 
-    set->sort(SortType::SrcRcv);
+    set->sort(Sort_type::SrcRcv);
     set->calc_func(set->m_func.begin(), set->m_func.end());
     piol->assert_ok();
 
@@ -376,7 +380,8 @@ TEST_F(SetTest, get_min_max)
 {
     init(1, 1, 1, 1, true);
     std::vector<CoordElem> minmax(4);
-    set->get_min_max(Meta::x_src, Meta::y_src, minmax.data());
+    set->get_min_max(
+        Trace_metadata_key::x_src, Trace_metadata_key::y_src, minmax.data());
     EXPECT_EQ(minmax[0].val, 1001.);
     EXPECT_EQ(minmax[1].val, 2000.);
     EXPECT_EQ(minmax[2].val, 1001.);

@@ -32,7 +32,7 @@ util_add_executable(exseis-creadwrite   concatenate.cc sglobal.cc)
 
 util_add_executable(exseis-segsort  sort.cc)
 
-util_add_executable(exseis-fourdbin fourdbin.cc 4dio.cc 4dcore.cc sglobal.cc)
+util_add_executable(exseis-fourdbin fourdbin.cc 4d.cc 4dio.cc 4dcore.cc sglobal.cc)
 
 util_add_executable(exseis-filemake filemake.cc sglobal.cc)
 

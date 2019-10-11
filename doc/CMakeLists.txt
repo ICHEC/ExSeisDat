@@ -8,7 +8,7 @@ configure_file(
     @ONLY
 )
 
-set(INCLUDE_DOXYFILE "@INCLUDE = Doxyfile")
+set(INCLUDE_DOXYFILE "@INCLUDE = ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man
@@ -66,14 +66,22 @@ add_custom_command(
     COMMENT "Building the documentation..."
 )
 
+add_custom_target(make_man_directory)
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/man/exseis-extract-metadata.1
+    TARGET make_man_directory PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory man
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/man/man/exseis-extract-metadata.1
     COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man"
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
-    DEPENDS 
+    DEPENDS
+        make_man_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
         ${EXSEISDAT_DOCUMENTED_EXAMPLES}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man
     COMMENT "Building the documentation..."
 )
 
@@ -82,7 +90,7 @@ add_custom_target(
     doc ALL
     DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
-        ${CMAKE_CURRENT_BINARY_DIR}/man/exseis-extract-metadata.1
+        ${CMAKE_CURRENT_BINARY_DIR}/man/man/exseis-extract-metadata.1
 )
 
 # Set install target

@@ -6,7 +6,7 @@
 #ifndef EXSEISDAT_UTILS_SIGNAL_PROCESSING_GAIN_FUNCTION_HH
 #define EXSEISDAT_UTILS_SIGNAL_PROCESSING_GAIN_FUNCTION_HH
 
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 namespace exseis {
 namespace utils {

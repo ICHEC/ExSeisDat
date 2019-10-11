@@ -6,8 +6,8 @@
 
 #include "tglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
 #include "exseisdat/piol/segy/utils.hh"
 
 #include "exseisdat/utils/encoding/number_encoding.hh"
@@ -26,20 +26,20 @@ size_t modify_nt(size_t fs, size_t offset, size_t nt, size_t ns);
 
 class MPIIOTest : public Test {
   protected:
-    std::shared_ptr<ExSeis> m_piol      = ExSeis::make();
-    std::shared_ptr<Binary_file> m_data = nullptr;
+    std::shared_ptr<ExSeis> m_piol    = ExSeis::make();
+    std::shared_ptr<IO_driver> m_data = nullptr;
 
     template<bool WRITE = false>
     void make_mpiio(
         std::string name,
-        const MPI_Binary_file::Opt& ioopt = MPI_Binary_file::Opt())
+        const IO_driver_mpi::Opt& ioopt = IO_driver_mpi::Opt())
     {
         if (m_data != nullptr) {
             m_data.reset();
         }
 
         FileMode mode = (WRITE ? FileMode::ReadWrite : FileMode::Read);
-        m_data = std::make_shared<MPI_Binary_file>(m_piol, name, mode, ioopt);
+        m_data = std::make_shared<IO_driver_mpi>(m_piol, name, mode, ioopt);
     }
 
     void make_test_sz(size_t sz)

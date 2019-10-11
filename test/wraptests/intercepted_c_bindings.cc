@@ -5,5 +5,5 @@
 //
 
 // Include the C bindings from src/ which call the templated functions
-#include "PIOL_C_bindings.cc"
-#include "flow/Flow_C_bindings.cc"
+#include "exseisdat/flow/Flow_C_bindings.cc"
+#include "exseisdat/piol/PIOL_C_bindings.cc"

@@ -10,12 +10,12 @@
 #include "4dio.hh"
 #include "sglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
-#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
+#include "exseisdat/piol/file/Output_file_segy.hh"
 #include "exseisdat/piol/segy/utils.hh"
 
-#include "exseisdat/piol/operations/sort.hh"
+#include "exseisdat/piol/operations/sort_operations/sort.hh"
 
 #include <assert.h>
 #include <numeric>
@@ -33,7 +33,7 @@ std::unique_ptr<Coords> get_coords(
     std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline)
 {
     auto time = MPI_Wtime();
-    ReadSEGY file(piol, name);
+    Input_file_segy file(piol, name);
     piol->assert_ok();
 
     auto dec = block_decomposition(
@@ -44,7 +44,8 @@ std::unique_ptr<Coords> get_coords(
 
     auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());
-    auto rule = Rule(std::initializer_list<Meta>{Meta::gtn, Meta::x_src});
+    auto rule = Rule(std::initializer_list<Trace_metadata_key>{
+        Trace_metadata_key::gtn, Trace_metadata_key::x_src});
     /* These two lines are for some basic memory limitation calculations. In
      * future versions of the PIOL this will be handled internally and in a more
      * accurate way. User Story S-01490. The for loop a few lines below reads
@@ -73,7 +74,7 @@ std::unique_ptr<Coords> get_coords(
         file.read_param(offset + i, rblock, &prm, i);
 
         for (size_t j = 0; j < rblock; j++) {
-            prm.set_index(i + j, Meta::gtn, offset + i + j);
+            prm.set_index(i + j, Trace_metadata_key::gtn, offset + i + j);
         }
     }
 
@@ -86,8 +87,10 @@ std::unique_ptr<Coords> get_coords(
     auto trlist = sort(
         piol.get(), prm,
         [](const Trace_metadata& prm, const size_t i, const size_t j) -> bool {
-            const auto x_src_i = prm.get_floating_point(i, Meta::x_src);
-            const auto x_src_j = prm.get_floating_point(j, Meta::x_src);
+            const auto x_src_i =
+                prm.get_floating_point(i, Trace_metadata_key::x_src);
+            const auto x_src_j =
+                prm.get_floating_point(j, Trace_metadata_key::x_src);
 
             if (x_src_i < x_src_j) {
                 return true;
@@ -98,7 +101,8 @@ std::unique_ptr<Coords> get_coords(
 
             // x_src_i == x_src_j
 
-            return prm.get_index(i, Meta::gtn) < prm.get_index(j, Meta::gtn);
+            return prm.get_index(i, Trace_metadata_key::gtn)
+                   < prm.get_index(j, Trace_metadata_key::gtn);
         },
         false);
 
@@ -108,13 +112,15 @@ std::unique_ptr<Coords> get_coords(
 
     const auto crule = ([ixline]() {
         if (ixline) {
-            return Rule(std::initializer_list<Meta>{Meta::x_src, Meta::y_src,
-                                                    Meta::x_rcv, Meta::y_rcv,
-                                                    Meta::il, Meta::xl});
+            return Rule(std::initializer_list<Trace_metadata_key>{
+                Trace_metadata_key::x_src, Trace_metadata_key::y_src,
+                Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv,
+                Trace_metadata_key::il, Trace_metadata_key::xl});
         }
 
-        return Rule(std::initializer_list<Meta>{Meta::x_src, Meta::y_src,
-                                                Meta::x_rcv, Meta::y_rcv});
+        return Rule(std::initializer_list<Trace_metadata_key>{
+            Trace_metadata_key::x_src, Trace_metadata_key::y_src,
+            Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv});
     }());
 
     max = memlim
@@ -136,20 +142,22 @@ std::unique_ptr<Coords> get_coords(
 
             for (size_t j = 0; j < rblock; j++) {
                 coords->x_src[i + orig[j]] =
-                    prm2.get_floating_point(j, Meta::x_src);
+                    prm2.get_floating_point(j, Trace_metadata_key::x_src);
                 coords->y_src[i + orig[j]] =
-                    prm2.get_floating_point(j, Meta::y_src);
+                    prm2.get_floating_point(j, Trace_metadata_key::y_src);
 
                 coords->x_rcv[i + orig[j]] =
-                    prm2.get_floating_point(j, Meta::x_rcv);
+                    prm2.get_floating_point(j, Trace_metadata_key::x_rcv);
                 coords->y_rcv[i + orig[j]] =
-                    prm2.get_floating_point(j, Meta::y_rcv);
+                    prm2.get_floating_point(j, Trace_metadata_key::y_rcv);
 
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
             for (size_t j = 0; ixline && j < rblock; j++) {
-                coords->il[i + orig[j]] = prm2.get_integer(j, Meta::il);
-                coords->xl[i + orig[j]] = prm2.get_integer(j, Meta::xl);
+                coords->il[i + orig[j]] =
+                    prm2.get_integer(j, Trace_metadata_key::il);
+                coords->xl[i + orig[j]] =
+                    prm2.get_integer(j, Trace_metadata_key::xl);
             }
         }
 
@@ -181,17 +189,20 @@ void output_non_mono(
     const bool print_dsr)
 {
     auto time = MPI_Wtime();
-    auto rule = Rule(std::initializer_list<Meta>{Meta::Copy});
+    auto rule = Rule(
+        std::initializer_list<Trace_metadata_key>{Trace_metadata_key::Copy});
 
     // Note: Set to TimeScal for OpenCPS viewing of dataset.
     // OpenCPS is restrictive on what locations can be used
     // as scalars.
     if (print_dsr) {
-        rule.add_segy_float(Meta::dsdr, Tr::SrcMeas, Tr::TimeScal);
+        rule.add_segy_float(
+            Trace_metadata_key::dsdr, Trace_header_offsets::SrcMeas,
+            Trace_header_offsets::TimeScal);
     }
 
-    ReadSEGY src(piol, sname);
-    WriteSEGY dst(piol, dname);
+    Input_file_segy src(piol, sname);
+    Output_file_segy dst(piol, dname);
     piol->assert_ok();
 
     size_t ns      = src.read_ns();
@@ -238,7 +249,8 @@ void output_non_mono(
         src.read_trace_non_monotonic(rblock, &list[i], trc.data(), &prm);
         if (print_dsr) {
             for (size_t j = 0; j < rblock; j++) {
-                prm.set_floating_point(j, Meta::dsdr, minrs[i + j]);
+                prm.set_floating_point(
+                    j, Trace_metadata_key::dsdr, minrs[i + j]);
             }
         }
         dst.write_trace(offset + i, rblock, trc.data(), &prm);

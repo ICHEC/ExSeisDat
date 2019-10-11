@@ -41,11 +41,11 @@
 
 /// @cond (!GENERATING_MANPAGE)
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
-#include "exseisdat/piol/Rule.hh"
-#include "exseisdat/piol/Trace_metadata.hh"
-#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
+#include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
+#include "exseisdat/piol/metadata/Trace_metadata.hh"
+#include "exseisdat/piol/metadata/rules/Rule.hh"
 #include "exseisdat/utils/decomposition/block_decomposition.hh"
 
 #include <CLI11.hpp>
@@ -64,12 +64,12 @@ using namespace exseis::piol;
 
 
 /// A map from metadata key names to matadata keys.
-const auto meta_name_to_meta_map =
-    std::map<std::string, Meta>{{"x_src", Meta::x_src},
-                                {"y_src", Meta::y_src},
-                                {"x_rcv", Meta::x_rcv},
-                                {"y_rcv", Meta::y_rcv},
-                                {"coordinate_scalar", Meta::coordinate_scalar}};
+const auto meta_name_to_meta_map = std::map<std::string, Trace_metadata_key>{
+    {"x_src", Trace_metadata_key::x_src},
+    {"y_src", Trace_metadata_key::y_src},
+    {"x_rcv", Trace_metadata_key::x_rcv},
+    {"y_rcv", Trace_metadata_key::y_rcv},
+    {"coordinate_scalar", Trace_metadata_key::coordinate_scalar}};
 
 
 /// @brief Return a fixed-width string representing the given Meta key at the
@@ -85,7 +85,9 @@ const auto meta_name_to_meta_map =
 /// @endcode
 ///
 std::string formatted_meta_value(
-    const Trace_metadata& trace_metadata, size_t local_trace_index, Meta meta);
+    const Trace_metadata& trace_metadata,
+    size_t local_trace_index,
+    Trace_metadata_key meta);
 
 int main(int argc, char* argv[])
 {
@@ -93,7 +95,7 @@ int main(int argc, char* argv[])
     std::string input_filename;
     std::string output_filename;
     std::vector<std::string> meta_names;
-    std::vector<Meta> metas;
+    std::vector<Trace_metadata_key> metas;
     size_t trace_stride_size              = 1;
     size_t max_number_of_traces_in_memory = std::numeric_limits<size_t>::max();
 
@@ -168,8 +170,8 @@ int main(int argc, char* argv[])
     // Initialize the ExSeisPIOL library and open the input SEGY file and the
     // output CSV file.
     auto piol = ExSeis::make();
-    const ReadSEGY input_file(piol, input_filename);
-    MPI_Binary_file output_file(piol, output_filename, FileMode::Write);
+    const Input_file_segy input_file(piol, input_filename);
+    IO_driver_mpi output_file(piol, output_filename, FileMode::Write);
 
 
     // Build the header for the CSV file in the form
@@ -356,7 +358,9 @@ int main(int argc, char* argv[])
 // can write it in parallel. To do this, we need a way to turn a meta
 // entry into a well formatted string.
 std::string formatted_meta_value(
-    const Trace_metadata& trace_metadata, size_t local_trace_index, Meta meta)
+    const Trace_metadata& trace_metadata,
+    size_t local_trace_index,
+    Trace_metadata_key meta)
 {
     // Float and integer output should be 16 characters long
     const char* float_format   = "%16.5f";

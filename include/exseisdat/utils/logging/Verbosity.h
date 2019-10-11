@@ -1,12 +1,24 @@
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @brief C API for \ref exseisdat/utils/logging/Verbosity.hh
+////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_UTILS_LOGGING_VERBOSITY_H
 #define EXSEISDAT_UTILS_LOGGING_VERBOSITY_H
 
 #include <stddef.h>
 
 #ifdef __cplusplus
+
+namespace exseis {
+namespace utils {
+inline namespace logging {
+
 extern "C" {
 #endif  // __cplusplus
 
+/// @name C API
+///
+/// @{
 
 /// @brief C API for \ref exseis::utils::logging::Verbosity
 /// @copydoc exseis::utils::logging::Verbosity
@@ -32,9 +44,14 @@ enum {
     exseis_verbosity_max = 4
 };
 
+/// @} C API
 
 #ifdef __cplusplus
 }  // extern "C"
+
+}  // namespace logging
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 

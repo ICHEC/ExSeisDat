@@ -37,9 +37,12 @@ int main(int argc, char** argv)
     Set set(piol, iname);
 
     CoordElem minmax[12];
-    set.get_min_max(Meta::x_src, Meta::y_src, &minmax[0]);
-    set.get_min_max(Meta::x_rcv, Meta::y_rcv, &minmax[4]);
-    set.get_min_max(Meta::xCmp, Meta::yCmp, &minmax[8]);
+    set.get_min_max(
+        Trace_metadata_key::x_src, Trace_metadata_key::y_src, &minmax[0]);
+    set.get_min_max(
+        Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv, &minmax[4]);
+    set.get_min_max(
+        Trace_metadata_key::xCmp, Trace_metadata_key::yCmp, &minmax[8]);
 
     if (piol->get_rank() == 0) {
         std::cout << "x Src " << minmax[0].val << " (" << minmax[0].num

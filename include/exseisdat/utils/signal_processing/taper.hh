@@ -6,7 +6,7 @@
 #define EXSEISDAT_UTILS_SIGNAL_PROCESSING_TAPER_HH
 
 #include "exseisdat/utils/signal_processing/Taper_function.hh"
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 #include <cstddef>
 

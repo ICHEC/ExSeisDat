@@ -11,7 +11,7 @@ void test_piol_file_write_interface(
     std::shared_ptr<ExSeis*> piol, std::shared_ptr<Trace_metadata*> param)
 {
 
-    auto write_direct_ptr = std::make_shared<WriteInterface*>();
+    auto write_direct_ptr = std::make_shared<Output_file*>();
 
     EXPECT_CALL(
         mock_write_interface(),

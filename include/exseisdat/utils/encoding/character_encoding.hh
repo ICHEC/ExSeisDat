@@ -6,19 +6,20 @@
 #define EXSEISDAT_UTILS_ENCODING_CHARACTER_ENCODING_HH
 
 ///
-/// @namespace exseis::utils::character_encoding
+/// @namespace exseis::utils::encoding::character_encoding
 ///
 /// @brief Functions for managing and converting between character encodings.
 ///
 
 namespace exseis {
 namespace utils {
+inline namespace encoding {
 inline namespace character_encoding {
 
 
 /// @brief Convert an EBCDIC encoded character to an ASCII encoded character.
 ///
-/// Returns the ASCII SUB character if there is no ASCII equivalent.
+/// @details Returns the ASCII SUB character if there is no ASCII equivalent.
 ///
 /// @param[in] ebcdic_char An EBCDIC encoded character.
 ///
@@ -29,7 +30,7 @@ unsigned char to_ascii_from_ebcdic(unsigned char ebcdic_char);
 
 /// @brief Convert an ASCII encoded character to an EBCDIC encoded character.
 ///
-/// Returns the EBCDIC SUB character if there is no EBCDIC equivalent.
+/// @details Returns the EBCDIC SUB character if there is no EBCDIC equivalent.
 ///
 /// @param[in] ascii_char An ASCII encoded character.
 ///
@@ -57,6 +58,7 @@ bool is_printable_ebcdic(unsigned char ebcdic_char);
 
 
 }  // namespace character_encoding
+}  // namespace encoding
 }  // namespace utils
 }  // namespace exseis
 

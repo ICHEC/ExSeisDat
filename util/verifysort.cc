@@ -1,8 +1,8 @@
 #include "sglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
-#include "exseisdat/piol/operations/sort.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
+#include "exseisdat/piol/operations/sort_operations/sort.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
     std::string opt = "i:o:t:d";  // TODO: uses a GNU extension
     std::string name1;
-    SortType type = SortType::SrcRcv;
+    Sort_type type = Sort_type::SrcRcv;
     for (int c = getopt(argc, argv, opt.c_str()); c != -1;
          c     = getopt(argc, argv, opt.c_str())) {
         switch (c) {
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
                 break;
 
             case 't':
-                type = static_cast<SortType>(std::stoul(optarg));
+                type = static_cast<Sort_type>(std::stoul(optarg));
                 break;
 
             default:
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
     assert(!name1.empty());
 
-    ReadSEGY src(piol, name1);
+    Input_file_segy src(piol, name1);
 
     // Perform the decomposition and read coordinates of interest.
     auto dec = block_decomposition(

@@ -1,13 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+/// @file
+/// @brief Verbosity levels for Logging
+////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_UTILS_LOGGING_VERBOSITY_HH
 #define EXSEISDAT_UTILS_LOGGING_VERBOSITY_HH
 
 #include <cstddef>
-
-///
-/// @namespace exseis::utils::logging
-///
-/// @brief Logging utilities.
-///
 
 namespace exseis {
 namespace utils {

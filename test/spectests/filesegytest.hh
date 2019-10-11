@@ -8,15 +8,15 @@
 
 #include "segymdextra.hh"
 
-#include "exseisdat/piol/CommunicatorMPI.hh"
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ObjectSEGY.hh"
-#include "exseisdat/piol/ReadInterface.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
-#include "exseisdat/piol/WriteInterface.hh"
-#include "exseisdat/piol/WriteSEGY.hh"
-#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
+#include "exseisdat/piol/file/Output_file.hh"
+#include "exseisdat/piol/file/Output_file_segy.hh"
+#include "exseisdat/piol/file/detail/ObjectSEGY.hh"
+#include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
 #include "exseisdat/piol/segy/utils.hh"
+#include "exseisdat/utils/communicator/Communicator_mpi.hh"
 #include "exseisdat/utils/encoding/character_encoding.hh"
 #include "exseisdat/utils/encoding/number_encoding.hh"
 
@@ -31,27 +31,27 @@ using namespace testing;
 using namespace exseis::utils;
 using namespace exseis::piol;
 
-struct ReadSEGY_public : public ReadSEGY {
-    using ReadSEGY::ReadSEGY;
+struct ReadSEGY_public : public Input_file_segy {
+    using Input_file_segy::Input_file_segy;
 
-    using ReadSEGY::m_name;
-    using ReadSEGY::m_obj;
-    using ReadSEGY::m_piol;
+    using Input_file_segy::m_name;
+    using Input_file_segy::m_obj;
+    using Input_file_segy::m_piol;
 
-    using ReadSEGY::m_ns;
-    using ReadSEGY::m_nt;
-    using ReadSEGY::m_sample_interval;
-    using ReadSEGY::m_text;
+    using Input_file_segy::m_ns;
+    using Input_file_segy::m_nt;
+    using Input_file_segy::m_sample_interval;
+    using Input_file_segy::m_text;
 
     ReadSEGY_public(
         std::shared_ptr<ExSeisPIOL> piol,
         std::string name,
         std::shared_ptr<ObjectInterface> obj) :
-        ReadSEGY(piol, name, {}, obj)
+        Input_file_segy(piol, name, {}, obj)
     {
     }
 
-    static ReadSEGY_public* get(ReadInterface* read_interface)
+    static ReadSEGY_public* get(Input_file* read_interface)
     {
         auto* read_segy_public = dynamic_cast<ReadSEGY_public*>(read_interface);
 
@@ -61,27 +61,27 @@ struct ReadSEGY_public : public ReadSEGY {
     }
 };
 
-struct WriteSEGY_public : public WriteSEGY {
-    using WriteSEGY::WriteSEGY;
+struct WriteSEGY_public : public Output_file_segy {
+    using Output_file_segy::Output_file_segy;
 
-    using WriteSEGY::m_name;
-    using WriteSEGY::m_obj;
-    using WriteSEGY::m_piol;
+    using Output_file_segy::m_name;
+    using Output_file_segy::m_obj;
+    using Output_file_segy::m_piol;
 
-    using WriteSEGY::m_ns;
-    using WriteSEGY::m_nt;
-    using WriteSEGY::m_sample_interval;
-    using WriteSEGY::m_text;
+    using Output_file_segy::m_ns;
+    using Output_file_segy::m_nt;
+    using Output_file_segy::m_sample_interval;
+    using Output_file_segy::m_text;
 
     WriteSEGY_public(
         std::shared_ptr<ExSeisPIOL> piol,
         std::string name,
         std::shared_ptr<ObjectInterface> obj) :
-        WriteSEGY(piol, name, {}, obj)
+        Output_file_segy(piol, name, {}, obj)
     {
     }
 
-    static WriteSEGY_public* get(WriteInterface* write_interface)
+    static WriteSEGY_public* get(Output_file* write_interface)
     {
         auto* write_segy_public =
             dynamic_cast<WriteSEGY_public*>(write_interface);
@@ -128,7 +128,7 @@ enum TrHdr : size_t {
     xl          = 192U
 };
 
-class Mock_Binary_file : public Binary_file {
+class Mock_Binary_file : public IO_driver {
     MOCK_CONST_METHOD0(is_open, bool());
     MOCK_CONST_METHOD0(get_file_size, size_t());
     MOCK_CONST_METHOD1(set_file_size, void(size_t size));
@@ -181,7 +181,7 @@ class Mock_Object : public ObjectInterface {
 
     MOCK_CONST_METHOD0(piol, std::shared_ptr<ExSeisPIOL>());
     MOCK_CONST_METHOD0(name, std::string());
-    MOCK_CONST_METHOD0(data, std::shared_ptr<Binary_file>());
+    MOCK_CONST_METHOD0(data, std::shared_ptr<IO_driver>());
 
 
     MOCK_CONST_METHOD0(get_file_size, size_t(void));
@@ -250,7 +250,7 @@ struct FileReadSEGYTest : public Test {
         "\x96\xA7\x40\x91\xA4\x94\x97\xA2\x40\x96\xA5\x85\x99\x40\xA3\x88\x85"
         "\x40\x93\x81\xA9\xA8\x40\x84\x96\x87\x4B"};
 
-    std::unique_ptr<ReadInterface> file = nullptr;
+    std::unique_ptr<Input_file> file = nullptr;
 
     std::vector<unsigned char> tr;
 
@@ -276,11 +276,11 @@ struct FileReadSEGYTest : public Test {
 
         // Make a ReadInterface reader with options if OPTS = true.
         if (OPTS) {
-            ReadSEGY::Options opt;
-            file = std::make_unique<ReadSEGY>(piol, name, opt);
+            Input_file_segy::Options opt;
+            file = std::make_unique<Input_file_segy>(piol, name, opt);
         }
         else {
-            file = std::make_unique<ReadSEGY>(piol, name);
+            file = std::make_unique<Input_file_segy>(piol, name);
         }
 
         piol->assert_ok();
@@ -411,20 +411,24 @@ struct FileReadSEGYTest : public Test {
 
         Trace_metadata prm(1U);
         file->read_param(offset, 1U, &prm);
-        ASSERT_EQ(il_num(offset), prm.get_integer(0U, Meta::il));
-        ASSERT_EQ(xl_num(offset), prm.get_integer(0U, Meta::xl));
+        ASSERT_EQ(il_num(offset), prm.get_integer(0U, Trace_metadata_key::il));
+        ASSERT_EQ(xl_num(offset), prm.get_integer(0U, Trace_metadata_key::xl));
 
         if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
             ASSERT_DOUBLE_EQ(
-                x_num(offset), prm.get_floating_point(0U, Meta::x_src));
+                x_num(offset),
+                prm.get_floating_point(0U, Trace_metadata_key::x_src));
             ASSERT_DOUBLE_EQ(
-                y_num(offset), prm.get_floating_point(0U, Meta::y_src));
+                y_num(offset),
+                prm.get_floating_point(0U, Trace_metadata_key::y_src));
         }
         else {
             ASSERT_FLOAT_EQ(
-                x_num(offset), prm.get_floating_point(0U, Meta::x_src));
+                x_num(offset),
+                prm.get_floating_point(0U, Trace_metadata_key::x_src));
             ASSERT_FLOAT_EQ(
-                y_num(offset), prm.get_floating_point(0U, Meta::y_src));
+                y_num(offset),
+                prm.get_floating_point(0U, Trace_metadata_key::y_src));
         }
     }
 
@@ -436,26 +440,32 @@ struct FileReadSEGYTest : public Test {
             .Times(Exactly(1))
             .WillRepeatedly(SetArrayArgument<3>(tr.begin(), tr.end()));
 
-        const auto rule = Rule(std::initializer_list<Meta>{
-            Meta::il, Meta::xl, Meta::Copy, Meta::x_src, Meta::y_src});
+        const auto rule = Rule(std::initializer_list<Trace_metadata_key>{
+            Trace_metadata_key::il, Trace_metadata_key::xl,
+            Trace_metadata_key::Copy, Trace_metadata_key::x_src,
+            Trace_metadata_key::y_src});
         Trace_metadata prm(std::move(rule), tn);
         file->read_param(0, tn, &prm);
 
         for (size_t i = 0; i < tn; i++) {
-            ASSERT_EQ(il_num(i), prm.get_integer(i, Meta::il));
-            ASSERT_EQ(xl_num(i), prm.get_integer(i, Meta::xl));
+            ASSERT_EQ(il_num(i), prm.get_integer(i, Trace_metadata_key::il));
+            ASSERT_EQ(xl_num(i), prm.get_integer(i, Trace_metadata_key::xl));
 
             if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                    x_num(i), prm.get_floating_point(i, Meta::x_src));
+                    x_num(i),
+                    prm.get_floating_point(i, Trace_metadata_key::x_src));
                 ASSERT_DOUBLE_EQ(
-                    y_num(i), prm.get_floating_point(i, Meta::y_src));
+                    y_num(i),
+                    prm.get_floating_point(i, Trace_metadata_key::y_src));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                    x_num(i), prm.get_floating_point(i, Meta::x_src));
+                    x_num(i),
+                    prm.get_floating_point(i, Trace_metadata_key::x_src));
                 ASSERT_FLOAT_EQ(
-                    y_num(i), prm.get_floating_point(i, Meta::y_src));
+                    y_num(i),
+                    prm.get_floating_point(i, Trace_metadata_key::y_src));
             }
         }
         ASSERT_TRUE(tr.size());
@@ -481,20 +491,26 @@ struct FileReadSEGYTest : public Test {
         file->read_trace_non_monotonic(tn, offset.data(), nullptr, &prm);
 
         for (size_t i = 0; i < tn; i++) {
-            ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il));
-            ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl));
+            ASSERT_EQ(
+                il_num(offset[i]), prm.get_integer(i, Trace_metadata_key::il));
+            ASSERT_EQ(
+                xl_num(offset[i]), prm.get_integer(i, Trace_metadata_key::xl));
 
             if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                 ASSERT_DOUBLE_EQ(
-                    x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                    x_num(offset[i]),
+                    prm.get_floating_point(i, Trace_metadata_key::x_src));
                 ASSERT_DOUBLE_EQ(
-                    y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                    y_num(offset[i]),
+                    prm.get_floating_point(i, Trace_metadata_key::y_src));
             }
             else {
                 ASSERT_FLOAT_EQ(
-                    x_num(offset[i]), prm.get_floating_point(i, Meta::x_src));
+                    x_num(offset[i]),
+                    prm.get_floating_point(i, Trace_metadata_key::x_src));
                 ASSERT_FLOAT_EQ(
-                    y_num(offset[i]), prm.get_floating_point(i, Meta::y_src));
+                    y_num(offset[i]),
+                    prm.get_floating_point(i, Trace_metadata_key::y_src));
             }
         }
     }
@@ -581,18 +597,27 @@ struct FileReadSEGYTest : public Test {
         std::vector<exseis::utils::Trace_value> bufnew(tn * ns);
         auto rule = Rule(true, true);
         if (RmRule) {
-            rule.rm_rule(Meta::x_src);
-            rule.add_segy_float(Meta::ShotNum, Tr::UpSrc, Tr::UpRcv);
-            rule.add_long(Meta::Misc1, Tr::TORF);
-            rule.add_short(Meta::Misc2, Tr::ShotNum);
-            rule.add_short(Meta::Misc3, Tr::ShotScal);
-            rule.rm_rule(Meta::ShotNum);
-            rule.rm_rule(Meta::Misc1);
-            rule.rm_rule(Meta::Misc2);
-            rule.rm_rule(Meta::Misc3);
-            rule.rm_rule(Meta::y_src);
-            rule.add_segy_float(Meta::x_src, Tr::x_src, Tr::ScaleCoord);
-            rule.add_segy_float(Meta::y_src, Tr::y_src, Tr::ScaleCoord);
+            rule.rm_rule(Trace_metadata_key::x_src);
+            rule.add_segy_float(
+                Trace_metadata_key::ShotNum, Trace_header_offsets::UpSrc,
+                Trace_header_offsets::UpRcv);
+            rule.add_long(
+                Trace_metadata_key::Misc1, Trace_header_offsets::TORF);
+            rule.add_short(
+                Trace_metadata_key::Misc2, Trace_header_offsets::ShotNum);
+            rule.add_short(
+                Trace_metadata_key::Misc3, Trace_header_offsets::ShotScal);
+            rule.rm_rule(Trace_metadata_key::ShotNum);
+            rule.rm_rule(Trace_metadata_key::Misc1);
+            rule.rm_rule(Trace_metadata_key::Misc2);
+            rule.rm_rule(Trace_metadata_key::Misc3);
+            rule.rm_rule(Trace_metadata_key::y_src);
+            rule.add_segy_float(
+                Trace_metadata_key::x_src, Trace_header_offsets::x_src,
+                Trace_header_offsets::ScaleCoord);
+            rule.add_segy_float(
+                Trace_metadata_key::y_src, Trace_header_offsets::y_src,
+                Trace_header_offsets::ScaleCoord);
         }
 
         Trace_metadata prm(std::move(rule), tn);
@@ -603,28 +628,32 @@ struct FileReadSEGYTest : public Test {
         for (size_t i = 0U; i < tn_read; i++) {
             if (ReadPrm && tn_read && ns) {
 
-                ASSERT_EQ(il_num(i + offset), prm.get_integer(i, Meta::il))
+                ASSERT_EQ(
+                    il_num(i + offset),
+                    prm.get_integer(i, Trace_metadata_key::il))
                     << "Trace Number " << i << " offset " << offset;
-                ASSERT_EQ(xl_num(i + offset), prm.get_integer(i, Meta::xl))
+                ASSERT_EQ(
+                    xl_num(i + offset),
+                    prm.get_integer(i, Trace_metadata_key::xl))
                     << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                         x_num(i + offset),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
 
                     ASSERT_DOUBLE_EQ(
                         y_num(i + offset),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                         x_num(i + offset),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
 
                     ASSERT_FLOAT_EQ(
                         y_num(i + offset),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
             }
 
@@ -718,26 +747,30 @@ struct FileReadSEGYTest : public Test {
 
         for (size_t i = 0U; i < tn; i++) {
             if (ReadPrm && tn && ns) {
-                ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il))
+                ASSERT_EQ(
+                    il_num(offset[i]),
+                    prm.get_integer(i, Trace_metadata_key::il))
                     << "Trace Number " << i << " offset " << offset[i];
-                ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl))
+                ASSERT_EQ(
+                    xl_num(offset[i]),
+                    prm.get_integer(i, Trace_metadata_key::xl))
                     << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                         x_num(offset[i]),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
                     ASSERT_DOUBLE_EQ(
                         y_num(offset[i]),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                         x_num(offset[i]),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
                     ASSERT_FLOAT_EQ(
                         y_num(offset[i]),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
             }
 
@@ -764,9 +797,9 @@ struct FileWriteSEGYTest : public Test {
     const size_t format = 5;
     std::vector<unsigned char> ho =
         std::vector<unsigned char>(segy::segy_binary_file_header_size());
-    std::unique_ptr<WriteInterface> file = nullptr;
-    std::shared_ptr<MPI_Binary_file> output_binary_file;
-    std::unique_ptr<ReadInterface> readfile;
+    std::unique_ptr<Output_file> file = nullptr;
+    std::shared_ptr<IO_driver_mpi> output_binary_file;
+    std::unique_ptr<Input_file> readfile;
 
     ~FileWriteSEGYTest() { Mock::VerifyAndClearExpectations(&mock_object); }
 
@@ -955,9 +988,9 @@ struct FileWriteSEGYTest : public Test {
                 test_trace_metadata.data(), segy::segy_trace_header_size()));
 
         Trace_metadata prm(1U);
-        prm.set_integer(0, Meta::il, il_num(offset));
-        prm.set_integer(0, Meta::xl, xl_num(offset));
-        prm.set_integer(0, Meta::tn, offset);
+        prm.set_integer(0, Trace_metadata_key::il, il_num(offset));
+        prm.set_integer(0, Trace_metadata_key::xl, xl_num(offset));
+        prm.set_integer(0, Trace_metadata_key::tn, offset);
         file->write_param(offset, 1U, &prm);
     }
 
@@ -1090,15 +1123,21 @@ struct FileWriteSEGYTest : public Test {
         if (WritePrm) {
             Trace_metadata prm(tn);
             for (size_t i = 0U; i < tn; i++) {
-                prm.set_floating_point(i, Meta::x_src, x_num(offset + i));
-                prm.set_floating_point(i, Meta::x_rcv, x_num(offset + i));
-                prm.set_floating_point(i, Meta::xCmp, x_num(offset + i));
-                prm.set_floating_point(i, Meta::y_src, y_num(offset + i));
-                prm.set_floating_point(i, Meta::y_rcv, y_num(offset + i));
-                prm.set_floating_point(i, Meta::yCmp, y_num(offset + i));
-                prm.set_integer(i, Meta::il, il_num(offset + i));
-                prm.set_integer(i, Meta::xl, xl_num(offset + i));
-                prm.set_integer(i, Meta::tn, offset + i);
+                prm.set_floating_point(
+                    i, Trace_metadata_key::x_src, x_num(offset + i));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::x_rcv, x_num(offset + i));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::xCmp, x_num(offset + i));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::y_src, y_num(offset + i));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::y_rcv, y_num(offset + i));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::yCmp, y_num(offset + i));
+                prm.set_integer(i, Trace_metadata_key::il, il_num(offset + i));
+                prm.set_integer(i, Trace_metadata_key::xl, xl_num(offset + i));
+                prm.set_integer(i, Trace_metadata_key::tn, offset + i);
 
                 for (size_t j = 0U; j < ns; j++) {
                     bufnew[i * ns + j] = float(offset + i + j);
@@ -1141,26 +1180,30 @@ struct FileWriteSEGYTest : public Test {
 
         for (size_t i = 0U; i < tn_read; i++) {
             if (ReadPrm && tn_read && ns) {
-                ASSERT_EQ(il_num(i + offset), prm.get_integer(i, Meta::il))
+                ASSERT_EQ(
+                    il_num(i + offset),
+                    prm.get_integer(i, Trace_metadata_key::il))
                     << "Trace Number " << i << " offset " << offset;
-                ASSERT_EQ(xl_num(i + offset), prm.get_integer(i, Meta::xl))
+                ASSERT_EQ(
+                    xl_num(i + offset),
+                    prm.get_integer(i, Trace_metadata_key::xl))
                     << "Trace Number " << i << " offset " << offset;
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                         x_num(i + offset),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
                     ASSERT_DOUBLE_EQ(
                         y_num(i + offset),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                         x_num(i + offset),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
                     ASSERT_FLOAT_EQ(
                         y_num(i + offset),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
             }
 
@@ -1249,15 +1292,21 @@ struct FileWriteSEGYTest : public Test {
         std::vector<float> bufnew(tn * ns);
         for (size_t i = 0U; i < tn; i++) {
             if (WritePrm) {
-                prm.set_floating_point(i, Meta::x_src, x_num(offset[i]));
-                prm.set_floating_point(i, Meta::x_rcv, x_num(offset[i]));
-                prm.set_floating_point(i, Meta::xCmp, x_num(offset[i]));
-                prm.set_floating_point(i, Meta::y_src, y_num(offset[i]));
-                prm.set_floating_point(i, Meta::y_rcv, y_num(offset[i]));
-                prm.set_floating_point(i, Meta::yCmp, y_num(offset[i]));
-                prm.set_integer(i, Meta::il, il_num(offset[i]));
-                prm.set_integer(i, Meta::xl, xl_num(offset[i]));
-                prm.set_integer(i, Meta::tn, offset[i]);
+                prm.set_floating_point(
+                    i, Trace_metadata_key::x_src, x_num(offset[i]));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::x_rcv, x_num(offset[i]));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::xCmp, x_num(offset[i]));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::y_src, y_num(offset[i]));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::y_rcv, y_num(offset[i]));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::yCmp, y_num(offset[i]));
+                prm.set_integer(i, Trace_metadata_key::il, il_num(offset[i]));
+                prm.set_integer(i, Trace_metadata_key::xl, xl_num(offset[i]));
+                prm.set_integer(i, Trace_metadata_key::tn, offset[i]);
             }
 
             for (size_t j = 0U; j < ns; j++) {
@@ -1302,26 +1351,30 @@ struct FileWriteSEGYTest : public Test {
 
         for (size_t i = 0U; i < tn; i++) {
             if (ReadPrm && tn && ns) {
-                ASSERT_EQ(il_num(offset[i]), prm.get_integer(i, Meta::il))
+                ASSERT_EQ(
+                    il_num(offset[i]),
+                    prm.get_integer(i, Trace_metadata_key::il))
                     << "Trace Number " << i << " offset " << offset[i];
-                ASSERT_EQ(xl_num(offset[i]), prm.get_integer(i, Meta::xl))
+                ASSERT_EQ(
+                    xl_num(offset[i]),
+                    prm.get_integer(i, Trace_metadata_key::xl))
                     << "Trace Number " << i << " offset " << offset[i];
 
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     ASSERT_DOUBLE_EQ(
                         x_num(offset[i]),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
                     ASSERT_DOUBLE_EQ(
                         y_num(offset[i]),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
                 else {
                     ASSERT_FLOAT_EQ(
                         x_num(offset[i]),
-                        prm.get_floating_point(i, Meta::x_src));
+                        prm.get_floating_point(i, Trace_metadata_key::x_src));
                     ASSERT_FLOAT_EQ(
                         y_num(offset[i]),
-                        prm.get_floating_point(i, Meta::y_src));
+                        prm.get_floating_point(i, Trace_metadata_key::y_src));
                 }
             }
 
@@ -1372,7 +1425,8 @@ struct FileWriteSEGYTest : public Test {
         }
 
         if (Copy) {
-            const auto rule = Rule(std::initializer_list<Meta>{Meta::Copy});
+            const auto rule = Rule(std::initializer_list<Trace_metadata_key>{
+                Trace_metadata_key::Copy});
             Trace_metadata prm(std::move(rule), tn);
             ASSERT_TRUE(prm.size());
             prm.raw_metadata = buf;
@@ -1381,15 +1435,21 @@ struct FileWriteSEGYTest : public Test {
         else {
             Trace_metadata prm(tn);
             for (size_t i = 0; i < tn; i++) {
-                prm.set_floating_point(i, Meta::x_src, il_num(i + 1));
-                prm.set_floating_point(i, Meta::x_rcv, il_num(i + 2));
-                prm.set_floating_point(i, Meta::xCmp, il_num(i + 3));
-                prm.set_integer(i, Meta::il, il_num(i + 4));
-                prm.set_floating_point(i, Meta::y_src, xl_num(i + 5));
-                prm.set_floating_point(i, Meta::y_rcv, xl_num(i + 6));
-                prm.set_floating_point(i, Meta::yCmp, xl_num(i + 7));
-                prm.set_integer(i, Meta::xl, xl_num(i + 8));
-                prm.set_integer(i, Meta::tn, offset + i);
+                prm.set_floating_point(
+                    i, Trace_metadata_key::x_src, il_num(i + 1));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::x_rcv, il_num(i + 2));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::xCmp, il_num(i + 3));
+                prm.set_integer(i, Trace_metadata_key::il, il_num(i + 4));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::y_src, xl_num(i + 5));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::y_rcv, xl_num(i + 6));
+                prm.set_floating_point(
+                    i, Trace_metadata_key::yCmp, xl_num(i + 7));
+                prm.set_integer(i, Trace_metadata_key::xl, xl_num(i + 8));
+                prm.set_integer(i, Trace_metadata_key::tn, offset + i);
             }
             file->write_param(offset, prm.size(), &prm);
         }

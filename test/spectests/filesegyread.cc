@@ -3,7 +3,7 @@
 using FileSEGYReadDeathTest = FileSEGYRead;
 TEST_F(FileSEGYReadDeathTest, BadNameConstructor)
 {
-    ReadSEGY file(piol, nonexistant_filename());
+    Input_file_segy file(piol, nonexistant_filename());
     EXPECT_EXIT(
         piol->assert_ok(), ExitedWithCode(EXIT_FAILURE),
         ".*Fatal Error in PIOL\\. Dumping Log\\..*");

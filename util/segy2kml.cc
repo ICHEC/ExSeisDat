@@ -1,7 +1,7 @@
 #include "sglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
 #include "exseisdat/piol/operations/minmax.hh"
 
 #include <algorithm>
@@ -90,7 +90,7 @@ void close_kml(std::ofstream& file)
  *  @param[out] lat latitude coordinate
  *  @param[out] lng longitude coordinate
  *
- *  @detail Formula is from
+ *  @details Formula is from
  *          https://www.uwgb.edu/dutchs/UsefulData/UTMFormulas.HTM
  *          (Excel Spreadsheet is clearer than formula)
  */
@@ -163,7 +163,7 @@ void calc_min(
     std::string iname,
     std::vector<CoordElem>& minmax)
 {
-    ReadSEGY in(piol, iname);
+    Input_file_segy in(piol, iname);
 
     auto dec = block_decomposition(
         in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
@@ -175,10 +175,11 @@ void calc_min(
     in.read_param(offset, lnt, &prm);
 
     get_min_max(
-        piol.get(), offset, lnt, Meta::x_src, Meta::y_src, prm, minmax.data());
+        piol.get(), offset, lnt, Trace_metadata_key::x_src,
+        Trace_metadata_key::y_src, prm, minmax.data());
     get_min_max(
-        piol.get(), offset, lnt, Meta::x_rcv, Meta::y_rcv, prm,
-        minmax.data() + 4U);
+        piol.get(), offset, lnt, Trace_metadata_key::x_rcv,
+        Trace_metadata_key::y_rcv, prm, minmax.data() + 4U);
 }
 
 /* Main function for segy to kml

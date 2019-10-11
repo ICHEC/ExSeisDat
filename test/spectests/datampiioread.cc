@@ -37,15 +37,15 @@ size_t modify_nt(
 // instance.
 class MPI_Binary_file_Read : public Test {
   public:
-    std::shared_ptr<exseis::piol::ExSeis> piol      = nullptr;
-    std::shared_ptr<exseis::piol::Binary_file> file = nullptr;
+    std::shared_ptr<exseis::piol::ExSeis> piol    = nullptr;
+    std::shared_ptr<exseis::piol::IO_driver> file = nullptr;
 
     void make_mpiio(
         std::string filename,
-        const MPI_Binary_file::Opt& opt = MPI_Binary_file::Opt())
+        const IO_driver_mpi::Opt& opt = IO_driver_mpi::Opt())
     {
         piol = exseis::piol::ExSeis::make();
-        file = std::make_shared<MPI_Binary_file>(
+        file = std::make_shared<IO_driver_mpi>(
             piol, filename, FileMode::Read, opt);
     }
 };
@@ -68,7 +68,7 @@ TEST_F(MPI_Binary_file_Read, Constructor)
     piol->log->process_entries();
 
     EXPECT_NE(nullptr, file) << "file is null";
-    auto mio = std::dynamic_pointer_cast<MPI_Binary_file>(file);
+    auto mio = std::dynamic_pointer_cast<IO_driver_mpi>(file);
     EXPECT_NE(nullptr, mio) << "MPI-IO file cast failed";
     EXPECT_FALSE(mio->is_open()) << "File was not opened";
 
@@ -124,7 +124,7 @@ TEST_F(MPI_Binary_file_Read, ZeroSizeReadOnLarge)
 
 TEST_F(MPI_Binary_file_Read, OffsetsBlockingReadLarge)
 {
-    MPI_Binary_file::Opt opt;
+    IO_driver_mpi::Opt opt;
     opt.max_size = magic_num1;
     make_mpiio(plarge_file(), opt);
 
@@ -167,10 +167,7 @@ TEST_F(MPI_Binary_file_Read, BlockingOneByteReadLarge)
 /// This function implementing the ReadContiguous* tests
 ///
 std::vector<unsigned char> read_contiguous(
-    const std::shared_ptr<Binary_file>& file,
-    size_t nt,
-    size_t ns,
-    size_t offset)
+    const std::shared_ptr<IO_driver>& file, size_t nt, size_t ns, size_t offset)
 {
     const auto trace_packet_size = segy::segy_trace_size(ns);
     std::vector<unsigned char> trace_buffer(trace_packet_size * nt);
@@ -187,7 +184,7 @@ std::vector<unsigned char> read_contiguous(
 /// Test the inline and crossline metadata held by trace_buffer matches the
 /// expected test values.
 void test_il_xl_metadata(
-    const std::shared_ptr<Binary_file>& file,
+    const std::shared_ptr<IO_driver>& file,
     size_t nt,
     size_t ns,
     size_t offset,
@@ -205,9 +202,9 @@ void test_il_xl_metadata(
         // The buffer position starting at the in-line and cross-line metadata
         // values.
         const unsigned char* il_bytes =
-            &trace_buffer_i[static_cast<size_t>(Tr::il) - 1];
+            &trace_buffer_i[static_cast<size_t>(Trace_header_offsets::il) - 1];
         const unsigned char* xl_bytes =
-            &trace_buffer_i[static_cast<size_t>(Tr::xl) - 1];
+            &trace_buffer_i[static_cast<size_t>(Trace_header_offsets::xl) - 1];
 
         ASSERT_EQ(
             il_num(i + offset),
@@ -301,7 +298,7 @@ TEST_F(MPI_Binary_file_Read, Farm_ReadContiguousSLL)
 /// Test the trace data held by the trace_buffer matches the expected test
 /// values.
 void test_trace_data(
-    const std::shared_ptr<Binary_file>& file,
+    const std::shared_ptr<IO_driver>& file,
     size_t nt,
     size_t ns,
     size_t offset,

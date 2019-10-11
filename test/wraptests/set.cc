@@ -76,7 +76,7 @@ void Set::summary() const
     mock_set().summary(this);
 }
 
-void Set::add(std::unique_ptr<ReadInterface> in)
+void Set::add(std::unique_ptr<Input_file> in)
 {
     mock_set().add(this, std::move(in));
 }
@@ -96,12 +96,13 @@ void Set::to_angle(
         this, vm_name, v_bin, output_traces_per_gather, output_sample_interval);
 }
 
-void Set::sort(SortType type)
+void Set::sort(Sort_type type)
 {
     mock_set().sort(this, type);
 }
 
-void Set::get_min_max(Meta m1, Meta m2, CoordElem* minmax)
+void Set::get_min_max(
+    Trace_metadata_key m1, Trace_metadata_key m2, CoordElem* minmax)
 {
     mock_set().get_min_max(this, m1, m2, minmax);
 }

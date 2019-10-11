@@ -6,13 +6,13 @@
 
 #include "tglobal.hh"
 
-#include "exseisdat/piol/CommunicatorMPI.hh"
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ObjectInterface.hh"
-#include "exseisdat/piol/ObjectSEGY.hh"
-#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/detail/ObjectInterface.hh"
+#include "exseisdat/piol/file/detail/ObjectSEGY.hh"
+#include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
 #include "exseisdat/piol/segy/utils.hh"
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/communicator/Communicator_mpi.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 #include "exseisdat/utils/encoding/number_encoding.hh"
 
@@ -21,8 +21,9 @@
 
 using namespace testing;
 using namespace exseis::piol;
+using exseis::utils::Communicator_mpi;
 
-class MockData : public Binary_file {
+class MockData : public IO_driver {
   public:
     MOCK_CONST_METHOD0(get_file_size, size_t(void));
 
@@ -67,7 +68,7 @@ class ObjTest : public Test {
             delete m_obj;
         }
 
-        auto data = std::make_shared<MPI_Binary_file>(
+        auto data = std::make_shared<IO_driver_mpi>(
             m_piol, name, (WRITE ? FileMode::ReadWrite : FileMode::Read));
         m_piol->assert_ok();
         m_obj = new ObjectSEGY(m_piol, name, data);

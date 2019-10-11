@@ -4,7 +4,7 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
 
 
 namespace exseis {

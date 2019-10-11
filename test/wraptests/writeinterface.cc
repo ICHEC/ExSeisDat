@@ -1,46 +1,47 @@
-#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/file/Output_file_segy.hh"
 #include "mockwriteinterface.hh"
 
 namespace exseis {
 namespace piol {
+inline namespace file {
 
-WriteSEGY::WriteSEGY(
+Output_file_segy::Output_file_segy(
     std::shared_ptr<ExSeisPIOL> piol,
     std::string name,
-    const WriteSEGY::Options&) :
+    const Output_file_segy::Options&) :
     m_piol(piol),
     m_name(name)
 {
     mock_write_interface().ctor(this, m_piol, m_name);
 }
 
-WriteInterface::~WriteInterface()
+Output_file::~Output_file()
 {
     mock_write_interface().dtor(this);
 }
 
-void WriteSEGY::write_text(const std::string text)
+void Output_file_segy::write_text(const std::string text)
 {
     mock_write_interface().write_text(this, text);
 }
 
-void WriteSEGY::write_ns(const size_t ns)
+void Output_file_segy::write_ns(const size_t ns)
 {
     mock_write_interface().write_ns(this, ns);
 }
 
-void WriteSEGY::write_nt(const size_t nt)
+void Output_file_segy::write_nt(const size_t nt)
 {
     mock_write_interface().write_nt(this, nt);
 }
 
-void WriteSEGY::write_sample_interval(
+void Output_file_segy::write_sample_interval(
     const exseis::utils::Floating_point sample_interval)
 {
     mock_write_interface().write_sample_interval(this, sample_interval);
 }
 
-void WriteSEGY::write_trace(
+void Output_file_segy::write_trace(
     const size_t offset,
     const size_t sz,
     exseis::utils::Trace_value* trace,
@@ -50,7 +51,7 @@ void WriteSEGY::write_trace(
     mock_write_interface().write_trace(this, offset, sz, trace, prm, skip);
 }
 
-void WriteSEGY::write_param(
+void Output_file_segy::write_param(
     const size_t offset,
     const size_t sz,
     const Trace_metadata* prm,
@@ -59,7 +60,7 @@ void WriteSEGY::write_param(
     mock_write_interface().write_param(this, offset, sz, prm, skip);
 }
 
-void WriteSEGY::write_trace_non_contiguous(
+void Output_file_segy::write_trace_non_contiguous(
     const size_t sz,
     const size_t* offset,
     exseis::utils::Trace_value* trace,
@@ -70,7 +71,7 @@ void WriteSEGY::write_trace_non_contiguous(
         this, sz, offset, trace, prm, skip);
 }
 
-void WriteSEGY::write_param_non_contiguous(
+void Output_file_segy::write_param_non_contiguous(
     const size_t sz,
     const size_t* offset,
     const Trace_metadata* prm,
@@ -80,19 +81,20 @@ void WriteSEGY::write_param_non_contiguous(
         this, sz, offset, prm, skip);
 }
 
-WriteSEGY::~WriteSEGY() {}
+Output_file_segy::~Output_file_segy() {}
 
-const std::string& WriteSEGY::file_name() const
+const std::string& Output_file_segy::file_name() const
 {
     return mock_write_interface().file_name(this);
 }
 
-size_t WriteSEGY::calc_nt()
+size_t Output_file_segy::calc_nt()
 {
     // This is private to WriteSEGY and should never be called...
     assert(false);
     return 0;
 }
 
+}  // namespace file
 }  // namespace piol
 }  // namespace exseis

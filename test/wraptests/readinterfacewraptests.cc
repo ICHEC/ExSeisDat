@@ -11,7 +11,7 @@ void test_piol_file_read_interface(
     std::shared_ptr<ExSeis*> piol, std::shared_ptr<Trace_metadata*> param)
 {
 
-    auto read_direct_ptr = std::make_shared<ReadInterface*>();
+    auto read_direct_ptr = std::make_shared<Input_file*>();
 
     EXPECT_CALL(
         mock_read_interface(),

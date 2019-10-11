@@ -5,8 +5,8 @@
 /// @brief
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_UTIL_4DCORE_HH
-#define EXSEISDAT_UTIL_4DCORE_HH
+#ifndef EXSEISDAT_PIOL_FOUR_D_4DCORE_HH
+#define EXSEISDAT_PIOL_FOUR_D_4DCORE_HH
 
 #include "4dio.hh"
 
@@ -16,7 +16,8 @@ namespace exseis {
 namespace piol {
 namespace four_d {
 
-/*! Error check the mpi error value.
+/*! @brief Error check the mpi error value.
+ *
  *  @param[in] err The mpi error value.
  */
 inline void mpi_err(int err)
@@ -24,8 +25,10 @@ inline void mpi_err(int err)
     assert(err == MPI_SUCCESS);
 }
 
-/*! For each trace, insert into min the trace number from coords2 (distributed)
- *  that minimise the difference between the respective src/rcv coordinates.
+/*! @brief For each trace, insert into min the trace number from coords2
+ *         (distributed) that minimise the difference between the respective
+ *         src/rcv coordinates.
+ *
  *  @param[in] piol The piol object.
  *  @param[in] dsrmax The maximum possible distance an acceptable solution can
  *                    be away from the coords1 trace.  The smaller the value,
@@ -47,7 +50,7 @@ void calc_4d_bin(
     fourd_t dsrmax,
     const Coords* coords1,
     const Coords* coords2,
-    FourDOpt opt,
+    Four_d_opt opt,
     std::vector<size_t>& min,
     std::vector<fourd_t>& minrs);
 
@@ -55,4 +58,4 @@ void calc_4d_bin(
 }  // namespace piol
 }  // namespace exseis
 
-#endif  // EXSEISDAT_UTIL_4DCORE_HH
+#endif  // EXSEISDAT_PIOL_FOUR_D_4DCORE_HH

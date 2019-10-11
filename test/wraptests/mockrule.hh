@@ -4,8 +4,8 @@
 #include "googletest_variable_instances.hh"
 #include "gmock/gmock.h"
 
-#include "exseisdat/piol/Rule.hh"
-#include "exseisdat/piol/RuleEntry.hh"
+#include "exseisdat/piol/metadata/rules/Rule.hh"
+#include "exseisdat/piol/metadata/rules/Rule_entry.hh"
 
 namespace exseis {
 namespace piol {
@@ -21,7 +21,7 @@ class MockRule {
         Rule_ctor,
         void(
             Rule*,
-            const std::vector<Meta>& m,
+            const std::vector<Trace_metadata_key>& m,
             bool full,
             bool defaults,
             bool extras));
@@ -32,22 +32,29 @@ class MockRule {
 
     MOCK_METHOD1(Rule_dtor, void(Rule*));
 
-    MOCK_METHOD2(add_rule, bool(Rule*, Meta m));
+    MOCK_METHOD2(add_rule, bool(Rule*, Trace_metadata_key m));
 
     MOCK_METHOD2(add_rule, bool(Rule*, const Rule& r));
 
-    MOCK_METHOD3(add_long, void(Rule*, Meta m, Tr loc));
+    MOCK_METHOD3(
+        add_long, void(Rule*, Trace_metadata_key m, Trace_header_offsets loc));
 
     MOCK_METHOD4(
-        add_segy_float, void(Rule*, Meta m, Tr loc, Tr scalar_location));
+        add_segy_float,
+        void(
+            Rule*,
+            Trace_metadata_key m,
+            Trace_header_offsets loc,
+            Trace_header_offsets scalar_location));
 
-    MOCK_METHOD3(add_short, void(Rule*, Meta m, Tr loc));
+    MOCK_METHOD3(
+        add_short, void(Rule*, Trace_metadata_key m, Trace_header_offsets loc));
 
-    MOCK_METHOD2(add_index, void(Rule*, Meta m));
+    MOCK_METHOD2(add_index, void(Rule*, Trace_metadata_key m));
 
     MOCK_METHOD1(add_copy, void(Rule*));
 
-    MOCK_METHOD2(rm_rule, void(Rule*, Meta m));
+    MOCK_METHOD2(rm_rule, void(Rule*, Trace_metadata_key m));
 
     MOCK_METHOD1(extent, size_t(Rule*));
 
@@ -55,7 +62,8 @@ class MockRule {
 
     MOCK_CONST_METHOD1(memory_usage_per_header, size_t(const Rule*));
 
-    MOCK_CONST_METHOD2(get_entry, const RuleEntry*(const Rule*, Meta entry));
+    MOCK_CONST_METHOD2(
+        get_entry, const Rule_entry*(const Rule*, Trace_metadata_key entry));
 };
 
 }  // namespace piol

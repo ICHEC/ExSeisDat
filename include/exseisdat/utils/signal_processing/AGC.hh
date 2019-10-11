@@ -23,19 +23,12 @@
 #define EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_HH
 
 #include "exseisdat/utils/signal_processing/Gain_function.hh"
-#include "exseisdat/utils/typedefs.hh"
-
-///
-/// @namespace exseis::utils::signal_processing
-///
-/// @brief Functions for processing seismic signals.
-///
+#include "exseisdat/utils/types/typedefs.hh"
 
 
 namespace exseis {
 namespace utils {
 inline namespace signal_processing {
-
 
 /// @brief Apply automatic gain control to a set of tapers --> used for actual
 ///        operation during output

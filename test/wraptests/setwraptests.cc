@@ -26,7 +26,9 @@ void test_piol_set(
         .WillOnce(SaveArg<0>(set_ptr));
 
     EXPECT_CALL(
-        mock_set(), get_min_max(EqDeref(set_ptr), Meta::Copy, Meta::Copy, _))
+        mock_set(), get_min_max(
+                        EqDeref(set_ptr), Trace_metadata_key::Copy,
+                        Trace_metadata_key::Copy, _))
         .WillOnce(DoAll(
             WithArg<3>(Invoke([](auto coord_elem) {
                 EXPECT_FLOAT_EQ(coord_elem->val, 800.0);
@@ -38,10 +40,10 @@ void test_piol_set(
             CheckInOutParam(CoordElem{820.0, 830})));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
 
-    const SortType sort_types[] = {
-        SortType::SrcRcv,   SortType::SrcOff,  SortType::SrcROff,
-        SortType::RcvOff,   SortType::RcvROff, SortType::LineOff,
-        SortType::LineROff, SortType::OffLine, SortType::ROffLine};
+    const Sort_type sort_types[] = {
+        Sort_type::SrcRcv,   Sort_type::SrcOff,  Sort_type::SrcROff,
+        Sort_type::RcvOff,   Sort_type::RcvROff, Sort_type::LineOff,
+        Sort_type::LineROff, Sort_type::OffLine, Sort_type::ROffLine};
 
     for (auto sort_type : sort_types) {
         EXPECT_CALL(mock_set(), sort(EqDeref(set_ptr), sort_type));

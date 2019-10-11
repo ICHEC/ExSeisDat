@@ -16,6 +16,6 @@ int main()
 {
     auto piol = ExSeis::make();
     Set set(piol, "/ichec/work/exseisdat/*dat/10*/b*", "temp");
-    set.sort(SortType::OffLine);
+    set.sort(Sort_type::OffLine);
     return 0;
 }

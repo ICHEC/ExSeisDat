@@ -5,10 +5,10 @@
 #ifndef EXSEISDAT_PIOL_MAKEFILE_HH
 #define EXSEISDAT_PIOL_MAKEFILE_HH
 
-#include "exseisdat/piol/ReadInterface.hh"
-#include "exseisdat/piol/WriteInterface.hh"
+#include "exseisdat/piol/file/Input_file.hh"
+#include "exseisdat/piol/file/Output_file.hh"
 
-#include "exseisdat/piol/ObjectInterface.hh"
+#include "exseisdat/piol/file/detail/ObjectInterface.hh"
 
 #include <memory>
 #include <string>
@@ -18,7 +18,7 @@
 namespace exseis {
 namespace piol {
 
-///*! Construct ReadSEGY objects with default object and MPI-IO layers.
+///*! Construct Input_file objects with default object and MPI-IO layers.
 // * @tparam T The type of the file layer.
 // * @param[in] piol The piol shared object.
 // * @param[in] name The name of the file.
@@ -26,14 +26,14 @@ namespace piol {
 // */
 // template<class T>
 // std::unique_ptr<
-//  typename std::enable_if<std::is_base_of<ReadInterface, T>::value, T>::type>
+//  typename std::enable_if<std::is_base_of<Input_file, T>::value, T>::type>
 // makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string& name)
 //{
 //    return std::make_unique<T>(
 //      piol, name, makeDefaultObj(piol, name, FileMode::Read));
 //}
 //
-///*! Construct WriteSEGY objects with default object and MPI-IO layers
+///*! Construct Output_file objects with default object and MPI-IO layers
 // * @tparam T The type of the file layer
 // * @param[in] piol The piol shared object
 // * @param[in] name The name of the file
@@ -41,7 +41,7 @@ namespace piol {
 // */
 // template<class T>
 // std::unique_ptr<
-//  typename std::enable_if<std::is_base_of<WriteInterface, T>::value, T>::type>
+//  typename std::enable_if<std::is_base_of<Output_file, T>::value, T>::type>
 // makeFile(std::shared_ptr<ExSeisPIOL> piol, const std::string& name)
 //{
 //    return std::make_unique<T>(

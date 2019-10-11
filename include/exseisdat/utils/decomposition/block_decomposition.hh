@@ -10,12 +10,6 @@
 
 #include <cstddef>
 
-///
-/// @namespace exseis::utils::decomposition
-///
-/// @brief Functions for splitting ranges across processes.
-///
-
 namespace exseis {
 namespace utils {
 inline namespace decomposition {
@@ -44,6 +38,7 @@ struct Contiguous_decomposition : public exseis_Contiguous_decomposition {
 /// @param[in] num_ranks  The number of ranks to perform the decomposition
 ///                       over.
 /// @param[in] rank       The rank of the local process.
+///
 /// @return The section of the range decomposed onto rank `rank`.
 ///
 /// @pre num_ranks > 0
@@ -55,12 +50,13 @@ Contiguous_decomposition block_decomposition(
 
 /// @brief This struct represents the location and local index of a global index
 ///        in a decomposed range.
+///
 struct Decomposition_index_location {
-    /// The rank the global index was decomposed onto.
+    /// @brief The rank the global index was decomposed onto.
     size_t rank;
 
-    /// The local index on the rank of the range referenced by the global
-    /// index.
+    /// @brief The local index on the rank of the range referenced by the global
+    ///        index.
     size_t local_index;
 };
 

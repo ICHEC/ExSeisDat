@@ -3,7 +3,7 @@
 
 #include "tglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
 
 #include <cstdio>
 #include <mpi.h>

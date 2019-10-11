@@ -16,30 +16,55 @@ std::shared_ptr<Rule*> test_piol_file_rule()
     EXPECT_CALL(mock_rule(), Rule_ctor(_, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp_ptr));
 
-    const std::vector<Meta> metas = {
-        Meta::Copy,      Meta::ltn,       Meta::gtn,
-        Meta::tnl,       Meta::tnr,       Meta::tn,
-        Meta::tne,       Meta::ns,        Meta::sample_interval,
-        Meta::Tic,       Meta::SrcNum,    Meta::ShotNum,
-        Meta::VStack,    Meta::HStack,    Meta::Offset,
-        Meta::RGElev,    Meta::SSElev,    Meta::SDElev,
-        Meta::WtrDepSrc, Meta::WtrDepRcv, Meta::x_src,
-        Meta::y_src,     Meta::x_rcv,     Meta::y_rcv,
-        Meta::xCmp,      Meta::yCmp,      Meta::il,
-        Meta::xl,        Meta::TransUnit, Meta::TraceUnit,
-        Meta::dsdr,      Meta::Misc1,     Meta::Misc2,
-        Meta::Misc3,     Meta::Misc4,
+    const std::vector<Trace_metadata_key> metas = {
+        Trace_metadata_key::Copy,
+        Trace_metadata_key::ltn,
+        Trace_metadata_key::gtn,
+        Trace_metadata_key::tnl,
+        Trace_metadata_key::tnr,
+        Trace_metadata_key::tn,
+        Trace_metadata_key::tne,
+        Trace_metadata_key::ns,
+        Trace_metadata_key::sample_interval,
+        Trace_metadata_key::Tic,
+        Trace_metadata_key::SrcNum,
+        Trace_metadata_key::ShotNum,
+        Trace_metadata_key::VStack,
+        Trace_metadata_key::HStack,
+        Trace_metadata_key::Offset,
+        Trace_metadata_key::RGElev,
+        Trace_metadata_key::SSElev,
+        Trace_metadata_key::SDElev,
+        Trace_metadata_key::WtrDepSrc,
+        Trace_metadata_key::WtrDepRcv,
+        Trace_metadata_key::x_src,
+        Trace_metadata_key::y_src,
+        Trace_metadata_key::x_rcv,
+        Trace_metadata_key::y_rcv,
+        Trace_metadata_key::xCmp,
+        Trace_metadata_key::yCmp,
+        Trace_metadata_key::il,
+        Trace_metadata_key::xl,
+        Trace_metadata_key::TransUnit,
+        Trace_metadata_key::TraceUnit,
+        Trace_metadata_key::dsdr,
+        Trace_metadata_key::Misc1,
+        Trace_metadata_key::Misc2,
+        Trace_metadata_key::Misc3,
+        Trace_metadata_key::Misc4,
     };
 
     auto rule_tmp2_ptr = std::make_shared<Rule*>();
     EXPECT_CALL(mock_rule(), Rule_ctor(_, metas, true, false, false))
         .WillOnce(SaveArg<0>(rule_tmp2_ptr));
 
-    EXPECT_CALL(mock_rule(), add_rule(EqDeref(rule_ptr), Meta::Copy))
+    EXPECT_CALL(
+        mock_rule(), add_rule(EqDeref(rule_ptr), Trace_metadata_key::Copy))
         .WillOnce(CheckReturn(true));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
 
-    EXPECT_CALL(mock_rule(), add_rule(EqDeref(rule_ptr), Meta::Copy))
+    EXPECT_CALL(
+        mock_rule(), add_rule(EqDeref(rule_ptr), Trace_metadata_key::Copy))
         .WillOnce(CheckReturn(false));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
 
@@ -48,14 +73,21 @@ std::shared_ptr<Rule*> test_piol_file_rule()
                          EqDeref(rule_ptr),
                          Matcher<const Rule&>(AddressEqDeref(rule_tmp_ptr))));
 
-    EXPECT_CALL(mock_rule(), add_long(_, Meta::Copy, Tr::SeqNum));
     EXPECT_CALL(
-        mock_rule(), add_segy_float(_, Meta::Copy, Tr::SeqNum, Tr::SeqNum));
-    EXPECT_CALL(mock_rule(), add_short(_, Meta::Copy, Tr::SeqNum));
-    EXPECT_CALL(mock_rule(), add_index(_, Meta::Copy));
+        mock_rule(),
+        add_long(_, Trace_metadata_key::Copy, Trace_header_offsets::SeqNum));
+    EXPECT_CALL(
+        mock_rule(),
+        add_segy_float(
+            _, Trace_metadata_key::Copy, Trace_header_offsets::SeqNum,
+            Trace_header_offsets::SeqNum));
+    EXPECT_CALL(
+        mock_rule(),
+        add_short(_, Trace_metadata_key::Copy, Trace_header_offsets::SeqNum));
+    EXPECT_CALL(mock_rule(), add_index(_, Trace_metadata_key::Copy));
     EXPECT_CALL(mock_rule(), add_copy(_));
 
-    EXPECT_CALL(mock_rule(), rm_rule(_, Meta::Copy));
+    EXPECT_CALL(mock_rule(), rm_rule(_, Trace_metadata_key::Copy));
 
     EXPECT_CALL(mock_rule(), extent(_)).WillOnce(CheckReturn(100));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
@@ -67,7 +99,7 @@ std::shared_ptr<Rule*> test_piol_file_rule()
         .WillOnce(CheckReturn(120));
     EXPECT_CALL(return_checker(), Call()).WillOnce(ClearCheckReturn());
 
-    // MOCK_METHOD1(get_entry, RuleEntry * (Meta entry));
+    // MOCK_METHOD1(get_entry, Rule_entry * (Trace_metadata_key entry));
 
     EXPECT_CALL(mock_rule(), Rule_dtor(EqDeref(rule_tmp2_ptr)));
     EXPECT_CALL(mock_rule(), Rule_dtor(EqDeref(rule_tmp_ptr)));

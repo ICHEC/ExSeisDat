@@ -4,7 +4,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 #include <cstdlib>
 #include <string>

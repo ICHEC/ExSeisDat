@@ -19,6 +19,63 @@
 ///
 
 ///
+/// @namespace exseis::utils::communicator
+///
+/// @brief Interface and implementations of a communicator that is used for
+///        message passing between the processes.
+///
+
+///
+/// @namespace exseis::utils::decomposition
+///
+/// @brief Functions for splitting ranges across processes.
+///
+
+///
+/// @namespace exseis::utils::distributed_vector
+///
+/// @brief Interface and implementations of a vector that is distributed
+///        over several processes.
+///
+
+///
+/// @namespace exseis::utils::encoding
+///
+/// @brief Functions for different kinds of encodings.
+///
+
+///
+/// @namespace exseis::utils::logging
+///
+/// @brief Logging utilities.
+///
+
+///
+/// @namespace exseis::utils::mpi_utils
+///
+/// @brief MPI utilities.
+///
+
+///
+/// @namespace exseis::utils::signal_processing
+///
+/// @brief Functions for processing seismic signals.
+///
+
+///
+/// @namespace exseis::utils::types
+///
+/// @brief Aliases for fundamental types and conversions used throughout the
+///        ExSeisDat project.
+///
+
+///
+/// @namespace exseis::utils::types::mpi
+///
+/// @brief Aliases for MPI datatypes
+///
+
+///
 /// @namespace exseis::piol
 ///
 /// @brief %ExSeisPIOL: A High-Performance Parallel Seismic file I/O library.
@@ -31,6 +88,54 @@
 ///          <b>L</b>ibrary.
 ///          It primarily handles high-performance, parallel I/O of seismic data
 ///          files.
+///
+
+///
+/// @namespace exseis::piol::configuration
+///
+/// @brief Classes for storing configurations of the program.
+///
+
+///
+/// @namespace exseis::piol::file
+///
+/// @brief Basic read and write classes.
+///
+
+///
+/// @namespace exseis::piol::io_driver
+///
+/// @brief Interface and implementations that perform I/O operations
+///
+
+///
+/// @namespace exseis::piol::metadata
+///
+/// @brief Seismic metadata utilities
+///
+
+///
+/// @namespace exseis::piol::metadata::rules
+///
+/// @brief Rules associated with trace parameters
+///
+
+///
+/// @namespace exseis::piol::operations
+///
+/// @brief Basic operations performed on the file data
+///
+
+///
+/// @namespace exseis::piol::operations::sort_operations
+///
+/// @brief Classes and functions for sorting the data
+///
+
+///
+/// @namespace exseis::piol::segy
+///
+/// @brief SEGY specific parameters and functions
 ///
 
 ///

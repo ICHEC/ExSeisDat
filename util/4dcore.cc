@@ -8,7 +8,7 @@
 
 #include "4dcore.hh"
 
-#include "exseisdat/utils/mpi/MPI_type.hh"
+#include "exseisdat/utils/types/MPI_type.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -449,7 +449,7 @@ void calc_4d_bin(
     const fourd_t dsrmax,
     const Coords* crd1,
     const Coords* crd2,
-    const FourDOpt opt,
+    const Four_d_opt opt,
     std::vector<size_t>& min,
     std::vector<fourd_t>& minrs)
 {

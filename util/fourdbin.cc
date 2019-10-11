@@ -9,7 +9,7 @@
 #include "4dcore.hh"
 #include "4dio.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
 
 #include <algorithm>
 #include <assert.h>
@@ -20,21 +20,8 @@
 #include <unistd.h>
 
 using namespace exseis::piol;
-using namespace four_d;
+using namespace exseis::piol::four_d;
 
-namespace exseis {
-namespace piol {
-
-void cmsg(ExSeisPIOL* piol, std::string msg)
-{
-    piol->comm->barrier();
-    if (piol->comm->get_rank() == 0) {
-        std::cout << msg << std::endl;
-    }
-}
-
-}  // namespace piol
-}  // namespace exseis
 
 /*! Main function for fourdbin.
  *  @param[in] argc The number of input strings.
@@ -58,7 +45,7 @@ int main(int argc, char** argv)
     std::string name2;
     std::string name3;
     std::string name4;
-    FourDOpt fopt;
+    Four_d_opt fopt;
 
     char mpi_version[MPI_MAX_LIBRARY_VERSION_STRING - 1];
     int len;

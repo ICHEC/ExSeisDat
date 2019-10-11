@@ -12,33 +12,34 @@
 #include <type_traits>
 
 ///
-/// @namespace exseis::utils::number_encoding
+/// @namespace exseis::utils::encoding::number_encoding
 ///
 /// @brief Routines for converting between different representations of number
 ///        types.
 ///
-/// The routines in this namespace deal with conversion between endianness and
-/// conversion between number formats, e.g. IBM floating point and IEEE floating
-/// point formats.
+/// @details The routines in this namespace deal with conversion between
+///          endianness and conversion between number formats, e.g. IBM floating
+///          point and IEEE floating point formats.
 ///
 
 namespace exseis {
 namespace utils {
+inline namespace encoding {
 inline namespace number_encoding {
 
 
 /// @brief Convert an array of bytes representing a datatype in big-endian order
 ///        to the equivalent datatype in host-endian order.
 ///
-/// src[0] contains the most significant byte in big endian. src[1] contains the
-/// least significant. Shift src[0] to be in the position of the most
-/// significant byte and OR it with src[1] which is not shifted (as it is the
-/// least significant byte.
-///
 /// @param[in] src Data in big-endian order to stuff into the datype in
 ///                host-endian order.
 ///
 /// @return Return the requested datatype
+///
+/// @details src[0] contains the most significant byte in big endian. src[1]
+///          contains the least significant. Shift src[0] to be in the position
+///          of the most significant byte and OR it with src[1] which is not
+///          shifted (as it is the least significant byte.
 ///
 template<typename T, size_t N>
 constexpr T from_big_endian(std::array<unsigned char, N> src)
@@ -141,7 +142,7 @@ T from_big_endian(unsigned char byte, Bytes... bytes)
 ///
 /// @tparam T The type to convert to big-endian.
 ///
-/// @param[in] src The value to convert from host-endian to big-endian.
+/// @param[in]  src The value to convert from host-endian to big-endian.
 ///
 /// @return An array containing the bytes of `src` in big-endian order.
 ///
@@ -203,8 +204,8 @@ inline std::array<unsigned char, sizeof(float)> to_big_endian(float src)
 }
 
 
-/// The \c Float_components class represents a floating point number in terms
-/// of its components: {sign, exponent, significand}.
+/// @brief The \c Float_components class represents a floating point number in
+///        terms of its components: {sign, exponent, significand}.
 ///
 /// @details The number can be found natively as
 ///     std::pow(-1,sign) * (significand * std::pow(2,-32))
@@ -222,8 +223,8 @@ struct Float_components {
 };
 
 
-/// Extract the sign, exponent and significand from an IBM floating point number
-/// and return it as a set of Float_components.
+/// @brief Extract the sign, exponent and significand from an IBM floating point
+///        number and return it as a set of Float_components.
 ///
 /// @param[in] ibm_float_bytes The bit representation of the IBM floating point
 ///                            number.
@@ -237,7 +238,8 @@ Float_components from_ibm(
     std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
 
-/// Build a native floating point representation from a set of Float_components
+/// @brief Build a native floating point representation from a set of
+///        Float_components
 ///
 /// @param[in] components The components of the floating point number:
 ///                       {sign, exponent, significand}.
@@ -251,8 +253,8 @@ Float_components from_ibm(
 float to_float(Float_components components);
 
 
-/// Convert an array of bytes representing an IBM single-precision floating
-/// point number to a native single-precision float.
+/// @brief Convert an array of bytes representing an IBM single-precision
+///        floating point number to a native single-precision float.
 ///
 /// @param[in] ibm_float_bytes The byte representation of the IBM float.
 /// @param[in] is_big_endian   True if the data in `ibm_float_bytes` is in
@@ -266,6 +268,7 @@ float from_ibm_to_float(
     std::array<unsigned char, 4> ibm_float_bytes, bool is_big_endian);
 
 }  // namespace number_encoding
+}  // namespace encoding
 }  // namespace utils
 }  // namespace exseis
 

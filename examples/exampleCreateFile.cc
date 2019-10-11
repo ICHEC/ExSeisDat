@@ -31,7 +31,7 @@ int main()
     auto piol = ExSeis::make();
 
     // Create new SEGY file
-    WriteSEGY file(piol, name);
+    Output_file_segy file(piol, name);
 
     auto dec = block_decomposition(nt, piol->get_num_rank(), piol->get_rank());
     size_t offset = dec.global_offset;
@@ -47,15 +47,15 @@ int main()
     Trace_metadata prm(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
-        prm.set_floating_point(j, Meta::x_src, 1600.0 + k);
-        prm.set_floating_point(j, Meta::y_src, 2400.0 + k);
-        prm.set_floating_point(j, Meta::x_rcv, 100000.0 + k);
-        prm.set_floating_point(j, Meta::y_rcv, 3000000.0 + k);
-        prm.set_floating_point(j, Meta::xCmp, 10000.0 + k);
-        prm.set_floating_point(j, Meta::yCmp, 4000.0 + k);
-        prm.set_integer(j, Meta::il, 2400 + k);
-        prm.set_integer(j, Meta::xl, 1600 + k);
-        prm.set_integer(j, Meta::tn, offset + j);
+        prm.set_floating_point(j, Trace_metadata_key::x_src, 1600.0 + k);
+        prm.set_floating_point(j, Trace_metadata_key::y_src, 2400.0 + k);
+        prm.set_floating_point(j, Trace_metadata_key::x_rcv, 100000.0 + k);
+        prm.set_floating_point(j, Trace_metadata_key::y_rcv, 3000000.0 + k);
+        prm.set_floating_point(j, Trace_metadata_key::xCmp, 10000.0 + k);
+        prm.set_floating_point(j, Trace_metadata_key::yCmp, 4000.0 + k);
+        prm.set_integer(j, Trace_metadata_key::il, 2400 + k);
+        prm.set_integer(j, Trace_metadata_key::xl, 1600 + k);
+        prm.set_integer(j, Trace_metadata_key::tn, offset + j);
     }
     file.write_param(offset, lnt, &prm);
 

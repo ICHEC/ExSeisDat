@@ -4,21 +4,48 @@
 #include <iostream>
 #include <memory>
 
+// extern "C" struct PIOL_CoordElem;
+
+
+namespace exseis {
+namespace piol {
+inline namespace operations {
+
 extern "C" struct PIOL_CoordElem;
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value);
 
+}  // namespace operations
+}  // namespace piol
+}  // namespace exseis
+
+
 namespace exseis {
 namespace piol {
+inline namespace metadata {
+inline namespace rules {
 
 class Rule;
+
+}  // namespace rules
+}  // namespace metadata
+}  // namespace piol
+}  // namespace exseis
+
+
+namespace exseis {
+namespace piol {
+inline namespace metadata {
+
 class Trace_metadata;
 
 ::std::ostream& operator<<(::std::ostream& os, Trace_metadata* value);
 ::std::ostream& operator<<(::std::ostream& os, const Trace_metadata* value);
 
+}  // namespace metadata
 }  // namespace piol
 }  // namespace exseis
+
 
 namespace std {
 

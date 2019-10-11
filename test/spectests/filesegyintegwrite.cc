@@ -37,18 +37,20 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadTrace_metadata)
     file->write_nt(nt);
     piol->assert_ok();
 
-    prm.set_integer(0, Meta::il, grid.il);
-    prm.set_integer(0, Meta::xl, grid.xl);
-    prm.set_floating_point(0, Meta::xCmp, coord.x);
-    prm.set_floating_point(0, Meta::yCmp, coord.y);
+    prm.set_integer(0, Trace_metadata_key::il, grid.il);
+    prm.set_integer(0, Trace_metadata_key::xl, grid.xl);
+    prm.set_floating_point(0, Trace_metadata_key::xCmp, coord.x);
+    prm.set_floating_point(0, Trace_metadata_key::yCmp, coord.y);
 
     file->write_param(201U, 1U, &prm);
     readfile->read_param(201U, 1U, &prm2);
 
-    ASSERT_EQ(grid.il, prm2.get_integer(0U, Meta::il));
-    ASSERT_EQ(grid.xl, prm2.get_integer(0U, Meta::xl));
-    ASSERT_DOUBLE_EQ(coord.x, prm2.get_floating_point(0U, Meta::xCmp));
-    ASSERT_DOUBLE_EQ(coord.y, prm2.get_floating_point(0U, Meta::yCmp));
+    ASSERT_EQ(grid.il, prm2.get_integer(0U, Trace_metadata_key::il));
+    ASSERT_EQ(grid.xl, prm2.get_integer(0U, Trace_metadata_key::xl));
+    ASSERT_DOUBLE_EQ(
+        coord.x, prm2.get_floating_point(0U, Trace_metadata_key::xCmp));
+    ASSERT_DOUBLE_EQ(
+        coord.y, prm2.get_floating_point(0U, Trace_metadata_key::yCmp));
 }
 
 TEST_F(FileSEGYIntegWrite, FileWriteTraceNormal)

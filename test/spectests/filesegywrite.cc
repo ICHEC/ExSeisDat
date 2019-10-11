@@ -43,9 +43,9 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord1)
 
 
     Trace_metadata prm(1U);
-    prm.set_floating_point(0, Meta::xCmp, 1600.1);
-    prm.set_floating_point(0, Meta::yCmp, 2400.22);
-    prm.set_integer(0, Meta::tn, 10U);
+    prm.set_floating_point(0, Trace_metadata_key::xCmp, 1600.1);
+    prm.set_floating_point(0, Trace_metadata_key::yCmp, 2400.22);
+    prm.set_integer(0, Trace_metadata_key::tn, 10U);
     file->write_param(10U, 1U, &prm);
 }
 
@@ -57,9 +57,9 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord2)
         {x_src, y_src}, {1600100, 3400222}, -1000, 10U, &tr);
 
     Trace_metadata prm(1U);
-    prm.set_floating_point(0, Meta::x_src, 1600.1000);
-    prm.set_floating_point(0, Meta::y_src, 3400.2220);
-    prm.set_integer(0, Meta::tn, 10U);
+    prm.set_floating_point(0, Trace_metadata_key::x_src, 1600.1000);
+    prm.set_floating_point(0, Trace_metadata_key::y_src, 3400.2220);
+    prm.set_integer(0, Trace_metadata_key::tn, 10U);
 
     file->write_param(10U, 1U, &prm);
 }
@@ -72,9 +72,9 @@ TEST_F(FileSEGYWrite, FileWriteTrHdrCoord3)
         {x_src, y_src}, {1623001001, 34002220}, -10000, 10U, &tr);
 
     Trace_metadata prm(1U);
-    prm.set_floating_point(0, Meta::x_src, 162300.10009);
-    prm.set_floating_point(0, Meta::y_src, 3400.22201);
-    prm.set_integer(0, Meta::tn, 10U);
+    prm.set_floating_point(0, Trace_metadata_key::x_src, 162300.10009);
+    prm.set_floating_point(0, Trace_metadata_key::y_src, 3400.22201);
+    prm.set_integer(0, Trace_metadata_key::tn, 10U);
     file->write_param(10U, 1U, &prm);
 }
 

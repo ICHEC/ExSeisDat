@@ -19,7 +19,7 @@ namespace utils {
 /// @tparam Enum The enum type to hash.
 ///
 template<typename Enum>
-class EnumHash {
+class Enum_hash {
   public:
     /// The key type for the hash
     using Key_type = Enum;
@@ -33,8 +33,8 @@ class EnumHash {
     /// The result of the underlying hasher, also the result of this hasher.
     using Result_type = typename Underlying_hash::result_type;
 
-    /// An instance of the underlying hasher, used as the hasher for the
-    /// enum values.
+    /// @brief An instance of the underlying hasher, used as the hasher for the
+    ///        enum values.
     Underlying_hash underlying_hash;
 
 

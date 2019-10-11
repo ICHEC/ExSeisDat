@@ -8,11 +8,16 @@
 #define EXSEISDAT_UTILS_SIGNAL_PROCESSING_MUTE_H
 
 #include "exseisdat/utils/signal_processing/Taper_function.h"
-#include "exseisdat/utils/typedefs.h"
+#include "exseisdat/utils/types/typedefs.h"
 
 #include <stddef.h>
 
 #ifdef __cplusplus
+
+namespace exseis {
+namespace utils {
+inline namespace signal_processing {
+
 extern "C" {
 #endif  // __cplusplus
 
@@ -34,6 +39,10 @@ void exseis_mute(
 
 #ifdef __cplusplus
 }  // extern "C"
+
+}  // namespace signal_processing
+}  // namespace utils
+}  // namespace exseis
 #endif  // __cplusplus
 
 #endif  // EXSEISDAT_UTILS_SIGNAL_PROCESSING_MUTE_H

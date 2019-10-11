@@ -1,7 +1,12 @@
 #include "printers.hh"
 
-#include "exseisdat/piol/Trace_metadata.hh"
+#include "exseisdat/piol/metadata/Trace_metadata.hh"
 #include "exseisdat/piol/operations/minmax.hh"
+
+
+namespace exseis {
+namespace piol {
+inline namespace operations {
 
 ::std::ostream& operator<<(::std::ostream& os, const PIOL_CoordElem& value)
 {
@@ -11,8 +16,14 @@
     return os;
 }
 
+}  // namespace operations
+}  // namespace piol
+}  // namespace exseis
+
+
 namespace exseis {
 namespace piol {
+inline namespace metadata {
 
 ::std::ostream& operator<<(::std::ostream& os, Trace_metadata* value)
 {
@@ -27,8 +38,10 @@ namespace piol {
     return os;
 }
 
+}  // namespace metadata
 }  // namespace piol
 }  // namespace exseis
+
 
 namespace std {
 

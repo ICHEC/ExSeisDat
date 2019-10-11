@@ -29,16 +29,22 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "exseisdat/utils/typedefs.hh"
+#include "exseisdat/utils/types/typedefs.hh"
 
 namespace exseis {
 namespace piol {
-class RuleEntry;
+inline namespace metadata {
+inline namespace rules {
+
+class Rule_entry;
+
+}  // namespace rules
+}  // namespace metadata
 }  // namespace piol
 }  // namespace exseis
 
-extern template testing::DefaultValue<exseis::piol::RuleEntry*>::ValueProducer*
-    testing::DefaultValue<exseis::piol::RuleEntry*>::producer_;
+extern template testing::DefaultValue<exseis::piol::Rule_entry*>::ValueProducer*
+    testing::DefaultValue<exseis::piol::Rule_entry*>::producer_;
 
 extern template testing::DefaultValue<size_t>::ValueProducer*
     testing::DefaultValue<size_t>::producer_;

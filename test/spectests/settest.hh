@@ -7,11 +7,11 @@
 #include "tglobal.hh"
 
 #include "exseisdat/flow/Set.hh"
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/ObjectSEGY.hh"
-#include "exseisdat/piol/ReadSEGY.hh"
-#include "exseisdat/piol/WriteSEGY.hh"
-#include "exseisdat/piol/mpi/MPI_Binary_file.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Input_file_segy.hh"
+#include "exseisdat/piol/file/Output_file_segy.hh"
+#include "exseisdat/piol/file/detail/ObjectSEGY.hh"
+#include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
 #include "exseisdat/utils/decomposition/block_decomposition.hh"
 
 #include <numeric>
@@ -22,7 +22,7 @@ using namespace exseis::piol;
 using namespace exseis::flow;
 using namespace exseis::flow::detail;
 
-class MockFile : public ReadInterface {
+class MockFile : public Input_file {
   public:
     MOCK_CONST_METHOD0(file_name, const std::string&(void));
     MOCK_METHOD0(read_file_headers, void(void));
@@ -114,7 +114,7 @@ struct SetTest : public Test {
     std::shared_ptr<ExSeis> piol    = ExSeis::make();
     std::unique_ptr<Set_public> set = nullptr;
     std::deque<Trace_metadata> prm;
-    CommunicatorMPI::Opt opt;
+    Communicator_mpi::Opt opt;
 
     void init(
         size_t num_file, size_t num_ns, size_t num_inc, size_t, bool linear)
@@ -143,41 +143,44 @@ struct SetTest : public Test {
                     if (linear) {
                         for (size_t l = 0; l < dec.local_size; l++) {
                             tprm.set_floating_point(
-                                l, Meta::x_src,
+                                l, Trace_metadata_key::x_src,
                                 2000.
                                     - exseis::utils::Floating_point(
                                         dec.global_offset + l));
                             tprm.set_floating_point(
-                                l, Meta::y_src,
+                                l, Trace_metadata_key::y_src,
                                 2000.
                                     - exseis::utils::Floating_point(
                                         dec.global_offset + l));
                             tprm.set_floating_point(
-                                l, Meta::x_rcv,
+                                l, Trace_metadata_key::x_rcv,
                                 2000.
                                     + exseis::utils::Floating_point(
                                         dec.global_offset + l));
                             tprm.set_floating_point(
-                                l, Meta::y_rcv,
+                                l, Trace_metadata_key::y_rcv,
                                 2000.
                                     + exseis::utils::Floating_point(
                                         dec.global_offset + l));
                             tprm.set_floating_point(
-                                l, Meta::xCmp,
+                                l, Trace_metadata_key::xCmp,
                                 2000.
                                     - exseis::utils::Floating_point(
                                         dec.global_offset + l));
                             tprm.set_floating_point(
-                                l, Meta::yCmp,
+                                l, Trace_metadata_key::yCmp,
                                 2000.
                                     - exseis::utils::Floating_point(
                                         dec.global_offset + l));
                             tprm.set_integer(
-                                l, Meta::il, 2000U + dec.global_offset + l);
+                                l, Trace_metadata_key::il,
+                                2000U + dec.global_offset + l);
                             tprm.set_integer(
-                                l, Meta::xl, 2000U + dec.global_offset + l);
+                                l, Trace_metadata_key::xl,
+                                2000U + dec.global_offset + l);
                             tprm.set_integer(
-                                l, Meta::tn, l + dec.global_offset);
+                                l, Trace_metadata_key::tn,
+                                l + dec.global_offset);
 
                             auto x_s =
                                 2000.
@@ -188,7 +191,7 @@ struct SetTest : public Test {
                                 + exseis::utils::Floating_point(
                                     (dec.global_offset + l) / (nt / 10U));
                             tprm.set_integer(
-                                l, Meta::Offset,
+                                l, Trace_metadata_key::Offset,
                                 (x_s - 2000.) * (x_s - 2000.)
                                     + (2000. - y_r) * (2000. - y_r));
                         }
@@ -199,18 +202,26 @@ struct SetTest : public Test {
                                 2000U - (dec.global_offset + l) % (nt / 10U);
                             auto y_r =
                                 2000U + (dec.global_offset + l) / (nt / 10U);
-                            tprm.set_floating_point(l, Meta::x_src, x_s);
-                            tprm.set_floating_point(l, Meta::y_src, 2000.);
-                            tprm.set_floating_point(l, Meta::x_rcv, 2000.);
-                            tprm.set_floating_point(l, Meta::y_rcv, y_r);
-                            tprm.set_floating_point(l, Meta::xCmp, x_s);
-                            tprm.set_floating_point(l, Meta::yCmp, y_r);
-                            tprm.set_integer(l, Meta::il, 4000U - x_s);
-                            tprm.set_integer(l, Meta::xl, y_r);
+                            tprm.set_floating_point(
+                                l, Trace_metadata_key::x_src, x_s);
+                            tprm.set_floating_point(
+                                l, Trace_metadata_key::y_src, 2000.);
+                            tprm.set_floating_point(
+                                l, Trace_metadata_key::x_rcv, 2000.);
+                            tprm.set_floating_point(
+                                l, Trace_metadata_key::y_rcv, y_r);
+                            tprm.set_floating_point(
+                                l, Trace_metadata_key::xCmp, x_s);
+                            tprm.set_floating_point(
+                                l, Trace_metadata_key::yCmp, y_r);
                             tprm.set_integer(
-                                l, Meta::tn, l + dec.global_offset);
+                                l, Trace_metadata_key::il, 4000U - x_s);
+                            tprm.set_integer(l, Trace_metadata_key::xl, y_r);
                             tprm.set_integer(
-                                l, Meta::Offset,
+                                l, Trace_metadata_key::tn,
+                                l + dec.global_offset);
+                            tprm.set_integer(
+                                l, Trace_metadata_key::Offset,
                                 (x_s - 2000.) * (x_s - 2000.)
                                     + (2000. - y_r) * (2000. - y_r));
                         }
@@ -313,7 +324,7 @@ struct SetTest : public Test {
         piol->barrier();
 
         std::string name = filename;
-        auto in          = make_test<ReadSEGY>(piol, name);
+        auto in          = make_test<Input_file_segy>(piol, name);
         in->read_trace(0U, in->read_nt(), trc.data());
 
         mute_man(
@@ -380,7 +391,7 @@ struct SetTest : public Test {
         piol->barrier();
 
         std::string name = filename;
-        auto in          = make_test<ReadSEGY>(piol, name);
+        auto in          = make_test<Input_file_segy>(piol, name);
         ASSERT_EQ(nt, in->read_nt());
         in->read_trace(0U, in->read_nt(), trc.data());
 
@@ -449,7 +460,7 @@ struct SetTest : public Test {
 
         std::string name = filename;
 
-        auto in = make_test<ReadSEGY>(piol, name);
+        auto in = make_test<Input_file_segy>(piol, name);
         in->read_trace(0U, in->read_nt(), trc.data());
 
         size_t win;
@@ -551,7 +562,7 @@ struct SetTest : public Test {
 
         std::string name = filename;
 
-        auto in = make_test<ReadSEGY>(piol, name);
+        auto in = make_test<Input_file_segy>(piol, name);
 
         in->read_trace(0U, in->read_nt(), trc.data());
 

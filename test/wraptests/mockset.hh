@@ -72,9 +72,9 @@ class MockSet {
     MOCK_CONST_METHOD1(summary, void(const Set*));
 
     MOCK_METHOD2(
-        add_impl, void(Set*, std::unique_ptr<exseis::piol::ReadInterface>& in));
+        add_impl, void(Set*, std::unique_ptr<exseis::piol::Input_file>& in));
 
-    void add(Set* set, std::unique_ptr<exseis::piol::ReadInterface> in)
+    void add(Set* set, std::unique_ptr<exseis::piol::Input_file> in)
     {
         add_impl(set, in);
     }
@@ -90,23 +90,23 @@ class MockSet {
             const size_t output_traces_per_gather,
             exseis::utils::Floating_point output_sample_interval));
 
-    MOCK_METHOD2(sort, void(Set*, exseis::piol::SortType type));
+    MOCK_METHOD2(sort, void(Set*, exseis::piol::Sort_type type));
 
     MOCK_METHOD4(
         get_min_max,
         void(
             Set*,
-            exseis::piol::Meta m1,
-            exseis::piol::Meta m2,
+            exseis::piol::Trace_metadata_key m1,
+            exseis::piol::Trace_metadata_key m2,
             exseis::piol::CoordElem* minmax));
 
     MOCK_METHOD8(
         temporal_filter,
         void(
             Set*,
-            exseis::piol::FltrType type,
-            exseis::piol::FltrDmn domain,
-            exseis::piol::PadType pad,
+            exseis::utils::FltrType type,
+            exseis::utils::FltrDmn domain,
+            exseis::utils::PadType pad,
             exseis::utils::Trace_value fs,
             std::vector<exseis::utils::Trace_value> corners,
             size_t nw,
@@ -116,9 +116,9 @@ class MockSet {
         temporal_filter,
         void(
             Set*,
-            exseis::piol::FltrType type,
-            exseis::piol::FltrDmn domain,
-            exseis::piol::PadType pad,
+            exseis::utils::FltrType type,
+            exseis::utils::FltrDmn domain,
+            exseis::utils::PadType pad,
             exseis::utils::Trace_value fs,
             size_t N,
             std::vector<exseis::utils::Trace_value> corners,

@@ -1,7 +1,7 @@
 #include "sglobal.hh"
 
-#include "exseisdat/piol/ExSeis.hh"
-#include "exseisdat/piol/WriteSEGY.hh"
+#include "exseisdat/piol/configuration/ExSeis.hh"
+#include "exseisdat/piol/file/Output_file_segy.hh"
 #include "exseisdat/piol/segy/utils.hh"
 
 #include <assert.h>
@@ -16,7 +16,7 @@ using namespace exseis::piol;
 
 void write_contig(
     ExSeis& piol,
-    WriteInterface& file,
+    Output_file& file,
     size_t offset,
     size_t nt,
     size_t ns,
@@ -33,15 +33,15 @@ void write_contig(
         size_t rblock = (i + max < lnt ? max : lnt - i);
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset + i + j));
-            prm.set_floating_point(j, Meta::x_src, 1600.0 + k);
-            prm.set_floating_point(j, Meta::y_src, 2400.0 + k);
-            prm.set_floating_point(j, Meta::x_rcv, 100000.0 + k);
-            prm.set_floating_point(j, Meta::y_rcv, 3000000.0 + k);
-            prm.set_floating_point(j, Meta::xCmp, 10000.0 + k);
-            prm.set_floating_point(j, Meta::yCmp, 4000.0 + k);
-            prm.set_integer(j, Meta::il, 2400 + k);
-            prm.set_integer(j, Meta::xl, 1600 + k);
-            prm.set_integer(j, Meta::tn, offset + i + j);
+            prm.set_floating_point(j, Trace_metadata_key::x_src, 1600.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::y_src, 2400.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::x_rcv, 100000.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::y_rcv, 3000000.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::xCmp, 10000.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::yCmp, 4000.0 + k);
+            prm.set_integer(j, Trace_metadata_key::il, 2400 + k);
+            prm.set_integer(j, Trace_metadata_key::xl, 1600 + k);
+            prm.set_integer(j, Trace_metadata_key::tn, offset + i + j);
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
@@ -58,7 +58,7 @@ void write_contig(
 
 void write_random(
     ExSeis& piol,
-    WriteInterface& file,
+    Output_file& file,
     size_t nt,
     size_t ns,
     size_t lnt,
@@ -101,15 +101,15 @@ void write_random(
 
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset[i + j]));
-            prm.set_floating_point(j, Meta::x_src, 1600.0 + k);
-            prm.set_floating_point(j, Meta::y_src, 2400.0 + k);
-            prm.set_floating_point(j, Meta::x_rcv, 100000.0 + k);
-            prm.set_floating_point(j, Meta::y_rcv, 3000000.0 + k);
-            prm.set_floating_point(j, Meta::xCmp, 10000.0 + k);
-            prm.set_floating_point(j, Meta::yCmp, 4000.0 + k);
-            prm.set_integer(j, Meta::il, 2400 + k);
-            prm.set_integer(j, Meta::xl, 1600 + k);
-            prm.set_integer(j, Meta::tn, offset[i + j]);
+            prm.set_floating_point(j, Trace_metadata_key::x_src, 1600.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::y_src, 2400.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::x_rcv, 100000.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::y_rcv, 3000000.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::xCmp, 10000.0 + k);
+            prm.set_floating_point(j, Trace_metadata_key::yCmp, 4000.0 + k);
+            prm.set_integer(j, Trace_metadata_key::il, 2400 + k);
+            prm.set_integer(j, Trace_metadata_key::xl, 1600 + k);
+            prm.set_integer(j, Trace_metadata_key::tn, offset[i + j]);
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
@@ -136,7 +136,7 @@ void file_make(
 {
     auto piol = ExSeis::make();
 
-    WriteSEGY file(piol, name);
+    Output_file_segy file(piol, name);
 
     piol->assert_ok();
     file.write_ns(ns);

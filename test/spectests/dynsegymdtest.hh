@@ -6,8 +6,8 @@
 
 #include "tglobal.hh"
 
-#include "exseisdat/piol/SEGYRuleEntry.hh"
-#include "exseisdat/piol/Trace_metadata.hh"
+#include "exseisdat/piol/metadata/Trace_metadata.hh"
+#include "exseisdat/piol/metadata/rules/Segy_rule_entry.hh"
 
 #include <memory>
 
@@ -19,18 +19,21 @@ struct RuleFix : public Test {
 };
 
 struct RuleFixList : public RuleFix {
-    std::vector<Meta> meta;
-    std::vector<Tr> locs;
+    std::vector<Trace_metadata_key> meta;
+    std::vector<Trace_header_offsets> locs;
     RuleFixList()
     {
-        locs = {Tr::x_src, Tr::y_src, Tr::x_rcv, Tr::y_rcv};
-        meta = {Meta::x_src, Meta::y_src, Meta::x_rcv, Meta::y_rcv};
+        locs = {Trace_header_offsets::x_src, Trace_header_offsets::y_src,
+                Trace_header_offsets::x_rcv, Trace_header_offsets::y_rcv};
+        meta = {Trace_metadata_key::x_src, Trace_metadata_key::y_src,
+                Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv};
         rule = std::make_shared<Rule>(
-            std::initializer_list<Meta>{Meta::x_src, Meta::y_src, Meta::x_rcv,
-                                        Meta::y_rcv},
+            std::initializer_list<Trace_metadata_key>{
+                Trace_metadata_key::x_src, Trace_metadata_key::y_src,
+                Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv},
             false);
-        rule->rm_rule(Meta::ltn);
-        rule->rm_rule(Meta::gtn);
+        rule->rm_rule(Trace_metadata_key::ltn);
+        rule->rm_rule(Trace_metadata_key::gtn);
     }
 };
 

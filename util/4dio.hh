@@ -5,8 +5,8 @@
 /// @brief
 /// @details
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_UTIL_4DIO_HH
-#define EXSEISDAT_UTIL_4DIO_HH
+#ifndef EXSEISDAT_PIOL_FOUR_D_4DIO_HH
+#define EXSEISDAT_PIOL_FOUR_D_4DIO_HH
 
 #include "4d.hh"
 
@@ -19,8 +19,9 @@ namespace four_d {
 /// @brief Wrapper around posix_memalign testing its return value.
 ///
 /// @tparam Args The input argument parameter list type.
-/// @param[in] args A parameter pack of arguments, passed directly to
-///                 posix_memalign.
+///
+/// @param[in]  args    A parameter pack of arguments, passed directly to
+///                     posix_memalign.
 ///
 template<typename... Args>
 void checked_posix_memalign(Args... args)
@@ -42,42 +43,45 @@ void checked_posix_memalign(Args... args)
     }
 }
 
-/*! This structure is for holding EXSEISDAT_ALIGN aligned memory containing the
- *  coordinates.
- */
+/// @brief This structure is for holding EXSEISDAT_ALIGN aligned memory
+///        containing the coordinates.
+///
 struct Coords {
-    /// The number of sets of coordinates
+    /// @brief The number of sets of coordinates
     size_t sz;
 
-    /// The x src coordinates
+    /// @brief The x src coordinates
     fourd_t* x_src = nullptr;
 
-    /// The y src coordinates
+    /// @brief The y src coordinates
     fourd_t* y_src = nullptr;
 
-    /// The x rcv coordinates
+    /// @brief The x rcv coordinates
     fourd_t* x_rcv = nullptr;
 
-    /// The y rcv coordinates
+    /// @brief The y rcv coordinates
     fourd_t* y_rcv = nullptr;
 
-    /// The trace number
+    /// @brief The trace number
     size_t* tn = nullptr;
 
-    /// The size which was actually allocated
+    /// @brief The size which was actually allocated
     size_t alloc_size;
 
-    /// The inline number
+    /// @brief The inline number
     exseis::utils::Integer* il = nullptr;
 
-    /// The crossline number
+    /// @brief The crossline number
     exseis::utils::Integer* xl = nullptr;
 
-    /*! Constructor for coords. Allocate each array to take sz entries
-     *  but also make sure that the allocated space is aligned.
-     *  @param[in] sz     Number of traces
-     *  @param[in] ixline Inline/Xline enabled
-     */
+    /// @brief Constructor for coords.
+    ///
+    /// @param[in] sz     Number of traces
+    /// @param[in] ixline Inline/Xline enabled
+    ///
+    /// @details Allocate each array to take sz entries but also make sure that
+    /// the allocated space is aligned.
+    ///
     Coords(size_t sz, bool ixline) : sz(sz)
     {
         alloc_size =
@@ -118,8 +122,9 @@ struct Coords {
         }
     }
 
-    /*! Destructor. Deallocate all the memory.
-     */
+    /// @brief Destructor.
+    ///
+    /// @details Deallocate all the memory.
     ~Coords()
     {
         free(x_src);
@@ -132,29 +137,34 @@ struct Coords {
     }
 };
 
-/*! Given an input file, perform a decomposition over the traces and return a
- *  subset of the coordinates to each process. The coordinates returned have
- *  been sorted into x_src order.
- *  @param[in] piol The piol object (in a shared pointer).
- *  @param[in] name The name of the input file.
- *  @param[in] ixline Inline/Xline enabled
- *  @return Return a unique_ptr to the structure containing the coordinates read
- *          by the local process.
- */
+/// @brief Perform decomposition and return coordinates
+///
+/// @param[in] piol     The piol object (in a shared pointer).
+/// @param[in] name     The name of the input file.
+/// @param[in] ixline   Inline/Xline enabled
+///
+/// @return Return a unique_ptr to the structure containing the coordinates read
+///         by the local process.
+///
+/// @details Given an input file, perform a decomposition over the traces and
+///          return a subset of the coordinates to each process. The coordinates
+///          returned have been sorted into x_src order.
+///
 std::unique_ptr<Coords> get_coords(
     std::shared_ptr<ExSeisPIOL> piol, std::string name, bool ixline);
 
-/*! Extract traces and coordinates from an input file \c sname according to what
- *  traces are listed in \c list.
- *  @param[in] piol The piol object (in a shared pointer).
- *  @param[in] dname The name of the destination file.
- *  @param[in] sname The name of the source file.
- *  @param[in] list The list of traces to read from the input file in the order
- *                  they should appear in the output file.
- *  @param[in] minrs The value of minrs which should be stored with the trace
- *                   header of each trace.
- *  @param[in] print_dsr Print the dsdr value if true.
- */
+
+/// @brief Extract traces and coordinates from an input file \c sname according
+///        to what traces are listed in \c list.
+///
+/// @param[in] piol The piol object (in a shared pointer).
+/// @param[in] dname The name of the destination file.
+/// @param[in] sname The name of the source file.
+/// @param[in] list The list of traces to read from the input file in the order
+///            they should appear in the output file.
+/// @param[in] minrs The value of minrs which should be stored with the trace
+///            header of each trace.
+/// @param[in] print_dsr Print the dsdr value if true.
 void output_non_mono(
     std::shared_ptr<ExSeisPIOL> piol,
     std::string dname,
@@ -167,4 +177,4 @@ void output_non_mono(
 }  // namespace piol
 }  // namespace exseis
 
-#endif  // EXSEISDAT_UTIL_4DIO_HH
+#endif  // EXSEISDAT_PIOL_FOUR_D_4DIO_HH

@@ -5,6 +5,9 @@
 
 #include <type_traits>
 
+namespace exseis {
+namespace utils {
+
 namespace {
 // Equality operator comparing exseis::utils::Verbosity and exseis_Verbosity.
 constexpr bool operator==(exseis::utils::Verbosity lhs, exseis_Verbosity rhs)
@@ -17,8 +20,6 @@ constexpr bool operator==(exseis::utils::Verbosity lhs, exseis_Verbosity rhs)
 // types and values.
 TEST(Verbosity, C_API)
 {
-    using exseis::utils::Verbosity;
-
     // Check C++ and C API have the same type.
     static_assert(
         std::is_same<
@@ -62,3 +63,6 @@ TEST(Verbosity, C_API)
             break;
     }
 }
+
+}  // namespace utils
+}  // namespace exseis
