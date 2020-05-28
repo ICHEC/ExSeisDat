@@ -45,9 +45,7 @@ class Model3dInterface {
             exseis::utils::Integer start     = 0,
             exseis::utils::Integer count     = 0,
             exseis::utils::Integer increment = 0) :
-            start(start),
-            count(count),
-            increment(increment)
+            start(start), count(count), increment(increment)
         {
         }
     };

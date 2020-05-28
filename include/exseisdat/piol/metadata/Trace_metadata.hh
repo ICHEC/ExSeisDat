@@ -7,6 +7,7 @@
 #ifndef EXSEISDAT_PIOL_METADATA_TRACE_METADATA_HH
 #define EXSEISDAT_PIOL_METADATA_TRACE_METADATA_HH
 
+#include "exseisdat/piol/metadata/Trace_metadata_key.hh"
 #include "exseisdat/piol/metadata/rules/Rule.hh"
 #include "exseisdat/utils/Generic_array.hh"
 #include "exseisdat/utils/types/typedefs.hh"

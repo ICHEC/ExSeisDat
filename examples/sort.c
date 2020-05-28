@@ -7,7 +7,7 @@
 
 #include "exseisdat/flow.h"
 
-int main(void)
+int main()
 {
     piol_exseis* piol = piol_exseis_new(exseis_verbosity_none);
     PIOL_Set* set     = piol_set_new(piol, "/ichec/work/exseisdat/*dat/10*/b*");

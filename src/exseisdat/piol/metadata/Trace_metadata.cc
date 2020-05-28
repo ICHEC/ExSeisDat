@@ -17,8 +17,7 @@ namespace piol {
 inline namespace metadata {
 
 Trace_metadata::Trace_metadata(Rule rules, size_t num_traces) :
-    rules(std::move(rules)),
-    num_traces(num_traces)
+    rules(std::move(rules)), num_traces(num_traces)
 {
     for (const auto& rule_map_it : rules.rule_entry_map) {
         const auto& key   = rule_map_it.first;

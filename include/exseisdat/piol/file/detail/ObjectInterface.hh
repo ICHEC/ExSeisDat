@@ -27,7 +27,7 @@ class ObjectInterface;
  * @return Return a shared_ptr to the obj layer object.
  */
 std::shared_ptr<ObjectInterface> make_default_obj(
-    std::shared_ptr<ExSeisPIOL> piol, std::string name, FileMode mode);
+    std::shared_ptr<ExSeisPIOL> piol, std::string name, File_mode_mpi mode);
 
 
 /*! @brief The Obj layer interface. Specific Obj implementations

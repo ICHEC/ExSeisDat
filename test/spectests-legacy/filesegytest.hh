@@ -128,23 +128,22 @@ enum TrHdr : size_t {
     xl          = 192U
 };
 
-class Mock_Binary_file : public IO_driver {
+class Mock_IO_driver : public IO_driver {
     MOCK_CONST_METHOD0(is_open, bool());
     MOCK_CONST_METHOD0(get_file_size, size_t());
-    MOCK_CONST_METHOD1(set_file_size, void(size_t size));
+    MOCK_METHOD1(set_file_size, void(size_t size));
     MOCK_CONST_METHOD3(read, void(size_t offset, size_t size, void* buffer));
-    MOCK_CONST_METHOD3(
-        write, void(size_t offset, size_t size, const void* buffer));
+    MOCK_METHOD3(write, void(size_t offset, size_t size, const void* buffer));
     MOCK_CONST_METHOD5(
-        read_noncontiguous,
+        read_strided,
         void(
             size_t offset,
             size_t block_size,
             size_t stride_size,
             size_t number_of_blocks,
             void* buffer));
-    MOCK_CONST_METHOD5(
-        write_noncontiguous,
+    MOCK_METHOD5(
+        write_strided,
         void(
             size_t offset,
             size_t block_size,
@@ -152,14 +151,14 @@ class Mock_Binary_file : public IO_driver {
             size_t number_of_blocks,
             const void* buffer));
     MOCK_CONST_METHOD4(
-        read_noncontiguous_irregular,
+        read_offsets,
         void(
             size_t block_size,
             size_t number_of_blocks,
             const size_t* offsets,
             void* buffer));
-    MOCK_CONST_METHOD4(
-        write_noncontiguous_irregular,
+    MOCK_METHOD4(
+        write_offsets,
         void(
             size_t block_size,
             size_t number_of_blocks,
@@ -174,8 +173,7 @@ class Mock_Object : public ObjectInterface {
 
   public:
     Mock_Object(std::shared_ptr<ExSeisPIOL> piol, const std::string name) :
-        m_piol(piol),
-        m_name(name)
+        m_piol(piol), m_name(name)
     {
     }
 
@@ -184,7 +182,7 @@ class Mock_Object : public ObjectInterface {
     MOCK_CONST_METHOD0(data, std::shared_ptr<IO_driver>());
 
 
-    MOCK_CONST_METHOD0(get_file_size, size_t(void));
+    MOCK_CONST_METHOD0(get_file_size, size_t());
     MOCK_CONST_METHOD1(read_ho, void(unsigned char*));
     MOCK_CONST_METHOD1(set_file_size, void(const size_t));
     MOCK_CONST_METHOD1(should_write_file_header, void(const unsigned char*));

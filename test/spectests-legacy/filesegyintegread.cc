@@ -6,7 +6,7 @@ const size_t bigtns  = 32000U;
 const size_t smallns = 261U;
 const size_t smallnt = 400U;
 
-// Read test of SEGY -> ObjectSEGY -> MPI_Binary_file
+// Read test of SEGY -> ObjectSEGY -> IO_driver_mpi
 TEST_F(FileSEGYIntegRead, SEGYReadHO)
 {
     nt = smallnt;

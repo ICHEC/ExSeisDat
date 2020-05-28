@@ -353,7 +353,8 @@ std::string Set::start_gather(
             m_piol->comm->max(number_of_gathersather) - number_of_gathersather;
         size_t ig = 0;
         for (size_t gather_number : gather_numbers) {
-            auto gval           = gather[gather_number];
+            using gather_value  = decltype(gather)::value_type;
+            gather_value gval   = gather[gather_number];
             const size_t i_g_sz = gval.num_traces;
 
             // Initialise the blocks

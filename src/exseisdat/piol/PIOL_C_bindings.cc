@@ -565,7 +565,7 @@ size_t piol_segy_get_file_size(size_t nt, size_t ns)
 }
 
 // TODO UPDATE
-size_t piol_segy_segy_trace_header_size(void)
+size_t piol_segy_segy_trace_header_size()
 {
     return segy::segy_trace_header_size();
 }

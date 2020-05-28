@@ -72,7 +72,7 @@ const auto meta_name_to_meta_map = std::map<std::string, Trace_metadata_key>{
     {"coordinate_scalar", Trace_metadata_key::coordinate_scalar}};
 
 
-/// @brief Return a fixed-width string representing the given Meta key at the
+/// @brief Return a fixed-width string representing the given Trace_metadata_key key at the
 ///        given trace index from the given Trace_metadata object.
 /// @param[in] trace_metadata    The trace metadata object storing the trace
 ///                              metadata to format.
@@ -171,7 +171,8 @@ int main(int argc, char* argv[])
     // output CSV file.
     auto piol = ExSeis::make();
     const Input_file_segy input_file(piol, input_filename);
-    IO_driver_mpi output_file(piol, output_filename, FileMode::Write);
+    IO_driver_mpi output_file(
+        output_filename, File_mode_mpi::Write, MPI_COMM_WORLD, piol->log);
 
 
     // Build the header for the CSV file in the form
@@ -373,6 +374,7 @@ std::string formatted_meta_value(
             auto size = std::snprintf(
                 char_array.data(), char_array.size(), float_format,
                 trace_metadata.get_floating_point(local_trace_index, meta));
+            (void)size;
 
             assert(size == char_array.size() - 1);
         } break;
@@ -389,6 +391,7 @@ std::string formatted_meta_value(
                 char_array.data(), char_array.size(), integer_format,
                 trace_metadata.get_integer(local_trace_index, meta));
 
+            (void)size;
             assert(size == char_array.size() - 1);
         } break;
 

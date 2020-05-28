@@ -232,8 +232,6 @@ class Set {
     std::vector<std::string> output(std::string oname);
 
     /*! @brief Output using the output prefix stored as member variable
-     *
-     *  @return           Return a vector of the actual output names.
      */
     void output();
 

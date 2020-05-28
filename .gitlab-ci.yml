@@ -1,14 +1,18 @@
-image: ubuntu:18.04
+image: ubuntu:20.04
+
+variables:
+    # Needed to avoid blocking prompt during apt-get install from tzdata
+    DEBIAN_FRONTEND: noninteractive
 
 before_script:
-    - apt-get update
-    - apt-get install -y
+    - time apt-get update
+    - time apt-get install -y
         cmake
         doxygen graphviz
         gcc-8 g++-8
         git
-        clang
-        clang-tidy clang-format
+        clang-9
+        clang-tidy-9
         libfftw3-dev
         mpich
 
@@ -19,7 +23,7 @@ before_script:
         && pushd build
         && (
             set -x;
-            cmake
+            time cmake
             -DCMAKE_VERBOSE_MAKEFILE=ON
             -DCMAKE_C_COMPILER=${CC}
             -DCMAKE_CXX_COMPILER=${CXX}
@@ -30,13 +34,14 @@ before_script:
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DEXSEISDAT_ENABLE_DEVELOPMENT_FLAGS=${EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS}
             -DEXSEISDAT_TEST_ENABLE_CMAKE_TESTS=ON
+            -DEXSEISDAT_BUILD_DOCUMENTATION=${EXSEISDAT_BUILD_DOCUMENTATION}
             ..
         )
         && popd
     - &build
-        make -C build
+        time make -C build
     - &test
-        make -C build test ARGS=-V
+        time make -C build test ARGS=-V
 
 
 .default_job: &default_job
@@ -56,54 +61,57 @@ before_script:
         BUILD_SHARED_LIBS: "ON"
         CMAKE_BUILD_TYPE: Debug
         EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS: "ON"
+        EXSEISDAT_BUILD_DOCUMENTATION: "OFF"
 
 stages:
     - static analysis
     - gcc debug test
     - clang debug test
 
+.static_analysis_rules: &static_analysis_rules
+    except:
+        variables:
+            - $CI_COMMIT_MESSAGE =~ /\[skip static ci\]/
+
 Clang Format:
+    <<: *static_analysis_rules
     <<: *default_job
     stage: static analysis
-    variables:
-        <<: *default_environment_variables
-        <<: *default_cmake_options
-        CC: clang
-        CXX: clang++
-    image: ubuntu:19.04
     before_script:
-        - apt-get update
-        - apt-get install -y git clang-format-8
-        - update-alternatives
-            --install /usr/bin/clang-format clang-format
-                      /usr/bin/clang-format-8 1
+        - apt-get update && apt-get -y install git
     script:
-        - ./scripts/run_format.sh
+        - ./scripts/run_format.sh --install-deps
             && git status
             && git diff-index --quiet HEAD
             || { echo "This commit contains unformatted files! Run scripts/run_format.sh on the project to format them correctly."; false; }
 
 Clang Tidy:
+    <<: *static_analysis_rules
     <<: *default_job
     stage: static analysis
     variables:
         <<: *default_environment_variables
         <<: *default_cmake_options
-        CC: clang
-        CXX: clang++
+        CC: clang-9
+        CXX: clang++-9
+        CLANG_TIDY_EXECUTABLE: clang-tidy-9
     script:
         - *configure
         - make -C build/test unpack_googletest
         - ./scripts/run_lint.sh build
 
 Doxygen:
+    <<: *static_analysis_rules
     <<: *default_job
     stage: static analysis
     variables:
         <<: *default_environment_variables
         <<: *default_cmake_options
-        CC: clang
-        CXX: clang++
+        CC: clang-9
+        CXX: clang++-9
+        EXSEISDAT_BUILD_DOCUMENTATION: "ON"
+    # Doxygen in 20.04 currently version 1.8.17 is broken for "virtual void"
+    image: ubuntu:18.04
     script:
         - *configure
         - make -C build/doc
@@ -123,5 +131,5 @@ Clang Debug Test: &clang_debug_test
     variables:
         <<: *default_environment_variables
         <<: *default_cmake_options
-        CC: clang
-        CXX: clang++
+        CC: clang-9
+        CXX: clang++-9

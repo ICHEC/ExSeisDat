@@ -5,7 +5,7 @@ TEST_F(ObjSpecTest, TestBypassConstructor)
     auto filename = make_segy();
     EXPECT_EQ(m_piol, m_obj->piol());
     EXPECT_EQ(filename, m_obj->name());
-    EXPECT_EQ(m_mock, m_obj->data());
+    EXPECT_EQ(m_mock_io_driver, m_obj->data());
 }
 
 TEST_F(ObjIntegTest, zeroSEGYFileSize)

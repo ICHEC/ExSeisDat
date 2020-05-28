@@ -24,14 +24,13 @@ using namespace exseis::flow::detail;
 
 class MockFile : public Input_file {
   public:
-    MOCK_CONST_METHOD0(file_name, const std::string&(void));
-    MOCK_METHOD0(read_file_headers, void(void));
+    MOCK_CONST_METHOD0(file_name, const std::string&());
+    MOCK_METHOD0(read_file_headers, void());
 
-    MOCK_CONST_METHOD0(read_text, const std::string&(void));
-    MOCK_CONST_METHOD0(read_ns, size_t(void));
-    MOCK_CONST_METHOD0(read_nt, size_t(void));
-    MOCK_CONST_METHOD0(
-        read_sample_interval, exseis::utils::Floating_point(void));
+    MOCK_CONST_METHOD0(read_text, const std::string&());
+    MOCK_CONST_METHOD0(read_ns, size_t());
+    MOCK_CONST_METHOD0(read_nt, size_t());
+    MOCK_CONST_METHOD0(read_sample_interval, exseis::utils::Floating_point());
 
     MOCK_CONST_METHOD4(
         read_param,

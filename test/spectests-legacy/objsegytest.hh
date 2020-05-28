@@ -25,41 +25,58 @@ using exseis::utils::Communicator_mpi;
 
 class MockData : public IO_driver {
   public:
-    MOCK_CONST_METHOD0(get_file_size, size_t(void));
+    class Implementation : public IO_driver::Implementation {
+      public:
+        MOCK_CONST_METHOD0(get_file_size, size_t());
 
-    MOCK_CONST_METHOD3(read, void(const size_t, const size_t, void*));
-    MOCK_CONST_METHOD5(
-        read_noncontiguous,
-        void(const size_t, const size_t, const size_t, const size_t, void*));
-    MOCK_CONST_METHOD4(
-        read_noncontiguous_irregular,
-        void(const size_t, const size_t, const size_t*, void*));
+        MOCK_CONST_METHOD3(read, void(const size_t, const size_t, void*));
+        MOCK_CONST_METHOD5(
+            read_strided,
+            void(
+                const size_t, const size_t, const size_t, const size_t, void*));
+        MOCK_CONST_METHOD4(
+            read_offsets,
+            void(const size_t, const size_t, const size_t*, void*));
 
-    MOCK_CONST_METHOD3(write, void(const size_t, const size_t, const void*));
-    MOCK_CONST_METHOD5(
-        write_noncontiguous,
-        void(
-            const size_t,
-            const size_t,
-            const size_t,
-            const size_t,
-            const void*));
-    MOCK_CONST_METHOD4(
-        write_noncontiguous_irregular,
-        void(const size_t, const size_t, const size_t*, const void*));
+        MOCK_METHOD3(write, void(const size_t, const size_t, const void*));
+        MOCK_METHOD5(
+            write_strided,
+            void(
+                const size_t,
+                const size_t,
+                const size_t,
+                const size_t,
+                const void*));
+        MOCK_METHOD4(
+            write_offsets,
+            void(const size_t, const size_t, const size_t*, const void*));
 
-    // TODO: This method is not tested
-    MOCK_CONST_METHOD1(set_file_size, void(const size_t));
-    MOCK_CONST_METHOD0(is_open, bool());
+        // TODO: This method is not tested
+        MOCK_METHOD1(set_file_size, void(const size_t));
+        MOCK_CONST_METHOD0(is_open, bool());
+        MOCK_METHOD0(sync, void());
+    };
+
+    MockData() :
+        IO_driver(std::unique_ptr<IO_driver::Implementation>{
+            std::make_unique<MockData::Implementation>()})
+    {
+    }
+
+    MockData::Implementation* get_implementation()
+    {
+        return static_cast<MockData::Implementation*>(m_implementation.get());
+    }
 };
 
 enum class Block { TRACE_METADATA, TRACE_DATA, TRACE };
 
 class ObjTest : public Test {
   protected:
-    std::shared_ptr<ExSeis> m_piol   = ExSeis::make();
-    std::shared_ptr<MockData> m_mock = nullptr;
-    ObjectInterface* m_obj           = nullptr;
+    std::shared_ptr<ExSeis> m_piol             = ExSeis::make();
+    std::shared_ptr<MockData> m_mock_io_driver = nullptr;
+    MockData::Implementation* m_mock           = nullptr;
+    ObjectInterface* m_obj                     = nullptr;
 
     template<bool WRITE>
     void make_real_segy(std::string name)
@@ -69,7 +86,8 @@ class ObjTest : public Test {
         }
 
         auto data = std::make_shared<IO_driver_mpi>(
-            m_piol, name, (WRITE ? FileMode::ReadWrite : FileMode::Read));
+            name, (WRITE ? File_mode_mpi::ReadWrite : File_mode_mpi::Read),
+            MPI_COMM_WORLD, m_piol->log);
         m_piol->assert_ok();
         m_obj = new ObjectSEGY(m_piol, name, data);
         m_piol->assert_ok();
@@ -80,9 +98,10 @@ class ObjTest : public Test {
         if (m_obj != nullptr) {
             delete m_obj;
         }
-        m_mock = std::make_shared<MockData>();
+        m_mock_io_driver = std::make_shared<MockData>();
+        m_mock           = m_mock_io_driver->get_implementation();
         m_piol->assert_ok();
-        m_obj = new ObjectSEGY(m_piol, name, m_mock);
+        m_obj = new ObjectSEGY(m_piol, name, m_mock_io_driver);
         m_piol->assert_ok();
 
         return name;
@@ -222,7 +241,7 @@ class ObjTest : public Test {
             }
             else {
                 EXPECT_CALL(
-                    *m_mock, read_noncontiguous(
+                    *m_mock, read_strided(
                                  loc_func(offset, ns), bsz,
                                  segy::segy_trace_size(ns), nt, _))
                     .WillOnce(WithArg<4>(Invoke([&](void* buffer) {
@@ -304,7 +323,7 @@ class ObjTest : public Test {
             }
             else {
                 EXPECT_CALL(
-                    *m_mock, write_noncontiguous(
+                    *m_mock, write_strided(
                                  loc_func(offset, ns), bsz,
                                  segy::segy_trace_size(ns), nt, _))
                     .WillOnce(check4(tr.data(), tr.size()));
@@ -376,8 +395,7 @@ class ObjTest : public Test {
             }
 
             if (Type != Block::TRACE_DATA || bsz > 0) {
-                EXPECT_CALL(
-                    *m_mock, read_noncontiguous_irregular(bsz, nt, _, _))
+                EXPECT_CALL(*m_mock, read_offsets(bsz, nt, _, _))
                     .WillOnce(WithArg<3>(Invoke([&](void* buffer) {
                         std::copy(
                             std::begin(tr), std::end(tr),
@@ -451,8 +469,7 @@ class ObjTest : public Test {
                 }
             }
             if (Type != Block::TRACE_DATA || bsz > 0) {
-                EXPECT_CALL(
-                    *m_mock, write_noncontiguous_irregular(bsz, nt, _, _))
+                EXPECT_CALL(*m_mock, write_offsets(bsz, nt, _, _))
                     .WillOnce(check3(tr.data(), step))
                     .RetiresOnSaturation();
             }

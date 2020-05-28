@@ -24,6 +24,9 @@ case $(uname) in
         ;;
 esac
 
+: ${CLANG_TIDY_EXECUTABLE:=$(which clang-tidy)}
+export CLANG_TIDY_EXECUTABLE
+
 
 # Assume this file is in exseisdat/scripts.
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -33,7 +36,7 @@ echo "Linting (clang-tidy) ${target_file}"
 # cd into exseisdat project directory. 
 # This ensures clang-tidy finds the .clang-tidy file.
 pushd ${source_dir} >/dev/null
-clang-tidy "${target_file}" \
+${CLANG_TIDY_EXECUTABLE} "${target_file}" \
     -p "${build_dir}" \
     --header-filter="${source_dir}" \
     --quiet \

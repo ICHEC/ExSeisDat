@@ -103,16 +103,14 @@ struct coord_t {
      *  @param[in] y_ intialisation value for x
      */
     coord_t(exseis::utils::Floating_point x, exseis::utils::Floating_point y) :
-        x(x),
-        y(y)
+        x(x), y(y)
     {
     }
 
     /*! Default constructor (set both coordinates to 0)
      */
     coord_t() :
-        x(exseis::utils::Floating_point(0)),
-        y(exseis::utils::Floating_point(0))
+        x(exseis::utils::Floating_point(0)), y(exseis::utils::Floating_point(0))
     {
     }
 };
@@ -130,8 +128,7 @@ struct grid_t {
      *  @param[in] x_ intialisation value for xl
      */
     grid_t(exseis::utils::Floating_point i, exseis::utils::Floating_point x) :
-        il(i),
-        xl(x)
+        il(i), xl(x)
     {
     }
 

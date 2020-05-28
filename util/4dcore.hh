@@ -22,6 +22,7 @@ namespace four_d {
  */
 inline void mpi_err(int err)
 {
+    (void)err;
     assert(err == MPI_SUCCESS);
 }
 

@@ -4,7 +4,7 @@
 /// @copyright TBD. Do not distribute
 /// @date July 2016
 /// @brief
-/// @details WriteSEGY functions
+/// @details Output_file_segy functions
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "exseisdat/piol/file/Output_file_segy.hh"
@@ -17,6 +17,9 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+
+/// TODO: Remove me! Needed for MPI_COMM_WORLD while making IO_driver_mpi
+#include <mpi.h>
 
 using namespace exseis::utils;
 using namespace exseis::piol::segy;
@@ -38,7 +41,8 @@ Output_file_segy::Output_file_segy(
         std::make_shared<ObjectSEGY>(
             piol,
             name,
-            std::make_shared<IO_driver_mpi>(piol, name, FileMode::Write)))
+            std::make_shared<IO_driver_mpi>(
+                name, File_mode_mpi::Write, MPI_COMM_WORLD, piol->log)))
 {
 }
 
@@ -134,7 +138,6 @@ void Output_file_segy::flush()
     }
 }
 
-
 Output_file_segy::~Output_file_segy()
 {
     flush();
@@ -172,7 +175,8 @@ void Output_file_segy::write_ns(const size_t ns)
         m_piol->log->add_entry(exseis::utils::Log_entry{
             exseis::utils::Status::Error, "Ns value is too large for SEG-Y",
             exseis::utils::Verbosity::none,
-            EXSEISDAT_SOURCE_POSITION("exseis::piol::WriteSEGY::write_ns")});
+            EXSEISDAT_SOURCE_POSITION(
+                "exseis::piol::Output_file_segy::write_ns")});
 
         return;
     }
@@ -204,7 +208,7 @@ void Output_file_segy::write_sample_interval(
                 + " is not normal.",
             exseis::utils::Verbosity::none,
             EXSEISDAT_SOURCE_POSITION(
-                "exseis::piol::WriteSEGY::write_sample_interval")});
+                "exseis::piol::Output_file_segy::write_sample_interval")});
 
         return;
     }
@@ -320,7 +324,8 @@ void Output_file_segy::write_trace(
             exseis::utils::Status::Error,
             "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
             exseis::utils::Verbosity::none,
-            EXSEISDAT_SOURCE_POSITION("exseis::piol::WriteSEGY::write_trace")});
+            EXSEISDAT_SOURCE_POSITION(
+                "exseis::piol::Output_file_segy::write_trace")});
     }
 
     write_trace_t(m_obj.get(), m_ns, offset, number_of_traces, trc, prm, skip);
@@ -341,7 +346,7 @@ void Output_file_segy::write_trace_non_contiguous(
             "The number of samples per trace (ns) has not been set. The output is probably erroneous.",
             exseis::utils::Verbosity::none,
             EXSEISDAT_SOURCE_POSITION(
-                "exseis::piol::WriteSEGY::write_trace_non_contiguous")});
+                "exseis::piol::Output_file_segy::write_trace_non_contiguous")});
     }
 
     write_trace_t(m_obj.get(), m_ns, offset, number_of_traces, trc, prm, skip);

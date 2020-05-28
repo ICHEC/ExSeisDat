@@ -95,47 +95,70 @@ include_directories(
 add_executable(genfiles genfiles.c)
 
 add_executable(
-    spectests
+    spectests-legacy.test
 
-    spectests/tglobal.cc
+    spectests-legacy/main.cc
 
-    spectests/utils/logging/Verbosity.test.cc
-    spectests/utils/signal_processing/Gain_function.test.cc
-    spectests/utils/signal_processing/Taper_function.test.cc
-    spectests/utils/typedefs.test.cc
-    spectests/utils/Type.test.cc
+    spectests-legacy/tglobal.cc
 
-    spectests/piol/Trace_metadata_key.test.cc
-    spectests/piol/Trace_header_offsets.test.cc
-    spectests/piol/operations/Sort_type.test.cc
+    spectests-legacy/utils/logging/Verbosity.test.cc
+    spectests-legacy/utils/signal_processing/Gain_function.test.cc
+    spectests-legacy/utils/signal_processing/Taper_function.test.cc
+    spectests-legacy/utils/typedefs.test.cc
+    spectests-legacy/utils/Type.test.cc
 
-    spectests/datampiioread.cc
-    spectests/datampiiowrite.cc
-    spectests/datatype.cc
-    spectests/dynsegymd.cc
-    spectests/filesegyintegread.cc
-    spectests/filesegyintegwrite.cc
-    spectests/filesegyread.cc
-    spectests/filesegywrite.cc
-    spectests/main.cc
-    spectests/objsegyintegread.cc
-    spectests/objsegyintegwrite.cc
-    spectests/objsegymeta.cc
-    spectests/objsegyread.cc
-    spectests/objsegywrite.cc
-    spectests/opstest.cc
-    spectests/segy.cc
-    spectests/segymd.cc
-    spectests/segymdextra.cc
-    spectests/selftests.cc
-    spectests/set.cc
-    spectests/utils/signal_processing/mute.test.cc
+    spectests-legacy/piol/Trace_metadata_key.test.cc
+    spectests-legacy/piol/Trace_header_offsets.test.cc
+    spectests-legacy/piol/operations/Sort_type.test.cc
+
+    spectests-legacy/datatype.cc
+    spectests-legacy/dynsegymd.cc
+    spectests-legacy/filesegyintegread.cc
+    spectests-legacy/filesegyintegwrite.cc
+    spectests-legacy/filesegyread.cc
+    spectests-legacy/filesegywrite.cc
+    spectests-legacy/objsegyintegread.cc
+    spectests-legacy/objsegyintegwrite.cc
+    spectests-legacy/objsegymeta.cc
+    spectests-legacy/objsegyread.cc
+    spectests-legacy/objsegywrite.cc
+    spectests-legacy/opstest.cc
+    spectests-legacy/segy.cc
+    spectests-legacy/segymd.cc
+    spectests-legacy/segymdextra.cc
+    spectests-legacy/selftests.cc
+    spectests-legacy/set.cc
+    spectests-legacy/utils/signal_processing/mute.test.cc
 
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
     ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
 )
-target_link_libraries(spectests PRIVATE exseisdat Threads::Threads)
+target_link_libraries(spectests-legacy.test PRIVATE exseisdat Threads::Threads)
 
+
+#
+# Unit tests
+#
+
+add_executable(
+    unit.test
+
+    unit.test.main.cc
+
+    unit/exseisdat/test/Buffer.test.cc
+
+    unit/exseisdat/utils/distributed_vector/Distributed_vector_mpi.test.cc
+    unit/exseisdat/utils/signal_processing/mute.test.cc
+
+    unit/exseisdat/piol/io_driver/IO_driver_distributed_vector.test.cc
+    unit/exseisdat/piol/io_driver/IO_driver_mpi.test.cc
+
+)
+
+target_link_libraries(unit.test exseisdat exseisdat::catch2)
+target_include_directories(unit.test PRIVATE unit src)
+
+if(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
 
 add_library(
     wraptests
@@ -179,12 +202,14 @@ set_target_properties(
     PROPERTIES DEFINE_SYMBOL "EXSEISDAT_WRAPTESTS_EXPORTS"
 )
 
-add_executable(c_wraptest cwraptests/main.c)
-target_link_libraries(c_wraptest PRIVATE wraptests)
+add_executable(c_wraptest.test cwraptests/main.c)
+target_link_libraries(c_wraptest.test PRIVATE wraptests)
 
 if(EXSEISDAT_ENABLE_SANITIZERS)
-    set_target_properties(c_wraptest PROPERTIES LINKER_LANGUAGE CXX)
+    set_target_properties(c_wraptest.test PROPERTIES LINKER_LANGUAGE CXX)
 endif(EXSEISDAT_ENABLE_SANITIZERS)
+
+endif(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
 
 
 
@@ -220,7 +245,7 @@ function(add_genfile filename)
         ${filename} DEPENDS "${_absolute_filename}"
     )
     # Add the target as a dependency of spectests
-    add_dependencies(spectests ${filename})
+    add_dependencies(spectests-legacy.test ${filename})
 endfunction(add_genfile)
 
 # Define all the test files
@@ -239,21 +264,30 @@ add_genfile(large_segy.tmp)
 if(EXSEISDAT_TEST_ENABLE_SPECTESTS)
     # Run spectests with the *Death* and *Farm* tests disabled
     add_test(
-        NAME spectests_test
+        NAME spectests-legacy.test
         COMMAND
-            spectests
+            spectests-legacy.test
                 "${EXSEISDAT_TEST_DATA_DIR}"
                 --gtest_filter=-*Death*:*Farm*
     )
 
     # Run just the *Death* tests
     add_test(
-        NAME spectests_death_test
+        NAME spectests-legacy.test_death
         COMMAND
-            spectests
+            spectests-legacy.test
             "${EXSEISDAT_TEST_DATA_DIR}"
             --gtest_filter=*Death*
     )
+
+    add_test(
+        NAME unit.test
+        COMMAND
+            ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1
+                $<TARGET_FILE:unit.test>
+                ${MPIEXEC_POSTFLAGS}
+    )
+
 endif(EXSEISDAT_TEST_ENABLE_SPECTESTS)
 
 
@@ -275,22 +309,32 @@ if(EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS)
 
 
     add_test(
-        NAME spectests_mpi_test
+        NAME spectests-legacy.test_mpi
         COMMAND
             ${MPIEXEC}
                 ${MPIEXEC_NUMPROC_FLAG} ${EXSEISDAT_TEST_NPROCS}
                 ${MPIEXEC_PREFLAGS}
-                $<TARGET_FILE:spectests>
+                $<TARGET_FILE:spectests-legacy.test>
                     ${MPIEXEC_POSTFLAGS}
                     "${EXSEISDAT_TEST_DATA_DIR}"
                     --gtest_filter=-*Death*:*Farm*
+    )
+
+
+    add_test(
+        NAME unit.test_mpi
+        COMMAND
+            ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${EXSEISDAT_TEST_NPROCS}
+                ${MPIEXEC_PREFLAGS}
+                $<TARGET_FILE:unit.test>
+                ${MPIEXEC_POSTFLAGS}
     )
 endif(EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS)
 
 if(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
     add_test(
-        NAME c_wraptest_test
-        COMMAND c_wraptest
+        NAME c_wraptest.test
+        COMMAND c_wraptest.test
     )
 endif(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
 

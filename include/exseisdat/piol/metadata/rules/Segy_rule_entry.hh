@@ -7,6 +7,7 @@
 #define EXSEISDAT_PIOL_METADATA_RULES_SEGY_RULE_ENTRY_SEGY_RULE_ENTRY_HH
 
 #include "exseisdat/piol/metadata/rules/Rule_entry.hh"
+#include "exseisdat/piol/segy/Trace_header_offsets.hh"
 #include "exseisdat/piol/segy/utils.hh"
 
 #include <algorithm>
@@ -185,8 +186,7 @@ struct Segy_float_rule_entry : public Rule_entry {
     ///
     Segy_float_rule_entry(
         Trace_header_offsets loc, Trace_header_offsets scalar_location) :
-        Rule_entry(size_t(loc)),
-        scalar_location(size_t(scalar_location))
+        Rule_entry(size_t(loc)), scalar_location(size_t(scalar_location))
     {
     }
 

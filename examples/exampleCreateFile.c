@@ -68,7 +68,7 @@ void create_file(const char* name, size_t nt, size_t ns, size_t sample_interval)
 }
 
 
-int main(void)
+int main()
 {
     // Set output file name, number of traces, number of samples per trace, and
     // sampling rate

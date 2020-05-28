@@ -9,8 +9,7 @@ Output_file_segy::Output_file_segy(
     std::shared_ptr<ExSeisPIOL> piol,
     std::string name,
     const Output_file_segy::Options&) :
-    m_piol(piol),
-    m_name(name)
+    m_piol(piol), m_name(name)
 {
     mock_write_interface().ctor(this, m_piol, m_name);
 }

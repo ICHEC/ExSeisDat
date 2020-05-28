@@ -4,7 +4,7 @@
 /// @copyright TBD. Do not distribute
 /// @date July 2016
 /// @brief
-/// @details ReadSEGY functions
+/// @details Input_file_segy functions
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "exseisdat/piol/file/Input_file_segy.hh"
@@ -19,6 +19,9 @@
 
 #include <algorithm>
 #include <cassert>
+
+/// TODO: Fix me! Explicit reference to IO_driver_mpi should be removed.
+#include <mpi.h>
 
 using namespace exseis::utils;
 
@@ -39,7 +42,8 @@ Input_file_segy::Input_file_segy(
         std::make_shared<ObjectSEGY>(
             piol,
             name,
-            std::make_shared<IO_driver_mpi>(piol, name, FileMode::Read)))
+            std::make_shared<IO_driver_mpi>(
+                name, File_mode_mpi::Read, MPI_COMM_WORLD, piol->log)))
 {
 }
 
@@ -281,7 +285,8 @@ void Input_file_segy::read_trace(
         m_piol->log->add_entry(exseis::utils::Log_entry{
             exseis::utils::Status::Warning, "Zero byte read requested",
             exseis::utils::Verbosity::none,
-            EXSEISDAT_SOURCE_POSITION("exseis::piol::ReadSEGY::read_trace")});
+            EXSEISDAT_SOURCE_POSITION(
+                "exseis::piol::Input_file_segy::read_trace")});
     }
     read_trace_t(
         m_obj.get(), m_number_format, m_ns, offset,

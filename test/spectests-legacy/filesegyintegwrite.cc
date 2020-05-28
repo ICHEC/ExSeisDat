@@ -1,6 +1,6 @@
 #include "filesegytest.hh"
 
-// Write test of SEGY -> ObjectSEGY -> MPI_Binary_file
+// Write test of SEGY -> ObjectSEGY -> IO_driver_mpi
 TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
 {
     ns = 261U;
@@ -21,7 +21,7 @@ TEST_F(FileSEGYIntegWrite, SEGYWriteReadHO)
     }
 }
 
-// Write test of SEGY -> ObjectSEGY -> MPI_Binary_file
+// Write test of SEGY -> ObjectSEGY -> IO_driver_mpi
 TEST_F(FileSEGYIntegWrite, SEGYWriteReadTrace_metadata)
 {
     ns = 261U;

@@ -64,8 +64,7 @@ class Indexing_iterator {
     /// @param[in] index The index to start at.
     ///
     Indexing_iterator(const T& value, size_t index = 0) :
-        value(std::addressof(value)),
-        index(index)
+        value(std::addressof(value)), index(index)
     {
     }
 
@@ -177,17 +176,10 @@ class Safe_collective_block_chunks {
 
         // Get the maximum number of blocks that `collective_io_function` can be
         // called with at once
-        m_blocks_per_call = max_array_size / stride_size;
-
-
-        // Get the total number of calls needed to `collective_io_function` to
-        // satisfy collectiveness. I.e., find out how many times the process
-        // with the largest `number_of_blocks` will be calling
-
-        size_t biggest_number_of_blocks = 0;
-        MPI_Allreduce(
-            &m_number_of_blocks, &biggest_number_of_blocks, 1,
-            exseis::utils::mpi_type<size_t>(), MPI_MAX, communicator);
+        m_blocks_per_call =
+            (stride_size == 0) ?
+                0 :
+                std::max<size_t>(max_array_size / stride_size, 1);
 
         // helper function for integer division with rounding up
         const auto round_up_divide = [](size_t a, size_t b) {
@@ -195,9 +187,21 @@ class Safe_collective_block_chunks {
             return (a + b - 1) / b;
         };
 
-        // The total number of calls needed to `collective_io_function`
-        m_calls_needed =
-            round_up_divide(biggest_number_of_blocks, m_blocks_per_call);
+        size_t local_calls_needed =
+            (stride_size == 0) ?
+                0 :
+                round_up_divide(m_number_of_blocks, m_blocks_per_call);
+
+        // Get the total (global) number of calls needed to
+        // `collective_io_function` to satisfy collectiveness. I.e., find out
+        // how many times the process with the largest `number_of_blocks` will
+        // be calling
+
+        MPI_Allreduce(
+            MPI_IN_PLACE, &local_calls_needed, 1,
+            exseis::utils::mpi_type<size_t>(), MPI_MAX, communicator);
+
+        m_calls_needed = local_calls_needed;
     }
 
 

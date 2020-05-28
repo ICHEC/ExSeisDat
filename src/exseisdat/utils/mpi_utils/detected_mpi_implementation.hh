@@ -1,6 +1,8 @@
 #ifndef EXSEISDAT_UTILS_MPI_UTILS_DETECTED_MPI_IMPLEMENTATION_HH
 #define EXSEISDAT_UTILS_MPI_UTILS_DETECTED_MPI_IMPLEMENTATION_HH
 
+#include <mpi.h>
+
 namespace exseis {
 namespace utils {
 inline namespace mpi_utils {

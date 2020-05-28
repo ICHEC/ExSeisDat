@@ -5,7 +5,44 @@ set -o errexit
 
 # Assume current script is in exseisdat/scripts
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source_dir=${script_dir}/..
+source_dir="$(cd "${script_dir}/.." && pwd)"
+
+dockerize=false
+install_deps=false
+
+while [[ $# -ne 0 ]]
+do
+    case $1 in
+    --dockerize)
+        dockerize=true
+        shift
+        ;;
+
+    --install-deps)
+        install_deps=true
+        shift
+        ;;
+
+    *)
+        echo &>2 "Unknown option: $1"
+        ;;
+    esac
+done
+
+if [[ "${dockerize}" = "true" ]]
+then
+    echo "Dockerizing..."
+    exec docker run -v "${source_dir}":/mnt -it ubuntu:20.04 \
+        bash -o verbose -c "cd /mnt && ./scripts/run_format.sh --install-deps"
+fi
+
+if [[ "${install_deps}" = "true" ]]
+then
+    apt-get -y update
+    apt-get -y install clang-format-9
+
+    export CLANG_FORMAT_EXECUTABLE="$(which clang-format-9)"
+fi
 
 # Get the format script
 FORMAT_EXECUTABLE="${script_dir}/format.sh"

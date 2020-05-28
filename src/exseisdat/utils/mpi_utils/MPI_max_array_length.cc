@@ -8,10 +8,12 @@
 
 #include "detected_mpi_implementation.hh"
 
-#include <cassert>
-#include <cstring>
 #include <limits>
 #include <numeric>
+
+#include <cassert>
+#include <cstdint>
+#include <cstring>
 
 namespace exseis {
 namespace utils {
@@ -24,7 +26,7 @@ size_t mpi_max_array_length(size_t type_size)
             // If you aren't (4096 - Chunk)/Chunk from the limit, intel mpi
             // breaks on Fionn.  Probably something to do with pages.
 
-            return (std::numeric_limits<int>::max() - (4096U - type_size))
+            return (std::numeric_limits<int32_t>::max() - (4096U - type_size))
                    / type_size;
 
         case (mpi_implementation::open_mpi):
@@ -32,7 +34,7 @@ size_t mpi_max_array_length(size_t type_size)
             // For open-mpi 3.1.0 on macOS, I/O on arrays of size larger than
             // around (INT_MAX / 256) are very slow.
 
-            return std::numeric_limits<int>::max() / (1UL << 8);
+            return std::numeric_limits<int32_t>::max() / (1UL << 8);
 
         case (mpi_implementation::mpich):
         case (mpi_implementation::unknown):
@@ -42,7 +44,7 @@ size_t mpi_max_array_length(size_t type_size)
             ///       It's int max for sizes and indices in a number of MPI
             ///       functions, but should internally be uint64_t max for well
             ///       written implementations.
-            return std::numeric_limits<int>::max();
+            return std::numeric_limits<int32_t>::max();
     }
 
     assert(false && "Unknown MPI Implementation!");

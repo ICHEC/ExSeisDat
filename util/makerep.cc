@@ -301,8 +301,8 @@ int main(int argc, char** argv)
 
     size_t num_rank = piol->get_num_rank();
 
-    IO_driver_mpi in(piol, iname, FileMode::Read);
-    IO_driver_mpi out(piol, oname, FileMode::Write);
+    IO_driver_mpi in(iname, File_mode_mpi::Read, MPI_COMM_WORLD, piol->log);
+    IO_driver_mpi out(oname, File_mode_mpi::Write, MPI_COMM_WORLD, piol->log);
     piol->assert_ok();
 
     const size_t fsz = in.get_file_size();

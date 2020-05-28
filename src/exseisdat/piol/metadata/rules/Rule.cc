@@ -132,7 +132,7 @@ Rule::Rule(bool full, bool defaults, bool extras) :
 {
 }
 
-Rule::~Rule(void) = default;
+Rule::~Rule() = default;
 
 bool Rule::add_rule(Trace_metadata_key m)
 {
@@ -296,12 +296,13 @@ bool Rule::add_rule(Trace_metadata_key m)
         case Trace_metadata_key::Misc3:
         case Trace_metadata_key::Misc4:
             assert(
-                false && "Non-standard Meta value, not handled automatically.");
+                false
+                && "Non-standard Trace_metadata_key value, not handled automatically.");
 
             return false;
     }
 
-    assert(false && "Unknown Meta value.");
+    assert(false && "Unknown Trace_metadata_key value.");
 
     return false;
 }

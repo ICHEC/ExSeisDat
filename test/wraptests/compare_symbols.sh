@@ -76,8 +76,8 @@ function test_symbols()
 #Prm.*(for the param_utils::cpyPrm etc.free functions.
 for
 ns in "::ExSeis::"
-      "::ReadInterface::"
-      "::WriteInterface::"
+      "::Input_file::"
+      "::Output_file::"
       "::Trace_metadata::"
       "Prm.*("
       "::ReadModel::"

@@ -133,10 +133,10 @@ int main(int argc, char** argv)
         std::string name = "tmp/restart" + std::to_string(piol->get_rank());
         FILE* f_out      = fopen(name.c_str(), "w+");
         size_t sz        = list1.size();
-        assert(fwrite(&sz, sizeof(size_t), 1U, f_out) == 1U);
-        assert(fwrite(list1.data(), sizeof(size_t), sz, f_out) == sz);
-        assert(fwrite(list2.data(), sizeof(size_t), sz, f_out) == sz);
-        assert(fwrite(lminrs.data(), sizeof(fourd_t), sz, f_out) == sz);
+        fwrite(&sz, sizeof(size_t), 1U, f_out);
+        fwrite(list1.data(), sizeof(size_t), sz, f_out);
+        fwrite(list2.data(), sizeof(size_t), sz, f_out);
+        fwrite(lminrs.data(), sizeof(fourd_t), sz, f_out);
         fclose(f_out);
     }
 

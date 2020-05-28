@@ -25,7 +25,7 @@ class MockReadInterface {
 
     MOCK_CONST_METHOD0(file_name, const std::string&());
 
-    MOCK_METHOD0(read_file_headers, void(void));
+    MOCK_METHOD0(read_file_headers, void());
 
     MOCK_CONST_METHOD1(read_text, const std::string&(const Input_file*));
 

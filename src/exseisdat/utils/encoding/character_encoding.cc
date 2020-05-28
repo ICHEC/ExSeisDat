@@ -37,8 +37,7 @@ struct Character_encoding {
     /// @param[in] ascii  The ASCII char code
     /// @param[in] ebcdic The EBCDIC char code
     explicit Character_encoding(unsigned char ascii, unsigned char ebcdic) :
-        ascii(ascii),
-        ebcdic(ebcdic)
+        ascii(ascii), ebcdic(ebcdic)
     {
     }
 

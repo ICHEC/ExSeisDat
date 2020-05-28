@@ -50,8 +50,7 @@ struct IBM_native_pair {
     long double value;
 
     IBM_native_pair(const std::bitset<32> ibm, const std::bitset<32> native) :
-        ibm(ibm),
-        native(native)
+        ibm(ibm), native(native)
     {
     }
 };

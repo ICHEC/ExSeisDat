@@ -188,6 +188,8 @@ class MPI_Barrier_listener : public ::testing::EmptyTestEventListener {
 int main(int argc, char** argv)
 {
 
+    MPI_Init(&argc, &argv);
+
     auto piol = ExSeis::make();
 
     // First argument must be the test data directory
@@ -224,6 +226,8 @@ int main(int argc, char** argv)
         std::remove(small_file().c_str());
         std::remove(large_file().c_str());
     }
+
+    MPI_Finalize();
 
     return code;
 }

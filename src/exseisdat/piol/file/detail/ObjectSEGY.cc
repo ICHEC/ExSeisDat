@@ -20,9 +20,7 @@ ObjectSEGY::ObjectSEGY(
     std::shared_ptr<ExSeisPIOL> piol,
     std::string name,
     std::shared_ptr<IO_driver> data) :
-    m_piol(piol),
-    m_name(name),
-    m_data(data)
+    m_piol(piol), m_name(name), m_data(data)
 {
 }
 
@@ -94,7 +92,7 @@ void ObjectSEGY::read_trace_metadata(
     const size_t sz,
     unsigned char* md) const
 {
-    m_data->read_noncontiguous(
+    m_data->read_strided(
         segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
         segy::segy_trace_size(ns), sz, md);
 }
@@ -105,7 +103,7 @@ void ObjectSEGY::write_trace_metadata(
     const size_t sz,
     const unsigned char* md) const
 {
-    m_data->write_noncontiguous(
+    m_data->write_strided(
         segy::segy_trace_location(offset, ns), segy::segy_trace_header_size(),
         segy::segy_trace_size(ns), sz, md);
 }
@@ -116,7 +114,7 @@ void ObjectSEGY::read_trace_data(
     const size_t sz,
     unsigned char* df) const
 {
-    m_data->read_noncontiguous(
+    m_data->read_strided(
         segy::segy_trace_data_location(offset, ns),
         segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
 }
@@ -127,7 +125,7 @@ void ObjectSEGY::write_trace_data(
     const size_t sz,
     const unsigned char* df) const
 {
-    m_data->write_noncontiguous(
+    m_data->write_strided(
         segy::segy_trace_data_location(offset, ns),
         segy::segy_trace_data_size(ns), segy::segy_trace_size(ns), sz, df);
 }
@@ -145,8 +143,7 @@ void ObjectSEGY::read_trace(
         dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    m_data->read_noncontiguous_irregular(
-        segy::segy_trace_size(ns), sz, dooff.data(), d);
+    m_data->read_offsets(segy::segy_trace_size(ns), sz, dooff.data(), d);
 }
 
 void ObjectSEGY::write_trace(
@@ -161,7 +158,7 @@ void ObjectSEGY::write_trace(
         dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    m_data->write_noncontiguous_irregular(
+    m_data->write_offsets(
         segy::segy_trace_size(ns), number_of_traces, dooff.data(), buffer);
 }
 
@@ -177,8 +174,7 @@ void ObjectSEGY::read_trace_metadata(
         dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    m_data->read_noncontiguous_irregular(
-        segy::segy_trace_header_size(), sz, dooff.data(), md);
+    m_data->read_offsets(segy::segy_trace_header_size(), sz, dooff.data(), md);
 }
 
 void ObjectSEGY::write_trace_metadata(
@@ -193,8 +189,7 @@ void ObjectSEGY::write_trace_metadata(
         dooff[i] = segy::segy_trace_location(offset[i], ns);
     }
 
-    m_data->write_noncontiguous_irregular(
-        segy::segy_trace_header_size(), sz, dooff.data(), md);
+    m_data->write_offsets(segy::segy_trace_header_size(), sz, dooff.data(), md);
 }
 
 void ObjectSEGY::read_trace_data(
@@ -213,8 +208,7 @@ void ObjectSEGY::read_trace_data(
         dooff[i] = segy::segy_trace_data_location(offset[i], ns);
     }
 
-    m_data->read_noncontiguous_irregular(
-        segy::segy_trace_data_size(ns), sz, dooff.data(), df);
+    m_data->read_offsets(segy::segy_trace_data_size(ns), sz, dooff.data(), df);
 }
 
 void ObjectSEGY::write_trace_data(
@@ -233,8 +227,7 @@ void ObjectSEGY::write_trace_data(
         dooff[i] = segy::segy_trace_data_location(offset[i], ns);
     }
 
-    m_data->write_noncontiguous_irregular(
-        segy::segy_trace_data_size(ns), sz, dooff.data(), df);
+    m_data->write_offsets(segy::segy_trace_data_size(ns), sz, dooff.data(), df);
 }
 
 }  // namespace detail

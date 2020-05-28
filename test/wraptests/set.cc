@@ -11,15 +11,13 @@ Set::Set(
     std::string pattern,
     std::string outfix,
     std::shared_ptr<Rule> rule) :
-    m_rule(rule),
-    m_cache(piol)
+    m_rule(rule), m_cache(piol)
 {
     mock_set().ctor(this, piol, pattern, outfix, rule);
 }
 
 Set::Set(std::shared_ptr<ExSeisPIOL> piol, std::shared_ptr<Rule> rule) :
-    m_rule(rule),
-    m_cache(piol)
+    m_rule(rule), m_cache(piol)
 {
     mock_set().ctor(this, piol, rule);
 }

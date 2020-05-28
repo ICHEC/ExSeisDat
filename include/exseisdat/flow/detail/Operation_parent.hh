@@ -35,9 +35,7 @@ struct Operation_parent {
         Operation_options& opt,
         std::shared_ptr<exseis::piol::Rule> rule,
         std::shared_ptr<Gather_state> state) :
-        opt(opt),
-        rule(rule),
-        state(state)
+        opt(opt), rule(rule), state(state)
     {
     }
 

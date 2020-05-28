@@ -14,9 +14,9 @@ namespace exseis {
 namespace piol {
 inline namespace io_driver {
 
-/// @brief The file modes possible for files.
+/// @brief File mode options for MPI-IO.
 ///
-enum FileMode : int {
+enum class File_mode_mpi : int {
     /// @brief Read-only mode
     Read = MPI_MODE_RDONLY | MPI_MODE_UNIQUE_OPEN,
 
@@ -28,18 +28,28 @@ enum FileMode : int {
 };
 
 
-/// @brief The MPI-IO Data class.
+/// @brief An MPI-IO implementation of the IO_driver.
+///
+/// @details This class implements a number of workarounds to perform I/O
+///          with data over 2GB with MPI-IO.
+///
+///          Because the MPI-2 interface uses an int for the read and write
+///          sizes for MPI-IO routines, it is limited to 2GB operations at a
+///          time.  Many implementations also make assumptions or contain bugs
+///          around this number, so the actual maximum I/O chunk size per
+///          operation will be different for different MPI implementations.
+///
+///          The typical approach is for every process to determine how many 2GB
+///          I/O operations they need to perform to complete the transfer, then
+///          communicate to determine how many collective operations every
+///          process would need to participate in to avoid a deadlock. Every
+///          process will then perform in that many MPI-IO calls.
 ///
 class IO_driver_mpi : public IO_driver {
   public:
-    /// @brief The MPI-IO options structure.
+    /// @brief Detailed options for IO_driver_mpi
     ///
-    /// @details This class also manages the lifetime of an MPI_Info object.
-    ///
-    struct Opt {
-        /// @brief The Type of the class this structure is nested in
-        typedef IO_driver_mpi Type;
-
+    struct Options {
         /// @brief Whether collective read/write operations will be used.
         ///
         /// @details Default value dependant on EXSEISDAT_MPIIO_COLLECTIVES
@@ -47,231 +57,151 @@ class IO_driver_mpi : public IO_driver {
         bool use_collective_operations;
 
         /// @brief The info structure to use
-        MPI_Info info;
+        MPI_Info info = MPI_INFO_NULL;
 
         /// @brief The maximum size to allow to be written to disk per process
-        ///        in one operation
-        size_t max_size = exseis::utils::mpi_max_array_length<int32_t>();
-
-        /// @brief The MPI communicator to use for file access
-        MPI_Comm file_communicator = MPI_COMM_WORLD;
-
+        ///        in one operation.
+        ///
+        /// Defaults to a safe value determined by auto-detecting the MPI
+        /// implementation.
+        size_t max_io_chunk_size =
+            exseis::utils::mpi_max_array_length<int32_t>();
 
         /// @name @special_member_functions
         /// @{
 
-        /// @brief Construct Opt, and create an instance of MPI_Info.
-        Opt();
+        /// @brief Construct Options, and create an instance of MPI_Info.
+        Options();
 
-        /// @brief Delete Opt, and free the instance of MPI_Info.
-        void free();
-
-        /// @brief Delete Opt, and free the instance of MPI_Info.
-        ~Opt();
+        /// @brief Delete Options, and free the instance of MPI_Info.
+        ~Options();
 
         /// @copy_constructor{delete}
-        Opt(const Opt&) = delete;
+        Options(const Options&) = delete;
         /// @copy_assignment{delete}
-        Opt& operator=(const Opt&) = delete;
+        Options& operator=(const Options&) = delete;
         /// @move_constructor{delete}
-        Opt(Opt&&) = delete;
+        Options(Options&&) = delete;
         /// @move_assignment{delete}
-        Opt& operator=(Opt&&) = delete;
+        Options& operator=(Options&&) = delete;
 
         /// @}
     };
 
-  private:
-    /// Pointer to the PIOL object.
-    std::shared_ptr<exseis::utils::Log> m_log;
+  protected:
+    /// @brief MPI-IO implementation of IO_driver
+    class Implementation : public IO_driver::Implementation {
+      public:
+        /// Pointer to the PIOL object.
+        std::shared_ptr<exseis::utils::Log> m_log;
 
-    /// Store the file name for debugging purposes.
-    std::string m_file_name;
+        /// Store the file name for debugging purposes.
+        std::string m_file_name;
 
-    /// @copydoc IO_driver_mpi::Opt::use_collective_operations
-    bool m_use_collective_operations;
+        /// The MPI communicator used for MPI operations
+        MPI_Comm m_file_communicator;
 
-    /// The MPI-IO file handle
-    MPI_File m_file = MPI_FILE_NULL;
+        /// @copydoc IO_driver_mpi::Options::use_collective_operations
+        bool m_use_collective_operations;
 
-    /// @copydoc IO_driver_mpi::Opt::file_communicator
-    MPI_Comm m_file_communicator;
+        /// The MPI-IO file handle
+        MPI_File m_file = MPI_FILE_NULL;
 
-    /// @copydoc IO_driver_mpi::Opt::info
-    MPI_Info m_info;
+        /// @copydoc IO_driver_mpi::Options::info
+        MPI_Info m_info;
 
-    /// @copydoc IO_driver_mpi::Opt::max_size
-    size_t m_max_size;
+        /// @copydoc IO_driver_mpi::Options::max_io_chunk_size
+        size_t m_max_io_chunk_size;
+
+        /// @copydoc IO_driver_mpi::IO_driver_mpi(std::string, File_mode_mpi, MPI_Comm, std::shared_ptr<exseis::utils::Log>, const IO_driver_mpi::Options&)
+        Implementation(
+            std::string file_name,
+            File_mode_mpi mode,
+            MPI_Comm communicator,
+            std::shared_ptr<exseis::utils::Log> log,
+            const IO_driver_mpi::Options& options);
+
+        /// @virtual_destructor
+        ~Implementation() override;
+
+        /// @copydoc IO_driver_mpi::close
+        virtual void close();
+
+        bool is_open() const override;
+
+        /// @copydoc IO_driver::Implementation::get_file_size
+        /// @details This function is collective over `file_communicator`.
+        size_t get_file_size() const override;
+
+        void set_file_size(size_t size) override;
+
+        void read(size_t offset, size_t size, void* buffer) const override;
+
+        void write(size_t offset, size_t size, const void* buffer) override;
+
+        void read_strided(
+            size_t offset,
+            size_t block_size,
+            size_t stride_size,
+            size_t number_of_blocks,
+            void* buffer) const override;
+
+        void write_strided(
+            size_t offset,
+            size_t block_size,
+            size_t stride_size,
+            size_t number_of_blocks,
+            const void* buffer) override;
+
+        void read_offsets(
+            size_t block_size,
+            size_t number_of_blocks,
+            const size_t* offsets,
+            void* buffer) const override;
+
+        void write_offsets(
+            size_t block_size,
+            size_t number_of_blocks,
+            const size_t* offsets,
+            const void* buffer) override;
+
+        void sync() override;
+    };
 
   public:
     /// @brief The MPI-IO class constructor.
     ///
-    /// @param[in] piol      The PIOL object, used for logging.
-    /// @param[in] file_name The name of the file to operate on.
-    /// @param[in] mode      The file mode, e.g. read, write, delete on close
-    ///                      etc.
-    /// @param[in] opt       The MPI-IO options
+    /// @param[in] file_name    The name of the file to operate on.
+    /// @param[in] mode         The file mode, e.g. read, write, delete on close
+    ///                         etc.
+    /// @param[in] log          The Log object to use for logging.
+    /// @param[in] communicator The MPI Communicator to use for communication.
+    /// @param[in] options      The MPI-IO options
     ///
     IO_driver_mpi(
-        std::shared_ptr<ExSeisPIOL> piol,
         std::string file_name,
-        FileMode mode,
-        const IO_driver_mpi::Opt& opt = IO_driver_mpi::Opt());
-
-    /// @brief The MPI-IO class constructor.
-    ///
-    /// @param[in] log       The Log object to use for logging.
-    /// @param[in] file_name The name of the file to operate on.
-    /// @param[in] mode      The file mode, e.g. read, write, delete on close
-    ///                      etc.
-    /// @param[in] opt       The MPI-IO options
-    ///
-    IO_driver_mpi(
+        File_mode_mpi mode,
+        MPI_Comm communicator,
         std::shared_ptr<exseis::utils::Log> log,
-        std::string file_name,
-        FileMode mode,
-        const IO_driver_mpi::Opt& opt = IO_driver_mpi::Opt());
+        const IO_driver_mpi::Options& options = IO_driver_mpi::Options());
 
     /// @brief Explicit destructor, closes file and frees info
-    void close();
+    void close()
+    {
+        static_cast<IO_driver_mpi::Implementation*>(m_implementation.get())
+            ->close();
+    }
 
-    /// @brief Destructor.
-    ~IO_driver_mpi();
-
-
-    /// @name @special_member_functions
-    /// @{
-
-    /// @copy_constructor{delete}
-    IO_driver_mpi(const IO_driver_mpi&) = delete;
-    /// @copy_assignment{delete}
-    IO_driver_mpi& operator=(const IO_driver_mpi&) = delete;
-
-    /// @move_constructor{delete}
-    IO_driver_mpi(IO_driver_mpi&&) = delete;
-    /// @move_assignment{delete}
-    IO_driver_mpi& operator=(IO_driver_mpi&&) = delete;
-
-    /// @}
-
-
-    /// @brief Test if the file is open.
+    /// @brief Get the underlying MPI file handle.
     ///
-    /// @return Returns \c true if the file is open, \c false otherwise.
+    /// @return Returns the underlying MPI file handle.
     ///
-    bool is_open() const override;
-
-
-    /// @brief Get the size of the file.
-    ///
-    /// @return The size of the file
-    ///
-    /// @details This function is collective over `file_communicator`.
-    ///
-    size_t get_file_size() const override;
-
-
-    /// @brief Set the size of the file, either by truncating or expanding it.
-    ///
-    /// @param[in] size The new size of the file.
-    ///
-    void set_file_size(size_t size) const override;
-
-
-    /// @brief Read a contiguous chunk of size \c size beginning a position \c
-    ///        offset from the file into the buffer \c buffer.
-    ///
-    /// @param[in]  offset The file offset to start reading at
-    /// @param[in]  size   The amount to read
-    /// @param[out] buffer The buffer to read into
-    ///                    (pointer to array of size \c size)
-    ///
-    void read(size_t offset, size_t size, void* buffer) const override;
-
-
-    /// @brief Write a contiguous chunk of size \c size beginning a position \c
-    ///        offset from the buffer \c buffer into the file.
-    ///
-    /// @param[in]  offset The file offset to start writing at
-    /// @param[in]  size   The amount to write
-    /// @param[out] buffer The buffer to write from
-    ///                    (pointer to array of size \c size)
-    ///
-    void write(size_t offset, size_t size, const void* buffer) const override;
-
-
-    /// @brief Read a file in regularly spaced, non-contiguous blocks.
-    ///
-    /// @param[in]  offset           The position in the file to start reading
-    ///                              from
-    /// @param[in]  block_size       The block size to read in bytes
-    /// @param[in]  stride_size      The stride size in bytes, i.e. the total
-    ///                              size from the start of one block to the
-    ///                              next
-    /// @param[in]  number_of_blocks The number of blocks to be read
-    /// @param[out] buffer           Pointer to the buffer to read the data into
-    ///                              (pointer to array of size
-    ///                                  `block_size * number_of_blocks`)
-    ///
-    void read_noncontiguous(
-        size_t offset,
-        size_t block_size,
-        size_t stride_size,
-        size_t number_of_blocks,
-        void* buffer) const override;
-
-
-    /// @brief Write to a file in regularly spaced, non-contiguous blocks.
-    ///
-    /// @param[in] offset           The position in the file to start writing to
-    /// @param[in] block_size       The block size to write in bytes
-    /// @param[in] stride_size      The stride size in bytes, i.e. the total
-    ///                             size from the start of one block to the next
-    /// @param[in] number_of_blocks The number of blocks to be written
-    /// @param[in] buffer           Pointer to the buffer to write the data from
-    ///                             (pointer to array of size
-    ///                                 `block_size*number_of_blocks`)
-    ///
-    void write_noncontiguous(
-        size_t offset,
-        size_t block_size,
-        size_t stride_size,
-        size_t number_of_blocks,
-        const void* buffer) const override;
-
-
-    /// @brief Read a file in irregularly spaced, non-contiguous chunks.
-    ///
-    /// @param[in]  block_size       The block size to read in bytes
-    /// @param[in]  number_of_blocks The number of blocks to read
-    /// @param[in]  offsets          Pointer to array of block offsets
-    ///                              (size `number_of_blocks`)
-    /// @param[out] buffer           Pointer to the buffer to read the data into
-    ///                              (pointer to array of size
-    ///                                  `block_size*number_of_blocks`)
-    ///
-    void read_noncontiguous_irregular(
-        size_t block_size,
-        size_t number_of_blocks,
-        const size_t* offsets,
-        void* buffer) const override;
-
-
-    /// @brief Write to a file in irregularly spaced, non-contiguous chunks.
-    ///
-    /// @param[in] block_size       The block size to write in bytes
-    /// @param[in] number_of_blocks The number of blocks to write
-    /// @param[in] offsets          Pointer to array of block offsets
-    ///                             (size `number_of_blocks`)
-    /// @param[in] buffer           Pointer to the buffer to write the data from
-    ///                             (pointer to array of size
-    ///                                 `block_size*number_of_blocks`)
-    ///
-    void write_noncontiguous_irregular(
-        size_t block_size,
-        size_t number_of_blocks,
-        const size_t* offsets,
-        const void* buffer) const override;
+    MPI_File file_handle() const
+    {
+        return static_cast<const IO_driver_mpi::Implementation*>(
+                   m_implementation.get())
+            ->m_file;
+    }
 };
 
 }  // namespace io_driver

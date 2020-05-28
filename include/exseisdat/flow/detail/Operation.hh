@@ -34,8 +34,7 @@ struct Operation : public Operation_parent {
         std::shared_ptr<exseis::piol::Rule> rule,
         std::shared_ptr<Gather_state> state,
         T func) :
-        Operation_parent(opt, rule, state),
-        func(func)
+        Operation_parent(opt, rule, state), func(func)
     {
     }
 };

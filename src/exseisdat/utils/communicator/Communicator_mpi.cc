@@ -18,7 +18,6 @@
 
 using namespace std::string_literals;
 using namespace exseis::utils::logging;
-using exseis::utils::communicator::Communicator_mpi;
 
 namespace exseis {
 namespace utils {
@@ -26,7 +25,7 @@ inline namespace communicator {
 
 // We define functions and classes to delegate initialization and finalization
 // if MPI to initialization and destruction of function-local static variables.
-// This means initialization is tied to the first piol::Communicator_mpi call,
+// This means initialization is tied to the first utils::Communicator_mpi call,
 // and finalization is tied to the program exit.
 //
 // We also allow the user to circumvent this behaviour with a global variable,
@@ -139,8 +138,7 @@ void manage_mpi(bool manage)
 
 Communicator_mpi::Communicator_mpi(
     exseis::utils::Log* log, const Communicator_mpi::Opt& opt) :
-    m_comm(opt.comm),
-    m_log(log)
+    m_comm(opt.comm), m_log(log)
 {
     // Initialize MPI and set up MPI_Finalize to be called at program close.
     MPIManager& mpi_manager = mpi_manager_instance();
@@ -207,21 +205,21 @@ size_t Communicator_mpi::sum(size_t val) const
 {
     return reduce_impl(
         m_log, this, val, MPI_SUM,
-        EXSEISDAT_SOURCE_POSITION("exseis::piol::Communicator_mpi::sum"));
+        EXSEISDAT_SOURCE_POSITION("exseis::utils::Communicator_mpi::sum"));
 }
 
 size_t Communicator_mpi::max(size_t val) const
 {
     return reduce_impl(
         m_log, this, val, MPI_MAX,
-        EXSEISDAT_SOURCE_POSITION("exseis::piol::Communicator_mpi::max"));
+        EXSEISDAT_SOURCE_POSITION("exseis::utils::Communicator_mpi::max"));
 }
 
 size_t Communicator_mpi::min(size_t val) const
 {
     return reduce_impl(
         m_log, this, val, MPI_MIN,
-        EXSEISDAT_SOURCE_POSITION("exseis::piol::Communicator_mpi::min"));
+        EXSEISDAT_SOURCE_POSITION("exseis::utils::Communicator_mpi::min"));
 }
 
 size_t Communicator_mpi::offset(size_t val) const
@@ -284,7 +282,7 @@ std::vector<exseis::utils::Integer> Communicator_mpi::gather(
     return gather_impl(
         this, in, m_log,
         EXSEISDAT_SOURCE_POSITION(
-            "exseis::piol::Communicator_mpi::gather<Integer>"));
+            "exseis::utils::Communicator_mpi::gather<Integer>"));
 }
 
 std::vector<size_t> Communicator_mpi::gather(
@@ -293,7 +291,7 @@ std::vector<size_t> Communicator_mpi::gather(
     return gather_impl(
         this, in, m_log,
         EXSEISDAT_SOURCE_POSITION(
-            "exseis::piol::Communicator_mpi::gather<size_t>"));
+            "exseis::utils::Communicator_mpi::gather<size_t>"));
 }
 
 std::vector<float> Communicator_mpi::gather(const std::vector<float>& in) const
@@ -301,7 +299,7 @@ std::vector<float> Communicator_mpi::gather(const std::vector<float>& in) const
     return gather_impl(
         this, in, m_log,
         EXSEISDAT_SOURCE_POSITION(
-            "exseis::piol::Communicator_mpi::gather<float>"));
+            "exseis::utils::Communicator_mpi::gather<float>"));
 }
 
 std::vector<double> Communicator_mpi::gather(
@@ -310,7 +308,7 @@ std::vector<double> Communicator_mpi::gather(
     return gather_impl(
         this, in, m_log,
         EXSEISDAT_SOURCE_POSITION(
-            "exseis::piol::Communicator_mpi::gather<double>"));
+            "exseis::utils::Communicator_mpi::gather<double>"));
 }
 
 

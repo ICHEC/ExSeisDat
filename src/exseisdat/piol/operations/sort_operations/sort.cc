@@ -724,9 +724,9 @@ MPI_Datatype mpi_datatype_from_type()
         typename exseis::utils::Native_from_type<Type>::type>();
 }
 
-/// @brief Get the MPI_Datatype from an RuleEntry::MdType.
+/// @brief Get the MPI_Datatype from an Rule_entry::MdType.
 ///
-/// @param[in] md_type the RuleEntry::MdType to convert.
+/// @param[in] md_type the Rule_entry::MdType to convert.
 ///
 /// @returns The equivalent MPI_Datatype
 ///

@@ -41,5 +41,5 @@ then
 else
     set -o errexit
     echo "Formatting ${file}: Updating..."
-    mv "${tmpfile}" "${file}"
+    cat "${tmpfile}" > "${file}"
 fi
