@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
 /// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
 /// @date December 2016
 /// @brief
 /// @details Functions etc for C11 API

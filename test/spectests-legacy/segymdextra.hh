@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
 /// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @copyright TBD. Do not distribute
 /// @date October 2016
 /// @brief
 /// @details

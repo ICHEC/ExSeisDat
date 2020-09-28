@@ -243,3 +243,10 @@ using
 ```
 brew install open-mpi fftw doxygen
 ```
+
+
+# License
+
+ExSeisDat is licensed under the [MIT](LICENSE) license.
+
+Copyright (c) 2020 Irish Centre for High-End Computing (ICHEC), NUI Galway
