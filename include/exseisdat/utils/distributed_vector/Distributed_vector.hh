@@ -198,6 +198,10 @@ class Distributed_vector {
 
     /// @brief Make writes visible to all processes
     void sync() { m_concept->sync(); }
+
+    /// @brief Destructively gets the underlying implementation
+    /// @returns The underlying implementation
+    std::unique_ptr<Concept> concept() && { return std::move(m_concept); }
 };
 
 

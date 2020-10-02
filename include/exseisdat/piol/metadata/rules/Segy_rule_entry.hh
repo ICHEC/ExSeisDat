@@ -24,6 +24,7 @@ inline namespace metadata {
 inline namespace rules {
 inline namespace segy_rule_entry {
 
+
 /// @brief The Long rule entry structure for the SEG-Y format.
 ///
 struct Segy_long_rule_entry : public Rule_entry {
@@ -31,7 +32,10 @@ struct Segy_long_rule_entry : public Rule_entry {
     ///
     /// @param[in] loc  The location of the primary data
     ///
-    Segy_long_rule_entry(Trace_header_offsets loc) : Rule_entry(size_t(loc)) {}
+    Segy_long_rule_entry(segy::Trace_header_offsets loc) :
+        Rule_entry(size_t(loc))
+    {
+    }
 
     /// @brief Return the minimum location stored, i.e loc just loc
     ///
@@ -56,7 +60,7 @@ struct Segy_long_rule_entry : public Rule_entry {
     std::unique_ptr<Rule_entry> clone() const override
     {
         return std::make_unique<Segy_long_rule_entry>(
-            static_cast<Trace_header_offsets>(loc));
+            static_cast<segy::Trace_header_offsets>(loc));
     }
 
     /// @copydoc Rule_entry::memory_usage()
@@ -141,7 +145,10 @@ struct Segy_short_rule_entry : public Rule_entry {
     ///
     /// @param[in] loc  The location of the primary data
     ///
-    Segy_short_rule_entry(Trace_header_offsets loc) : Rule_entry(size_t(loc)) {}
+    Segy_short_rule_entry(segy::Trace_header_offsets loc) :
+        Rule_entry(size_t(loc))
+    {
+    }
 
     /// @brief Return the minimum location stored, i.e loc
     ///
@@ -166,7 +173,7 @@ struct Segy_short_rule_entry : public Rule_entry {
     std::unique_ptr<Rule_entry> clone() const override
     {
         return std::make_unique<Segy_short_rule_entry>(
-            static_cast<Trace_header_offsets>(loc));
+            static_cast<segy::Trace_header_offsets>(loc));
     }
 
     /// @copydoc Rule_entry::memory_usage()
@@ -185,7 +192,8 @@ struct Segy_float_rule_entry : public Rule_entry {
     /// @param[in] scalar_location The location of the scaler field.
     ///
     Segy_float_rule_entry(
-        Trace_header_offsets loc, Trace_header_offsets scalar_location) :
+        segy::Trace_header_offsets loc,
+        segy::Trace_header_offsets scalar_location) :
         Rule_entry(size_t(loc)), scalar_location(size_t(scalar_location))
     {
     }
@@ -218,8 +226,8 @@ struct Segy_float_rule_entry : public Rule_entry {
     std::unique_ptr<Rule_entry> clone() const override
     {
         return std::make_unique<Segy_float_rule_entry>(
-            static_cast<Trace_header_offsets>(loc),
-            static_cast<Trace_header_offsets>(scalar_location));
+            static_cast<segy::Trace_header_offsets>(loc),
+            static_cast<segy::Trace_header_offsets>(scalar_location));
     }
 
     /// @copydoc Rule_entry::memory_usage()

@@ -197,8 +197,8 @@ void output_non_mono(
     // as scalars.
     if (print_dsr) {
         rule.add_segy_float(
-            Trace_metadata_key::dsdr, Trace_header_offsets::SrcMeas,
-            Trace_header_offsets::TimeScal);
+            Trace_metadata_key::dsdr, segy::Trace_header_offsets::SrcMeas,
+            segy::Trace_header_offsets::TimeScal);
     }
 
     Input_file_segy src(piol, sname);

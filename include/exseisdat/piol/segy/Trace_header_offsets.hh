@@ -8,7 +8,7 @@
 
 namespace exseis {
 namespace piol {
-inline namespace segy {
+namespace segy {
 
 /// @brief SEG-Y Trace Header offsets
 enum class Trace_header_offsets : size_t {

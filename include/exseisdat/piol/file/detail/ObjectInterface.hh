@@ -49,7 +49,11 @@ class ObjectInterface {
 
     /// @brief  The stored Data layer object.
     /// @return The stored Data layer object.
-    virtual std::shared_ptr<IO_driver> data() const = 0;
+    virtual const IO_driver& data() const = 0;
+
+    /// @brief  The stored Data layer object.
+    /// @return The stored Data layer object.
+    virtual IO_driver& data() = 0;
 
     /*! @brief Find out the file size.
      *  @return The file size in bytes.

@@ -14,6 +14,7 @@
 
 #include "exseisdat/utils/types/typedefs.hh"
 
+#include <cstddef>
 #include <vector>
 
 namespace exseis {

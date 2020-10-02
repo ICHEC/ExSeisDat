@@ -6,6 +6,7 @@
 #define EXSEISDAT_PIOL_FILE_OUTPUT_FILE_SEGY_HH
 
 #include "exseisdat/piol/file/Output_file.hh"
+#include "exseisdat/piol/io_driver/IO_driver.hh"
 #include "exseisdat/piol/segy/utils.hh"
 
 namespace exseis {
@@ -97,6 +98,21 @@ class Output_file_segy : public Output_file {
         std::string name,
         const Output_file_segy::Options& options = Output_file_segy::Options());
 
+    /// @brief The SEGY-Object class constructor.
+    ///
+    /// @param[in] io_driver The IO_driver object to perform IO with
+    /// @param[in] piol      This PIOL ptr is not modified but is used to
+    ///                      instantiate another shared_ptr.
+    /// @param[in] name      The name of the file associated with the
+    ///                      instantiation.
+    /// @param[in] options   The SEGY-File options
+    ///
+    Output_file_segy(
+        IO_driver io_driver,
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const Output_file_segy::Options& options = {});
+
   protected:
     /// @brief The SEGY-Object class constructor.
     ///
@@ -158,6 +174,10 @@ class Output_file_segy : public Output_file {
         exseis::utils::Trace_value* trace,
         const Trace_metadata* prm = nullptr,
         size_t skip               = 0) override;
+
+    std::vector<IO_driver> io_drivers() && override;
+
+    void sync() override;
 };
 
 }  // namespace file

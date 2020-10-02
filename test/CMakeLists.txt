@@ -146,13 +146,18 @@ add_executable(
     unit.test.main.cc
 
     unit/exseisdat/test/Buffer.test.cc
+    unit/exseisdat/test/Index_hash.test.cc
+    unit/exseisdat/test/segy/Segy_file_generator.test.cc
 
     unit/exseisdat/utils/distributed_vector/Distributed_vector_mpi.test.cc
+    unit/exseisdat/utils/encoding/character_encoding.test.cc
+    unit/exseisdat/utils/encoding/number_encoding.test.cc
     unit/exseisdat/utils/signal_processing/mute.test.cc
 
     unit/exseisdat/piol/io_driver/IO_driver_distributed_vector.test.cc
     unit/exseisdat/piol/io_driver/IO_driver_mpi.test.cc
-
+    unit/exseisdat/piol/file/Input_file_segy.test.cc
+    unit/exseisdat/piol/file/Output_file_segy.test.cc
 )
 
 target_link_libraries(unit.test exseisdat exseisdat::catch2)

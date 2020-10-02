@@ -13,7 +13,7 @@ using namespace exseis::utils;
 
 namespace exseis {
 namespace piol {
-inline namespace segy {
+namespace segy {
 
 void insert_trace_metadata(
     size_t number_of_traces,

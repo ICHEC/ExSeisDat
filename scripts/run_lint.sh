@@ -31,7 +31,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source_dir="$( cd "${script_dir}/.." && pwd)"
 
 # All the directories containing source files
-source_dirs="examples include src test util"
+source_dirs="examples include src test apps"
 
 # Run lint.sh on every source file in ExSeisDat.
 #

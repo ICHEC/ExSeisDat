@@ -11,6 +11,8 @@
 #include "exseisdat/piol/file/detail/ObjectInterface.hh"
 #include "exseisdat/utils/types/typedefs.hh"
 
+#include <memory>
+
 namespace exseis {
 namespace piol {
 inline namespace file {
@@ -27,7 +29,7 @@ class ObjectSEGY : public ObjectInterface {
     std::string m_name;
 
     /// Pointer to the Data layer object (polymorphic).
-    std::shared_ptr<IO_driver> m_data;
+    std::unique_ptr<IO_driver> m_data;
 
   public:
     /*! @brief The ObjectSEGY class constructor.
@@ -39,13 +41,14 @@ class ObjectSEGY : public ObjectInterface {
     ObjectSEGY(
         std::shared_ptr<ExSeisPIOL> piol,
         std::string name,
-        std::shared_ptr<IO_driver> data);
+        std::unique_ptr<IO_driver> data);
 
     std::shared_ptr<ExSeisPIOL> piol() const override;
 
     std::string name() const override;
 
-    std::shared_ptr<IO_driver> data() const override;
+    const IO_driver& data() const override;
+    IO_driver& data() override;
 
     size_t get_file_size() const override;
 

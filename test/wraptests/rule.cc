@@ -40,20 +40,20 @@ bool Rule::add_rule(const Rule& r)
     return mock_rule().add_rule(this, r);
 }
 
-void Rule::add_long(Trace_metadata_key m, Trace_header_offsets loc)
+void Rule::add_long(Trace_metadata_key m, segy::Trace_header_offsets loc)
 {
     mock_rule().add_long(this, m, loc);
 }
 
 void Rule::add_segy_float(
     Trace_metadata_key m,
-    Trace_header_offsets loc,
-    Trace_header_offsets scalar_location)
+    segy::Trace_header_offsets loc,
+    segy::Trace_header_offsets scalar_location)
 {
     mock_rule().add_segy_float(this, m, loc, scalar_location);
 }
 
-void Rule::add_short(Trace_metadata_key m, Trace_header_offsets loc)
+void Rule::add_short(Trace_metadata_key m, segy::Trace_header_offsets loc)
 {
     mock_rule().add_short(this, m, loc);
 }

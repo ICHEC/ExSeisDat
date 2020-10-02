@@ -189,6 +189,13 @@ class IO_driver {
     /// @brief Make writes visible to all processes
     void sync() { m_implementation->sync(); }
 
+    /// @brief  Destructively returns the underlying implementation
+    /// @return The underlying implementation
+    std::unique_ptr<Implementation> implementation() &&
+    {
+        return std::move(m_implementation);
+    }
+
   protected:
     /// @brief Polymorphic Implementation interface for IO_driver.
     ///

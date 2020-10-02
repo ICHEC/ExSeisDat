@@ -7,21 +7,23 @@
 TEST(, SEGYFloat)
 {
     Segy_float_rule_entry entry(
-        Trace_header_offsets::x_src, Trace_header_offsets::ScaleCoord);
-    ASSERT_EQ(size_t(Trace_header_offsets::x_src), entry.loc);
-    ASSERT_EQ(size_t(Trace_header_offsets::ScaleCoord), entry.scalar_location);
+        segy::Trace_header_offsets::x_src,
+        segy::Trace_header_offsets::ScaleCoord);
+    ASSERT_EQ(size_t(segy::Trace_header_offsets::x_src), entry.loc);
+    ASSERT_EQ(
+        size_t(segy::Trace_header_offsets::ScaleCoord), entry.scalar_location);
 }
 
 TEST(Rule_entry, SEGYShort)
 {
-    Segy_short_rule_entry entry(Trace_header_offsets::ScaleCoord);
-    ASSERT_EQ(size_t(Trace_header_offsets::ScaleCoord), entry.loc);
+    Segy_short_rule_entry entry(segy::Trace_header_offsets::ScaleCoord);
+    ASSERT_EQ(size_t(segy::Trace_header_offsets::ScaleCoord), entry.loc);
 }
 
 TEST(Rule_entry, SEGYLong)
 {
-    Segy_long_rule_entry entry(Trace_header_offsets::il);
-    ASSERT_EQ(size_t(Trace_header_offsets::il), entry.loc);
+    Segy_long_rule_entry entry(segy::Trace_header_offsets::il);
+    ASSERT_EQ(size_t(segy::Trace_header_offsets::il), entry.loc);
 }
 
 
@@ -48,20 +50,21 @@ TEST_F(RuleFixList, List)
         }
         ASSERT_EQ(match, 1) << i;
         ASSERT_EQ(
-            size_t(Trace_header_offsets::ScaleCoord), entry->scalar_location)
+            size_t(segy::Trace_header_offsets::ScaleCoord),
+            entry->scalar_location)
             << i;
     }
     ASSERT_EQ(
         rule->extent(),
-        size_t(locs[3]) - size_t(Trace_header_offsets::ScaleCoord) + 4U);
+        size_t(locs[3]) - size_t(segy::Trace_header_offsets::ScaleCoord) + 4U);
 }
 
 TEST_F(RuleFixEmpty, AddRmLongRules)
 {
-    rule->add_long(Trace_metadata_key::xl, Trace_header_offsets::il);
+    rule->add_long(Trace_metadata_key::xl, segy::Trace_header_offsets::il);
     ASSERT_EQ(
         rule->get_entry(Trace_metadata_key::xl)->loc,
-        size_t(Trace_header_offsets::il));
+        size_t(segy::Trace_header_offsets::il));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(4));
     rule->rm_rule(Trace_metadata_key::xl);
     ASSERT_EQ(NULL, rule->get_entry(Trace_metadata_key::xl));
@@ -70,14 +73,15 @@ TEST_F(RuleFixEmpty, AddRmLongRules)
 TEST_F(RuleFixEmpty, AddRmFloatRules)
 {
     rule->add_segy_float(
-        Trace_metadata_key::dsdr, Trace_header_offsets::SrcMeas,
-        Trace_header_offsets::SrcMeasExp);
+        Trace_metadata_key::dsdr, segy::Trace_header_offsets::SrcMeas,
+        segy::Trace_header_offsets::SrcMeasExp);
     ASSERT_NE(nullptr, rule->get_entry(Trace_metadata_key::dsdr));
     const auto frule = dynamic_cast<const Segy_float_rule_entry*>(
         rule->get_entry(Trace_metadata_key::dsdr));
     ASSERT_NE(nullptr, frule);
-    ASSERT_EQ(frule->loc, size_t(Trace_header_offsets::SrcMeas));
-    ASSERT_EQ(frule->scalar_location, size_t(Trace_header_offsets::SrcMeasExp));
+    ASSERT_EQ(frule->loc, size_t(segy::Trace_header_offsets::SrcMeas));
+    ASSERT_EQ(
+        frule->scalar_location, size_t(segy::Trace_header_offsets::SrcMeasExp));
     ASSERT_EQ(rule->extent(), static_cast<size_t>(6));
     rule->rm_rule(Trace_metadata_key::dsdr);
     ASSERT_EQ(nullptr, rule->get_entry(Trace_metadata_key::dsdr));
@@ -86,17 +90,19 @@ TEST_F(RuleFixEmpty, AddRmFloatRules)
 TEST_F(RuleFixEmpty, Extent)
 {
     rule->add_segy_float(
-        Trace_metadata_key::dsdr, Trace_header_offsets::SrcMeas,
-        Trace_header_offsets::ScaleCoord);
+        Trace_metadata_key::dsdr, segy::Trace_header_offsets::SrcMeas,
+        segy::Trace_header_offsets::ScaleCoord);
     ASSERT_EQ(
-        rule->extent(), size_t(Trace_header_offsets::SrcMeas) + 4U
-                            - size_t(Trace_header_offsets::ScaleCoord));
+        rule->extent(), size_t(segy::Trace_header_offsets::SrcMeas) + 4U
+                            - size_t(segy::Trace_header_offsets::ScaleCoord));
 }
 
 TEST_F(RuleFixList, setPrm)
 {
-    rule->add_long(Trace_metadata_key::dsdr, Trace_header_offsets::SrcMeas);
-    rule->add_short(Trace_metadata_key::il, Trace_header_offsets::ScaleElev);
+    rule->add_long(
+        Trace_metadata_key::dsdr, segy::Trace_header_offsets::SrcMeas);
+    rule->add_short(
+        Trace_metadata_key::il, segy::Trace_header_offsets::ScaleElev);
 
     Trace_metadata prm(*rule, 100);
     for (size_t i = 0; i < 100; i++) {

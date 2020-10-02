@@ -20,11 +20,13 @@ struct RuleFix : public Test {
 
 struct RuleFixList : public RuleFix {
     std::vector<Trace_metadata_key> meta;
-    std::vector<Trace_header_offsets> locs;
+    std::vector<segy::Trace_header_offsets> locs;
     RuleFixList()
     {
-        locs = {Trace_header_offsets::x_src, Trace_header_offsets::y_src,
-                Trace_header_offsets::x_rcv, Trace_header_offsets::y_rcv};
+        locs = {segy::Trace_header_offsets::x_src,
+                segy::Trace_header_offsets::y_src,
+                segy::Trace_header_offsets::x_rcv,
+                segy::Trace_header_offsets::y_rcv};
         meta = {Trace_metadata_key::x_src, Trace_metadata_key::y_src,
                 Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv};
         rule = std::make_shared<Rule>(

@@ -19,8 +19,8 @@ inline namespace detail {
 ObjectSEGY::ObjectSEGY(
     std::shared_ptr<ExSeisPIOL> piol,
     std::string name,
-    std::shared_ptr<IO_driver> data) :
-    m_piol(piol), m_name(name), m_data(data)
+    std::unique_ptr<IO_driver> data) :
+    m_piol(piol), m_name(name), m_data(std::move(data))
 {
 }
 
@@ -34,9 +34,14 @@ std::string ObjectSEGY::name() const
     return m_name;
 }
 
-std::shared_ptr<IO_driver> ObjectSEGY::data() const
+const IO_driver& ObjectSEGY::data() const
 {
-    return m_data;
+    return *m_data;
+}
+
+IO_driver& ObjectSEGY::data()
+{
+    return *m_data;
 }
 
 size_t ObjectSEGY::get_file_size() const

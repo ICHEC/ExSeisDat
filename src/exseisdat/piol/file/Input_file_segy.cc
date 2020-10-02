@@ -41,8 +41,22 @@ Input_file_segy::Input_file_segy(
         std::make_shared<ObjectSEGY>(
             piol,
             name,
-            std::make_shared<IO_driver_mpi>(
+            std::make_unique<IO_driver_mpi>(
                 name, File_mode_mpi::Read, MPI_COMM_WORLD, piol->log)))
+{
+}
+
+Input_file_segy::Input_file_segy(
+    IO_driver io_driver,
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string name,
+    const Input_file_segy::Options& options) :
+    Input_file_segy(
+        piol,
+        name,
+        options,
+        std::make_shared<ObjectSEGY>(
+            piol, name, std::make_unique<IO_driver>(std::move(io_driver))))
 {
 }
 
@@ -242,7 +256,7 @@ void read_trace_t(
     if (trc != nullptr) {
 
         // Convert trace values from SEGY floating point format to host format
-        if (number_format == Segy_number_format::IBM) {
+        if (number_format == Segy_number_format::IBM_fp32) {
             for (size_t i = 0; i < ns * sz; i++) {
                 const exseis::utils::Trace_value be_trc_i = trc[i];
 

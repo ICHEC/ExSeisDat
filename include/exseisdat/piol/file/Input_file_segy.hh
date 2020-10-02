@@ -42,7 +42,8 @@ class Input_file_segy : public Input_file {
     exseis::utils::Floating_point m_sample_interval = 0;
 
     /// Type formats
-    segy::Segy_number_format m_number_format = segy::Segy_number_format::IEEE;
+    segy::Segy_number_format m_number_format =
+        segy::Segy_number_format::IEEE_fp32;
 
     /// The interval factor
     double m_sample_interval_factor;
@@ -74,7 +75,22 @@ class Input_file_segy : public Input_file {
     Input_file_segy(
         std::shared_ptr<ExSeisPIOL> piol,
         std::string name,
-        const Input_file_segy::Options& options = Input_file_segy::Options());
+        const Input_file_segy::Options& options = {});
+
+    /// @brief The SEGY-Object class constructor.
+    ///
+    /// @param[in] io_driver The IO_driver object to perform IO with
+    /// @param[in] piol      This PIOL ptr is not modified but is used to
+    ///                      instantiate another shared_ptr.
+    /// @param[in] name      The name of the file associated with the
+    ///                      instantiation.
+    /// @param[in] options   The SEGY-File options
+    ///
+    Input_file_segy(
+        IO_driver io_driver,
+        std::shared_ptr<ExSeisPIOL> piol,
+        std::string name,
+        const Input_file_segy::Options& options = {});
 
   protected:
     /// @brief The SEGY-Object class constructor.

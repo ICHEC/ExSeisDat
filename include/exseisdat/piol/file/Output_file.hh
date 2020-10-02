@@ -11,7 +11,7 @@
 #include "exseisdat/piol/file/detail/ObjectInterface.hh"
 #include "exseisdat/piol/metadata/Trace_metadata.hh"
 
-#include <memory>
+#include <vector>
 
 namespace exseis {
 namespace piol {
@@ -138,6 +138,13 @@ class Output_file {
         exseis::utils::Trace_value* trace,
         const Trace_metadata* prm = nullptr,
         size_t skip               = 0) = 0;
+
+    /// @brief Destructively access the underlying IO_driver object(s)
+    /// @return The underlying IO_driver object(s)
+    virtual std::vector<IO_driver> io_drivers() && = 0;
+
+    /// @brief Ensure written data is synced with the IO_driver
+    virtual void sync() = 0;
 };
 
 }  // namespace file

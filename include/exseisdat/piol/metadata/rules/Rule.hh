@@ -161,7 +161,7 @@ class Rule {
     /// @param[in] m    The Meta entry.
     /// @param[in] loc  The location in the SEG-Y Trace Metadata (4 bytes).
     ///
-    void add_long(Trace_metadata_key m, Trace_header_offsets loc);
+    void add_long(Trace_metadata_key m, segy::Trace_header_offsets loc);
 
     /// @brief Add a rule for floats.
     ///
@@ -173,8 +173,8 @@ class Rule {
     ///
     void add_segy_float(
         Trace_metadata_key m,
-        Trace_header_offsets loc,
-        Trace_header_offsets scalar_location);
+        segy::Trace_header_offsets loc,
+        segy::Trace_header_offsets scalar_location);
 
     /// @brief Add a rule for floats.
     ///
@@ -182,7 +182,7 @@ class Rule {
     /// @param[in] loc  The location in the SEG-Y Trace Metadata for the primary
     ///                 data to be stored (2 bytes).
     ///
-    void add_short(Trace_metadata_key m, Trace_header_offsets loc);
+    void add_short(Trace_metadata_key m, segy::Trace_header_offsets loc);
 
     /// @brief Add a rule for an index.
     ///

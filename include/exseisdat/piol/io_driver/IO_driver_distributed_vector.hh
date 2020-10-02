@@ -57,7 +57,7 @@ class IO_driver_distributed_vector : public IO_driver {
 
         void read(size_t offset, size_t size, void* buffer) const override
         {
-            assert(offset + size <= get_file_size());
+            assert(size == 0 || offset + size <= get_file_size());
 
             m_distributed_vector.get_n(
                 offset, size, static_cast<unsigned char*>(buffer));
@@ -66,7 +66,7 @@ class IO_driver_distributed_vector : public IO_driver {
 
         void write(size_t offset, size_t size, const void* buffer) override
         {
-            assert(offset + size <= get_file_size());
+            assert(size == 0 || offset + size <= get_file_size());
 
             m_distributed_vector.set_n(
                 offset, size, static_cast<const unsigned char*>(buffer));
@@ -80,7 +80,14 @@ class IO_driver_distributed_vector : public IO_driver {
             size_t number_of_blocks,
             void* buffer) const override
         {
-            assert(offset + number_of_blocks * stride_size <= get_file_size());
+            // Note: The last strided section of the file can have an
+            //       "overhanging" stride. Just check the block is inside the
+            //       file for this section.
+            assert(block_size <= stride_size);
+            assert(
+                block_size == 0 || number_of_blocks == 0
+                || offset + (number_of_blocks - 1) * stride_size + block_size
+                       <= get_file_size());
 
             for (size_t block_i = 0; block_i < number_of_blocks; block_i++) {
                 m_distributed_vector.get_n(
@@ -97,7 +104,14 @@ class IO_driver_distributed_vector : public IO_driver {
             size_t number_of_blocks,
             const void* buffer) override
         {
-            assert(offset + number_of_blocks * stride_size <= get_file_size());
+            // Note: The last strided section of the file can have an
+            //       "overhanging" stride. Just check the block is inside the
+            //       file for this section.
+            assert(block_size <= stride_size);
+            assert(
+                block_size == 0 || number_of_blocks == 0
+                || offset + (number_of_blocks - 1) * stride_size + block_size
+                       <= get_file_size());
 
             for (size_t block_i = 0; block_i < number_of_blocks; block_i++) {
                 m_distributed_vector.set_n(
@@ -115,7 +129,7 @@ class IO_driver_distributed_vector : public IO_driver {
             void* buffer) const override
         {
             assert(
-                number_of_blocks == 0
+                block_size == 0 || number_of_blocks == 0
                 || (*std::max_element(offsets, offsets + number_of_blocks)
                         + block_size
                     <= get_file_size()));
@@ -136,7 +150,7 @@ class IO_driver_distributed_vector : public IO_driver {
             const void* buffer) override
         {
             assert(
-                number_of_blocks == 0
+                block_size == 0 || number_of_blocks == 0
                 || (*std::max_element(offsets, offsets + number_of_blocks)
                         + block_size
                     <= get_file_size()));

@@ -24,7 +24,7 @@ endif()
 # given subdirectories.
 #
 option(
-    EXSEISDAT_BUILD_UTILITIES
+    EXSEISDAT_BUILD_APPS
     "Build ExSeisDat utility programs."
     ON
 )
@@ -219,15 +219,15 @@ add_library(exseisdat::exseisdat ALIAS exseisdat)
 
 # Output the directories that are being built.
 message(STATUS "Subprojects:")
-message(STATUS "    EXSEISDAT_BUILD_UTILITIES     = ${EXSEISDAT_BUILD_UTILITIES}")
+message(STATUS "    EXSEISDAT_BUILD_APPS          = ${EXSEISDAT_BUILD_APPS}")
 message(STATUS "    EXSEISDAT_BUILD_EXAMPLES      = ${EXSEISDAT_BUILD_EXAMPLES}")
 message(STATUS "    EXSEISDAT_BUILD_TESTS         = ${EXSEISDAT_BUILD_TESTS}")
 message(STATUS "    EXSEISDAT_BUILD_DOCUMENTATION = ${EXSEISDAT_BUILD_DOCUMENTATION}")
 
 # Build utilities
-if(EXSEISDAT_BUILD_UTILITIES)
-    add_subdirectory(util)
-endif(EXSEISDAT_BUILD_UTILITIES)
+if(EXSEISDAT_BUILD_APPS)
+    add_subdirectory(apps)
+endif(EXSEISDAT_BUILD_APPS)
 
 # Build examples
 if(EXSEISDAT_BUILD_EXAMPLES)

@@ -75,15 +75,17 @@ std::shared_ptr<Rule*> test_piol_file_rule()
 
     EXPECT_CALL(
         mock_rule(),
-        add_long(_, Trace_metadata_key::Copy, Trace_header_offsets::SeqNum));
+        add_long(
+            _, Trace_metadata_key::Copy, segy::Trace_header_offsets::SeqNum));
     EXPECT_CALL(
         mock_rule(),
         add_segy_float(
-            _, Trace_metadata_key::Copy, Trace_header_offsets::SeqNum,
-            Trace_header_offsets::SeqNum));
+            _, Trace_metadata_key::Copy, segy::Trace_header_offsets::SeqNum,
+            segy::Trace_header_offsets::SeqNum));
     EXPECT_CALL(
         mock_rule(),
-        add_short(_, Trace_metadata_key::Copy, Trace_header_offsets::SeqNum));
+        add_short(
+            _, Trace_metadata_key::Copy, segy::Trace_header_offsets::SeqNum));
     EXPECT_CALL(mock_rule(), add_index(_, Trace_metadata_key::Copy));
     EXPECT_CALL(mock_rule(), add_copy(_));
 

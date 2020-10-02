@@ -16,7 +16,7 @@
 
 namespace exseis {
 namespace piol {
-inline namespace segy {
+namespace segy {
 
 using namespace exseis::utils::types;
 
@@ -25,7 +25,7 @@ using namespace exseis::utils::types;
 ///
 enum class Segy_number_format : int16_t {
     /// IBM format, big endian
-    IBM = 1,
+    IBM_fp32 = 1,
 
     /// Two's complement, 4 byte
     TC4 = 2,
@@ -37,7 +37,7 @@ enum class Segy_number_format : int16_t {
     FPG = 4,
 
     /// The IEEE format, big endian
-    IEEE = 5,
+    IEEE_fp32 = 5,
 
     /// Unused
     NA1 = 6,

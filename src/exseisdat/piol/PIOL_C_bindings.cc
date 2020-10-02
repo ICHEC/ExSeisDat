@@ -54,39 +54,39 @@ void piol_file_rule_delete(piol_file_rule* rule)
 void piol_file_rule_add_long(
     piol_file_rule* rule,
     exseis_Trace_metadata_key m,
-    exseis_Trace_header_offsets loc)
+    exseis_segy_Trace_header_offsets loc)
 {
     assert(not_null(rule));
 
     (*rule).add_long(
         static_cast<Trace_metadata_key>(m),
-        static_cast<Trace_header_offsets>(loc));
+        static_cast<segy::Trace_header_offsets>(loc));
 }
 
 void piol_file_rule_add_short(
     piol_file_rule* rule,
     exseis_Trace_metadata_key m,
-    exseis_Trace_header_offsets loc)
+    exseis_segy_Trace_header_offsets loc)
 {
     assert(not_null(rule));
 
     (*rule).add_short(
         static_cast<Trace_metadata_key>(m),
-        static_cast<Trace_header_offsets>(loc));
+        static_cast<segy::Trace_header_offsets>(loc));
 }
 
 void piol_file_rule_add_segy_float(
     piol_file_rule* rule,
     exseis_Trace_metadata_key m,
-    exseis_Trace_header_offsets loc,
-    exseis_Trace_header_offsets scalar_location)
+    exseis_segy_Trace_header_offsets loc,
+    exseis_segy_Trace_header_offsets scalar_location)
 {
     assert(not_null(rule));
 
     (*rule).add_segy_float(
         static_cast<Trace_metadata_key>(m),
-        static_cast<Trace_header_offsets>(loc),
-        static_cast<Trace_header_offsets>(scalar_location));
+        static_cast<segy::Trace_header_offsets>(loc),
+        static_cast<segy::Trace_header_offsets>(scalar_location));
 }
 
 void piol_file_rule_add_index(piol_file_rule* rule, exseis_Trace_metadata_key m)

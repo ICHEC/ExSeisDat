@@ -215,10 +215,8 @@ void test_io_driver(
 
         size_t stride_size_percent = GENERATE_COPY(filter(
             [=](size_t stride_size_percent) {
-                // Offset + stride size shouldn't pass the end of the file.
                 // The stride size shouldn't be smaller than the block size.
-                return offset_percent + stride_size_percent <= 100
-                       && stride_size_percent >= block_size_percent;
+                return stride_size_percent >= block_size_percent;
             },
             values({0, 10, 20, 90, 100})));
 
@@ -226,8 +224,12 @@ void test_io_driver(
             [=](size_t number_of_blocks) {
                 // Stride size * number of blocks shouldn't be larger than
                 // the file.
-                if (offset_percent + number_of_blocks * stride_size_percent
-                    > 100) {
+                // Note: stride may pass EOF if the block is within EOF.
+                if (number_of_blocks > 0
+                    && (offset_percent
+                        + (number_of_blocks - 1) * stride_size_percent
+                        + block_size_percent)
+                           > 100) {
                     return false;
                 }
 
@@ -273,6 +275,13 @@ void test_io_driver(
 
             assert(false && "Unreachable");
         }());
+
+        // All blocks actually read/written should be within the filesize
+        REQUIRE(
+            (block_size == 0 || number_of_blocks == 0
+             || (offset + (number_of_blocks - 1) * stride_size + block_size)
+                    <= io_driver.get_file_size()));
+
 
         size_t local_block_index_start =
             block_index_decomposition.global_offset;

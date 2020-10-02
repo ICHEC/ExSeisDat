@@ -151,70 +151,70 @@ bool Rule::add_rule(Trace_metadata_key m)
 
         case Trace_metadata_key::WtrDepSrc:
             add_segy_float(
-                m, Trace_header_offsets::WtrDepSrc,
-                Trace_header_offsets::ScaleElev);
+                m, segy::Trace_header_offsets::WtrDepSrc,
+                segy::Trace_header_offsets::ScaleElev);
             return true;
 
         case Trace_metadata_key::WtrDepRcv:
             add_segy_float(
-                m, Trace_header_offsets::WtrDepRcv,
-                Trace_header_offsets::ScaleElev);
+                m, segy::Trace_header_offsets::WtrDepRcv,
+                segy::Trace_header_offsets::ScaleElev);
             return true;
 
         case Trace_metadata_key::x_src:
             add_segy_float(
-                m, Trace_header_offsets::x_src,
-                Trace_header_offsets::ScaleCoord);
+                m, segy::Trace_header_offsets::x_src,
+                segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::y_src:
             add_segy_float(
-                m, Trace_header_offsets::y_src,
-                Trace_header_offsets::ScaleCoord);
+                m, segy::Trace_header_offsets::y_src,
+                segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::x_rcv:
             add_segy_float(
-                m, Trace_header_offsets::x_rcv,
-                Trace_header_offsets::ScaleCoord);
+                m, segy::Trace_header_offsets::x_rcv,
+                segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::y_rcv:
             add_segy_float(
-                m, Trace_header_offsets::y_rcv,
-                Trace_header_offsets::ScaleCoord);
+                m, segy::Trace_header_offsets::y_rcv,
+                segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::xCmp:
             add_segy_float(
-                m, Trace_header_offsets::xCmp,
-                Trace_header_offsets::ScaleCoord);
+                m, segy::Trace_header_offsets::xCmp,
+                segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::yCmp:
             add_segy_float(
-                m, Trace_header_offsets::yCmp,
-                Trace_header_offsets::ScaleCoord);
+                m, segy::Trace_header_offsets::yCmp,
+                segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::coordinate_scalar:
-            add_short(m, Trace_header_offsets::ScaleCoord);
+            add_short(m, segy::Trace_header_offsets::ScaleCoord);
             return true;
 
         case Trace_metadata_key::il:
-            add_long(m, Trace_header_offsets::il);
+            add_long(m, segy::Trace_header_offsets::il);
             return true;
 
         case Trace_metadata_key::xl:
-            add_long(m, Trace_header_offsets::xl);
+            add_long(m, segy::Trace_header_offsets::xl);
             return true;
 
         case Trace_metadata_key::Offset:
-            add_long(m, Trace_header_offsets::CDist);
+            add_long(m, segy::Trace_header_offsets::CDist);
             return true;
 
         case Trace_metadata_key::tn:
-            add_long(m, Trace_header_offsets::SeqFNum);
+            add_long(m, segy::Trace_header_offsets::SeqFNum);
             return true;
 
         case Trace_metadata_key::Copy:
@@ -222,71 +222,71 @@ bool Rule::add_rule(Trace_metadata_key m)
             return true;
 
         case Trace_metadata_key::tnl:
-            add_long(m, Trace_header_offsets::SeqNum);
+            add_long(m, segy::Trace_header_offsets::SeqNum);
             return true;
 
         case Trace_metadata_key::tnr:
-            add_long(m, Trace_header_offsets::TORF);
+            add_long(m, segy::Trace_header_offsets::TORF);
             return true;
 
         case Trace_metadata_key::tne:
-            add_long(m, Trace_header_offsets::SeqNumEns);
+            add_long(m, segy::Trace_header_offsets::SeqNumEns);
             return true;
 
         case Trace_metadata_key::SrcNum:
-            add_long(m, Trace_header_offsets::ENSrcNum);
+            add_long(m, segy::Trace_header_offsets::ENSrcNum);
             return true;
 
         case Trace_metadata_key::Tic:
-            add_short(m, Trace_header_offsets::TIC);
+            add_short(m, segy::Trace_header_offsets::TIC);
             return true;
 
         case Trace_metadata_key::VStack:
-            add_short(m, Trace_header_offsets::VStackCnt);
+            add_short(m, segy::Trace_header_offsets::VStackCnt);
             return true;
 
         case Trace_metadata_key::HStack:
-            add_short(m, Trace_header_offsets::HStackCnt);
+            add_short(m, segy::Trace_header_offsets::HStackCnt);
             return true;
 
         case Trace_metadata_key::RGElev:
             add_segy_float(
-                m, Trace_header_offsets::RcvElv,
-                Trace_header_offsets::ScaleElev);
+                m, segy::Trace_header_offsets::RcvElv,
+                segy::Trace_header_offsets::ScaleElev);
             return true;
 
         case Trace_metadata_key::SSElev:
             add_segy_float(
-                m, Trace_header_offsets::SurfElvSrc,
-                Trace_header_offsets::ScaleElev);
+                m, segy::Trace_header_offsets::SurfElvSrc,
+                segy::Trace_header_offsets::ScaleElev);
             return true;
 
         case Trace_metadata_key::SDElev:
             add_segy_float(
-                m, Trace_header_offsets::SrcDpthSurf,
-                Trace_header_offsets::ScaleElev);
+                m, segy::Trace_header_offsets::SrcDpthSurf,
+                segy::Trace_header_offsets::ScaleElev);
             return true;
 
         case Trace_metadata_key::ns:
-            add_short(m, Trace_header_offsets::Ns);
+            add_short(m, segy::Trace_header_offsets::Ns);
             return true;
 
         case Trace_metadata_key::sample_interval:
-            add_short(m, Trace_header_offsets::sample_interval);
+            add_short(m, segy::Trace_header_offsets::sample_interval);
             return true;
 
         case Trace_metadata_key::ShotNum:
             add_segy_float(
-                m, Trace_header_offsets::ShotNum,
-                Trace_header_offsets::ShotScal);
+                m, segy::Trace_header_offsets::ShotNum,
+                segy::Trace_header_offsets::ShotScal);
             return true;
 
         case Trace_metadata_key::TraceUnit:
-            add_short(m, Trace_header_offsets::ValMeas);
+            add_short(m, segy::Trace_header_offsets::ValMeas);
             return true;
 
         case Trace_metadata_key::TransUnit:
-            add_short(m, Trace_header_offsets::TransUnit);
+            add_short(m, segy::Trace_header_offsets::TransUnit);
             return true;
 
         // Non-standard and not handled automatically
@@ -356,7 +356,7 @@ size_t Rule::extent() const
 }
 
 // TODO: These can be optimised to stop the double lookup if required.
-void Rule::add_long(Trace_metadata_key m, Trace_header_offsets loc)
+void Rule::add_long(Trace_metadata_key m, segy::Trace_header_offsets loc)
 {
     auto ent = rule_entry_map.find(m);
     if (ent != rule_entry_map.end()) {
@@ -368,7 +368,7 @@ void Rule::add_long(Trace_metadata_key m, Trace_header_offsets loc)
     flag.badextent = (!flag.fullextent);
 }
 
-void Rule::add_short(Trace_metadata_key m, Trace_header_offsets loc)
+void Rule::add_short(Trace_metadata_key m, segy::Trace_header_offsets loc)
 {
     auto ent = rule_entry_map.find(m);
     if (ent != rule_entry_map.end()) {
@@ -382,8 +382,8 @@ void Rule::add_short(Trace_metadata_key m, Trace_header_offsets loc)
 
 void Rule::add_segy_float(
     Trace_metadata_key m,
-    Trace_header_offsets loc,
-    Trace_header_offsets scalar_location)
+    segy::Trace_header_offsets loc,
+    segy::Trace_header_offsets scalar_location)
 {
     auto ent = rule_entry_map.find(m);
     if (ent != rule_entry_map.end()) {
@@ -487,8 +487,8 @@ bool Rule::add_rule(const Rule& r)
                 case Rule_entry::MdType::Float:
                     add_segy_float(
                         m.first,
-                        static_cast<Trace_header_offsets>(m.second->loc),
-                        static_cast<Trace_header_offsets>(
+                        static_cast<segy::Trace_header_offsets>(m.second->loc),
+                        static_cast<segy::Trace_header_offsets>(
                             static_cast<Segy_float_rule_entry*>(m.second.get())
                                 ->scalar_location));
                     break;
@@ -496,13 +496,13 @@ bool Rule::add_rule(const Rule& r)
                 case Rule_entry::MdType::Long:
                     add_long(
                         m.first,
-                        static_cast<Trace_header_offsets>(m.second->loc));
+                        static_cast<segy::Trace_header_offsets>(m.second->loc));
                     break;
 
                 case Rule_entry::MdType::Short:
                     add_short(
                         m.first,
-                        static_cast<Trace_header_offsets>(m.second->loc));
+                        static_cast<segy::Trace_header_offsets>(m.second->loc));
                     break;
 
                 case Rule_entry::MdType::Index:

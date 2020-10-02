@@ -19,194 +19,295 @@ inline namespace encoding {
 inline namespace character_encoding {
 
 
-/// @brief Implementation details for the character_encoding functions.
-///
-/// This namespace defines static functions for building the maps which we will
-/// use to statically initialize the EBCDIC -> ASCII and ASCII -> EBCDIC maps.
-/// The maps are defined as lists sorted by the key value (i.e. by ASCII value
-/// or by EBCDIC value), and lookup is done using a sorted list lookup.
-/// This is used for the implementation of to_ascii_from_ebcdic and
-/// to_ebcdic_from_ascii.
-///
 namespace {
 
 /// A structure to represent a character in both ASCII and EBCDIC.
 struct Character_encoding {
-
-    /// Construct an ASCII / EBCDIC equivalent character
-    /// @param[in] ascii  The ASCII char code
-    /// @param[in] ebcdic The EBCDIC char code
-    explicit Character_encoding(unsigned char ascii, unsigned char ebcdic) :
-        ascii(ascii), ebcdic(ebcdic)
-    {
-    }
+    /// The EBCDIC character
+    unsigned char ebcdic;
 
     /// The ASCII character
     unsigned char ascii;
-
-    /// The EBCDIC character
-    unsigned char ebcdic;
 };
 
 /// @brief The SUB character.
 ///
 /// Used when a character is not representable in the given encoding.
-static const Character_encoding char_sub{0x1Au, 0x3Fu};
-
-/// The array type for all the ASCII/EBCDIC pairs.
-using Character_encodings = std::array<Character_encoding, 126>;
+constexpr Character_encoding char_sub{0x3F, 0x1A};
 
 /// @brief A list of ASCII / EBCDIC pairs.
 ///
-/// This list was generated with the iconv library using the
-/// ASCII and EBCDICUS encodings.
-static const Character_encodings character_encoding_array = {
-    {Character_encoding{0x00u, 0x00u}, Character_encoding{0x01u, 0x01u},
-     Character_encoding{0x02u, 0x02u}, Character_encoding{0x03u, 0x03u},
-     Character_encoding{0x04u, 0x37u}, Character_encoding{0x05u, 0x2Du},
-     Character_encoding{0x06u, 0x2Eu}, Character_encoding{0x07u, 0x2Fu},
-     Character_encoding{0x08u, 0x16u}, Character_encoding{0x09u, 0x05u},
-     Character_encoding{0x0Au, 0x25u}, Character_encoding{0x0Bu, 0x0Bu},
-     Character_encoding{0x0Cu, 0x0Cu}, Character_encoding{0x0Du, 0x0Du},
-     Character_encoding{0x0Eu, 0x0Eu}, Character_encoding{0x0Fu, 0x0Fu},
-     Character_encoding{0x10u, 0x10u}, Character_encoding{0x11u, 0x11u},
-     Character_encoding{0x12u, 0x12u}, Character_encoding{0x13u, 0x13u},
-     Character_encoding{0x14u, 0x3Cu}, Character_encoding{0x15u, 0x3Du},
-     Character_encoding{0x16u, 0x32u}, Character_encoding{0x17u, 0x26u},
-     Character_encoding{0x18u, 0x18u}, Character_encoding{0x19u, 0x19u},
-     Character_encoding{0x1Au, 0x3Fu}, Character_encoding{0x1Bu, 0x27u},
-     Character_encoding{0x1Cu, 0x1Cu}, Character_encoding{0x1Du, 0x1Du},
-     Character_encoding{0x1Eu, 0x1Eu}, Character_encoding{0x1Fu, 0x1Fu},
-     Character_encoding{0x20u, 0x40u}, Character_encoding{0x21u, 0x5Au},
-     Character_encoding{0x22u, 0x7Fu}, Character_encoding{0x23u, 0x7Bu},
-     Character_encoding{0x24u, 0x5Bu}, Character_encoding{0x25u, 0x6Cu},
-     Character_encoding{0x26u, 0x50u}, Character_encoding{0x27u, 0x7Du},
-     Character_encoding{0x28u, 0x4Du}, Character_encoding{0x29u, 0x5Du},
-     Character_encoding{0x2Au, 0x5Cu}, Character_encoding{0x2Bu, 0x4Eu},
-     Character_encoding{0x2Cu, 0x6Bu}, Character_encoding{0x2Du, 0x60u},
-     Character_encoding{0x2Eu, 0x4Bu}, Character_encoding{0x2Fu, 0x61u},
-     Character_encoding{0x30u, 0xF0u}, Character_encoding{0x31u, 0xF1u},
-     Character_encoding{0x32u, 0xF2u}, Character_encoding{0x33u, 0xF3u},
-     Character_encoding{0x34u, 0xF4u}, Character_encoding{0x35u, 0xF5u},
-     Character_encoding{0x36u, 0xF6u}, Character_encoding{0x37u, 0xF7u},
-     Character_encoding{0x38u, 0xF8u}, Character_encoding{0x39u, 0xF9u},
-     Character_encoding{0x3Au, 0x7Au}, Character_encoding{0x3Bu, 0x5Eu},
-     Character_encoding{0x3Cu, 0x4Cu}, Character_encoding{0x3Du, 0x7Eu},
-     Character_encoding{0x3Eu, 0x6Eu}, Character_encoding{0x3Fu, 0x6Fu},
-     Character_encoding{0x40u, 0x7Cu}, Character_encoding{0x41u, 0xC1u},
-     Character_encoding{0x42u, 0xC2u}, Character_encoding{0x43u, 0xC3u},
-     Character_encoding{0x44u, 0xC4u}, Character_encoding{0x45u, 0xC5u},
-     Character_encoding{0x46u, 0xC6u}, Character_encoding{0x47u, 0xC7u},
-     Character_encoding{0x48u, 0xC8u}, Character_encoding{0x49u, 0xC9u},
-     Character_encoding{0x4Au, 0xD1u}, Character_encoding{0x4Bu, 0xD2u},
-     Character_encoding{0x4Cu, 0xD3u}, Character_encoding{0x4Du, 0xD4u},
-     Character_encoding{0x4Eu, 0xD5u}, Character_encoding{0x4Fu, 0xD6u},
-     Character_encoding{0x50u, 0xD7u}, Character_encoding{0x51u, 0xD8u},
-     Character_encoding{0x52u, 0xD9u}, Character_encoding{0x53u, 0xE2u},
-     Character_encoding{0x54u, 0xE3u}, Character_encoding{0x55u, 0xE4u},
-     Character_encoding{0x56u, 0xE5u}, Character_encoding{0x57u, 0xE6u},
-     Character_encoding{0x58u, 0xE7u}, Character_encoding{0x59u, 0xE8u},
-     Character_encoding{0x5Au, 0xE9u}, Character_encoding{0x5Cu, 0xE0u},
-     Character_encoding{0x5Fu, 0x6Du}, Character_encoding{0x60u, 0x79u},
-     Character_encoding{0x61u, 0x81u}, Character_encoding{0x62u, 0x82u},
-     Character_encoding{0x63u, 0x83u}, Character_encoding{0x64u, 0x84u},
-     Character_encoding{0x65u, 0x85u}, Character_encoding{0x66u, 0x86u},
-     Character_encoding{0x67u, 0x87u}, Character_encoding{0x68u, 0x88u},
-     Character_encoding{0x69u, 0x89u}, Character_encoding{0x6Au, 0x91u},
-     Character_encoding{0x6Bu, 0x92u}, Character_encoding{0x6Cu, 0x93u},
-     Character_encoding{0x6Du, 0x94u}, Character_encoding{0x6Eu, 0x95u},
-     Character_encoding{0x6Fu, 0x96u}, Character_encoding{0x70u, 0x97u},
-     Character_encoding{0x71u, 0x98u}, Character_encoding{0x72u, 0x99u},
-     Character_encoding{0x73u, 0xA2u}, Character_encoding{0x74u, 0xA3u},
-     Character_encoding{0x75u, 0xA4u}, Character_encoding{0x76u, 0xA5u},
-     Character_encoding{0x77u, 0xA6u}, Character_encoding{0x78u, 0xA7u},
-     Character_encoding{0x79u, 0xA8u}, Character_encoding{0x7Au, 0xA9u},
-     Character_encoding{0x7Bu, 0xC0u}, Character_encoding{0x7Cu, 0x4Fu},
-     Character_encoding{0x7Du, 0xD0u}, Character_encoding{0x7Eu, 0xA1u},
-     Character_encoding{0x7Fu, 0x07u}, Character_encoding{0xFFu, 0xFFu}}};
+/// This list is provided as an Appendix in the SEG-Y Revision 2 paper:
+///     Table 19 IBM 3270 Char Set Ref Ch 10, GA27-2837-9 April 1987
+/// This paper isn't easily found on the internet, so it wasn't used here.
+///
+/// Some characters were missing, notably '[', ']', and '^'.
+/// The output of `dd conv=ibm` seems to match the paper's dataset, and the
+/// `dd` manual says it's the EBCDIC encoding for AT&T System V UNIX "IBM"
+/// value.
+constexpr Character_encoding character_encoding_array[] = {
+    // Column 1
+    /*NUL*/ {0x00, 0x00},
+    /*SOH*/ {0x01, 0x01},
+    /*STX*/ {0x02, 0x02},
+    /*ETX*/ {0x03, 0x03},
+    /*ST*/ {0x04, 0x9C},
+    /*HT*/ {0x05, 0x09},
+    /*SA*/ {0x06, 0x86},
+    /*DEL*/ {0x07, 0x7F},
+    /*EG*/ {0x08, 0x97},
+    /*RI*/ {0x09, 0x8D},
+    /*S2*/ {0x0A, 0x8E},
+    /*VT*/ {0x0B, 0x0B},
+    /*FF*/ {0x0C, 0x0C},
+    /*CR*/ {0x0D, 0x0D},
+    /*SO*/ {0x0E, 0x0E},
+    /*SI*/ {0x0F, 0x0F},
+    /*DLE*/ {0x10, 0x10},
+    /*DC1*/ {0x11, 0x11},
+    /*DC2*/ {0x12, 0x12},
+    /*DC3*/ {0x13, 0x13},
+    /*OC*/ {0x14, 0x9D},
+    /*NL*/ {0x15, 0x85},
+    /*BS*/ {0x16, 0x08},
+    /*ES*/ {0x17, 0x87},
+    /*CAN*/ {0x18, 0x18},
+    /*EM*/ {0x19, 0x19},
+    /*P2*/ {0x1A, 0x92},
 
+    // Column 2
+    /*S3*/ {0x1B, 0x8F},
+    /*FS/IS4*/ {0x1C, 0x1C},
+    /*GS/IS3*/ {0x1D, 0x1D},
+    /*RS/IS2*/ {0x1E, 0x1E},
+    /*US/IS1*/ {0x1F, 0x1F},
+    /*PA*/ {0x20, 0x80},
+    /*HO*/ {0x21, 0x81},
+    /*BH*/ {0x22, 0x82},
+    /*NH*/ {0x23, 0x83},
+    /*IN*/ {0x24, 0x84},
+    /*LF*/ {0x25, 0x0A},
+    /*ETB*/ {0x26, 0x17},
+    /*ESC*/ {0x27, 0x1B},
+    /*HS*/ {0x28, 0x88},
+    /*HJ*/ {0x29, 0x89},
+    /*VS*/ {0x2A, 0x8A},
+    /*PD*/ {0x2B, 0x8B},
+    /*PU*/ {0x2C, 0x8C},
+    /*ENQ*/ {0x2D, 0x05},
+    /*ACK*/ {0x2E, 0x06},
+    /*BEL*/ {0x2F, 0x07},
+    /*DC*/ {0x30, 0x90},
+    /*P1*/ {0x31, 0x91},
+    /*SYN*/ {0x32, 0x16},
+    /*TS*/ {0x33, 0x93},
+    /*CC*/ {0x34, 0x94},
+    /*MW*/ {0x35, 0x95},
+    /*SG*/ {0x36, 0x96},
+    /*EOT*/ {0x37, 0x04},
+    /*SS*/ {0x38, 0x98},
+    /*GC*/ {0x39, 0x99},
+
+    // Column 3
+    /*SC*/ {0x3A, 0x9A},
+    /*CI*/ {0x3B, 0x9B},
+    /*DC4*/ {0x3C, 0x14},
+    /*NAK*/ {0x3D, 0x15},
+    /*PM*/ {0x3E, 0x9E},
+    /*SUB*/ {0x3F, 0x1A},
+    /*SP*/ {0x40, 0x20},
+    /*(cent)*/ {0x4A, 0xA2},
+    /*.*/ {0x4B, 0x2E},
+    /*<*/ {0x4C, 0x3C},
+    /*(*/ {0x4D, 0x28},
+    /*+*/ {0x4E, 0x2B},
+    /*|*/ {0x4F, 0x7C},
+    /*&*/ {0x50, 0x26},
+    /*!*/ {0x5A, 0x21},
+    /*$*/ {0x5B, 0x24},
+    /*)*/ {0x5D, 0x29},
+    /*;*/ {0x5E, 0x3B},
+    /*(not)*/ {0x5F, 0xAC},
+    /*-*/ {0x60, 0x2D},
+    /* / */ {0x61, 0x2F},
+    /*BB*/ {0x6A, 0xA6},
+    /*,*/ {0x6B, 0x2C},
+    /*%*/ {0x6C, 0x25},
+    /*_*/ {0x6D, 0x5F},
+    /*>*/ {0x6E, 0x3E},
+    /*?*/ {0x6F, 0x3F},
+    /*`*/ {0x79, 0x60},
+    /*:*/ {0x7A, 0x3A},
+    /*#*/ {0x7B, 0x23},
+    /*@*/ {0x7C, 0x40},
+    /*'*/ {0x7D, 0x27},
+
+    // Column 4
+    /*=*/{0x7E, 0x3D},
+    /*"*/ {0x7F, 0x22},
+    /*a*/ {0x81, 0x61},
+    /*b*/ {0x82, 0x62},
+    /*c*/ {0x83, 0x63},
+    /*d*/ {0x84, 0x64},
+    /*e*/ {0x85, 0x65},
+    /*f*/ {0x86, 0x66},
+    /*g*/ {0x87, 0x67},
+    /*h*/ {0x88, 0x68},
+    /*i*/ {0x89, 0x69},
+    /*j*/ {0x91, 0x6A},
+    /*k*/ {0x92, 0x6B},
+    /*l*/ {0x93, 0x6C},
+    /*m*/ {0x94, 0x6D},
+    /*n*/ {0x95, 0x6E},
+    /*o*/ {0x96, 0x6F},
+    /*p*/ {0x97, 0x70},
+    /*q*/ {0x98, 0x71},
+    /*r*/ {0x99, 0x72},
+    /*~*/ {0xA1, 0x7E},
+    /*s*/ {0xA2, 0x73},
+    /*t*/ {0xA3, 0x74},
+    /*y*/ {0xA4, 0x75},
+    /*v*/ {0xA5, 0x76},
+    /*w*/ {0xA6, 0x77},
+    /*x*/ {0xA7, 0x78},
+    /*y*/ {0xA8, 0x79},
+    /*z*/ {0xA9, 0x7A},
+    /*{*/ {0xC0, 0x7B},
+    /*A*/ {0xC1, 0x41},
+    /*B*/ {0xC2, 0x42},
+    /*C*/ {0xC3, 0x43},
+    /*D*/ {0xC4, 0x44},
+    /*E*/ {0xC5, 0x45},
+    /*F*/ {0xC6, 0x46},
+    /*G*/ {0xC7, 0x47},
+
+    // Column 5
+    /*H*/ {0xC8, 0x48},
+    /*I*/ {0xC9, 0x49},
+    /*}*/ {0xD0, 0x7D},
+    /*J*/ {0xD1, 0x4A},
+    /*K*/ {0xD2, 0x4B},
+    /*L*/ {0xD3, 0x4C},
+    /*M*/ {0xD4, 0x4D},
+    /*N*/ {0xD5, 0x4E},
+    /*O*/ {0xD6, 0x4F},
+    /*P*/ {0xD7, 0x50},
+    /*Q*/ {0xD8, 0x51},
+    /*R*/ {0xD9, 0x52},
+    /*\*/ {0xE0, 0x5C},
+    /*S*/ {0xE2, 0x53},
+    /*T*/ {0xE3, 0x54},
+    /*U*/ {0xE4, 0x55},
+    /*V*/ {0xE5, 0x56},
+    /*W*/ {0xE6, 0x57},
+    /*X*/ {0xE7, 0x58},
+    /*Y*/ {0xE8, 0x59},
+    /*Z*/ {0xE9, 0x5A},
+    /*0*/ {0xF0, 0x30},
+    /*1*/ {0xF1, 0x31},
+    /*2*/ {0xF2, 0x32},
+    /*3*/ {0xF3, 0x33},
+    /*4*/ {0xF4, 0x34},
+    /*5*/ {0xF5, 0x35},
+    /*6*/ {0xF6, 0x36},
+    /*7*/ {0xF7, 0x37},
+    /*8*/ {0xF8, 0x38},
+    /*9*/ {0xF9, 0x39},
+    /*AC*/ {0xFF, 0x9F},
+
+    // Column 6
+    /*$*/ {0x5B, 0x24},
+
+    // Column 7
+    /***/ {0x5C, 0x2A},
+    /*;*/ {0x5E, 0x3B},
+
+    // TODO
+    // [ X00 x5B Left square bracket
+    // ] x00 x5E Right square bracket
+    // ^ x00 x5E Circumflex, Caret
+
+    /*[*/ {0xAD, 0x5B},
+    /*]*/ {0xBD, 0x5D},
+    /*^*/ {0x9A, 0x5E}
+
+};
+
+
+/// @brief A constexpr-friendly array type that can
+///        map one 8-bit character set to another
+class Character_map {
+    constexpr static size_t m_size = 256;
+    unsigned char m_data[m_size]{};
+
+  public:
+    constexpr Character_map(unsigned char sub)
+    {
+        for (size_t i = 0; i < m_size; i++) {
+            m_data[i] = sub;
+        }
+    }
+
+    template<typename Index>
+    constexpr auto operator[](Index index) const
+    {
+        return m_data[index];
+    }
+
+    template<typename Index>
+    constexpr auto& operator[](Index index)
+    {
+        return m_data[index];
+    }
+};
 
 /// @brief Build the EBCDIC -> ASCII map
 ///
 /// @return A list of ASCII/EBCDIC pairs sorted by EBCDIC character
 ///
-static Character_encodings build_ebcdic_sorted_array()
+constexpr auto build_ebcdic_to_ascii_map()
 {
-    Character_encodings cea = character_encoding_array;
+    Character_map ebcdic_to_ascii_map{char_sub.ascii};
 
-    const auto less_ebcdic = [](Character_encoding a, Character_encoding b) {
-        return a.ebcdic < b.ebcdic;
-    };
+    for (const auto& encoding : character_encoding_array) {
+        ebcdic_to_ascii_map[encoding.ebcdic] = encoding.ascii;
+    }
 
-    std::sort(std::begin(cea), std::end(cea), less_ebcdic);
-
-    return cea;
+    return ebcdic_to_ascii_map;
 }
 
 /// @brief Build the ASCII -> EBCDIC map
 ///
 /// @return A list of ASCII/EBCDIC pairs sorted by ASCII character
 ///
-static Character_encodings build_ascii_sorted_array()
+constexpr auto build_ascii_to_ebcdic_map()
 {
-    Character_encodings cea = character_encoding_array;
+    Character_map ascii_to_ebcdic_map{char_sub.ebcdic};
 
-    const auto less_ascii = [](Character_encoding a, Character_encoding b) {
-        return a.ascii < b.ascii;
-    };
+    for (const auto& encoding : character_encoding_array) {
+        ascii_to_ebcdic_map[encoding.ascii] = encoding.ebcdic;
+    }
 
-    std::sort(std::begin(cea), std::end(cea), less_ascii);
-
-    return cea;
+    return ascii_to_ebcdic_map;
 }
-
-// We use static const variables to build the maps only once at startup.
-// This could be constexpr.
-
-/// A list of ASCII/EBCDIC pairs sorted by EBCDIC character.
-static const auto ebcdic_sorted_array = build_ebcdic_sorted_array();
-
-/// A list of ASCII/EBCDIC pairs sorted by ASCII character.
-static const auto ascii_sorted_array = build_ascii_sorted_array();
-
 
 }  // namespace
 
 
 unsigned char to_ascii_from_ebcdic(unsigned char ebcdic_char)
 {
-    const auto compare_ebcdic = [](Character_encoding a, unsigned char b) {
-        // Search by EBCDIC
-        return a.ebcdic < b;
-    };
+    // A mapping from EBCDIC values to ASCII values
+    constexpr const auto ebcdic_to_ascii_map = build_ebcdic_to_ascii_map();
 
-    // Search for `ebcdic_char` in `ebcdic_sorted_array`
-    const auto& ebcdic_char_it = std::lower_bound(
-        std::begin(ebcdic_sorted_array), std::end(ebcdic_sorted_array),
-        ebcdic_char, compare_ebcdic);
-
-    if (ebcdic_char_it == std::end(ebcdic_sorted_array)) {
-        return char_sub.ascii;
-    }
-    return ebcdic_char_it->ascii;
+    return ebcdic_to_ascii_map[ebcdic_char];
 }
 
 unsigned char to_ebcdic_from_ascii(unsigned char ascii_char)
 {
-    const auto compare_ascii = [](Character_encoding a, unsigned char b) {
-        // Search by ASCII
-        return a.ascii < b;
-    };
+    // A mapping from ASCII values to EBCDIC values
+    constexpr const auto ascii_to_ebcdic_map = build_ascii_to_ebcdic_map();
 
-    // Search for `ascii_char` in `ascii_sorted_array`
-    const auto& ascii_char_it = std::lower_bound(
-        std::begin(ascii_sorted_array), std::end(ascii_sorted_array),
-        ascii_char, compare_ascii);
-
-    if (ascii_char_it == std::end(ascii_sorted_array)) {
-        return char_sub.ebcdic;
-    }
-    return ascii_char_it->ebcdic;
+    return ascii_to_ebcdic_map[ascii_char];
 }
 
 bool is_printable_ascii(unsigned char ascii_char)

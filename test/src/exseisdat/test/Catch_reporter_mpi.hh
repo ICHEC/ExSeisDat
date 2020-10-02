@@ -1,5 +1,5 @@
-#ifndef EXSEISDAT_TEST_MPI_REPORTER_HH
-#define EXSEISDAT_TEST_MPI_REPORTER_HH
+#ifndef EXSEISDAT_TEST_CATCH_REPORTER_MPI_HH
+#define EXSEISDAT_TEST_CATCH_REPORTER_MPI_HH
 
 #include "exseisdat/test/catch2.hh"
 
@@ -383,4 +383,4 @@ class Catch_reporter_mpi : public Catch::IStreamingReporter {
 }  // namespace test
 }  // namespace exseis
 
-#endif  // EXSEISDAT_TEST_MPI_REPORTER_HH
+#endif  // EXSEISDAT_TEST_CATCH_REPORTER_MPI_HH

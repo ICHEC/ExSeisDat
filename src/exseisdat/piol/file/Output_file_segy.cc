@@ -40,8 +40,22 @@ Output_file_segy::Output_file_segy(
         std::make_shared<ObjectSEGY>(
             piol,
             name,
-            std::make_shared<IO_driver_mpi>(
+            std::make_unique<IO_driver_mpi>(
                 name, File_mode_mpi::Write, MPI_COMM_WORLD, piol->log)))
+{
+}
+
+Output_file_segy::Output_file_segy(
+    IO_driver io_driver,
+    std::shared_ptr<ExSeisPIOL> piol,
+    std::string name,
+    const Output_file_segy::Options& options) :
+    Output_file_segy(
+        piol,
+        name,
+        options,
+        std::make_shared<ObjectSEGY>(
+            piol, name, std::make_unique<IO_driver>(std::move(io_driver))))
 {
 }
 
@@ -65,7 +79,9 @@ void Output_file_segy::flush()
 
         if (m_state.resize) {
             m_obj->set_file_size(segy::get_file_size(m_nt, m_ns));
+            m_state.resize = false;
         }
+
 
         if (m_state.should_write_file_header) {
             // Write file header on rank 0.
@@ -87,7 +103,7 @@ void Output_file_segy::flush()
                     &header_buffer[Segy_file_header_byte::num_sample]);
 
                 const std::array<unsigned char, 2> be_format = to_big_endian(
-                    static_cast<int16_t>(Segy_number_format::IEEE));
+                    static_cast<int16_t>(Segy_number_format::IEEE_fp32));
                 std::copy(
                     std::begin(be_format), std::end(be_format),
                     &header_buffer[Segy_file_header_byte::type]);
@@ -133,6 +149,8 @@ void Output_file_segy::flush()
             else {
                 m_obj->should_write_file_header(nullptr);
             }
+
+            m_state.should_write_file_header = false;
         }
     }
 }
@@ -371,6 +389,21 @@ void Output_file_segy::write_param_non_contiguous(
     const size_t skip)
 {
     write_trace_non_contiguous(sz, offset, nullptr, prm, skip);
+}
+
+std::vector<IO_driver> Output_file_segy::io_drivers() &&
+{
+    sync();
+    IO_driver io_driver = std::move(std::move(m_obj)->data());
+    std::vector<IO_driver> io_drivers;
+    io_drivers.emplace_back(std::move(io_driver));
+    return io_drivers;
+}
+
+void Output_file_segy::sync()
+{
+    flush();
+    m_obj->data().sync();
 }
 
 }  // namespace file

@@ -73,10 +73,10 @@ enum class Block { TRACE_METADATA, TRACE_DATA, TRACE };
 
 class ObjTest : public Test {
   protected:
-    std::shared_ptr<ExSeis> m_piol             = ExSeis::make();
-    std::shared_ptr<MockData> m_mock_io_driver = nullptr;
-    MockData::Implementation* m_mock           = nullptr;
-    ObjectInterface* m_obj                     = nullptr;
+    std::shared_ptr<ExSeis> m_piol = ExSeis::make();
+    // std::shared_ptr<MockData> m_mock_io_driver = nullptr;
+    MockData::Implementation* m_mock = nullptr;
+    ObjectInterface* m_obj           = nullptr;
 
     template<bool WRITE>
     void make_real_segy(std::string name)
@@ -85,11 +85,11 @@ class ObjTest : public Test {
             delete m_obj;
         }
 
-        auto data = std::make_shared<IO_driver_mpi>(
+        auto data = std::make_unique<IO_driver_mpi>(
             name, (WRITE ? File_mode_mpi::ReadWrite : File_mode_mpi::Read),
             MPI_COMM_WORLD, m_piol->log);
         m_piol->assert_ok();
-        m_obj = new ObjectSEGY(m_piol, name, data);
+        m_obj = new ObjectSEGY(m_piol, name, std::move(data));
         m_piol->assert_ok();
     }
 
@@ -98,10 +98,10 @@ class ObjTest : public Test {
         if (m_obj != nullptr) {
             delete m_obj;
         }
-        m_mock_io_driver = std::make_shared<MockData>();
-        m_mock           = m_mock_io_driver->get_implementation();
+        auto mock_io_driver = std::make_unique<MockData>();
+        m_mock              = mock_io_driver->get_implementation();
         m_piol->assert_ok();
-        m_obj = new ObjectSEGY(m_piol, name, m_mock_io_driver);
+        m_obj = new ObjectSEGY(m_piol, name, std::move(mock_io_driver));
         m_piol->assert_ok();
 
         return name;

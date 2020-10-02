@@ -17,9 +17,11 @@
 #define NDEBUG
 #endif  // defined(NDEBUG)
 
+#include "exseisdat/test/Index_hash.hh"
 #include "exseisdat/test/Test_case_cache.hh"
 #include "exseisdat/test/catch2.hh"
 
+namespace {
 
 class Inspector_io_driver_distributed_vector {
   public:
@@ -37,17 +39,9 @@ class Inspector_io_driver_distributed_vector {
         return {nullptr, exseis::utils::Communicator_mpi::Opt{MPI_COMM_WORLD}};
     }
 
-
-    // From Hash Prospector by Chris Wellons
-    // https://nullprogram.com/blog/2018/07/31/
     static unsigned char pattern(uint64_t x)
     {
-        x ^= x >> 30;
-        x *= UINT64_C(0xbf58476d1ce4e5b9);
-        x ^= x >> 27;
-        x *= UINT64_C(0x94d049bb133111eb);
-        x ^= x >> 31;
-        return static_cast<unsigned char>(x);
+        return exseis::test::Index_hash::get<unsigned char>(x);
     }
 
     static unsigned char alt_pattern(uint64_t x)
@@ -186,6 +180,9 @@ struct Cache {
     exseis::utils::Distributed_vector<unsigned char> distributed_vector =
         Inspector_io_driver_distributed_vector::make_storage(0);
 };
+
+}  // namespace
+
 TEST_CASE(
     "IO_driver_distributed_vector",
     "[IO_driver_distributed_vector][IO_driver][Distributed_vector][PIOL]")

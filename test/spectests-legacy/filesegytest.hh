@@ -179,7 +179,8 @@ class Mock_Object : public ObjectInterface {
 
     MOCK_CONST_METHOD0(piol, std::shared_ptr<ExSeisPIOL>());
     MOCK_CONST_METHOD0(name, std::string());
-    MOCK_CONST_METHOD0(data, std::shared_ptr<IO_driver>());
+    MOCK_CONST_METHOD0(data, const IO_driver&());
+    MOCK_METHOD0(data, IO_driver&());
 
 
     MOCK_CONST_METHOD0(get_file_size, size_t());
@@ -597,25 +598,26 @@ struct FileReadSEGYTest : public Test {
         if (RmRule) {
             rule.rm_rule(Trace_metadata_key::x_src);
             rule.add_segy_float(
-                Trace_metadata_key::ShotNum, Trace_header_offsets::UpSrc,
-                Trace_header_offsets::UpRcv);
+                Trace_metadata_key::ShotNum, segy::Trace_header_offsets::UpSrc,
+                segy::Trace_header_offsets::UpRcv);
             rule.add_long(
-                Trace_metadata_key::Misc1, Trace_header_offsets::TORF);
+                Trace_metadata_key::Misc1, segy::Trace_header_offsets::TORF);
             rule.add_short(
-                Trace_metadata_key::Misc2, Trace_header_offsets::ShotNum);
+                Trace_metadata_key::Misc2, segy::Trace_header_offsets::ShotNum);
             rule.add_short(
-                Trace_metadata_key::Misc3, Trace_header_offsets::ShotScal);
+                Trace_metadata_key::Misc3,
+                segy::Trace_header_offsets::ShotScal);
             rule.rm_rule(Trace_metadata_key::ShotNum);
             rule.rm_rule(Trace_metadata_key::Misc1);
             rule.rm_rule(Trace_metadata_key::Misc2);
             rule.rm_rule(Trace_metadata_key::Misc3);
             rule.rm_rule(Trace_metadata_key::y_src);
             rule.add_segy_float(
-                Trace_metadata_key::x_src, Trace_header_offsets::x_src,
-                Trace_header_offsets::ScaleCoord);
+                Trace_metadata_key::x_src, segy::Trace_header_offsets::x_src,
+                segy::Trace_header_offsets::ScaleCoord);
             rule.add_segy_float(
-                Trace_metadata_key::y_src, Trace_header_offsets::y_src,
-                Trace_header_offsets::ScaleCoord);
+                Trace_metadata_key::y_src, segy::Trace_header_offsets::y_src,
+                segy::Trace_header_offsets::ScaleCoord);
         }
 
         Trace_metadata prm(std::move(rule), tn);

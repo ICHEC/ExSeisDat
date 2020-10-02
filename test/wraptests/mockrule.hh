@@ -37,18 +37,20 @@ class MockRule {
     MOCK_METHOD2(add_rule, bool(Rule*, const Rule& r));
 
     MOCK_METHOD3(
-        add_long, void(Rule*, Trace_metadata_key m, Trace_header_offsets loc));
+        add_long,
+        void(Rule*, Trace_metadata_key m, segy::Trace_header_offsets loc));
 
     MOCK_METHOD4(
         add_segy_float,
         void(
             Rule*,
             Trace_metadata_key m,
-            Trace_header_offsets loc,
-            Trace_header_offsets scalar_location));
+            segy::Trace_header_offsets loc,
+            segy::Trace_header_offsets scalar_location));
 
     MOCK_METHOD3(
-        add_short, void(Rule*, Trace_metadata_key m, Trace_header_offsets loc));
+        add_short,
+        void(Rule*, Trace_metadata_key m, segy::Trace_header_offsets loc));
 
     MOCK_METHOD2(add_index, void(Rule*, Trace_metadata_key m));
 

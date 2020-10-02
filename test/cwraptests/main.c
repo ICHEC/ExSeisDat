@@ -137,10 +137,10 @@ int main()
     }
     piol_file_rule_add_rule_rule(rule, rule_tmp);
 
-    piol_file_rule_add_long(rule, exseis_meta_Copy, exseis_tr_SeqNum);
+    piol_file_rule_add_long(rule, exseis_meta_Copy, exseis_segy_tr_SeqNum);
     piol_file_rule_add_segy_float(
-        rule, exseis_meta_Copy, exseis_tr_SeqNum, exseis_tr_SeqNum);
-    piol_file_rule_add_short(rule, exseis_meta_Copy, exseis_tr_SeqNum);
+        rule, exseis_meta_Copy, exseis_segy_tr_SeqNum, exseis_segy_tr_SeqNum);
+    piol_file_rule_add_short(rule, exseis_meta_Copy, exseis_segy_tr_SeqNum);
     piol_file_rule_add_index(rule, exseis_meta_Copy);
     piol_file_rule_add_copy(rule);
     piol_file_rule_rm_rule(rule, exseis_meta_Copy);

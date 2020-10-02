@@ -49,6 +49,9 @@ typedef Input_file piol_file_read_interface;
 /// @copydoc exseis::piol::file::Output_file
 typedef Output_file piol_file_write_interface;
 
+/// @copydoc exseis::piol::segy::exseis_segy_Trace_header_offsets
+typedef segy::exseis_segy_Trace_header_offsets exseis_segy_Trace_header_offsets;
+
 #else  // __cplusplus
 
 // Forward declare opaque structs in C
@@ -241,7 +244,7 @@ bool piol_file_rule_add_rule_rule(
 void piol_file_rule_add_long(
     piol_file_rule* rule,
     exseis_Trace_metadata_key m,
-    exseis_Trace_header_offsets loc);
+    exseis_segy_Trace_header_offsets loc);
 
 /*! @brief Add a Rule for shorts (int16_t)
  *
@@ -252,7 +255,7 @@ void piol_file_rule_add_long(
 void piol_file_rule_add_short(
     piol_file_rule* rule,
     exseis_Trace_metadata_key m,
-    exseis_Trace_header_offsets loc);
+    exseis_segy_Trace_header_offsets loc);
 
 /*! @brief Add a Rule for floats
  *
@@ -267,8 +270,8 @@ void piol_file_rule_add_short(
 void piol_file_rule_add_segy_float(
     piol_file_rule* rule,
     exseis_Trace_metadata_key m,
-    exseis_Trace_header_offsets loc,
-    exseis_Trace_header_offsets scalar_location);
+    exseis_segy_Trace_header_offsets loc,
+    exseis_segy_Trace_header_offsets scalar_location);
 
 /*! @brief Add a rule for an index.
  *

@@ -1,5 +1,5 @@
-#ifndef EXSEISDAT_TEST_CATCH2_UNIT_TESTS_BUFFER_HH
-#define EXSEISDAT_TEST_CATCH2_UNIT_TESTS_BUFFER_HH
+#ifndef EXSEISDAT_TEST_BUFFER_HH
+#define EXSEISDAT_TEST_BUFFER_HH
 
 #include "exseisdat/utils/communicator/Communicator.hh"
 
@@ -114,4 +114,4 @@ class Buffer {
 }  // namespace test
 }  // namespace exseis
 
-#endif  // EXSEISDAT_TEST_CATCH2_UNIT_TESTS_BUFFER_HH
+#endif  // EXSEISDAT_TEST_BUFFER_HH
