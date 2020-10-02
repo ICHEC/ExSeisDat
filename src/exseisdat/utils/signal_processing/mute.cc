@@ -3,10 +3,9 @@
 /// @brief Implementation of the mute function.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "exseisdat/utils/signal_processing/Taper_function.h"
-#include "exseisdat/utils/signal_processing/Taper_function.hh"
-#include "exseisdat/utils/signal_processing/mute.h"
 #include "exseisdat/utils/signal_processing/mute.hh"
+
+#include "exseisdat/utils/signal_processing/Taper_function.hh"
 #include "exseisdat/utils/signal_processing/taper.hh"
 
 #include <algorithm>
@@ -58,21 +57,6 @@ void mute(
         signal[j] = 0;
     }
 }
-
-extern "C" void exseis_mute(
-    size_t signal_size,
-    exseis_Trace_value* signal,
-    exseis_Taper_function taper_function,
-    size_t mute_size_at_begin,
-    size_t taper_size_at_begin,
-    size_t taper_size_at_end,
-    size_t mute_size_at_end)
-{
-    mute(
-        signal_size, signal, taper_function, mute_size_at_begin,
-        taper_size_at_begin, taper_size_at_end, mute_size_at_end);
-}
-
 
 }  // namespace signal_processing
 }  // namespace utils

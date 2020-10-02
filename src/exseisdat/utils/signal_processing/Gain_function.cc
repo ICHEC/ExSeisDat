@@ -3,7 +3,7 @@
 /// @brief Implementation for the build in `Gain_function`s.
 ///
 
-#include "exseisdat/utils/signal_processing/Gain_function.h"
+#include "exseisdat/utils/signal_processing/Gain_function.hh"
 #include "exseisdat/utils/types/typedefs.hh"
 
 #include <algorithm>
@@ -49,15 +49,6 @@ Trace_value rectangular_rms_gain(
     const auto num = std::count_if(signal, &signal[window_size], non_zero);
 
     return target_amplitude / std::sqrt(amp / std::max<decltype(num)>(1, num));
-}
-
-extern "C" Trace_value exseis_rectangular_rms_gain(
-    const exseis_Trace_value* signal,
-    size_t window_size,
-    exseis_Trace_value target_amplitude,
-    size_t)
-{
-    return rectangular_rms_gain(signal, window_size, target_amplitude, 0);
 }
 
 
@@ -141,16 +132,6 @@ Trace_value triangular_rms_gain(
     return target_amplitude / std::sqrt(amp / std::max<decltype(num)>(1, num));
 }
 
-extern "C" Trace_value exseis_triangular_rms_gain(
-    const exseis_Trace_value* signal,
-    size_t window_size,
-    exseis_Trace_value target_amplitude,
-    size_t window_center)
-{
-    return triangular_rms_gain(
-        signal, window_size, target_amplitude, window_center);
-}
-
 
 Trace_value mean_abs_gain(
     const Trace_value* signal,
@@ -167,15 +148,6 @@ Trace_value mean_abs_gain(
     const auto num = std::count_if(signal, &signal[window_size], non_zero);
 
     return target_amplitude / (std::abs(amp) / std::max<decltype(num)>(1, num));
-}
-
-extern "C" Trace_value exseis_mean_abs_gain(
-    const exseis_Trace_value* signal,
-    size_t window_size,
-    exseis_Trace_value target_amplitude,
-    size_t)
-{
-    return mean_abs_gain(signal, window_size, target_amplitude, 0);
 }
 
 
@@ -203,15 +175,6 @@ Trace_value median_gain(
 
         return target_amplitude / amp;
     }
-}
-
-extern "C" Trace_value exseis_median_gain(
-    const exseis_Trace_value* signal,
-    size_t window_size,
-    exseis_Trace_value target_amplitude,
-    size_t)
-{
-    return median_gain(signal, window_size, target_amplitude, 0);
 }
 
 }  // namespace signal_processing

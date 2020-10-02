@@ -8,6 +8,8 @@
 
 #include "exseisdat/utils/types/typedefs.hh"
 
+#include <cstddef>
+
 namespace exseis {
 namespace utils {
 inline namespace signal_processing {
@@ -38,8 +40,6 @@ inline namespace signal_processing {
 ///
 /// @return The normalization factor for the signal value.
 ///
-/// @remark C API: \ref exseis_Gain_function
-///
 using Gain_function = Trace_value (*)(
     const Trace_value* signal,
     size_t window_size,
@@ -60,8 +60,6 @@ using Gain_function = Trace_value (*)(
 ///
 /// @return The normalised signal value using RMS
 ///
-/// @remark C API: exseis_rectangular_rms_gain()
-///
 Trace_value rectangular_rms_gain(
     const Trace_value* signal,
     size_t window_size,
@@ -78,8 +76,6 @@ Trace_value rectangular_rms_gain(
 /// @param[in] window_center    Window center iterator
 ///
 /// @return The normalised signal value using RMS with a triangular window
-///
-/// @remark C API: \ref exseis_triangular_rms_gain()
 ///
 Trace_value triangular_rms_gain(
     const Trace_value* signal,
@@ -98,8 +94,6 @@ Trace_value triangular_rms_gain(
 ///
 /// @return The normalised signal value using MAV
 ///
-/// @remark C API: \ref exseis_mean_abs_gain()
-///
 Trace_value mean_abs_gain(
     const Trace_value* signal,
     size_t window_size,
@@ -115,8 +109,6 @@ Trace_value mean_abs_gain(
 /// @param[in] window_center    Window center iterator
 ///
 /// @return The normalised median signal value.
-///
-/// @remark C API: \ref exseis_median_gain()
 ///
 Trace_value median_gain(
     const Trace_value* signal,

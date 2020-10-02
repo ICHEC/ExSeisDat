@@ -26,12 +26,6 @@ set(
 )
 
 option(
-    EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS
-    "Run the C wrap tests"
-    ON
-)
-
-option(
     EXSEISDAT_TEST_ENABLE_CMAKE_TESTS
     "Run the CMake project export tests."
     OFF
@@ -101,15 +95,7 @@ add_executable(
 
     spectests-legacy/tglobal.cc
 
-    spectests-legacy/utils/logging/Verbosity.test.cc
-    spectests-legacy/utils/signal_processing/Gain_function.test.cc
-    spectests-legacy/utils/signal_processing/Taper_function.test.cc
-    spectests-legacy/utils/typedefs.test.cc
     spectests-legacy/utils/Type.test.cc
-
-    spectests-legacy/piol/Trace_metadata_key.test.cc
-    spectests-legacy/piol/Trace_header_offsets.test.cc
-    spectests-legacy/piol/operations/Sort_type.test.cc
 
     spectests-legacy/datatype.cc
     spectests-legacy/dynsegymd.cc
@@ -162,59 +148,6 @@ add_executable(
 
 target_link_libraries(unit.test exseisdat exseisdat::catch2)
 target_include_directories(unit.test PRIVATE unit src)
-
-if(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
-
-add_library(
-    wraptests
-
-    wraptests/googletest_variable_instances.cc
-
-    wraptests/intercepted_c_bindings.cc
-
-    wraptests/checkreturnlistener.cc
-    wraptests/exseis.cc
-    wraptests/exseiswraptest.cc
-    wraptests/getminmax.cc
-    wraptests/getminmaxwraptests.cc
-    wraptests/mockexseis.cc
-    wraptests/mockgetminmax.cc
-    wraptests/mockparam.cc
-    wraptests/mockreadinterface.cc
-    wraptests/mockrule.cc
-    wraptests/mockset.cc
-    wraptests/mockwriteinterface.cc
-    wraptests/param.cc
-    wraptests/paramwraptests.cc
-    wraptests/printers.cc
-    wraptests/readinterface.cc
-    wraptests/readinterfacewraptests.cc
-    wraptests/rule.cc
-    wraptests/rulewraptests.cc
-    wraptests/set.cc
-    wraptests/setwraptests.cc
-    wraptests/wraptests.cc
-    wraptests/wraptesttools.cc
-    wraptests/writeinterface.cc
-    wraptests/writeinterfacewraptests.cc
-
-    ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc
-    ${GOOGLETEST_DIR}/googlemock/src/gmock-all.cc
-)
-target_link_libraries(wraptests PUBLIC exseisdat Threads::Threads)
-set_target_properties(
-    wraptests
-    PROPERTIES DEFINE_SYMBOL "EXSEISDAT_WRAPTESTS_EXPORTS"
-)
-
-add_executable(c_wraptest.test cwraptests/main.c)
-target_link_libraries(c_wraptest.test PRIVATE wraptests)
-
-if(EXSEISDAT_ENABLE_SANITIZERS)
-    set_target_properties(c_wraptest.test PROPERTIES LINKER_LANGUAGE CXX)
-endif(EXSEISDAT_ENABLE_SANITIZERS)
-
-endif(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
 
 
 
@@ -336,12 +269,6 @@ if(EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS)
     )
 endif(EXSEISDAT_TEST_ENABLE_MPI_SPECTESTS)
 
-if(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
-    add_test(
-        NAME c_wraptest.test
-        COMMAND c_wraptest.test
-    )
-endif(EXSEISDAT_TEST_ENABLE_C_WRAP_TESTS)
 
 #
 # Add test that ExSeisDat can be found by CMake

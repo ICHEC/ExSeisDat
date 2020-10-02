@@ -111,9 +111,9 @@ void test_io_driver(
                 // single access: only rank 0 allocates and reads a buffer.
                 case Access::single:
                     if (rank == 0) {
-                        return exseis::utils::Contiguous_decomposition(0, size);
+                        return exseis::utils::Contiguous_decomposition{0, size};
                     }
-                    return exseis::utils::Contiguous_decomposition(0, 0);
+                    return exseis::utils::Contiguous_decomposition{0, 0};
             }
 
             assert(false && "Unreachable");
@@ -267,10 +267,10 @@ void test_io_driver(
 
                 case Access::single:
                     if (rank == 0) {
-                        return exseis::utils::Contiguous_decomposition(
-                            0, number_of_blocks);
+                        return exseis::utils::Contiguous_decomposition{
+                            0, number_of_blocks};
                     }
-                    return exseis::utils::Contiguous_decomposition(0, 0);
+                    return exseis::utils::Contiguous_decomposition{0, 0};
             }
 
             assert(false && "Unreachable");
@@ -524,10 +524,10 @@ void test_io_driver(
 
                 case Access::single:
                     if (rank == 0) {
-                        return exseis::utils::Contiguous_decomposition(
-                            0, number_of_blocks);
+                        return exseis::utils::Contiguous_decomposition{
+                            0, number_of_blocks};
                     }
-                    return exseis::utils::Contiguous_decomposition(0, 0);
+                    return exseis::utils::Contiguous_decomposition{0, 0};
             }
 
             assert(false && "Unreachable");

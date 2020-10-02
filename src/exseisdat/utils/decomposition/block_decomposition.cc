@@ -12,12 +12,6 @@ namespace exseis {
 namespace utils {
 inline namespace decomposition {
 
-extern "C" exseis_Contiguous_decomposition exseis_block_decomposition(
-    size_t range_size, size_t num_ranks, size_t rank)
-{
-    return block_decomposition(range_size, num_ranks, rank);
-}
-
 Contiguous_decomposition block_decomposition(
     size_t range_size, size_t num_ranks, size_t rank)
 {

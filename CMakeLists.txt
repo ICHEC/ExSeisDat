@@ -146,7 +146,6 @@ add_library(
     exseisdat
 
     src/exseisdat/flow/detail/Cache.cc
-    src/exseisdat/flow/Flow_C_bindings.cc
     src/exseisdat/flow/detail/Radon_gather_state.cc
     src/exseisdat/flow/Set.cc
 
@@ -165,7 +164,6 @@ add_library(
     src/exseisdat/piol/operations/gather.cc
     src/exseisdat/piol/operations/minmax.cc
     src/exseisdat/piol/operations/sort_operations/sort.cc
-    src/exseisdat/piol/PIOL_C_bindings.cc
     src/exseisdat/piol/segy/utils.cc
 
     src/exseisdat/utils/communicator/Communicator_mpi.cc

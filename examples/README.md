@@ -9,18 +9,10 @@ Below are a number of tutorials on how to use ExSeisDat.
           side bar!
 @endinternal
 
-- @subpage examples_hello_world_c
-- @subpage examples_creadwrite_c
-- @subpage examples_example1_c
 - @subpage examples_example1_cc
-- @subpage examples_example2_c
-- @subpage examples_exampleCreateFile_c
 - @subpage examples_exampleCreateFile_cc
 - @subpage examples_exampleFilterTaper_cc
-- @subpage examples_minmax_c
 - @subpage examples_minmax_cc
-- @subpage examples_modprm_c
-- @subpage examples_sort_c
 - @subpage examples_sort_cc
 
 
@@ -32,15 +24,15 @@ An Example Example
 The examples in this directory are written in the following form:
 
 ~~~
-/// Example: My Example    {#examples_my_example_c}
+/// Example: My Example    {#examples_my_example_cc}
 /// ===================
 ///
 /// The `{#ref}` command is used to generate a page in doxygen. In this case,
-/// it's referenced by `example_my_example_c` with the title "Example: My
+/// it's referenced by `example_my_example_cc` with the title "Example: My
 /// Example".
 ///
-/// For a file in the examples folder named `my_example.c`, we'll give it
-/// the reference `examples_my_example_c`. The title, then, is what will appear
+/// For a file in the examples folder named `my_example.cc`, we'll give it
+/// the reference `examples_my_example_cc`. The title, then, is what will appear
 /// as the html title, and for any links referencing it, along with being the
 /// main heading of the generated page.
 /// Unfortunately, we can't use slashes or dots in the reference names,
@@ -94,8 +86,8 @@ int main() {
 ///
 /// This file will then be processed into two files using
 /// `doc/parse_examples.cmake`:
-/// - path/to/build/doc/examples/documented/my_example.c.md
-/// - path/to/build/doc/examples/clean/my_example.c
+/// - path/to/build/doc/examples/documented/my_example.cc.md
+/// - path/to/build/doc/examples/clean/my_example.cc
 ///
 /// The "documented" version will have the "///" stripped out and "~~~" added
 /// around the code sections.
@@ -116,7 +108,7 @@ int main() {
 /// Complete Code
 /// -------------
 ///
-/// @include my_example.c
+/// @include my_example.cc
 ~~~
 
 Proper syntax highlighting should make the comments and code a bit clearer than

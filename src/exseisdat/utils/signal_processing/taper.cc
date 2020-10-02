@@ -3,7 +3,6 @@
 /// @brief Implementation of the taper function.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "exseisdat/utils/signal_processing/taper.h"
 #include "exseisdat/utils/signal_processing/taper.hh"
 
 #include <algorithm>
@@ -37,18 +36,6 @@ void taper(
         signal[offset + j] *=
             taper_function(taper_size_at_end - j, taper_size_at_end);
     }
-}
-
-extern "C" void exseis_taper(
-    size_t signal_size,
-    exseis_Trace_value* signal,
-    exseis_Taper_function taper_function,
-    size_t taper_size_at_begin,
-    size_t taper_size_at_end)
-{
-    taper(
-        signal_size, signal, taper_function, taper_size_at_begin,
-        taper_size_at_end);
 }
 
 

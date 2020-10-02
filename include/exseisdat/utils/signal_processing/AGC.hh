@@ -16,8 +16,6 @@
 ///          agc can be performed on individual traces or entire gathers, where
 ///          the same gain is applied to the jth sample in every trace. The
 ///          window has a spatial componet.
-///
-/// @remark C API: \ref exseisdat/utils/signal_processing/AGC.h
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_HH
 #define EXSEISDAT_UTILS_SIGNAL_PROCESSING_AGC_HH
@@ -39,8 +37,6 @@ inline namespace signal_processing {
 ///                                value for a signal.
 /// @param[in]    window_size      Length of the agc window
 /// @param[in]    target_amplitude Value to which signal are normalised
-///
-/// @remark C API: \ref exseis_agc
 ///
 void agc(
     size_t signal_size,

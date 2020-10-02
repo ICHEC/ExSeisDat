@@ -27,8 +27,6 @@ macro(apps_add_executable)
 endmacro(apps_add_executable)
 
 
-apps_add_executable(exseis-cropen   cropen.c)
-
 apps_add_executable(exseis-traceanalysis    traceanalysis.cc)
 
 apps_add_executable(exseis-radon    radon.cc)

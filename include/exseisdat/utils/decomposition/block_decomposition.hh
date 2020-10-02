@@ -6,8 +6,6 @@
 #ifndef EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_HH
 #define EXSEISDAT_UTILS_DECOMPOSITION_BLOCK_DECOMPOSITION_HH
 
-#include "exseisdat/utils/decomposition/block_decomposition.h"
-
 #include <cstddef>
 
 namespace exseis {
@@ -15,19 +13,16 @@ namespace utils {
 inline namespace decomposition {
 
 
-/// @copydoc exseis_Contiguous_decomposition
-/// @remark C API exseis_Contiguous_decomposition
-struct Contiguous_decomposition : public exseis_Contiguous_decomposition {
+///
+/// @brief The \c Contiguous_decomposition class represents a section of a range
+///        on the given rank which has been distributed over a number of ranks.
+///
+struct Contiguous_decomposition {
+    /// @brief The offset into the global range for the given rank.
+    size_t global_offset;
 
-    /// @brief Value constructor for Contiguous_decomposition.
-    ///
-    /// @param[in] global_offset Value for the global_offset member.
-    /// @param[in] local_size    Value for the local_size member.
-    ///
-    Contiguous_decomposition(size_t global_offset, size_t local_size) :
-        exseis_Contiguous_decomposition{global_offset, local_size}
-    {
-    }
+    /// @brief The local size of the section of the range on the local process
+    size_t local_size;
 };
 
 

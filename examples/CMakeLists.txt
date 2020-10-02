@@ -15,25 +15,13 @@ macro(examples_add_executable)
     endif(EXSEISDAT_ENABLE_SANITIZERS)
 endmacro(examples_add_executable)
 
-examples_add_executable(hello_world hello_world.c)
-
-examples_add_executable(creadwrite creadwrite.c)
-
 examples_add_executable(example1  example1.cc)
-examples_add_executable(cexample1 example1.c)
-
-examples_add_executable(cexample2 example2.c)
 
 examples_add_executable(minmax  minmax.cc)
-examples_add_executable(cminmax minmax.c)
-
-examples_add_executable(modprm modprm.c)
 
 examples_add_executable(sort  sort.cc)
-examples_add_executable(csort sort.c)
 
 examples_add_executable(exampleCreateFile  exampleCreateFile.cc)
-examples_add_executable(cexampleCreateFile exampleCreateFile.c)
 
 examples_add_executable(exampleFilterTaper exampleFilterTaper.cc)
 

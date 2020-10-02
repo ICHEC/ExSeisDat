@@ -42,8 +42,6 @@ using Taper_function = Trace_value (*)(Trace_value position, Trace_value width);
 ///
 /// @copydetails exseis::utils::signal_processing::Taper_function
 ///
-/// @remark C API: \ref exseis_linear_taper
-///
 Trace_value linear_taper(Trace_value position, Trace_value width);
 
 
@@ -53,8 +51,6 @@ Trace_value linear_taper(Trace_value position, Trace_value width);
 ///
 /// @copydetails exseis::utils::signal_processing::Taper_function
 ///
-/// @remark C API: \ref exseis_cosine_taper
-///
 Trace_value cosine_taper(Trace_value position, Trace_value width);
 
 
@@ -63,8 +59,6 @@ Trace_value cosine_taper(Trace_value position, Trace_value width);
 /// A cos^2 interpolation between 0 and 1.
 ///
 /// @copydetails exseis::utils::signal_processing::Taper_function
-///
-/// @remark C API: \ref exseis_cosine_square_taper
 ///
 Trace_value cosine_square_taper(Trace_value position, Trace_value width);
 

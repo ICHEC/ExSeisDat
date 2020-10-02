@@ -224,7 +224,7 @@ Option | Effect
 #### Enabling / Disabling Sections of ExSeisDat
 Option | Effect
 ------ | ------
-`-DEXSEISDAT_BUILD_UTILITIES=...` | Set to `ON` to build ExSeisDat utilities or `OFF` to skip (Default `ON`).
+`-DEXSEISDAT_BUILD_APPS=...` | Set to `ON` to build ExSeisDat utilities or `OFF` to skip (Default `ON`).
 `-DEXSEISDAT_BUILD_EXAMPLES=...`  | Set to `ON` to build ExSeisDat example programs or `OFF` to skip (Default `ON`).
 `-DEXSEISDAT_BUILD_TESTS=...`     | Set to `ON` to build ExSeisDat tests and enable the `make test` target, or `OFF` to skip (Default `ON`).
 

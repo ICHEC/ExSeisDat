@@ -7,8 +7,6 @@
 #ifndef EXSEISDAT_PIOL_OPERATIONS_MINMAX_HH
 #define EXSEISDAT_PIOL_OPERATIONS_MINMAX_HH
 
-#include "exseisdat/piol/operations/minmax.h"
-
 #include "exseisdat/piol/configuration/ExSeisPIOL.hh"
 #include "exseisdat/piol/metadata/Trace_metadata.hh"
 #include "exseisdat/utils/types/typedefs.hh"
@@ -23,9 +21,15 @@ namespace exseis {
 namespace piol {
 inline namespace operations {
 
-/// @brief Import PIOL_CoordElem from C API.
-/// @copydoc PIOL_CoordElem
-typedef PIOL_CoordElem CoordElem;
+/// @brief A structure to hold a reference to a single coordinate and the
+///         corresponding trace number.
+struct CoordElem {
+    /// The value
+    utils::Floating_point val;
+
+    /// The trace number
+    size_t num;
+};
 
 /// @brief Return the value associated with a particular parameter
 template<typename T>

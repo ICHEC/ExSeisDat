@@ -26,8 +26,6 @@ inline namespace signal_processing {
 /// @param[in] taper_size_at_begin  Length of the begin tail of the taper
 /// @param[in] taper_size_at_end    Length of the end tail of the taper
 ///
-/// @remark C API: exseis_taper
-///
 void taper(
     size_t signal_size,
     Trace_value* signal,

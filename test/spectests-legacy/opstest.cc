@@ -9,9 +9,9 @@
 #include "exseisdat/piol/operations/minmax.hh"
 #include "exseisdat/piol/operations/sort_operations/sort.hh"
 #include "exseisdat/utils/communicator/Communicator_mpi.hh"
-#include "exseisdat/utils/signal_processing/AGC.h"
-#include "exseisdat/utils/signal_processing/mute.h"
-#include "exseisdat/utils/signal_processing/taper.h"
+#include "exseisdat/utils/signal_processing/AGC.hh"
+#include "exseisdat/utils/signal_processing/mute.hh"
+#include "exseisdat/utils/signal_processing/taper.hh"
 #include "exseisdat/utils/signal_processing/temporalfilter.hh"
 
 using namespace testing;

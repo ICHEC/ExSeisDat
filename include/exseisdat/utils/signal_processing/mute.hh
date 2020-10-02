@@ -32,9 +32,6 @@ inline namespace signal_processing {
 /// @param[in] mute_size_at_end     Length of the end mute
 /// @param[in] taper_size_at_end    Length of the end tail of the taper
 ///
-/// @note C API: exseis_mute
-///
-
 void mute(
     size_t signal_size,
     Trace_value* signal,
