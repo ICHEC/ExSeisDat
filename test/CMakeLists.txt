@@ -113,7 +113,6 @@ add_executable(
     spectests-legacy/segymd.cc
     spectests-legacy/segymdextra.cc
     spectests-legacy/selftests.cc
-    spectests-legacy/set.cc
     spectests-legacy/utils/signal_processing/mute.test.cc
 
     ${GOOGLETEST_DIR}/googletest/src/gtest-all.cc

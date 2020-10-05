@@ -12,7 +12,6 @@
 #include "exseisdat/utils/signal_processing/AGC.hh"
 #include "exseisdat/utils/signal_processing/mute.hh"
 #include "exseisdat/utils/signal_processing/taper.hh"
-#include "exseisdat/utils/signal_processing/temporalfilter.hh"
 
 using namespace testing;
 using namespace exseis::piol;
@@ -259,86 +258,4 @@ TEST_F(OpsTest, SortSrcRcvRand)
     ASSERT_EQ(10 * piol->get_rank() + 8U, list[7]);
     ASSERT_EQ(10 * piol->get_rank() + 7U, list[8]);
     ASSERT_EQ(10 * piol->get_rank() + 0U, list[9]);
-}
-
-TEST_F(OpsTest, FilterCheckLowpass)
-{
-    size_t n = 4;
-    std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
-    std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
-    make_filter(
-        exseis::utils::FltrType::Lowpass, numer_calc.data(), denom_calc.data(),
-        n, 30.0, 1.2, 0.0);
-
-    std::vector<exseis::utils::Trace_value> denom_ref = {
-        1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
-
-    std::vector<exseis::utils::Trace_value> numer_ref = {
-        0.00018321611, 0.00073286443, 0.0010992966, 0.00073286443,
-        0.00018321611};
-
-    for (size_t i = 0; i < n + 1; i++) {
-        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
-        EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
-    }
-}
-
-TEST_F(OpsTest, FilterCheckHighpass)
-{
-    size_t n = 4;
-    std::vector<exseis::utils::Trace_value> denom_calc(n + 1);
-    std::vector<exseis::utils::Trace_value> numer_calc(n + 1);
-    make_filter(
-        exseis::utils::FltrType::Highpass, numer_calc.data(), denom_calc.data(),
-        n, 30, 1.2, 0);
-
-    std::vector<exseis::utils::Trace_value> denom_ref = {
-        1, -3.34406784, 4.23886395, -2.40934286, 0.5174782};
-    std::vector<exseis::utils::Trace_value> numer_ref = {
-        0.71935955, -2.87743821, 4.31615732, -2.87743821, 0.71935955};
-    for (size_t i = 0; i < n + 1; i++) {
-        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
-        EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
-    }
-}
-
-TEST_F(OpsTest, FilterCheckBandpass)
-{
-    size_t n = 4;
-    std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
-    std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
-    make_filter(
-        exseis::utils::FltrType::Bandpass, numer_calc.data(), denom_calc.data(),
-        n, 30, 1.2, 6.5);
-    std::vector<exseis::utils::Trace_value> denom_ref = {
-        1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
-        -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
-    std::vector<exseis::utils::Trace_value> numer_ref = {
-        0.03142168, 0.0,        -0.1256867, 0.0,       0.18853005,
-        0.0,        -0.1256867, 0.0,        0.03142168};
-    for (size_t i = 0; i < 2 * n + 1; i++) {
-        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
-        EXPECT_FLOAT_EQ(numer_ref[i], numer_calc[i]);
-    }
-}
-
-TEST_F(OpsTest, FilterCheckBandstop)
-{
-    size_t n = 4;
-    std::vector<exseis::utils::Trace_value> denom_calc(2 * n + 1);
-    std::vector<exseis::utils::Trace_value> numer_calc(2 * n + 1);
-    make_filter(
-        exseis::utils::FltrType::Bandstop, numer_calc.data(), denom_calc.data(),
-        n, exseis::utils::Trace_value(30), exseis::utils::Trace_value(1.2),
-        exseis::utils::Trace_value(6.5));
-    std::vector<exseis::utils::Trace_value> denom_ref = {
-        1.0,         -4.19317484, 8.01505053, -9.44595842, 7.69031281,
-        -4.39670663, 1.68365361,  -0.3953309, 0.04619144};
-    std::vector<exseis::utils::Trace_value> numer_ref = {
-        0.21261259,  -1.38519468, 4.23471188,  -7.83039071, 9.54055945,
-        -7.83039071, 4.23471188,  -1.38519468, 0.21261259};
-    for (size_t i = 0; i < 2 * n + 1; i++) {
-        EXPECT_FLOAT_EQ(denom_ref[i], denom_calc[i]);
-        EXPECT_NEAR(numer_ref[i], numer_calc[i], 5e-6);
-    }
 }

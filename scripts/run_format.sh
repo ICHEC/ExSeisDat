@@ -50,7 +50,7 @@ FORMAT_EXECUTABLE="${script_dir}/format.sh"
 cd ${source_dir}
 
 # All the directories containing source files
-source_dirs="examples include src systest test apps"
+source_dirs="examples include src test apps"
 
 # All the extensions of source files
 source_exts="cc c hh h"

@@ -5,12 +5,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/find_mpi.cmake)
 
 
 #
-# Find FFTW3
-#
-include(${CMAKE_CURRENT_LIST_DIR}/find_fftw3.cmake)
-
-
-#
 # Find CLI11
 #
 add_library(exseisdat::CLI11 INTERFACE IMPORTED)

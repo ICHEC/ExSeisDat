@@ -17,13 +17,7 @@ endmacro(examples_add_executable)
 
 examples_add_executable(example1  example1.cc)
 
-examples_add_executable(minmax  minmax.cc)
-
-examples_add_executable(sort  sort.cc)
-
 examples_add_executable(exampleCreateFile  exampleCreateFile.cc)
-
-examples_add_executable(exampleFilterTaper exampleFilterTaper.cc)
 
 
 #

@@ -116,16 +116,6 @@ endif(EXSEISDAT_SET_DEFAULT_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE)
 
 
 #
-# Set up configuration specifics
-#
-option(
-    EXSEISDAT_USE_MKL_FFTW3
-    "Use FFTW3 from the MKL library. (Default ON for Intel, otherwise OFF)"
-    ${EXSEISDAT_COMPILER_IS_INTEL}
-)
-
-
-#
 # Setup compiler flags for development
 #
 option(
@@ -144,10 +134,6 @@ include(third_party/third_party.cmake)
 
 add_library(
     exseisdat
-
-    src/exseisdat/flow/detail/Cache.cc
-    src/exseisdat/flow/detail/Radon_gather_state.cc
-    src/exseisdat/flow/Set.cc
 
     src/exseisdat/piol/configuration/ExSeis.cc
     src/exseisdat/piol/configuration/ExSeisPIOL.cc
@@ -179,7 +165,6 @@ add_library(
     src/exseisdat/utils/signal_processing/Taper_function.cc
     src/exseisdat/utils/signal_processing/mute.cc
     src/exseisdat/utils/signal_processing/taper.cc
-    src/exseisdat/utils/signal_processing/temporalfilter.cc
 )
 
 target_compile_features(exseisdat PUBLIC cxx_std_14)
@@ -203,7 +188,6 @@ target_include_directories(
 )
 
 target_link_libraries(exseisdat PUBLIC MPI::MPI_CXX)
-target_link_libraries(exseisdat PRIVATE FFTW3::fftw3f)
 
 if(EXSEISDAT_ENABLE_DEVELOPMENT_FLAGS)
     include(cmake/development_flags.cmake)
@@ -293,9 +277,6 @@ function(configure_find_file FIND_FILE RESULT)
 endfunction(configure_find_file)
 configure_find_file(
     ${CMAKE_CURRENT_LIST_DIR}/third_party/find_mpi.cmake FIND_MPI
-)
-configure_find_file(
-    ${CMAKE_CURRENT_LIST_DIR}/third_party/find_fftw3.cmake FIND_FFTW3
 )
 configure_package_config_file(
     cmake/exseisdat-config.cmake.in exseisdat-config.cmake

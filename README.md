@@ -21,7 +21,7 @@ analysis, file concatenation, etc.
 
 ## Building Instructions
 
-To configure and build ExSeisDat, a C++14 compatible compiler is needed, MPI, FFTW, doxygen and CMake >= 3.10.
+To configure and build ExSeisDat, a C++14 compatible compiler is needed, MPI, doxygen and CMake >= 3.10.
 
     # Make a directory to hold the temporary build files
     mkdir -p /path/to/build/directory
@@ -47,7 +47,7 @@ To configure and build ExSeisDat, a C++14 compatible compiler is needed, MPI, FF
     # cd $HOME
     # rm -rf /path/to/build/directory
 
-CMake should find the necessary MPI and FFTW libraries automatically. It also searches for the C and C++ compilers in the CC and CXX environmental variables.
+CMake should find the necessary MPI libraries automatically. It also searches for the C and C++ compilers in the CC and CXX environmental variables.
 For details about building on macOS see [building on macOS](#building-on-osx).
 
 ### Specifying MPI
@@ -81,21 +81,6 @@ e.g. `I_MPI_CC` and `I_MPI_CXX`, to find the correct `C` and `CXX` compilers)
 before running the `cmake` command to find the correct MPI libraries.
 If CMake doesn't find them after setting `CC` and `CXX`, you may need to delete
 the build directory and reconfigure.
-
-
-### Specifying FFTW
-
-If CMake can't find FFTW, or finds the wrong version, try passing
-`-DFFTW3_DIR=/path/to/fftw` to the `cmake` command.
-The directory `/path/to/fftw` should be the directory including
-`include/fftw3.h`, for a full path of `/path/to/fftw/include/fftw3.h`.
-CMake will also look for `/path/to/fftw/local/include/fftw3.h`.
-The FFTW library should be found at `/path/to/fftw/lib/libfftw3f.so`.
-CMake will also look in the `lib64` and `bin` directories, and the `local/lib`
-directory (also `lib64` and `bin`) if fftw3.h was found in `local/include`.
-
-If the Intel compiler is used, CMake will use the `-mkl` flag to link the Intel
-MKL library instead of FFTW.
 
 
 ### Build Flags
@@ -217,9 +202,6 @@ Option | Effect
 ------ | ------
 `-DMPI_C_COMPILER=...`   | Set the MPI C compiler wrapper (i.e. mpicc).
 `-DMPI_CXX_COMPILER=...` | Set the MPI C++ compiler wrapper (i.e. mpicxx).
-`-DFFTW3_DIR=...`        | Set the root directory for FFTW, where CMake should look for `fftw3.h` and `libfftw3f.so`.
-`-DFFTW3_INCLUDES=...`   | Explicitly set the `fftw3.h` header file to use.
-`-DFFTW3_LIBRARIES=...`  | Explicitly set the `libfftw3f.so` library file or flag (e.g. `-lfftw3f` or `-mkl`) to use.
 
 #### Enabling / Disabling Sections of ExSeisDat
 Option | Effect
@@ -237,11 +219,11 @@ Option | Effect
 
 ### Building on macOS
 
-To build and install on macOS, [homebrew](https://brew.sh) can be used for quickly installing the requirements. Once homebrew installed, MPI and FFTW can be installed
+To build and install on macOS, [homebrew](https://brew.sh) can be used for quickly installing the requirements. Once homebrew installed, MPI and Doxygen can be installed
 using
 
 ```
-brew install open-mpi fftw doxygen
+brew install open-mpi doxygen
 ```
 
 

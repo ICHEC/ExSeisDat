@@ -37,9 +37,9 @@
 /// @section author AUTHOR
 ///     The ExSeisDat Team
 ///
-/// @endcond  // GENERATING_MANPAGE
+/// @endcond
+//           // GENERATING_MANPAGE
 
-/// @cond (!GENERATING_MANPAGE)
 
 #include "exseisdat/piol/configuration/ExSeis.hh"
 #include "exseisdat/piol/file/Input_file_segy.hh"
@@ -405,5 +405,3 @@ std::string formatted_meta_value(
 
     return std::string(char_array.begin(), char_array.end());
 }
-
-/// @endcond  // !GENERATING_MANPAGE

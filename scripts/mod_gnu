@@ -1,7 +1,0 @@
-module load dev intel/2016-u3 gcc/5.3.0
-module load doxygen
-module load libs fftw/gcc_threads/3.3.6_single
-module load cmake/intel/3.5.2
-export CXX=g++
-export CC=gcc
-export PIOL_SYSTEM=Fionn

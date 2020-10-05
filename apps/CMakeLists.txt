@@ -1,3 +1,4 @@
+
 #
 # Setup all the utility executables
 #
@@ -29,17 +30,15 @@ endmacro(apps_add_executable)
 
 apps_add_executable(exseis-traceanalysis    traceanalysis.cc)
 
-apps_add_executable(exseis-radon    radon.cc)
-
 apps_add_executable(exseis-assess   assess.cc)
 
 apps_add_executable(exseis-versort  verifysort.cc)
 
 apps_add_executable(exseis-concatenate  concatenate.cc)
-
-apps_add_executable(exseis-creadwrite   concatenate.cc)
+target_link_libraries(exseis-concatenate exseisdat::CLI11)
 
 apps_add_executable(exseis-segsort  sort.cc)
+target_link_libraries(exseis-segsort exseisdat::CLI11)
 
 apps_add_executable(exseis-fourdbin fourdbin.cc 4d.cc 4dio.cc 4dcore.cc)
 

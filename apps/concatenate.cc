@@ -1,110 +1,150 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @file
-/// @author Cathal O Broin - cathal@ichec.ie - first commit
-/// @date Q4 2016
-/// @brief
-/// @details This function takes one or more files as input and produces a new
+/// @brief This function takes one or more files as input and produces a new
 ///          file or files which contain all traces with identical ns and
 ///          increment.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "sglobal.hh"
+#include "exseisdat/piol.hh"
+#include "exseisdat/utils.hh"
 
-#include "exseisdat/flow/Set.hh"
-#include "exseisdat/piol/configuration/ExSeis.hh"
+#include <CLI11.hpp>
+
+#include <iostream>
 
 #include <assert.h>
-#include <iostream>
+#include <glob.h>
 #include <unistd.h>
 
+using namespace exseis::utils;
 using namespace exseis::piol;
-using namespace exseis::flow;
 
-/*! Prompt the user asking them if they want to continue with concatenation.
- *  Multi-process safe.
- *  @param[in] piol The piol object.
- */
-void do_prompt(ExSeisPIOL* piol)
+/// @brief Parsed CLI options for the concatenate program
+struct Options {
+    /// The input files to concatenate
+    std::vector<std::string> input_filenames;
+
+    /// The output file to concatenate into
+    std::string output_filename;
+
+    /// The message to write in the file header
+    std::string message = "Concatenated with ExSeisDat";
+};
+
+
+/// @brief Parse the CLI for the concatenate program
+///
+/// @param[in] argc The argc value from main
+/// @param[in] argv The argv value from main
+///
+/// @returns The parsed CLI options for the concatenate program
+Options parse_cli(int argc, char* argv[])
 {
-    char cont   = '0';
-    size_t rank = piol->comm->get_rank();
-    if (rank == 0) {
-        std::cout << "Continue concatenation? (y/n)\n";
-        std::cin >> cont;
+    CLI::App app{"Concatenate SEG-Y files"};
+
+    Options options;
+
+    app.add_option("input,-i,--input", options.input_filenames, "Input file(s)")
+        ->required();
+    app.add_option("-o,--output", options.output_filename, "Output file")
+        ->required();
+
+    app.add_option("-m,--message", options.message, "Header message");
+
+    try {
+        app.parse(argc, argv);
     }
-    int err = MPI_Bcast(&cont, 1U, MPI_CHAR, 0, MPI_COMM_WORLD);
-    if (err != MPI_SUCCESS) {
-        std::cerr << "Scatter error\n";
-        exit(-1);
+    catch (const CLI::ParseError& e) {
+        int code = app.exit(e);
+        std::exit(code);
     }
 
-    if (cont != 'y') {
-        std::cout << "Exit\n";
-        exit(0);
-    }
-    else if (rank == 0) {
-        std::cout << "Continuing\n";
-    }
+    return options;
 }
 
-/*! The main functon for concatenation.
- *  @param[in] argc The number of arguments.
- *  @param[in] argv The array of cstrings.
- *  @details The options -i and -o must be specified, there are no defaults.
- *           -i \<pattern\> : input files (glob)
- *           -o \<pattern\> : output file prefix
- *           -m \<msg\> :  Message to write to the text header
- *           -p : Prompt the user to OK before concatenation
- *  @return Return zero on success, non-zero on failure.
- */
+
 int main(int argc, char** argv)
 {
+    auto options = parse_cli(argc, argv);
+
+    const auto& input_filenames = options.input_filenames;
+    const auto& output_filename = options.output_filename;
+    const auto& message         = options.message;
+
     auto piol = ExSeis::make();
 
-    std::string pattern;
-    std::string outprefix;
-    std::string msg = "Concatenated with ExSeisPIOL";
-    bool prompt     = false;
-    std::string opt = "i:o:m:p";  // TODO: uses a GNU extension
-    for (int c = getopt(argc, argv, opt.c_str()); c != -1;
-         c     = getopt(argc, argv, opt.c_str())) {
-        switch (c) {
-            case 'i':
-                pattern = optarg;
-                if (piol->get_rank() == 0) {
-                    std::cout << "Pattern: " << pattern << "\n";
-                }
-                break;
+    size_t output_samples_per_trace = 0;
+    size_t output_number_of_traces  = 0;
 
-            case 'o':
-                outprefix = optarg;
-                if (piol->get_rank() == 0) {
-                    std::cout << "output prefix: " << outprefix << "\n";
-                }
-                break;
+    Output_file_segy output_file(piol, output_filename);
 
-            case 'm':
-                msg = optarg;
-                break;
+    output_file.write_text(message);
 
-            case 'p':
-                prompt = true;
-                break;
+    bool first = true;
+    for (auto& input_filename : input_filenames) {
+        Input_file_segy input_file(piol, input_filename);
 
-            default:
-                std::cerr << "One of the command line arguments is invalid\n";
-                break;
+        const size_t samples_per_trace = input_file.read_ns();
+        const size_t number_of_traces  = input_file.read_nt();
+        const float sample_interval    = input_file.read_sample_interval();
+
+        // We need to be careful: each trace must have the same samples per
+        // trace!
+        // We'll just assume the first file has the correct samples per trace
+        // and sample interval.
+        if (first) {
+            output_samples_per_trace = samples_per_trace;
+
+            output_file.write_ns(samples_per_trace);
+            output_file.write_sample_interval(sample_interval);
+
+            first = false;
         }
-    }
-    assert(!pattern.empty() && !outprefix.empty());
 
-    Set set(piol, pattern);
-    set.text(msg);
-    if (prompt) {
-        set.summary();
-        do_prompt(piol.get());
+        // NOTE: We're only checking for the correct samples per trace!
+        if (output_samples_per_trace != samples_per_trace) {
+            if (piol->get_rank() == 0) {
+                std::cerr
+                    << "WARNING: input samples per trace different from output samples per trace. Skipping: "
+                    << input_filename << '\n';
+            }
+
+            continue;  // skip to next file
+        }
+
+        // Add the input number of traces to the total number of traces so far.
+        // We assume write_nt will resize the file as necessary........
+        const size_t output_traces_begin = output_number_of_traces;
+        output_number_of_traces += number_of_traces;
+        output_file.write_nt(output_number_of_traces);
+
+
+        output_file.sync();  // Ensure update to number of traces is synced
+
+
+        // Find the number of traces to read on each process
+        auto decomposition = block_decomposition(
+            number_of_traces, piol->get_num_rank(), piol->get_rank());
+        const auto input_offset = decomposition.global_offset;
+        const auto input_size   = decomposition.local_size;
+
+        // NOTE: Each input SEG-Y file must fit into distributed memory.
+        // TODO: Read input SEG-Y files in chunks
+
+        // Trace storage
+        std::vector<Trace_value> trace_data;
+        trace_data.resize(input_size * samples_per_trace);
+
+        Trace_metadata trace_metadata(Rule{true, true, true}, input_size);
+
+        // Read and write the traces!
+        input_file.read_trace(
+            input_offset, input_size, trace_data.data(), &trace_metadata);
+
+        output_file.write_trace(
+            output_traces_begin + input_offset, input_size, trace_data.data(),
+            &trace_metadata);
     }
-    set.output(outprefix);
 
     return 0;
 }

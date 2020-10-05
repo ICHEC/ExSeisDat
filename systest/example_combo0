@@ -1,7 +1,0 @@
-NODE_COUNT: 1, 5
-NODE_PPN: 1, 23, 24
-MPI: openmpi, mvapich, intelmpi
-TEST_NAMES: filemake
-INPUT: EMPTY
-STRIPE_COUNT: 10
-COMPILER: intel, gnu
