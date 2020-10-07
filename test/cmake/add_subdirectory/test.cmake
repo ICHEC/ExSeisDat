@@ -11,6 +11,15 @@
 #   GIT_EXECUTABLE: A git executable, for cloning the exseisdat source dir
 #   BUILD_SHARED_LIBS: This is passed along to the CMake command.
 
+function(assert_execute_process)
+    set(_ret)
+    execute_process(${ARGN} RESULT_VARIABLE _ret)
+    if(NOT _ret EQUAL 0)
+        message(FATAL_ERROR "execute_process failed: ${ARGN}")
+    endif()
+endfunction()
+
+
 file(REMOVE_RECURSE cmake_add_subdirectory_test)
 file(
     COPY ${TEST_SOURCE_DIR}/
@@ -24,14 +33,14 @@ execute_process(
 )
 file(MAKE_DIRECTORY cmake_add_subdirectory_test/build)
 
-execute_process(
+assert_execute_process(
     COMMAND
         ${CMAKE_COMMAND} ..
             -DCMAKE_VERBOSE_MAKEFILE=ON
             -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
     WORKING_DIRECTORY cmake_add_subdirectory_test/build
 )
-execute_process(
+assert_execute_process(
     COMMAND ${CMAKE_COMMAND} --build .
     WORKING_DIRECTORY cmake_add_subdirectory_test/build
 )

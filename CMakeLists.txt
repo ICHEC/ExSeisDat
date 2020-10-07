@@ -127,6 +127,7 @@ option(
 
 # Find needed libraries ########################################################
 
+include(cmake/find_mpi.cmake)
 include(third_party/third_party.cmake)
 
 
@@ -149,7 +150,7 @@ add_library(
     src/exseisdat/piol/metadata/Trace_metadata.cc
     src/exseisdat/piol/operations/gather.cc
     src/exseisdat/piol/operations/minmax.cc
-    src/exseisdat/piol/operations/sort_operations/sort.cc
+    src/exseisdat/piol/operations/sort.cc
     src/exseisdat/piol/segy/utils.cc
 
     src/exseisdat/utils/communicator/Communicator_mpi.cc
@@ -276,7 +277,7 @@ function(configure_find_file FIND_FILE RESULT)
     set(${RESULT} "${FIND_FILE_2}" PARENT_SCOPE)
 endfunction(configure_find_file)
 configure_find_file(
-    ${CMAKE_CURRENT_LIST_DIR}/third_party/find_mpi.cmake FIND_MPI
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/find_mpi.cmake FIND_MPI
 )
 configure_package_config_file(
     cmake/exseisdat-config.cmake.in exseisdat-config.cmake

@@ -9,7 +9,7 @@
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "exseisdat/piol/operations/sort_operations/sort.hh"
+#include "exseisdat/piol/operations/sort.hh"
 
 #include "exseisdat/piol/configuration/ExSeisPIOL.hh"
 #include "exseisdat/utils/mpi_utils/MPI_error_to_string.hh"
@@ -31,7 +31,6 @@ using namespace exseis::utils::logging;
 namespace exseis {
 namespace piol {
 inline namespace operations {
-inline namespace sort_operations {
 
 std::vector<size_t> get_sort_index(size_t sz, const size_t* list)
 {
@@ -1125,7 +1124,6 @@ std::vector<size_t> sort(
     return list;
 }
 
-}  // namespace sort_operations
 }  // namespace operations
 }  // namespace piol
 }  // namespace exseis

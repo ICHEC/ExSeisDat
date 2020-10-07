@@ -8,22 +8,51 @@
 ///          rank. If each process has the same traces it started off with, the
 ///          sort is complete.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef EXSEISDAT_PIOL_OPERATIONS_SORT_OPERATIONS_SORT_HH
-#define EXSEISDAT_PIOL_OPERATIONS_SORT_OPERATIONS_SORT_HH
+#ifndef EXSEISDAT_PIOL_OPERATIONS_SORT_HH
+#define EXSEISDAT_PIOL_OPERATIONS_SORT_HH
 
 #include "exseisdat/piol/configuration/ExSeisPIOL.hh"
 #include "exseisdat/piol/file/Input_file.hh"
 #include "exseisdat/piol/metadata/Trace_metadata.hh"
-#include "exseisdat/piol/operations/sort_operations/Sort_type.hh"
 #include "exseisdat/utils/decomposition/block_decomposition.hh"
 #include "exseisdat/utils/types/typedefs.hh"
 
 #include <functional>
+#include <vector>
 
 namespace exseis {
 namespace piol {
 inline namespace operations {
-inline namespace sort_operations {
+
+/// @brief An enumeration of the different types of sorting operation.
+enum class Sort_type : size_t {
+    /// Sort by source x, source y, receiver x, receiver y
+    SrcRcv,
+
+    /// Sort by source x, source y, calcuated offset
+    SrcOff,
+
+    /// Sort by source x, source y, offset read from file
+    SrcROff,
+
+    /// Sort by receiver x, receiver y, calculate offset
+    RcvOff,
+
+    /// Sort by receiver x, receiver y, offset read from file
+    RcvROff,
+
+    /// Sort by inline, crossline, calculated offset
+    LineOff,
+
+    /// Sort by inline, crossline, offset read from file
+    LineROff,
+
+    /// Sort by calculated offset, inline, crossline
+    OffLine,
+
+    /// Sort by offset read from file, inline, crossline
+    ROffLine
+};
 
 /// A template for the Compare less-than function
 template<class T>
@@ -104,9 +133,8 @@ bool check_order(
  */
 CompareP get_comp(Sort_type type);
 
-}  // namespace sort_operations
 }  // namespace operations
 }  // namespace piol
 }  // namespace exseis
 
-#endif  // EXSEISDAT_PIOL_OPERATIONS_SORT_OPERATIONS_SORT_HH
+#endif  // EXSEISDAT_PIOL_OPERATIONS_SORT_HH

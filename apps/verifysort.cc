@@ -2,7 +2,7 @@
 
 #include "exseisdat/piol/configuration/ExSeis.hh"
 #include "exseisdat/piol/file/Input_file_segy.hh"
-#include "exseisdat/piol/operations/sort_operations/sort.hh"
+#include "exseisdat/piol/operations/sort.hh"
 
 #include <algorithm>
 #include <assert.h>

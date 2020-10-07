@@ -1,10 +1,4 @@
 #
-# Find MPI
-#
-include(${CMAKE_CURRENT_LIST_DIR}/find_mpi.cmake)
-
-
-#
 # Find CLI11
 #
 add_library(exseisdat::CLI11 INTERFACE IMPORTED)

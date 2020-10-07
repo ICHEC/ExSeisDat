@@ -11,6 +11,15 @@
 #   GIT_EXECUTABLE: A git executable, for cloning the exseisdat source dir
 #   BUILD_SHARED_LIBS: This is passed along to the CMake command.
 
+function(assert_execute_process)
+    set(_ret)
+    execute_process(${ARGN} RESULT_VARIABLE _ret)
+    if(NOT _ret EQUAL 0)
+        message(FATAL_ERROR "execute_process failed: ${ARGN}")
+    endif()
+endfunction()
+
+
 file(REMOVE_RECURSE cmake_find_package_test)
 file(
     COPY ${TEST_SOURCE_DIR}/
@@ -28,7 +37,7 @@ set(EXSEISDAT_INSTALL_DIR "${EXSEISDAT_BASE_DIR}/install")
 file(MAKE_DIRECTORY ${EXSEISDAT_BUILD_DIR})
 file(MAKE_DIRECTORY ${EXSEISDAT_INSTALL_DIR})
 
-execute_process(
+assert_execute_process(
     COMMAND
         ${CMAKE_COMMAND} ${EXSEISDAT_SOURCE_DIR}
             -DCMAKE_VERBOSE_MAKEFILE=ON
@@ -40,10 +49,10 @@ execute_process(
             -DEXSEISDAT_BUILD_EXAMPLES=NO
     WORKING_DIRECTORY ${EXSEISDAT_BUILD_DIR}
 )
-execute_process(
+assert_execute_process(
     COMMAND ${CMAKE_COMMAND} --build ${EXSEISDAT_BUILD_DIR}
 )
-execute_process(
+assert_execute_process(
     COMMAND ${CMAKE_COMMAND} --build ${EXSEISDAT_BUILD_DIR} --target install
 )
 
@@ -53,7 +62,7 @@ execute_process(
 
 # From the build directory
 file(MAKE_DIRECTORY cmake_find_package_test/build_from_build)
-execute_process(
+assert_execute_process(
     COMMAND
         ${CMAKE_COMMAND} ..
             -DCMAKE_VERBOSE_MAKEFILE=ON
@@ -61,14 +70,14 @@ execute_process(
             -Dexseisdat_DIR=${EXSEISDAT_BUILD_DIR}
     WORKING_DIRECTORY cmake_find_package_test/build_from_build
 )
-execute_process(
+assert_execute_process(
     COMMAND ${CMAKE_COMMAND} --build build_from_build
     WORKING_DIRECTORY cmake_find_package_test
 )
 
 # From the install directory
 file(MAKE_DIRECTORY cmake_find_package_test/build_from_install)
-execute_process(
+assert_execute_process(
     COMMAND
         ${CMAKE_COMMAND} ..
             -DCMAKE_VERBOSE_MAKEFILE=ON
@@ -76,7 +85,7 @@ execute_process(
             -DCMAKE_INSTALL_PREFIX=${EXSEISDAT_INSTALL_DIR}
     WORKING_DIRECTORY cmake_find_package_test/build_from_install
 )
-execute_process(
+assert_execute_process(
     COMMAND ${CMAKE_COMMAND} --build build_from_install
     WORKING_DIRECTORY cmake_find_package_test
 )

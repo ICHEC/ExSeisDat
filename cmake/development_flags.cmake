@@ -41,9 +41,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     try_add_compile_option(-ferror-limit=1 ferror_limit_1)
     try_add_compile_option(-fmax-errors=1 fmax_errors_1)
 
-    # Needed for GoogleTest compatibility on newer Clang
-    try_add_compile_option(-Wno-error=deprecated-copy Wno_error_deprecated_copy)
-
 
     if(EXSEISDAT_ENABLE_SANITIZERS)
         try_add_compile_option(-fsanitize=address,undefined fsanitize_address_undefined)

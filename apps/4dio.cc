@@ -15,7 +15,7 @@
 #include "exseisdat/piol/file/Output_file_segy.hh"
 #include "exseisdat/piol/segy/utils.hh"
 
-#include "exseisdat/piol/operations/sort_operations/sort.hh"
+#include "exseisdat/piol/operations/sort.hh"
 
 #include <assert.h>
 #include <numeric>

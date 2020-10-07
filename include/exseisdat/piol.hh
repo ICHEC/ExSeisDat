@@ -26,8 +26,7 @@
 #include "exseisdat/piol/metadata/rules/Segy_rule_entry.hh"
 #include "exseisdat/piol/operations/gather.hh"
 #include "exseisdat/piol/operations/minmax.hh"
-#include "exseisdat/piol/operations/sort_operations/Sort_type.hh"
-#include "exseisdat/piol/operations/sort_operations/sort.hh"
+#include "exseisdat/piol/operations/sort.hh"
 #include "exseisdat/piol/segy/Trace_header_offsets.hh"
 #include "exseisdat/piol/segy/utils.hh"
 

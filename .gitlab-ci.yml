@@ -96,7 +96,6 @@ Clang Tidy:
         CLANG_TIDY_EXECUTABLE: clang-tidy-9
     script:
         - *configure
-        - make -C build/test unpack_googletest
         - ./scripts/run_lint.sh build
 
 Doxygen:

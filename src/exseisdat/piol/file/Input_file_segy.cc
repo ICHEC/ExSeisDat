@@ -11,7 +11,7 @@
 #include "exseisdat/piol/file/detail/ObjectSEGY.hh"
 #include "exseisdat/piol/io_driver/IO_driver_mpi.hh"
 
-#include "exseisdat/piol/operations/sort_operations/sort.hh"
+#include "exseisdat/piol/operations/sort.hh"
 #include "exseisdat/piol/segy/utils.hh"
 #include "exseisdat/utils/encoding/character_encoding.hh"
 #include "exseisdat/utils/encoding/number_encoding.hh"
