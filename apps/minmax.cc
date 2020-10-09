@@ -24,24 +24,25 @@ void calc_min(std::string iname, std::string oname)
     Input_file_segy in(piol, iname);
 
     auto dec = block_decomposition(
-        in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        in.read_number_of_traces(), piol->comm->get_num_rank(),
+        piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
-    Trace_metadata prm(lnt);
+    Trace_metadata trace_metadata(lnt);
     std::vector<CoordElem> minmax(12U);
-    in.read_param(offset, lnt, &prm);
+    in.read_metadata(offset, lnt, trace_metadata);
 
     get_min_max(
         piol.get(), offset, lnt, Trace_metadata_key::x_src,
-        Trace_metadata_key::y_src, prm, minmax.data());
+        Trace_metadata_key::y_src, trace_metadata, minmax.data());
     get_min_max(
         piol.get(), offset, lnt, Trace_metadata_key::x_rcv,
-        Trace_metadata_key::y_rcv, prm, minmax.data() + 4U);
+        Trace_metadata_key::y_rcv, trace_metadata, minmax.data() + 4U);
     get_min_max(
         piol.get(), offset, lnt, Trace_metadata_key::xCmp,
-        Trace_metadata_key::yCmp, prm, minmax.data() + 8U);
+        Trace_metadata_key::yCmp, trace_metadata, minmax.data() + 8U);
 
     size_t sz  = (piol->get_rank() == 0 ? minmax.size() : 0U);
     size_t usz = 0;
@@ -60,16 +61,17 @@ void calc_min(std::string iname, std::string oname)
         usz = uniqlist.size();
     }
 
-    Trace_metadata tprm(usz);
-    in.read_param_non_contiguous(usz, uniqlist.data(), &tprm);
+    Trace_metadata input_trace_metadata(usz);
+    in.read_metadata_non_contiguous(usz, uniqlist.data(), input_trace_metadata);
 
-    Trace_metadata oprm(sz);
+    Trace_metadata output_trace_metadata(sz);
     std::vector<exseis::utils::Trace_value> trace(sz);
     for (size_t i = 0U; i < sz; i++) {
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
-                oprm.copy_entries(i, tprm, j);
-                oprm.set_integer(i, Trace_metadata_key::tn, minmax[i].num);
+                output_trace_metadata.copy_entries(i, input_trace_metadata, j);
+                output_trace_metadata.set_integer(
+                    i, Trace_metadata_key::tn, minmax[i].num);
                 trace[i] = exseis::utils::Trace_value(1);
                 j        = usz;
             }
@@ -77,10 +79,10 @@ void calc_min(std::string iname, std::string oname)
     }
 
     Output_file_segy out(piol, oname);
-    out.write_nt(sz);
-    out.write_ns(1U);
+    out.write_number_of_traces(sz);
+    out.write_samples_per_trace(1U);
     out.write_sample_interval(in.read_sample_interval());
-    out.write_trace(0, sz, trace.data(), &oprm);
+    out.write(0, sz, trace.data(), output_trace_metadata);
 }
 
 /* Main function for minmax.

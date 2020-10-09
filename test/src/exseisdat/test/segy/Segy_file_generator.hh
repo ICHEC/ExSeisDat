@@ -339,14 +339,14 @@ class Trace {
         // For IEEE representability, need exponent [-32, 31]
         // Only need 6 bits then!
         // Take the 6 bits for [0, 63], then bias it
-        const int8_t exponent = (hash & 0x3Fu) - 32;
+        const int8_t exponent = (hash & 0x3FU) - 32;
         hash                  = hash >> 8;
 
         // Use next 24 bits for significand
-        uint32_t significand = hash & 0xFFFFFFu;
+        uint32_t significand = hash & 0xFFFFFFU;
 
         // Need to ensure at most 3 top-bits are 0.
-        if (significand <= 0x0FFFFFu) significand += 0x100000u;
+        if (significand <= 0x0FFFFFU) significand += 0x100000U;
 
         return {sign, exponent, significand};
     }

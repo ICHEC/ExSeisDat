@@ -77,9 +77,9 @@ class IBM_number {
         // bytes left-justified. Again, assuming the native unsigned integer
         // representation is standard binary rep
         m_ibm[0] = ibm_byte_1;
-        m_ibm[1] = (significand >> (2 * 8)) & 0xFFu;
-        m_ibm[2] = (significand >> (1 * 8)) & 0xFFu;
-        m_ibm[3] = (significand >> (0 * 8)) & 0xFFu;
+        m_ibm[1] = (significand >> (2 * 8)) & 0xFFU;
+        m_ibm[2] = (significand >> (1 * 8)) & 0xFFU;
+        m_ibm[3] = (significand >> (0 * 8)) & 0xFFU;
 
 
         // Construct the equivalent value using the native floating point

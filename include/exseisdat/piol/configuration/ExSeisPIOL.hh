@@ -46,9 +46,9 @@ class ExSeisPIOL {
     ///        error has occured the log is printed, the object destructor is
     ///        called and the code aborts.
     ///
-    /// @param[in] msg A message to be printed to the log.
+    /// @param[in] message A message to be printed to the log.
     ///
-    void assert_ok(const std::string& msg = "") const;
+    void assert_ok(const std::string& message = "") const;
 };
 
 }  // namespace configuration

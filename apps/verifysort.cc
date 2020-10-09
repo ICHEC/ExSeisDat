@@ -46,7 +46,8 @@ int main(int argc, char** argv)
 
     // Perform the decomposition and read coordinates of interest.
     auto dec = block_decomposition(
-        src.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        src.read_number_of_traces(), piol->comm->get_num_rank(),
+        piol->comm->get_rank());
 
     if (check_order(src, dec, type)) {
         std::cout << "Success\n";

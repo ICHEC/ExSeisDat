@@ -24,11 +24,10 @@ std::vector<size_t> lobdecompose(
     if (rank == 1) {
         return std::vector<size_t>{0U, lnt, biggest};
     }
-    else {
-        return std::vector<size_t>{
-            std::accumulate(nts.begin(), nts.begin() + rank - 1U, 0U), lnt,
-            biggest};
-    }
+
+    return std::vector<size_t>{
+        std::accumulate(nts.begin(), nts.begin() + rank - 1U, 0U), lnt,
+        biggest};
 }
 
 exseis::utils::Contiguous_decomposition block_decomp(

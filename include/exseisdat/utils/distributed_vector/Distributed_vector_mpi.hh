@@ -29,7 +29,7 @@ class Distributed_vector_mpi : public Distributed_vector<ValueType> {
     // Ensure ValueType is trivially copyable, because we'll be passing it
     // around bitwise over MPI.
     static_assert(
-        std::is_trivially_copyable<value_type>::value == true,
+        std::is_trivially_copyable<value_type>::value,
         "Template parameter, ValueType, is not trivially copyable!");
 
   protected:

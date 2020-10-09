@@ -85,44 +85,6 @@ struct Segy_file_header_byte {
 };
 
 
-/// @brief Extract parameters from an unsigned char array into the parameter
-///        structure
-///
-/// @param[in]  sz      The number of sets of parameters
-/// @param[in]  md      The buffer in the SEG-Y trace header format
-/// @param[out] prm     The parameter structure
-/// @param[in]  stride  The stride to use between adjacent blocks in the input
-///                     buffer.
-/// @param[in]  skip    Skip the first "skip" entries when filling
-///                     Trace_metadata
-///
-void extract_trace_metadata(
-    size_t sz,
-    const unsigned char* md,
-    Trace_metadata& prm,
-    size_t stride,
-    size_t skip);
-
-
-/// @brief Extract parameters from an unsigned char array into the parameter
-///        structure
-///
-/// @param[in]  sz      The number of sets of parameters
-/// @param[in]  prm     The parameter structure
-/// @param[out] md      The buffer in the SEG-Y trace header format
-/// @param[in]  stride  The stride to use between adjacent blocks in the input
-///                     buffer.
-/// @param[in]  skip    Skip the first "skip" entries when extracting entries
-///                     from Trace_metadata
-///
-void insert_trace_metadata(
-    size_t sz,
-    const Trace_metadata& prm,
-    unsigned char* md,
-    size_t stride,
-    size_t skip);
-
-
 /// @brief Convert a SEG-Y scale integer to a floating point type
 ///
 /// @param[in] segy_scalar The int16_t scale taken from the SEG-Y file
@@ -135,7 +97,7 @@ exseis::utils::Floating_point parse_scalar(int16_t segy_scalar);
 /// @brief Take a coordinate and extract a suitable scale factor to represent
 ///         that number in 6 byte fixed point format of the SEG-Y specification.
 ///
-///  @param[in] val The coordinate of interest.
+///  @param[in] value The coordinate of interest.
 ///
 ///  @return An appropriate scale factor for the coordinate.
 ///
@@ -165,7 +127,7 @@ exseis::utils::Floating_point parse_scalar(int16_t segy_scalar);
 ///       decimal somewhere.
 /// @todo Add rounding before positive scale values
 ///
-int16_t find_scalar(exseis::utils::Floating_point val);
+int16_t find_scalar(exseis::utils::Floating_point value);
 
 
 /// @brief Return the size of the text field
@@ -199,89 +161,93 @@ constexpr size_t segy_trace_header_size()
 
 /// @brief Return the size of the Trace Data
 ///
-/// @param[in] ns The number of elements in the data-field.
+/// @param[in] samples_per_trace The number of elements in the data-field.
 ///
 /// @return Returns the size of the data-field in bytes
 ///
 template<typename T = float>
-constexpr size_t segy_trace_data_size(size_t ns)
+constexpr size_t segy_trace_data_size(size_t samples_per_trace)
 {
-    return ns * sizeof(T);
+    return samples_per_trace * sizeof(T);
 }
 
 /// @brief Return the size of the Trace, i.e. the Trace Metadata + Trace Data.
 ///
-/// @param[in] ns The number of elements in the data-field.
+/// @param[in] samples_per_trace The number of elements in the data-field.
 ///
 /// @tparam T The datatype of the data-field. The default value is float.
 ///
 /// @return Returns the Trace size.
 ///
 template<typename T = float>
-size_t segy_trace_size(size_t ns)
+size_t segy_trace_size(size_t samples_per_trace)
 {
-    return segy_trace_header_size() + segy_trace_data_size<T>(ns);
+    return segy_trace_header_size()
+           + segy_trace_data_size<T>(samples_per_trace);
 }
 
-/// @brief Return the expected size of the file if there are nt data-objects and
-///        ns elements in a data-field.
+/// @brief Return the expected size of the file if there are number_of_traces data-objects and
+///        samples_per_trace elements in a data-field.
 ///
-/// @param[in] nt The number of data objects.
-/// @param[in] ns The number of elements in the data-field.
+/// @param[in] number_of_traces The number of data objects.
+/// @param[in] samples_per_trace The number of elements in the data-field.
 ///
 /// @tparam T The datatype of the data-field. The default value is float.
 ///
 /// @return Returns the expected file size.
 ///
 template<typename T = float>
-size_t get_file_size(size_t nt, size_t ns)
+size_t get_file_size(size_t number_of_traces, size_t samples_per_trace)
 {
-    return segy_binary_file_header_size() + nt * segy_trace_size<T>(ns);
+    return segy_binary_file_header_size()
+           + number_of_traces * segy_trace_size<T>(samples_per_trace);
 }
 
 /// @brief Return the offset location of a specific data object.
 ///
-/// @param[in] i  The location of the ith data object will be returned.
-/// @param[in] ns The number of elements in the data-field.
+/// @param[in] trace_index  The location of the ith data object will be returned.
+/// @param[in] samples_per_trace The number of elements in the data-field.
 ///
 /// @tparam T The datatype of the data-field. The default value is float.
 ///
 /// @return Returns the location.
 ///
 template<typename T = float>
-size_t segy_trace_location(size_t i, size_t ns)
+size_t segy_trace_location(size_t trace_index, size_t samples_per_trace)
 {
-    return get_file_size<T>(i, ns);
+    return get_file_size<T>(trace_index, samples_per_trace);
 }
 
 /// @brief Return the offset location of a specific data-field
 ///
-/// @param[in] i  The location of the ith data-field will be returned.
-/// @param[in] ns The number of elements in the data-field.
+/// @param[in] trace_index  The location of the ith data-field will be returned.
+/// @param[in] samples_per_trace The number of elements in the data-field.
 ///
 /// @tparam T The datatype of the data-field. The default value is float.
 ///
 /// @return Returns the location.
 ///
 template<typename T = float>
-size_t segy_trace_data_location(size_t i, size_t ns)
+size_t segy_trace_data_location(size_t trace_index, size_t samples_per_trace)
 {
-    return get_file_size<T>(i, ns) + segy_trace_header_size();
+    return get_file_size<T>(trace_index, samples_per_trace)
+           + segy_trace_header_size();
 }
 
 /// @brief Return the number of traces in a file given a file size
 ///
-/// @param[in] fsz the size of a file or expected size in bytes
-/// @param[in] ns  The number of elements in the data-field.
+/// @param[in] file_size the size of a file or expected size in bytes
+/// @param[in] samples_per_trace  The number of elements in the data-field.
 ///
 /// @tparam T The datatype of the data-field. The default value is float.
 ///
 /// @return Returns the number of traces.
 ///
 template<typename T = float>
-size_t get_nt(size_t fsz, size_t ns)
+size_t get_number_of_traces(size_t file_size, size_t samples_per_trace)
 {
-    return (fsz - segy_binary_file_header_size()) / segy_trace_size<T>(ns);
+    return (file_size - segy_binary_file_header_size())
+           / segy_trace_size<T>(samples_per_trace);
 }
 
 

@@ -18,26 +18,30 @@ inline namespace operations {
  *  gather based on the parameters provided and assuming this is collectively
  *  called.
  * @param[in] piol The piol object.
- * @param[in] prm The parameter structure.
+ * @param[in] trace_metadata The parameter structure.
  * @return Return an 'array' of tuples. Each tuple corresponds to each gather.
  *         Tuple elements: 1) Number of traces in the gather, 2) inline, 3)
  *         crossline.
  * @todo TODO: This can be generalised
  */
 static utils::Distributed_vector<Gather_info> get_gathers(
-    ExSeisPIOL* piol, Trace_metadata* prm)
+    ExSeisPIOL* piol, Trace_metadata* trace_metadata)
 {
     size_t rank     = piol->comm->get_rank();
     size_t num_rank = piol->comm->get_num_rank();
     std::vector<Gather_info> lline;
 
-    exseis::utils::Integer ill = prm->get_integer(0LU, Trace_metadata_key::il);
-    exseis::utils::Integer xll = prm->get_integer(0LU, Trace_metadata_key::xl);
+    exseis::utils::Integer ill =
+        trace_metadata->get_integer(0LU, Trace_metadata_key::il);
+    exseis::utils::Integer xll =
+        trace_metadata->get_integer(0LU, Trace_metadata_key::xl);
     lline.push_back({1LU, ill, xll});
 
-    for (size_t i = 1; i < prm->size(); i++) {
-        exseis::utils::Integer il = prm->get_integer(i, Trace_metadata_key::il);
-        exseis::utils::Integer xl = prm->get_integer(i, Trace_metadata_key::xl);
+    for (size_t i = 1; i < trace_metadata->size(); i++) {
+        exseis::utils::Integer il =
+            trace_metadata->get_integer(i, Trace_metadata_key::il);
+        exseis::utils::Integer xl =
+            trace_metadata->get_integer(i, Trace_metadata_key::xl);
 
         if (il != ill || xl != xll) {
             lline.push_back({0LU, il, xl});
@@ -90,16 +94,17 @@ utils::Distributed_vector<Gather_info> get_il_xl_gathers(
     ExSeisPIOL* piol, Input_file* file)
 {
     auto dec = utils::block_decomposition(
-        file->read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        file->read_number_of_traces(), piol->comm->get_num_rank(),
+        piol->comm->get_rank());
 
     const auto rule = Rule(std::initializer_list<Trace_metadata_key>{
         Trace_metadata_key::il, Trace_metadata_key::xl});
 
-    Trace_metadata prm(std::move(rule), dec.local_size);
+    Trace_metadata trace_metadata(std::move(rule), dec.local_size);
 
-    file->read_param(dec.global_offset, dec.local_size, &prm);
+    file->read_metadata(dec.global_offset, dec.local_size, trace_metadata);
 
-    return get_gathers(piol, &prm);
+    return get_gathers(piol, &trace_metadata);
 }
 
 }  // namespace operations

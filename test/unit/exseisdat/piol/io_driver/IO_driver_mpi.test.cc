@@ -266,7 +266,7 @@ TEST_CASE("Inspector_io_driver_mpi", "[IO_driver_mpi][IO_driver][PIOL]")
     err = MPI_File_sync(file_handle);
     REQUIRE(err == MPI_SUCCESS);
 
-    const auto sink = [](exseis::piol::IO_driver_mpi) {};
+    const auto sink = [](exseis::piol::IO_driver_mpi /*io_driver*/) {};
     sink(std::move(io_driver_mpi));
 
     if (rank == 0) {
@@ -385,7 +385,7 @@ TEST_CASE(
 
 
     // Close the file and delete it
-    const auto sink = [](exseis::piol::IO_driver_mpi) {};
+    const auto sink = [](exseis::piol::IO_driver_mpi /*io_driver*/) {};
     sink(std::move(io_driver_mpi));
 
     MPI_Barrier(MPI_COMM_WORLD);

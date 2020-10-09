@@ -36,6 +36,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     try_add_compile_option(-Wimplicit-fallthrough Wimplicit_fallthrough)
     try_add_compile_option(-Werror Werror)
     try_add_compile_option(-Og Og)
+    try_add_compile_option(-g g)
 
     # Try adding error limit, different for clang and gcc
     try_add_compile_option(-ferror-limit=1 ferror_limit_1)

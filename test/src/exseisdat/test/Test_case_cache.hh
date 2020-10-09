@@ -81,7 +81,7 @@ struct Test_case_cache_listener : Catch::TestEventListenerBase {
     // Test assumption that Catch2 is single-threaded
     bool m_test_case_running = false;
 
-    void testCaseStarting(Catch::TestCaseInfo const&) override
+    void testCaseStarting(Catch::TestCaseInfo const& /*unused*/) override
     {
         Test_case_cache::clear();
 
@@ -89,7 +89,7 @@ struct Test_case_cache_listener : Catch::TestEventListenerBase {
         m_test_case_running = true;
     }
 
-    void testCaseEnded(Catch::TestCaseStats const&) override
+    void testCaseEnded(Catch::TestCaseStats const& /*unused*/) override
     {
         Test_case_cache::clear();
 

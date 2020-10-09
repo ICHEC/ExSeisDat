@@ -7,10 +7,12 @@
 #ifndef EXSEISDAT_PIOL_FILE_OUTPUT_FILE_HH
 #define EXSEISDAT_PIOL_FILE_OUTPUT_FILE_HH
 
-#include "exseisdat/piol/configuration/ExSeisPIOL.hh"
-#include "exseisdat/piol/file/detail/ObjectInterface.hh"
+#include "exseisdat/piol/io_driver/IO_driver.hh"
 #include "exseisdat/piol/metadata/Trace_metadata.hh"
 
+#include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace exseis {
@@ -21,130 +23,294 @@ inline namespace file {
  *         seismic data files.
  */
 class Output_file {
+  public:
+    class Implementation;
+
+  protected:
+    /// A pointer to an underlying implementation
+    std::unique_ptr<Implementation> m_implementation = nullptr;
 
   public:
-    /// @name @special_member_functions
-    /// @{
-
-    /// @default_constructor{default}
-    Output_file() = default;
-
-    /// @copy_constructor{delete}
-    Output_file(const Output_file&) = delete;
-    /// @copy_assignment{delete}
-    Output_file& operator=(const Output_file&) = delete;
-
-    /// @move_constructor{delete}
-    Output_file(Output_file&&) = delete;
-    /// @move_assignment{delete}
-    Output_file& operator=(Output_file&&) = delete;
-
-    /// @virtual_destructor
-    virtual ~Output_file();
-
-    /// @}
+    /// @brief Initialize Output_file from an underlying implementation
+    /// @param[in] implementation An underlying implementation
+    Output_file(std::unique_ptr<Implementation> implementation) :
+        m_implementation(std::move(implementation))
+    {
+    }
 
     /// @brief Get the name of the file.
     /// @return The name of the file.
-    virtual const std::string& file_name() const = 0;
+    const std::string& file_name() const
+    {
+        return m_implementation->file_name();
+    }
 
     /*! @brief Write the human readable text from the file.
      *  @param[in] text The new string containing the text (in ASCII format).
      */
-    virtual void write_text(std::string text) = 0;
+    void write_text(std::string text) { m_implementation->write_text(text); }
 
     /*! @brief Write the number of samples per trace
-     *  @param[in] ns The new number of samples per trace.
+     *  @param[in] samples_per_trace The new number of samples per trace.
      */
-    virtual void write_ns(size_t ns) = 0;
+    void write_samples_per_trace(size_t samples_per_trace)
+    {
+        m_implementation->write_samples_per_trace(samples_per_trace);
+    }
 
     /*! @brief Write the number of traces in the file
-     *  @param[in] nt The new number of traces.
+     *  @param[in] number_of_traces The new number of traces.
      */
-    virtual void write_nt(size_t nt) = 0;
+    void write_number_of_traces(size_t number_of_traces)
+    {
+        m_implementation->write_number_of_traces(number_of_traces);
+    }
 
     /*! @brief Write the number of increment between trace samples.
      *  @param[in] sample_interval The new increment between trace samples.
      */
-    virtual void write_sample_interval(
-        exseis::utils::Floating_point sample_interval) = 0;
+    void write_sample_interval(exseis::utils::Floating_point sample_interval)
+    {
+        m_implementation->write_sample_interval(sample_interval);
+    }
 
-    /*! @brief Write the trace parameters from offset to offset+sz to the
-     *         respective trace headers.
-     *  @param[in] offset The starting trace number.
-     *  @param[in] sz The number of traces to process.
-     *  @param[in] prm An array of the parameter structures
-     *                 (size sizeof(Trace_metadata)*sz)
-     *  @param[in] skip When writing, skip the first "skip" entries of prm
+    /*! @brief Write the trace parameters from trace_offset to
+     * trace_offset+number_of_traces to the respective trace headers.
+     *  @param[in] trace_offset The starting trace number.
+     *  @param[in] number_of_traces     The number of traces to process.
+     *  @param[in] trace_metadata An array of the parameter structures
+     *                            (size sizeof(Trace_metadata)*number_of_traces)
+     *  @param[in] skip   When writing, skip the first "skip" entries of trace_metadata
      *
      *  @details It is assumed that this operation is not an update. Any
      *           previous contents of the trace header will be overwritten.
      */
-    virtual void write_param(
-        size_t offset,
-        size_t sz,
-        const Trace_metadata* prm,
-        size_t skip = 0) = 0;
+    void write_metadata(
+        size_t trace_offset,
+        size_t number_of_traces,
+        const Trace_metadata& trace_metadata,
+        size_t skip = 0)
+    {
+        m_implementation->write_metadata(
+            trace_offset, number_of_traces, trace_metadata, skip);
+    }
 
-    /*! @brief Write the parameters specified by the offsets in the passed
-     *         offset array.
-     *  @param[in] sz The number of traces to process
-     *  @param[in] offset An array of trace numbers to write.
-     *  @param[in] prm A parameter structure
-     *  @param[in] skip When writing, skip the first "skip" entries of prm
-     *
-     *  @details It is assumed that the parameter writing operation is not an
-     *           update. Any previous contents of the trace header will be
-     *           overwritten.
-     */
-    virtual void write_param_non_contiguous(
-        size_t sz,
-        const size_t* offset,
-        const Trace_metadata* prm,
-        size_t skip = 0) = 0;
+    /// @brief Empty call for collective operations
+    void write_metadata() { m_implementation->write_metadata(); }
 
-    /*! @brief Write the traces from offset to offset+sz
-     *  @param[in] offset The starting trace number.
-     *  @param[in] sz The number of traces to process.
-     *  @param[in] trace The array of traces to write to the file
-     *  @param[in] prm A contiguous array of the parameter structures
-     *                 (size sizeof(Trace_metadata)*sz)
-     *  @param[in] skip When writing, skip the first "skip" entries of prm
+    /*! @brief Write the traces from trace_offset to
+     * trace_offset+number_of_traces
+     *  @param[in] trace_offset The starting trace number.
+     *  @param[in] number_of_traces     The number of traces to process.
+     *  @param[in] trace_data  The array of traces to write to the file
      */
-    virtual void write_trace(
-        size_t offset,
-        size_t sz,
-        exseis::utils::Trace_value* trace,
-        const Trace_metadata* prm = nullptr,
-        size_t skip               = 0) = 0;
+    void write_data(
+        size_t trace_offset,
+        size_t number_of_traces,
+        const exseis::utils::Trace_value* trace_data)
+    {
+        m_implementation->write_data(
+            trace_offset, number_of_traces, trace_data);
+    }
 
-    /*! @brief Write the traces specified by the offsets in the passed offset
-     *         array.
-     *  @param[in] sz The number of traces to process
-     *  @param[in] offset An array of trace numbers to write.
-     *  @param[in] trace A contiguous array of each trace
-     *                   (size sz*ns*sizeof(exseis::utils::Trace_value))
-     *  @param[in] prm A parameter structure
-     *  @param[in] skip When writing, skip the first "skip" entries of prm
-     *
-     *  @details When prm==nullptr only the trace data is written.  It
-     *           is assumed that the parameter writing operation is not an
-     *           update.  Any previous contents of the trace header will be
-     *           overwritten.
+    /// @brief Empty call for collective operations
+    void write_data() { m_implementation->write_data(); }
+
+    /*! @brief Write the traces from trace_offset to
+     * trace_offset+number_of_traces
+     *  @param[in] trace_offset The starting trace number.
+     *  @param[in] number_of_traces     The number of traces to process.
+     *  @param[in] trace_data  The array of traces to write to the file
+     *  @param[in] trace_metadata A contiguous array of the parameter structures
+     *                            (size sizeof(Trace_metadata)*number_of_traces)
+     *  @param[in] skip   When writing, skip the first "skip" entries of trace_metadata
      */
-    virtual void write_trace_non_contiguous(
-        size_t sz,
-        const size_t* offset,
-        exseis::utils::Trace_value* trace,
-        const Trace_metadata* prm = nullptr,
-        size_t skip               = 0) = 0;
+    void write(
+        size_t trace_offset,
+        size_t number_of_traces,
+        const exseis::utils::Trace_value* trace_data,
+        const Trace_metadata& trace_metadata,
+        size_t skip = 0)
+    {
+        m_implementation->write(
+            trace_offset, number_of_traces, trace_data, trace_metadata, skip);
+    }
+
+    /// @brief Empty call for collective operations
+    void write() { m_implementation->write(); }
+
+    /*! @brief Write the parameters specified by the trace_offsets in the passed
+     *         trace_offset array.
+     *  @param[in] number_of_offsets  The number of traces to process
+     *  @param[in] trace_offsets   An array of trace numbers to write.
+     *  @param[in] trace_metadata  A parameter structure
+     *  @param[in] skip            When writing, skip the first "skip" entries
+     *                             of trace_metadata
+     */
+    void write_metadata_non_contiguous(
+        size_t number_of_offsets,
+        const size_t* trace_offsets,
+        const Trace_metadata& trace_metadata,
+        size_t skip = 0)
+    {
+        m_implementation->write_metadata_non_contiguous(
+            number_of_offsets, trace_offsets, trace_metadata, skip);
+    }
+
+    /// @brief Empty call for collective operations
+    void write_metadata_non_contiguous()
+    {
+        m_implementation->write_metadata_non_contiguous();
+    }
+
+    /*! @brief Write the traces specified by the trace_offsets in the passed
+     * trace_offset array.
+     *  @param[in] number_of_offsets  The number of traces to process
+     *  @param[in] trace_offsets      An array of trace numbers to write.
+     *  @param[in] trace_data  A contiguous array of each trace
+     *                    (size number_of_offsets*samples_per_trace
+     *                           *sizeof(exseis::utils::Trace_value))
+     */
+    void write_data_non_contiguous(
+        size_t number_of_offsets,
+        const size_t* trace_offsets,
+        const exseis::utils::Trace_value* trace_data)
+    {
+        m_implementation->write_data_non_contiguous(
+            number_of_offsets, trace_offsets, trace_data);
+    }
+
+    /// @brief Empty call for collective operations
+    void write_data_non_contiguous()
+    {
+        m_implementation->write_data_non_contiguous();
+    }
+
+    /*! @brief Write the traces specified by the trace_offsets in the passed
+     * trace_offset array.
+     *  @param[in] number_of_offsets  The number of traces to process
+     *  @param[in] trace_offsets      An array of trace numbers to write.
+     *  @param[in] trace_data  A contiguous array of each trace
+     *                    (size number_of_offsets*samples_per_trace
+     *                           *sizeof(exseis::utils::Trace_value))
+     *  @param[in] trace_metadata  A parameter structure
+     *  @param[in] skip            When writing, skip the first "skip" entries
+     *                             of trace_metadata
+     */
+    void write_non_contiguous(
+        size_t number_of_offsets,
+        const size_t* trace_offsets,
+        const exseis::utils::Trace_value* trace_data,
+        const Trace_metadata& trace_metadata,
+        size_t skip = 0)
+    {
+        m_implementation->write_non_contiguous(
+            number_of_offsets, trace_offsets, trace_data, trace_metadata, skip);
+    }
+
+    /// @brief Empty call for collective operations
+    void write_non_contiguous() { m_implementation->write_non_contiguous(); }
 
     /// @brief Destructively access the underlying IO_driver object(s)
     /// @return The underlying IO_driver object(s)
-    virtual std::vector<IO_driver> io_drivers() && = 0;
+    std::vector<IO_driver> io_drivers() &&
+    {
+        auto impl = std::move(m_implementation);
+        return std::move(*impl).io_drivers();
+    }
 
     /// @brief Ensure written data is synced with the IO_driver
-    virtual void sync() = 0;
+    void sync() { m_implementation->sync(); }
+
+
+    /// @brief Polymorphic implementation for Output_file
+    class Implementation {
+      public:
+        /// @virtual_destructor
+        virtual ~Implementation() = default;
+
+        /// @copydoc Output_file::file_name
+        virtual const std::string& file_name() const = 0;
+
+        /// @copydoc Output_file::write_text
+        virtual void write_text(std::string text) = 0;
+
+        /// @copydoc Output_file::write_samples_per_trace
+        virtual void write_samples_per_trace(size_t samples_per_trace) = 0;
+
+        /// @copydoc Output_file::write_number_of_traces
+        virtual void write_number_of_traces(size_t number_of_traces) = 0;
+
+        /// @copydoc Output_file::write_sample_interval
+        virtual void write_sample_interval(
+            exseis::utils::Floating_point sample_interval) = 0;
+
+        /// @copydoc Output_file::write_metadata
+        virtual void write_metadata(
+            size_t trace_offset,
+            size_t number_of_traces,
+            const Trace_metadata& trace_metadata,
+            size_t skip = 0) = 0;
+
+        /// @copydoc Output_file::write_metadata()
+        virtual void write_metadata() = 0;
+
+        /// @copydoc Output_file::write_data
+        virtual void write_data(
+            size_t trace_offset,
+            size_t number_of_traces,
+            const exseis::utils::Trace_value* trace_data) = 0;
+
+        /// @copydoc Output_file::write_data()
+        virtual void write_data() = 0;
+
+        /// @copydoc Output_file::write
+        virtual void write(
+            size_t trace_offset,
+            size_t number_of_traces,
+            const exseis::utils::Trace_value* trace_data,
+            const Trace_metadata& trace_metadata,
+            size_t skip = 0) = 0;
+
+        /// @copydoc Output_file::write()
+        virtual void write() = 0;
+
+        /// @copydoc Output_file::write_metadata_non_contiguous
+        virtual void write_metadata_non_contiguous(
+            size_t number_of_offsets,
+            const size_t* trace_offsets,
+            const Trace_metadata& trace_metadata,
+            size_t skip = 0) = 0;
+
+        /// @copydoc Output_file::write_metadata_non_contiguous()
+        virtual void write_metadata_non_contiguous() = 0;
+
+        /// @copydoc Output_file::write_data_non_contiguous
+        virtual void write_data_non_contiguous(
+            size_t number_of_offsets,
+            const size_t* trace_offsets,
+            const exseis::utils::Trace_value* trace_data) = 0;
+
+        /// @copydoc Output_file::write_data_non_contiguous()
+        virtual void write_data_non_contiguous() = 0;
+
+        /// @copydoc Output_file::write_non_contiguous
+        virtual void write_non_contiguous(
+            size_t number_of_offsets,
+            const size_t* trace_offsets,
+            const exseis::utils::Trace_value* trace_data,
+            const Trace_metadata& trace_metadata,
+            size_t skip = 0) = 0;
+
+        /// @copydoc Output_file::write_non_contiguous()
+        virtual void write_non_contiguous() = 0;
+
+        /// @copydoc Output_file::io_drivers
+        virtual std::vector<IO_driver> io_drivers() && = 0;
+
+        /// @copydoc Output_file::sync
+        virtual void sync() = 0;
+    };
 };
 
 }  // namespace file

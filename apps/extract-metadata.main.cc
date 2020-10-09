@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
         ->required();
 
     // Print supported metadata names and exit.
-    app.add_flag_function("--list-supported-metadata", [](size_t) {
+    app.add_flag_function("--list-supported-metadata", [](size_t /*unused*/) {
         std::cout << "Supported metadata names:\n";
         for (auto it = meta_name_to_meta_map.cbegin();
              it != meta_name_to_meta_map.cend(); ++it) {
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
     // list of every nth trace across the processes.
     //
 
-    size_t global_number_of_traces = input_file.read_nt();
+    size_t global_number_of_traces = input_file.read_number_of_traces();
 
     // Get a block decomposition of the traces in the file
     const auto decomposition = block_decomposition(
@@ -312,8 +312,8 @@ int main(int argc, char* argv[])
         }
 
         // Read the trace metadata into memory
-        input_file.read_param_non_contiguous(
-            current_chunk_size, trace_indices.data(), &trace_metadata);
+        input_file.read_metadata_non_contiguous(
+            current_chunk_size, trace_indices.data(), trace_metadata);
 
 
         // Generate the local chunk of the CSV on each process

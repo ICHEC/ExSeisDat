@@ -38,7 +38,7 @@ Trace_value rectangular_rms_gain(
     const Trace_value* signal,
     size_t window_size,
     Trace_value target_amplitude,
-    size_t)
+    size_t /*unused*/)
 {
     Trace_value amp = 0;
     for (size_t j = 0; j < window_size; j++) {
@@ -137,7 +137,7 @@ Trace_value mean_abs_gain(
     const Trace_value* signal,
     size_t window_size,
     Trace_value target_amplitude,
-    size_t)
+    size_t /*unused*/)
 {
     assert(window_size > 0);
 
@@ -155,26 +155,25 @@ Trace_value median_gain(
     const Trace_value* signal,
     size_t window_size,
     Trace_value target_amplitude,
-    size_t)
+    size_t /*unused*/)
 {
     // This could be optimised with std::nth_element if required.
     std::vector<Trace_value> signal_tmp(signal, &signal[window_size]);
     std::sort(signal_tmp.begin(), signal_tmp.end());
 
+    Trace_value amp = 0;
     if (window_size % 2 == 0) {
-        const auto amp =
+        amp =
             ((signal_tmp[window_size / 2] + signal_tmp[window_size / 2 + 1])
              / 2);
-        assert(non_zero(amp));
-
-        return target_amplitude / amp;
     }
     else {
-        const auto amp = signal_tmp[window_size / 2];
-        assert(non_zero(amp));
-
-        return target_amplitude / amp;
+        amp = signal_tmp[window_size / 2];
     }
+
+    assert(non_zero(amp));
+
+    return target_amplitude / amp;
 }
 
 }  // namespace signal_processing

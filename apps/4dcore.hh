@@ -49,8 +49,8 @@ inline void mpi_err(int err)
 void calc_4d_bin(
     ExSeisPIOL* piol,
     fourd_t dsrmax,
-    const Coords* coords1,
-    const Coords* coords2,
+    const Coords* crd1,
+    const Coords* crd2,
     Four_d_opt opt,
     std::vector<size_t>& min,
     std::vector<fourd_t>& minrs);

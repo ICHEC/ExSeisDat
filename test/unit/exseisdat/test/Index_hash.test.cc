@@ -96,9 +96,9 @@ TEST_CASE("Index_hash", "[Index_hash][test]")
             // Bitwise cast unsigned to signed, compare truncated values
             uint32_t i_int32_uint32;
             std::memcpy(&i_int32_uint32, &i_int32, sizeof(int32_t));
-            REQUIRE(i_int32_uint32 == (i_default & 0xFFFFFFFFu));
+            REQUIRE(i_int32_uint32 == (i_default & 0xFFFFFFFFU));
 
-            REQUIRE(i_unsigned_char == (i_default & 0xFFu));
+            REQUIRE(i_unsigned_char == (i_default & 0xFFU));
         }
     }
 }

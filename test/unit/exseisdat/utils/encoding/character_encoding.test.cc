@@ -130,7 +130,7 @@ TEST_CASE("Character Encoding", "[utils][EBCIDIC][ASCII]")
                 to_ebcdic_from_ascii(to_ascii_from_ebcdic(ebcdic_c));
 
             const char ascii_sub           = 0x1A;
-            const unsigned char ebcdic_sub = 0x3Fu;
+            const unsigned char ebcdic_sub = 0x3FU;
 
             // NULL should map to NULL
             if (i == 0) {

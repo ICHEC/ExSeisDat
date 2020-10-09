@@ -66,7 +66,7 @@ TEST_CASE("Mute", "[signal_processing][mute]")
 
         mute(
             signal.size(), signal.data(), taper_function, mute_size_at_begin,
-            taper_size_at_begin, taper_size_at_end, mute_size_at_end);
+            taper_size_at_begin, mute_size_at_end, taper_size_at_end);
 
         {
             INFO("The signal should be muted up to mute_size_at_begin.");

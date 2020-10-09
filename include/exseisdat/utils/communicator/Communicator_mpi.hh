@@ -29,7 +29,10 @@ using namespace exseis::utils::types;
 ///        before MPI_Init is called. If PIOL Is managing MPI, it will call
 ///        MPI_Finalize on program exit.
 ///
-void manage_mpi(bool);
+/// @param[in] manage Set to true if PIOL should manage MPI initialization /
+///                   finalization
+///
+void manage_mpi(bool manage);
 
 
 /// @brief The MPI communication class. All MPI communication specific routines

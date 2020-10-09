@@ -99,7 +99,7 @@ TEST_CASE("from_ibm_to_float", "[number_encoding]")
     int sign        = GENERATE(1, -1);
     int8_t exponent = GENERATE(range(-32, 31, 7), 0, 31);
     // Loop instead of GENERATE for performance
-    for (uint32_t significand = 0x100000u; significand <= 0xFFFFFFu;
+    for (uint32_t significand = 0x100000U; significand <= 0xFFFFFFU;
          significand += 7) {
 
         // Build an equivalent pair of IBM and native floating point

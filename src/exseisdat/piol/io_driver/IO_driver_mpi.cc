@@ -451,7 +451,7 @@ size_t IO_driver_mpi::Implementation::get_file_size() const
     return static_cast<size_t>(max_fsz);
 }
 
-void IO_driver_mpi::Implementation::set_file_size(size_t sz)
+void IO_driver_mpi::Implementation::set_file_size(size_t size)
 {
     static const char* function_name =
         "exseis::piol::io_driver::IO_driver_mpi::Implementation::set_file_size";
@@ -459,9 +459,9 @@ void IO_driver_mpi::Implementation::set_file_size(size_t sz)
     auto detail = IO_driver_mpi_detail{m_log, m_file_name, m_file_communicator,
                                        m_file, m_info};
 
-    assert(is_castable_to<MPI_Offset>(sz));
+    assert(is_castable_to<MPI_Offset>(size));
 
-    int err = MPI_File_set_size(m_file, MPI_Offset(sz));
+    int err = MPI_File_set_size(m_file, MPI_Offset(size));
 
     if (err != MPI_SUCCESS) {
         detail.log_error(

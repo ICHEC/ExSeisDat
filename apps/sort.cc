@@ -53,8 +53,8 @@ int main(int argc, char** argv)
 
     Input_file_segy input_file(piol, input_filename);
 
-    const auto number_of_traces  = input_file.read_nt();
-    const auto samples_per_trace = input_file.read_ns();
+    const auto number_of_traces  = input_file.read_number_of_traces();
+    const auto samples_per_trace = input_file.read_samples_per_trace();
 
     // Find number of traces to read on this process
     const auto decomposition = block_decomposition(
@@ -68,8 +68,8 @@ int main(int argc, char** argv)
     auto trace_metadata =
         Trace_metadata(Rule{true, true, true}, local_number_of_traces);
 
-    input_file.read_param(
-        traces_begin, local_number_of_traces, &trace_metadata, 0);
+    input_file.read_metadata(
+        traces_begin, local_number_of_traces, trace_metadata, 0);
 
     for (size_t i = 0; i < trace_metadata.size(); i++) {
         trace_metadata.set_index(i, Trace_metadata_key::ltn, i);
@@ -111,9 +111,9 @@ int main(int argc, char** argv)
 
     // TODO: setup trace_medatada so it's just copying the raw trace data
 
-    input_file.read_trace_non_contiguous(
+    input_file.read_non_contiguous(
         local_number_of_traces, sorted_order.data(), trace_data.data(),
-        &trace_metadata, 0);
+        trace_metadata, 0);
 
 
     // De-sort the traces
@@ -151,13 +151,13 @@ int main(int argc, char** argv)
     Output_file_segy output_file(piol, output_filename);
 
     output_file.write_text(input_file.read_text());
-    output_file.write_ns(input_file.read_ns());
-    output_file.write_nt(input_file.read_nt());
+    output_file.write_samples_per_trace(input_file.read_samples_per_trace());
+    output_file.write_number_of_traces(input_file.read_number_of_traces());
     output_file.write_sample_interval(input_file.read_sample_interval());
 
-    output_file.write_trace(
-        traces_begin, local_number_of_traces, trace_data.data(),
-        &trace_metadata, 0);
+    output_file.write(
+        traces_begin, local_number_of_traces, trace_data.data(), trace_metadata,
+        0);
 
     piol->assert_ok();
 

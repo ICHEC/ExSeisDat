@@ -27,31 +27,38 @@ void write_contig(
     float fhalf = float(nt * ns) / 2.0;
     float off   = float(nt * ns) / 4.0;
     long nhalf  = nt / 2;
-    Trace_metadata prm(max);
+    Trace_metadata trace_metadata(max);
     std::vector<float> trc(max * ns);
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset + i + j));
-            prm.set_floating_point(j, Trace_metadata_key::x_src, 1600.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::y_src, 2400.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::x_rcv, 100000.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::y_rcv, 3000000.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::xCmp, 10000.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::yCmp, 4000.0 + k);
-            prm.set_integer(j, Trace_metadata_key::il, 2400 + k);
-            prm.set_integer(j, Trace_metadata_key::xl, 1600 + k);
-            prm.set_integer(j, Trace_metadata_key::tn, offset + i + j);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::x_src, 1600.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::y_src, 2400.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::x_rcv, 100000.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::y_rcv, 3000000.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::xCmp, 10000.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::yCmp, 4000.0 + k);
+            trace_metadata.set_integer(j, Trace_metadata_key::il, 2400 + k);
+            trace_metadata.set_integer(j, Trace_metadata_key::xl, 1600 + k);
+            trace_metadata.set_integer(
+                j, Trace_metadata_key::tn, offset + i + j);
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
                 fhalf - std::abs(-fhalf + float((offset + i) * ns + j)) - off;
         }
-        file.write_trace(offset + i, rblock, trc.data(), &prm);
+        file.write(offset + i, rblock, trc.data(), trace_metadata);
         piol.assert_ok();
     }
     for (size_t j = 0; j < extra; j++) {
-        file.write_trace(0U, size_t(0), nullptr, nullptr);
+        file.write();
         piol.assert_ok();
     }
 }
@@ -96,31 +103,39 @@ void write_random(
 
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        Trace_metadata prm(rblock);
+        Trace_metadata trace_metadata(rblock);
         std::vector<float> trc(rblock * ns);
 
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset[i + j]));
-            prm.set_floating_point(j, Trace_metadata_key::x_src, 1600.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::y_src, 2400.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::x_rcv, 100000.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::y_rcv, 3000000.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::xCmp, 10000.0 + k);
-            prm.set_floating_point(j, Trace_metadata_key::yCmp, 4000.0 + k);
-            prm.set_integer(j, Trace_metadata_key::il, 2400 + k);
-            prm.set_integer(j, Trace_metadata_key::xl, 1600 + k);
-            prm.set_integer(j, Trace_metadata_key::tn, offset[i + j]);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::x_src, 1600.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::y_src, 2400.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::x_rcv, 100000.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::y_rcv, 3000000.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::xCmp, 10000.0 + k);
+            trace_metadata.set_floating_point(
+                j, Trace_metadata_key::yCmp, 4000.0 + k);
+            trace_metadata.set_integer(j, Trace_metadata_key::il, 2400 + k);
+            trace_metadata.set_integer(j, Trace_metadata_key::xl, 1600 + k);
+            trace_metadata.set_integer(
+                j, Trace_metadata_key::tn, offset[i + j]);
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
                 fhalf - std::abs(-fhalf + float((offset[i]) * ns + j)) - off;
         }
-        file.write_trace_non_contiguous(rblock, &offset[i], trc.data(), &prm);
+        file.write_non_contiguous(
+            rblock, &offset[i], trc.data(), trace_metadata);
         piol.assert_ok();
     }
 
     for (size_t j = 0; j < extra; j++) {
-        file.write_trace_non_contiguous(0U, nullptr, nullptr, nullptr);
+        file.write_non_contiguous();
         piol.assert_ok();
     }
 }
@@ -139,8 +154,8 @@ void file_make(
     Output_file_segy file(piol, name);
 
     piol->assert_ok();
-    file.write_ns(ns);
-    file.write_nt(nt);
+    file.write_samples_per_trace(ns);
+    file.write_number_of_traces(nt);
     file.write_sample_interval(sample_interval);
     file.write_text("Test file\n");
     piol->assert_ok();

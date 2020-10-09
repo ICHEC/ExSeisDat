@@ -644,22 +644,14 @@ void test_io_driver(
                         if (global_index >= offset
                             && global_index < offset + block_size) {
 
-                            if (current_value != new_value_at(global_index)) {
-                                return false;
-                            }
-
                             // index found, return early
-                            return true;
+                            return current_value == new_value_at(global_index);
                         }
                     }
 
                     // If the index hasn't been found, the underlying value
                     // should remain unchanged
-                    if (current_value != original_value) {
-                        return false;
-                    }
-
-                    return true;
+                    return current_value == original_value;
                 }));
         }
     }

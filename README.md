@@ -7,11 +7,6 @@ It includes a low-level parallel file I/O library, ExSeisPIOL, primarily
 targeting MPI I/O, containing routines for selectively loading and processing
 meta-data and trace data.
 
-Also included is a high-level library, ExSeisFlow, which uses ExSeisPIOL to
-implement a number of seismic data workflows, e.g. sorting data, binning, trace
-analysis, file concatenation, etc.
-
-
 ### Talks / Posters
 
 [EAGE Upstream 2017 Slides](doc/dissemination/EAGE_Upstream_2017.pdf)  

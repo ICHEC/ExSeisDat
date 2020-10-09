@@ -81,7 +81,7 @@ std::vector<size_t> get_sort_index(size_t sz, const size_t* list);
  *  random-access iterator support.
  *
  *  @param[in]      piol        The PIOL object.
- *  @param[in,out]  prm         The parameter structure to sort
+ *  @param[in,out]  trace_metadata  The parameter structure to sort
  *  @param[in]      comp        The Trace_metadata function to use for less-than
  *                              comparisons between objects in the vector. It
  *                              assumes each Trace_metadata structure has
@@ -94,7 +94,7 @@ std::vector<size_t> get_sort_index(size_t sz, const size_t* list);
  */
 std::vector<size_t> sort(
     ExSeisPIOL* piol,
-    Trace_metadata& prm,
+    Trace_metadata& trace_metadata,
     CompareP comp,
     bool file_order = true);
 
@@ -103,12 +103,13 @@ std::vector<size_t> sort(
  *
  *  @param[in]      piol    The PIOL object
  *  @param[in]      type    The sort type
- *  @param[in,out]  prm     The trace parameter structure.
+ *  @param[in,out]  trace_metadata  The trace parameter structure.
  *
  *  @return Return a vector which is a list of the ordered trace numbers. i.e
  *          the 0th member is the position of the 0th trace post-sort.
  */
-std::vector<size_t> sort(ExSeisPIOL* piol, Sort_type type, Trace_metadata& prm);
+std::vector<size_t> sort(
+    ExSeisPIOL* piol, Sort_type type, Trace_metadata& trace_metadata);
 
 /*! @brief Check that the file obeys the expected ordering.
  *

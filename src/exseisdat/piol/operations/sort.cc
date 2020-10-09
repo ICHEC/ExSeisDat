@@ -59,17 +59,17 @@ inline exseis::utils::Floating_point off(
 }
 
 /*! For sorting by Src X, Src Y, Rcv X, Rcv Y.
- *  @param[in] prm The parameter structure
+ *  @param[in] trace_metadata The parameter structure
  *  @param[in] i   Structure to access 0th parameter of associated Trace_metadata struct.
  *  @param[in] j   Structure to access 0th parameter of associated Trace_metadata struct.
- *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *  @return Return true if entry \c i of \p trace_metadata is less than entry \c j in terms
  *          of the sort.
  */
 static bool less_src_rcv(
-    const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1sx = prm.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e2sx = prm.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
+    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
 
     if (e1sx < e2sx) {
         return true;
@@ -80,8 +80,8 @@ static bool less_src_rcv(
 
     // e1sz == e2sx
 
-    auto e1sy = prm.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e2sy = prm.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
+    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
 
     if (e1sy < e2sy) {
         return true;
@@ -92,8 +92,8 @@ static bool less_src_rcv(
 
     // e1sy == e2sy
 
-    auto e1rx = prm.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e2rx = prm.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
+    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
 
     if (e1rx < e2rx) {
         return true;
@@ -104,8 +104,8 @@ static bool less_src_rcv(
 
     // e1rx == e2rx
 
-    auto e1ry = prm.get_floating_point(i, Trace_metadata_key::y_rcv);
-    auto e2ry = prm.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
 
     if (e1ry < e2ry) {
         return true;
@@ -116,27 +116,27 @@ static bool less_src_rcv(
 
     // e1ry == e2ry
 
-    return prm.get_index(i, Trace_metadata_key::ltn)
-           < prm.get_index(j, Trace_metadata_key::ltn);
+    return trace_metadata.get_index(i, Trace_metadata_key::ltn)
+           < trace_metadata.get_index(j, Trace_metadata_key::ltn);
 }
 
 /*! For sorting by Src X, Src Y and Offset.
  *  @tparam    CalcOff If true, calculate the offset, otherwise read the offset
  *                     from the header
- *  @param[in] prm     The parameter structure
+ *  @param[in] trace_metadata     The parameter structure
  *  @param[in] i       Structure to access 0th parameter of associated Trace_metadata
  *                     struct.
  *  @param[in] j       Structure to access 0th parameter of associated Trace_metadata
  *                     struct.
- *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *  @return Return true if entry \c i of \p trace_metadata is less than entry \c j in terms
  *          of the sort.
  */
 template<bool CalcOff>
 static bool less_src_off(
-    const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1sx = prm.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e2sx = prm.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
+    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
 
     if (e1sx < e2sx) {
         return true;
@@ -147,8 +147,8 @@ static bool less_src_off(
 
     // e1sz == e2sx
 
-    auto e1sy = prm.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e2sy = prm.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
+    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
 
     if (e1sy < e2sy) {
         return true;
@@ -159,17 +159,17 @@ static bool less_src_off(
 
     // e1sy == e2sy
 
-    auto e1rx = prm.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e1ry = prm.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
+    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   prm.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
 
-    auto e2rx = prm.get_floating_point(j, Trace_metadata_key::x_rcv);
-    auto e2ry = prm.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   prm.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
 
     if (off1 < off2) {
         return true;
@@ -180,8 +180,8 @@ static bool less_src_off(
 
     // off1 == off2
 
-    auto ltn1 = prm.get_index(i, Trace_metadata_key::ltn);
-    auto ltn2 = prm.get_index(j, Trace_metadata_key::ltn);
+    auto ltn1 = trace_metadata.get_index(i, Trace_metadata_key::ltn);
+    auto ltn2 = trace_metadata.get_index(j, Trace_metadata_key::ltn);
 
     return ltn1 < ltn2;
 }
@@ -189,20 +189,20 @@ static bool less_src_off(
 /*! For sorting by Rcv X, Rcv Y and Offset.
  *  @tparam    CalcOff If true, calculate the offset, otherwise read the offset
  *                     from the header
- *  @param[in] prm     The parameter structure
+ *  @param[in] trace_metadata     The parameter structure
  *  @param[in] i       Structure to access 0th parameter of associated Trace_metadata
  *                     struct.
  *  @param[in] j       Structure to access 0th parameter of associated Trace_metadata
  *                     struct.
- *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *  @return Return true if entry \c i of \p trace_metadata is less than entry \c j in terms
  *          of the sort.
  */
 template<bool CalcOff>
 static bool less_rcv_off(
-    const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1rx = prm.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e2rx = prm.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
+    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
 
     if (e1rx < e2rx) {
         return true;
@@ -213,8 +213,8 @@ static bool less_rcv_off(
 
     // e1rx == e2rx
 
-    auto e1ry = prm.get_floating_point(i, Trace_metadata_key::y_rcv);
-    auto e2ry = prm.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
 
     if (e1ry < e2ry) {
         return true;
@@ -225,17 +225,17 @@ static bool less_rcv_off(
 
     // e1ry == e2ry
 
-    auto e1sx = prm.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e1sy = prm.get_floating_point(i, Trace_metadata_key::y_src);
+    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
+    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   prm.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
 
-    auto e2sx = prm.get_floating_point(j, Trace_metadata_key::x_src);
-    auto e2sy = prm.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   prm.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
 
     if (off1 < off2) {
         return true;
@@ -246,25 +246,25 @@ static bool less_rcv_off(
 
     // off1 == off2
 
-    return prm.get_index(i, Trace_metadata_key::ltn)
-           < prm.get_index(j, Trace_metadata_key::ltn);
+    return trace_metadata.get_index(i, Trace_metadata_key::ltn)
+           < trace_metadata.get_index(j, Trace_metadata_key::ltn);
 }
 
 /*! For sorting by Inline, Crossline and Offset.
  *  @tparam CalcOff If true, calculate the offset, otherwise read the offset
  *                  from the header
- *  @param[in] prm The parameter structure
+ *  @param[in] trace_metadata The parameter structure
  *  @param[in] i   Structure to access 0th parameter of associated Trace_metadata struct.
  *  @param[in] j   Structure to access 0th parameter of associated Trace_metadata struct.
- *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *  @return Return true if entry \c i of \p trace_metadata is less than entry \c j in terms
  *          of the sort.
  */
 template<bool CalcOff>
 static bool less_line_off(
-    const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1il = prm.get_integer(i, Trace_metadata_key::il);
-    auto e2il = prm.get_integer(j, Trace_metadata_key::il);
+    auto e1il = trace_metadata.get_integer(i, Trace_metadata_key::il);
+    auto e2il = trace_metadata.get_integer(j, Trace_metadata_key::il);
 
     if (e1il < e2il) {
         return true;
@@ -275,8 +275,8 @@ static bool less_line_off(
 
     // e1il == e2il
 
-    auto e1xl = prm.get_integer(i, Trace_metadata_key::xl);
-    auto e2xl = prm.get_integer(j, Trace_metadata_key::xl);
+    auto e1xl = trace_metadata.get_integer(i, Trace_metadata_key::xl);
+    auto e2xl = trace_metadata.get_integer(j, Trace_metadata_key::xl);
 
     if (e1xl < e2xl) {
         return true;
@@ -287,22 +287,22 @@ static bool less_line_off(
 
     // e1xl == e2xl
 
-    auto e1sx = prm.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e1sy = prm.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e1rx = prm.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e1ry = prm.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
+    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
+    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
+    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
 
-    auto e2sx = prm.get_floating_point(j, Trace_metadata_key::x_src);
-    auto e2sy = prm.get_floating_point(j, Trace_metadata_key::y_src);
-    auto e2rx = prm.get_floating_point(j, Trace_metadata_key::x_rcv);
-    auto e2ry = prm.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
 
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   prm.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   prm.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
 
     if (off1 < off2) {
         return true;
@@ -313,40 +313,40 @@ static bool less_line_off(
 
     // off1 == off2
 
-    return prm.get_index(i, Trace_metadata_key::ltn)
-           < prm.get_index(j, Trace_metadata_key::ltn);
+    return trace_metadata.get_index(i, Trace_metadata_key::ltn)
+           < trace_metadata.get_index(j, Trace_metadata_key::ltn);
 }
 
 /*! For sorting by Offset, Inline and Crossline.
  *  @tparam    CalcOff If true, calculate the offset, otherwise read the offset
  *                     from the header
- *  @param[in] prm     The parameter structure
+ *  @param[in] trace_metadata     The parameter structure
  *  @param[in] i       Structure to access 0th parameter of associated Trace_metadata
  *                     struct.
  *  @param[in] j       Structure to access 0th parameter of associated Trace_metadata
  *                     struct.
- *  @return Return true if entry \c i of \p prm is less than entry \c j in terms
+ *  @return Return true if entry \c i of \p trace_metadata is less than entry \c j in terms
  *          of the sort.
  */
 template<bool CalcOff>
 static bool less_off_line(
-    const Trace_metadata& prm, const size_t i, const size_t j)
+    const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1sx = prm.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e1sy = prm.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e1rx = prm.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e1ry = prm.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
+    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
+    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
+    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   prm.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
 
-    auto e2sx = prm.get_floating_point(j, Trace_metadata_key::x_src);
-    auto e2sy = prm.get_floating_point(j, Trace_metadata_key::y_src);
-    auto e2rx = prm.get_floating_point(j, Trace_metadata_key::x_rcv);
-    auto e2ry = prm.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   prm.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
 
     if (off1 < off2) {
         return true;
@@ -357,8 +357,8 @@ static bool less_off_line(
 
     // off1 == off2
 
-    auto e1il = prm.get_integer(i, Trace_metadata_key::il);
-    auto e2il = prm.get_integer(j, Trace_metadata_key::il);
+    auto e1il = trace_metadata.get_integer(i, Trace_metadata_key::il);
+    auto e2il = trace_metadata.get_integer(j, Trace_metadata_key::il);
 
     if (e1il < e2il) {
         return true;
@@ -369,8 +369,8 @@ static bool less_off_line(
 
     // e1il == e2il
 
-    auto e1xl = prm.get_integer(i, Trace_metadata_key::xl);
-    auto e2xl = prm.get_integer(j, Trace_metadata_key::xl);
+    auto e1xl = trace_metadata.get_integer(i, Trace_metadata_key::xl);
+    auto e2xl = trace_metadata.get_integer(j, Trace_metadata_key::xl);
 
     if (e1xl < e2xl) {
         return true;
@@ -380,8 +380,8 @@ static bool less_off_line(
     }
 
     // e1xl == e2xl
-    return prm.get_index(i, Trace_metadata_key::ltn)
-           < prm.get_index(j, Trace_metadata_key::ltn);
+    return trace_metadata.get_index(i, Trace_metadata_key::ltn)
+           < trace_metadata.get_index(j, Trace_metadata_key::ltn);
 }
 
 CompareP get_comp(Sort_type type)
@@ -418,9 +418,10 @@ CompareP get_comp(Sort_type type)
     assert(false && "getComp: Unknown Sort_type");
 }
 
-std::vector<size_t> sort(ExSeisPIOL* piol, Sort_type type, Trace_metadata& prm)
+std::vector<size_t> sort(
+    ExSeisPIOL* piol, Sort_type type, Trace_metadata& trace_metadata)
 {
-    return sort(piol, prm, get_comp(type));
+    return sort(piol, trace_metadata, get_comp(type));
 }
 
 bool check_order(
@@ -429,12 +430,12 @@ bool check_order(
     Sort_type type)
 {
     auto comp = get_comp(type);
-    Trace_metadata prm(dec.local_size);
+    Trace_metadata trace_metadata(dec.local_size);
 
-    src.read_param(dec.global_offset, dec.local_size, &prm);
+    src.read_metadata(dec.global_offset, dec.local_size, trace_metadata);
 
     for (size_t i = 1; i < dec.local_size; i++) {
-        if (!comp(prm, i - 1, i)) {
+        if (!comp(trace_metadata, i - 1, i)) {
             return false;
         }
     }
@@ -712,7 +713,7 @@ namespace {
 
 /// @brief Get the MPI_Datatype from an exseis::utils::Type.
 ///
-/// @tparam Type_ The exseis::utils::Type enum value to convert.
+/// @tparam Type The exseis::utils::Type enum value to convert.
 ///
 /// @returns The equivalent MPI_Datatype
 ///
@@ -784,12 +785,13 @@ MPI_Datatype mpi_datatype_from_md_type(Rule_entry::MdType md_type)
  *  Receiving processes put the objects at the start of their vector.
  *  @param[in]     piol     The PIOL object.
  *  @param[in]     region_sz The size of data to send/receive.
- *  @param[in,out] prm      The parameter structure to send/receive
+ *  @param[in,out] trace_metadata      The parameter structure to send/receive
  */
-void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
+void send_right(
+    ExSeisPIOL* piol, size_t region_sz, Trace_metadata& trace_metadata)
 {
-    Trace_metadata sprm(prm.rules, region_sz);
-    Trace_metadata rprm(prm.rules, region_sz);
+    Trace_metadata send_trace_metadata(trace_metadata.rules, region_sz);
+    Trace_metadata recv_trace_metadata(trace_metadata.rules, region_sz);
 
     // Check conversions ok
     assert(
@@ -820,11 +822,12 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
     if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
 
         for (size_t i = 0; i < region_sz; i++) {
-            sprm.copy_entries(i, prm, i + prm.size() - region_sz);
+            send_trace_metadata.copy_entries(
+                i, trace_metadata, i + trace_metadata.size() - region_sz);
         }
     }
 
-    for (const auto entry : rprm.entry_types) {
+    for (const auto entry : recv_trace_metadata.entry_types) {
         const auto key     = entry.first;
         const auto md_type = entry.second;
 
@@ -835,16 +838,18 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
         const auto mpi_datatype = mpi_datatype_from_md_type(md_type);
 
         // Check conversion ok
-        assert(rprm.entry_size(key) < std::numeric_limits<int>::max());
+        assert(
+            recv_trace_metadata.entry_size(key)
+            < std::numeric_limits<int>::max());
 
         if (rank != 0) {
             rrcv.push_back(MPI_REQUEST_NULL);
 
             log_on_error(
                 MPI_Irecv, "Sort right exseis::utils::Floating_point MPI_Irecv",
-                rprm.entry_data<unsigned char>(key),
-                static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank - 1,
-                0, MPI_COMM_WORLD, &rrcv.back());
+                recv_trace_metadata.entry_data<unsigned char>(key),
+                static_cast<int>(recv_trace_metadata.entry_size(key)),
+                mpi_datatype, rank - 1, 0, MPI_COMM_WORLD, &rrcv.back());
         }
 
         if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
@@ -853,9 +858,9 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
             log_on_error(
                 MPI_Isend, "Sort right MPI_Isend",
-                sprm.entry_data<unsigned char>(key),
-                static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank + 1,
-                0, MPI_COMM_WORLD, &rsnd.back());
+                send_trace_metadata.entry_data<unsigned char>(key),
+                static_cast<int>(send_trace_metadata.entry_size(key)),
+                mpi_datatype, rank + 1, 0, MPI_COMM_WORLD, &rsnd.back());
         }
     }
 
@@ -863,7 +868,7 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
     if (rank != 0) {
         for (size_t i = 0; i < region_sz; i++) {
-            prm.copy_entries(i, rprm, i);
+            trace_metadata.copy_entries(i, recv_trace_metadata, i);
         }
     }
 }
@@ -873,12 +878,13 @@ void send_right(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
  *  Receiving processes put the objects at the end of their vector.
  *  @param[in]     piol     The PIOL object.
  *  @param[in]     region_sz The size of data to send/receive.
- *  @param[in,out] prm      The parameter structure to send/receive
+ *  @param[in,out] trace_metadata      The parameter structure to send/receive
  */
-void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
+void send_left(
+    ExSeisPIOL* piol, size_t region_sz, Trace_metadata& trace_metadata)
 {
-    Trace_metadata sprm(prm.rules, region_sz);
-    Trace_metadata rprm(prm.rules, region_sz);
+    Trace_metadata send_trace_metadata(trace_metadata.rules, region_sz);
+    Trace_metadata recv_trace_metadata(trace_metadata.rules, region_sz);
 
     // Check converstions ok
     assert(
@@ -910,12 +916,13 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
     if (rank != 0) {
         for (size_t i = 0; i < region_sz; i++) {
-            sprm.copy_entries(i, prm, i);
+            send_trace_metadata.copy_entries(i, trace_metadata, i);
         }
     }
 
-    // sprm and rprm should have the same entry_types.
-    for (const auto entry : sprm.entry_types) {
+    // send_trace_metadata and recv_trace_metadata should have the same
+    // entry_types.
+    for (const auto entry : send_trace_metadata.entry_types) {
         const auto key     = entry.first;
         const auto md_type = entry.second;
 
@@ -926,16 +933,18 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
         const auto mpi_datatype = mpi_datatype_from_md_type(md_type);
 
         // Check conversion ok
-        assert(sprm.entry_size(key) < std::numeric_limits<int>::max());
+        assert(
+            send_trace_metadata.entry_size(key)
+            < std::numeric_limits<int>::max());
 
         if (rank != 0) {
             rsnd.push_back(MPI_REQUEST_NULL);
 
             log_on_error(
                 MPI_Isend, "Sort left MPI_Isend",
-                sprm.entry_data<unsigned char>(key),
-                static_cast<int>(sprm.entry_size(key)), mpi_datatype, rank - 1,
-                1, MPI_COMM_WORLD, &rsnd.back());
+                send_trace_metadata.entry_data<unsigned char>(key),
+                static_cast<int>(send_trace_metadata.entry_size(key)),
+                mpi_datatype, rank - 1, 1, MPI_COMM_WORLD, &rsnd.back());
         }
 
         if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
@@ -943,9 +952,9 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
             log_on_error(
                 MPI_Irecv, "Sort left MPI_Irecv",
-                rprm.entry_data<unsigned char>(key),
-                static_cast<int>(rprm.entry_size(key)), mpi_datatype, rank + 1,
-                1, MPI_COMM_WORLD, &rrcv.back());
+                recv_trace_metadata.entry_data<unsigned char>(key),
+                static_cast<int>(recv_trace_metadata.entry_size(key)),
+                mpi_datatype, rank + 1, 1, MPI_COMM_WORLD, &rrcv.back());
         }
     }
 
@@ -953,38 +962,40 @@ void send_left(ExSeisPIOL* piol, size_t region_sz, Trace_metadata& prm)
 
     if (rank != static_cast<int>(piol->comm->get_num_rank()) - 1) {
         for (size_t i = 0; i < region_sz; i++) {
-            prm.copy_entries(i + prm.size() - region_sz, rprm, i);
+            trace_metadata.copy_entries(
+                i + trace_metadata.size() - region_sz, recv_trace_metadata, i);
         }
     }
 }
 
 
 /// Sort the parameter structure across all processes
-/// @param[in] piol The ExSeisPIOL object
-/// @param[in] prm  The parameter structure
-/// @param[in] comp The comparison operator to sort the headers by.
-void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
+/// @param[in] piol            The ExSeisPIOL object
+/// @param[in] trace_metadata  The parameter structure
+/// @param[in] comp            The comparison operator to sort the headers by.
+void sort_p(
+    ExSeisPIOL* piol, Trace_metadata& trace_metadata, CompareP comp = nullptr)
 {
-    size_t lnt       = prm.size();
+    size_t lnt       = trace_metadata.size();
     size_t num_rank  = piol->comm->get_num_rank();
     size_t rank      = piol->comm->get_rank();
     size_t region_sz = piol->comm->min(lnt) / 4LU;
     size_t edge1     = (rank != 0 ? region_sz : 0LU);
     size_t edge2     = (rank != num_rank - 1 ? region_sz : 0LU);
 
-    Trace_metadata temp1(prm.rules, lnt + edge2);
+    Trace_metadata temp1(trace_metadata.rules, lnt + edge2);
     Trace_metadata temp2(temp1.rules, temp1.size());
-    Trace_metadata temp3(prm.rules, temp1.size());
+    Trace_metadata temp3(trace_metadata.rules, temp1.size());
 
     {
         std::vector<size_t> t1(lnt);
         std::iota(t1.begin(), t1.end(), 0LU);
         std::sort(t1.begin(), t1.end(), [&](size_t& a, size_t& b) -> bool {
-            return comp(prm, a, b);
+            return comp(trace_metadata, a, b);
         });
 
         for (size_t i = 0; i < lnt; i++) {
-            temp1.copy_entries(i, prm, t1[i]);
+            temp1.copy_entries(i, trace_metadata, t1[i]);
         }
     }
 
@@ -1061,7 +1072,7 @@ void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
     }
 
     for (size_t i = 0; i < lnt; i++) {
-        prm.copy_entries(i, temp1, i);
+        trace_metadata.copy_entries(i, temp1, i);
     }
 }
 
@@ -1070,13 +1081,16 @@ void sort_p(ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp = nullptr)
 
 
 std::vector<size_t> sort(
-    ExSeisPIOL* piol, Trace_metadata& prm, CompareP comp, bool file_order)
+    ExSeisPIOL* piol,
+    Trace_metadata& trace_metadata,
+    CompareP comp,
+    bool file_order)
 {
-    sort_p(piol, prm, comp);
+    sort_p(piol, trace_metadata, comp);
 
-    std::vector<size_t> list(prm.size());
-    for (size_t i = 0; i < prm.size(); i++) {
-        list[i] = prm.get_index(i, Trace_metadata_key::gtn);
+    std::vector<size_t> list(trace_metadata.size());
+    for (size_t i = 0; i < trace_metadata.size(); i++) {
+        list[i] = trace_metadata.get_index(i, Trace_metadata_key::gtn);
     }
 
 

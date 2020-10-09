@@ -48,7 +48,7 @@ TEST_CASE("Buffer")
         REQUIRE(exseis::test::total_global_buffer_usage() == 8 * expected_size);
 
         // Moving and deleting the buffer should remove the tracked size
-        const auto sink = [](Buffer) {};
+        const auto sink = [](Buffer /*buffer*/) {};
         sink(std::move(buffer_2));
         REQUIRE(exseis::test::total_global_buffer_usage() == 4 * expected_size);
     }

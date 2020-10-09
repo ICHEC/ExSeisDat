@@ -1,17 +1,11 @@
 ---
 Checks:          clang-diagnostic-*,
                  clang-analyzer-*,
-                 clang-diagnostic-*,
-                 clang-analyzer-*,
                  -clang-analyzer-security.insecureAPI.rand,
                  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
                  mpi-*,
-                 readability-braces-around-statements,
-                 readability-avoid-const-params-in-decls,
-                 readability-redundant-string-init,
-                 readability-container-size-empty,
-                 readability-implicit-bool-conversion,
-                 readability-identifier-naming,
+                 readability-*,
+                 -readability-magic-numbers,
                  modernize-redundant-void-arg
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''

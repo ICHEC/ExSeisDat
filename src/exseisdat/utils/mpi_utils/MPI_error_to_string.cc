@@ -70,9 +70,8 @@ std::string mpi_error_to_string(int mpi_error, const MPI_Status* mpi_status)
             // Error: status needed, but status omitted.
             return "MPI_Error: MPI_ERR_IN_STATUS, but status was OMITTED!"s;
         }
-        else {
-            return mpi_error_to_string(mpi_status->MPI_ERROR);
-        }
+
+        return mpi_error_to_string(mpi_status->MPI_ERROR);
     }
 
     // Build basic error message

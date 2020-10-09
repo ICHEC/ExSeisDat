@@ -20,7 +20,7 @@ Float_components from_ibm(
 {
     // Get the IBM float in the native endian order
     const uint32_t ibm_bits = [=]() {
-        if (big_endian == true) {
+        if (big_endian) {
             return (uint32_t(ibm_float_bytes[0]) << 24)
                    | (uint32_t(ibm_float_bytes[1]) << 16)
                    | (uint32_t(ibm_float_bytes[2]) << 8)

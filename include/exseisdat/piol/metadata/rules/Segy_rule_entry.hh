@@ -12,17 +12,11 @@
 
 #include <algorithm>
 
-///
-/// @namespace exseis::piol::metadata::rules::segy_rule_entry
-///
-/// @brief SEGY specific rule entries
-///
 
 namespace exseis {
 namespace piol {
 inline namespace metadata {
 inline namespace rules {
-inline namespace segy_rule_entry {
 
 
 /// @brief The Long rule entry structure for the SEG-Y format.
@@ -234,7 +228,6 @@ struct Segy_float_rule_entry : public Rule_entry {
     size_t memory_usage() const override { return sizeof *this; }
 };
 
-}  // namespace segy_rule_entry
 }  // namespace rules
 }  // namespace metadata
 }  // namespace piol

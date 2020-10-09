@@ -49,8 +49,8 @@ int main(int argc, char** argv)
 
             Input_file_segy file(piol, globs.gl_pathv[i]);
             piol->assert_ok();
-            std::cout << "-\tNs: " << file.read_ns() << "\n";
-            std::cout << "-\tNt: " << file.read_nt() << "\n";
+            std::cout << "-\tNs: " << file.read_samples_per_trace() << "\n";
+            std::cout << "-\tNt: " << file.read_number_of_traces() << "\n";
             std::cout << "-\tInc: " << file.read_sample_interval() << "\n";
             std::cerr << "-\tText: " << file.read_text() << "\n";
         }

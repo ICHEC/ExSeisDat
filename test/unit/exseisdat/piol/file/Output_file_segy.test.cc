@@ -1,6 +1,5 @@
 #include "exseisdat/piol/file/Input_file_segy.hh"
 #include "exseisdat/piol/file/Output_file_segy.hh"
-#include <iostream>
 
 #include "exseisdat/piol/io_driver/IO_driver_distributed_vector.hh"
 #include "exseisdat/utils/distributed_vector/Distributed_vector_mpi.hh"
@@ -78,9 +77,10 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
     auto segy_file        = inspector.segy_file();
     auto segy_file_native = segy_file.native();
 
+    auto piol = inspector.piol();
+
     exseis::piol::Output_file_segy output_file_segy{
-        inspector.io_driver(), inspector.piol(),
-        "Output_file_segy::Distributed_vector"};
+        inspector.io_driver(), piol, "Output_file_segy::Distributed_vector"};
 
 
     //
@@ -91,9 +91,10 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
     const auto text_end = std::find(text.cbegin(), text.cend(), '\0');
     output_file_segy.write_text(std::string{text.cbegin(), text_end});
 
-    output_file_segy.write_ns(segy_file_native.binary_header.samples_per_trace);
+    output_file_segy.write_samples_per_trace(
+        segy_file_native.binary_header.samples_per_trace);
 
-    output_file_segy.write_nt(segy_file_native.traces.size());
+    output_file_segy.write_number_of_traces(segy_file_native.traces.size());
 
     output_file_segy.write_sample_interval(
         segy_file_native.binary_header.sample_interval
@@ -130,23 +131,28 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
         }
 
         {
-            INFO("Output_file_segy::write_ns()");
+            INFO("Output_file_segy::write_samples_per_trace()");
 
-            const auto input_file_ns = input_file_segy.read_ns();
-            const auto segy_file_ns =
+            const auto input_file_samples_per_trace =
+                input_file_segy.read_samples_per_trace();
+            const auto segy_file_samples_per_trace =
                 segy_file_native.binary_header.samples_per_trace;
 
-            REQUIRE(segy_file_ns >= 0);
-            REQUIRE(input_file_ns == size_t(segy_file_ns));
+            REQUIRE(segy_file_samples_per_trace >= 0);
+            REQUIRE(
+                input_file_samples_per_trace
+                == size_t(segy_file_samples_per_trace));
         }
 
         {
-            INFO("Output_file_segy::write_nt()");
+            INFO("Output_file_segy::write_number_of_traces()");
 
-            const auto input_file_nt = input_file_segy.read_nt();
-            const auto segy_file_nt  = segy_file_native.traces.size();
+            const auto input_file_number_of_traces =
+                input_file_segy.read_number_of_traces();
+            const auto segy_file_number_of_traces =
+                segy_file_native.traces.size();
 
-            REQUIRE(input_file_nt == segy_file_nt);
+            REQUIRE(input_file_number_of_traces == segy_file_number_of_traces);
         }
 
         {
@@ -233,14 +239,14 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
         const auto check_trace_metadata_is_zero =
             [&](size_t trace_index, size_t trace_buffer_index,
                 const Trace_metadata& trace_metadata) {
-                const auto check_integer = [&](auto key, auto) {
+                const auto check_integer = [&](auto key, auto /*value*/) {
                     CAPTURE(key);
                     REQUIRE(
                         trace_metadata.get_integer(trace_buffer_index, key)
                         == 0);
                 };
 
-                const auto check_floating = [&](auto key, auto) {
+                const auto check_floating = [&](auto key, auto /*value*/) {
                     CAPTURE(key);
                     REQUIRE(
                         trace_metadata.get_floating_point(
@@ -297,7 +303,7 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
             };
 
         const auto check_trace_data_is_zero =
-            [&](size_t, size_t trace_buffer_index,
+            [&](size_t /*trace_index*/, size_t trace_buffer_index,
                 const std::vector<Trace_value>& trace_data) {
                 const auto trace_begin = std::next(
                     trace_data.cbegin(),
@@ -317,15 +323,10 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 (number_of_traces * max_chunk_size_pct) / 100, 1);
             const size_t skip = 0;
 
-            enum class Method {
-                metadata_only,
-                metadata_only_v2,
-                data_only,
-                metadata_and_data
-            };
+            enum class Method { metadata_only, data_only, metadata_and_data };
             const auto method = GENERATE(
-                Method::metadata_only, Method::metadata_only_v2,
-                Method::data_only, Method::metadata_and_data);
+                Method::metadata_only, Method::data_only,
+                Method::metadata_and_data);
 
             const auto for_each_chunk = [&](auto f) {
                 for (size_t trace_index_begin = 0;
@@ -373,36 +374,43 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
 
                 switch (method) {
                     case Method::metadata_only:
-                        set_chunk_metadata();
+                        if (piol->get_rank() == 0) {
+                            set_chunk_metadata();
 
-                        output_file_segy.write_param(
-                            trace_index_begin, trace_index_chunk_size,
-                            &trace_metadata, skip);
-                        break;
-
-                    case Method::metadata_only_v2:
-                        set_chunk_metadata();
-
-                        output_file_segy.write_trace(
-                            trace_index_begin, trace_index_chunk_size, nullptr,
-                            &trace_metadata, skip);
+                            output_file_segy.write_metadata(
+                                trace_index_begin, trace_index_chunk_size,
+                                trace_metadata, skip);
+                        }
+                        else {
+                            output_file_segy.write_metadata();
+                        }
                         break;
 
                     case Method::data_only:
-                        set_chunk_data();
+                        if (piol->get_rank() == 0) {
+                            set_chunk_data();
 
-                        output_file_segy.write_trace(
-                            trace_index_begin, trace_index_chunk_size,
-                            trace_data.data(), nullptr, skip);
+                            output_file_segy.write_data(
+                                trace_index_begin, trace_index_chunk_size,
+                                trace_data.data());
+                        }
+                        else {
+                            output_file_segy.write_data();
+                        }
                         break;
 
                     case Method::metadata_and_data:
-                        set_chunk_metadata();
-                        set_chunk_data();
+                        if (piol->get_rank() == 0) {
+                            set_chunk_metadata();
+                            set_chunk_data();
 
-                        output_file_segy.write_trace(
-                            trace_index_begin, trace_index_chunk_size,
-                            trace_data.data(), &trace_metadata, skip);
+                            output_file_segy.write(
+                                trace_index_begin, trace_index_chunk_size,
+                                trace_data.data(), trace_metadata, skip);
+                        }
+                        else {
+                            output_file_segy.write();
+                        }
                         break;
                 }
             });
@@ -426,9 +434,9 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 Trace_metadata trace_metadata{Rule{true, true, true},
                                               trace_index_chunk_size};
 
-                input_file_segy.read_trace(
+                input_file_segy.read(
                     trace_index_begin, trace_index_chunk_size,
-                    trace_data.data(), &trace_metadata, skip);
+                    trace_data.data(), trace_metadata, skip);
 
                 const auto check_chunk_metadata = [&] {
                     for_each_in_chunk(
@@ -454,7 +462,6 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
 
                 switch (method) {
                     case Method::metadata_only:
-                    case Method::metadata_only_v2:
                         check_chunk_metadata();
                         check_chunk_data_is_zero();
                         break;
@@ -467,6 +474,7 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                     case Method::metadata_and_data:
                         check_chunk_metadata();
                         check_chunk_data();
+                        break;
                 }
             });
         }
@@ -474,15 +482,10 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
         SECTION ("Output_file_segy::write_*_non_contiguous()") {
             const size_t max_chunk_size_pct = GENERATE(0, 10, 90, 100);
 
-            enum class Method {
-                metadata_only,
-                metadata_only_v2,
-                data_only,
-                metadata_and_data
-            };
+            enum class Method { metadata_only, data_only, metadata_and_data };
             const auto method = GENERATE(
-                Method::metadata_only, Method::metadata_only_v2,
-                Method::data_only, Method::metadata_and_data);
+                Method::metadata_only, Method::data_only,
+                Method::metadata_and_data);
 
             const size_t max_offset_index_chunk_size = std::max<size_t>(
                 (number_of_traces * max_chunk_size_pct) / 100, 1);
@@ -550,31 +553,39 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
 
                 switch (method) {
                     case Method::metadata_only:
-                        output_file_segy.write_param_non_contiguous(
-                            offset_index_chunk_size,
-                            offsets.data() + offset_index_begin,
-                            &trace_metadata, skip);
-                        break;
-
-                    case Method::metadata_only_v2:
-                        output_file_segy.write_trace_non_contiguous(
-                            offset_index_chunk_size,
-                            offsets.data() + offset_index_begin, nullptr,
-                            &trace_metadata, skip);
+                        if (piol->get_rank() == 0) {
+                            output_file_segy.write_metadata_non_contiguous(
+                                offset_index_chunk_size,
+                                offsets.data() + offset_index_begin,
+                                trace_metadata, skip);
+                        }
+                        else {
+                            output_file_segy.write_metadata_non_contiguous();
+                        }
                         break;
 
                     case Method::data_only:
-                        output_file_segy.write_trace_non_contiguous(
-                            offset_index_chunk_size,
-                            offsets.data() + offset_index_begin,
-                            trace_data.data(), nullptr, skip);
+                        if (piol->get_rank() == 0) {
+                            output_file_segy.write_data_non_contiguous(
+                                offset_index_chunk_size,
+                                offsets.data() + offset_index_begin,
+                                trace_data.data());
+                        }
+                        else {
+                            output_file_segy.write_data_non_contiguous();
+                        }
                         break;
 
                     case Method::metadata_and_data:
-                        output_file_segy.write_trace_non_contiguous(
-                            offset_index_chunk_size,
-                            offsets.data() + offset_index_begin,
-                            trace_data.data(), &trace_metadata, skip);
+                        if (piol->get_rank() == 0) {
+                            output_file_segy.write_non_contiguous(
+                                offset_index_chunk_size,
+                                offsets.data() + offset_index_begin,
+                                trace_data.data(), trace_metadata, skip);
+                        }
+                        else {
+                            output_file_segy.write_non_contiguous();
+                        }
                         break;
                 }
             });
@@ -598,10 +609,10 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 Trace_metadata trace_metadata{Rule{true, true, true},
                                               offset_index_chunk_size};
 
-                input_file_segy.read_trace_non_contiguous(
+                input_file_segy.read_non_contiguous(
                     offset_index_chunk_size,
                     offsets.data() + offset_index_begin, trace_data.data(),
-                    &trace_metadata, skip);
+                    trace_metadata, skip);
 
                 const auto for_each_in_this_chunk = [&](auto&&... args) {
                     for_each_in_chunk(
@@ -625,7 +636,6 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
 
                 switch (method) {
                     case Method::metadata_only:
-                    case Method::metadata_only_v2:
                         check_chunk_metadata();
                         check_chunk_data_is_zero();
                         break;

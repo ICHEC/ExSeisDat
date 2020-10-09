@@ -333,20 +333,27 @@ size_t update(
         aligned(lmin:EXSEISDAT_ALIGN) aligned(lminrs:EXSEISDAT_ALIGN) \
         aligned(tn:EXSEISDAT_ALIGN)
     for (size_t i = lstart; i < lend; i++) {
-        const fourd_t xs1 = x_s1[i], ys1 = y_s1[i], xr1 = x_r1[i],
-                      yr1 = y_r1[i];
-        size_t lm         = lmin[i];
-        fourd_t lmrs      = lminrs[i];
+        const fourd_t xs1 = x_s1[i];
+        const fourd_t ys1 = y_s1[i];
+        const fourd_t xr1 = x_r1[i];
+        const fourd_t yr1 = y_r1[i];
+
+        size_t lm    = lmin[i];
+        fourd_t lmrs = lminrs[i];
         // loop through a multiple of the alignment
         for (size_t j = rstart; j < rend; j++) {
-            const fourd_t xs2 = x_s2[j], ys2 = y_s2[j], xr2 = x_r2[j],
-                          yr2 = y_r2[j];
-            fourd_t dval =
+            const fourd_t xs2 = x_s2[j];
+            const fourd_t ys2 = y_s2[j];
+            const fourd_t xr2 = x_r2[j];
+            const fourd_t yr2 = y_r2[j];
+
+            const fourd_t dval =
                 (!Ixline
                          || (crd1->il[i] == crd2->il[j]
                              && crd1->xl[i] == crd2->xl[j]) ?
                      dsr(xs1, ys1, xr1, yr1, xs2, ys2, xr2, yr2) :
                      std::numeric_limits<fourd_t>::max());
+
             // Update min if applicable
             lm = (dval < lmrs ? tn[j] : lm);
             // Update minrs if applicable
@@ -445,10 +452,10 @@ std::unique_ptr<Coords> recv_crd(size_t lrank, size_t sz, bool ixline)
 
 void calc_4d_bin(
     ExSeisPIOL* piol,
-    const fourd_t dsrmax,
+    fourd_t dsrmax,
     const Coords* crd1,
     const Coords* crd2,
-    const Four_d_opt opt,
+    Four_d_opt opt,
     std::vector<size_t>& min,
     std::vector<fourd_t>& minrs)
 {

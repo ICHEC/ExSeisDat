@@ -37,7 +37,8 @@ std::unique_ptr<Coords> get_coords(
     piol->assert_ok();
 
     auto dec = block_decomposition(
-        file.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        file.read_number_of_traces(), piol->comm->get_num_rank(),
+        piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
@@ -65,32 +66,34 @@ std::unique_ptr<Coords> get_coords(
     size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
                    - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
-    Trace_metadata prm(std::move(rule), lnt);
+    Trace_metadata trace_metadata(std::move(rule), lnt);
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
         // WARNING: Treat ReadSEGY like the internal API for using a
         //         non-exposed function
-        file.read_param(offset + i, rblock, &prm, i);
+        file.read_metadata(offset + i, rblock, trace_metadata, i);
 
         for (size_t j = 0; j < rblock; j++) {
-            prm.set_index(i + j, Trace_metadata_key::gtn, offset + i + j);
+            trace_metadata.set_index(
+                i + j, Trace_metadata_key::gtn, offset + i + j);
         }
     }
 
-    // Any extra read_param calls the particular process needs
+    // Any extra read_metadata calls the particular process needs
     for (size_t i = 0; i < extra; i++) {
-        file.read_param(size_t(0), size_t(0), &prm);
+        file.read_metadata();
     }
     cmsg(piol.get(), "get_coords sort");
 
     auto trlist = sort(
-        piol.get(), prm,
-        [](const Trace_metadata& prm, const size_t i, const size_t j) -> bool {
+        piol.get(), trace_metadata,
+        [](const Trace_metadata& trace_metadata, const size_t i,
+           const size_t j) -> bool {
             const auto x_src_i =
-                prm.get_floating_point(i, Trace_metadata_key::x_src);
+                trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
             const auto x_src_j =
-                prm.get_floating_point(j, Trace_metadata_key::x_src);
+                trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
 
             if (x_src_i < x_src_j) {
                 return true;
@@ -101,8 +104,8 @@ std::unique_ptr<Coords> get_coords(
 
             // x_src_i == x_src_j
 
-            return prm.get_index(i, Trace_metadata_key::gtn)
-                   < prm.get_index(j, Trace_metadata_key::gtn);
+            return trace_metadata.get_index(i, Trace_metadata_key::gtn)
+                   < trace_metadata.get_index(j, Trace_metadata_key::gtn);
         },
         false);
 
@@ -128,7 +131,7 @@ std::unique_ptr<Coords> get_coords(
              + 2LU * sizeof(size_t));
 
     {
-        Trace_metadata prm2(std::move(crule), std::min(lnt, max));
+        Trace_metadata trace_metadata_2(std::move(crule), std::min(lnt, max));
         for (size_t i = 0; i < lnt; i += max) {
             size_t rblock = (i + max < lnt ? max : lnt - i);
 
@@ -138,32 +141,37 @@ std::unique_ptr<Coords> get_coords(
                 sortlist[j] = trlist[i + sortlist[j]];
             }
 
-            file.read_param_non_contiguous(rblock, sortlist.data(), &prm2);
+            file.read_metadata_non_contiguous(
+                rblock, sortlist.data(), trace_metadata_2);
 
             for (size_t j = 0; j < rblock; j++) {
                 coords->x_src[i + orig[j]] =
-                    prm2.get_floating_point(j, Trace_metadata_key::x_src);
+                    trace_metadata_2.get_floating_point(
+                        j, Trace_metadata_key::x_src);
                 coords->y_src[i + orig[j]] =
-                    prm2.get_floating_point(j, Trace_metadata_key::y_src);
+                    trace_metadata_2.get_floating_point(
+                        j, Trace_metadata_key::y_src);
 
                 coords->x_rcv[i + orig[j]] =
-                    prm2.get_floating_point(j, Trace_metadata_key::x_rcv);
+                    trace_metadata_2.get_floating_point(
+                        j, Trace_metadata_key::x_rcv);
                 coords->y_rcv[i + orig[j]] =
-                    prm2.get_floating_point(j, Trace_metadata_key::y_rcv);
+                    trace_metadata_2.get_floating_point(
+                        j, Trace_metadata_key::y_rcv);
 
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
             for (size_t j = 0; ixline && j < rblock; j++) {
                 coords->il[i + orig[j]] =
-                    prm2.get_integer(j, Trace_metadata_key::il);
+                    trace_metadata_2.get_integer(j, Trace_metadata_key::il);
                 coords->xl[i + orig[j]] =
-                    prm2.get_integer(j, Trace_metadata_key::xl);
+                    trace_metadata_2.get_integer(j, Trace_metadata_key::xl);
             }
         }
 
-        // Any extra read_param calls the particular process needs
+        // Any extra read_metadata calls the particular process needs
         for (size_t i = 0; i < extra; i++) {
-            file.read_param_non_contiguous(0LU, nullptr, &prm2);
+            file.read_metadata_non_contiguous();
         }
     }
 
@@ -205,7 +213,7 @@ void output_non_mono(
     Output_file_segy dst(piol, dname);
     piol->assert_ok();
 
-    size_t ns      = src.read_ns();
+    size_t ns      = src.read_samples_per_trace();
     size_t lnt     = list.size();
     size_t offset  = 0;
     size_t biggest = 0;
@@ -228,11 +236,11 @@ void output_non_mono(
                    - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
     dst.write_text("ExSeisDat 4d-bin file.\n");
-    dst.write_nt(sz);
+    dst.write_number_of_traces(sz);
     dst.write_sample_interval(src.read_sample_interval());
-    dst.write_ns(ns);
+    dst.write_samples_per_trace(ns);
 
-    Trace_metadata prm(std::move(rule), std::min(lnt, max));
+    Trace_metadata trace_metadata(std::move(rule), std::min(lnt, max));
     std::vector<exseis::utils::Trace_value> trc(ns * std::min(lnt, max));
 
     piol->comm->barrier();
@@ -246,19 +254,19 @@ void output_non_mono(
 
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        src.read_trace_non_monotonic(rblock, &list[i], trc.data(), &prm);
+        src.read_non_monotonic(rblock, &list[i], trc.data(), trace_metadata);
         if (print_dsr) {
             for (size_t j = 0; j < rblock; j++) {
-                prm.set_floating_point(
+                trace_metadata.set_floating_point(
                     j, Trace_metadata_key::dsdr, minrs[i + j]);
             }
         }
-        dst.write_trace(offset + i, rblock, trc.data(), &prm);
+        dst.write(offset + i, rblock, trc.data(), trace_metadata);
     }
 
     for (size_t i = 0; i < extra; i++) {
-        src.read_trace_non_contiguous(size_t(0), nullptr, trc.data(), &prm);
-        dst.write_trace(size_t(0), size_t(0), trc.data(), &prm);
+        src.read_non_contiguous();
+        dst.write();
     }
 
     piol->comm->barrier();

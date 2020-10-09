@@ -48,32 +48,40 @@ int main(int argc, char** argv)
 
     Input_file_segy file(piol, name);
 
-    Trace_metadata prm(1LU);
-    file.read_param(tn, 1LU, &prm);
+    Trace_metadata trace_metadata(1LU);
+    file.read_metadata(tn, 1LU, trace_metadata);
 
     if (piol->get_rank() == 0) {
         std::cout << "x_src "
-                  << prm.get_floating_point(0LU, Trace_metadata_key::x_src)
+                  << trace_metadata.get_floating_point(
+                         0LU, Trace_metadata_key::x_src)
                   << std::endl;
         std::cout << "y_src "
-                  << prm.get_floating_point(0LU, Trace_metadata_key::y_src)
+                  << trace_metadata.get_floating_point(
+                         0LU, Trace_metadata_key::y_src)
                   << std::endl;
         std::cout << "x_rcv "
-                  << prm.get_floating_point(0LU, Trace_metadata_key::x_rcv)
+                  << trace_metadata.get_floating_point(
+                         0LU, Trace_metadata_key::x_rcv)
                   << std::endl;
         std::cout << "y_rcv "
-                  << prm.get_floating_point(0LU, Trace_metadata_key::y_rcv)
+                  << trace_metadata.get_floating_point(
+                         0LU, Trace_metadata_key::y_rcv)
                   << std::endl;
         std::cout << "xCmp "
-                  << prm.get_floating_point(0LU, Trace_metadata_key::xCmp)
+                  << trace_metadata.get_floating_point(
+                         0LU, Trace_metadata_key::xCmp)
                   << std::endl;
         std::cout << "yCmp "
-                  << prm.get_floating_point(0LU, Trace_metadata_key::yCmp)
+                  << trace_metadata.get_floating_point(
+                         0LU, Trace_metadata_key::yCmp)
                   << std::endl;
 
-        std::cout << "il " << prm.get_integer(0LU, Trace_metadata_key::il)
+        std::cout << "il "
+                  << trace_metadata.get_integer(0LU, Trace_metadata_key::il)
                   << std::endl;
-        std::cout << "xl " << prm.get_integer(0LU, Trace_metadata_key::xl)
+        std::cout << "xl "
+                  << trace_metadata.get_integer(0LU, Trace_metadata_key::xl)
                   << std::endl;
     }
     return 0;

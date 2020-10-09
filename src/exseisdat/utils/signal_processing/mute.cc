@@ -21,8 +21,8 @@ void mute(
     Taper_function taper_function,
     size_t mute_size_at_begin,
     size_t taper_size_at_begin,
-    size_t taper_size_at_end,
-    size_t mute_size_at_end)
+    size_t mute_size_at_end,
+    size_t taper_size_at_end)
 
 {
     assert(signal_size > mute_size_at_begin + taper_size_at_begin);

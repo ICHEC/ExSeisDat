@@ -16,88 +16,94 @@ TEST_CASE("sort", "[piol][operations][sort]")
     auto piol = ExSeis::make();
 
     SECTION ("SrtRcvBackwards") {
-        Trace_metadata prm(200);
-        for (size_t i = 0; i < prm.size(); i++) {
-            prm.set_floating_point(
+        Trace_metadata trace_metadata(200);
+        for (size_t i = 0; i < trace_metadata.size(); i++) {
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::x_src,
-                1000.0 - (prm.size() * piol->get_rank() + i) / 20);
-            prm.set_floating_point(
+                1000.0 - (trace_metadata.size() * piol->get_rank() + i) / 20);
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::y_src,
-                1000.0 - (prm.size() * piol->get_rank() + i) % 20);
-            prm.set_floating_point(
+                1000.0 - (trace_metadata.size() * piol->get_rank() + i) % 20);
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::x_rcv,
-                1000.0 - (prm.size() * piol->get_rank() + i) / 10);
-            prm.set_floating_point(
+                1000.0 - (trace_metadata.size() * piol->get_rank() + i) / 10);
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::y_rcv,
-                1000.0 - (prm.size() * piol->get_rank() + i) % 10);
-            prm.set_index(
-                i, Trace_metadata_key::gtn, prm.size() * piol->get_rank() + i);
+                1000.0 - (trace_metadata.size() * piol->get_rank() + i) % 10);
+            trace_metadata.set_index(
+                i, Trace_metadata_key::gtn,
+                trace_metadata.size() * piol->get_rank() + i);
         }
-        auto list               = sort(piol.get(), Sort_type::SrcRcv, prm);
+        auto list = sort(piol.get(), Sort_type::SrcRcv, trace_metadata);
         size_t global_list_size = piol->comm->sum(list.size());
         for (size_t i = 0; i < list.size(); i++) {
             REQUIRE(
-                global_list_size - (prm.size() * piol->get_rank() + i) - 1
+                global_list_size
+                    - (trace_metadata.size() * piol->get_rank() + i) - 1
                 == list[i]);
         }
     }
 
     SECTION ("SrcRcvForwards") {
-        Trace_metadata prm(200);
-        for (size_t i = 0; i < prm.size(); i++) {
-            prm.set_floating_point(
+        Trace_metadata trace_metadata(200);
+        for (size_t i = 0; i < trace_metadata.size(); i++) {
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::x_src,
-                1000.0 + (prm.size() * piol->get_rank() + i) / 20);
-            prm.set_floating_point(
+                1000.0 + (trace_metadata.size() * piol->get_rank() + i) / 20);
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::y_src,
-                1000.0 + (prm.size() * piol->get_rank() + i) % 20);
-            prm.set_floating_point(
+                1000.0 + (trace_metadata.size() * piol->get_rank() + i) % 20);
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::x_rcv,
-                1000.0 + (prm.size() * piol->get_rank() + i) / 10);
-            prm.set_floating_point(
+                1000.0 + (trace_metadata.size() * piol->get_rank() + i) / 10);
+            trace_metadata.set_floating_point(
                 i, Trace_metadata_key::y_rcv,
-                1000.0 + (prm.size() * piol->get_rank() + i) % 10);
-            prm.set_index(
-                i, Trace_metadata_key::gtn, prm.size() * piol->get_rank() + i);
+                1000.0 + (trace_metadata.size() * piol->get_rank() + i) % 10);
+            trace_metadata.set_index(
+                i, Trace_metadata_key::gtn,
+                trace_metadata.size() * piol->get_rank() + i);
         }
-        auto list = sort(piol.get(), Sort_type::SrcRcv, prm);
+        auto list = sort(piol.get(), Sort_type::SrcRcv, trace_metadata);
 
         for (size_t i = 0; i < list.size(); i++) {
-            REQUIRE(prm.size() * piol->get_rank() + i == list[i]);
+            REQUIRE(trace_metadata.size() * piol->get_rank() + i == list[i]);
         }
     }
 
     SECTION ("SrcRcvRand") {
-        Trace_metadata prm(10);
-        for (size_t i = 0; i < prm.size(); i++) {
-            prm.set_floating_point(i, Trace_metadata_key::y_src, 1000.0);
-            prm.set_floating_point(i, Trace_metadata_key::x_rcv, 1000.0);
-            prm.set_floating_point(i, Trace_metadata_key::y_rcv, 1000.0);
-            prm.set_index(
+        Trace_metadata trace_metadata(10);
+        for (size_t i = 0; i < trace_metadata.size(); i++) {
+            trace_metadata.set_floating_point(
+                i, Trace_metadata_key::y_src, 1000.0);
+            trace_metadata.set_floating_point(
+                i, Trace_metadata_key::x_rcv, 1000.0);
+            trace_metadata.set_floating_point(
+                i, Trace_metadata_key::y_rcv, 1000.0);
+            trace_metadata.set_index(
                 i, Trace_metadata_key::gtn, 10 * piol->get_rank() + i);
         }
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             0, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 5.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             1, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 3.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             2, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 1.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             3, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 4.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             4, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 2.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             5, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 9.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             6, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 6.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             7, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 8.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             8, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 7.0);
-        prm.set_floating_point(
+        trace_metadata.set_floating_point(
             9, Trace_metadata_key::x_src, 10.0 * piol->get_rank() + 0.0);
 
-        auto list = sort(piol.get(), Sort_type::SrcRcv, prm);
+        auto list = sort(piol.get(), Sort_type::SrcRcv, trace_metadata);
 
         REQUIRE(10 * piol->get_rank() + 5U == list[0]);
         REQUIRE(10 * piol->get_rank() + 3U == list[1]);

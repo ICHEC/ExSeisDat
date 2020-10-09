@@ -43,7 +43,7 @@ using MinMaxFunc = std::function<exseis::utils::Floating_point(const T&)>;
  *
  *  @param[in]  piol    The PIOL object
  *  @param[in]  offset  The offset for the local process
- *  @param[in]  sz      The number of sets of parameters for the local process
+ *  @param[in]  number_of_coords      The number of sets of parameters for the local process
  *  @param[in]  coord   The array of parameters for the local process
  *  @param[in]  elem1   The function for extracting the first parameter from
  *                      \c coord
@@ -56,7 +56,7 @@ template<typename T>
 std::vector<CoordElem> get_coord_min_max(
     ExSeisPIOL* piol,
     size_t offset,
-    size_t sz,
+    size_t number_of_coords,
     const T* coord,
     MinMaxFunc<T> elem1,
     MinMaxFunc<T> elem2)
@@ -75,11 +75,11 @@ std::vector<CoordElem> get_coord_min_max(
     };
 
     T temp;
-    if (!sz || !coord) {
+    if (!number_of_coords || !coord) {
         coord = &temp;
     }
 
-    auto p = std::minmax_element(coord, coord + sz, min);
+    auto p = std::minmax_element(coord, coord + number_of_coords, min);
 
     std::vector<exseis::utils::Floating_point> lminmax = {elem1(*p.first),
                                                           elem1(*p.second)};
@@ -94,7 +94,7 @@ std::vector<CoordElem> get_coord_min_max(
 
     auto tminmax = piol->comm->gather(lminmax);
     auto ttrace  = piol->comm->gather(ltrace);
-    auto tsz     = piol->comm->gather(std::vector<size_t>{sz});
+    auto tsz     = piol->comm->gather(std::vector<size_t>{number_of_coords});
 
     // Remove non-participants
     for (size_t ii = tsz.size(); ii != 0; ii--) {
@@ -137,7 +137,7 @@ std::vector<CoordElem> get_coord_min_max(
  *
  * @param[in]   piol    The PIOL object
  * @param[in]   offset  The offset for the local process
- * @param[in]   sz      The number of sets of parameters for the local process
+ * @param[in]   number_of_coords      The number of sets of parameters for the local process
  * @param[in]   coord   The array of parameters for the local process
  * @param[in]   xlam    The function for extracting the first parameter from
  *                      \c coord
@@ -151,14 +151,16 @@ template<typename T>
 void get_min_max(
     ExSeisPIOL* piol,
     size_t offset,
-    size_t sz,
+    size_t number_of_coords,
     const T* coord,
     MinMaxFunc<T> xlam,
     MinMaxFunc<T> ylam,
     CoordElem* minmax)
 {
-    auto x = get_coord_min_max<T>(piol, offset, sz, coord, xlam, ylam);
-    auto y = get_coord_min_max<T>(piol, offset, sz, coord, ylam, xlam);
+    auto x =
+        get_coord_min_max<T>(piol, offset, number_of_coords, coord, xlam, ylam);
+    auto y =
+        get_coord_min_max<T>(piol, offset, number_of_coords, coord, ylam, xlam);
 
     if (minmax) {
         std::copy(x.begin(), x.end(), minmax);
@@ -175,10 +177,10 @@ void get_min_max(
  *
  *  @param[in,out]  piol    The PIOL object
  *  @param[in]      offset  The starting trace number (local).
- *  @param[in]      sz      The local number of traces to process.
+ *  @param[in]      number_of_traces  The local number of traces to process.
  *  @param[in]      m1      The first coordinate item of interest.
  *  @param[in]      m2      The second coordinate item of interest.
- *  @param[in]      prm     An array of trace parameter structures
+ *  @param[in]      trace_metadata    An array of trace parameter structures
  *  @param[out]     minmax  An array of structures containing the minimum
  *                          item.x, maximum item.x, minimum item.y, maximum
  *                          item.y and their respective trace numbers.
@@ -186,10 +188,10 @@ void get_min_max(
 void get_min_max(
     ExSeisPIOL* piol,
     size_t offset,
-    size_t sz,
+    size_t number_of_traces,
     Trace_metadata_key m1,
     Trace_metadata_key m2,
-    const Trace_metadata& prm,
+    const Trace_metadata& trace_metadata,
     CoordElem* minmax);
 
 }  // namespace operations

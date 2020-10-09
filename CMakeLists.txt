@@ -138,12 +138,7 @@ add_library(
 
     src/exseisdat/piol/configuration/ExSeis.cc
     src/exseisdat/piol/configuration/ExSeisPIOL.cc
-    src/exseisdat/piol/file/Input_file.cc
     src/exseisdat/piol/file/Input_file_segy.cc
-    src/exseisdat/piol/file/detail/ObjectInterface.cc
-    src/exseisdat/piol/file/detail/ObjectSEGY.cc
-    src/exseisdat/piol/file/detail/ReadSEGYModel.cc
-    src/exseisdat/piol/file/Output_file.cc
     src/exseisdat/piol/file/Output_file_segy.cc
     src/exseisdat/piol/io_driver/IO_driver_mpi.cc
     src/exseisdat/piol/metadata/rules/Rule.cc

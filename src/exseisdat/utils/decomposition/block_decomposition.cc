@@ -83,7 +83,8 @@ Contiguous_decomposition block_decomposition(
 // file)
 // {
 //     return block_decompose(
-//       file->read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+//       file->read_number_of_traces(), piol->comm->get_num_rank(),
+//       piol->comm->get_rank());
 // }
 
 Decomposition_index_location block_decomposition_location(
@@ -104,23 +105,22 @@ Decomposition_index_location block_decomposition_location(
 
         return {rank, local_index};
     }
-    else {
-        // On the rest of the processes, they have `chunk_size` items.
-        // We remove the offset for the processes with `chunk_size+1` items
-        // so we can deal directly with `chunk_size`.
-        const size_t offset_global_index =
-            global_index - (chunk_size + 1) * remainder;
 
-        // Find the rank from the offset index
-        const size_t offset_rank = offset_global_index / chunk_size;
+    // On the rest of the processes, they have `chunk_size` items.
+    // We remove the offset for the processes with `chunk_size+1` items
+    // so we can deal directly with `chunk_size`.
+    const size_t offset_global_index =
+        global_index - (chunk_size + 1) * remainder;
 
-        // And find the actual rank by adding the previously dropped ranks.
-        const size_t rank = offset_rank + remainder;
+    // Find the rank from the offset index
+    const size_t offset_rank = offset_global_index / chunk_size;
 
-        const size_t local_index = global_index - chunk_size * rank - remainder;
+    // And find the actual rank by adding the previously dropped ranks.
+    const size_t rank = offset_rank + remainder;
 
-        return {rank, local_index};
-    }
+    const size_t local_index = global_index - chunk_size * rank - remainder;
+
+    return {rank, local_index};
 }
 
 }  // namespace decomposition

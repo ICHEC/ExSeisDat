@@ -245,9 +245,8 @@ class Safe_collective_block_chunks {
         if (block_start < m_number_of_blocks) {
             return {block_start, block_chunk_size};
         }
-        else {
-            return {0, 0};
-        }
+
+        return {0, 0};
     }
 
 

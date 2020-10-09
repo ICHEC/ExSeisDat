@@ -84,8 +84,8 @@ int main(int argc, char** argv)
     for (auto& input_filename : input_filenames) {
         Input_file_segy input_file(piol, input_filename);
 
-        const size_t samples_per_trace = input_file.read_ns();
-        const size_t number_of_traces  = input_file.read_nt();
+        const size_t samples_per_trace = input_file.read_samples_per_trace();
+        const size_t number_of_traces  = input_file.read_number_of_traces();
         const float sample_interval    = input_file.read_sample_interval();
 
         // We need to be careful: each trace must have the same samples per
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
         if (first) {
             output_samples_per_trace = samples_per_trace;
 
-            output_file.write_ns(samples_per_trace);
+            output_file.write_samples_per_trace(samples_per_trace);
             output_file.write_sample_interval(sample_interval);
 
             first = false;
@@ -113,10 +113,11 @@ int main(int argc, char** argv)
         }
 
         // Add the input number of traces to the total number of traces so far.
-        // We assume write_nt will resize the file as necessary........
+        // We assume write_number_of_traces will resize the file as
+        // necessary........
         const size_t output_traces_begin = output_number_of_traces;
         output_number_of_traces += number_of_traces;
-        output_file.write_nt(output_number_of_traces);
+        output_file.write_number_of_traces(output_number_of_traces);
 
 
         output_file.sync();  // Ensure update to number of traces is synced
@@ -138,12 +139,12 @@ int main(int argc, char** argv)
         Trace_metadata trace_metadata(Rule{true, true, true}, input_size);
 
         // Read and write the traces!
-        input_file.read_trace(
-            input_offset, input_size, trace_data.data(), &trace_metadata);
+        input_file.read(
+            input_offset, input_size, trace_data.data(), trace_metadata);
 
-        output_file.write_trace(
+        output_file.write(
             output_traces_begin + input_offset, input_size, trace_data.data(),
-            &trace_metadata);
+            trace_metadata);
     }
 
     return 0;

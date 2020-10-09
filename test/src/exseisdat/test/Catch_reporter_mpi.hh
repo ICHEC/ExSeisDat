@@ -55,7 +55,7 @@ class Catch_reporter_mpi : public Catch::IStreamingReporter {
     struct print_tag {
     };
 
-    void print(print_tag<COLLECTIVE>, const std::string& str)
+    void print(print_tag<COLLECTIVE> /*tag*/, const std::string& str)
     {
         int local_str_length = str.size();
         int str_length_max   = 0;
@@ -87,7 +87,7 @@ class Catch_reporter_mpi : public Catch::IStreamingReporter {
         }
     }
 
-    void print(print_tag<NON_COLLECTIVE>, const std::string& str)
+    void print(print_tag<NON_COLLECTIVE> /*tag*/, const std::string& str)
     {
         if (!str.empty()) {
             std::string rank_str = "Rank " + std::to_string(m_rank) + ": ";
@@ -96,14 +96,14 @@ class Catch_reporter_mpi : public Catch::IStreamingReporter {
         }
     }
 
-    void print(print_tag<SINGLE>, const std::string& str)
+    void print(print_tag<SINGLE> /*tag*/, const std::string& str)
     {
         if (!str.empty() && m_rank == 0) {
             m_stream << str;
         }
     }
 
-    void print(print_tag<NONE>, const std::string& /*str*/) {}
+    void print(print_tag<NONE> /*tag*/, const std::string& /*str*/) {}
 
 
     template<
@@ -113,7 +113,9 @@ class Catch_reporter_mpi : public Catch::IStreamingReporter {
         typename... Args,
         typename = std::enable_if_t<!std::is_same<Return, void>::value>>
     Return delegate(
-        print_tag<Collectivity>, Return (Class::*f)(Args...), Args&&... args)
+        print_tag<Collectivity> /*tag*/,
+        Return (Class::*f)(Args...),
+        Args&&... args)
     {
         Return value    = (m_console_reporter.*f)(std::forward<Args>(args)...);
         std::string str = m_console_reporter_stream.str();
@@ -125,7 +127,9 @@ class Catch_reporter_mpi : public Catch::IStreamingReporter {
 
     template<Collectivities Collectivity, typename Class, typename... Args>
     void delegate(
-        print_tag<Collectivity>, void (Class::*f)(Args...), Args&&... args)
+        print_tag<Collectivity> /*tag*/,
+        void (Class::*f)(Args...),
+        Args&&... args)
     {
         (m_console_reporter.*f)(std::forward<Args>(args)...);
         std::string str = m_console_reporter_stream.str();

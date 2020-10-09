@@ -70,71 +70,81 @@ TEST_CASE("Rule", "[piol][metadata][rules][Rule]")
             rule.add_short(
                 Trace_metadata_key::il, segy::Trace_header_offsets::ScaleElev);
 
-            Trace_metadata prm(rule, 100);
+            Trace_metadata trace_metadata(rule, 100);
             for (size_t i = 0; i < 100; i++) {
-                prm.set_floating_point(
+                trace_metadata.set_floating_point(
                     i, Trace_metadata_key::x_src,
                     exseis::utils::Floating_point(i) + 1.);
 
-                prm.set_floating_point(
+                trace_metadata.set_floating_point(
                     i, Trace_metadata_key::y_src,
                     exseis::utils::Floating_point(i) + 2.);
 
-                prm.set_floating_point(
+                trace_metadata.set_floating_point(
                     i, Trace_metadata_key::x_rcv,
                     exseis::utils::Floating_point(i) + 3.);
 
-                prm.set_floating_point(
+                trace_metadata.set_floating_point(
                     i, Trace_metadata_key::y_rcv,
                     exseis::utils::Floating_point(i) + 4.);
 
-                prm.set_integer(
+                trace_metadata.set_integer(
                     i, Trace_metadata_key::dsdr, exseis::utils::Integer(i + 1));
 
-                prm.set_integer(i, Trace_metadata_key::il, short(i + 2));
+                trace_metadata.set_integer(
+                    i, Trace_metadata_key::il, short(i + 2));
             }
 
             for (size_t i = 0; i < 100; i++) {
                 if (sizeof(exseis::utils::Floating_point) == sizeof(double)) {
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::x_src)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::x_src)
                         == Approx(exseis::utils::Floating_point(i + 1)));
 
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::y_src)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::y_src)
                         == Approx(exseis::utils::Floating_point(i + 2)));
 
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::x_rcv)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::x_rcv)
                         == Approx(exseis::utils::Floating_point(i + 3)));
 
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::y_rcv)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::y_rcv)
                         == Approx(exseis::utils::Floating_point(i + 4)));
                 }
                 else {
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::x_src)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::x_src)
                         == Approx(exseis::utils::Floating_point(i + 1)));
 
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::y_src)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::y_src)
                         == Approx(exseis::utils::Floating_point(i + 2)));
 
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::x_rcv)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::x_rcv)
                         == Approx(exseis::utils::Floating_point(i + 3)));
 
                     REQUIRE(
-                        prm.get_floating_point(i, Trace_metadata_key::y_rcv)
+                        trace_metadata.get_floating_point(
+                            i, Trace_metadata_key::y_rcv)
                         == Approx(exseis::utils::Floating_point(i + 4)));
                 }
 
                 REQUIRE(
-                    prm.get_integer(i, Trace_metadata_key::dsdr)
+                    trace_metadata.get_integer(i, Trace_metadata_key::dsdr)
                     == exseis::utils::Integer(i + 1));
                 REQUIRE(
-                    prm.get_integer(i, Trace_metadata_key::il) == short(i + 2));
+                    trace_metadata.get_integer(i, Trace_metadata_key::il)
+                    == short(i + 2));
             }
         }
     }

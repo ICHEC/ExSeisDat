@@ -166,20 +166,21 @@ void calc_min(
     Input_file_segy in(piol, iname);
 
     auto dec = block_decomposition(
-        in.read_nt(), piol->comm->get_num_rank(), piol->comm->get_rank());
+        in.read_number_of_traces(), piol->comm->get_num_rank(),
+        piol->comm->get_rank());
 
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
-    Trace_metadata prm(lnt);
-    in.read_param(offset, lnt, &prm);
+    Trace_metadata trace_metadata(lnt);
+    in.read_metadata(offset, lnt, trace_metadata);
 
     get_min_max(
         piol.get(), offset, lnt, Trace_metadata_key::x_src,
-        Trace_metadata_key::y_src, prm, minmax.data());
+        Trace_metadata_key::y_src, trace_metadata, minmax.data());
     get_min_max(
         piol.get(), offset, lnt, Trace_metadata_key::x_rcv,
-        Trace_metadata_key::y_rcv, prm, minmax.data() + 4U);
+        Trace_metadata_key::y_rcv, trace_metadata, minmax.data() + 4U);
 }
 
 /* Main function for segy to kml
@@ -258,7 +259,8 @@ int main(int argc, char** argv)
             << "Zones must an integer between 1 and 60 in hemisphere N or S\n";
         return -1;
     }
-    else if (utm_zone.empty()) {
+
+    if (utm_zone.empty()) {
         std::cout
             << "No UTM zone specified. Assuming Lat/Long coordinates in input files.\n";
     }

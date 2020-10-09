@@ -90,9 +90,10 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
     auto segy_file        = inspector.segy_file();
     auto segy_file_native = segy_file.native();
 
+    auto piol = inspector.piol();
+
     const exseis::piol::Input_file_segy input_file_segy{
-        inspector.io_driver(), inspector.piol(),
-        "Input_file_segy::Distributed_vector"};
+        inspector.io_driver(), piol, "Input_file_segy::Distributed_vector"};
 
     SECTION ("File Metadata") {
         {
@@ -110,23 +111,28 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
         }
 
         {
-            INFO("Input_file_segy::read_ns()");
+            INFO("Input_file_segy::read_samples_per_trace()");
 
-            const auto& input_file_ns = input_file_segy.read_ns();
-            const auto& segy_file_ns =
+            const auto& input_file_samples_per_trace =
+                input_file_segy.read_samples_per_trace();
+            const auto& segy_file_samples_per_trace =
                 segy_file_native.binary_header.samples_per_trace;
 
-            REQUIRE(segy_file_ns >= 0);
-            REQUIRE(input_file_ns == size_t(segy_file_ns));
+            REQUIRE(segy_file_samples_per_trace >= 0);
+            REQUIRE(
+                input_file_samples_per_trace
+                == size_t(segy_file_samples_per_trace));
         }
 
         {
-            INFO("Input_file_segy::read_nt()");
+            INFO("Input_file_segy::read_number_of_traces()");
 
-            const auto& input_file_nt = input_file_segy.read_nt();
-            const auto& segy_file_nt  = segy_file_native.traces.size();
+            const auto& input_file_number_of_traces =
+                input_file_segy.read_number_of_traces();
+            const auto& segy_file_number_of_traces =
+                segy_file_native.traces.size();
 
-            REQUIRE(input_file_nt == segy_file_nt);
+            REQUIRE(input_file_number_of_traces == segy_file_number_of_traces);
         }
 
         {
@@ -221,29 +227,18 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
         if (number_of_traces == 0) {
             INFO("number_of_traces == 0");
 
-            {
-                INFO("traces == nullptr");
-                input_file_segy.read_trace(
-                    0, number_of_traces, nullptr, nullptr, skip);
-                SUCCEED();
-            }
+            Trace_metadata trace_metadata(0);
 
-            {
-                INFO("traces != nullptr");
+            input_file_segy.read_metadata(
+                0, number_of_traces, trace_metadata, skip);
+            SUCCEED();
 
-                // Using non-zero sized vector, because std::vector::data() can
-                // return nullptr when zero-sized.
-                std::vector<exseis::utils::Trace_value> trace_data;
-                trace_data.resize(1);
+            input_file_segy.read_data(0, number_of_traces, nullptr);
+            SUCCEED();
 
-                input_file_segy.read_trace(
-                    0, number_of_traces, trace_data.data(), nullptr, skip);
-
-                REQUIRE(
-                    exseis::utils::to_big_endian(trace_data[0])
-                    == exseis::utils::to_big_endian(
-                        exseis::utils::Trace_value(0)));
-            }
+            input_file_segy.read(
+                0, number_of_traces, nullptr, trace_metadata, skip);
+            SUCCEED();
         }
         else {
             INFO("number_of_traces > 0");
@@ -281,66 +276,65 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
                 };
 
                 {
-                    INFO(
-                        "Input_file_segy::read_trace(Trace_data*, Trace_metadata*)");
+                    INFO("Input_file_segy::read_metadata");
 
-                    std::vector<exseis::utils::Trace_value> trace_data;
-                    trace_data.resize(
-                        samples_per_trace * trace_index_chunk_size);
+                    if (piol->get_rank() == 0) {
+                        exseis::piol::Trace_metadata trace_metadata(
+                            exseis::piol::Rule{true, true, true},
+                            trace_index_chunk_size);
 
-                    exseis::piol::Trace_metadata trace_metadata(
-                        exseis::piol::Rule{true, true, true},
-                        trace_index_chunk_size);
+                        input_file_segy.read_metadata(
+                            trace_index_begin, trace_index_chunk_size,
+                            trace_metadata, skip);
 
-                    input_file_segy.read_trace(
-                        trace_index_begin, trace_index_chunk_size,
-                        trace_data.data(), &trace_metadata, skip);
-
-                    for_each_in_chunk(check_trace_metadata, trace_metadata);
-                    for_each_in_chunk(check_trace_data, trace_data);
+                        for_each_in_chunk(check_trace_metadata, trace_metadata);
+                    }
+                    else {
+                        input_file_segy.read_metadata();
+                    }
                 }
 
                 {
-                    INFO("Input_file_segy::read_trace(Trace_data*)");
+                    INFO("Input_file_segy::read_data");
 
-                    std::vector<exseis::utils::Trace_value> trace_data;
-                    trace_data.resize(
-                        samples_per_trace * trace_index_chunk_size);
+                    if (piol->get_rank() == 0) {
+                        std::vector<exseis::utils::Trace_value> trace_data;
+                        trace_data.resize(
+                            samples_per_trace * trace_index_chunk_size);
 
-                    input_file_segy.read_trace(
-                        trace_index_begin, trace_index_chunk_size,
-                        trace_data.data());
+                        input_file_segy.read_data(
+                            trace_index_begin, trace_index_chunk_size,
+                            trace_data.data());
 
-                    for_each_in_chunk(check_trace_data, trace_data);
+                        for_each_in_chunk(check_trace_data, trace_data);
+                    }
+                    else {
+                        input_file_segy.read_data();
+                    }
                 }
 
                 {
-                    INFO(
-                        "Input_file_segy::read_trace(nullptr, Trace_metadata*)");
+                    INFO("Input_file_segy::read");
 
-                    exseis::piol::Trace_metadata trace_metadata(
-                        exseis::piol::Rule{true, true, true},
-                        trace_index_chunk_size);
+                    if (piol->get_rank() == 0) {
+                        std::vector<exseis::utils::Trace_value> trace_data;
+                        trace_data.resize(
+                            samples_per_trace * trace_index_chunk_size);
 
-                    input_file_segy.read_trace(
-                        trace_index_begin, trace_index_chunk_size, nullptr,
-                        &trace_metadata, skip);
+                        exseis::piol::Trace_metadata trace_metadata(
+                            exseis::piol::Rule{true, true, true},
+                            trace_index_chunk_size);
 
-                    for_each_in_chunk(check_trace_metadata, trace_metadata);
-                }
+                        input_file_segy.read(
+                            trace_index_begin, trace_index_chunk_size,
+                            trace_data.data(), trace_metadata, skip);
 
-                {
-                    INFO("Input_file_segy::read_param()");
-
-                    exseis::piol::Trace_metadata trace_metadata(
-                        exseis::piol::Rule{true, true, true},
-                        trace_index_chunk_size);
-
-                    input_file_segy.read_param(
-                        trace_index_begin, trace_index_chunk_size,
-                        &trace_metadata, skip);
-
-                    for_each_in_chunk(check_trace_metadata, trace_metadata);
+                        for_each_in_chunk(check_trace_metadata, trace_metadata);
+                        for_each_in_chunk(check_trace_data, trace_data);
+                    }
+                    else {
+                        input_file_segy.read();
+                    }
                 }
             }
         }
@@ -356,30 +350,19 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
         if (number_of_traces == 0) {
             INFO("number_of_traces == 0");
 
-            {
-                INFO("traces == nullptr");
-                input_file_segy.read_trace_non_contiguous(
-                    number_of_traces, nullptr, nullptr, nullptr, skip);
-                SUCCEED();
-            }
+            Trace_metadata trace_metadata(0);
 
-            {
-                INFO("traces != nullptr");
+            input_file_segy.read_metadata_non_contiguous(
+                number_of_traces, nullptr, trace_metadata, 0);
+            SUCCEED();
 
-                // Using non-zero sized vector, because std::vector::data() can
-                // return nullptr when zero-sized.
-                std::vector<exseis::utils::Trace_value> trace_data;
-                trace_data.resize(1);
+            input_file_segy.read_data_non_contiguous(
+                number_of_traces, nullptr, nullptr);
+            SUCCEED();
 
-                input_file_segy.read_trace_non_contiguous(
-                    number_of_traces, nullptr, trace_data.data(), nullptr,
-                    skip);
-
-                REQUIRE(
-                    exseis::utils::to_big_endian(trace_data[0])
-                    == exseis::utils::to_big_endian(
-                        exseis::utils::Trace_value(0)));
-            }
+            input_file_segy.read_non_contiguous(
+                number_of_traces, nullptr, nullptr, trace_metadata, skip);
+            SUCCEED();
         }
         else {
             INFO("number_of_traces > 0");
@@ -426,63 +409,62 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
                 };
 
                 {
-                    INFO(
-                        "Input_file_segy::read_trace_non_contiguous(Trace_data*, Trace_metadata*)");
+                    INFO("Input_file_segy::read_metadata_non_contiguous");
 
-                    std::vector<exseis::utils::Trace_value> trace_data;
-                    trace_data.resize(samples_per_trace * chunk_size);
+                    if (piol->get_rank() == 0) {
+                        exseis::piol::Trace_metadata trace_metadata(
+                            exseis::piol::Rule{true, true, true}, chunk_size);
 
-                    exseis::piol::Trace_metadata trace_metadata(
-                        exseis::piol::Rule{true, true, true}, chunk_size);
+                        input_file_segy.read_metadata_non_contiguous(
+                            chunk_size, offsets.data() + chunk_start,
+                            trace_metadata, skip);
 
-                    input_file_segy.read_trace_non_contiguous(
-                        chunk_size, offsets.data() + chunk_start,
-                        trace_data.data(), &trace_metadata, skip);
-
-                    for_each_in_chunk(check_trace_metadata, trace_metadata);
-                    for_each_in_chunk(check_trace_data, trace_data);
+                        for_each_in_chunk(check_trace_metadata, trace_metadata);
+                    }
+                    else {
+                        input_file_segy.read_metadata_non_contiguous();
+                    }
                 }
 
                 {
-                    INFO(
-                        "Input_file_segy::read_trace_non_contiguous(Trace_data*)");
+                    INFO("Input_file_segy::read_data_non_contiguous");
 
-                    std::vector<exseis::utils::Trace_value> trace_data;
-                    trace_data.resize(samples_per_trace * chunk_size);
+                    if (piol->get_rank() == 0) {
+                        std::vector<exseis::utils::Trace_value> trace_data;
+                        trace_data.resize(samples_per_trace * chunk_size);
 
-                    std::fill(trace_data.begin(), trace_data.end(), 0);
-                    input_file_segy.read_trace_non_contiguous(
-                        chunk_size, offsets.data() + chunk_start,
-                        trace_data.data());
+                        std::fill(trace_data.begin(), trace_data.end(), 0);
+                        input_file_segy.read_data_non_contiguous(
+                            chunk_size, offsets.data() + chunk_start,
+                            trace_data.data());
 
-                    for_each_in_chunk(check_trace_data, trace_data);
+                        for_each_in_chunk(check_trace_data, trace_data);
+                    }
+                    else {
+                        input_file_segy.read_data_non_contiguous();
+                    }
                 }
 
                 {
-                    INFO(
-                        "Input_file_segy::read_trace_non_contiguous(nullptr, Trace_metadata*)");
+                    INFO("Input_file_segy::read_non_contiguous");
 
-                    exseis::piol::Trace_metadata trace_metadata(
-                        exseis::piol::Rule{true, true, true}, chunk_size);
+                    if (piol->get_rank() == 0) {
+                        std::vector<exseis::utils::Trace_value> trace_data;
+                        trace_data.resize(samples_per_trace * chunk_size);
 
-                    input_file_segy.read_trace_non_contiguous(
-                        chunk_size, offsets.data() + chunk_start, nullptr,
-                        &trace_metadata, skip);
+                        exseis::piol::Trace_metadata trace_metadata(
+                            exseis::piol::Rule{true, true, true}, chunk_size);
 
-                    for_each_in_chunk(check_trace_metadata, trace_metadata);
-                }
+                        input_file_segy.read_non_contiguous(
+                            chunk_size, offsets.data() + chunk_start,
+                            trace_data.data(), trace_metadata, skip);
 
-                {
-                    INFO("Input_file_segy::read_param_non_contiguous()");
-
-                    exseis::piol::Trace_metadata trace_metadata(
-                        exseis::piol::Rule{true, true, true}, chunk_size);
-
-                    input_file_segy.read_param_non_contiguous(
-                        chunk_size, offsets.data() + chunk_start,
-                        &trace_metadata, skip);
-
-                    for_each_in_chunk(check_trace_metadata, trace_metadata);
+                        for_each_in_chunk(check_trace_metadata, trace_metadata);
+                        for_each_in_chunk(check_trace_data, trace_data);
+                    }
+                    else {
+                        input_file_segy.read_non_contiguous();
+                    }
                 }
             }
         }
