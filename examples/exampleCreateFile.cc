@@ -7,7 +7,7 @@
 /// This example shows how to make a new file with the file api is complete.
 ///
 
-#include "exseisdat/piol.hh"
+#include "exseis/piol.hh"
 
 #include <assert.h>
 #include <iostream>
@@ -15,8 +15,6 @@
 #include <string>
 #include <unistd.h>
 
-using namespace exseis::utils;
-using namespace exseis::piol;
 
 int main()
 {
@@ -27,13 +25,15 @@ int main()
     size_t ns              = 4000;
     double sample_interval = .01;
 
-    // Initialize PIOL by creating an ExSeisPIOL object
-    auto piol = ExSeis::make();
+    // Initialize the library by creating a communicator object
+    auto communicator = exseis::Communicator_mpi{MPI_COMM_WORLD};
 
     // Create new SEGY file
-    Output_file_segy file(piol, name);
+    exseis::Output_file_segy file(exseis::IO_driver_mpi{
+        communicator, name, exseis::File_mode_mpi::Write});
 
-    auto dec = block_decomposition(nt, piol->get_num_rank(), piol->get_rank());
+    auto dec = exseis::block_decomposition(
+        nt, communicator.get_num_rank(), communicator.get_rank());
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
@@ -44,24 +44,25 @@ int main()
     file.write_text("Test file\n");
 
     // Set and write some trace parameters
-    Trace_metadata trace_metadata(lnt);
+    exseis::Trace_metadata trace_metadata(lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
         trace_metadata.set_floating_point(
-            j, Trace_metadata_key::x_src, 1600.0 + k);
+            j, exseis::Trace_metadata_key::x_src, 1600.0 + k);
         trace_metadata.set_floating_point(
-            j, Trace_metadata_key::y_src, 2400.0 + k);
+            j, exseis::Trace_metadata_key::y_src, 2400.0 + k);
         trace_metadata.set_floating_point(
-            j, Trace_metadata_key::x_rcv, 100000.0 + k);
+            j, exseis::Trace_metadata_key::x_rcv, 100000.0 + k);
         trace_metadata.set_floating_point(
-            j, Trace_metadata_key::y_rcv, 3000000.0 + k);
+            j, exseis::Trace_metadata_key::y_rcv, 3000000.0 + k);
         trace_metadata.set_floating_point(
-            j, Trace_metadata_key::xCmp, 10000.0 + k);
+            j, exseis::Trace_metadata_key::xCmp, 10000.0 + k);
         trace_metadata.set_floating_point(
-            j, Trace_metadata_key::yCmp, 4000.0 + k);
-        trace_metadata.set_integer(j, Trace_metadata_key::il, 2400 + k);
-        trace_metadata.set_integer(j, Trace_metadata_key::xl, 1600 + k);
-        trace_metadata.set_integer(j, Trace_metadata_key::tn, offset + j);
+            j, exseis::Trace_metadata_key::yCmp, 4000.0 + k);
+        trace_metadata.set_integer(j, exseis::Trace_metadata_key::il, 2400 + k);
+        trace_metadata.set_integer(j, exseis::Trace_metadata_key::xl, 1600 + k);
+        trace_metadata.set_integer(
+            j, exseis::Trace_metadata_key::tn, offset + j);
     }
     file.write_metadata(offset, lnt, trace_metadata);
 

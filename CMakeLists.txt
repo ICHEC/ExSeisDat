@@ -136,31 +136,29 @@ include(third_party/third_party.cmake)
 add_library(
     exseisdat
 
-    src/exseisdat/piol/configuration/ExSeis.cc
-    src/exseisdat/piol/configuration/ExSeisPIOL.cc
-    src/exseisdat/piol/file/Input_file_segy.cc
-    src/exseisdat/piol/file/Output_file_segy.cc
-    src/exseisdat/piol/io_driver/IO_driver_mpi.cc
-    src/exseisdat/piol/metadata/rules/Rule.cc
-    src/exseisdat/piol/metadata/Trace_metadata.cc
-    src/exseisdat/piol/operations/gather.cc
-    src/exseisdat/piol/operations/minmax.cc
-    src/exseisdat/piol/operations/sort.cc
-    src/exseisdat/piol/segy/utils.cc
+    src/exseis/piol/file/Input_file_segy.cc
+    src/exseis/piol/file/Output_file_segy.cc
+    src/exseis/piol/io_driver/IO_driver_mpi.cc
+    src/exseis/piol/metadata/rules/Rule.cc
+    src/exseis/piol/metadata/Trace_metadata.cc
+    src/exseis/piol/operations/gather.cc
+    src/exseis/piol/operations/minmax.cc
+    src/exseis/piol/operations/sort.cc
+    src/exseis/piol/segy/utils.cc
 
-    src/exseisdat/utils/communicator/Communicator_mpi.cc
-    src/exseisdat/utils/decomposition/block_decomposition.cc
-    src/exseisdat/utils/encoding/character_encoding.cc
-    src/exseisdat/utils/encoding/number_encoding.cc
-    src/exseisdat/utils/logging/Log.cc
-    src/exseisdat/utils/logging/Status.cc
-    src/exseisdat/utils/mpi_utils/MPI_error_to_string.cc
-    src/exseisdat/utils/mpi_utils/MPI_max_array_length.cc
-    src/exseisdat/utils/signal_processing/AGC.cc
-    src/exseisdat/utils/signal_processing/Gain_function.cc
-    src/exseisdat/utils/signal_processing/Taper_function.cc
-    src/exseisdat/utils/signal_processing/mute.cc
-    src/exseisdat/utils/signal_processing/taper.cc
+    src/exseis/utils/communicator/Communicator_mpi.cc
+    src/exseis/utils/decomposition/block_decomposition.cc
+    src/exseis/utils/encoding/character_encoding.cc
+    src/exseis/utils/encoding/number_encoding.cc
+    src/exseis/utils/logging/Log.cc
+    src/exseis/utils/logging/Status.cc
+    src/exseis/utils/mpi_utils/MPI_error_to_string.cc
+    src/exseis/utils/mpi_utils/MPI_max_array_length.cc
+    src/exseis/utils/signal_processing/AGC.cc
+    src/exseis/utils/signal_processing/Gain_function.cc
+    src/exseis/utils/signal_processing/Taper_function.cc
+    src/exseis/utils/signal_processing/mute.cc
+    src/exseis/utils/signal_processing/taper.cc
 )
 
 target_compile_features(exseisdat PUBLIC cxx_std_14)

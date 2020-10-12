@@ -1,10 +1,10 @@
 // NOLINTNEXTLINE
 #define CATCH_CONFIG_DEFAULT_REPORTER "mpi"
 #define CATCH_CONFIG_RUNNER
-#include "exseisdat/test/catch2.hh"
+#include "exseis/test/catch2.hh"
 
-#include "exseisdat/test/Catch_reporter_mpi.hh"
-#include "exseisdat/test/Test_case_cache.hh"
+#include "exseis/test/Catch_reporter_mpi.hh"
+#include "exseis/test/Test_case_cache.hh"
 
 #include <mpi.h>
 

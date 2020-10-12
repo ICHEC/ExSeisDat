@@ -44,25 +44,25 @@ add_executable(
 
     unit.test.main.cc
 
-    unit/exseisdat/test/Buffer.test.cc
-    unit/exseisdat/test/Index_hash.test.cc
-    unit/exseisdat/test/segy/Segy_file_generator.test.cc
+    unit/exseis/test/Buffer.test.cc
+    unit/exseis/test/Index_hash.test.cc
+    unit/exseis/test/segy/Segy_file_generator.test.cc
 
-    unit/exseisdat/utils/distributed_vector/Distributed_vector_mpi.test.cc
-    unit/exseisdat/utils/encoding/character_encoding.test.cc
-    unit/exseisdat/utils/encoding/number_encoding.test.cc
-    unit/exseisdat/utils/signal_processing/mute.test.cc
-    unit/exseisdat/utils/types/Type.test.cc
+    unit/exseis/utils/distributed_vector/Distributed_vector_mpi.test.cc
+    unit/exseis/utils/encoding/character_encoding.test.cc
+    unit/exseis/utils/encoding/number_encoding.test.cc
+    unit/exseis/utils/signal_processing/mute.test.cc
+    unit/exseis/utils/types/Type.test.cc
 
-    unit/exseisdat/piol/io_driver/IO_driver_distributed_vector.test.cc
-    unit/exseisdat/piol/io_driver/IO_driver_mpi.test.cc
-    unit/exseisdat/piol/file/Input_file_segy.test.cc
-    unit/exseisdat/piol/file/Output_file_segy.test.cc
-    unit/exseisdat/piol/metadata/rules/Rule.test.cc
-    unit/exseisdat/piol/metadata/rules/Segy_rule_entry.test.cc
-    unit/exseisdat/piol/operations/minmax.test.cc
-    unit/exseisdat/piol/operations/sort.test.cc
-    unit/exseisdat/piol/segy/utils.test.cc
+    unit/exseis/piol/io_driver/IO_driver_distributed_vector.test.cc
+    unit/exseis/piol/io_driver/IO_driver_mpi.test.cc
+    unit/exseis/piol/file/Input_file_segy.test.cc
+    unit/exseis/piol/file/Output_file_segy.test.cc
+    unit/exseis/piol/metadata/rules/Rule.test.cc
+    unit/exseis/piol/metadata/rules/Segy_rule_entry.test.cc
+    unit/exseis/piol/operations/minmax.test.cc
+    unit/exseis/piol/operations/sort.test.cc
+    unit/exseis/piol/segy/utils.test.cc
 )
 
 target_link_libraries(unit.test exseisdat exseisdat::catch2)
