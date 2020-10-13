@@ -45,19 +45,21 @@ std::unique_ptr<Coords> get_coords(
 
     auto coords = std::make_unique<Coords>(lnt, ixline);
     assert(coords.get());
-    auto rule = Rule(std::initializer_list<Trace_metadata_key>{
-        Trace_metadata_key::gtn, Trace_metadata_key::x_src});
+
+    auto trace_metadata_available = file.trace_metadata_available();
+    std::map<Trace_metadata_key, Trace_metadata_info> interesting_metadata;
+    interesting_metadata[Trace_metadata_key::gtn] = {Type::UInt64};
+    interesting_metadata[Trace_metadata_key::source_x] =
+        trace_metadata_available[Trace_metadata_key::source_x];
+
     /* These two lines are for some basic memory limitation calculations. In
      * future versions of the PIOL this will be handled internally and in a more
      * accurate way. User Story S-01490. The for loop a few lines below reads
      * the trace parameters in batches because of this memory limit.
      */
     size_t biggest = communicator.max(lnt);
-    size_t memlim =
-        2LU * 1024LU * 1024LU * 1024LU - 4LU * biggest * sizeof(Floating_point);
     size_t max =
-        memlim
-        / (rule.memory_usage_per_header() + segy::segy_trace_header_size());
+        2LU * 1024LU * 1024LU * 1024LU - 4LU * biggest * sizeof(Floating_point);
 
     // Collective I/O requries an equal number of MPI-IO calls on every process
     // in exactly the same sequence as each other.
@@ -66,7 +68,7 @@ std::unique_ptr<Coords> get_coords(
     size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
                    - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
-    Trace_metadata trace_metadata(std::move(rule), lnt);
+    Trace_metadata trace_metadata(interesting_metadata, lnt);
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
 
@@ -90,10 +92,10 @@ std::unique_ptr<Coords> get_coords(
         communicator, trace_metadata,
         [](const Trace_metadata& trace_metadata, const size_t i,
            const size_t j) -> bool {
-            const auto x_src_i =
-                trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
-            const auto x_src_j =
-                trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
+            const auto x_src_i = trace_metadata.get_floating_point(
+                i, Trace_metadata_key::source_x);
+            const auto x_src_j = trace_metadata.get_floating_point(
+                j, Trace_metadata_key::source_x);
 
             if (x_src_i < x_src_j) {
                 return true;
@@ -113,22 +115,27 @@ std::unique_ptr<Coords> get_coords(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    const auto crule = ([ixline]() {
+    const auto crule = ([&]() {
+        using Key = Trace_metadata_key;
+
+        auto trace_metadata_available = file.trace_metadata_available();
         if (ixline) {
-            return Rule(std::initializer_list<Trace_metadata_key>{
-                Trace_metadata_key::x_src, Trace_metadata_key::y_src,
-                Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv,
-                Trace_metadata_key::il, Trace_metadata_key::xl});
+            return decltype(trace_metadata_available){
+                {Key::source_x, trace_metadata_available[Key::source_x]},
+                {Key::source_y, trace_metadata_available[Key::source_y]},
+                {Key::receiver_x, trace_metadata_available[Key::receiver_x]},
+                {Key::receiver_y, trace_metadata_available[Key::receiver_y]},
+                {Key::il, trace_metadata_available[Key::il]},
+                {Key::xl, trace_metadata_available[Key::xl]}};
         }
 
-        return Rule(std::initializer_list<Trace_metadata_key>{
-            Trace_metadata_key::x_src, Trace_metadata_key::y_src,
-            Trace_metadata_key::x_rcv, Trace_metadata_key::y_rcv});
+        return decltype(trace_metadata_available){
+            {Key::source_x, trace_metadata_available[Key::source_x]},
+            {Key::source_y, trace_metadata_available[Key::source_y]},
+            {Key::receiver_x, trace_metadata_available[Key::receiver_x]},
+            {Key::receiver_y, trace_metadata_available[Key::receiver_y]}};
     }());
 
-    max = memlim
-          / (crule.memory_usage_per_header() + segy::segy_trace_header_size()
-             + 2LU * sizeof(size_t));
 
     {
         Trace_metadata trace_metadata_2(std::move(crule), std::min(lnt, max));
@@ -147,17 +154,17 @@ std::unique_ptr<Coords> get_coords(
             for (size_t j = 0; j < rblock; j++) {
                 coords->x_src[i + orig[j]] =
                     trace_metadata_2.get_floating_point(
-                        j, Trace_metadata_key::x_src);
+                        j, Trace_metadata_key::source_x);
                 coords->y_src[i + orig[j]] =
                     trace_metadata_2.get_floating_point(
-                        j, Trace_metadata_key::y_src);
+                        j, Trace_metadata_key::source_y);
 
                 coords->x_rcv[i + orig[j]] =
                     trace_metadata_2.get_floating_point(
-                        j, Trace_metadata_key::x_rcv);
+                        j, Trace_metadata_key::receiver_x);
                 coords->y_rcv[i + orig[j]] =
                     trace_metadata_2.get_floating_point(
-                        j, Trace_metadata_key::y_rcv);
+                        j, Trace_metadata_key::receiver_y);
 
                 coords->tn[i + orig[j]] = trlist[i + orig[j]];
             }
@@ -197,22 +204,27 @@ void output_non_mono(
     const bool print_dsr)
 {
     auto time = MPI_Wtime();
-    auto rule = Rule(
-        std::initializer_list<Trace_metadata_key>{Trace_metadata_key::Copy});
-
-    // Note: Set to TimeScal for OpenCPS viewing of dataset.
-    // OpenCPS is restrictive on what locations can be used
-    // as scalars.
-    if (print_dsr) {
-        rule.add_segy_float(
-            Trace_metadata_key::dsdr, segy::Trace_header_offsets::SrcMeas,
-            segy::Trace_header_offsets::TimeScal);
-    }
 
     Input_file_segy src(
         IO_driver_mpi{communicator, sname, File_mode_mpi::Read});
     Output_file_segy dst(
         IO_driver_mpi{communicator, dname, File_mode_mpi::Write});
+
+    auto trace_metadata_available = src.trace_metadata_available();
+
+    decltype(trace_metadata_available) interesting_metadata = {
+        {Trace_metadata_key::raw,
+         trace_metadata_available[Trace_metadata_key::raw]}};
+
+    // TODO: Add adding custom Blob_parsers to Output_file_segy
+    // // Note: Set to TimeScal for OpenCPS viewing of dataset.
+    // // OpenCPS is restrictive on what locations can be used
+    // // as scalars.
+    // if (print_dsr) {
+    //     rule.add_segy_float(
+    //         Trace_metadata_key::dsdr, segy::Trace_header_offsets::SrcMeas,
+    //         segy::Trace_header_offsets::TimeScal);
+    // }
 
     size_t ns      = src.read_samples_per_trace();
     size_t lnt     = list.size();
@@ -230,9 +242,7 @@ void output_non_mono(
         }
     }
 
-    size_t memlim = 1024LU * 1024LU * 1024LU;
-    size_t max =
-        memlim / (4LU * segy::segy_trace_size(ns) + 4LU * rule.extent());
+    size_t max   = 1024LU * 1024LU * 1024LU;
     size_t extra = biggest / max + (biggest % max > 0 ? 1 : 0)
                    - (lnt / max + (lnt % max > 0 ? 1 : 0));
 
@@ -241,7 +251,7 @@ void output_non_mono(
     dst.write_sample_interval(src.read_sample_interval());
     dst.write_samples_per_trace(ns);
 
-    Trace_metadata trace_metadata(std::move(rule), std::min(lnt, max));
+    Trace_metadata trace_metadata(interesting_metadata, std::min(lnt, max));
     std::vector<Trace_value> trc(ns * std::min(lnt, max));
 
     communicator.barrier();

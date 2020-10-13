@@ -95,10 +95,8 @@ void get_il_xl_gathers(
         file.read_number_of_traces(), communicator.get_num_rank(),
         communicator.get_rank());
 
-    const auto rule = Rule(std::initializer_list<Trace_metadata_key>{
-        Trace_metadata_key::il, Trace_metadata_key::xl});
-
-    Trace_metadata trace_metadata(std::move(rule), dec.local_size);
+    Trace_metadata trace_metadata(
+        file.trace_metadata_available(), dec.local_size);
 
     file.read_metadata(dec.global_offset, dec.local_size, trace_metadata);
 

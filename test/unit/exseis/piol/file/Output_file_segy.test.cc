@@ -176,19 +176,19 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
 
             const auto& trace_native = segy_file_native.traces[trace_index];
 
-            integer_op(Key::tnl, trace_native.line_trace_index);
-            integer_op(Key::tn, trace_native.file_trace_index);
-            integer_op(Key::tnr, trace_native.ofr_trace_index);
+            integer_op(Key::line_trace_index, trace_native.line_trace_index);
+            integer_op(Key::file_trace_index, trace_native.file_trace_index);
+            integer_op(Key::ofr_trace_index, trace_native.ofr_trace_index);
 
-            floating_op(Key::x_src, trace_native.src_x);
-            floating_op(Key::y_src, trace_native.src_y);
-            floating_op(Key::x_rcv, trace_native.rcv_x);
-            floating_op(Key::y_rcv, trace_native.rcv_y);
+            floating_op(Key::source_x, trace_native.src_x);
+            floating_op(Key::source_y, trace_native.src_y);
+            floating_op(Key::receiver_x, trace_native.rcv_x);
+            floating_op(Key::receiver_y, trace_native.rcv_y);
 
-            integer_op(Key::ns, trace_native.number_of_samples);
+            integer_op(Key::number_of_samples, trace_native.number_of_samples);
 
-            floating_op(Key::xCmp, trace_native.cmp_x);
-            floating_op(Key::yCmp, trace_native.cmp_y);
+            floating_op(Key::cdp_x, trace_native.cmp_x);
+            floating_op(Key::cdp_y, trace_native.cmp_y);
             integer_op(Key::il, trace_native.in_line);
             integer_op(Key::xl, trace_native.cross_line);
         };
@@ -351,8 +351,15 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 std::vector<exseis::Trace_value> trace_data;
                 trace_data.resize(samples_per_trace * trace_index_chunk_size);
 
-                exseis::Trace_metadata trace_metadata{
-                    exseis::Rule{true, true, true}, trace_index_chunk_size};
+                /// Get the available trace metadata without
+                /// Trace_metadata_key::raw
+                auto trace_metadata_available =
+                    output_file_segy.trace_metadata_available();
+
+                trace_metadata_available.erase(exseis::Trace_metadata_key::raw);
+
+                exseis::Trace_metadata trace_metadata{trace_metadata_available,
+                                                      trace_index_chunk_size};
 
                 const auto set_chunk_metadata = [&] {
                     for_each_in_chunk(
@@ -423,7 +430,8 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 trace_data.resize(samples_per_trace * trace_index_chunk_size);
 
                 exseis::Trace_metadata trace_metadata{
-                    exseis::Rule{true, true, true}, trace_index_chunk_size};
+                    input_file_segy.trace_metadata_available(),
+                    trace_index_chunk_size};
 
                 input_file_segy.read(
                     trace_index_begin, trace_index_chunk_size,
@@ -531,8 +539,12 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 std::vector<exseis::Trace_value> trace_data;
                 trace_data.resize(samples_per_trace * offset_index_chunk_size);
 
-                exseis::Trace_metadata trace_metadata{
-                    exseis::Rule{true, true, true}, offset_index_chunk_size};
+                auto trace_metadata_available =
+                    output_file_segy.trace_metadata_available();
+                trace_metadata_available.erase(exseis::Trace_metadata_key::raw);
+
+                exseis::Trace_metadata trace_metadata{trace_metadata_available,
+                                                      offset_index_chunk_size};
 
 
                 for_each_in_chunk(
@@ -597,7 +609,8 @@ TEST_CASE("Output_file_segy", "[Output_file_segy][Output_file][PIOL]")
                 trace_data.resize(samples_per_trace * offset_index_chunk_size);
 
                 exseis::Trace_metadata trace_metadata{
-                    exseis::Rule{true, true, true}, offset_index_chunk_size};
+                    input_file_segy.trace_metadata_available(),
+                    offset_index_chunk_size};
 
                 input_file_segy.read_non_contiguous(
                     offset_index_chunk_size,

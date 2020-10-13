@@ -58,10 +58,10 @@ add_executable(
     unit/exseis/piol/io_driver/IO_driver_mpi.test.cc
     unit/exseis/piol/file/Input_file_segy.test.cc
     unit/exseis/piol/file/Output_file_segy.test.cc
-    unit/exseis/piol/metadata/rules/Rule.test.cc
-    unit/exseis/piol/metadata/rules/Segy_rule_entry.test.cc
+    unit/exseis/piol/file/detail/Blob_parser_segy.test.cc
     unit/exseis/piol/operations/minmax.test.cc
     unit/exseis/piol/operations/sort.test.cc
+    unit/exseis/piol/parser/Blob_parser.test.cc
     unit/exseis/piol/segy/utils.test.cc
 )
 

@@ -1,6 +1,7 @@
 #ifndef EXSEIS_TEST_SEGY_FILE_GENERATOR
 #define EXSEIS_TEST_SEGY_FILE_GENERATOR
 
+#include "exseis/piol/segy/Trace_header_offsets.hh"
 #include "exseis/piol/segy/utils.hh"
 #include "exseis/utils/encoding/character_encoding.hh"
 #include "exseis/utils/encoding/number_encoding.hh"
@@ -156,24 +157,24 @@ class Binary_header {
 class Trace {
   public:
     struct Native {
-        int32_t line_trace_index;  //  1- 4
-        int32_t file_trace_index;  //  5- 8
-        int32_t ofr_number;        //  9-12
-        int32_t ofr_trace_index;   // 13-16
+        int32_t line_trace_index = 0;  //  1- 4
+        int32_t file_trace_index = 0;  //  5- 8
+        int32_t ofr_number       = 0;  //  9-12
+        int32_t ofr_trace_index  = 0;  // 13-16
 
-        int16_t coordinate_scalar;  // 71-72
-        double src_x;               // 73-76
-        double src_y;               // 77-80
-        double rcv_x;               // 81-84
-        double rcv_y;               // 85-88
+        int16_t coordinate_scalar = 0;  // 71-72
+        double src_x              = 0;  // 73-76
+        double src_y              = 0;  // 77-80
+        double rcv_x              = 0;  // 81-84
+        double rcv_y              = 0;  // 85-88
 
-        int16_t number_of_samples;  // 115-116
-        int16_t sample_interval;    // 117-118
+        int16_t number_of_samples = 0;  // 115-116
+        int16_t sample_interval   = 0;  // 117-118
 
-        double cmp_x;        // 181-184
-        double cmp_y;        // 185-188
-        int32_t in_line;     // 189-192
-        int32_t cross_line;  // 193-196
+        double cmp_x       = 0;  // 181-184
+        double cmp_y       = 0;  // 185-188
+        int32_t in_line    = 0;  // 189-192
+        int32_t cross_line = 0;  // 193-196
 
         std::vector<float> samples;  // 241-end
         exseis::segy::Segy_number_format number_format;
@@ -232,36 +233,40 @@ class Trace {
     {
         using Offsets = exseis::segy::Trace_header_offsets;
 
-        m_native.line_trace_index =
-            write_header<int32_t>(m_native.file_trace_index, Offsets::SeqNum);
+        m_native.line_trace_index = write_header<int32_t>(
+            m_native.file_trace_index, Offsets::line_trace_index);
 
-        m_native.file_trace_index =
-            write_header<int32_t>(m_native.file_trace_index, Offsets::SeqFNum);
+        m_native.file_trace_index = write_header<int32_t>(
+            m_native.file_trace_index, Offsets::file_trace_index);
 
-        m_native.ofr_number      = write_header<int32_t>(Offsets::ORF);
-        m_native.ofr_trace_index = write_header<int32_t>(Offsets::TORF);
+        m_native.ofr_number = write_header<int32_t>(Offsets::ORF);
+        m_native.ofr_trace_index =
+            write_header<int32_t>(Offsets::ofr_trace_index);
 
         m_native.coordinate_scalar =
-            write_header<int16_t>(1, Offsets::ScaleCoord);
+            write_header<int16_t>(1, Offsets::coordinate_scalar);
 
         const double coordinate_scalar =
             static_cast<double>(m_native.coordinate_scalar);
         m_native.src_x =
-            write_header<int32_t>(Offsets::x_src) * coordinate_scalar;
+            write_header<int32_t>(Offsets::source_x) * coordinate_scalar;
         m_native.src_y =
-            write_header<int32_t>(Offsets::y_src) * coordinate_scalar;
+            write_header<int32_t>(Offsets::source_y) * coordinate_scalar;
         m_native.rcv_x =
-            write_header<int32_t>(Offsets::x_rcv) * coordinate_scalar;
+            write_header<int32_t>(Offsets::receiver_x) * coordinate_scalar;
         m_native.rcv_y =
-            write_header<int32_t>(Offsets::y_rcv) * coordinate_scalar;
+            write_header<int32_t>(Offsets::receiver_y) * coordinate_scalar;
 
-        m_native.number_of_samples =
-            write_header<int16_t>(m_native.number_of_samples, Offsets::Ns);
+        m_native.number_of_samples = write_header<int16_t>(
+            m_native.number_of_samples, Offsets::number_of_samples);
+
+        m_native.sample_interval =
+            write_header<int16_t>(Offsets::sample_interval);
 
         m_native.cmp_x =
-            write_header<int32_t>(Offsets::xCmp) * coordinate_scalar;
+            write_header<int32_t>(Offsets::cdp_x) * coordinate_scalar;
         m_native.cmp_y =
-            write_header<int32_t>(Offsets::yCmp) * coordinate_scalar;
+            write_header<int32_t>(Offsets::cdp_y) * coordinate_scalar;
         m_native.in_line    = write_header<int32_t>(Offsets::il);
         m_native.cross_line = write_header<int32_t>(Offsets::xl);
     }

@@ -49,33 +49,33 @@ int main(int argc, char** argv)
     exseis::Input_file_segy file(
         exseis::IO_driver_mpi{communicator, name, exseis::File_mode_mpi::Read});
 
-    exseis::Trace_metadata trace_metadata(1LU);
+    exseis::Trace_metadata trace_metadata(file.trace_metadata_available(), 1LU);
     file.read_metadata(tn, 1LU, trace_metadata);
 
     if (communicator.get_rank() == 0) {
         std::cout << "x_src "
                   << trace_metadata.get_floating_point(
-                         0LU, exseis::Trace_metadata_key::x_src)
+                         0LU, exseis::Trace_metadata_key::source_x)
                   << std::endl;
         std::cout << "y_src "
                   << trace_metadata.get_floating_point(
-                         0LU, exseis::Trace_metadata_key::y_src)
+                         0LU, exseis::Trace_metadata_key::source_y)
                   << std::endl;
         std::cout << "x_rcv "
                   << trace_metadata.get_floating_point(
-                         0LU, exseis::Trace_metadata_key::x_rcv)
+                         0LU, exseis::Trace_metadata_key::receiver_x)
                   << std::endl;
         std::cout << "y_rcv "
                   << trace_metadata.get_floating_point(
-                         0LU, exseis::Trace_metadata_key::y_rcv)
+                         0LU, exseis::Trace_metadata_key::receiver_y)
                   << std::endl;
         std::cout << "xCmp "
                   << trace_metadata.get_floating_point(
-                         0LU, exseis::Trace_metadata_key::xCmp)
+                         0LU, exseis::Trace_metadata_key::cdp_x)
                   << std::endl;
         std::cout << "yCmp "
                   << trace_metadata.get_floating_point(
-                         0LU, exseis::Trace_metadata_key::yCmp)
+                         0LU, exseis::Trace_metadata_key::cdp_y)
                   << std::endl;
 
         std::cout << "il "

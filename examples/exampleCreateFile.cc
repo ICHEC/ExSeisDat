@@ -43,26 +43,29 @@ int main()
     file.write_sample_interval(sample_interval);
     file.write_text("Test file\n");
 
+    auto trace_metadata_available = file.trace_metadata_available();
+    trace_metadata_available.erase(exseis::Trace_metadata_key::raw);
+
     // Set and write some trace parameters
-    exseis::Trace_metadata trace_metadata(lnt);
+    exseis::Trace_metadata trace_metadata(trace_metadata_available, lnt);
     for (size_t j = 0; j < lnt; j++) {
         float k = offset + j;
         trace_metadata.set_floating_point(
-            j, exseis::Trace_metadata_key::x_src, 1600.0 + k);
+            j, exseis::Trace_metadata_key::source_x, 1600.0 + k);
         trace_metadata.set_floating_point(
-            j, exseis::Trace_metadata_key::y_src, 2400.0 + k);
+            j, exseis::Trace_metadata_key::source_y, 2400.0 + k);
         trace_metadata.set_floating_point(
-            j, exseis::Trace_metadata_key::x_rcv, 100000.0 + k);
+            j, exseis::Trace_metadata_key::receiver_x, 100000.0 + k);
         trace_metadata.set_floating_point(
-            j, exseis::Trace_metadata_key::y_rcv, 3000000.0 + k);
+            j, exseis::Trace_metadata_key::receiver_y, 3000000.0 + k);
         trace_metadata.set_floating_point(
-            j, exseis::Trace_metadata_key::xCmp, 10000.0 + k);
+            j, exseis::Trace_metadata_key::cdp_x, 10000.0 + k);
         trace_metadata.set_floating_point(
-            j, exseis::Trace_metadata_key::yCmp, 4000.0 + k);
+            j, exseis::Trace_metadata_key::cdp_y, 4000.0 + k);
         trace_metadata.set_integer(j, exseis::Trace_metadata_key::il, 2400 + k);
         trace_metadata.set_integer(j, exseis::Trace_metadata_key::xl, 1600 + k);
         trace_metadata.set_integer(
-            j, exseis::Trace_metadata_key::tn, offset + j);
+            j, exseis::Trace_metadata_key::file_trace_index, offset + j);
     }
     file.write_metadata(offset, lnt, trace_metadata);
 

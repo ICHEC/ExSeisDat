@@ -204,6 +204,31 @@ inline std::array<unsigned char, sizeof(float)> to_big_endian(float src)
 }
 
 
+/// @brief Convert a host-endian integer type to an `unsigned char` array in
+///        big-endian order.
+///
+/// @param[in] src The value to convert from host-endian to big-endian.
+///
+/// @return An array containing the bytes of `src` in big-endian order.
+///
+/// @details For an array `dst` holding the byte-wise representation of an
+///          integer, big-endian means dst[0] holds the most significant byte
+///          and dst[7] the least.
+///
+template<>
+inline std::array<unsigned char, sizeof(double)> to_big_endian(double src)
+{
+    static_assert(
+        sizeof(double) == sizeof(uint64_t),
+        "to_big_endian<double> expects double and uint64_t to be the same size!");
+
+    uint64_t int_src = 0;
+    std::memcpy(&int_src, &src, sizeof(double));
+
+    return to_big_endian<uint64_t>(int_src);
+}
+
+
 /// @brief The \c Float_components class represents a floating point number in
 ///        terms of its components: {sign, exponent, significand}.
 ///

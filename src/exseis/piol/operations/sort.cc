@@ -63,8 +63,10 @@ inline Floating_point off(
 static bool less_src_rcv(
     const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e1sx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_x);
+    auto e2sx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_x);
 
     if (e1sx < e2sx) {
         return true;
@@ -75,8 +77,10 @@ static bool less_src_rcv(
 
     // e1sz == e2sx
 
-    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e1sy =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_y);
+    auto e2sy =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_y);
 
     if (e1sy < e2sy) {
         return true;
@@ -87,8 +91,10 @@ static bool less_src_rcv(
 
     // e1sy == e2sy
 
-    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e1rx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_x);
+    auto e2rx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_x);
 
     if (e1rx < e2rx) {
         return true;
@@ -99,8 +105,10 @@ static bool less_src_rcv(
 
     // e1rx == e2rx
 
-    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
-    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e1ry =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_y);
+    auto e2ry =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_y);
 
     if (e1ry < e2ry) {
         return true;
@@ -130,8 +138,10 @@ template<bool CalcOff>
 static bool less_src_off(
     const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
+    auto e1sx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_x);
+    auto e2sx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_x);
 
     if (e1sx < e2sx) {
         return true;
@@ -142,8 +152,10 @@ static bool less_src_off(
 
     // e1sz == e2sx
 
-    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e1sy =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_y);
+    auto e2sy =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_y);
 
     if (e1sy < e2sy) {
         return true;
@@ -154,17 +166,23 @@ static bool less_src_off(
 
     // e1sy == e2sy
 
-    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e1rx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_x);
+    auto e1ry =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_y);
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       i, Trace_metadata_key::source_receiver_distance));
 
-    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
-    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e2rx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_x);
+    auto e2ry =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_y);
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       j, Trace_metadata_key::source_receiver_distance));
 
     if (off1 < off2) {
         return true;
@@ -196,8 +214,10 @@ template<bool CalcOff>
 static bool less_rcv_off(
     const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
+    auto e1rx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_x);
+    auto e2rx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_x);
 
     if (e1rx < e2rx) {
         return true;
@@ -208,8 +228,10 @@ static bool less_rcv_off(
 
     // e1rx == e2rx
 
-    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
-    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e1ry =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_y);
+    auto e2ry =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_y);
 
     if (e1ry < e2ry) {
         return true;
@@ -220,17 +242,23 @@ static bool less_rcv_off(
 
     // e1ry == e2ry
 
-    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
+    auto e1sx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_x);
+    auto e1sy =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_y);
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       i, Trace_metadata_key::source_receiver_distance));
 
-    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
-    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
+    auto e2sx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_x);
+    auto e2sy =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_y);
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       j, Trace_metadata_key::source_receiver_distance));
 
     if (off1 < off2) {
         return true;
@@ -282,22 +310,32 @@ static bool less_line_off(
 
     // e1xl == e2xl
 
-    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e1sx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_x);
+    auto e1sy =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_y);
+    auto e1rx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_x);
+    auto e1ry =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_y);
 
-    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
-    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
-    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
-    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e2sx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_x);
+    auto e2sy =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_y);
+    auto e2rx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_x);
+    auto e2ry =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_y);
 
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       i, Trace_metadata_key::source_receiver_distance));
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       j, Trace_metadata_key::source_receiver_distance));
 
     if (off1 < off2) {
         return true;
@@ -327,21 +365,31 @@ template<bool CalcOff>
 static bool less_off_line(
     const Trace_metadata& trace_metadata, const size_t i, const size_t j)
 {
-    auto e1sx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_src);
-    auto e1sy = trace_metadata.get_floating_point(i, Trace_metadata_key::y_src);
-    auto e1rx = trace_metadata.get_floating_point(i, Trace_metadata_key::x_rcv);
-    auto e1ry = trace_metadata.get_floating_point(i, Trace_metadata_key::y_rcv);
+    auto e1sx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_x);
+    auto e1sy =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::source_y);
+    auto e1rx =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_x);
+    auto e1ry =
+        trace_metadata.get_floating_point(i, Trace_metadata_key::receiver_y);
     auto off1 =
         (CalcOff ? off(e1sx, e1sy, e1rx, e1ry) :
-                   trace_metadata.get_integer(i, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       i, Trace_metadata_key::source_receiver_distance));
 
-    auto e2sx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_src);
-    auto e2sy = trace_metadata.get_floating_point(j, Trace_metadata_key::y_src);
-    auto e2rx = trace_metadata.get_floating_point(j, Trace_metadata_key::x_rcv);
-    auto e2ry = trace_metadata.get_floating_point(j, Trace_metadata_key::y_rcv);
+    auto e2sx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_x);
+    auto e2sy =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::source_y);
+    auto e2rx =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_x);
+    auto e2ry =
+        trace_metadata.get_floating_point(j, Trace_metadata_key::receiver_y);
     auto off2 =
         (CalcOff ? off(e2sx, e2sy, e2rx, e2ry) :
-                   trace_metadata.get_integer(j, Trace_metadata_key::Offset));
+                   trace_metadata.get_integer(
+                       j, Trace_metadata_key::source_receiver_distance));
 
     if (off1 < off2) {
         return true;
@@ -425,7 +473,8 @@ bool check_order(
     const Input_file& src, Contiguous_decomposition dec, Sort_type type)
 {
     auto comp = get_comp(type);
-    Trace_metadata trace_metadata(dec.local_size);
+    Trace_metadata trace_metadata(
+        src.trace_metadata_available(), dec.local_size);
 
     src.read_metadata(dec.global_offset, dec.local_size, trace_metadata);
 
@@ -712,33 +761,17 @@ namespace {
 template<Type Type>
 MPI_Datatype mpi_datatype_from_type()
 {
-    return mpi_type<typename Native_from_type<Type>::type>();
+    return mpi_type<exseis::Native<Type>>();
 }
 
-/// @brief Get the MPI_Datatype from an Rule_entry::MdType.
+/// @brief Get the MPI_Datatype from an Type.
 ///
-/// @param[in] md_type the Rule_entry::MdType to convert.
+/// @param[in] type the Type to convert.
 ///
 /// @returns The equivalent MPI_Datatype
 ///
-MPI_Datatype mpi_datatype_from_md_type(Rule_entry::MdType md_type)
+MPI_Datatype mpi_datatype_from_md_type(Type type)
 {
-
-    const auto type = ([md_type] {
-        switch (md_type) {
-            case Rule_entry::MdType::Long:
-                return Type_from_native<Integer>::value;
-            case Rule_entry::MdType::Short:
-                return Type_from_native<int16_t>::value;
-            case Rule_entry::MdType::Float:
-                return Type_from_native<Floating_point>::value;
-            case Rule_entry::MdType::Index:
-                return Type::Index;
-            case Rule_entry::MdType::Copy:
-                return Type::Copy;
-        }
-        assert(false && "Unknown MdType!");
-    }());
 
     switch (type) {
         case Type::Double:
@@ -761,10 +794,6 @@ MPI_Datatype mpi_datatype_from_md_type(Rule_entry::MdType md_type)
             return mpi_datatype_from_type<Type::Int8>();
         case Type::UInt8:
             return mpi_datatype_from_type<Type::UInt8>();
-        case Type::Index:
-            return mpi_datatype_from_type<Type::UInt64>();
-        case Type::Copy:
-            return MPI_DATATYPE_NULL;
     }
     assert(false && "Unknown Type!");
 }
@@ -781,8 +810,8 @@ void send_right(
     size_t region_sz,
     Trace_metadata& trace_metadata)
 {
-    Trace_metadata send_trace_metadata(trace_metadata.rules, region_sz);
-    Trace_metadata recv_trace_metadata(trace_metadata.rules, region_sz);
+    Trace_metadata send_trace_metadata(trace_metadata.entry_types(), region_sz);
+    Trace_metadata recv_trace_metadata(trace_metadata.entry_types(), region_sz);
 
     // Check conversions ok
     assert(
@@ -818,13 +847,9 @@ void send_right(
         }
     }
 
-    for (const auto entry : recv_trace_metadata.entry_types) {
+    for (const auto entry : recv_trace_metadata.entry_types()) {
         const auto key     = entry.first;
-        const auto md_type = entry.second;
-
-        if (md_type == Rule_entry::MdType::Copy) {
-            continue;
-        }
+        const auto md_type = entry.second.type;
 
         const auto mpi_datatype = mpi_datatype_from_md_type(md_type);
 
@@ -878,8 +903,8 @@ void send_left(
     size_t region_sz,
     Trace_metadata& trace_metadata)
 {
-    Trace_metadata send_trace_metadata(trace_metadata.rules, region_sz);
-    Trace_metadata recv_trace_metadata(trace_metadata.rules, region_sz);
+    Trace_metadata send_trace_metadata(trace_metadata.entry_types(), region_sz);
+    Trace_metadata recv_trace_metadata(trace_metadata.entry_types(), region_sz);
 
     // Check converstions ok
     assert(
@@ -916,13 +941,9 @@ void send_left(
 
     // send_trace_metadata and recv_trace_metadata should have the same
     // entry_types.
-    for (const auto entry : send_trace_metadata.entry_types) {
+    for (const auto entry : send_trace_metadata.entry_types()) {
         const auto key     = entry.first;
-        const auto md_type = entry.second;
-
-        if (md_type == Rule_entry::MdType::Copy) {
-            continue;
-        }
+        const auto md_type = entry.second.type;
 
         const auto mpi_datatype = mpi_datatype_from_md_type(md_type);
 
@@ -981,9 +1002,9 @@ void sort_p(
     size_t edge1     = (rank != 0 ? region_sz : 0LU);
     size_t edge2     = (rank != num_rank - 1 ? region_sz : 0LU);
 
-    Trace_metadata temp1(trace_metadata.rules, lnt + edge2);
-    Trace_metadata temp2(temp1.rules, temp1.size());
-    Trace_metadata temp3(trace_metadata.rules, temp1.size());
+    Trace_metadata temp1(trace_metadata.entry_types(), lnt + edge2);
+    Trace_metadata temp2(temp1.entry_types(), temp1.size());
+    Trace_metadata temp3(trace_metadata.entry_types(), temp1.size());
 
     {
         std::vector<size_t> t1(lnt);

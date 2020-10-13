@@ -2,17 +2,17 @@
 #define EXSEIS_SRC_EXSEIS_PIOL_FILE_DETAIL_FILE_SEGY_IMPL_HH
 
 
-#include "exseis/utils/encoding/number_encoding.hh"
-#include "exseis/utils/types/typedefs.hh"
-
-#include "exseis/piol/metadata/rules/Segy_rule_entry.hh"
+#include "exseis/piol/file/detail/Blob_parser_segy.hh"
 #include "exseis/piol/segy/Trace_header_offsets.hh"
 #include "exseis/piol/segy/utils.hh"
+#include "exseis/utils/encoding/number_encoding.hh"
+#include "exseis/utils/types/typedefs.hh"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -25,6 +25,11 @@ namespace detail {
 
 class File_segy_impl {
   public:
+    static std::vector<Trace_metadata_key> trace_metadata_keys();
+
+    static std::map<size_t, std::unique_ptr<Blob_parser>>
+    trace_metadata_parsers();
+
     static size_t get_file_size(const IO_driver& io_driver);
 
     static void set_file_size(IO_driver& io_driver, size_t size);
@@ -117,24 +122,40 @@ class File_segy_impl {
         size_t samples_per_trace,
         size_t number_of_offsets,
         const unsigned char* buffer);
-
-    static void extract_trace_metadata(
-        size_t number_of_traces,
-        const unsigned char* buffer,
-        Trace_metadata* trace_metadata,
-        size_t stride,
-        size_t skip);
-
-    static void insert_trace_metadata(
-        size_t number_of_traces,
-        const Trace_metadata* trace_metadata,
-        unsigned char* buffer,
-        size_t stride,
-        size_t skip);
 };
 
 
-//////////////////////      Constructor & Destructor      //////////////////////
+inline std::vector<Trace_metadata_key> File_segy_impl::trace_metadata_keys()
+{
+    using Key = Trace_metadata_key;
+    std::vector<Trace_metadata_key> value;
+
+#define EXSEIS_DETAIL_MAKE_TRACE_METADATA_LIST(ENUM, DESC)                     \
+    value.push_back(Key::ENUM);
+
+    EXSEIS_X_TRACE_METADATA_KEYS(EXSEIS_DETAIL_MAKE_TRACE_METADATA_LIST)
+
+#undef EXSEIS_DETAIL_MAKE_TRACE_METADATA_LIST
+
+    return value;
+}
+
+inline std::map<size_t, std::unique_ptr<Blob_parser>>
+File_segy_impl::trace_metadata_parsers()
+{
+    std::map<size_t, std::unique_ptr<Blob_parser>> value;
+
+    for (auto key : trace_metadata_keys()) {
+        auto blob_parser = detail::make_blob_parser_segy(key);
+        if (blob_parser) {
+            value.emplace(std::make_pair(
+                static_cast<size_t>(key), std::move(blob_parser)));
+        }
+    }
+
+    return value;
+}
+
 inline size_t File_segy_impl::get_file_size(const IO_driver& io_driver)
 {
     return io_driver.get_file_size();
@@ -359,252 +380,6 @@ inline void File_segy_impl::write_trace_data(
     io_driver.write_offsets(
         segy::segy_trace_data_size(samples_per_trace), number_of_offsets,
         dooff.data(), buffer);
-}
-
-inline void File_segy_impl::insert_trace_metadata(
-    size_t number_of_traces,
-    const Trace_metadata* trace_metadata,
-    unsigned char* buffer,
-    size_t stride,
-    size_t skip)
-{
-    if (number_of_traces == 0) return;
-
-    const auto& r = trace_metadata->rules;
-    size_t start  = r.start;
-
-    // If a copy of the original metadata is held, write this before the
-    // specifically parsed/modified metadata.
-    if (r.num_copy != 0) {
-        if (stride == 0) {
-            std::copy(
-                trace_metadata->raw_metadata.begin()
-                    + skip * segy::segy_trace_header_size(),
-                trace_metadata->raw_metadata.begin()
-                    + (skip + number_of_traces)
-                          * segy::segy_trace_header_size(),
-                buffer);
-        }
-        else {
-            for (size_t i = 0; i < number_of_traces; i++) {
-                std::copy(
-                    &trace_metadata->raw_metadata
-                         [(i + skip) * segy::segy_trace_header_size()],
-                    &trace_metadata->raw_metadata
-                         [(skip + i + 1LU) * segy::segy_trace_header_size()],
-                    &buffer[i * (stride + segy::segy_trace_header_size())]);
-            }
-        }
-    }
-
-    // Loop through the traces, writing the stored metadata.
-    for (size_t i = 0; i < number_of_traces; i++) {
-
-        // Get the position in the metadata buffer where the current trace
-        // metadata starts.
-        unsigned char* metadata_buffer = &buffer[(r.extent() + stride) * i];
-
-        // Keep a list of entries that need to be scaled for the SEGY format.
-        std::unordered_map<size_t, int16_t> scal;
-
-        std::vector<std::pair<Trace_metadata_key, const Segy_float_rule_entry*>>
-            floating_point_rules;
-
-        for (const auto& v : r.rule_entry_map) {
-
-            const auto& entry = v.first;
-            const auto& t     = v.second;
-            const size_t loc  = t->loc - start - 1LU;
-
-            switch (t->type()) {
-
-                case Rule_entry::MdType::Float: {
-
-                    floating_point_rules.push_back(
-                        {entry, dynamic_cast<Segy_float_rule_entry*>(t.get())});
-
-                    auto tr = static_cast<segy::Trace_header_offsets>(
-                        floating_point_rules.back().second->scalar_location);
-
-                    const int16_t scal1 =
-                        (scal.find(size_t(tr)) != scal.end() ?
-                             scal[size_t(tr)] :
-                             1);
-                    const int16_t scal2 = segy::find_scalar(
-                        trace_metadata->get_floating_point(i + skip, entry));
-
-                    // if the scale is bigger than 1 that means we need to use
-                    // the largest to ensure conservation of the most
-                    // significant  digit otherwise we choose the scale that
-                    // preserves the  most digits after the decimal place.
-                    scal[size_t(tr)] =
-                        ((scal1 > 1 || scal2 > 1) ? std::max(scal1, scal2) :
-                                                    std::min(scal1, scal2));
-
-                } break;
-
-                case Rule_entry::MdType::Short: {
-
-                    const std::array<unsigned char, 2> be_short =
-                        to_big_endian<int16_t>(int16_t(
-                            trace_metadata->get_integer(i + skip, entry)));
-
-                    std::copy(
-                        std::begin(be_short), std::end(be_short),
-                        &metadata_buffer[loc]);
-
-                } break;
-
-                case Rule_entry::MdType::Long: {
-
-                    const std::array<unsigned char, 4> be_long =
-                        to_big_endian<int32_t>(int32_t(
-                            trace_metadata->get_integer(i + skip, entry)));
-
-                    std::copy(
-                        std::begin(be_long), std::end(be_long),
-                        &metadata_buffer[loc]);
-
-                } break;
-
-                case Rule_entry::MdType::Index:
-                    // Index rules aren't stored on disk.
-                    break;
-
-                case Rule_entry::MdType::Copy:
-                    // The Copy rule has been handled above.
-                    break;
-            }
-        }
-
-        // Finish off the floats. Floats are inherently annoying in SEG-Y
-        for (const auto& s : scal) {
-            const auto be = to_big_endian(s.second);
-
-            std::copy(
-                std::begin(be), std::end(be),
-                &metadata_buffer[size_t(s.first) - start - 1LU]);
-        }
-
-        for (size_t j = 0; j < floating_point_rules.size(); j++) {
-            Floating_point gscale = segy::parse_scalar(scal[static_cast<size_t>(
-                floating_point_rules[j].second->scalar_location)]);
-
-            const auto be = to_big_endian(int32_t(std::lround(
-                trace_metadata->get_floating_point(
-                    i + skip, floating_point_rules[j].first)
-                / gscale)));
-
-            std::copy(
-                std::begin(be), std::end(be),
-                &metadata_buffer
-                    [floating_point_rules[j].second->loc - start - 1LU]);
-        }
-    }
-}
-
-inline void File_segy_impl::extract_trace_metadata(
-    size_t number_of_traces,
-    const unsigned char* buffer,
-    Trace_metadata* trace_metadata,
-    size_t stride,
-    size_t skip)
-{
-    if (number_of_traces == 0) return;
-
-    const Rule& r = trace_metadata->rules;
-
-    // If a copy of the metadata is required, read this first.
-    if (r.num_copy != 0) {
-        if (stride == 0) {
-            std::copy(
-                buffer,
-                &buffer[number_of_traces * segy::segy_trace_header_size()],
-                &trace_metadata
-                     ->raw_metadata[skip * segy::segy_trace_header_size()]);
-        }
-        else {
-            // The size of the trace metadata in bytes
-            const size_t metadata_size = segy::segy_trace_header_size();
-            for (size_t i = 0; i < number_of_traces; i++) {
-                std::copy(
-                    &buffer[i * (stride + metadata_size)],
-                    &buffer[i * (stride + metadata_size) + metadata_size],
-                    &trace_metadata->raw_metadata[(i + skip) * metadata_size]);
-            }
-        }
-    }
-
-    // For each trace, read the specified metadata
-    for (size_t i = 0; i < number_of_traces; i++) {
-
-        // Get the starting point in the metadata buffer for the current trace
-        const unsigned char* metadata_buffer =
-            &buffer[(r.extent() + stride) * i];
-
-        // Loop through each rule and extract data
-        for (const auto& v : r.rule_entry_map) {
-
-            const auto& entry = v.first;
-            const auto& t     = v.second;
-            size_t loc        = t->loc - r.start - 1LU;
-
-            switch (t->type()) {
-                case Rule_entry::MdType::Float: {
-
-                    const size_t scalar_offset =
-                        dynamic_cast<Segy_float_rule_entry*>(t.get())
-                            ->scalar_location
-                        - r.start - 1LU;
-
-                    const auto parsed_scalar =
-                        segy::parse_scalar(from_big_endian<int16_t>(
-                            metadata_buffer[scalar_offset + 0LU],
-                            metadata_buffer[scalar_offset + 1LU]));
-
-                    const auto unscaled_value = from_big_endian<int32_t>(
-                        metadata_buffer[loc + 0LU], metadata_buffer[loc + 1LU],
-                        metadata_buffer[loc + 2LU], metadata_buffer[loc + 3LU]);
-
-
-                    using F_type = Floating_point;
-
-                    const auto value =
-                        parsed_scalar * static_cast<F_type>(unscaled_value);
-
-                    trace_metadata->set_floating_point(i + skip, entry, value);
-
-                } break;
-
-                case Rule_entry::MdType::Short: {
-
-                    const auto value = from_big_endian<int16_t>(
-                        metadata_buffer[loc + 0LU], metadata_buffer[loc + 1LU]);
-
-                    trace_metadata->set_integer(i + skip, entry, value);
-
-                } break;
-
-                case Rule_entry::MdType::Long: {
-
-                    const auto value = from_big_endian<int32_t>(
-                        metadata_buffer[loc + 0LU], metadata_buffer[loc + 1LU],
-                        metadata_buffer[loc + 2LU], metadata_buffer[loc + 3LU]);
-
-                    trace_metadata->set_integer(i + skip, entry, value);
-
-                } break;
-
-                case Rule_entry::MdType::Index:
-                    // Index types aren't stored in the file.
-                    break;
-
-                case Rule_entry::MdType::Copy:
-                    // The Copy rule has already been handled above.
-                    break;
-            }
-        }
-    }
 }
 
 }  // namespace detail

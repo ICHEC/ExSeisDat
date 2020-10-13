@@ -77,6 +77,14 @@ class Input_file {
         return m_implementation->read_sample_interval();
     }
 
+    /// @brief Return a list of available trace metadata to be parsed
+    /// @returns A list of the available trace metadata to be parsed
+    std::map<Trace_metadata_key, Trace_metadata_info> trace_metadata_available()
+        const
+    {
+        return m_implementation->trace_metadata_available();
+    }
+
     /// @brief Read the trace parameters from trace_offset to
     ///        trace_offset+number_of_traces of the respective trace headers.
     /// @param[in] trace_offset The starting trace number.
@@ -276,6 +284,10 @@ class Input_file {
 
         /// @copydoc Input_file::read_sample_interval
         virtual Floating_point read_sample_interval() const = 0;
+
+        /// @copydoc Input_file::trace_metadata_available
+        virtual std::map<Trace_metadata_key, Trace_metadata_info>
+        trace_metadata_available() const = 0;
 
         /// @copydoc Input_file::read_metadata
         virtual void read_metadata(

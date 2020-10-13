@@ -13,26 +13,34 @@ TEST_CASE("sort", "[piol][operations][sort]")
 {
     auto communicator = exseis::Communicator_mpi{MPI_COMM_WORLD};
 
+    std::map<exseis::Trace_metadata_key, exseis::Trace_metadata_info>
+        metadata_info{
+            {exseis::Trace_metadata_key::source_x, {exseis::Type::Double}},
+            {exseis::Trace_metadata_key::source_y, {exseis::Type::Double}},
+            {exseis::Trace_metadata_key::receiver_x, {exseis::Type::Double}},
+            {exseis::Trace_metadata_key::receiver_y, {exseis::Type::Double}},
+            {exseis::Trace_metadata_key::gtn, {exseis::Type::UInt64}}};
+
     SECTION ("SrtRcvBackwards") {
-        exseis::Trace_metadata trace_metadata(200);
+        exseis::Trace_metadata trace_metadata(metadata_info, 200);
         for (size_t i = 0; i < trace_metadata.size(); i++) {
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::x_src,
+                i, exseis::Trace_metadata_key::source_x,
                 1000.0
                     - (trace_metadata.size() * communicator.get_rank() + i)
                           / 20);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::y_src,
+                i, exseis::Trace_metadata_key::source_y,
                 1000.0
                     - (trace_metadata.size() * communicator.get_rank() + i)
                           % 20);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::x_rcv,
+                i, exseis::Trace_metadata_key::receiver_x,
                 1000.0
                     - (trace_metadata.size() * communicator.get_rank() + i)
                           / 10);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::y_rcv,
+                i, exseis::Trace_metadata_key::receiver_y,
                 1000.0
                     - (trace_metadata.size() * communicator.get_rank() + i)
                           % 10);
@@ -52,25 +60,25 @@ TEST_CASE("sort", "[piol][operations][sort]")
     }
 
     SECTION ("SrcRcvForwards") {
-        exseis::Trace_metadata trace_metadata(200);
+        exseis::Trace_metadata trace_metadata(metadata_info, 200);
         for (size_t i = 0; i < trace_metadata.size(); i++) {
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::x_src,
+                i, exseis::Trace_metadata_key::source_x,
                 1000.0
                     + (trace_metadata.size() * communicator.get_rank() + i)
                           / 20);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::y_src,
+                i, exseis::Trace_metadata_key::source_y,
                 1000.0
                     + (trace_metadata.size() * communicator.get_rank() + i)
                           % 20);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::x_rcv,
+                i, exseis::Trace_metadata_key::receiver_x,
                 1000.0
                     + (trace_metadata.size() * communicator.get_rank() + i)
                           / 10);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::y_rcv,
+                i, exseis::Trace_metadata_key::receiver_y,
                 1000.0
                     + (trace_metadata.size() * communicator.get_rank() + i)
                           % 10);
@@ -88,47 +96,47 @@ TEST_CASE("sort", "[piol][operations][sort]")
     }
 
     SECTION ("SrcRcvRand") {
-        exseis::Trace_metadata trace_metadata(10);
+        exseis::Trace_metadata trace_metadata(metadata_info, 10);
         for (size_t i = 0; i < trace_metadata.size(); i++) {
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::y_src, 1000.0);
+                i, exseis::Trace_metadata_key::source_y, 1000.0);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::x_rcv, 1000.0);
+                i, exseis::Trace_metadata_key::receiver_x, 1000.0);
             trace_metadata.set_floating_point(
-                i, exseis::Trace_metadata_key::y_rcv, 1000.0);
+                i, exseis::Trace_metadata_key::receiver_y, 1000.0);
             trace_metadata.set_index(
                 i, exseis::Trace_metadata_key::gtn,
                 10 * communicator.get_rank() + i);
         }
         trace_metadata.set_floating_point(
-            0, exseis::Trace_metadata_key::x_src,
+            0, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 5.0);
         trace_metadata.set_floating_point(
-            1, exseis::Trace_metadata_key::x_src,
+            1, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 3.0);
         trace_metadata.set_floating_point(
-            2, exseis::Trace_metadata_key::x_src,
+            2, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 1.0);
         trace_metadata.set_floating_point(
-            3, exseis::Trace_metadata_key::x_src,
+            3, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 4.0);
         trace_metadata.set_floating_point(
-            4, exseis::Trace_metadata_key::x_src,
+            4, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 2.0);
         trace_metadata.set_floating_point(
-            5, exseis::Trace_metadata_key::x_src,
+            5, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 9.0);
         trace_metadata.set_floating_point(
-            6, exseis::Trace_metadata_key::x_src,
+            6, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 6.0);
         trace_metadata.set_floating_point(
-            7, exseis::Trace_metadata_key::x_src,
+            7, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 8.0);
         trace_metadata.set_floating_point(
-            8, exseis::Trace_metadata_key::x_src,
+            8, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 7.0);
         trace_metadata.set_floating_point(
-            9, exseis::Trace_metadata_key::x_src,
+            9, exseis::Trace_metadata_key::source_x,
             10.0 * communicator.get_rank() + 0.0);
 
         auto list = exseis::sort(

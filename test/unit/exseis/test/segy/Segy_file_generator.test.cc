@@ -100,7 +100,8 @@ TEST_CASE("Trace", "[test][segy][Segy_file_generator][Trace]")
             == static_cast<int32_t>(trace_index) + 1);
         const unsigned char* file_trace_index_ptr =
             trace_binary.data()
-            + (static_cast<size_t>(exseis::segy::Trace_header_offsets::SeqFNum)
+            + (static_cast<size_t>(
+                   exseis::segy::Trace_header_offsets::file_trace_index)
                - 1);
         REQUIRE(
             exseis::from_big_endian<int32_t>(

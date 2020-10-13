@@ -139,7 +139,6 @@ add_library(
     src/exseis/piol/file/Input_file_segy.cc
     src/exseis/piol/file/Output_file_segy.cc
     src/exseis/piol/io_driver/IO_driver_mpi.cc
-    src/exseis/piol/metadata/rules/Rule.cc
     src/exseis/piol/metadata/Trace_metadata.cc
     src/exseis/piol/operations/gather.cc
     src/exseis/piol/operations/minmax.cc

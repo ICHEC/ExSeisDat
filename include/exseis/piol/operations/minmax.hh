@@ -74,10 +74,8 @@ std::vector<CoordElem> get_coord_min_max(
         return elem2(a) < elem2(b);
     };
 
-    T temp;
-    if (!number_of_coords || !coord) {
-        coord = &temp;
-    }
+    if (number_of_coords == 0) return {};
+    if (coord == nullptr) return {};
 
     auto p = std::minmax_element(coord, coord + number_of_coords, min);
 

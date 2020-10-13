@@ -71,6 +71,14 @@ class Output_file {
         m_implementation->write_sample_interval(sample_interval);
     }
 
+    /// @brief Return a list of available trace metadata to be parsed
+    /// @returns A list of the available trace metadata to be parsed
+    std::map<Trace_metadata_key, Trace_metadata_info> trace_metadata_available()
+        const
+    {
+        return m_implementation->trace_metadata_available();
+    }
+
     /*! @brief Write the trace parameters from trace_offset to
      * trace_offset+number_of_traces to the respective trace headers.
      *  @param[in] trace_offset The starting trace number.
@@ -240,6 +248,10 @@ class Output_file {
 
         /// @copydoc Output_file::write_sample_interval
         virtual void write_sample_interval(Floating_point sample_interval) = 0;
+
+        /// @copydoc Output_file::trace_metadata_available
+        virtual std::map<Trace_metadata_key, Trace_metadata_info>
+        trace_metadata_available() const = 0;
 
         /// @copydoc Output_file::write_metadata
         virtual void write_metadata(

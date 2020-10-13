@@ -8,7 +8,7 @@
 #define EXSEIS_PIOL_METADATA_TRACE_METADATA_HH
 
 #include "exseis/piol/metadata/Trace_metadata_key.hh"
-#include "exseis/piol/metadata/rules/Rule.hh"
+#include "exseis/piol/parser/Blob_parser.hh"
 #include "exseis/utils/generic/Generic_array.hh"
 #include "exseis/utils/types/typedefs.hh"
 
@@ -22,6 +22,14 @@
 namespace exseis {
 inline namespace piol {
 inline namespace metadata {
+
+/// @brief Info about the trace metadata
+struct Trace_metadata_info {
+    /// The type of data that will be read
+    Type type;
+    /// The number of values that will be read for each trace
+    size_t count = 1;
+};
 
 /// @brief Class for initialising the trace parameter structure
 ///        and storing a structure with the necessary rules.
@@ -49,6 +57,9 @@ class Trace_metadata {
         using out_of_range::out_of_range;
     };
 
+    /// Map type for the stored metadata info
+    using Entry_type_map = std::map<Key, Trace_metadata_info>;
+
   private:
     /// @brief Floating point entries
     Entry_map<Floating_point> m_floating_point_entries;
@@ -59,49 +70,23 @@ class Trace_metadata {
     /// @brief trace number array.
     Entry_map<uint64_t> m_index_entries;
 
-  public:
-    /// @brief Storage for a file format specific copy of the raw metadata
-    std::vector<unsigned char> raw_metadata;
-
-    /// @brief Size of a raw metadata block
-    ///
-    /// @details Indicates how large an individual raw metadata block is for a
-    ///          trace block. Used for indexing the `raw_metadata` block.
-    ///
-    size_t raw_metadata_block_size = 0;
-
-    /// @brief The rules which describe the indexing of the arrays.
-    Rule rules;
-
-    /// @brief The number of sets of trace parameters.
-    size_t num_traces;
+    /// @brief the number of trace entries being held
+    size_t m_number_of_traces;
 
     /// @brief A list of the type of a given metadata entry.
-    std::map<Key, Rule_entry::MdType> entry_types;
+    Entry_type_map m_entry_types;
 
-
-    /// @brief Allocate the basic space required to store the arrays and store
-    ///        the rules.
-    ///
-    /// @param[in] rules      The rules which describe the layout of the arrays.
-    /// @param[in] num_traces The number of sets of trace parameters.
-    ///
-    Trace_metadata(Rule rules, size_t num_traces);
-
-    /// @brief Allocate the basic space required to store the arrays and store the
-    ///        rules.
-    ///
-    /// @param[in] num_traces The number of sets of trace parameters.
-    ///
-    Trace_metadata(size_t num_traces = 1);
+  public:
+    /// @copybrief
+    /// @param[in] entry_type_map    A map of Trace_metadata_info
+    /// @param[in] number_of_traces  The number of traces to store the
+    ///                              metadata for
+    Trace_metadata(
+        const Entry_type_map& entry_type_map, size_t number_of_traces);
 
 
     /// @name @special_member_functions
     /// @{
-
-    /// @default_destructor
-    /// The destructor is defined here for capture during wraptests.
-    ~Trace_metadata();
 
     /// @copy_constructor{default}
     Trace_metadata(const Trace_metadata&) = default;
@@ -182,6 +167,19 @@ class Trace_metadata {
     ///
     void set_index(size_t trace_index, Key entry, size_t value);
 
+    /// @brief Get a sparse index into the raw storage for the given entry
+    ///
+    /// @param[in] trace_index  The trace index to get the storage for
+    /// @param[in] entry        The key of the metadata to get the storage for
+    ///
+    /// @returns A sparse index into the raw storage for the given entry
+    ///
+    Data_read_location get_data_read_location(
+        size_t trace_index, Key entry) const;
+
+    /// @copydoc get_data_read_location
+    Data_write_location get_data_write_location(size_t trace_index, Key entry);
+
 
     /// @brief Copy the metadata entries from `source_metadata` for trace index
     ///        `source_trace_index` into the metadata entries of the current
@@ -210,11 +208,9 @@ class Trace_metadata {
 
     /// @brief Get the underlying type for the given metadata entry.
     ///
-    /// @param[in] entry The metadata entry key.
+    /// @return A map from keys to entry types
     ///
-    /// @return The `Type` representing the underlying storage
-    ///         used for the metadata data.
-    Type entry_type(Key entry) const;
+    const Entry_type_map& entry_types() const;
 
 
     /// @brief Get the data for a given metadata entry.
@@ -262,30 +258,23 @@ class Trace_metadata {
     /// @return Number of sets
     ///
     size_t size() const;
-
-    /// Estimate of the total memory used
-    ///
-    /// @return Return estimate in bytes.
-    ///
-    size_t memory_usage() const;
 };
 
 
 template<typename T>
 T* Trace_metadata::entry_data(Key entry)
 {
-    const auto it = entry_types.find(entry);
+    const auto it = m_entry_types.find(entry);
 
-    if (it == entry_types.end()) {
+    if (it == m_entry_types.end()) {
         throw Entry_not_found(std::string(
             "Trace_metadata::entry_data : entry not found: "
-            + std::to_string(
-                static_cast<std::underlying_type<Key>::type>(entry))));
+            + to_string(entry)));
     }
 
     const auto find_and_test = [&](auto& entries) -> T* {
         auto& entry_array = entries.at(entry);
-        if (entry_array.type() == Type_from_native<T>::value) {
+        if (entry_array.type() == exseis::type<T>) {
             return static_cast<T*>(entry_array.data());
         }
 
@@ -296,19 +285,22 @@ T* Trace_metadata::entry_data(Key entry)
         return nullptr;
     };
 
-    switch (it->second) {
-        case Rule_entry::MdType::Float:
+    switch (it->second.type) {
+        case Type::Double:
+        case Type::Float:
             return find_and_test(m_floating_point_entries);
 
-        case Rule_entry::MdType::Long:
-        case Rule_entry::MdType::Short:
-            return find_and_test(m_integer_entries);
-
-        case Rule_entry::MdType::Index:
+        case Type::UInt64:
             return find_and_test(m_index_entries);
 
-        case Rule_entry::MdType::Copy:
-            assert(false && "Unexpected entry type MdType::Copy");
+        case Type::Int64:
+        case Type::Int32:
+        case Type::UInt32:
+        case Type::Int16:
+        case Type::UInt16:
+        case Type::Int8:
+        case Type::UInt8:
+            return find_and_test(m_integer_entries);
     }
 
     assert(false && "Unknown entry type!");
@@ -319,18 +311,17 @@ T* Trace_metadata::entry_data(Key entry)
 template<typename T>
 const T* Trace_metadata::entry_data(Key entry) const
 {
-    const auto it = entry_types.find(entry);
+    const auto it = m_entry_types.find(entry);
 
-    if (it == entry_types.end()) {
+    if (it == m_entry_types.end()) {
         throw Entry_not_found(std::string(
             "Trace_metadata::entry_data : entry not found: "
-            + std::to_string(
-                static_cast<std::underlying_type<Key>::type>(entry))));
+            + to_string(entry)));
     }
 
     const auto find_and_test = [&](const auto& entries) -> const T* {
         const auto& entry_array = entries.at(entry);
-        if (entry_array.type() == Type_from_native<T>::value) {
+        if (entry_array.type() == exseis::type<T>) {
             return reinterpret_cast<const T*>(entry_array.data());
         }
 
@@ -341,19 +332,22 @@ const T* Trace_metadata::entry_data(Key entry) const
         return nullptr;
     };
 
-    switch (it->second) {
-        case Rule_entry::MdType::Float:
+    switch (it->second.type) {
+        case Type::Double:
+        case Type::Float:
             return find_and_test(m_floating_point_entries);
 
-        case Rule_entry::MdType::Long:
-        case Rule_entry::MdType::Short:
-            return find_and_test(m_integer_entries);
-
-        case Rule_entry::MdType::Index:
+        case Type::UInt64:
             return find_and_test(m_index_entries);
 
-        case Rule_entry::MdType::Copy:
-            assert(false && "Unexpected entry type MdType::Copy");
+        case Type::Int64:
+        case Type::Int32:
+        case Type::UInt32:
+        case Type::Int16:
+        case Type::UInt16:
+        case Type::Int8:
+        case Type::UInt8:
+            return find_and_test(m_integer_entries);
     }
     assert(false && "Unknown entry type!");
 }

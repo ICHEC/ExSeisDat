@@ -25,30 +25,31 @@ void write_contig(
     float fhalf = float(nt * ns) / 2.0;
     float off   = float(nt * ns) / 4.0;
     long nhalf  = nt / 2;
-    exseis::Trace_metadata trace_metadata(max);
+    exseis::Trace_metadata trace_metadata(file.trace_metadata_available(), max);
     std::vector<float> trc(max * ns);
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset + i + j));
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::x_src, 1600.0 + k);
+                j, exseis::Trace_metadata_key::source_x, 1600.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::y_src, 2400.0 + k);
+                j, exseis::Trace_metadata_key::source_y, 2400.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::x_rcv, 100000.0 + k);
+                j, exseis::Trace_metadata_key::receiver_x, 100000.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::y_rcv, 3000000.0 + k);
+                j, exseis::Trace_metadata_key::receiver_y, 3000000.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::xCmp, 10000.0 + k);
+                j, exseis::Trace_metadata_key::cdp_x, 10000.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::yCmp, 4000.0 + k);
+                j, exseis::Trace_metadata_key::cdp_y, 4000.0 + k);
             trace_metadata.set_integer(
                 j, exseis::Trace_metadata_key::il, 2400 + k);
             trace_metadata.set_integer(
                 j, exseis::Trace_metadata_key::xl, 1600 + k);
             trace_metadata.set_integer(
-                j, exseis::Trace_metadata_key::tn, offset + i + j);
+                j, exseis::Trace_metadata_key::file_trace_index,
+                offset + i + j);
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =
@@ -101,29 +102,30 @@ void write_random(
 
     for (size_t i = 0; i < lnt; i += max) {
         size_t rblock = (i + max < lnt ? max : lnt - i);
-        exseis::Trace_metadata trace_metadata(rblock);
+        exseis::Trace_metadata trace_metadata(
+            file.trace_metadata_available(), rblock);
         std::vector<float> trc(rblock * ns);
 
         for (size_t j = 0; j < rblock; j++) {
             float k = nhalf - std::abs(-nhalf + long(offset[i + j]));
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::x_src, 1600.0 + k);
+                j, exseis::Trace_metadata_key::source_x, 1600.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::y_src, 2400.0 + k);
+                j, exseis::Trace_metadata_key::source_y, 2400.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::x_rcv, 100000.0 + k);
+                j, exseis::Trace_metadata_key::receiver_x, 100000.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::y_rcv, 3000000.0 + k);
+                j, exseis::Trace_metadata_key::receiver_y, 3000000.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::xCmp, 10000.0 + k);
+                j, exseis::Trace_metadata_key::cdp_x, 10000.0 + k);
             trace_metadata.set_floating_point(
-                j, exseis::Trace_metadata_key::yCmp, 4000.0 + k);
+                j, exseis::Trace_metadata_key::cdp_y, 4000.0 + k);
             trace_metadata.set_integer(
                 j, exseis::Trace_metadata_key::il, 2400 + k);
             trace_metadata.set_integer(
                 j, exseis::Trace_metadata_key::xl, 1600 + k);
             trace_metadata.set_integer(
-                j, exseis::Trace_metadata_key::tn, offset[i + j]);
+                j, exseis::Trace_metadata_key::file_trace_index, offset[i + j]);
         }
         for (size_t j = 0; j < trc.size(); j++) {
             trc[j] =

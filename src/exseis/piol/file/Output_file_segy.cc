@@ -10,7 +10,6 @@
 
 #include "exseis/piol/file/detail/File_segy_impl.hh"
 
-#include "exseis/piol/io_driver/IO_driver_mpi.hh"
 #include "exseis/piol/segy/utils.hh"
 #include "exseis/utils/encoding/number_encoding.hh"
 
@@ -28,7 +27,8 @@ inline namespace file {
 Output_file_segy::Implementation::Implementation(
     IO_driver io_driver, const Output_file_segy::Options& options) :
     m_io_driver(std::move(io_driver)),
-    m_sample_interval_factor(options.sample_interval_factor)
+    m_sample_interval_factor(options.sample_interval_factor),
+    m_trace_header_parsers(detail::File_segy_impl::trace_metadata_parsers())
 {
 }
 
@@ -115,8 +115,100 @@ void Output_file_segy::Implementation::write_sample_interval(
     m_file_header_dirty = true;
 }
 
+std::map<Trace_metadata_key, Trace_metadata_info>
+Output_file_segy::Implementation::trace_metadata_available() const
+{
+    std::map<Trace_metadata_key, Trace_metadata_info> value;
+
+    for (const auto& parser_it : m_trace_header_parsers) {
+        const auto key          = parser_it.first;
+        const auto& blob_parser = parser_it.second;
+
+        const auto parsed_type = blob_parser->parsed_type();
+        value[static_cast<Trace_metadata_key>(key)] =
+            Trace_metadata_info{parsed_type.type, parsed_type.count};
+    }
+
+    return value;
+}
+
+namespace {
+void insert_trace_metadata(
+    const std::map<size_t, std::unique_ptr<Blob_parser>>&
+        m_trace_header_parsers,
+    size_t number_of_traces,
+    const Trace_metadata* trace_metadata,
+    unsigned char* buffer,
+    size_t stride,
+    size_t skip)
+{
+    if (number_of_traces == 0) return;
+
+    // Initialize data_locations offsets
+    std::vector<Data_write_location> data_locations;
+    for (const auto& entry_type : trace_metadata->entry_types()) {
+        Trace_metadata_key key = entry_type.first;
+
+        const auto blob_parser_it =
+            m_trace_header_parsers.find(static_cast<size_t>(key));
+        if (blob_parser_it == m_trace_header_parsers.end()) continue;
+
+        const auto& blob_parser = blob_parser_it->second;
+
+        const size_t offset = data_locations.size();
+        const size_t number_of_data_locations =
+            blob_parser->number_of_data_locations();
+
+        data_locations.resize(data_locations.size() + number_of_data_locations);
+
+        blob_parser->data_write_locations(
+            data_locations.begin() + offset, data_locations.end());
+    }
+
+    std::sort(
+        data_locations.begin(), data_locations.end(),
+        [](auto& a, auto& b) { return a.begin < b.begin; });
+
+    // Loop over trace and parse
+    for (size_t trace_index = 0; trace_index < number_of_traces;
+         trace_index++) {
+        unsigned char* trace_header = buffer + trace_index * stride;
+
+        // Set the read locations in the trace_header
+        for (auto& loc : data_locations) {
+            loc.data = trace_header + loc.begin;
+        }
+
+        for (const auto& entry_type : trace_metadata->entry_types()) {
+            Trace_metadata_key key = entry_type.first;
+            auto type              = entry_type.second.type;
+            auto count             = entry_type.second.count;
+
+            const auto blob_parser_it =
+                m_trace_header_parsers.find(static_cast<size_t>(key));
+            if (blob_parser_it == m_trace_header_parsers.end()) continue;
+
+            const auto& blob_parser = blob_parser_it->second;
+
+            const auto parsed_type = blob_parser->parsed_type();
+
+            assert(parsed_type.type == type);
+            assert(parsed_type.count == count);
+
+            auto tm_data_location =
+                trace_metadata->get_data_read_location(trace_index + skip, key);
+
+            blob_parser->write(
+                data_locations.begin(), data_locations.end(),
+                tm_data_location.data);
+        }
+    }
+}
+
 template<typename T>
 void write_trace_metadata_impl(
+    const std::map<size_t, std::unique_ptr<Blob_parser>>&
+        m_trace_header_parsers,
     IO_driver& m_io_driver,
     size_t m_samples_per_trace,
     const T trace_offset,
@@ -127,8 +219,11 @@ void write_trace_metadata_impl(
     std::vector<unsigned char> buffer(
         segy::segy_trace_header_size() * number_of_traces);
 
-    detail::File_segy_impl::insert_trace_metadata(
-        number_of_traces, trace_metadata, buffer.data(), 0, skip);
+    // detail::File_segy_impl::insert_trace_metadata(
+    //    number_of_traces, trace_metadata, buffer.data(), 0, skip);
+    insert_trace_metadata(
+        m_trace_header_parsers, number_of_traces, trace_metadata, buffer.data(),
+        segy::segy_trace_header_size(), skip);
 
     detail::File_segy_impl::write_trace_metadata(
         m_io_driver, trace_offset, m_samples_per_trace, number_of_traces,
@@ -167,6 +262,8 @@ void write_trace_data_impl(
 
 template<typename T>
 void write_trace_impl(
+    const std::map<size_t, std::unique_ptr<Blob_parser>>&
+        m_trace_header_parsers,
     IO_driver& m_io_driver,
     size_t m_samples_per_trace,
     const T trace_offset,
@@ -178,9 +275,12 @@ void write_trace_impl(
     std::vector<unsigned char> buffer(
         segy::segy_trace_size(m_samples_per_trace) * number_of_traces);
 
-    detail::File_segy_impl::insert_trace_metadata(
-        number_of_traces, trace_metadata, buffer.data(),
-        segy::segy_trace_data_size(m_samples_per_trace), skip);
+    // detail::File_segy_impl::insert_trace_metadata(
+    //    number_of_traces, trace_metadata, buffer.data(),
+    //    segy::segy_trace_data_size(m_samples_per_trace), skip);
+    insert_trace_metadata(
+        m_trace_header_parsers, number_of_traces, trace_metadata, buffer.data(),
+        segy::segy_trace_size(m_samples_per_trace), skip);
 
     // Copy trace_data into the buffer, converting the native-endian trace_data
     // into big endian
@@ -214,6 +314,8 @@ void write_trace_impl(
         buffer.data());
 }
 
+}  // namespace
+
 
 #define EXSEIS_CHECK_NS(FUNCTION_NAME)                                         \
     do {                                                                       \
@@ -233,15 +335,16 @@ void Output_file_segy::Implementation::write_metadata(
     const size_t skip)
 {
     write_trace_metadata_impl(
-        m_io_driver, m_samples_per_trace, trace_offset, number_of_traces,
-        &trace_metadata, skip);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, trace_offset,
+        number_of_traces, &trace_metadata, skip);
     m_file_dirty = true;
 }
 
 void Output_file_segy::Implementation::write_metadata()
 {
     write_trace_metadata_impl(
-        m_io_driver, m_samples_per_trace, 0, 0, nullptr, 0);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, 0, 0, nullptr,
+        0);
     m_file_dirty = true;
 }
 
@@ -275,15 +378,16 @@ void Output_file_segy::Implementation::write(
     EXSEIS_CHECK_NS("exseis::piol::Output_file_segy::Implementation::write");
 
     write_trace_impl(
-        m_io_driver, m_samples_per_trace, trace_offset, number_of_traces,
-        trace_data, &trace_metadata, skip);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, trace_offset,
+        number_of_traces, trace_data, &trace_metadata, skip);
     m_file_dirty = true;
 }
 
 void Output_file_segy::Implementation::write()
 {
     write_trace_impl(
-        m_io_driver, m_samples_per_trace, 0, 0, nullptr, nullptr, 0);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, 0, 0, nullptr,
+        nullptr, 0);
     m_file_dirty = true;
 }
 
@@ -297,15 +401,16 @@ void Output_file_segy::Implementation::write_metadata_non_contiguous(
         "exseis::piol::Output_file_segy::Implementation::write_metadata_non_contiguous");
 
     write_trace_metadata_impl(
-        m_io_driver, m_samples_per_trace, trace_offsets, number_of_offsets,
-        &trace_metadata, skip);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, trace_offsets,
+        number_of_offsets, &trace_metadata, skip);
     m_file_dirty = true;
 }
 
 void Output_file_segy::Implementation::write_metadata_non_contiguous()
 {
     write_trace_metadata_impl(
-        m_io_driver, m_samples_per_trace, 0, 0, nullptr, 0);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, 0, 0, nullptr,
+        0);
     m_file_dirty = true;
 }
 
@@ -341,15 +446,16 @@ void Output_file_segy::Implementation::write_non_contiguous(
         "exseis::piol::Output_file_segy::Implementation::write_non_contiguous");
 
     write_trace_impl(
-        m_io_driver, m_samples_per_trace, trace_offsets, number_of_offsets,
-        trace_data, &trace_metadata, skip);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, trace_offsets,
+        number_of_offsets, trace_data, &trace_metadata, skip);
     m_file_dirty = true;
 }
 
 void Output_file_segy::Implementation::write_non_contiguous()
 {
     write_trace_impl(
-        m_io_driver, m_samples_per_trace, nullptr, 0, nullptr, nullptr, 0);
+        m_trace_header_parsers, m_io_driver, m_samples_per_trace, nullptr, 0,
+        nullptr, nullptr, 0);
     m_file_dirty = true;
 }
 

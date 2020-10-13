@@ -44,7 +44,6 @@
 #include "exseis/piol/file/Input_file_segy.hh"
 #include "exseis/piol/io_driver/IO_driver_mpi.hh"
 #include "exseis/piol/metadata/Trace_metadata.hh"
-#include "exseis/piol/metadata/rules/Rule.hh"
 #include "exseis/utils/decomposition/block_decomposition.hh"
 
 #include <CLI11.hpp>
@@ -62,10 +61,10 @@
 /// A map from metadata key names to matadata keys.
 const auto meta_name_to_meta_map =
     std::map<std::string, exseis::Trace_metadata_key>{
-        {"x_src", exseis::Trace_metadata_key::x_src},
-        {"y_src", exseis::Trace_metadata_key::y_src},
-        {"x_rcv", exseis::Trace_metadata_key::x_rcv},
-        {"y_rcv", exseis::Trace_metadata_key::y_rcv},
+        {"x_src", exseis::Trace_metadata_key::source_x},
+        {"y_src", exseis::Trace_metadata_key::source_y},
+        {"x_rcv", exseis::Trace_metadata_key::receiver_x},
+        {"y_rcv", exseis::Trace_metadata_key::receiver_y},
         {"coordinate_scalar", exseis::Trace_metadata_key::coordinate_scalar}};
 
 
@@ -274,8 +273,9 @@ int main(int argc, char* argv[])
         communicator.max(local_number_of_chunks);
 
     // Setup the local trace metadata storage
-    const exseis::Rule rule(metas);
-    exseis::Trace_metadata trace_metadata(rule, max_chunk_size);
+    auto trace_metadata_available = input_file.trace_metadata_available();
+    exseis::Trace_metadata trace_metadata(
+        trace_metadata_available, max_chunk_size);
 
     // A list of the trace indices for each chunk.
     // This will be used / reused on each iteration of the loop.
@@ -369,7 +369,7 @@ std::string formatted_meta_value(
     const char* integer_format = "%16d";
     std::array<char, 17> char_array{};
 
-    switch (trace_metadata.entry_type(meta)) {
+    switch (trace_metadata.entry_types().at(meta).type) {
         case exseis::Type::Double:
         case exseis::Type::Float: {
             auto size = std::snprintf(
@@ -380,8 +380,16 @@ std::string formatted_meta_value(
             assert(size == char_array.size() - 1);
         } break;
 
+        case exseis::Type::UInt64: {
+            auto size = std::snprintf(
+                char_array.data(), char_array.size(), integer_format,
+                trace_metadata.get_index(local_trace_index, meta));
+
+            (void)size;
+            assert(size == char_array.size() - 1);
+        } break;
+
         case exseis::Type::Int64:
-        case exseis::Type::UInt64:
         case exseis::Type::Int32:
         case exseis::Type::UInt32:
         case exseis::Type::Int16:
@@ -396,8 +404,6 @@ std::string formatted_meta_value(
             assert(size == char_array.size() - 1);
         } break;
 
-        case exseis::Type::Index:
-        case exseis::Type::Copy:
         default:
             assert(
                 false

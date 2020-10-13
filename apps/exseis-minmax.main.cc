@@ -31,19 +31,20 @@ void calc_min(std::string iname, std::string oname)
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
-    exseis::Trace_metadata trace_metadata(lnt);
+    exseis::Trace_metadata trace_metadata(in.trace_metadata_available(), lnt);
     std::vector<exseis::CoordElem> minmax(12U);
     in.read_metadata(offset, lnt, trace_metadata);
 
     exseis::get_min_max(
-        communicator, offset, lnt, exseis::Trace_metadata_key::x_src,
-        exseis::Trace_metadata_key::y_src, trace_metadata, minmax.data());
+        communicator, offset, lnt, exseis::Trace_metadata_key::source_x,
+        exseis::Trace_metadata_key::source_y, trace_metadata, minmax.data());
     exseis::get_min_max(
-        communicator, offset, lnt, exseis::Trace_metadata_key::x_rcv,
-        exseis::Trace_metadata_key::y_rcv, trace_metadata, minmax.data() + 4U);
+        communicator, offset, lnt, exseis::Trace_metadata_key::receiver_x,
+        exseis::Trace_metadata_key::receiver_y, trace_metadata,
+        minmax.data() + 4U);
     get_min_max(
-        communicator, offset, lnt, exseis::Trace_metadata_key::xCmp,
-        exseis::Trace_metadata_key::yCmp, trace_metadata, minmax.data() + 8U);
+        communicator, offset, lnt, exseis::Trace_metadata_key::cdp_x,
+        exseis::Trace_metadata_key::cdp_y, trace_metadata, minmax.data() + 8U);
 
     size_t sz  = (communicator.get_rank() == 0 ? minmax.size() : 0U);
     size_t usz = 0;
@@ -62,25 +63,30 @@ void calc_min(std::string iname, std::string oname)
         usz = uniqlist.size();
     }
 
-    exseis::Trace_metadata input_trace_metadata(usz);
+    exseis::Trace_metadata input_trace_metadata(
+        in.trace_metadata_available(), usz);
     in.read_metadata_non_contiguous(usz, uniqlist.data(), input_trace_metadata);
 
-    exseis::Trace_metadata output_trace_metadata(sz);
+
+    exseis::Output_file_segy out(exseis::IO_driver_mpi{
+        communicator, oname, exseis::File_mode_mpi::Write});
+
+    exseis::Trace_metadata output_trace_metadata(
+        out.trace_metadata_available(), sz);
     std::vector<exseis::utils::Trace_value> trace(sz);
     for (size_t i = 0U; i < sz; i++) {
         for (size_t j = 0U; j < usz; j++) {
             if (list[i] == uniqlist[j]) {
                 output_trace_metadata.copy_entries(i, input_trace_metadata, j);
                 output_trace_metadata.set_integer(
-                    i, exseis::Trace_metadata_key::tn, minmax[i].num);
+                    i, exseis::Trace_metadata_key::file_trace_index,
+                    minmax[i].num);
                 trace[i] = exseis::utils::Trace_value(1);
                 j        = usz;
             }
         }
     }
 
-    exseis::Output_file_segy out(exseis::IO_driver_mpi{
-        communicator, oname, exseis::File_mode_mpi::Write});
     out.write_number_of_traces(sz);
     out.write_samples_per_trace(1U);
     out.write_sample_interval(in.read_sample_interval());

@@ -13,47 +13,28 @@ namespace exseis {
 inline namespace utils {
 inline namespace types {
 
+/// @brief X-Macro for Type ids
+#define EXSEIS_X_TYPE(X)                                                       \
+    X(Double, double)                                                          \
+    X(Float, float)                                                            \
+    X(Int64, int64_t)                                                          \
+    X(UInt64, uint64_t)                                                        \
+    X(Int32, int32_t)                                                          \
+    X(UInt32, uint32_t)                                                        \
+    X(Int16, int16_t)                                                          \
+    X(UInt16, uint16_t)                                                        \
+    X(Int8, int8_t)                                                            \
+    X(UInt8, uint8_t)
+
+
 /// @brief An enumeration of all the arithmetic types used by ExSeisDat.
 enum class Type : uint8_t {
-    /// Represents `double`
-    Double,
-    /// Represents `float`
-    Float,
+#define EXSEIS_DETAIL_MAKE_ENUM(ENUM, TYPE) /** Represents TYPE */ ENUM,
 
-    /// Represents `int64_t`
-    Int64,
-    /// Represents `uint64_t`
-    UInt64,
+    EXSEIS_X_TYPE(EXSEIS_DETAIL_MAKE_ENUM)
 
-    /// Represents `int32_t`
-    Int32,
-    /// Represents `uint32_t`
-    UInt32,
-
-    /// Represents `int16_t`
-    Int16,
-    /// Represents `uint16_t`
-    UInt16,
-
-    /// Represents `int8_t`
-    Int8,
-    /// Represents `uint8_t`
-    UInt8,
-
-    /// Temporary! Should be removed.
-    Index,
-    /// Temporary! Should be removed.
-    Copy
+#undef EXSEIS_DETAIL_MAKE_ENUM
 };
-
-
-/// @brief Get the \ref Type of a native data type.
-template<typename T>
-class Type_from_native;
-
-/// @brief Get the native data type from the \ref Type.
-template<Type T>
-class Native_from_type;
 
 
 namespace detail {
@@ -117,76 +98,29 @@ struct native_from_type_impl {
         sizeof(T) == 0, "Native_from_type called for unknown Type Id.");
 };
 
-template<>
-struct native_from_type_impl<Type::Double> {
-    using type = double;
-};
+#define EXSEIS_DETAIL_MAKE_IMPL(ENUM, TYPE)                                    \
+    template<>                                                                 \
+    struct native_from_type_impl<Type::ENUM> {                                 \
+        using type = TYPE;                                                     \
+    };
 
-template<>
-struct native_from_type_impl<Type::Float> {
-    using type = float;
-};
+EXSEIS_X_TYPE(EXSEIS_DETAIL_MAKE_IMPL)
 
-template<>
-struct native_from_type_impl<Type::Int64> {
-    using type = int64_t;
-};
-
-template<>
-struct native_from_type_impl<Type::UInt64> {
-    using type = uint64_t;
-};
-
-template<>
-struct native_from_type_impl<Type::Int32> {
-    using type = int32_t;
-};
-
-template<>
-struct native_from_type_impl<Type::UInt32> {
-    using type = uint32_t;
-};
-
-template<>
-struct native_from_type_impl<Type::Int16> {
-    using type = int16_t;
-};
-
-template<>
-struct native_from_type_impl<Type::UInt16> {
-    using type = uint16_t;
-};
-
-template<>
-struct native_from_type_impl<Type::Int8> {
-    using type = int8_t;
-};
-
-template<>
-struct native_from_type_impl<Type::UInt8> {
-    using type = uint8_t;
-};
+#undef EXSEIS_DETAIL_MAKE_IMPL
 
 }  // namespace detail
+
+
+/// @brief Transforms a Type enum to an equivalent built-in type.
+/// @tparam T The Type value to transform.
+template<Type T>
+using Native = typename detail::native_from_type_impl<T>::type;
 
 
 /// @brief Transforms a built-in type to the equivalent Type enum.
 /// @tparam T The built-in type to transform.
 template<typename T>
-class Type_from_native {
-  public:
-    /// The Type value
-    static constexpr Type value = detail::type_from_native_impl<T>();
-};
-
-/// @brief Transforms a Type enum to an equivalent built-in type.
-/// @tparam T The Type value to transform.
-template<Type T>
-class Native_from_type {
-  public:
-    /// The native type
-    using type = typename detail::native_from_type_impl<T>::type;
-};
+constexpr Type type = detail::type_from_native_impl<T>();
 
 }  // namespace types
 }  // namespace utils

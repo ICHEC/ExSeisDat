@@ -6,7 +6,8 @@
 #define EXSEIS_PIOL_FILE_OUTPUT_FILE_SEGY_HH
 
 #include "exseis/piol/file/Output_file.hh"
-#include "exseis/piol/segy/utils.hh"
+#include "exseis/piol/io_driver/IO_driver.hh"
+#include "exseis/piol/parser/Blob_parser.hh"
 
 namespace exseis {
 inline namespace piol {
@@ -78,6 +79,9 @@ class Output_file_segy : public Output_file {
         /// @brief The increment factor
         double m_sample_interval_factor;
 
+        /// Blob parsers for the trace headers
+        std::map<size_t, std::unique_ptr<Blob_parser>> m_trace_header_parsers;
+
       public:
         /// @copydoc Output_file_segy::Output_file_segy(IO_driver, const Output_file_segy::Options&)
         Implementation(
@@ -96,6 +100,9 @@ class Output_file_segy : public Output_file {
         void write_number_of_traces(size_t number_of_traces) override;
 
         void write_sample_interval(Floating_point sample_interval) override;
+
+        std::map<Trace_metadata_key, Trace_metadata_info>
+        trace_metadata_available() const override;
 
         void write_metadata(
             size_t trace_offset,

@@ -174,15 +174,16 @@ void calc_min(
     size_t offset = dec.global_offset;
     size_t lnt    = dec.local_size;
 
-    exseis::Trace_metadata trace_metadata(lnt);
+    exseis::Trace_metadata trace_metadata(in.trace_metadata_available(), lnt);
     in.read_metadata(offset, lnt, trace_metadata);
 
     exseis::get_min_max(
-        communicator, offset, lnt, exseis::Trace_metadata_key::x_src,
-        exseis::Trace_metadata_key::y_src, trace_metadata, minmax.data());
+        communicator, offset, lnt, exseis::Trace_metadata_key::source_x,
+        exseis::Trace_metadata_key::source_y, trace_metadata, minmax.data());
     exseis::get_min_max(
-        communicator, offset, lnt, exseis::Trace_metadata_key::x_rcv,
-        exseis::Trace_metadata_key::y_rcv, trace_metadata, minmax.data() + 4U);
+        communicator, offset, lnt, exseis::Trace_metadata_key::receiver_x,
+        exseis::Trace_metadata_key::receiver_y, trace_metadata,
+        minmax.data() + 4U);
 }
 
 /* Main function for segy to kml

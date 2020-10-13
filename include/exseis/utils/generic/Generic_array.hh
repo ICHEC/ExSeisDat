@@ -52,17 +52,17 @@ class Generic_array {
 
   private:
     /// @brief Abstract base class to wrap the underlying array.
-    class Concept;
+    class Interface;
 
-    /// @brief Concrete instance of the abstract Concept class, implementing
+    /// @brief Concrete instance of the abstract Interface class, implementing
     ///        storing the array of type StoredArray and providing an interface
     ///        using the InterfaceType.
     template<typename StoredArray>
-    class Model;
+    class Implementation;
 
     /// A pointer to the type-erased container.
-    /// This will be an instance of Model<StoredArray>.
-    std::unique_ptr<Concept> m_concept;
+    /// This will be an instance of Implementation<StoredArray>.
+    std::unique_ptr<Interface> m_interface;
 
   public:
     /// @brief Templated constructor, accepts an array of type `StoredArray` and
@@ -98,7 +98,8 @@ class Generic_array {
     ///
     template<typename StoredArray>
     Generic_array(StoredArray stored_array) :
-        m_concept(std::make_unique<Model<StoredArray>>(std::move(stored_array)))
+        m_interface(std::make_unique<Implementation<StoredArray>>(
+            std::move(stored_array)))
     {
         static_assert(
             std::numeric_limits<InterfaceType>::min()
@@ -118,7 +119,7 @@ class Generic_array {
     /// @copy_constructor{value semantics}
     /// @param[in] other The Generic_array to copy.
     Generic_array(const Generic_array& other) :
-        m_concept(other.m_concept->clone())
+        m_interface(other.m_interface->clone())
     {
     }
 
@@ -154,7 +155,7 @@ class Generic_array {
     ///
     void set(size_type index, InterfaceType value)
     {
-        m_concept->set(index, value);
+        m_interface->set(index, value);
     }
 
 
@@ -166,45 +167,45 @@ class Generic_array {
     ///
     /// @pre index < size()
     ///
-    InterfaceType get(size_type index) const { return m_concept->get(index); }
+    InterfaceType get(size_type index) const { return m_interface->get(index); }
 
 
     /// @brief Get the `Type` of the underlying data.
     ///
     /// @returns The `Type` of the underlying data.
     ///
-    Type type() const { return m_concept->type(); }
+    Type type() const { return m_interface->type(); }
 
 
     /// @brief Get the number of entries in the array.
     ///
     /// @returns The number of entries in the array.
     ///
-    size_type size() const { return m_concept->size(); }
+    size_type size() const { return m_interface->size(); }
 
 
     /// @brief Get the current reserved size of the array.
     ///
     /// @returns The current reserved size of the array.
     ///
-    size_type capacity() const { return m_concept->capacity(); }
+    size_type capacity() const { return m_interface->capacity(); }
 
 
     /// @brief Get a pointer to the underlying data.
     ///
     /// @returns A pointer to the underlying data.
     ///
-    const unsigned char* data() const { return m_concept->data(); }
+    const unsigned char* data() const { return m_interface->data(); }
 
 
     /// @copydoc Generic_array::data() const
-    unsigned char* data() { return m_concept->data(); }
+    unsigned char* data() { return m_interface->data(); }
 };
 
 
 /// @brief Abstract base class to wrap the underlying array.
 template<typename InterfaceType>
-class Generic_array<InterfaceType>::Concept {
+class Generic_array<InterfaceType>::Interface {
   public:
     /// The value type used in the get/set functions.
     using value_type = Generic_array<InterfaceType>::value_type;
@@ -214,7 +215,7 @@ class Generic_array<InterfaceType>::Concept {
 
 
     /// Virtual destructor.
-    virtual ~Concept() = default;
+    virtual ~Interface() = default;
 
     /// @copydoc Generic_array::set()
     virtual void set(size_type index, value_type value) = 0;
@@ -241,7 +242,7 @@ class Generic_array<InterfaceType>::Concept {
     ///
     /// @returns A copy of the current instance.
     ///
-    virtual std::unique_ptr<Concept> clone() const = 0;
+    virtual std::unique_ptr<Interface> clone() const = 0;
 };
 
 
@@ -250,17 +251,17 @@ class Generic_array<InterfaceType>::Concept {
 ///        using the InterfaceType.
 template<typename InterfaceType>
 template<typename StoredArray>
-class Generic_array<InterfaceType>::Model final :
-    public Generic_array<InterfaceType>::Concept {
+class Generic_array<InterfaceType>::Implementation final :
+    public Generic_array<InterfaceType>::Interface {
   public:
     /// The value type used by the underlying storage
     using stored_type = typename StoredArray::value_type;
 
     /// The value type used by the get/set functions
-    using value_type = typename Concept::value_type;
+    using value_type = typename Interface::value_type;
 
     /// The type used for indexing.
-    using size_type = typename Concept::size_type;
+    using size_type = typename Interface::size_type;
 
 
     /// The underlying storage
@@ -272,7 +273,10 @@ class Generic_array<InterfaceType>::Model final :
     /// @param[in] stored_array The array to copy/move into the underlying
     ///                         storage.
     ///
-    Model(StoredArray stored_array) : stored_array(std::move(stored_array)) {}
+    Implementation(StoredArray stored_array) :
+        stored_array(std::move(stored_array))
+    {
+    }
 
     void set(size_type index, value_type value) override
     {
@@ -284,7 +288,7 @@ class Generic_array<InterfaceType>::Model final :
         return stored_array[index];
     }
 
-    Type type() const override { return Type_from_native<value_type>::value; }
+    Type type() const override { return exseis::type<value_type>; }
 
     size_type size() const override { return stored_array.size(); }
 
@@ -300,9 +304,9 @@ class Generic_array<InterfaceType>::Model final :
         return reinterpret_cast<unsigned char*>(stored_array.data());
     }
 
-    std::unique_ptr<Concept> clone() const override
+    std::unique_ptr<Interface> clone() const override
     {
-        return std::make_unique<Model>(this->stored_array);
+        return std::make_unique<Implementation>(this->stored_array);
     }
 };
 

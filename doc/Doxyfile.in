@@ -18,7 +18,8 @@ EXTRACT_PACKAGE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_METHODS  = YES
 EXTRACT_ANON_NSPACES   = YES
-EXCLUDE_SYMBOLS        = detail
+EXCLUDE_SYMBOLS        = detail \
+                         EXSEIS_DETAIL*
 
 # Generate case sensitive filenames
 CASE_SENSE_NAMES       = YES

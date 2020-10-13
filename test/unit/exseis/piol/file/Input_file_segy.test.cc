@@ -1,4 +1,5 @@
 #include "exseis/piol/file/Input_file_segy.hh"
+#include <iostream>
 
 #include "exseis/piol/io_driver/IO_driver_distributed_vector.hh"
 #include "exseis/utils/distributed_vector/Distributed_vector_mpi.hh"
@@ -145,6 +146,37 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
         }
     }
 
+    SECTION ("Trace metadata") {
+        INFO("Trace metadata");
+        using Key = exseis::Trace_metadata_key;
+
+        auto trace_metadata_available =
+            input_file_segy.trace_metadata_available();
+
+        const auto has_key = [&](auto key) {
+            return trace_metadata_available.find(key)
+                   != trace_metadata_available.end();
+        };
+
+        REQUIRE(has_key(Key::line_trace_index));
+        REQUIRE(has_key(Key::file_trace_index));
+        REQUIRE(has_key(Key::ofr_trace_index));
+
+        REQUIRE(has_key(Key::source_x));
+        REQUIRE(has_key(Key::source_y));
+        REQUIRE(has_key(Key::receiver_x));
+        REQUIRE(has_key(Key::receiver_y));
+
+        REQUIRE(has_key(Key::number_of_samples));
+
+        REQUIRE(has_key(Key::cdp_x));
+        REQUIRE(has_key(Key::cdp_y));
+        REQUIRE(has_key(Key::il));
+        REQUIRE(has_key(Key::xl));
+
+        REQUIRE(has_key(Key::raw));
+    }
+
 
     // Test Trace metadata
     const auto check_trace_metadata =
@@ -153,14 +185,14 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
             using Key = exseis::Trace_metadata_key;
 
             const auto check_integer = [&](Key key, auto value) {
-                CAPTURE(key);
+                CAPTURE(key, to_string(key));
                 REQUIRE(
                     trace_metadata.get_integer(trace_buffer_index, key)
                     == value);
             };
 
             const auto check_floating = [&](Key key, auto value) {
-                CAPTURE(key);
+                CAPTURE(key, to_string(key));
                 REQUIRE(
                     trace_metadata.get_floating_point(trace_buffer_index, key)
                     == value);
@@ -168,19 +200,20 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
 
             const auto& trace_native = segy_file_native.traces[trace_index];
 
-            check_integer(Key::tnl, trace_native.line_trace_index);
-            check_integer(Key::tn, trace_native.file_trace_index);
-            check_integer(Key::tnr, trace_native.ofr_trace_index);
+            check_integer(Key::line_trace_index, trace_native.line_trace_index);
+            check_integer(Key::file_trace_index, trace_native.file_trace_index);
+            check_integer(Key::ofr_trace_index, trace_native.ofr_trace_index);
 
-            check_floating(Key::x_src, trace_native.src_x);
-            check_floating(Key::y_src, trace_native.src_y);
-            check_floating(Key::x_rcv, trace_native.rcv_x);
-            check_floating(Key::y_rcv, trace_native.rcv_y);
+            check_floating(Key::source_x, trace_native.src_x);
+            check_floating(Key::source_y, trace_native.src_y);
+            check_floating(Key::receiver_x, trace_native.rcv_x);
+            check_floating(Key::receiver_y, trace_native.rcv_y);
 
-            check_integer(Key::ns, trace_native.number_of_samples);
+            check_integer(
+                Key::number_of_samples, trace_native.number_of_samples);
 
-            check_floating(Key::xCmp, trace_native.cmp_x);
-            check_floating(Key::yCmp, trace_native.cmp_y);
+            check_floating(Key::cdp_x, trace_native.cmp_x);
+            check_floating(Key::cdp_y, trace_native.cmp_y);
             check_integer(Key::il, trace_native.in_line);
             check_integer(Key::xl, trace_native.cross_line);
         };
@@ -220,7 +253,7 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
         if (number_of_traces == 0) {
             INFO("number_of_traces == 0");
 
-            exseis::Trace_metadata trace_metadata(0);
+            exseis::Trace_metadata trace_metadata({}, 0);
 
             input_file_segy.read_metadata(
                 0, number_of_traces, trace_metadata, skip);
@@ -273,7 +306,7 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
 
                     if (communicator.get_rank() == 0) {
                         exseis::Trace_metadata trace_metadata(
-                            exseis::Rule{true, true, true},
+                            input_file_segy.trace_metadata_available(),
                             trace_index_chunk_size);
 
                         input_file_segy.read_metadata(
@@ -315,7 +348,7 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
                             samples_per_trace * trace_index_chunk_size);
 
                         exseis::Trace_metadata trace_metadata(
-                            exseis::Rule{true, true, true},
+                            input_file_segy.trace_metadata_available(),
                             trace_index_chunk_size);
 
                         input_file_segy.read(
@@ -343,7 +376,7 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
         if (number_of_traces == 0) {
             INFO("number_of_traces == 0");
 
-            exseis::Trace_metadata trace_metadata(0);
+            exseis::Trace_metadata trace_metadata({}, 0);
 
             input_file_segy.read_metadata_non_contiguous(
                 number_of_traces, nullptr, trace_metadata, 0);
@@ -406,7 +439,8 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
 
                     if (communicator.get_rank() == 0) {
                         exseis::Trace_metadata trace_metadata(
-                            exseis::Rule{true, true, true}, chunk_size);
+                            input_file_segy.trace_metadata_available(),
+                            chunk_size);
 
                         input_file_segy.read_metadata_non_contiguous(
                             chunk_size, offsets.data() + chunk_start,
@@ -446,7 +480,8 @@ TEST_CASE("Input_file_segy", "[Input_file_segy][Input_file][PIOL]")
                         trace_data.resize(samples_per_trace * chunk_size);
 
                         exseis::Trace_metadata trace_metadata(
-                            exseis::Rule{true, true, true}, chunk_size);
+                            input_file_segy.trace_metadata_available(),
+                            chunk_size);
 
                         input_file_segy.read_non_contiguous(
                             chunk_size, offsets.data() + chunk_start,

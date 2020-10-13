@@ -26,7 +26,7 @@ void get_min_max(
     std::vector<Trace_metadata> trace_metadata_list;
     // TODO: Just add the two meta options to the rules with defaults?
     for (size_t i = 0; i < number_of_traces; i++) {
-        trace_metadata_list.emplace_back(trace_metadata.rules, 1LU);
+        trace_metadata_list.emplace_back(trace_metadata.entry_types(), 1LU);
         trace_metadata_list.back().copy_entries(0, trace_metadata, i);
     }
 

@@ -137,8 +137,12 @@ int main(int argc, char** argv)
         std::vector<exseis::Trace_value> trace_data;
         trace_data.resize(input_size * samples_per_trace);
 
+        auto trace_metadata_available = input_file.trace_metadata_available();
         exseis::Trace_metadata trace_metadata(
-            exseis::Rule{true, true, true}, input_size);
+            std::map<exseis::Trace_metadata_key, exseis::Trace_metadata_info>{
+                {exseis::Trace_metadata_key::raw,
+                 trace_metadata_available[exseis::Trace_metadata_key::raw]}},
+            input_size);
 
         // Read and write the traces!
         input_file.read(

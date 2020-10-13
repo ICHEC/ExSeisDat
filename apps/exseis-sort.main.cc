@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     // Just read everything
     // TODO: only read metadata actually used by sort!
     auto trace_metadata = exseis::Trace_metadata(
-        exseis::Rule{true, true, true}, local_number_of_traces);
+        input_file.trace_metadata_available(), local_number_of_traces);
 
     input_file.read_metadata(
         traces_begin, local_number_of_traces, trace_metadata, 0);
@@ -120,7 +120,8 @@ int main(int argc, char** argv)
 
     // De-sort the traces
     {
-        exseis::Trace_metadata tmp_metadata(exseis::Rule{true, true, true}, 1);
+        exseis::Trace_metadata tmp_metadata(
+            input_file.trace_metadata_available(), 1);
         for (size_t src = 0; src < de_sorted_order.size(); src++) {
             // Keep swapping current src with target src until the current src
             // is the target src

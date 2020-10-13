@@ -3,7 +3,6 @@
 /// @brief
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "exseis/piol/metadata/rules/Segy_rule_entry.hh"
 #include "exseis/piol/segy/utils.hh"
 #include "exseis/utils/encoding/number_encoding.hh"
 

@@ -6,6 +6,8 @@
 #define EXSEIS_PIOL_FILE_INPUT_FILE_SEGY_HH
 
 #include "exseis/piol/file/Input_file.hh"
+#include "exseis/piol/io_driver/IO_driver.hh"
+#include "exseis/piol/parser/Blob_parser.hh"
 
 #include "exseis/piol/segy/utils.hh"
 
@@ -49,7 +51,7 @@ class Input_file_segy : public Input_file {
     }
 
 
-    /// @brief Polymorphic implementation for Output_file_segy
+    /// @brief Polymorphic implementation for Input_file_segy
     class Implementation : public Input_file::Implementation {
         /// @brief The IO_driver to write to
         IO_driver m_io_driver;
@@ -73,6 +75,9 @@ class Input_file_segy : public Input_file {
         /// The interval factor
         double m_sample_interval_factor;
 
+        /// Blob parsers for the trace headers
+        std::map<size_t, std::unique_ptr<Blob_parser>> m_trace_header_parsers;
+
 
       public:
         /// @copydoc Input_file_segy::Input_file_segy(IO_driver, const Input_file_segy::Options&);
@@ -90,6 +95,9 @@ class Input_file_segy : public Input_file {
         size_t read_number_of_traces() const override;
 
         Floating_point read_sample_interval() const override;
+
+        std::map<Trace_metadata_key, Trace_metadata_info>
+        trace_metadata_available() const override;
 
         void read_metadata(
             size_t trace_offset,
